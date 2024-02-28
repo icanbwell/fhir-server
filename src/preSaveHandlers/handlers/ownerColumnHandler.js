@@ -6,7 +6,15 @@ const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
  * @classdesc Adds the owner meta security tag if not present (by using first access tag)
  */
 class OwnerColumnHandler extends PreSaveHandler {
-    async preSaveAsync ({ resource }) {
+    /**
+     * fixes up any resources before they are saved
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async preSaveAsync ({ base_version, requestInfo, resource }) {
         if (resource.meta && resource.meta.security) {
             /**
              * @type {string[]}

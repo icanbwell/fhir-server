@@ -144,6 +144,7 @@ class PartitioningManager {
     /**
      * Gets the database connection for the given collection
      * @param {string} resourceType
+     * @param extraInfo
      * @returns {Promise<import('mongodb').Db>}
      */
     async getDatabaseConnectionAsync ({ resourceType, extraInfo = {} }) {
@@ -242,6 +243,7 @@ class PartitioningManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
+     * @param extraInfo
      * @returns {Promise<string[]>}
      */
     async getPartitionNamesByQueryAsync ({ resourceType, base_version, query, extraInfo = {} }) {

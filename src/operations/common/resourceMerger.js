@@ -2,7 +2,7 @@ const deepEqual = require('fast-deep-equal');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { compare, applyPatch } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const { assertTypeEquals } = require('../../utils/assertType');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { getFirstElementOrNull } = require('../../utils/list.util');
@@ -10,6 +10,7 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { isUuid } = require('../../utils/uid.util');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
  * @typedef {object} MergePatchEntry
@@ -26,6 +27,8 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
  * @property {boolean|undefined} incrementVersion
  * @property {string[]|undefined} limitToPaths
  * @property {import('../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager|null} databaseAttachmentManager
+ * @property {string} base_version
+ * @property {import('../../fhir/classes/4_0_0/requestInfo').FhirRequestInfo} requestInfo
  */
 
 /**
@@ -109,7 +112,23 @@ class ResourceMerger {
         ) {
             if (resourceToMerge.id === resourceToMerge._uuid) {
                 if (resourceToMerge.identifier) {
-                    resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    /** @type {Identifier} */
+                    const currentResourceSourceIdIdentifier = getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    /** @type {Identifier} */
+                    const resourceToMergeSourceIdIdentifier = getFirstElementOrNull(
+                        resourceToMerge.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    if (currentResourceSourceIdIdentifier &&
+                        resourceToMergeSourceIdIdentifier &&
+                        currentResourceSourceIdIdentifier.value !== resourceToMergeSourceIdIdentifier.value
+                    ) {
+                        const indexInResourceToMerge = resourceToMerge.identifier.findIndex(
+                            s => s.system === IdentifierSystem.sourceId
+                        );
+                        resourceToMerge.identifier[indexInResourceToMerge].value = currentResourceSourceIdIdentifier.value;
+                    }
                 }
                 resourceToMerge.id = currentResource.id;
             }
@@ -243,7 +262,12 @@ class ResourceMerger {
          */
         let patched_resource_incoming = currentResource.create(patched_incoming_data);
 
-        patched_resource_incoming = this.updateMeta({ patched_resource_incoming, currentResource, original_source, incrementVersion });
+        patched_resource_incoming = this.updateMeta({
+            patched_resource_incoming,
+            currentResource,
+            original_source,
+            incrementVersion
+        });
 
         return patched_resource_incoming;
     }
@@ -251,11 +275,20 @@ class ResourceMerger {
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
-     * @param {MergeResourceAsyncProp}
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} currentResource
+     * @param {Resource} resourceToMerge
+     * @param {boolean|undefined} [smartMerge]
+     * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
         {
+            base_version,
+            requestInfo,
             currentResource,
             resourceToMerge,
             smartMerge = true,
@@ -264,6 +297,14 @@ class ResourceMerger {
             databaseAttachmentManager = null
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        // confirm the resource has been run through preSave
+        if (!resourceToMerge._uuid) {
+            resourceToMerge = await this.preSaveManager.preSaveAsync(
+                { base_version, requestInfo, resource: resourceToMerge }
+            );
+        }
+        assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
          * @type {string}
          */
@@ -273,7 +314,7 @@ class ResourceMerger {
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
         // fix up any data that we normally fix up before saving so the comparison is correct
-        await this.preSaveManager.preSaveAsync(resourceToMerge);
+        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: resourceToMerge });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {

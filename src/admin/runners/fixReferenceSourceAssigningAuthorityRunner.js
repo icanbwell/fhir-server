@@ -432,9 +432,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync (doc) {
+    async processRecordAsync ({ base_version, requestInfo, doc }) {
         try {
             const operations = [];
             /**
@@ -447,7 +449,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              */
             const currentResource = resource.clone();
 
-            resource = await this.preSaveManager.preSaveAsync(resource);
+            resource = await this.preSaveManager.preSaveAsync({
+                base_version,
+                requestInfo,
+                resource
+            });
 
             await resource.updateReferencesAsync(
                 {
@@ -466,6 +472,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 return operations;
             }
 
+            // noinspection JSValidateTypes
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
@@ -473,6 +480,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             if (this.properties && this.properties.length > 0) {
                 const { patches } = await this.resourceMerger.mergeResourceAsync({
+                    base_version,
+                    requestInfo,
                     currentResource,
                     resourceToMerge: resource,
                     smartMerge: false,
@@ -615,7 +624,12 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             query,
                             projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(
+                                {
+                                    base_version: '4_0_0',
+                                    requestInfo: this.requestInfo,
+                                    doc
+                                }),
                             ordered: false,
                             batchSize: this.batchSize,
                             skipExistingIds: false,

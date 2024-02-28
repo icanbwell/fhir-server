@@ -74,7 +74,7 @@ class PersonToPatientIdsExpander {
             return ids;
         } else {
             /**
-             * @type {Map<string, Set<string>}
+             * @type {Map<string, Set<string>>}
              */
             const personToPatientMap = patientIds;
             /** @type {{[key: string]: string[]}} */
@@ -110,7 +110,7 @@ class PersonToPatientIdsExpander {
      * @property {Set<string>} idsSet
      * @property {boolean} toMap If you want the result as map of id passed to patientIds, then pass it as true
      * @param {RelatedPatientParam} param
-     * @returns {Promise<string[] | {[key: string]: string[]}}
+     * @returns {Promise<string[] | {[key: string]: string[]}>}
      */
     async getAllRelatedPatients ({ base_version, idsSet, toMap = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -135,7 +135,7 @@ class PersonToPatientIdsExpander {
         );
 
         if (toMap === true) {
-            /** @type {Map<string, Set<string>} */
+            /** @type {Map<string, Set<string>>} */
             const patientIdsMap = patientIdsOrMap;
             const plainMap = {};
             for (const [personId, patientIds] of patientIdsMap) {
@@ -155,7 +155,7 @@ class PersonToPatientIdsExpander {
      * @param {number} level
      * @param {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @param {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
-     * @return {Promise<string[] | Map<string, Set<string>>} Will return an array if toMap is false else return an map. By default toMap is false
+     * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
     async getPatientIdsFromPersonAsync ({
         personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false

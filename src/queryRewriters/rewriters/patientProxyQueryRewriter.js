@@ -40,7 +40,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
 
     /**
      * updates the queryParameters
-     * @param {ParseArgsItem} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} base_version
      * @param {boolean} includePatientPrefix
      * @param {boolean} cachePatientToPersonMap

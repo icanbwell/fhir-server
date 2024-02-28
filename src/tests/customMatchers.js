@@ -213,7 +213,7 @@ function checkContent ({ actual, expected, utils, options, expand, fnCleanResour
 /**
  * Sorts an array of entries based on the value of the 'uuid' identifier or 'id' if 'uuid' is not present.
  * @param {Object[]} entries Array of entries to be sorted
- * @returns {void}
+ * @returns {Object[]} Sorted array of entries
  */
 function sortEntriesByUUID (entries) {
     entries?.sort((a, b) => {

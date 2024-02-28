@@ -36,6 +36,7 @@ const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
 const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -162,7 +163,7 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Adds an operation
-     * @param {string} requestId
+     * @param {string | null} requestId
      * @param {string} resourceType
      * @param {Resource} resource
      * @param {OperationType} operationType
@@ -233,11 +234,17 @@ class DatabaseBulkInserter extends EventEmitter {
             historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
+        /** @type {string} */
+        const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+        /** @type {string} */
+        const id = resource.id;
+        /** @type {string} */
+        const uuid = resource._uuid;
         historyOperationsByResourceTypeMap.get(resourceType).push(
             new BulkInsertUpdateEntry({
-                    id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    id,
+                    uuid,
+                    sourceAssigningAuthority,
                     resourceType,
                     resource,
                     operation,
@@ -269,11 +276,11 @@ class DatabaseBulkInserter extends EventEmitter {
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             if (doc._id) {
                 logInfo('_id still present', {
-args: {
-                    source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                    doc
-                }
-});
+                    args: {
+                        source: 'DatabaseBulkInserter.getOperationForResourceAsync',
+                        doc
+                    }
+                });
             }
 
             return new BulkInsertUpdateEntry({
@@ -298,12 +305,13 @@ args: {
 
     /**
      * Inserts item into collection if item doesn't exists else updates the item
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync ({ requestId, resourceType, doc }) {
+    async insertOneAsync ({ base_version, requestInfo, resourceType, doc }) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -312,10 +320,17 @@ args: {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
-            doc = await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync(
+                {
+                    base_version,
+                    requestInfo,
+                    resource: doc
+                });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
+            /** @type {string|null} */
+            const requestId = requestInfo.requestId;
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
@@ -331,7 +346,8 @@ args: {
                 const previousVersionId = 1;
                 await this.mergeOneAsync(
                     {
-                        requestId,
+                        base_version,
+                        requestInfo,
                         resourceType,
                         doc,
                         previousVersionId: `${previousVersionId}`,
@@ -371,11 +387,11 @@ args: {
             }
             if (doc._id) {
                 logInfo('_id still present', {
-args: {
-                    source: 'DatabaseBulkInserter.insertOneAsync',
-                    doc
-                }
-});
+                    args: {
+                        source: 'DatabaseBulkInserter.insertOneAsync',
+                        doc
+                    }
+                });
             }
         } catch (e) {
             throw new RethrownError({
@@ -386,16 +402,19 @@ args: {
 
     /**
      * Inserts item into history collection
-     * @param {string} requestId
-     * @param {string} method
      * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
-     * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestId, method, base_version, resourceType, doc, patches, userRequestId }) {
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches }) {
+        assertTypeEquals(doc, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        const userRequestId = requestInfo.userRequestId;
+        const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -449,7 +468,8 @@ args: {
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Resource} doc
@@ -459,7 +479,8 @@ args: {
      */
     async replaceOneAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             resourceType,
             uuid,
             doc,
@@ -467,9 +488,13 @@ args: {
             patches
         }
     ) {
+        assertTypeEquals(doc, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+
+        const requestId = requestInfo.requestId;
         try {
             assertTypeEquals(doc, Resource);
-            doc = await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -533,7 +558,8 @@ args: {
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string|null} previousVersionId
      * @param {Resource} doc
@@ -543,7 +569,8 @@ args: {
      */
     async mergeOneAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             resourceType,
             previousVersionId,
             doc,
@@ -551,10 +578,14 @@ args: {
             patches
         }
     ) {
+        assertTypeEquals(doc, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+
+        const requestId = requestInfo.requestId;
         const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
-            doc = await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -580,18 +611,20 @@ args: {
                  */
                 const { updatedResource, patches: mergePatches } = await this.resourceMerger.mergeResourceAsync(
                     {
+                        base_version,
+                        requestInfo,
                         currentResource: previousResource,
                         resourceToMerge: doc,
                         incrementVersion: false
                     }
                 );
-                if (!updatedResource) {
-                     // no change so ignore
-                } else {
+                if (updatedResource) {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
                     previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                } else {
+                    // no change so ignore
                 }
             } else {
                 /**
@@ -614,16 +647,18 @@ args: {
                      * @type {Resource|null}
                      */
                     const { updatedResource } = await this.resourceMerger.mergeResourceAsync({
+                        base_version,
+                        requestInfo,
                         currentResource: previousResource,
                         resourceToMerge: doc,
                         incrementVersion: false
                     });
-                    if (!updatedResource) {
-                         // no change so ignore
-                    } else {
+                    if (updatedResource) {
                         doc = updatedResource;
                         previousInsert.resource = doc;
                         previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
+                    } else {
+                        // no change so ignore
                     }
                 } else { // no previuous insert or update found
                     const filter = lastVersionId && lastVersionId !== '0'
@@ -659,18 +694,15 @@ args: {
 
     /**
      * Executes all the operations in bulk
-     * @typedef {Object} executeAsyncParams
-     * @property {string} base_version
-     * @property {string} requestId
-     * @property {string} currentDate
-     * @property {string} method
-     * @property {string} userRequestId
-     * @property {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
-     *
-     * @param {executeAsyncParams}
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} currentDate
+     * @param {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync ({ requestId, currentDate, base_version, method, userRequestId, operationsMap }) {
+    async executeAsync ({ requestInfo, currentDate, base_version, operationsMap }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
@@ -694,20 +726,18 @@ args: {
                 operationsByResourceTypeMap.entries(),
                 async mapEntry => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
-                        requestId,
-currentDate,
+                        requestInfo,
+                        currentDate,
                         mapEntry,
                         base_version,
-                        useHistoryCollection: false,
-                        method,
-                        userRequestId
+                        useHistoryCollection: false
                     }
                 ));
 
             if (!operationsMap) {
                 await this.executeHistoryInPostRequestAsync(
                     {
-                        requestId, currentDate, base_version, method, userRequestId
+                        requestInfo, currentDate, base_version
                     }
                 );
             }
@@ -735,13 +765,13 @@ currentDate,
     /**
      * Executes all the history operations in bulk in a Post Request operation
      * @param {string} base_version
-     * @param {string} requestId
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} currentDate
-     * @param {string} method
-     * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async executeHistoryInPostRequestAsync ({ requestId, currentDate, base_version, method, userRequestId }) {
+    async executeHistoryInPostRequestAsync ({ requestInfo, currentDate, base_version }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
@@ -751,13 +781,11 @@ currentDate,
                             historyOperationsByResourceTypeMap.entries(),
                             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                                 {
-                                    requestId,
+                                    requestInfo,
                                     currentDate,
                                     mapEntry: x,
                                     base_version,
-                                    useHistoryCollection: true,
-                                    method,
-                                    userRequestId
+                                    useHistoryCollection: true
                                 }
                             ));
                         historyOperationsByResourceTypeMap.clear();
@@ -769,23 +797,20 @@ currentDate,
 
     /**
      * Performs bulk operations
-     * @param {string} requestId
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} currentDate
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
-     * @param {string} method
-     * @param {string} userRequestId
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             currentDate,
-            mapEntry, base_version,
-            useHistoryCollection,
-            method,
-            userRequestId
+            mapEntry,
+            useHistoryCollection
         }
     ) {
         try {
@@ -796,14 +821,12 @@ currentDate,
 
             return await this.performBulkForResourceTypeAsync(
                 {
-                    requestId,
-currentDate,
+                    requestInfo,
+                    currentDate,
                     resourceType,
-base_version,
-useHistoryCollection,
-operations,
-                    method,
-                    userRequestId
+                    base_version,
+                    useHistoryCollection,
+                    operations
                 });
         } catch (e) {
             throw new RethrownError({
@@ -814,27 +837,25 @@ operations,
 
     /**
      * Run bulk operations for collection of resourceType
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} currentDate
      * @param {string} resourceType
-     * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
-     * @param {string} method
-     * @param {string} userRequestId
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync (
         {
-            requestId,
             currentDate,
             resourceType,
             base_version,
             useHistoryCollection,
             operations,
-            method,
-            userRequestId
+            requestInfo
         }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkInserterTimer.startTimer();
         try {
@@ -868,13 +889,13 @@ operations,
 
                 if (!useHistoryCollection && resource._id) {
                     logInfo('_id still present', {
-args: {
-                        source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                        doc: resource,
-                        collection: collectionName,
-                        operation
-                    }
-});
+                        args: {
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            doc: resource,
+                            collection: collectionName,
+                            operation
+                        }
+                    });
                 }
                 operationsByCollectionNames.get(collectionName).push(operation);
             }
@@ -990,6 +1011,8 @@ args: {
                         // do inserts/updates one by one
                         await this.updateResourcesOneByOneAsync(
                             {
+                                base_version,
+                                requestInfo,
                                 bulkInsertUpdateEntries: expectedInsertsByUniqueId
                             }
                         );
@@ -1028,6 +1051,8 @@ args: {
                         );
                         await this.updateResourcesOneByOneAsync(
                             {
+                                base_version,
+                                requestInfo,
                                 bulkInsertUpdateEntries: expectedUpdates
                             }
                         );
@@ -1037,14 +1062,12 @@ args: {
                     for (const operationByCollection of operationsByCollection) {
                         mergeResultEntries.push(
                             await this.postSaveAsync({
-                                requestId,
-                                method,
                                 base_version,
+                                requestInfo,
                                 resourceType,
                                 bulkInsertUpdateEntry: operationByCollection,
                                 bulkWriteResult,
-                                useHistoryCollection,
-                                userRequestId
+                                useHistoryCollection
                             })
                         );
                     }
@@ -1074,28 +1097,26 @@ args: {
     }
 
     /**
-     * @param {string} requestId
-     * @param {string} method
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
      * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
      * @param {import('mongodb').BulkWriteResult} bulkWriteResult
      * @param {boolean} useHistoryCollection
-     * @param {string} userRequestId
      * @returns {Promise<MergeResultEntry>}
      */
     async postSaveAsync (
         {
-            requestId,
-            method,
+            requestInfo,
             base_version,
             resourceType,
             bulkInsertUpdateEntry,
             bulkWriteResult,
-            useHistoryCollection,
-            userRequestId
+            useHistoryCollection
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
         await logTraceSystemEventAsync(
             {
                 event: 'postSaveAsync' + `_${resourceType}`,
@@ -1113,13 +1134,11 @@ args: {
         if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
             await this.insertOneHistoryAsync(
                 {
-                    requestId,
-                    method,
+                    requestInfo,
                     base_version,
                     resourceType,
                     doc: bulkInsertUpdateEntry.resource.clone(),
-                    patches: bulkInsertUpdateEntry.patches,
-                    userRequestId
+                    patches: bulkInsertUpdateEntry.patches
                 }
             );
         }
@@ -1152,15 +1171,15 @@ args: {
             logError(
                 `databaseBulkInserter: Error resource ${resourceType}`,
                 {
-                  args: {
-                    error: bulkWriteResult.error,
-                    source: 'databaseBulkInserter',
-                    requestId,
-                    resourceType,
-                    operation: bulkInsertUpdateEntry
-                  }
+                    args: {
+                        error: bulkWriteResult.getWriteErrors(),
+                        source: 'databaseBulkInserter',
+                        requestId,
+                        resourceType,
+                        operation: bulkInsertUpdateEntry
+                    }
                 }
-              );
+            );
         }
 
         // fire change events
@@ -1213,13 +1232,15 @@ args: {
 
     /**
      * Updates resources one by one
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync ({ bulkInsertUpdateEntries }) {
-        let i = 0;
+    async updateResourcesOneByOneAsync ({ base_version, requestInfo, bulkInsertUpdateEntries }) {
+        // let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
-            i = i + 1;
+            // i += 1;
             await logTraceSystemEventAsync(
                 {
                     event: 'updateResourcesOneByOneAsync',
@@ -1243,6 +1264,8 @@ args: {
              */
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync(
                 {
+                    base_version,
+                    requestInfo,
                     doc: bulkInsertUpdateEntry.resource
                 }
             );
@@ -1255,6 +1278,7 @@ args: {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * A function that adds a operation to be performed on any document to the requestSpecificCache
      * @param {String} requestId
@@ -1262,10 +1286,10 @@ args: {
      * @param {String} fieldName - field that is to be patched
      * @param {Object} fieldValue - The new document with which the field is to be updated
      * @param {boolean} upsert - If true a new document is created if filter is not matched
-      */
+     */
     async patchFieldAsync ({
-        requestId, resource, fieldName, fieldValue, upsert = false
-    }) {
+                              requestId, resource, fieldName, fieldValue, upsert = false
+                          }) {
         if (resource._id) {
             delete resource._id;
         }

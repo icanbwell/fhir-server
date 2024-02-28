@@ -5,7 +5,7 @@ const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
 const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const env = require('var');
@@ -69,6 +69,7 @@ describe('databaseBulkInserter Tests', () => {
         await commonAfterEach();
     });
     describe('databaseBulkInserter Tests', () => {
+        const base_version = '4_0_0';
         test('execAsync works', async () => {
             /**
              * @type {string}
@@ -117,26 +118,31 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
-doc: new Patient(patient)
+                doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -145,12 +151,10 @@ doc: new Patient(patient)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
@@ -223,25 +227,26 @@ doc: new Patient(patient)
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Person',
-doc: new Person(bwellPerson)
+                doc: new Person(bwellPerson)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Person',
-doc: new Person(clientPerson)
+                doc: new Person(clientPerson)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
@@ -314,13 +319,13 @@ doc: new Person(clientPerson)
                 .mockImplementation(() => {
                     const result = {
                         nMatched: 1,
-nUpserted: 1,
-hasWriteErrors: () => true,
+                        nUpserted: 1,
+                        hasWriteErrors: () => true,
                         getWriteErrors: () => [
                             {
                                 code: 1,
-index: 1,
-errMsg: 'Error msg test',
+                                index: 1,
+                                errMsg: 'Error msg test',
                                 toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}')
                             }
                         ]
@@ -332,26 +337,31 @@ errMsg: 'Error msg test',
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
-doc: new Patient(patient)
+                doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -361,10 +371,9 @@ doc: new Patient(patient)
 
             // now execute the bulk inserts
             const result = await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
@@ -393,6 +402,7 @@ doc: new Patient(patient)
         });
     });
     describe('databaseBulkInserter CodeSystem concurrency Tests', () => {
+        const base_version = '4_0_0';
         test('execAsync works on CodeSystem without concurrency', async () => {
             /**
              * @type {string}
@@ -422,6 +432,7 @@ doc: new Patient(patient)
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -630,7 +641,8 @@ doc: new Patient(patient)
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -639,16 +651,13 @@ doc: new Patient(patient)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId,
-                userRequestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
@@ -890,6 +899,7 @@ doc: new Patient(patient)
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -975,7 +985,8 @@ doc: new Patient(patient)
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -1088,16 +1099,13 @@ doc: new Patient(patient)
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                userRequestId,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
@@ -1440,20 +1448,25 @@ doc: new Patient(patient)
                     )
                 ]
             });
+            const requestInfo = getTestRequestInfo({ requestId });
+
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystem1
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystem2,
                 previousVersionId: null,
@@ -1461,15 +1474,13 @@ doc: new Patient(patient)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
@@ -1606,6 +1617,7 @@ doc: new Patient(patient)
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -1639,19 +1651,22 @@ doc: new Patient(patient)
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId,
+                base_version,
+                requestInfo,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal,
@@ -1660,15 +1675,13 @@ doc: new Patient(patient)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {

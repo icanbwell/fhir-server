@@ -38,6 +38,19 @@ describe('Practitioner Tests', () => {
             const location = resp.headers['content-location'];
             const id = location.split('/').splice(5, 1)[0];
 
+            // expectedPractitionerResources.entry[0].resource.id = id;
+            // expectedPractitionerResources.entry[0].resource.identifier.filter(
+            //     i => i.system === IdentifierSystem.sourceId)[0].value = id;
+            // expectedPractitionerResources.entry[0].resource.identifier.filter(
+            //     i => i.system === IdentifierSystem.uuid)[0].value = id;
+            // // ACT & ASSERT
+            // // search by token system and code and make sure we get the right Practitioner back
+            // resp = await request
+            //     .get('/4_0_0/Practitioner/?_bundle=1')
+            //     .set(getHeaders());
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedPractitionerResources);
+
             practitioner1Resource.id = id;
             practitioner1Resource.active = false;
 

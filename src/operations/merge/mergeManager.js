@@ -27,6 +27,7 @@ const { MongoFilterGenerator } = require('../../utils/mongoFilterGenerator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { isUuid } = require('../../utils/uid.util');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 class MergeManager {
     /**
@@ -133,10 +134,9 @@ class MergeManager {
      * resource to merge
      * @param {Resource} resourceToMerge
      * @param {Resource} currentResource
-     * @param {string|null} user
-     * @param {string} scope
      * @param {string} currentDate
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<void>}
      */
     async mergeExistingAsync (
@@ -144,8 +144,14 @@ class MergeManager {
             resourceToMerge,
             currentResource,
             currentDate,
-            requestId
+            base_version,
+            requestInfo
         }) {
+        assertTypeEquals(resourceToMerge, Resource);
+        assertTypeEquals(currentResource, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+
+        const requestId = requestInfo.requestId;
         /**
          * @type {string}
          */
@@ -153,7 +159,11 @@ class MergeManager {
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
-        await this.preSaveManager.preSaveAsync(currentResource);
+        currentResource = await this.preSaveManager.preSaveAsync({
+            base_version,
+            requestInfo,
+            resource: currentResource
+        });
 
         /**
          * @type {Resource|null}
@@ -161,8 +171,11 @@ class MergeManager {
         const {
             updatedResource: patched_resource_incoming, patches
         } = await this.resourceMerger.mergeResourceAsync({
+            base_version,
+            requestInfo,
             currentResource,
             resourceToMerge,
+            limitToPaths: undefined,
             databaseAttachmentManager: this.databaseAttachmentManager
         });
         if (this.configManager.logAllMerges) {
@@ -179,7 +192,8 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             await this.performMergeDbUpdateAsync({
-                    requestId,
+                    base_version,
+                    requestInfo,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId,
                     patches
@@ -190,15 +204,16 @@ class MergeManager {
 
     /**
      * merge insert
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} resourceToMerge
      * @param {string | null} user
-     * @param {string|null} scope
      * @returns {Promise<void>}
      */
     async mergeInsertAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             resourceToMerge,
             user
         }
@@ -219,7 +234,8 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            requestId,
+            base_version,
+            requestInfo,
             resourceToMerge
         });
     }
@@ -228,25 +244,30 @@ class MergeManager {
      * Merges a single resource
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string|null} user
      * @param {string} currentDate
-     * @param {string} requestId
      * @param {string} base_version
-     * @param {string | null} scope
+     * @param {FhirRequestInfo} requestInfo
      * @return {Promise<void>}
      */
     async mergeResourceAsync (
         {
             resourceToMerge,
             resourceType,
-            user,
             currentDate,
-            requestId,
             base_version,
-            scope
+            requestInfo
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const {
+            /** @type {string|null} */
+            user,
+            /** @type {string|null} */
+            scope,
+            /** @type {string} */
+            requestId
+        } = requestInfo;
         /**
          * @type {string}
          */
@@ -294,7 +315,7 @@ class MergeManager {
             if (currentResource && currentResource.meta) {
                 await this.mergeExistingAsync(
                     {
-                        resourceToMerge, currentResource, user, scope, currentDate, requestId
+                        resourceToMerge, currentResource, user, scope, currentDate, requestInfo, base_version
                     }
                 );
             } else {
@@ -308,10 +329,9 @@ class MergeManager {
                 }
                 resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
                 await this.mergeInsertAsync({
-                    requestId,
-                    resourceToMerge,
-                    user,
-                    scope
+                    base_version,
+                    requestInfo,
+                    resourceToMerge
                 });
             }
         } catch (e) {
@@ -359,7 +379,7 @@ class MergeManager {
             }
             throw new RethrownError(
                 {
-                    message: 'Failed to load data',
+                    message: e.message,
                     error: e,
                     source: 'MergeManager',
                     args: {
@@ -379,25 +399,22 @@ class MergeManager {
     /**
      * merges a list of resources
      * @param {Resource[]} resources_incoming
-     * @param {string|null} user
      * @param {string} resourceType
      * @param {string} currentDate
-     * @param {string} requestId
      * @param {string} base_version
-     * @param {string} scope
-     * @returns {Promise<void>}
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {Promise<{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]>}
      */
     async mergeResourceListAsync (
         {
             resources_incoming,
-            user,
             resourceType,
             currentDate,
-            requestId,
             base_version,
-            scope
+            requestInfo
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
         try {
             /**
              * @type {string[]}
@@ -406,7 +423,7 @@ class MergeManager {
             logDebug(
                 'Merge received array',
                 {
-                    user,
+                    user: requestInfo.user,
                     args: { length: resources_incoming.length, id: uuidsOfResources }
                 }
             );
@@ -428,18 +445,18 @@ class MergeManager {
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x,
-resourceType,
-                    user,
-currentDate,
-requestId,
-base_version,
-scope
+                    resourceType,
+                    currentDate,
+                    base_version,
+                    requestInfo
                 });
 
-            await Promise.all([
+            /** @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]} */
+            const result = (await Promise.all([
                 async.mapLimit(non_duplicate_uuid_resources, chunkSize, mergeResourceFn), // run chunks in parallel
                 async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
-            ]);
+            ])).flatMap(x => x); // remove any empty arrays
+            return result;
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -453,22 +470,18 @@ scope
      *  and then the other ones tries to insert too
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string|null} user
      * @param {string} currentDate
-     * @param {string} requestId
      * @param {string} base_version
-     * @param {string} scope
-     * @return {Promise<void>}
+     * @param {FhirRequestInfo} requestInfo
+     * @return {Promise<{resource: Resource|null, mergeError: MergeResultEntry|null}>}
      */
     async mergeResourceWithRetryAsync (
         {
             resourceToMerge,
             resourceType,
-            user,
             currentDate,
-            requestId,
             base_version,
-            scope
+            requestInfo
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -477,22 +490,20 @@ scope
                 {
                     resourceToMerge,
                     resourceType,
-                    user,
                     currentDate,
-                    requestId,
                     base_version,
-                    scope
+                    requestInfo
                 });
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
+            return { resource: resourceToMerge, mergeError: null };
+        } catch (error) {
+            return { resource: null, mergeError: MergeResultEntry.createFromError({ error, resource: resourceToMerge }) }
         }
     }
 
     /**
      * performs the db update
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} resourceToMerge
      * @param {string} previousVersionId
      * @param {MergePatchEntry[]} patches
@@ -500,7 +511,8 @@ scope
      */
     async performMergeDbUpdateAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             resourceToMerge,
             previousVersionId,
             patches
@@ -508,12 +520,17 @@ scope
     ) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            resourceToMerge = await this.preSaveManager.preSaveAsync(resourceToMerge);
+            resourceToMerge = await this.preSaveManager.preSaveAsync({
+                base_version,
+                requestInfo,
+                resource: resourceToMerge
+            });
 
             // Insert/update our resource record
             await this.databaseBulkInserter.mergeOneAsync(
                 {
-                    requestId,
+                    base_version,
+                    requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,
                     previousVersionId,
@@ -530,22 +547,31 @@ scope
 
     /**
      * performs the db insert
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             resourceToMerge
         }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(resourceToMerge, Resource);
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            await this.preSaveManager.preSaveAsync(resourceToMerge);
+            await this.preSaveManager.preSaveAsync({
+                base_version,
+                requestInfo,
+                resource: resourceToMerge
+            });
 
             // Insert/update our resource record
             await this.databaseBulkInserter.insertOneAsync({
-                    requestId,
+                    base_version,
+                    requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge
                 }
@@ -562,21 +588,21 @@ scope
      * run any pre-checks before merge
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string[] | null} scopes
-     * @param {string | null} user
-     * @param {string | null} path
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} currentDate
      * @returns {Promise<MergeResultEntry|null>}
      */
     async preMergeChecksAsync (
         {
+            base_version,
+            requestInfo,
             resourceToMerge,
             resourceType,
-            scopes,
-            user,
-            path,
             currentDate
         }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(resourceToMerge, Resource);
         try {
             /**
              * @type {string} id
@@ -690,6 +716,8 @@ scope
             }
 
             if (isTrue(this.configManager.authEnabled)) {
+                const user = requestInfo.user;
+                const scopes = this.scopesManager.parseScopes(requestInfo.scope);
                 const { success } = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
                 if (!success) {
                     const operationOutcome = new OperationOutcome({
@@ -739,10 +767,12 @@ scope
              * @type {OperationOutcome|null}
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
                 id,
                 resourceType: resourceObjectToValidate.resourceType,
                 resourceToValidate: resourceObjectToValidate,
-                path,
+                path: requestInfo.path,
                 currentDate,
                 resourceObj: resourceToMerge
             });
@@ -771,17 +801,19 @@ scope
 
     /**
      * run any pre-checks on multiple resources before merge
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource[]} resourcesToMerge
-     * @param {string[] | null} scopes
-     * @param {string | null} user
-     * @param {string | null} path
      * @param {string} currentDate
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
      */
     async preMergeChecksMultipleAsync (
         {
-            resourcesToMerge, scopes, user, path, currentDate
+            base_version, requestInfo,
+            resourcesToMerge, currentDate
         }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertIsValid(Array.isArray(resourcesToMerge), 'resourcesToMerge should be an array');
         try {
             /**
              * @type {MergeResultEntry[]}
@@ -797,11 +829,10 @@ scope
                  */
                 const mergeResult = await this.preMergeChecksAsync(
                     {
+                        base_version,
+                        requestInfo,
                         resourceToMerge: r,
                         resourceType: r.resourceType,
-                        scopes,
-                        user,
-                        path,
                         currentDate
                     }
                 );

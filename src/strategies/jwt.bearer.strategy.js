@@ -80,6 +80,8 @@ const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
 /**
  * Gets user info from OpenID Connect provider
  * @param {string} accessToken
+ * @param iss
+ * @param clientId
  * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
  */
 const getUserInfoAsync = async (accessToken, iss, clientId) => {

@@ -572,6 +572,14 @@ class ConfigManager {
     get postRequestBatchSize () {
         return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
     }
+
+    /**
+     * returns the buffer size for post request processes
+     * @returns {number|number}
+     */
+    get postRequestBufferSize () {
+        return parseInt(env.POST_REQUEST_BUFFER_SIZE) || 100;
+    }
 }
 
 module.exports = {

@@ -30,6 +30,9 @@ class SecurityTagManager {
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
 
+        /**
+         * @type {PatientFilterManager}
+         */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
     }

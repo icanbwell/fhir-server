@@ -121,11 +121,12 @@ class PatchOperation {
             currentOperationName
         };
         const {
+            /** @type {string} */
             requestId,
-            method,
             body: patchContent,
-            /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
-            /** @type {string} */ userRequestId,
+            /** @type {import('content-type').ContentType} */
+            contentTypeFromHeader,
+            /** @type {string|null} */
             user,
             /** @type {string | null} */ scope,
             /** @type {string[]} */
@@ -281,7 +282,8 @@ class PatchOperation {
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
                 {
-                    requestId,
+                    base_version,
+                    requestInfo,
 resourceType,
 doc: resource,
                     uuid: resource._uuid,
@@ -301,11 +303,9 @@ doc: resource,
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId,
-currentDate,
-base_version,
-                    method,
-                    userRequestId
+                    requestInfo,
+                    currentDate,
+                    base_version
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {

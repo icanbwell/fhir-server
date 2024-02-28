@@ -6,7 +6,7 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest, getTestContainer
+    createTestRequest, getTestContainer, getTestRequestInfo
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
@@ -56,6 +56,7 @@ describe('seach by id many performance', () => {
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
+        const base_version = '4_0_0';
         // noinspection FunctionWithMultipleLoopsJS
         test(
             'search by 2,000 id works',
@@ -92,9 +93,13 @@ describe('seach by id many performance', () => {
                  */
                 const preSaveManager = container.preSaveManager;
                 assertTypeEquals(preSaveManager, PreSaveManager);
-
+                const requestInfo = getTestRequestInfo({ requestId: '1234' });
                 for (const entry of bundle.entry) {
-                    entry.resource = await preSaveManager.preSaveAsync(new Practitioner(entry.resource));
+                    entry.resource = await preSaveManager.preSaveAsync({
+                        base_version,
+                        requestInfo,
+                        resource: new Practitioner(entry.resource)
+                    });
                 }
 
                 console.log(`Saving ${numberOfResources} resources...`);
@@ -104,7 +109,6 @@ describe('seach by id many performance', () => {
                 const mongoDatabaseManager = container.mongoDatabaseManager;
                 const db = await mongoDatabaseManager.getClientDbAsync();
                 const resourceType = 'Practitioner';
-                const base_version = '4_0_0';
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').Document>}
                  */

@@ -87,7 +87,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
         }
 
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 

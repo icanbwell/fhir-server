@@ -93,7 +93,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         try {
             this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
 
-            this.initializeWriteStreams();
+            await this.initializeWriteStreams();
             await this.processDataFromCsv();
 
             this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);

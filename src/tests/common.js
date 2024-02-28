@@ -14,6 +14,7 @@ const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 
 /**
  * @type {import('http').Server}
@@ -85,7 +86,6 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  */
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
-    // eslint-disable-next-line no-undef
     jest.setTimeout(30000);
     env.VALIDATE_SCHEMA = true;
     process.env.AUTH_ENABLED = '1';
@@ -446,4 +446,35 @@ module.exports.mockHttpContext = ({
         return values[key];
     });
     return values.systemGeneratedRequestId;
+};
+
+/**
+ * @param {string} requestId
+ * @param {string|undefined} [scope]
+ * @param {string|undefined} [userRequestId]
+ * @returns {FhirRequestInfo}
+ */
+module.exports.getTestRequestInfo = ({
+                                         requestId,
+                                         scope = 'user/*.read user/*.write access/*.*',
+                                         userRequestId
+                                     }) => {
+    if (!userRequestId) {
+        userRequestId = requestId
+    }
+
+    const requestInfo = new FhirRequestInfo(
+        {
+            user: '',
+            scope,
+            protocol: 'https',
+            originalUrl: '',
+            requestId,
+            userRequestId,
+            host: 'host',
+            headers: {},
+            method: 'POST',
+            contentTypeFromHeader: null
+        });
+    return requestInfo;
 };

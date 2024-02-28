@@ -34,6 +34,7 @@ const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { PatientScopeManager } = require('../common/patientScopeManager');
 
 class SearchManager {
     /**
@@ -53,6 +54,7 @@ class SearchManager {
      * @param {ProaConsentManager} proaConsentManager
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {PatientScopeManager} patientScopeManager
      */
     constructor (
         {
@@ -70,7 +72,8 @@ class SearchManager {
             fhirResourceWriterFactory,
             proaConsentManager,
             dataSharingManager,
-            searchQueryBuilder
+            searchQueryBuilder,
+            patientScopeManager
         }
     ) {
         /**
@@ -156,6 +159,12 @@ class SearchManager {
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
+        /**
+         * @type {PatientScopeManager}
+         */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -168,6 +177,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {string|null} requestId
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
      * @param {'READ'|'WRITE'} operation
@@ -247,7 +257,7 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const patientIdsLinkedToPersonId = personIdFromJwtToken
-                    ? await this.getLinkedPatientsAsync(
+                    ? await this.patientScopeManager.getLinkedPatientsAsync(
                         {
                             base_version, isUser, personIdFromJwtToken
                         })
@@ -506,6 +516,7 @@ scope,
         let cursor = cursorQuery;
 
         // find columns being queried and match them to an index
+        // noinspection JSUnresolvedReference
         if (isTrue(env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
@@ -563,39 +574,6 @@ maxMongoTimeMS
     }
 
     /**
-     * Gets Patient id from identifiers
-     * @param {string} base_version
-     * @param {string} personIdFromJwtToken
-     * @return {Promise<string[]>}
-     */
-    async getPatientIdsByPersonIdAsync (
-        {
-            base_version,
-            personIdFromJwtToken
-        }
-    ) {
-        assertIsValid(base_version);
-        assertIsValid(personIdFromJwtToken);
-        try {
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Person',
-                base_version
-            });
-            return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
-                databaseQueryManager,
-                personIds: [personIdFromJwtToken],
-                totalProcessedPersonIds: new Set(),
-                level: 1
-            });
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error getting patient id for person id: ${personIdFromJwtToken}`,
-                error: e
-            });
-        }
-    }
-
-    /**
      * Handle count: https://www.hl7.org/fhir/search.html#count
      * @param {ParsedArgs} parsedArgs
      * @param {Object} options
@@ -649,7 +627,7 @@ maxMongoTimeMS
              */
             const projection = {};
             /**
-             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             * @type {Resource}
              */
             const Resource = getResource(VERSIONS['4_0_0'], resourceType);
             /**
@@ -826,6 +804,7 @@ maxMongoTimeMS
         }
     }
 
+    // noinspection FunctionWithInconsistentReturnsJS
     /**
      * Reads resources from Mongo cursor
      * @param {DatabasePartitionedCursor} cursor
@@ -1146,34 +1125,6 @@ error: new RethrownError(
             res.end();
         }
         return tracker.id;
-    }
-
-    /**
-     * Gets linked patients
-     * @param {string} base_version
-     * @param {boolean | null} isUser
-     * @param {string} personIdFromJwtToken
-     * @return {Promise<string[]>}
-     */
-    async getLinkedPatientsAsync (
-        {
-            base_version, isUser, personIdFromJwtToken
-        }
-    ) {
-        try {
-            if (isUser && personIdFromJwtToken) {
-                return await this.getPatientIdsByPersonIdAsync(
-                    {
-                        base_version, personIdFromJwtToken
-                    });
-            }
-            return [];
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error get linked patients for person id: ${personIdFromJwtToken}`,
-                error: e
-            });
-        }
     }
 
     /**

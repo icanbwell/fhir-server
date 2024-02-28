@@ -32,7 +32,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
         if (this.logUnresolvedReferencesToFile) {
             /**
-             * @type {require('fs').writeStream}
+             * @type {import('fs').writeStream}
              */
             this.writeStream = fs.createWriteStream(`unresolvedReferences-${generateUUID()}.txt`, { flags: 'w' });
 
@@ -43,6 +43,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     /**
      * Updates the reference if it is present in cache and removes duplicate references
      * @param {Resource} resource
+     * @param {boolean|null} isHistoryDoc
      * @return {Promise<Reference>}
      */
     async updateResourceReferenceAsync (resource, isHistoryDoc) {
@@ -289,7 +290,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             _uuid: 1
         };
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
@@ -483,7 +484,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
         }
 
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 

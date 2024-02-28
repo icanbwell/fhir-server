@@ -158,6 +158,7 @@ class PostRequestProcessor {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             secondsWaiting += 1;
             if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
+                await this.requestSpecificCache.clearAsync({ requestId });
                 throw new Error(`PostRequestProcessor.waitTillDoneAsync() for ${requestId} did not finish in specified time: ${timeoutInSeconds}`);
             }
         }

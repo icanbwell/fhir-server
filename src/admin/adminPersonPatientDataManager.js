@@ -6,9 +6,13 @@ const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RethrownError } = require('../utils/rethrownError');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { DatabaseUpdateManager } = require('../dataLayer/databaseUpdateManager');
+const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -66,6 +70,7 @@ class AdminPersonPatientDataManager {
      * @param {import('http').ServerResponse} res
      * @param {string} patientId
      * @param {BaseResponseStreamer} responseStreamer
+     * @param {string|undefined} [method]
      * @return {Promise<Bundle>}
      */
     async deletePatientDataGraphAsync ({ req, res, patientId, responseStreamer, method = 'DELETE' }) {
@@ -89,7 +94,8 @@ class AdminPersonPatientDataManager {
                  * @type {BundleEntry[]}
                  */
                 const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
-                    requestId: req.id,
+                    base_version,
+                    requestInfo,
                     bundle,
                     responseStreamer
                 });
@@ -105,12 +111,13 @@ class AdminPersonPatientDataManager {
 
     /**
      * @description Removes links from other Person records pointing to the resources in this bundle
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {BaseResponseStreamer} responseStreamer
      * @param {Bundle} bundle
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksFromOtherPersonsAsync ({ requestId, responseStreamer, bundle }) {
+    async removeLinksFromOtherPersonsAsync ({ base_version, requestInfo, responseStreamer, bundle }) {
         try {
             /**
              * @type {DatabaseQueryManager}
@@ -133,7 +140,8 @@ class AdminPersonPatientDataManager {
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync(
                     {
-                        requestId,
+                        base_version,
+                        requestInfo,
                         bundle,
 resourceType: 'Patient',
 databaseQueryManagerForPerson,
@@ -143,7 +151,8 @@ databaseUpdateManagerForPerson,
             );
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync({
-                    requestId,
+                    base_version,
+                    requestInfo,
                     bundle,
 resourceType: 'Person',
 databaseQueryManagerForPerson,
@@ -165,6 +174,7 @@ databaseUpdateManagerForPerson,
      * @param {import('http').ServerResponse} res
      * @param {string} personId
      * @param {BaseResponseStreamer} responseStreamer
+     * @param {string|undefined} [method]
      * @return {Promise<Bundle>}
      */
     async deletePersonDataGraphAsync ({ req, res, personId, responseStreamer, method = 'DELETE' }) {
@@ -186,7 +196,8 @@ databaseUpdateManagerForPerson,
             if (method === 'DELETE') {
                 // now also remove any connections to this Patient record
                 await this.removeLinksFromOtherPersonsAsync({
-                    requestId: req.id,
+                    base_version,
+                    requestInfo,
                     responseStreamer,
                     bundle
                 });
@@ -201,7 +212,8 @@ databaseUpdateManagerForPerson,
 
     /**
      * Removes link from Person to the resources in the bundle of resourceType
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Bundle} bundle
      * @param {string} resourceType
      * @param {DatabaseQueryManager} databaseQueryManagerForPerson
@@ -211,7 +223,8 @@ databaseUpdateManagerForPerson,
      */
     async removeLinksToResourceTypeAsync (
         {
-            requestId,
+            base_version,
+            requestInfo,
             bundle,
             resourceType,
             databaseQueryManagerForPerson,
@@ -219,6 +232,11 @@ databaseUpdateManagerForPerson,
             responseStreamer
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(bundle, Bundle);
+        assertTypeEquals(databaseUpdateManagerForPerson, DatabaseUpdateManager);
+        assertTypeEquals(databaseQueryManagerForPerson, DatabaseQueryManager);
+        const requestId = requestInfo.requestId;
         if (!bundle.entry) {
             return [];
         }
@@ -256,7 +274,10 @@ databaseUpdateManagerForPerson,
                     const person = new Person(personRecordWithLinkToDeletedResourceId);
                     person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target._uuid));
                     await databaseUpdateManagerForPerson.replaceOneAsync({
-                        doc: person, smartMerge: false
+                        base_version,
+                        requestInfo,
+                        doc: person,
+                        smartMerge: false
                     });
                     const bundleEntry = new BundleEntry(
                         {

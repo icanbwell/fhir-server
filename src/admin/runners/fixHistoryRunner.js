@@ -82,7 +82,9 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
              * @type {Resource}
              */
             let resource = FhirResourceCreator.create(resourceRaw);
-            resource = await this.preSaveManager.preSaveAsync(resource);
+            const base_version = '4_0_0';
+            const requestInfo = this.requestInfo;
+            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             doc.resource = resource.toJSONInternal();
             hasChanges = true;
         }

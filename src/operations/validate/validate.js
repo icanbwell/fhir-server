@@ -163,6 +163,7 @@ class ValidateOperation {
                     resource_incoming = (await cursor.next()).toJSON();
                     const operationOutcomeForResource = await this.validateResourceAsync(
                         {
+                            base_version,
                             resource_incoming,
                             resourceType,
                             path,
@@ -193,6 +194,7 @@ class ValidateOperation {
             }
             return await this.validateResourceAsync(
                 {
+                    base_version,
                     resource_incoming,
                     resourceType,
                     path,
@@ -225,12 +227,14 @@ class ValidateOperation {
      * @param currentDate
      * @param parsedArgs
      * @param currentOperationName
-     * @param requestInfo
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param startTime
      * @returns {Promise<OperationOutcome>}
      */
     async validateResourceAsync (
         {
+            base_version,
             resource_incoming,
             resourceType,
             path,
@@ -331,6 +335,8 @@ class ValidateOperation {
          */
         const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
             {
+                base_version,
+                requestInfo,
                 id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,

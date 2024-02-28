@@ -46,6 +46,7 @@ class CustomOperationsController {
     /**
      * @description Controller for all POST operations
      * @param {name: string, resourceType: string}
+     * @returns {function(*=, *=, *=): Promise<void>}
      */
     operationsPost (
         {

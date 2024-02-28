@@ -1,5 +1,5 @@
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../../common');
 
 const { TestMongoDatabaseManager } = require('../../../testMongoDatabaseManager');
 const { TestConfigManager } = require('../../../testConfigManager');
@@ -13,6 +13,7 @@ const { ResourceMerger } = require('../../../../operations/common/resourceMerger
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
 const { mergeObject } = require('../../../../utils/mergeHelper');
+const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 
 describe('ResourceMerger Tests', () => {
     beforeEach(async () => {
@@ -24,6 +25,7 @@ describe('ResourceMerger Tests', () => {
     });
 
     describe('ResourceMerger Tests', () => {
+        const base_version = '4_0_0';
         test('ResourceMerger works with identical resources', async () => {
             const configManager = new TestConfigManager();
             /**
@@ -32,7 +34,15 @@ describe('ResourceMerger Tests', () => {
             const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
             const resourceMerger = new ResourceMerger({
-                preSaveManager: new PreSaveManager({ preSaveHandlers: [] })
+                preSaveManager: new PreSaveManager({
+                     preSaveHandlers: [
+                                        new UuidColumnHandler(
+                                            {
+                                                configManager
+                                            }
+                                        )
+                                        ]
+                    })
             });
             const currentResource = new Person(person1Resource);
             const resourceToMerge = new Person(personMergeResource);
@@ -49,11 +59,15 @@ describe('ResourceMerger Tests', () => {
             mergedObject = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
             expect(mergedObject.gender).toStrictEqual('male');
 
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+
             /**
              * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}
              */
             const result = await resourceMerger.mergeResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     currentResource,
                     resourceToMerge
                 }

@@ -104,9 +104,11 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync (doc) {
+    async processRecordAsync ({ base_version, requestInfo, doc }) {
         const operations = [];
         assertIsValid(doc.resourceType);
         /**
@@ -115,7 +117,11 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         const currentResource = FhirResourceCreator.create(doc);
         let resource = currentResource.clone();
 
-        resource = await this.preSaveManager.preSaveAsync(resource);
+        resource = await this.preSaveManager.preSaveAsync({
+            base_version,
+            requestInfo,
+            resource
+        });
         /**
          * @type {Resource}
          */
@@ -149,7 +155,12 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     query,
                     projection: undefined,
                     startFromIdContainer: this.startFromIdContainer,
-                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(
+                        {
+                            base_version: '4_0_0',
+                            requestInfo: this.requestInfo,
+                            doc
+                        }),
                     ordered: false,
                     batchSize: this.batchSize,
                     skipExistingIds: false,

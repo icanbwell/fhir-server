@@ -14,3 +14,4 @@ npm-debug.log
 Dockerfile
 src/admin/scripts/.env*
 .npmrc
+docker-compose.yml

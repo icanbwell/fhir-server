@@ -1,6 +1,6 @@
 .PHONY:build
 build:
-	docker buildx build --platform=linux/amd64 -t imranq2/node-fhir-server-mongo:local .
+	docker buildx build -t imranq2/node-fhir-server-mongo:local .
 
 .PHONY:build_all
 build_all:
@@ -184,4 +184,3 @@ audit_fix:
 .PHONY:qodana
 qodana:
 	docker run --rm -it --name qodana --mount type=bind,source="${PWD}",target=/data/project -p 8080:8080 jetbrains/qodana-js:2022.3-eap --show-report
-

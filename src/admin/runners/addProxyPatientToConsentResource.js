@@ -116,7 +116,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             }
         });
 
-        /** @type {Map<string, { id: string; sourceAssigningAuthority: string}} */
+        /** @type {Map<string, { id: string; sourceAssigningAuthority: string}>} */
         this.consentToImmediatePersonCache = new Map();
 
         /** @type {Map<string, string>} */
@@ -171,13 +171,18 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     destinationCollectionName: collection,
                     query,
                     startFromIdContainer,
-                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(doc),
+                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(
+                        {
+                            base_version: '4_0_0',
+                            requestInfo: this.requestInfo,
+                            doc
+                        }),
                     ordered: false,
                     batchSize: this.batchSize,
                     skipExistingIds: false,
-                    limit: !isHistoryCollection ? this.limit : undefined,
+                    limit: isHistoryCollection ? undefined : this.limit,
                     useTransaction: this.useTransaction,
-                    skip: !isHistoryCollection ? this.skip : undefined,
+                    skip: isHistoryCollection ? undefined : this.skip,
                     filterToIds,
                     filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
                     useEstimatedCount: true
@@ -214,10 +219,12 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * returns the bulk operation for this doc
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync (doc) {
+    async processRecordsAsync ({ base_version, requestInfo, doc }) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
         /**
          * @type {boolean}
@@ -234,7 +241,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update resource references from cache
-        resource = await this.addProxyPersonLinkToConsent({ resource, isHistoryDoc });
+        resource = await this.addProxyPersonLinkToConsent({ base_version, requestInfo, resource, isHistoryDoc });
 
         // for speed, first check if the incoming resource is exactly the same
         let updatedResourceJsonInternal = resource.toJSONInternal();
@@ -260,20 +267,22 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * Adds Proxy Person reference in resource.provision.actor array
-     * @param {{ resource: Resource, isHistoryDoc: boolean}} options
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
      */
-    async addProxyPersonLinkToConsent ({ resource }) {
+    async addProxyPersonLinkToConsent ({ base_version, requestInfo, resource }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
         }
 
         let provisionActor;
-        if (!provision.actor) {
+        if (provision.actor) {
+            provisionActor = provision.actor;
+        } else {
             // resource.provision.actor set method assigns undefined if empty array is passed. So storing it in provisionActor[]
             provisionActor = [];
-        } else {
-            provisionActor = provision.actor;
         }
 
         if (!Array.isArray(provisionActor)) {
@@ -316,14 +325,14 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
 
             if (alreadyPresent) {
-                if (actor.reference._uuid !== proxyPatientReference) {
+                if (actor.reference._uuid === proxyPatientReference) {
+                    this.adminLogger.logger.warn(
+                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
+                    );
+                } else {
                     wrongPersonActor = actor;
                     this.adminLogger.logger.warn(
                         `[addProxyPersonReference] Wrong Proxy Person '${actor.reference._uuid}' present instead of ${proxyPatientReference} for ${resource._uuid}`
-                    );
-                } else {
-                    this.adminLogger.logger.warn(
-                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
                     );
                 }
             }
@@ -338,7 +347,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority
                 };
                  // call the presave
-                 resource = await this.preSaveManager.preSaveAsync(resource);
+                 resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             }
 
             return resource;
@@ -363,7 +372,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             // setting the value
             resource.provision.actor = provisionActor;
             // call the presave
-            resource = await this.preSaveManager.preSaveAsync(resource);
+            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             // add the reference
             return resource;
         }
@@ -385,7 +394,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             _uuid: 1
         };
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
@@ -556,7 +565,9 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * If null values are present then return else process. Pass the processPatientReference which gets called if uuids are present.
-     * @param {{ doc: import('mongodb').Document, processPatientReference: (consentId: string, patientId: string): Promise<void>}} params
+     * @param {import('mongodb').Document} doc
+     * @param {(consentId: string, patientId: string) => Promise<void>} processPatientReference
+     * @returns {Promise<void>}
      */
     async consentCacheHelper ({ doc, processPatientReference }) {
         if (!doc._uuid) {
@@ -575,7 +586,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
         const uuid = doc._uuid;
         const patientId = doc.patient._uuid;
-        processPatientReference(uuid, patientId);
+        await processPatientReference(uuid, patientId);
     }
 
     /**

@@ -10,6 +10,7 @@ const sizeof = require('object-sizeof');
 const { MongoServerError } = require('mongodb');
 const { RethrownError } = require('../../utils/rethrownError');
 const { sliceIntoChunks } = require('../../utils/list.util');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -112,8 +113,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 if ((e instanceof MongoServerError) && limit) {
                     useLimit = true;
                     try {
-                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, { skip, limit, maxTimeMS: 30000 });
-                    } catch (ex) {
+                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000
+                        });
+                    } catch {
                         numberOfSourceDocuments = limit;
                     }
                 } else {
@@ -137,7 +142,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             limit,
                             maxTimeMS: 30000
                         });
-                    } catch (ex) {
+                    } catch {
                         numberOfDestinationDocuments = limit;
                     }
                 } else {
@@ -220,7 +225,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             limit,
                             maxTimeMS: 30000
                         });
-                    } catch (ex) {
+                    } catch {
                         numberOfDestinationDocumentsAtEnd = limit;
                     }
                 } else {
@@ -403,7 +408,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
 
                     /**
-                     * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
+                     * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
                      */
                     let cursor = await sourceCollection
                         .find(queryForChunk, options)
@@ -451,16 +456,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         previouslyCheckedId = doc._id;
                         startFromIdContainer.numScanned += 1;
                         readline.cursorTo(process.stdout, 0);
-                        process.stdout.write(`[${moment().toISOString()}] ` +
-                            `[${loopNumber}] ` +
-                            `Reading ${sourceCollectionName} ` +
-                            `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
-                            `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                            `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
-                            `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
-                            `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                            `mem: ${memoryManager.memoryUsed} ` +
-                            `lastId: ${previouslyCheckedId}`);
+                        process.stdout.write(`[${moment().toISOString()}] [${loopNumber}] Reading ${sourceCollectionName} Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} size: ${memoryManager.formatBytes(bytesLoaded)} mem: ${memoryManager.memoryUsed} lastId: ${previouslyCheckedId}`);
 
                         /**
                          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
@@ -490,16 +486,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `
                             );
                             readline.cursorTo(process.stdout, 0);
-                            process.stdout.write(`[${moment().toISOString()}] ` +
-                                `[${loopNumber}] ` +
-                                `Writing ${sourceCollectionName} ` +
-                                `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
-                                `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                                `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
-                                `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
-                                `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                                `mem: ${memoryManager.memoryUsed}` +
-                                `lastId: ${previouslyCheckedId}`);
+                            process.stdout.write(`[${moment().toISOString()}] [${loopNumber}] Writing ${sourceCollectionName} Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} size: ${memoryManager.formatBytes(bytesLoaded)} mem: ${memoryManager.memoryUsed}lastId: ${previouslyCheckedId}`);
                             // https://www.mongodb.com/docs/upcoming/core/transactions
                             if (useTransaction) {
                                 session.startTransaction(transactionOptions);
@@ -570,7 +557,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
                     continueLoop = false; // done
                 }
-                session.endSession();
+                await session.endSession();
                 await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
                 await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 this.adminLogger.logInfo('=== Finished ' +
@@ -678,7 +665,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
     /**
      *
-     * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
+     * @param {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
      * @returns {Promise<*>}
      */
     async next (cursor) {
@@ -687,12 +674,34 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
     /**
      *
-     * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
+     * @param {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
      * @returns {Promise<unknown>}
      */
     async hasNext (cursor) {
         // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
         return await cursor.hasNext();
+    }
+
+    /**
+     * returns requestInfo
+     * @returns {FhirRequestInfo}
+     */
+    get requestInfo () {
+        const requestId = '1234';
+        const requestInfo = new FhirRequestInfo(
+            {
+                user: '',
+                scope: 'user/*.* access/*.*',
+                protocol: 'http',
+                originalUrl: '',
+                requestId,
+                userRequestId: requestId,
+                host: 'localhost',
+                headers: {},
+                method: 'POST',
+                contentTypeFromHeader: null
+            });
+        return requestInfo;
     }
 }
 

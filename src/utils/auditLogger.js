@@ -210,7 +210,7 @@ class AuditLogger {
             }
         );
 
-        await this.preSaveManager.preSaveAsync(doc);
+        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
         this.queue.push({ doc, requestInfo });
 
         if (this.queue.length >= this.configManager.postRequestBufferSize) {
@@ -235,7 +235,7 @@ class AuditLogger {
             const resourceType = 'AuditEvent';
 
             const currentQueue = this.queue.splice(0, this.queue.length);
-            let requestId, method, userRequestId;
+            let requestId;
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
             /**
@@ -246,7 +246,7 @@ class AuditLogger {
 
             for (const { doc, requestInfo } of currentQueue) {
                 assertTypeEquals(doc, AuditEvent);
-                ({ requestId, method, userRequestId } = requestInfo);
+                ({ requestId } = requestInfo);
                 operationsMap.get(resourceType).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
                         requestId,
@@ -262,15 +262,14 @@ class AuditLogger {
                 );
             }
             if (operationsMap.get(resourceType).length > 0) {
+                const requestInfo = currentQueue[0].requestInfo;
                 /**
                  * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync({
-                    requestId,
+                    requestInfo,
                     currentDate,
                     base_version: this.base_version,
-                    method,
-                    userRequestId,
                     operationsMap
                 });
                 /**

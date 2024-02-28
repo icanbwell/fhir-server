@@ -192,8 +192,15 @@ class MergeOperation {
             path,
             /** @type {Object | Object[] | null} */
             body,
+            /** @type {string[]} */
+            // eslint-disable-next-line no-unused-vars
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            // eslint-disable-next-line no-unused-vars
+            isUser,
             /** @type {string} */
-            method
+            // eslint-disable-next-line no-unused-vars
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -216,10 +223,6 @@ class MergeOperation {
         try {
             const { /** @type {string} */ base_version } = parsedArgs;
 
-            /**
-             * @type {string[]}
-             */
-            const scopes = this.scopesManager.parseScopes(scope);
             // read the incoming resource from request body
             /**
              * @type {Object|Object[]|undefined}
@@ -230,7 +233,7 @@ class MergeOperation {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
                 /** @type {boolean} */ wasIncomingAList
-            } = await this.mergeValidator.validate({
+            } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentDate,
                 currentOperationName,
@@ -239,41 +242,50 @@ class MergeOperation {
                 requestId,
                 resourceType,
                 scope,
-                user
+                user,
+                requestInfo
             });
 
+            let validResources = resourcesIncomingArray;
+
             // merge the resources
-            await this.mergeManager.mergeResourceListAsync(
+            /**
+             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             */
+            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync(
                 {
-                    resources_incoming: resourcesIncomingArray,
-                    user,
+                    resources_incoming: validResources,
                     resourceType,
-                    scopes,
-                    path,
                     currentDate,
-                    requestId,
                     base_version,
-                    scope
+                    requestInfo
                 }
             );
+            validResources = mergeResourceResults
+                .flatMap(m => m.resource)
+                .filter(r => r !== null);
             /**
              * mergeResults
              * @type {MergeResultEntry[]}
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId,
-currentDate,
-                    base_version,
-                    method,
-                    userRequestId
+                    requestInfo,
+                    currentDate,
+                    base_version
                 });
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             mergeResults = mergeResults.concat(
-                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
+                mergeResourceResults
+                    .flatMap(m => m.mergeError)
+                    .filter(m => m !== null)
+            );
+
+            mergeResults = mergeResults.concat(
+                this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
             );
 
             mergeResults.sort((res1, res2) =>

@@ -67,10 +67,10 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
 
-        /** @type {Map<string, { id: string; items: Array} */
+        /** @type {Map<string, { id: string; items: Array}>} */
         this.questionnaireValues = new Map();
 
-        /** @type {Map<string, Resource> */
+        /** @type {Map<string, Resource>} */
         this.questionnaireIdToResource = new Map();
 
         /** @type {Map<string, string>} */
@@ -97,7 +97,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             const startFromIdContainer = this.createStartFromIdContainer();
             const query = await this.getQueryForConsent({
                 startFromId: this.startFromId
-           });
+            });
 
             try {
                 this.adminLogger.logInfo(
@@ -106,13 +106,19 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                     )} for ${collection}`
                 );
 
-             await this.runForQueryBatchesAsync({
+                await this.runForQueryBatchesAsync({
                     config: mongoConfig,
                     sourceCollectionName: collection,
                     destinationCollectionName: collection,
                     query,
                     startFromIdContainer,
-                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(doc),
+                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(
+                        {
+                            base_version: '4_0_0',
+                            requestInfo: this.requestInfo,
+                            doc
+                        }
+                    ),
                     ordered: false,
                     batchSize: this.batchSize,
                     skipExistingIds: false,
@@ -145,10 +151,12 @@ class FixConsentRunner extends BaseBulkOperationRunner {
 
     /**
      * returns the bulk operation for this doc
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync (doc) {
+    async processRecordsAsync ({ base_version, requestInfo, doc }) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
 
         const operations = [];
@@ -167,10 +175,20 @@ class FixConsentRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
-        resource = await this.addCategoryCodingToConsent({ resource, questionnaireItem });
+        resource = await this.addCategoryCodingToConsent({
+            base_version,
+            requestInfo,
+            resource,
+            questionnaireItem
+        });
 
         // Update provision
-        resource = await this.addProvisionClassToConsent({ resource, questionnaireItem });
+        resource = await this.addProvisionClassToConsent({
+            base_version,
+            requestInfo,
+            resource,
+            questionnaireItem
+        });
 
         // for speed, first check if the incoming resource is exactly the same
         const updatedResourceJsonInternal = resource.toJSONInternal();
@@ -180,23 +198,27 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             return operations;
         }
 
-         /**
+        /**
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
-        // batch up the calls to update
+            // batch up the calls to update
         const operation = {
-            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal }
-        };
+                replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal }
+            };
         operations.push(operation);
         return operations;
     }
 
-        /**
+    /**
      * Adds coding to resource.category
-     * @param {{ resource: Resource, questionaireItem: any}} options
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
+     * @param {any} questionnaireItem
+     * @returns {Promise<Resource>}
      */
-     async addCategoryCodingToConsent ({ resource, questionnaireItem }) {
-      const category = resource.category;
+    async addCategoryCodingToConsent ({ base_version, requestInfo, resource, questionnaireItem }) {
+        const category = resource.category;
         if (!category) {
             return resource;
         }
@@ -223,7 +245,12 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         // setting the value
         resource.category = category;
         // call the presave
-        resource = await this.preSaveManager.preSaveAsync(resource);
+        resource = await this.preSaveManager.preSaveAsync({
+                base_version,
+                requestInfo,
+                resource
+            }
+        );
         // add the reference
         return resource;
     }
@@ -259,9 +286,12 @@ class FixConsentRunner extends BaseBulkOperationRunner {
 
     /**
      * Adds Class to resource.provision
-     * @param {{ resource: Resource, questionaireItem: any}} options
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
+     * @param {any} questionnaireItem
      */
-    async addProvisionClassToConsent ({ resource, questionnaireItem }) {
+    async addProvisionClassToConsent ({ base_version, requestInfo, resource, questionnaireItem }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
@@ -285,7 +315,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         // setting the value
         resource.provision.class = provisionClass;
         // call the presave
-        resource = await this.preSaveManager.preSaveAsync(resource);
+        resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
         // add the reference
         return resource;
     }
@@ -314,7 +344,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
 
     /**
      * Caches questionaire of dataSharing type
-     * @param mongoConfig: any; params
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
     async cacheQuestionnaireValues (mongoConfig) {
         const collectionName = 'Questionnaire_4_0_0';
@@ -389,7 +419,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
                     }
-                 }
+                }
             }
         } catch (e) {
             console.log(e);
@@ -501,4 +531,4 @@ class FixConsentRunner extends BaseBulkOperationRunner {
     }
 }
 
-module.exports = { FixConsentRunner: FixConsentRunner };
+module.exports = { FixConsentRunner };

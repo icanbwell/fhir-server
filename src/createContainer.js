@@ -107,6 +107,9 @@ const { MongoAtlasVectorStoreManager } = require('./chatgpt/vectorStores/mongoAt
 const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
+const { PatientScopeManager } = require('./operations/common/patientScopeManager');
+const { WriteAllowedByPatientScopeValidator } = require('./operations/merge/validators/writeAllowedByPatientScopeValidator');
+const { CanWriteWithPatientScopeHandler } = require('./preSaveHandlers/handlers/canWriteWithPatientScopeHandler');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -175,7 +178,12 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            })
+            }),
+            new CanWriteWithPatientScopeHandler(
+                {
+                    patientScopeManager: c.patientScopeManager
+                }
+            )
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -311,6 +319,16 @@ const createContainer = function () {
         }
     }));
 
+    container.register('patientScopeManager', (c) => new PatientScopeManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            personToPatientIdsExpander: c.personToPatientIdsExpander,
+            scopesManager: c.scopesManager,
+            patientFilterManager: c.patientFilterManager,
+            configManager: c.configManager
+        }
+    ));
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -327,7 +345,8 @@ const createContainer = function () {
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
-                searchQueryBuilder: c.searchQueryBuilder
+                searchQueryBuilder: c.searchQueryBuilder,
+                patientScopeManager: c.patientScopeManager
             }
         )
     );
@@ -370,7 +389,12 @@ const createContainer = function () {
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager
-                })
+                }),
+                new WriteAllowedByPatientScopeValidator(
+                    {
+                        patientScopeManager: c.patientScopeManager
+                    }
+                )
             ]
         }
     ));
@@ -487,7 +511,9 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                patientScopeManager: c.patientScopeManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -508,7 +534,9 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                patientScopeManager: c.patientScopeManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -546,7 +574,8 @@ const createContainer = function () {
             r4SearchQueryCreator: c.r4SearchQueryCreator,
             r4ArgsParser: c.r4ArgsParser,
             queryRewriterManager: c.queryRewriterManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            patientScopeManager: c.patientScopeManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(

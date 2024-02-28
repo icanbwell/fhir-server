@@ -23,9 +23,10 @@ class MergeValidator {
      * @param {string} resourceType
      * @param {string|null} scope
      * @param {string|null} user
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
-    async validate ({
+    async validateAsync ({
                        base_version,
                        currentDate,
                        currentOperationName,
@@ -34,7 +35,8 @@ class MergeValidator {
                        requestId,
                        resourceType,
                        scope,
-                       user
+                       user,
+                       requestInfo
                    }) {
         /**
          * @type {MergeResultEntry[]}
@@ -60,11 +62,8 @@ class MergeValidator {
                 currentDate,
                 currentOperationName,
                 incomingResources,
-                path,
-                requestId,
                 resourceType,
-                scope,
-                user
+                requestInfo
             });
 
             incomingResources = validatedObjectsByValidator;

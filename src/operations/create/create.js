@@ -20,6 +20,8 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { PatientScopeManager } = require('../common/patientScopeManager');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 
 class CreateOperation {
     /**
@@ -35,6 +37,8 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {PatientScopeManager} patientScopeManager
+     * @param {PreSaveManager} preSaveManager
      */
     constructor (
         {
@@ -48,7 +52,9 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            postSaveProcessor
+            postSaveProcessor,
+            patientScopeManager,
+            preSaveManager
         }
     ) {
         /**
@@ -111,6 +117,14 @@ class CreateOperation {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /** @type {PatientScopeManager} */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
+
+        /** @type {PreSaveManager} */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -132,7 +146,13 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const { user, body, /** @type {string} */ requestId, /** @type {string} */ method, /** @type {string} */ userRequestId } = requestInfo;
+        const {
+            /** @type {string|null} */
+            user,
+            /* @type {Object|Object[]|null} */
+            body,
+            /** @type {string} */ requestId
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -185,6 +205,8 @@ class CreateOperation {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: resource_incoming.id,
                     resourceType,
                     resourceToValidate: resource_incoming,
@@ -264,17 +286,15 @@ ids: [resource.id]
             logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
+            await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId,
-currentDate,
-base_version,
-                    method,
-                    userRequestId
+                    requestInfo,
+                    currentDate,
+                    base_version
                 }
             );
 

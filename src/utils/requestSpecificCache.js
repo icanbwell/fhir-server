@@ -13,7 +13,7 @@ class RequestSpecificCache {
         /**
          * This is a Map where the key is the requestId and the value is
          * another Map where the key is the name and the value is a list/array
-         * @type {Map<string, Map<string, []>>}
+         * @type {Map<string, Map<string, any[]>>}
          */
         this.listCache = new Map();
     }

@@ -1,7 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const { NotAllowedError, ForbiddenError } = require('../../utils/httpErrors');
-const env = require('var');
 const { buildStu3SearchQuery } = require('../query/stu3');
 const { buildDstu2SearchQuery } = require('../query/dstu2');
 const { R4SearchQueryCreator } = require('../query/r4');
@@ -18,6 +17,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PatientScopeManager } = require('../common/patientScopeManager');
 
 class RemoveOperation {
     /**
@@ -31,6 +31,7 @@ class RemoveOperation {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {PatientScopeManager} patientScopeManager
      */
     constructor (
         {
@@ -43,7 +44,8 @@ class RemoveOperation {
             r4SearchQueryCreator,
             r4ArgsParser,
             queryRewriterManager,
-            postRequestProcessor
+            postRequestProcessor,
+            patientScopeManager
         }
     ) {
         /**
@@ -101,6 +103,10 @@ class RemoveOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /** @type {PatientScopeManager} */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
     }
 
     /**
@@ -108,6 +114,7 @@ class RemoveOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
+     * @returns {Promise<{deleted: number}>}
      */
     async removeAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
@@ -119,7 +126,20 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const { user, scope, /** @type {string|null} */ requestId } = requestInfo;
+        const {
+            /** @type {string|null} */
+            user,
+            /** @type {string|null} */
+            scope,
+            /** @type {string|null} */
+            requestId,
+            /** @type {string[] | null} */
+            patientIdsFromJwtToken,
+            /** @type {boolean | null} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken
+        } = requestInfo;
 
         if (parsedArgs.get('id') &&
             (
@@ -143,7 +163,7 @@ class RemoveOperation {
         let securityTags = [];
         // add any access codes from scopes
         const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
-        if (env.AUTH_ENABLED === '1') {
+        if (this.configManager.authEnabled) {
             // fail if there are no access codes
             if (accessCodes.length === 0) {
                 const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
@@ -213,10 +233,30 @@ class RemoveOperation {
             }
             // Delete our resource record
             let res;
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                { resourceType, base_version }
+            );
+            if (this.scopesManager.hasPatientScope({ scope })) {
+                /** @type {Resource|null} */
+                const foundResource = await databaseQueryManager.findOneAsync({
+                    query
+                });
+                if (foundResource) {
+                    if (!(await this.patientScopeManager.canWriteResourceAsync({
+                        base_version,
+                        resource: foundResource,
+                        scope,
+                        isUser,
+                        patientIdsFromJwtToken,
+                        personIdFromJwtToken
+                    }))) {
+                        throw new ForbiddenError(
+                            'The current patient scope and person id in the JWT token do not allow deleting this resource.'
+                        );
+                    }
+                }
+            }
             try {
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    { resourceType, base_version }
-                );
                 /**
                  * @type {DeleteManyResult}
                  */
@@ -233,11 +273,11 @@ class RemoveOperation {
                             await this.auditLogger.logAuditEntryAsync(
                                 {
                                     requestInfo,
-base_version,
-resourceType,
+                                    base_version,
+                                    resourceType,
                                     operation: 'delete',
-args: parsedArgs.getRawArgs(),
-ids: []
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: []
                                 }
                             );
                         }

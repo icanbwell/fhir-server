@@ -10,6 +10,7 @@ const { ScopesManager } = require('../../security/scopesManager');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -20,12 +21,12 @@ class MergeResourceValidator extends BaseValidator {
      * @param {ConfigManager} configManager
      */
     constructor ({
-        scopesManager,
-        mergeManager,
-        databaseBulkLoader,
-        preSaveManager,
-        configManager
-    }) {
+                    scopesManager,
+                    mergeManager,
+                    databaseBulkLoader,
+                    preSaveManager,
+                    configManager
+                }) {
         super();
         /**
          * @type {ScopesManager}
@@ -59,20 +60,19 @@ class MergeResourceValidator extends BaseValidator {
     }
 
     /**
-     * @param {string|null} scope
-     * @param {string|null} user
-     * @param {string|null} path
+     * @param {FhirRequestInfo} requestInfo
      * @param {date} currentDate
+     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
-     * @param {string} requestId
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
-        /**
-         * @type {string[]}
-         */
-        const scopes = this.scopesManager.parseScopes(scope);
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
+        /** @type {string | null} */
+        const user = requestInfo.user;
+        /** @type {string} */
+        const scope = requestInfo.scope;
+
         /**
          * @type {boolean}
          */
@@ -93,32 +93,48 @@ class MergeResourceValidator extends BaseValidator {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
+            base_version,
+            requestInfo,
             resourcesToMerge: resourcesIncomingArray,
-            scopes,
-user,
-path,
-currentDate
+            currentDate
         });
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;
 
-        resourcesIncomingArray = await async.map(
+        /**
+         * @type {({resource: Resource | null, mergePreCheckError: MergeResultEntry | null})[]}
+         */
+        const preSaveResults = await async.map(
             resourcesIncomingArray,
             async resource => {
                 if (isUuid(resource.id)) {
                     resource._uuid = resource.id;
                 } else {
-                    resource = await this.preSaveManager.preSaveAsync(resource);
+                    try {
+                        resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
+                    } catch (error) {
+                        return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
+                    }
                 }
-                return resource;
+                return { resource, mergePreCheckError: null };
             }
         );
+
+        resourcesIncomingArray = preSaveResults
+            .filter(result => result.resource)
+            .map(result => result.resource);
+
+        for (const mergePreCheckError of preSaveResults.map(result => result.mergePreCheckError)) {
+            if (mergePreCheckError) {
+                mergePreCheckErrors.push(mergePreCheckError);
+            }
+        }
 
         // Load the resources from the database
         await this.databaseBulkLoader.loadResourcesAsync(
             {
-                requestId,
+                requestId: requestInfo.requestId,
                 base_version,
                 requestedResources: resourcesIncomingArray
             }
@@ -127,7 +143,7 @@ currentDate
         // Apply owner tag validation based on whether to update or insert the resource
         resourcesIncomingArray.forEach(resource => {
             const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
-                requestId,
+                requestId: requestInfo.requestId,
                 resourceType: resource.resourceType,
                 uuid: resource._uuid
             });
