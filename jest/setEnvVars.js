@@ -1,4 +1,3 @@
-process.env.AUTH_ENABLED = '1';
 process.env.AUTH_JWKS_URL = 'http://foo:80/.well-known/jwks.json';
 process.env.AUTH_ISSUER = 'http://foo:80';
 process.env.NODE_ENV = 'production';

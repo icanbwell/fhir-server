@@ -3,7 +3,6 @@ const deepcopy = require('deepcopy');
 const { BadRequestError } = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const { isTrue } = require('../../utils/isTrue');
 const { groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid } = require('../../utils/list.util');
 const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
@@ -715,39 +714,37 @@ class MergeManager {
                 );
             }
 
-            if (isTrue(this.configManager.authEnabled)) {
-                const user = requestInfo.user;
-                const scopes = this.scopesManager.parseScopes(requestInfo.scope);
-                const { success } = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
-                if (!success) {
-                    const operationOutcome = new OperationOutcome({
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
-                                }),
-                                diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
-                                expression: [
-                                    resourceToMerge.resourceType + '/' + id
-                                ]
-                            })
-                        ]
-                    });
-                    return new MergeResultEntry(
-                        {
-                            id,
-                            uuid: resourceToMerge._uuid,
-                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                            created: false,
-                            updated: false,
-                            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                            operationOutcome,
-                            resourceType: resourceToMerge.resourceType
-                        }
-                    );
-                }
+            const user = requestInfo.user;
+            const scopes = this.scopesManager.parseScopes(requestInfo.scope);
+            const { success } = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
+            if (!success) {
+                const operationOutcome = new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'exception',
+                            details: new CodeableConcept({
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            }),
+                            diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
+                            expression: [
+                                resourceToMerge.resourceType + '/' + id
+                            ]
+                        })
+                    ]
+                });
+                return new MergeResultEntry(
+                    {
+                        id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                        operationOutcome,
+                        resourceType: resourceToMerge.resourceType
+                    }
+                );
             }
 
             // ----- validate schema ----

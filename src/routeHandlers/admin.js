@@ -2,8 +2,6 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 const { AdminLogManager } = require('../admin/adminLogManager');
-const env = require('var');
-const { isTrue } = require('../utils/isTrue');
 const { assertIsValid } = require('../utils/assertType');
 const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
 const { generateUUID } = require('../utils/uid.util');
@@ -104,7 +102,7 @@ async function handleAdmin (
          */
         const adminScopes = scopesManager.getAdminScopes({ scope });
 
-        if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
+        if (adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLogResults': {
                     logInfo('', { 'req.query': req.query });

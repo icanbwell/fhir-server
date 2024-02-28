@@ -35,37 +35,33 @@ class ScopesManager {
      * @return {string[]} security tags allowed by scopes
      */
     getAccessCodesFromScopes (action, user, scope) {
-        if (this.configManager.authEnabled) {
-            assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
-            // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-            /**
-             * @type {string[]}
-             */
-            const scopes = this.parseScopes(scope);
-            /**
-             * @type {string[]}
-             */
-            const access_codes = [];
-            /**
-             * @type {string}
-             */
-            for (const scope1 of scopes) {
-                if (scope1.startsWith('access')) {
-                    // ex: access/client.*
-                    /**
-                     * @type {string}
-                     */
-                    const inner_scope = scope1.replace('access/', '');
-                    const [securityTag, accessType] = inner_scope.split('.');
-                    if (accessType === '*' || accessType === action) {
-                        access_codes.push(securityTag);
-                    }
+        assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
+        // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+        /**
+         * @type {string[]}
+         */
+        const scopes = this.parseScopes(scope);
+        /**
+         * @type {string[]}
+         */
+        const access_codes = [];
+        /**
+         * @type {string}
+         */
+        for (const scope1 of scopes) {
+            if (scope1.startsWith('access')) {
+                // ex: access/client.*
+                /**
+                 * @type {string}
+                 */
+                const inner_scope = scope1.replace('access/', '');
+                const [securityTag, accessType] = inner_scope.split('.');
+                if (accessType === '*' || accessType === action) {
+                    access_codes.push(securityTag);
                 }
             }
-            return access_codes;
-        } else {
-            return [];
         }
+        return access_codes;
     }
 
     /**
@@ -77,10 +73,6 @@ class ScopesManager {
      * @return {boolean}
      */
     doesResourceHaveAnyAccessCodeFromThisList (accessCodes, user, scope, resource) {
-        if (!this.configManager.authEnabled) {
-            return true;
-        }
-
         // fail if there are no access codes
         if (!accessCodes || accessCodes.length === 0) {
             return false;
@@ -121,9 +113,6 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessToResourceAllowedBySecurityTags ({ resource, user, scope }) {
-        if (!this.configManager.authEnabled) {
-            return true;
-        }
         const hasPatientScope = this.hasPatientScope({ scope });
         if (hasPatientScope) {
             return true; // TODO: should double check here that the resources belong to this patient
@@ -226,12 +215,10 @@ class ScopesManager {
      * @return {boolean}
      */
     hasPatientScope ({ scope }) {
-        if (this.configManager.authEnabled) {
-            assertIsValid(scope);
-            const scopes = this.parseScopes(scope);
-            if (scopes.some(s => s.includes('patient/'))) {
-                return true;
-            }
+        assertIsValid(scope);
+        const scopes = this.parseScopes(scope);
+        if (scopes.some(s => s.includes('patient/'))) {
+            return true;
         }
         return false;
     }
@@ -242,12 +229,10 @@ class ScopesManager {
      * @return {boolean}
      */
     hasPatientWriteScope ({ scope }) {
-        if (this.configManager.authEnabled) {
-            assertIsValid(scope);
-            const scopes = this.parseScopes(scope);
-            if (scopes.some(s => s === 'patient/*.write')) {
-                return true;
-            }
+        assertIsValid(scope);
+        const scopes = this.parseScopes(scope);
+        if (scopes.some(s => s === 'patient/*.write')) {
+            return true;
         }
         return false;
     }
