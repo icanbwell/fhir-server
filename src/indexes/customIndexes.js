@@ -217,7 +217,7 @@ module.exports = {
             {
                 keys: {
                     'resource._uuid': 1,
-                    'resource.meta.versionId': 1
+                    'resource.meta.versionId': -1
                 },
                 options: {
                     // unique: true,
