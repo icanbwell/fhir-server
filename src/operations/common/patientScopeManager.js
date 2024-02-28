@@ -171,7 +171,11 @@ class PatientScopeManager {
                         return resource._uuid;
                     } else {
                         const propertyUuid = p.replace('.reference', '._uuid');
-                        const value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                        let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                        // for incoming request, it may be stored in ".reference" only
+                        if (!value) {
+                            value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                        }
                         if (value !== undefined) {
                             return value.replace('Patient/', '');
                         }
@@ -182,7 +186,11 @@ class PatientScopeManager {
                     return resource._uuid;
                 } else {
                     const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
-                    const value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                    let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                    // for incoming request, it may be stored in ".reference" only
+                    if (!value) {
+                        value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                    }
                     if (value !== undefined) {
                         return value.replace('Patient/', '');
                     }
