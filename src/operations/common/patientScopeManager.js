@@ -9,6 +9,7 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { isUuid } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../utils/configManager');
+const { PERSON_PROXY_PREFIX } = require('../../constants');
 
 class PatientScopeManager {
     /**
@@ -130,12 +131,20 @@ class PatientScopeManager {
         /**
          * @type {string[]}
          */
-        const patientIdsLinkedToPersonId = personIdFromJwtToken
-            ? await this.getLinkedPatientsAsync(
-                {
-                    base_version, isUser, personIdFromJwtToken
-                })
-            : [];
+        let patientIdsLinkedToPersonId;
+        if (personIdFromJwtToken) {
+            // Include Proxy Person too
+            patientIdsLinkedToPersonId = [`${PERSON_PROXY_PREFIX}${personIdFromJwtToken}`];
+            patientIdsLinkedToPersonId = patientIdsLinkedToPersonId.concat(
+                await this.getLinkedPatientsAsync(
+                    {
+                        base_version, isUser, personIdFromJwtToken
+                    }
+                )
+            );
+        } else {
+            patientIdsLinkedToPersonId = []
+        }
         /**
          * @type {string[]|null}
          */
