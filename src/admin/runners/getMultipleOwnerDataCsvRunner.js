@@ -61,24 +61,25 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo(`Processing ${collectionName} collection`);
                     const cursorDuplicate = collection.aggregate([
                         { $unwind: '$meta.security' },
+                        { $match: { '_id.system': SecurityTagSystem.owner } },
                         {
                             $group: {
                                 _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' },
                                 count: { $sum: 1 }
                             }
                         },
-                        { $match: { count: { $gt: 1 }, '_id.system': SecurityTagSystem.owner } },
+                        { $match: { count: { $gt: 1 } } },
                         { $group: { _id: { _uuid: '$_id._uuid' } } },
                         { $count: 'total' }
-                    ]);
+                    ], { allowDiskUse: true });
                     const cursorMultiple = collection.aggregate([
                         { $unwind: '$meta.security' },
+                        { $match: { '_id.system': SecurityTagSystem.owner } },
                         {
                             $group: {
                                 _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' }
                             }
                         },
-                        { $match: { '_id.system': SecurityTagSystem.owner } },
                         {
                             $group: {
                                 _id: { _uuid: '$_id._uuid' },
@@ -87,7 +88,7 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                         },
                         { $match: { count: { $gt: 1 } } },
                         { $count: 'total' }
-                    ]);
+                    ], { allowDiskUse: true });
                     const totalDoc = await collection.countDocuments();
                     let duplicate = null;
                     while (await cursorDuplicate.hasNext()) {
