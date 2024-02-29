@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
     /**
@@ -29,7 +30,7 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
         this.writeStream = fs.createWriteStream('collectionwise_multiple_owner_count.csv');
 
         this.writeStream.write(
-            'Collection Name| Documents with Multiple Owner Tags| Total Documents |\n'
+            'Collection Name| Documents with Duplicate Owner Tags| Documents with Multiple Owner Tags| Total Documents |\n'
         );
     }
 
@@ -58,11 +59,29 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                     .find((n) => n.includes('_4_0_0') && !n.includes('_History'));
                 if (collectionName) {
                     this.adminLogger.logInfo(`Processing ${collectionName} collection`);
-                    const cursor = collection.aggregate([
+                    const cursorDuplicate = collection.aggregate([
                         { $unwind: '$meta.security' },
                         {
                             $group: {
-                                _id: { _id: '$_uuid', system: '$meta.security.system' },
+                                _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' },
+                                count: { $sum: 1 }
+                            }
+                        },
+                        { $match: { count: { $gt: 1 }, '_id.system': SecurityTagSystem.owner } },
+                        { $group: { _id: { _uuid: '$_id._uuid' } } },
+                        { $count: 'total' }
+                    ]);
+                    const cursorMultiple = collection.aggregate([
+                        { $unwind: '$meta.security' },
+                        {
+                            $group: {
+                                _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' }
+                            }
+                        },
+                        { $match: { '_id.system': SecurityTagSystem.owner } },
+                        {
+                            $group: {
+                                _id: { _uuid: '$_id._uuid' },
                                 count: { $sum: 1 }
                             }
                         },
@@ -70,10 +89,17 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                         { $count: 'total' }
                     ]);
                     const totalDoc = await collection.countDocuments();
-                    while (await cursor.hasNext()) {
-                        const data = await cursor.next();
-                        this.writeStream.write(`${collectionName}| ${data.total}| ${totalDoc}| \n`);
+                    let duplicate = null;
+                    while (await cursorDuplicate.hasNext()) {
+                        const data = await cursorDuplicate.next();
+                        duplicate = data.total;
                     }
+                    let multiple = null;
+                    while (await cursorMultiple.hasNext()) {
+                        const data = await cursorMultiple.next();
+                        multiple = data.total;
+                    }
+                    this.writeStream.write(`${collectionName}| ${duplicate}| ${multiple}| ${totalDoc}| \n`);
                     this.adminLogger.logInfo(`Finished Processing ${collectionName}`);
                 }
             }
