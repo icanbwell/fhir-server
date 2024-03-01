@@ -1,0 +1,109 @@
+{
+    "resourceType": "AuditEvent",
+    "id": "232fe55a-0b34-4745-a9fa-8efa2e6beaaw",
+    "type": {
+        "system": "http://test.com/test",
+        "code": "110112",
+        "display": "Query"
+    },
+    "agent": [
+        {
+            "who": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/test"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/9e98e082-d3fa-51db-9cdf-b6d519395e80"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Person/test"
+            },
+            "altId": "user/*.* access/*.*",
+            "name": "test",
+            "requestor": true,
+            "network": {
+                "type": "2"
+            }
+        }
+    ],
+    "source": {
+        "observer": {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Person/test"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Person/9e98e082-d3fa-51db-9cdf-b6d519395e80"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "bwell"
+                }
+            ],
+            "reference": "Person/test"
+        }
+    },
+    "entity": [
+        {
+            "what": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/c123456"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/9589ec22-bac2-506c-b7e1-7e1b89ca4edb"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Person/c123456"
+            },
+            "detail": [
+                {
+                    "type": "base_version",
+                    "valueString": "4_0_0"
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "source": "bwell",
+        "versionId": "1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ]
+    }
+}
