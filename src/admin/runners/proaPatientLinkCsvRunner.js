@@ -985,7 +985,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 targetId: clientPersonUuid,
                                 targetType: 'Person'
                             });
-                            console.log(matchingResult);
                             patientPersonMatchingResults.push(
                                 (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
                                     'N/A'
@@ -1034,7 +1033,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 targetId: clientPersonUuid,
                                 targetType: 'Person'
                             });
-                            console.log(matchingResult);
                             patientPersonMatchingResults.push(
                                 (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
                                     'N/A'
