@@ -61,7 +61,7 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo(`Processing ${collectionName} collection`);
                     const cursorDuplicate = collection.aggregate([
                         { $unwind: '$meta.security' },
-                        { $match: { '_id.system': SecurityTagSystem.owner } },
+                        { $match: { 'meta.security.system': SecurityTagSystem.owner } },
                         {
                             $group: {
                                 _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' },
@@ -74,7 +74,7 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                     ], { allowDiskUse: true });
                     const cursorMultiple = collection.aggregate([
                         { $unwind: '$meta.security' },
-                        { $match: { '_id.system': SecurityTagSystem.owner } },
+                        { $match: { 'meta.security.system': SecurityTagSystem.owner } },
                         {
                             $group: {
                                 _id: { _uuid: '$_uuid', system: '$meta.security.system', code: '$meta.security.code' }
