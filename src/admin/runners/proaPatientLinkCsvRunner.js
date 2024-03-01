@@ -5,6 +5,8 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { PersonMatchManager } = require('../personMatchManager');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 /**
  * @typedef {Object} MongoConfigType
@@ -26,9 +28,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @property {AdminLogger} adminLogger
      * @property {MongoDatabaseManager} mongoDatabaseManager
      * @property {MongoCollectionManager} mongoCollectionManager
+     * @property {PersonMatchManager} personMatchManager
      * @property {number} batchSize
      * @property {string[]} clientSourceAssigningAuthorities
      * @property {boolean} skipAlreadyLinked
+     * @property {boolean} getProaPatientClientPersonMatching
      *
      * @param {ConstructorProps}
      */
@@ -36,9 +40,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     adminLogger,
                     mongoDatabaseManager,
                     mongoCollectionManager,
+                    personMatchManager,
                     batchSize,
                     clientSourceAssigningAuthorities,
-                    skipAlreadyLinked
+                    skipAlreadyLinked,
+                    getProaPatientClientPersonMatching
                 }) {
         super({
             adminLogger,
@@ -47,9 +53,20 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             batchSize
         });
         /**
+         * @type {PersonMatchManager}
+         */
+        this.personMatchManager = personMatchManager;
+        assertTypeEquals(personMatchManager, PersonMatchManager);
+
+        /**
          * @type {boolean}
          */
         this.skipAlreadyLinked = skipAlreadyLinked;
+
+        /**
+         * @type {boolean}
+         */
+        this.getProaPatientClientPersonMatching = getProaPatientClientPersonMatching;
 
         /**
          * @type {string}
@@ -160,7 +177,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             this.handleAllErrorCases();
 
             this.adminLogger.logInfo('Writing Proa Patient Data Graph');
-            this.writeProaPatientDataGraph();
+            await this.writeProaPatientDataGraph();
 
             await this.handleWriteStreamClose();
         } catch (err) {
@@ -183,6 +200,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             'Proa Person UUID| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| ' +
             'Proa Master Person UUID| Proa Master Person SourceAssigningAuthority| Proa Master Person LastUpdated| ' +
             'Client Person UUID| Client Person SourceAssigningAuthority| Client Person LastUpdated| ' +
+            (this.getProaPatientClientPersonMatching ? 'Proa Patient to Client Person Matching Score| ' : '') +
             'Status|\n'
         );
         this.writeErrorStream.write(
@@ -230,12 +248,20 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @property {CsvDataType[]} proaPersonsData
      * @property {CsvDataType[]} masterPersonsData
      * @property {CsvDataType[]} clientPersonsData
+     * @property {string} matchingResults
      * @property {string} message
      *
      * @param {WriteDataProps}
      * @returns {void}
      */
-    writeData ({ proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message }) {
+    writeData ({
+        proaPatientData,
+        proaPersonsData,
+        masterPersonsData,
+        clientPersonsData,
+        message,
+        matchingResults
+    }) {
         const proaPersonData = this.convertToCsvFormat(proaPersonsData);
 
         const masterPersonData = this.convertToCsvFormat(masterPersonsData);
@@ -247,6 +273,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             `${proaPersonData.uuid}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
             `${masterPersonData.uuid}| ${masterPersonData.sourceAssigningAuthority}| ${masterPersonData.lastUpdated}| ` +
             `${clientPersonData.uuid}| ${clientPersonData.sourceAssigningAuthority}| ${clientPersonData.lastUpdated}| ` +
+            (this.getProaPatientClientPersonMatching ? `${matchingResults}| ` : '') +
             `${message}|\n`,
             (err) => {
                 if (err) {
@@ -894,9 +921,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
     /**
      * Writes Proa patient data graph from all the maps
-     * @returns {void}
+     * @returns {Promise<void>}
      */
-    writeProaPatientDataGraph () {
+    async writeProaPatientDataGraph () {
         for (const proaPatientUuid of Array.from(this.proaPatientDataMap.keys())) {
             const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {
@@ -948,12 +975,38 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     }
                 }
 
+                const patientPersonMatchingResults = [];
+                if (this.getProaPatientClientPersonMatching) {
+                    for (const clientPersonUuid of clientPersonUuids) {
+                        try {
+                            const matchingResult = await this.personMatchManager.personMatchAsync({
+                                sourceId: proaPatientUuid,
+                                sourceType: 'Patient',
+                                targetId: clientPersonUuid,
+                                targetType: 'Person'
+                            });
+                            patientPersonMatchingResults.push(
+                                (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
+                                    'N/A'
+                            );
+                        } catch (e) {
+                            patientPersonMatchingResults.push('N/A');
+                            this.adminLogger.logError(`Error while matching: ${e.message}`, {
+                                stack: e.stack,
+                                sourceId: `Patient/${proaPatientUuid}`,
+                                targetId: `Person/${clientPersonUuid}`
+                            });
+                        }
+                    }
+                }
+
                 this.writeData({
                     proaPatientData,
                     proaPersonsData: proaPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     masterPersonsData: masterPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
-                    message
+                    message,
+                    matchingResults: patientPersonMatchingResults.join(', ')
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
                 if (this.skipAlreadyLinked) {
@@ -970,12 +1023,38 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     message += 'Client Person Already Linked, ';
                 });
 
+                const patientPersonMatchingResults = [];
+                if (this.getProaPatientClientPersonMatching) {
+                    for (const clientPersonUuid of clientPersonUuids) {
+                        try {
+                            const matchingResult = await this.personMatchManager.personMatchAsync({
+                                sourceId: proaPatientUuid,
+                                sourceType: 'Patient',
+                                targetId: clientPersonUuid,
+                                targetType: 'Person'
+                            });
+                            patientPersonMatchingResults.push(
+                                (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
+                                    'N/A'
+                            );
+                        } catch (e) {
+                            patientPersonMatchingResults.push('N/A');
+                            this.adminLogger.logError(`Error while matching: ${e.message}`, {
+                                stack: e.stack,
+                                sourceId: `Patient/${proaPatientUuid}`,
+                                targetId: `Person/${clientPersonUuid}`
+                            });
+                        }
+                    }
+                }
+
                 this.writeData({
                     proaPatientData,
                     proaPersonsData: [],
                     masterPersonsData: [],
                     clientPersonsData,
-                    message
+                    message,
+                    matchingResults: patientPersonMatchingResults.join(', ')
                 });
             } else {
                 this.writeData({
