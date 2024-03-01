@@ -90,12 +90,12 @@ class GetMultipleOwnerDataCsvRunner extends BaseBulkOperationRunner {
                         { $count: 'total' }
                     ], { allowDiskUse: true });
                     const totalDoc = await collection.countDocuments();
-                    let duplicate = null;
+                    let duplicate = 0;
                     while (await cursorDuplicate.hasNext()) {
                         const data = await cursorDuplicate.next();
                         duplicate = data.total;
                     }
-                    let multiple = null;
+                    let multiple = 0;
                     while (await cursorMultiple.hasNext()) {
                         const data = await cursorMultiple.next();
                         multiple = data.total;
