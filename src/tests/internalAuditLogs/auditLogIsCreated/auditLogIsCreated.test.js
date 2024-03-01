@@ -1,6 +1,7 @@
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
+const auditEvent = require('./fixtures/auditEvent/audit_event.json');
 
 // expected
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
@@ -20,6 +21,8 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const env = require('var');
 const moment = require('moment-timezone');
 const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
+
+const headers = getHeaders('patient/*.* user/*.* access/*.*');
 
 describe('InternalAuditLog Tests', () => {
     let requestId;
@@ -213,6 +216,93 @@ describe('InternalAuditLog Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePractitionerResource);
+        });
+
+        test('InternalAuditLog works with patient scope', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            const base_version = '4_0_0';
+            const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
+            const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
+                {
+                    fieldValue: fieldDate.toString(),
+                    resourceWithBaseVersion: `${collection_name}_${base_version}`
+                });
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+
+            // Creating audit event, but it should not be created.
+            let resp = await request
+                .post('/4_0_0/AuditEvent/$merge')
+                .send(auditEvent)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            let logs = await internalAuditEventCollection.find({}).toArray();
+            expect(logs.length).toStrictEqual(0);
+
+            // Creating audit event with patients scope, 200 should be received but object not created
+            resp = await request
+                .post('/4_0_0/AuditEvent/$merge')
+                .send(auditEvent)
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: false });
+
+            // Create practitioner object so audit event is created
+            resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
+                .send(practitionerResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            logs = await internalAuditEventCollection.find({}).toArray();
+            expect(logs.length).toStrictEqual(1);
+
+            // No audit event must be fetched when using patients scope
+            const currentDate = fieldDate.toISOString().split('T')[0];
+            resp = await request
+                .get(`/4_0_0/AuditEvent?date=le${currentDate}&date=ge${currentDate}`)
+                .set(headers);
+            expect(resp.body.length).toStrictEqual(0);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            logs = await internalAuditEventCollection.find({}).toArray();
+            // No new audit event must be created as nothing is fetched
+            expect(logs.length).toStrictEqual(1);
         });
     });
 });

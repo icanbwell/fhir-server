@@ -32,9 +32,20 @@ class CanWriteWithPatientScopeHandler extends PreSaveHandler {
         const {
             scope,
             isUser,
+            method,
             patientIdsFromJwtToken,
             personIdFromJwtToken
         } = requestInfo;
+        const resources = Array.isArray(requestInfo.body) ? requestInfo.body : [requestInfo.body]
+
+        // Bypassing patient scope check when AuditEvent is created via audit logger.
+        if (
+            resource.resourceType === 'AuditEvent' &&
+            !resources.some(r => r.resourceType === 'AuditEvent') &&
+            method === 'GET'
+        ) {
+            return resource;
+        }
 
         if (!(await this.patientScopeManager.canWriteResourceAsync({
             base_version,
