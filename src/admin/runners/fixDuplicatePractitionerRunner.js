@@ -117,10 +117,10 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         ]);
 
         /**
-         * stores uuid processed till this point
-         * @type {Map<string, Set<string>>}
+         * stores substitution values for Practitioners
+         * @type {Map<string, Object>}
          */
-        this.processedPractitoners = new Map();
+        this.practitionerSubstitutions = new Map();
 
         /**
          * stores meta and _id information for each _sourceId
@@ -202,7 +202,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Gets duplicate uuids in and array from collection passed
+     * Gets duplicate practitioners with NPI _sourceIds
      * @param {require('mongodb').collection} collection
      * @returns {Promise<string[]>}
      */
@@ -224,7 +224,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                 count: { $count: {} },
                                 meta: { $push: '$meta' },
                                 id: { $push: '$_id' },
-                                uuid: { $push: '$_uuid' }
+                                uuid: { $push: '$_uuid' },
+                                sourceAssigningAuthority: { $push: '$_sourceAssigningAuthority' }
                             }
                         },
                         {
@@ -238,79 +239,133 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     { allowDiskUse: true }
                 )
                 .toArray()
-        )
-            .map(res => {
-                this.metaIdCache.set(res._id, res.id.map((id, index) => ({
-                    meta: res.meta[Number(index)], _id: id
-                })));
-                return res._id;
-            });
+        );
 
         return result;
     }
 
     /**
-     * Make provided uuid unqiue for the collection
-     * @param {string} uuid
+     * Creates map of substitutions for old/new Practitioner values
+     * @param {array} dups
+     */
+    async createPractitionerSubstitutions (dups) {
+        // loop thru array and create substitution object fields
+        dups.forEach(dup => {
+            let correctIndex = 0;
+            let inCorrectIndex = 0;
+            const subs = {};
+            if (dup.sourceAssigningAuthority[0] === 'nppes') {
+                correctIndex = 0;
+                inCorrectIndex = 1;
+            } else {
+                correctIndex = 1;
+                inCorrectIndex = 0;
+            }
+            subs.goodReference = `Practitioner/${dup._id}|nppes`;
+            subs.badReference = `Practitioner/${dup._id}`;
+            subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
+            subs.badUuid = `Practitioner/${dup.uuid[inCorrectIndex]}`;
+            this.practitionerSubstitutions.set(dup._id, subs);
+        });
+    }
+
+    /**
+     * Perform substitutions in one reference field
+     * @param {Object} ref
+     * @param {string} sourceId
+     * @returns {Promise <Object>}
+     */
+    async substituteOneReference ({ ref, sourceId }) {
+        // do simple fields
+        const subs = this.practitionerSubstitutions.get(sourceId);
+        ref._uuid = subs.goodUuid;
+        if (ref.reference.startsWith(subs.badReference)) {
+            ref.reference = subs.goodReference;
+        } else {
+            ref.reference = subs.goodUuid;
+        }
+        ref._sourceId = subs.goodReference;
+        ref._sourceAssigningAuthority = 'nppes';
+        // do the extension fields
+        if (ref.extension && Array.isArray(ref.extension)) {
+            ref.extension.forEach(ext => {
+                if (ext.id === 'sourceid') {
+                    ext.valueString = subs.goodReference;
+                }
+                if (ext.id === 'sourceAssigningAuthority') {
+                    ext.valueString = 'nppes';
+                }
+                if (ext.id === 'uuid') {
+                    ext.valueString = subs.goodUuid;
+                }
+            });
+        }
+
+        return ref;
+    }
+
+    /**
+     * update duplicated Practitioner references for the collection
      * @param {string} collectionName
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processResourceAsync ({ uuid, collectionName }) {
+    async processResourceAsync ({ collectionName }) {
         try {
-            if (
-                this.processedUuids.has(collectionName) &&
-                this.processedUuids.get(collectionName).has(uuid)
-            ) {
-                return [];
-            }
+            // if (
+            //     this.processedUuids.has(collectionName) &&
+            //     this.processedUuids.get(collectionName).has(uuid)
+            // ) {
+            //     return [];
+            // }
+            //
+            // if (!this.metaIdCache.has(uuid)) {
+            //     // safety check
+            //     this.adminLogger.logInfo(`uuid: ${uuid} is missing from cache`);
+            //     return [];
+            // }
+            //
+            // const resources = this.metaIdCache.get(uuid);
 
-            if (!this.metaIdCache.has(uuid)) {
-                // safety check
-                this.adminLogger.logInfo(`uuid: ${uuid} is missing from cache`);
-                return [];
-            }
-
-            const resources = this.metaIdCache.get(uuid);
-
-            const resourceWithoutMetaVersionId = resources.filter(res => !res.meta?.versionId);
-            if (resourceWithoutMetaVersionId.length > 0) {
-                this.adminLogger.logInfo(
-                    `Resources without versionId for uuid: ${uuid} and _id: ${resourceWithoutMetaVersionId.map(res => res._id).join()}`
-                );
-                return [];
-            }
-
-            /**
-             * @type {number}
-             */
-            const versionIdToKeep = resources.reduce(
-                (versionId, res) => Math.max(versionId, Number(res.meta.versionId)),
-                0
-            );
-
-            /**
-             * @type {Object}
-             */
-            const resourcesWithMaxVersionId = resources.filter(
-                (res) => Number(res.meta.versionId) === versionIdToKeep
-            );
-
-            if (resourcesWithMaxVersionId.length > 1) {
-                resourcesWithMaxVersionId.sort((res1, res2) => (new Date(res2.meta.lastUpdated)).getTime() - (new Date(res1.meta.lastUpdated)).getTime());
-            }
-
-            const resourcesToDelete = resources.reduce((toDelete, res) => {
-                if (res._id !== resourcesWithMaxVersionId[0]._id) {
-                    toDelete.push(res._id);
-                }
-                return toDelete;
-            }, []);
-
-            if (!this.processedUuids.has(collectionName)) {
-                this.processedUuids.set(collectionName, new Set());
-            }
-            this.processedUuids.get(collectionName).add(uuid);
-
+            // const resourceWithoutMetaVersionId = resources.filter(res => !res.meta?.versionId);
+            // if (resourceWithoutMetaVersionId.length > 0) {
+            //     this.adminLogger.logInfo(
+            //         `Resources without versionId for uuid: ${uuid} and _id: ${resourceWithoutMetaVersionId.map(res => res._id).join()}`
+            //     );
+            //     return [];
+            // }
+            //
+            // /**
+            //  * @type {number}
+            //  */
+            // const versionIdToKeep = resources.reduce(
+            //     (versionId, res) => Math.max(versionId, Number(res.meta.versionId)),
+            //     0
+            // );
+            //
+            // /**
+            //  * @type {Object}
+            //  */
+            // const resourcesWithMaxVersionId = resources.filter(
+            //     (res) => Number(res.meta.versionId) === versionIdToKeep
+            // );
+            //
+            // if (resourcesWithMaxVersionId.length > 1) {
+            //     resourcesWithMaxVersionId.sort((res1, res2) => (new Date(res2.meta.lastUpdated)).getTime() - (new Date(res1.meta.lastUpdated)).getTime());
+            // }
+            //
+            // const resourcesToDelete = resources.reduce((toDelete, res) => {
+            //     if (res._id !== resourcesWithMaxVersionId[0]._id) {
+            //         toDelete.push(res._id);
+            //     }
+            //     return toDelete;
+            // }, []);
+            //
+            // if (!this.processedUuids.has(collectionName)) {
+            //     this.processedUuids.set(collectionName, new Set());
+            // }
+            // this.processedUuids.get(collectionName).add(uuid);
+            //
+            const resourcesToDelete = [];
             return [
                 {
                     deleteMany: {
@@ -325,7 +380,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                 message: `Error processing record ${e.message}`,
                 error: e,
                 args: {
-                    uuid,
                     collectionName
                 },
                 source: 'FixDuplicatePractitionerRunner.processRecordAsync'
@@ -361,30 +415,33 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            const { db, client, session } = await this.createSingeConnectionAsync({ mongoConfig });
+            // const { db, client, session } = await this.createSingeConnectionAsync({
+            //     mongoConfig, collectionName: 'collection'
+            // });
+            const duplicatePractitionerArray = await this.getDuplicatePractitionerArrayAsync({
+                collection: 'Practitioner_4_0_0'
+            });
+            await this.createPractitionerSubstitutions(duplicatePractitionerArray);
             try {
                 for (const collectionName of this.collections) {
-                    const collection = db.collection(collectionName);
+                    // const collection = db.collection(collectionName);
                     /**
                      * @type {string[]}
                      */
-                    const DuplicatePractitionerArray = await this.getDuplicatePractitionerArrayAsync({
-                        collection
-                    });
 
-                    const startFromIdContainer = this.createStartFromIdContainer();
+                    // const startFromIdContainer = this.createStartFromIdContainer();
 
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
                     const query = this.getQueryForDuplicatePractitionerResources({
-                        DuplicatePractitionerArray
+                        duplicatePractitionerArray
                     });
 
-                    if (DuplicatePractitionerArray.length > 0) {
+                    if (duplicatePractitionerArray.length > 0) {
                         this.adminLogger.logInfo(`Started processing uuids for ${collectionName}`);
                         this.adminLogger.logInfo(
-                            `duplicate uuids for the collection: ${DuplicatePractitionerArray.join()}`
+                            `duplicate uuids for the collection: ${duplicatePractitionerArray.join()}`
                         );
                         try {
                             await this.runForQueryBatchesAsync({
@@ -393,7 +450,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                 destinationCollectionName: collectionName,
                                 query,
                                 projection: this.properties ? this.getProjection() : undefined,
-                                startFromIdContainer,
                                 fnCreateBulkOperationAsync: async (doc) =>
                                     await this.processResourceAsync({
                                         uuid: doc._uuid,
@@ -409,7 +465,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                         } catch (e) {
                             console.log(e.message);
                             this.adminLogger.logError(
-                                `Got error ${e}.  At ${startFromIdContainer.startFromId}`
+                                `Got error ${e}. `
                             );
                             throw new RethrownError({
                                 message: `Error processing references of collection ${collectionName} ${e.message}`,
@@ -429,8 +485,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     }
                 }
             } finally {
-                await session.endSession();
-                await client.close();
+                // await session.endSession();
+                // await client.close();
             }
 
             this.adminLogger.logInfo('Finished script');
