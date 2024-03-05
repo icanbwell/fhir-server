@@ -179,9 +179,9 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @returns {Promise}
      */
     async cacheConsentType ({ collection }) {
-        this.duplicateConsents.forEach(dup => {
+        for (const dup of this.duplicateConsents) {
             if (dup._uuid && Array.isArray(dup._uuid)) {
-                dup._uuid.forEach(async uuid => {
+                for (const uuid of dup._uuid) {
                     // const options = { projection: { 'provision.type': 1 } };
                     const consent = await collection.findOne({ _uuid: uuid });
                     // const strConsent = JSON.stringify(consent);
@@ -190,9 +190,9 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                         this.consentCache.set(uuid, consent.provision.type);
                         this.adminLogger.logInfo(`Caching consent type for ${uuid}`);
                     }
-                });
+                }
             }
-        });
+        }
     }
 
     /**
