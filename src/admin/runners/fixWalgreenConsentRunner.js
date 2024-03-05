@@ -154,6 +154,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
             const qr = qrCollection.find({ _uuid: qrId });
+            const strqr = JSON.stringify(qr);
+            this.adminLogger.logInfo(`qr ${strqr}`);
             if (qr) {
                 let hipaaConsent = true;
                 let marketingConsent = true;
