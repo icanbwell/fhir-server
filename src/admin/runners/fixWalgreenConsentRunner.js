@@ -361,6 +361,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo('Finished processing consents');
                 }
             } finally {
+                this.adminLogger.logInfo('*******In finally');
                 await session.endSession();
                 await client.close();
             }
