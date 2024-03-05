@@ -139,11 +139,16 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             // check if this is home page, resource page, or admin page
-            const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0') || reqPath.startsWith('/admin');
+            const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0');
+            const isAdminUrl = reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && isResourceUrl) {
+            if (isTrue(env.REDIRECT_TO_NEW_UI)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
-                res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
+                if (isResourceUrl) {
+                    res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
+                } else if (isAdminUrl) {
+                    res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
+                }
                 return;
             }
         }
