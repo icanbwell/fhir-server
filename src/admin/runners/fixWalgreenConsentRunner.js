@@ -207,8 +207,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             const strDup = JSON.stringify(dup);
             this.adminLogger.logInfo(`dup ${strDup}`);
             let indexToUpdate = 0;
-            this.adminLogger.logInfo(`qrRef = ${dup.ref}`);
-            const resp = this.qResponseCache.get(dup.ref);
+            this.adminLogger.logInfo(`qrRef = ${dup._id.ref}`);
+            const resp = this.qResponseCache.get(dup._id.ref);
             const strResp = JSON.stringify(resp);
             this.adminLogger.logInfo(`cached resp object = ${strResp}`);
             if (resp.hipaaConsent === resp.marketingConsent) {
