@@ -149,7 +149,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     async cacheQuestionnaireResponse ({ collection }) {
         this.duplicateConsents.forEach(consent => {
             const qrIdRaw = consent._id.ref;
-            this.adminLogger.logInfo('Cacheing response for ', qrIdRaw);
+            this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
             const qr = collection.find({ _uuid: qrId });
@@ -182,7 +182,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     const csent = collection.find({ _uuid: uuid }).projection({ 'provision.type': 1 });
                     if (csent) {
                         this.consentCache.set(uuid, csent.provision.type);
-                        this.adminLogger.logInfo('Caching consent type for ', uuid);
+                        this.adminLogger.logInfo(`Caching consent type for ${uuid}`);
                     }
                 });
             }
@@ -217,7 +217,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     }
                 }
             }
-            this.adminLogger.logInfo('Update consent', dup._uuid[indexToUpdate]);
+            this.adminLogger.logInfo(`Update consent ${dup._uuid[indexToUpdate]}`);
             uuids.push(dup._uuid[indexToUpdate]);
         });
         return uuids;
@@ -228,7 +228,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      */
     changeToMarketingConsent (resource) {
-        this.adminLogger.logInfo('updating consent', resource._uuid);
+        this.adminLogger.logInfo(`updating consent ${resource._uuid}`);
         // update category coding
         if (resource.category && Array.isArray(resource.category)) {
             resource.category.forEach(category => {
@@ -301,9 +301,14 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
             const collectionName = 'Consent_4_0_0';
+            const qrCollectionName = 'QuestionnaireResponse_4_0_0';
             const { db, client, session } = await this.createSingeConnectionAsync({
                 mongoConfig,
                 collectionName
+            });
+            const { qrDB, qrClient, qrSession } = await this.createSingeConnectionAsync({
+                mongoConfig,
+                qrCollectionName
             });
             try {
                 const collection = db.collection(collectionName);
@@ -315,7 +320,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
 
                 if (this.duplicateConsents.length > 0) {
                     this.adminLogger.logInfo('Caching Questionnaire Responses');
-                    const qrCollection = db.collection('QuestionnaireResponse_4_0_0');
+                    const qrCollection = qrDB.collection(qrCollectionName);
                     await this.cacheQuestionnaireResponse({ qrCollection });
                     this.adminLogger.logInfo('Caching Consent Types');
                     await this.cacheConsentType({ collection });
@@ -357,6 +362,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             } finally {
                 await session.endSession();
                 await client.close();
+                await qrSession.endSession();
+                await qrClient.close();
             }
 
             this.adminLogger.logInfo('Finished script');
