@@ -360,6 +360,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     }
                     this.adminLogger.logInfo('Finished processing consents');
                 }
+            } catch (e) {
+                this.adminLogger.logError(`errer in mid try ${e}`);
             } finally {
                 this.adminLogger.logInfo('*******In finally');
                 await session.endSession();
