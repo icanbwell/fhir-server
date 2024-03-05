@@ -148,12 +148,12 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      */
     async cacheQuestionnaireResponse ({ qrCollection }) {
         this.adminLogger.logInfo(`QR Collection ${qrCollection}`);
-        this.duplicateConsents.forEach(consent => {
+        for (const consent of this.duplicateConsents) {
             const qrIdRaw = consent._id.ref;
             this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
-            const qr = qrCollection.findOne({ _uuid: qrId });
+            const qr = await qrCollection.findOne({ _uuid: qrId });
             const strqr = JSON.stringify(qr);
             this.adminLogger.logInfo(`qr ${strqr}`);
             if (qr) {
@@ -171,7 +171,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                 }
                 this.qResponseCache.set(qrIdRaw, { hipaaConsent, marketingConsent });
             }
-        });
+        }
     }
 
     /**
@@ -181,9 +181,9 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     async cacheConsentType ({ collection }) {
         this.duplicateConsents.forEach(dup => {
             if (dup._uuid && Array.isArray(dup._uuid)) {
-                dup._uuid.forEach(uuid => {
+                dup._uuid.forEach(async uuid => {
                     // const options = { projection: { 'provision.type': 1 } };
-                    const consent = collection.findOne({ _uuid: uuid });
+                    const consent = await collection.findOne({ _uuid: uuid });
                     const strConsent = JSON.stringify(consent);
                     if (consent) {
                         this.adminLogger.logInfo(`consent ${strConsent}`)
