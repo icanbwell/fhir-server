@@ -163,9 +163,11 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     qr.item.forEach(item => {
                         if (item.linkId === '/hipaaConsent' && item.answer && Array.isArray(item.answer) && item.answer.length === 1) {
                             hipaaConsent = item.answer[0];
+                            this.adminLogger.logInfo(`hipaaConsent ${hipaaConsent}`);
                         }
                         if (item.linkId === '/marketingConsent' && item.answer && Array.isArray(item.answer) && item.answer.length === 1) {
                             marketingConsent = item.answer[0];
+                            this.adminLogger.logInfo(`marketingConsent ${marketingConsent}`);
                         }
                     })
                 }
@@ -204,6 +206,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
         this.duplicateConsents.forEach(dup => {
             let indexToUpdate = 0;
             const resp = this.qResponseCache.get(dup.ref);
+            const strResp = JSON.stringify(resp);
+            this.adminLogger.logInfo(`cached resp object = ${strResp}`);
             if (resp.hipaaConsent === resp.marketingConsent) {
                 // just pick first consent doc to update
                 indexToUpdate = 0;
