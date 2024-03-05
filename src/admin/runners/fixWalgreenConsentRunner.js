@@ -27,7 +27,7 @@ const marketingCategoryCodingDisplay = 'marketing';
 /**
  * @classdesc Finds _uuid of resources where count is greater than 1 and fix them
  */
-class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
+class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     /**
      * constructor
      * @param {MongoCollectionManager} mongoCollectionManager
@@ -370,5 +370,5 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    fixWalgreenConsentRunner
+    FixWalgreenConsentRunner
 };
