@@ -303,12 +303,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             const collectionName = 'Consent_4_0_0';
             const qrCollectionName = 'QuestionnaireResponse_4_0_0';
             const { db, client, session } = await this.createSingeConnectionAsync({
-                mongoConfig,
-                collectionName
-            });
-            const { qrDB, qrClient, qrSession } = await this.createSingeConnectionAsync({
-                mongoConfig,
-                qrCollectionName
+                mongoConfig
             });
             try {
                 const collection = db.collection(collectionName);
@@ -320,7 +315,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
 
                 if (this.duplicateConsents.length > 0) {
                     this.adminLogger.logInfo('Caching Questionnaire Responses');
-                    const qrCollection = qrDB.collection(qrCollectionName);
+                    const qrCollection = db.collection(qrCollectionName);
                     await this.cacheQuestionnaireResponse({ qrCollection });
                     this.adminLogger.logInfo('Caching Consent Types');
                     await this.cacheConsentType({ collection });
@@ -362,8 +357,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             } finally {
                 await session.endSession();
                 await client.close();
-                await qrSession.endSession();
-                await qrClient.close();
             }
 
             this.adminLogger.logInfo('Finished script');
