@@ -180,7 +180,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
         this.duplicateConsents.forEach(dup => {
             if (dup._uuid && Array.isArray(dup._uuid)) {
                 dup._uuid.forEach(uuid => {
-                    const csent = collection.find({ _uuid: uuid }).projection({ 'provision.type': 1 });
+                    const options = { projection: { 'provision.type': 1 } };
+                    const csent = collection.find({ _uuid: uuid }, options);
                     if (csent) {
                         this.consentCache.set(uuid, csent.provision.type);
                         this.adminLogger.logInfo(`Caching consent type for ${uuid}`);
