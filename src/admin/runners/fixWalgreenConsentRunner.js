@@ -136,7 +136,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     { $match: { count: { $gt: 1 } } }
                     ], { allowDiskUse: true }
                 )
-                .limit(1) // for testing purposes
                 .toArray()
             );
         return result;
