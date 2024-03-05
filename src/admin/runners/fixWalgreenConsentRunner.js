@@ -149,6 +149,7 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
     async cacheQuestionnaireResponse ({ collection }) {
         this.duplicateConsents.forEach(consent => {
             const qrIdRaw = consent._id.ref;
+            this.adminLogger.logInfo('Cacheing response for ', qrIdRaw);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
             const qr = collection.find({ _uuid: qrId });
@@ -181,6 +182,7 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     const csent = collection.find({ _uuid: uuid }).projection({ 'provision.type': 1 });
                     if (csent) {
                         this.consentCache.set(uuid, csent.provision.type);
+                        this.adminLogger.logInfo('Caching consent type for ', uuid);
                     }
                 });
             }
@@ -215,6 +217,7 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     }
                 }
             }
+            this.adminLogger.logInfo('Update consent', dup._uuid[indexToUpdate]);
             uuids.push(dup._uuid[indexToUpdate]);
         });
         return uuids;
@@ -225,6 +228,7 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      */
     changeToMarketingConsent (resource) {
+        this.adminLogger.logInfo('updating consent', resource._uuid);
         // update category coding
         if (resource.category && Array.isArray(resource.category)) {
             resource.category.forEach(category => {
@@ -306,6 +310,7 @@ class fixWalgreenConsentRunner extends BaseBulkOperationRunner {
                 this.duplicateConsents = await this.getDuplicateConsentArrayAsync({
                     collection
                 });
+                this.adminLogger.logInfo('got duplicate consents,length', this.duplicateConsents.length)
                 const startFromIdContainer = this.createStartFromIdContainer();
 
                 if (this.duplicateConsents.length > 0) {
