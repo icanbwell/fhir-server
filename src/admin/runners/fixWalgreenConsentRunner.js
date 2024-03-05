@@ -153,7 +153,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
-            const qr = qrCollection.find({ _uuid: qrId });
+            const qr = qrCollection.findOne({ _uuid: qrId });
             const strqr = JSON.stringify(qr);
             this.adminLogger.logInfo(`qr ${strqr}`);
             if (qr) {
@@ -183,7 +183,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             if (dup._uuid && Array.isArray(dup._uuid)) {
                 dup._uuid.forEach(uuid => {
                     // const options = { projection: { 'provision.type': 1 } };
-                    const consent = collection.find({ _uuid: uuid });
+                    const consent = collection.findOne({ _uuid: uuid });
                     const strConsent = JSON.stringify(consent);
                     if (consent) {
                         this.adminLogger.logInfo(`consent ${strConsent}`)
