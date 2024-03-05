@@ -148,14 +148,14 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      */
     async cacheQuestionnaireResponse ({ qrCollection }) {
         this.adminLogger.logInfo(`QR Collection ${qrCollection}`);
-        for (const consent of this.duplicateConsents) {
-            const qrIdRaw = consent._id.ref;
+        for (const dup of this.duplicateConsents) {
+            const qrIdRaw = dup._id.ref;
             this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
             const qr = await qrCollection.findOne({ _uuid: qrId });
-            const strqr = JSON.stringify(qr);
-            this.adminLogger.logInfo(`qr ${strqr}`);
+            // const strqr = JSON.stringify(qr);
+            // this.adminLogger.logInfo(`qr ${strqr}`);
             if (qr) {
                 let hipaaConsent = true;
                 let marketingConsent = true;
@@ -204,6 +204,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     chooseConsentToUpdate () {
         const uuids = [];
         this.duplicateConsents.forEach(dup => {
+            const strDup = JSON.stringify(dup);
+            this.adminLogger.logInfo(`dup ${strDup}`);
             let indexToUpdate = 0;
             this.adminLogger.logInfo(`qrRef = ${dup.ref}`);
             const resp = this.qResponseCache.get(dup.ref);
