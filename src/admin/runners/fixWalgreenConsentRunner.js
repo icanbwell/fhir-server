@@ -146,13 +146,14 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').collection} collection
      * @returns {Promise}
      */
-    async cacheQuestionnaireResponse ({ collection }) {
+    async cacheQuestionnaireResponse ({ qrCollection }) {
+        this.adminLogger.logInfo(`QR Collection ${qrCollection}`);
         this.duplicateConsents.forEach(consent => {
             const qrIdRaw = consent._id.ref;
             this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
-            const qr = collection.find({ _uuid: qrId });
+            const qr = qrCollection.find({ _uuid: qrId });
             if (qr) {
                 let hipaaConsent = true;
                 let marketingConsent = true;
