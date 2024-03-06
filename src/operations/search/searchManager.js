@@ -28,13 +28,12 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
-const { ProaConsentManager } = require('./proaConsentManager');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { PatientScopeManager } = require('../common/patientScopeManager');
+const { PatientScopeManager } = require('../security/patientScopeManager');
 
 class SearchManager {
     /**
@@ -51,7 +50,6 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ProaConsentManager} proaConsentManager
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
@@ -70,7 +68,6 @@ class SearchManager {
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
-            proaConsentManager,
             dataSharingManager,
             searchQueryBuilder,
             patientScopeManager
@@ -143,12 +140,6 @@ class SearchManager {
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
 
         /**
-         * @type {ProaConsentManager}
-         */
-        this.proaConsentManager = proaConsentManager;
-        assertTypeEquals(proaConsentManager, ProaConsentManager);
-
-        /**
          * @type {DataSharingManager}
          */
         this.dataSharingManager = dataSharingManager;
@@ -181,6 +172,7 @@ class SearchManager {
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
      * @param {'READ'|'WRITE'} operation
+     * @param {string} accessRequested
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -195,7 +187,8 @@ class SearchManager {
             requestId,
             parsedArgs,
             useHistoryTable,
-            operation
+            operation,
+            accessRequested = 'read'
         }
     ) {
         try {
@@ -209,7 +202,9 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            const securityTags = this.securityTagManager.getSecurityTagsFromScope({ user, scope, hasPatientScope });
+            const securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                accessRequested, user, scope, hasPatientScope
+            });
             /**
              * @type {import('mongodb').Document}
              */
@@ -236,7 +231,7 @@ class SearchManager {
                 shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
-                    resourceType, securityTags, query, useAccessIndex
+                    resourceType, securityTags, query, useAccessIndex, useHistoryTable
                 });
 
                 if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
@@ -256,34 +251,17 @@ class SearchManager {
                 /**
                  * @type {string[]}
                  */
-                const patientIdsLinkedToPersonId = personIdFromJwtToken
-                    ? await this.patientScopeManager.getLinkedPatientsAsync(
-                        {
-                            base_version, isUser, personIdFromJwtToken
-                        })
-                    : [];
-                /**
-                 * @type {string[]|null}
-                 */
-                const allPatientIdsFromJwtToken = patientIdsFromJwtToken
-                    ? patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId)
-                    : patientIdsLinkedToPersonId;
+                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken
+                });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
-                    (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
+                    allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
                     query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
-                    if (personIdFromJwtToken) {
-                        // Add the person id to the list as a patient proxy
-                        allPatientIdsFromJwtToken.push(
-                            `person.${personIdFromJwtToken}`
-                        );
-                    }
-                    query = this.securityTagManager.getQueryWithPatientFilter(
-                        {
-                            patientIds: allPatientIdsFromJwtToken, query, resourceType
-                        }
-                    );
+                    query = this.securityTagManager.getQueryWithPatientFilter({
+                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
+                    });
                 }
             }
 
@@ -306,7 +284,7 @@ class SearchManager {
                     error: e,
                     args: {
                         user,
-scope,
+                        scope,
                         isUser,
                         patientIdsFromJwtToken,
                         parsedArgs,
@@ -545,9 +523,9 @@ scope,
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType,
-base_version,
+                    base_version,
                     query,
-maxMongoTimeMS
+                    maxMongoTimeMS
                 });
         }
 
@@ -809,17 +787,13 @@ maxMongoTimeMS
      * Reads resources from Mongo cursor
      * @param {DatabasePartitionedCursor} cursor
      * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, scope,
-            parsedArgs, resourceType,
-            useAccessIndex
+            cursor, user, parsedArgs, resourceType
         }
     ) {
         /**
@@ -852,12 +826,9 @@ maxMongoTimeMS
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user,
-scope,
-parsedArgs,
-resourceType,
-useAccessIndex,
-signal: ac.signal,
+                        parsedArgs,
+                        resourceType,
+                        signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
                         configManager: this.configManager
@@ -966,10 +937,8 @@ signal: ac.signal,
      * @param {function (string | null, number): Bundle} fnBundle
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @param {string[]|null} accepts
      * @param {number} batchObjectCount
      * @param {string} defaultSortId
@@ -983,10 +952,8 @@ signal: ac.signal,
             fnBundle,
             res,
             user,
-            scope,
             parsedArgs,
             resourceType,
-            useAccessIndex,
             accepts,
             // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1,
@@ -1056,12 +1023,9 @@ signal: ac.signal,
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user,
-scope,
-parsedArgs,
-resourceType,
-useAccessIndex,
-signal: ac.signal,
+                parsedArgs,
+                resourceType,
+                signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark,
                 configManager: this.configManager,
@@ -1111,7 +1075,7 @@ signal: ac.signal,
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
                 user,
-error: new RethrownError(
+                error: new RethrownError(
                     {
                         message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e

@@ -262,8 +262,6 @@ class MergeManager {
         const {
             /** @type {string|null} */
             user,
-            /** @type {string|null} */
-            scope,
             /** @type {string} */
             requestId
         } = requestInfo;
@@ -314,7 +312,7 @@ class MergeManager {
             if (currentResource && currentResource.meta) {
                 await this.mergeExistingAsync(
                     {
-                        resourceToMerge, currentResource, user, scope, currentDate, requestInfo, base_version
+                        resourceToMerge, currentResource, currentDate, requestInfo, base_version
                     }
                 );
             } else {

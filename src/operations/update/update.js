@@ -1,6 +1,6 @@
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const { NotValidatedError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -23,9 +23,7 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE } } = require('../../constants');
-const { PatientScopeManager } = require('../common/patientScopeManager');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 
 /**
  * Update Operation
@@ -47,8 +45,6 @@ class UpdateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
-     * @param {PatientScopeManager} patientScopeManager
-     * @param {PreSaveManager} preSaveManager
      */
     constructor (
         {
@@ -65,9 +61,7 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            searchManager,
-            patientScopeManager,
-            preSaveManager
+            searchManager
         }
     ) {
         /**
@@ -145,14 +139,6 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
-
-        /** @type {PatientScopeManager} */
-        this.patientScopeManager = patientScopeManager;
-        assertTypeEquals(patientScopeManager, PatientScopeManager);
-
-        /** @type {PreSaveManager} */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -293,7 +279,8 @@ class UpdateOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                operation: 'WRITE'
+                operation: WRITE,
+                accessRequested: 'write'
             });
 
             // Get current record
@@ -356,14 +343,6 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: foundResource, user, scope
-                }))) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new ForbiddenError(
-                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                        foundResource.resourceType + ' with id ' + id);
-                }
                 const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,
@@ -395,10 +374,13 @@ class UpdateOperation {
                 // Check if meta & meta.source exists in incoming resource
                 if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
-                } else {
-                    resource_incoming.meta.versionId = '1';
-                    resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
+                resource_incoming.meta.versionId = '1';
+                resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+
+                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                    resource: resource_incoming, requestInfo, base_version, accessRequested: 'write'
+                });
 
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);

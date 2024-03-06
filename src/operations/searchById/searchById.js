@@ -1,4 +1,4 @@
-const { ForbiddenError, NotFoundError, BadRequestError } = require('../../utils/httpErrors');
+const { NotFoundError, BadRequestError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { removeNull } = require('../../utils/nullRemover');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -6,7 +6,6 @@ const { SearchManager } = require('../search/searchManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { SecurityTagManager } = require('../common/securityTagManager');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { isTrue } = require('../../utils/isTrue');
@@ -25,7 +24,6 @@ class SearchByIdOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
      * @param {SecurityTagManager} securityTagManager
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
@@ -39,7 +37,6 @@ class SearchByIdOperation {
             databaseQueryFactory,
             auditLogger,
             securityTagManager,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
@@ -68,11 +65,6 @@ class SearchByIdOperation {
          */
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -227,14 +219,6 @@ class SearchByIdOperation {
             resource = getFirstResourceOrNull(resources);
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource, user, scope
-                }))) {
-                    throw new ForbiddenError(
-                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                        resource.resourceType + ' with id ' + id);
-                }
-
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
@@ -255,11 +239,11 @@ class SearchByIdOperation {
                             await this.auditLogger.logAuditEntryAsync(
                                 {
                                     requestInfo,
-base_version,
-resourceType,
+                                    base_version,
+                                    resourceType,
                                     operation: 'read',
-args: parsedArgs.getRawArgs(),
-ids: [resource.id]
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: [resource.id]
                                 }
                             );
                         }

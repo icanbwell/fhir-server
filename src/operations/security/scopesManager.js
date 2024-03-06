@@ -110,9 +110,10 @@ class ScopesManager {
      * @param {Resource} resource
      * @param {string} user
      * @param {string} scope
+     * @param {string} accessRequested
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope }) {
+    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
         const hasPatientScope = this.hasPatientScope({ scope });
         if (hasPatientScope) {
             return true; // TODO: should double check here that the resources belong to this patient
@@ -121,7 +122,7 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = this.getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);

@@ -262,13 +262,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write access/foo.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                if (r.issue) {
-                    delete r.issue[0].diagnostics;
-                }
-            });
+            expect(resp).toHaveResponse(expectedWrongAccessScope);
         });
         test('mergeWith_id fails with wrong access scope (update)', async () => {
             const request = await createTestRequest();
@@ -301,11 +297,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write access/foo.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                delete r.issue[0].diagnostics;
-            });
+            expect(resp).toHaveResponse(expectedWrongAccessScope);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back

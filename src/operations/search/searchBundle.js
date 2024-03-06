@@ -181,14 +181,14 @@ class SearchBundleOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
-scope,
-isUser,
-patientIdsFromJwtToken,
-resourceType,
-useAccessIndex,
+                    scope,
+                    isUser,
+                    patientIdsFromJwtToken,
+                    resourceType,
+                    useAccessIndex,
                     personIdFromJwtToken,
-parsedArgs,
-operation: READ
+                    parsedArgs,
+                    operation: READ
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
@@ -222,14 +222,14 @@ operation: READ
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
                     resourceType,
-base_version,
+                    base_version,
                     columns,
-options,
-query,
+                    options,
+                    query,
                     maxMongoTimeMS,
-user,
-isStreaming: false,
-useAccessIndex,
+                    user,
+                    isStreaming: false,
+                    useAccessIndex,
                     parsedArgs,
                     useAggregationPipeline,
                     extraInfo
@@ -283,7 +283,7 @@ useAccessIndex,
             if (cursor !== null) { // usually means the two-step optimization found no results
                 logDebug('', {
                     user,
-args: {
+                    args: {
                         query:
                             mongoQueryAndOptionsStringify(
                                 { query: originalQuery, options: originalOptions })
@@ -292,11 +292,9 @@ args: {
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
                         cursor,
-user,
-scope,
-parsedArgs,
-                        resourceType,
-                        useAccessIndex
+                        user,
+                        parsedArgs,
+                        resourceType
                     }
                 );
 
@@ -385,7 +383,7 @@ parsedArgs,
                                 collectionName,
                                 resourceType
                             }),
-options
+                            options
                         })
                 });
             return bundle;
@@ -412,7 +410,7 @@ options
                                 collectionName
                             }
                         ),
-options
+                        options
                     })
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);

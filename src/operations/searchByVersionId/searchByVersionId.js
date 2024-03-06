@@ -1,8 +1,7 @@
-const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
+const { NotFoundError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { isTrue } = require('../../utils/isTrue');
@@ -16,7 +15,6 @@ class SearchByVersionIdOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
@@ -27,7 +25,6 @@ class SearchByVersionIdOperation {
     constructor (
         {
             databaseHistoryFactory,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
@@ -41,12 +38,6 @@ class SearchByVersionIdOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -181,13 +172,6 @@ class SearchByVersionIdOperation {
             }
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource, user, scope
-                }))) {
-                    throw new ForbiddenError(
-                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                        resource.resourceType + ' with id ' + id);
-                }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
                             resources: [resource], parsedArgs

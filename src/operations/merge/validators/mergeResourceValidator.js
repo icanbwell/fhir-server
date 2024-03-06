@@ -1,6 +1,6 @@
 const async = require('async');
 const { assertTypeEquals } = require('../../../utils/assertType');
-const { BadRequestError, ForbiddenError } = require('../../../utils/httpErrors');
+const { BadRequestError } = require('../../../utils/httpErrors');
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
@@ -68,11 +68,6 @@ class MergeResourceValidator extends BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
-        /** @type {string | null} */
-        const user = requestInfo.user;
-        /** @type {string} */
-        const scope = requestInfo.scope;
-
         /**
          * @type {boolean}
          */
@@ -147,27 +142,7 @@ class MergeResourceValidator extends BaseValidator {
                 resourceType: resource.resourceType,
                 uuid: resource._uuid
             });
-            if (foundResource) {
-                if (
-                    !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                        resource: foundResource, user, scope
-                    }) &&
-                    !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                        resource, user, scope
-                    })
-                ) {
-                    throw new ForbiddenError(
-                        `user ${user} with scopes [${scope}] has no access to resource ${resource.resourceType} with id ${resource.id}`
-                    );
-                }
-            } else {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource, user, scope
-                }))) {
-                    throw new ForbiddenError(
-                        `user ${user} with scopes [${scope}] has no access to resource ${resource.resourceType} with id ${resource.id}`
-                    );
-                }
+            if (!foundResource) {
                 // Check resource has a owner tag or access tag as owner can be generated from access tags
                 // in the preSave handlers before inserting the document.
                 if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {

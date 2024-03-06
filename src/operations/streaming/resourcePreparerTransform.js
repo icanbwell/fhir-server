@@ -9,11 +9,8 @@ const { captureException } = require('../common/sentry');
 class ResourcePreparerTransform extends Transform {
     /**
      * Batches up objects to chunkSize before writing them to output
-     * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
      * @param {number} highWaterMark
@@ -22,11 +19,8 @@ class ResourcePreparerTransform extends Transform {
      */
     constructor (
         {
-            user,
-            scope,
             parsedArgs,
             resourceType,
-            useAccessIndex,
             signal,
             resourcePreparer,
             highWaterMark,
@@ -36,14 +30,6 @@ class ResourcePreparerTransform extends Transform {
     ) {
         super({ objectMode: true, highWaterMark });
         /**
-         * @type {string|null}
-         */
-        this.user = user;
-        /**
-         * @type {string|null}
-         */
-        this.scope = scope;
-        /**
          * @type {ParsedArgs}
          */
         this.parsedArgs = parsedArgs;
@@ -51,10 +37,6 @@ class ResourcePreparerTransform extends Transform {
          * @type {string}
          */
         this.resourceName = resourceType;
-        /**
-         * @type {boolean}
-         */
-        this.useAccessIndex = useAccessIndex;
         /**
          * @type {AbortSignal}
          */
@@ -181,12 +163,9 @@ class ResourcePreparerTransform extends Transform {
     async processChunkAsync (chunk1) {
         return this.resourcePreparer.prepareResourceAsync(
             {
-                user: this.user,
-scope: this.scope,
-parsedArgs: this.parsedArgs,
-element: chunk1,
-                resourceType: this.resourceName,
-useAccessIndex: this.useAccessIndex
+                parsedArgs: this.parsedArgs,
+                element: chunk1,
+                resourceType: this.resourceName
             })
             .then(
                 /** @type {Resource[]} */resources => {

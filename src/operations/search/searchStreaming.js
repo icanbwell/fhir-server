@@ -171,14 +171,14 @@ class SearchStreamingOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user,
-scope,
-isUser,
-patientIdsFromJwtToken,
-resourceType,
-useAccessIndex,
+                    scope,
+                    isUser,
+                    patientIdsFromJwtToken,
+                    resourceType,
+                    useAccessIndex,
                     personIdFromJwtToken,
-parsedArgs,
-operation: READ
+                    parsedArgs,
+                    operation: READ
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
@@ -223,15 +223,15 @@ operation: READ
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
                     resourceType,
-base_version,
+                    base_version,
                     parsedArgs,
-columns,
-options,
-query,
+                    columns,
+                    options,
+                    query,
                     maxMongoTimeMS,
-user,
-isStreaming: true,
-useAccessIndex,
+                    user,
+                    isStreaming: true,
+                    useAccessIndex,
                     extraInfo
                 }
             );
@@ -360,10 +360,8 @@ useAccessIndex,
                         fnBundle,
                         res,
                         user,
-                        scope,
                         parsedArgs,
                         resourceType,
-                        useAccessIndex,
                         batchObjectCount,
                         defaultSortId,
                         accepts: requestInfo.accept
@@ -453,7 +451,7 @@ useAccessIndex,
                                 resourceType,
                                 collectionName
                             }),
-options
+                            options
                         }
                     )
                 });

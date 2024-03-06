@@ -2,7 +2,6 @@ const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { BundleManager } = require('../common/bundleManager');
@@ -21,7 +20,6 @@ class HistoryOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
@@ -34,7 +32,6 @@ class HistoryOperation {
     constructor (
         {
             databaseHistoryFactory,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
@@ -50,12 +47,6 @@ class HistoryOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -233,20 +224,16 @@ class HistoryOperation {
             if (!resource) {
                 throw new NotFoundError('Resource not found');
             }
-            if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource, user, scope
-            })) {
-                if (resource.resource) {
-                    resource.resource = await this.databaseAttachmentManager.transformAttachments(
-                        resource.resource, RETRIEVE
-                    );
-                } else {
-                    resource = await this.databaseAttachmentManager.transformAttachments(
-                        resource, RETRIEVE
-                    );
-                }
-                resources.push(resource);
+            if (resource.resource) {
+                resource.resource = await this.databaseAttachmentManager.transformAttachments(
+                    resource.resource, RETRIEVE
+                );
+            } else {
+                resource = await this.databaseAttachmentManager.transformAttachments(
+                    resource, RETRIEVE
+                );
             }
+            resources.push(resource);
         }
         if (resources.length === 0) {
             throw new NotFoundError('Resource not found');

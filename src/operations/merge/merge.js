@@ -175,8 +175,6 @@ class MergeOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
-            scope,
-            /** @type {string | null} */
             originalUrl: url,
             /** @type {string | null} */
             protocol,
@@ -188,19 +186,8 @@ class MergeOperation {
             userRequestId,
             /** @type {Object} */
             headers,
-            /** @type {string|null} */
-            path,
             /** @type {Object | Object[] | null} */
-            body,
-            /** @type {string[]} */
-            // eslint-disable-next-line no-unused-vars
-            patientIdsFromJwtToken,
-            /** @type {boolean} */
-            // eslint-disable-next-line no-unused-vars
-            isUser,
-            /** @type {string} */
-            // eslint-disable-next-line no-unused-vars
-            personIdFromJwtToken
+            body
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -238,11 +225,7 @@ class MergeOperation {
                 currentDate,
                 currentOperationName,
                 incomingObjects,
-                path,
-                requestId,
                 resourceType,
-                scope,
-                user,
                 requestInfo
             });
 

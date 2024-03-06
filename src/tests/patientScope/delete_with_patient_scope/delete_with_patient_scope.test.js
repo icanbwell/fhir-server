@@ -84,6 +84,12 @@ describe('Condition Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(204);
+
+            // now try to get with non-patient scope headers to confirm if resource is deleted
+            resp = await request
+                .get('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
+                .set(headers)
+                .expect(404);
         });
         test('delete_with_patient_scope fails if patient id does not match', async () => {
             const request = await createTestRequest((c) => {
@@ -123,10 +129,13 @@ describe('Condition Tests', () => {
                 .delete('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
-            const body = resp.body;
-            expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow deleting this resource.')
+            expect(resp).toHaveStatusCode(204);
+
+            // now try to get with non-patient scope headers to confirm if resource is deleted
+            resp = await request
+                .get('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
+                .set(getHeaders())
+                .expect(200);
         });
     });
 });
