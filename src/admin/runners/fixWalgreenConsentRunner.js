@@ -1,16 +1,3 @@
-/*
-
-Use aggregate to get array of duplicates
-
-Lookup and cache QuestionnaireResponse docs
-
-Lookup and cache Consent docs
-
-Loop thru duplicate array
-    Check permissions, if non-het, match to consent, change doc to /marketingConsent
-    if het, choose last doc, change to /marketingConsent
-    update doc
- */
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
@@ -146,15 +133,11 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @returns {Promise}
      */
     async cacheQuestionnaireResponse ({ qrCollection }) {
-        this.adminLogger.logInfo(`QR Collection ${qrCollection}`);
         for (const dup of this.duplicateConsents) {
             const qrIdRaw = dup._id.ref;
-            this.adminLogger.logInfo(`Cacheing response for ${qrIdRaw}`);
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
             const qr = await qrCollection.findOne({ _uuid: qrId });
-            // const strqr = JSON.stringify(qr);
-            // this.adminLogger.logInfo(`qr ${strqr}`);
             if (qr) {
                 let hipaaConsent = true;
                 let marketingConsent = true;
@@ -162,11 +145,9 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     qr.item.forEach(item => {
                         if (item.linkId === '/hipaaConsent' && item.answer && Array.isArray(item.answer) && item.answer.length === 1) {
                             hipaaConsent = item.answer[0].valueBoolean;
-                            this.adminLogger.logInfo(`hipaaConsent ${hipaaConsent}`);
                         }
                         if (item.linkId === '/marketingConsent' && item.answer && Array.isArray(item.answer) && item.answer.length === 1) {
                             marketingConsent = item.answer[0].valueBoolean;
-                            this.adminLogger.logInfo(`marketingConsent ${marketingConsent}`);
                         }
                     })
                 }
@@ -183,13 +164,9 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
         for (const dup of this.duplicateConsents) {
             if (dup._uuid && Array.isArray(dup._uuid)) {
                 for (const uuid of dup._uuid) {
-                    // const options = { projection: { 'provision.type': 1 } };
                     const consent = await collection.findOne({ _uuid: uuid });
-                    // const strConsent = JSON.stringify(consent);
                     if (consent) {
-                        // this.adminLogger.logInfo(`consent ${strConsent}`)
                         this.consentCache.set(uuid, consent.provision.type);
-                        this.adminLogger.logInfo(`Caching consent type for ${uuid}`);
                     }
                 }
             }
@@ -203,13 +180,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     chooseConsentToUpdate () {
         const uuids = [];
         this.duplicateConsents.forEach(dup => {
-            const strDup = JSON.stringify(dup);
-            this.adminLogger.logInfo(`dup ${strDup}`);
             let indexToUpdate = 0;
-            this.adminLogger.logInfo(`qrRef = ${dup._id.ref}`);
             const resp = this.qResponseCache.get(dup._id.ref);
-            const strResp = JSON.stringify(resp);
-            this.adminLogger.logInfo(`cached resp object = ${strResp}`);
             if (resp.hipaaConsent === resp.marketingConsent) {
                 // just pick first consent doc to update
                 indexToUpdate = 0;
@@ -229,7 +201,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     }
                 }
             }
-            this.adminLogger.logInfo(`Update consent ${dup._uuid[indexToUpdate]}`);
             uuids.push(dup._uuid[indexToUpdate]);
         });
         return uuids;
@@ -240,7 +211,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      */
     changeToMarketingConsent (resource) {
-        this.adminLogger.logInfo(`updating consent ${resource._uuid}`);
         // update category coding
         if (resource.category && Array.isArray(resource.category)) {
             resource.category.forEach(category => {
@@ -322,14 +292,11 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                 this.duplicateConsents = await this.getDuplicateConsentArrayAsync({
                     collection
                 });
-                this.adminLogger.logInfo('got duplicate consents,length', this.duplicateConsents.length)
                 const startFromIdContainer = this.createStartFromIdContainer();
 
                 if (this.duplicateConsents.length > 0) {
-                    this.adminLogger.logInfo('Caching Questionnaire Responses');
                     const qrCollection = db.collection(qrCollectionName);
                     await this.cacheQuestionnaireResponse({ qrCollection });
-                    this.adminLogger.logInfo('Caching Consent Types');
                     await this.cacheConsentType({ collection });
                     const consentToUpdate = this.chooseConsentToUpdate();
                     const query = { _uuid: { $in: consentToUpdate } };
@@ -367,9 +334,8 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo('Finished processing consents');
                 }
             } catch (e) {
-                this.adminLogger.logError(`errer in mid try ${e}`);
+                this.adminLogger.logError(`Error in middle try ${e}`);
             } finally {
-                this.adminLogger.logInfo('*******In finally');
                 await session.endSession();
                 await client.close();
             }
