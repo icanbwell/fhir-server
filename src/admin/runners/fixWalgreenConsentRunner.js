@@ -137,7 +137,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
             const qrIdRaw = dup._id.ref;
             const cut = qrIdRaw.indexOf('/');
             const qrId = qrIdRaw.substring(cut + 1);
-            const qr = await qrCollection.findOne({ _uuid: qrId });
+            const qr = await qrCollection.findOne({ _uuid: qrId.toString() });
             if (qr) {
                 let hipaaConsent = true;
                 let marketingConsent = true;
@@ -164,7 +164,7 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
         for (const dup of this.duplicateConsents) {
             if (dup._uuid && Array.isArray(dup._uuid)) {
                 for (const uuid of dup._uuid) {
-                    const consent = await collection.findOne({ _uuid: uuid });
+                    const consent = await collection.findOne({ _uuid: uuid.toString() });
                     if (consent) {
                         this.consentCache.set(uuid, consent.provision.type);
                     }
