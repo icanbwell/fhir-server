@@ -233,7 +233,7 @@ class SecurityTagManager {
                                     return { [fieldMapper.getFieldName('_sourceId')]: inQuery };
                                 }
                                 return {
-                                    [fieldMapper.getFieldName(p.replace('.reference', '._uuid'))]: inQuery
+                                    [fieldMapper.getFieldName(p.replace('.reference', '._sourceId'))]: inQuery
                                 };
                             }
                         )
@@ -246,7 +246,7 @@ class SecurityTagManager {
                         patientsNonUuidQuery = {
                             [
                                 fieldMapper.getFieldName(
-                                    patientFilterProperty.replace('.reference', '._uuid')
+                                    patientFilterProperty.replace('.reference', '._sourceId')
                                 )
                             ]: inQuery
                         };
