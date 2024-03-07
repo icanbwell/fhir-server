@@ -107,9 +107,8 @@ const { MongoAtlasVectorStoreManager } = require('./chatgpt/vectorStores/mongoAt
 const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
-const { PatientScopeManager } = require('./operations/common/patientScopeManager');
-const { WriteAllowedByPatientScopeValidator } = require('./operations/merge/validators/writeAllowedByPatientScopeValidator');
-const { CanWriteWithPatientScopeHandler } = require('./preSaveHandlers/handlers/canWriteWithPatientScopeHandler');
+const { PatientScopeManager } = require('./operations/security/patientScopeManager');
+const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -178,12 +177,7 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            }),
-            new CanWriteWithPatientScopeHandler(
-                {
-                    patientScopeManager: c.patientScopeManager
-                }
-            )
+            })
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -193,7 +187,9 @@ const createContainer = function () {
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        patientScopeManager: c.patientScopeManager,
+        preSaveManager: c.preSaveManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 
@@ -390,11 +386,10 @@ const createContainer = function () {
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager
                 }),
-                new WriteAllowedByPatientScopeValidator(
-                    {
-                        patientScopeManager: c.patientScopeManager
-                    }
-                )
+                new WriteAllowedByScopesValidator({
+                    scopesValidator: c.scopesValidator,
+                    databaseBulkLoader: c.databaseBulkLoader
+                })
             ]
         }
     ));
@@ -511,9 +506,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder,
-                patientScopeManager: c.patientScopeManager,
-                preSaveManager: c.preSaveManager
+                bwellPersonFinder: c.bwellPersonFinder
             }
         )
     );
@@ -534,9 +527,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                searchManager: c.searchManager,
-                patientScopeManager: c.patientScopeManager,
-                preSaveManager: c.preSaveManager
+                searchManager: c.searchManager
             }
         )
     );
@@ -567,15 +558,12 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             auditLogger: c.auditLogger,
-            scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
-            r4SearchQueryCreator: c.r4SearchQueryCreator,
-            r4ArgsParser: c.r4ArgsParser,
             queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
-            patientScopeManager: c.patientScopeManager
+            searchManager: c.searchManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(

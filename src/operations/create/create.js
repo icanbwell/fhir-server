@@ -20,8 +20,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
-const { PatientScopeManager } = require('../common/patientScopeManager');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 
 class CreateOperation {
     /**
@@ -37,8 +35,6 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
-     * @param {PatientScopeManager} patientScopeManager
-     * @param {PreSaveManager} preSaveManager
      */
     constructor (
         {
@@ -52,9 +48,7 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            postSaveProcessor,
-            patientScopeManager,
-            preSaveManager
+            postSaveProcessor
         }
     ) {
         /**
@@ -117,14 +111,6 @@ class CreateOperation {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
-
-        /** @type {PatientScopeManager} */
-        this.patientScopeManager = patientScopeManager;
-        assertTypeEquals(patientScopeManager, PatientScopeManager);
-
-        /** @type {PreSaveManager} */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -250,12 +236,13 @@ class CreateOperation {
             // Check if meta & meta.source exists in resource
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
-            } else {
-                resource.meta.versionId = '1';
-                // noinspection JSValidateTypes,SpellCheckingInspection
-                resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
-
+            resource.meta.versionId = '1';
+            // noinspection JSValidateTypes,SpellCheckingInspection
+            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                requestInfo, resource, base_version
+            });
             /**
              * @type {Resource}
              */
@@ -270,11 +257,11 @@ class CreateOperation {
                         await this.auditLogger.logAuditEntryAsync(
                             {
                                 requestInfo,
-base_version,
-resourceType,
+                                base_version,
+                                resourceType,
                                 operation: currentOperationName,
-args: parsedArgs.getRawArgs(),
-ids: [resource.id]
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resource.id]
                             }
                         );
                     }

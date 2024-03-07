@@ -18,11 +18,7 @@ class MergeValidator {
      * @param {date} currentDate
      * @param {string} currentOperationName
      * @param {Object|Object[]} incomingObjects
-     * @param {string|null} path
-     * @param {string} requestId
      * @param {string} resourceType
-     * @param {string|null} scope
-     * @param {string|null} user
      * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
@@ -31,11 +27,7 @@ class MergeValidator {
                        currentDate,
                        currentOperationName,
                        incomingObjects,
-                       path,
-                       requestId,
                        resourceType,
-                       scope,
-                       user,
                        requestInfo
                    }) {
         /**

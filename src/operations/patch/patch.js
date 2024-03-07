@@ -199,7 +199,8 @@ class PatchOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                operation: WRITE
+                operation: WRITE,
+                accessRequested: 'write'
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
@@ -284,8 +285,8 @@ class PatchOperation {
                 {
                     base_version,
                     requestInfo,
-resourceType,
-doc: resource,
+                    resourceType,
+                    doc: resource,
                     uuid: resource._uuid,
                     patches: patchContent.map(
                         p => {

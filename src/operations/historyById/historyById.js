@@ -2,7 +2,6 @@ const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { BundleManager } = require('../common/bundleManager');
@@ -21,7 +20,6 @@ class HistoryByIdOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
@@ -34,7 +32,6 @@ class HistoryByIdOperation {
     constructor (
         {
             databaseHistoryFactory,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
@@ -50,12 +47,6 @@ class HistoryByIdOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -243,12 +234,7 @@ class HistoryByIdOperation {
                         );
                         bundleEntry = resource;
                     }
-                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                            resource, user, scope
-                        }
-                    )) {
-                        entries.push(bundleEntry);
-                    }
+                    entries.push(bundleEntry);
                 }
             }
             if (entries.length === 0) {

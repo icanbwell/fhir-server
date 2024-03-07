@@ -81,35 +81,19 @@ class ResourcePreparer {
 
     /**
      * Converts the Mongo document into a document we can return to the client
-     * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync ({
-                                   user, scope, parsedArgs,
-                                   element, resourceType, useAccessIndex
+                                   parsedArgs, element, resourceType
                                }) {
         /**
          * @type {Resource[]}
          */
         let resources = [];
         if (parsedArgs.get('_elements')) {
-            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({ resourceType })) {
-                // TODO: discuss this double check and update accrodingly
-                // if the whole resource is returned then we have security tags to check again to be double sure
-                // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(
-                //     {
-                //         resource: element, user, scope
-                //     }
-                // )
-                // ) {
-                //     return [];
-                // }
-            }
             /**
              * @type {Resource}
              */
@@ -122,13 +106,6 @@ class ResourcePreparer {
             );
             resources.push(element_to_return);
         } else {
-            // TODO: discuss this double check and update accrodingly
-            // if the whole resource is returned then we have security tags to check again to be double sure
-            // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-            //     resource: element, user, scope
-            // })) {
-            //     return [];
-            // }
             /**
              * @type {Resource[]}
              */
