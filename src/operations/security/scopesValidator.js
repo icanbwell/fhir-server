@@ -143,7 +143,7 @@ class ScopesValidator {
             ) {
                 throw new ForbiddenError(
                     `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
-                    ` to resource ${resource.resourceType} with id ${resource.id}`
+                    `to resource ${resource.resourceType} with id ${resource.id}`
                 );
             }
         } catch (e) {
