@@ -492,6 +492,21 @@ module.exports = {
             }
         ],
         ExplanationOfBenefit_4_0_0: [
+            ...(
+                    (
+                        env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT &&
+                        env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _uuid: 1,
+                        'meta.lastUpdated': 1
+                    },
+                    options: {
+                        name: `_access_${client}_1._uuid_1.meta_lastUpdated_1`
+                    }
+            })),
             {
                 keys: {
                     '_access.bwell': 1,
