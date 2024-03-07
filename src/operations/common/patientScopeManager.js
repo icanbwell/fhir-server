@@ -6,10 +6,11 @@ const { ScopesManager } = require('../security/scopesManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ForbiddenError } = require('../../utils/httpErrors');
-const { isUuid } = require('../../utils/uid.util');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 class PatientScopeManager {
     /**
@@ -183,10 +184,13 @@ class PatientScopeManager {
                         let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
                         // for incoming request, it may be stored in ".reference" only
                         if (!value) {
-                            value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                            value = NestedPropertyReader.getNestedProperty({ obj: resource, path: p });
                         }
                         if (value !== undefined) {
-                            return value.replace('Patient/', '');
+                            const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(value);
+                            return sourceAssigningAuthority && !isUuid(id)
+                                ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
+                                : id;
                         }
                     }
                 }
@@ -201,7 +205,10 @@ class PatientScopeManager {
                         value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
                     }
                     if (value !== undefined) {
-                        return value.replace('Patient/', '');
+                        const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(value);
+                        return sourceAssigningAuthority && !isUuid(id)
+                            ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
+                            : id;
                     }
                 }
             }
