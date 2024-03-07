@@ -509,32 +509,12 @@ module.exports = {
             })),
             {
                 keys: {
-                    '_access.bwell': 1,
-                    _uuid: 1,
-                    'meta.lastUpdated': 1
-                },
-                options: {
-                    name: 'access_bwell.uuid.meta_lastUpdated'
-                }
-            },
-            {
-                keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
                     _uuid: 1
                 },
                 options: {
                     name: 'security.system_code_uuid_1'
-                }
-            },
-            {
-               keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
