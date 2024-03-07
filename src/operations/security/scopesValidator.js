@@ -129,7 +129,7 @@ class ScopesValidator {
      *
      * @param {IsAccessToResourceAllowedByAccessScopesParams}
      */
-    isAccessToResourceAllowedByAccessScopes ({ requestInfo, resource, accessRequested }) {
+    isAccessToResourceAllowedByAccessScopes ({ requestInfo, resource, accessRequested = 'write' }) {
         // eslint-disable-next-line no-useless-catch
         try {
             const { user, scope } = requestInfo;
@@ -142,7 +142,8 @@ class ScopesValidator {
                 })
             ) {
                 throw new ForbiddenError(
-                    `user ${user} with scopes [${scope}] has no access to resource ${resource.resourceType} with id ${resource.id}`
+                    `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
+                    `to resource ${resource.resourceType} with id ${resource.id}`
                 );
             }
         } catch (e) {
@@ -192,7 +193,7 @@ class ScopesValidator {
         requestInfo,
         resource,
         base_version,
-        accessRequested
+        accessRequested = 'write'
     }) {
         // eslint-disable-next-line no-useless-catch
         try {
