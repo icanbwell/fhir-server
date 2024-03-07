@@ -379,7 +379,7 @@ class UpdateOperation {
                 resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
 
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                    resource: resource_incoming, requestInfo, base_version, accessRequested: 'write'
+                    resource: resource_incoming, requestInfo, base_version
                 });
 
                 // changing the attachment.data to attachment._file_id from request

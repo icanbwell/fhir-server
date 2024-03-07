@@ -54,11 +54,11 @@ class WriteAllowedByScopesValidator extends BaseValidator {
 
                 if (foundResource) {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource: foundResource, requestInfo, accessRequested: 'write', base_version
+                        resource: foundResource, requestInfo, base_version
                     });
                 } else {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource, requestInfo, accessRequested: 'write', base_version
+                        resource, requestInfo, base_version
                     });
                 }
                 validIncomingResources.push(resource);

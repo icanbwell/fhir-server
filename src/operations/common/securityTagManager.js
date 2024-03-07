@@ -5,6 +5,7 @@ const { AccessIndexManager } = require('./accessIndexManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { isUuid } = require('../../utils/uid.util');
+const { FieldMapper } = require('../query/filters/fieldMapper');
 
 /**
  * This class manages queries for security tags
@@ -106,6 +107,7 @@ class SecurityTagManager {
             resourceType, securityTags, query, useAccessIndex = false, useHistoryTable
         }
     ) {
+        const fieldMapper = new FieldMapper({ useHistoryTable });
         if (securityTags && securityTags.length > 0) {
             let securityTagQuery;
             // special handling for large collections for performance
@@ -118,18 +120,18 @@ class SecurityTagManager {
             ) {
                 if (securityTags.length === 1) {
                     securityTagQuery = {
-                        [(useHistoryTable ? 'resource.' : '') + `_access.${securityTags[0]}`]: 1
+                        [fieldMapper.getFieldName(`_access.${securityTags[0]}`)]: 1
                     }; // optimize query for a single code
                 } else {
                     securityTagQuery = {
                         $or: securityTags.map(s => ({
-                            [(useHistoryTable ? 'resource.' : '') + `_access.${s}`]: 1
+                            [fieldMapper.getFieldName(`_access.${s}`)]: 1
                         }))
                     };
                 }
             } else if (securityTags.length === 1) {
                 securityTagQuery = {
-                    [(useHistoryTable ? 'resource.' : '') + 'meta.security']: {
+                    [fieldMapper.getFieldName('meta.security')]: {
                         $elemMatch: {
                             system: SecurityTagSystem.access,
                             code: securityTags[0]
@@ -138,7 +140,7 @@ class SecurityTagManager {
                 };
             } else {
                 securityTagQuery = {
-                    [(useHistoryTable ? 'resource.' : '') + 'meta.security']: {
+                    [fieldMapper.getFieldName('meta.security')]: {
                         $elemMatch: {
                             system: SecurityTagSystem.access,
                             code: {
@@ -167,6 +169,7 @@ class SecurityTagManager {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
             throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
         }
+        const fieldMapper = new FieldMapper({ useHistoryTable });
         // separate uuids from non-uuids
         const patientUuids = patientIds.filter(id => isUuid(id));
         let patientsUuidQuery, patientsNonUuidQuery;
@@ -186,13 +189,10 @@ class SecurityTagManager {
                         $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _uuid
                                 if (p === 'id') {
-                                    return { [(useHistoryTable ? 'resource.' : '') + '_uuid']: inQuery };
+                                    return { [fieldMapper.getFieldName('_uuid')]: inQuery };
                                 }
                                 return {
-                                    [
-                                        (useHistoryTable ? 'resource.' : '') +
-                                        p.replace('.reference', '._uuid')
-                                    ]: inQuery
+                                    [fieldMapper.getFieldName(p.replace('.reference', '._uuid'))]: inQuery
                                 };
                             }
                         )
@@ -200,12 +200,13 @@ class SecurityTagManager {
                 } else {
                     // if patient itself then search by _uuid
                     if (patientFilterProperty === 'id') {
-                        patientsUuidQuery = { [(useHistoryTable ? 'resource.' : '') + '_uuid']: inQuery };
+                        patientsUuidQuery = { [fieldMapper.getFieldName('_uuid')]: inQuery };
                     } else {
                         patientsUuidQuery = {
                             [
-                                (useHistoryTable ? 'resource.' : '') +
-                                patientFilterProperty.replace('.reference', '._uuid')
+                                fieldMapper.getFieldName(
+                                    patientFilterProperty.replace('.reference', '._uuid')
+                                )
                             ]: inQuery
                         };
                     }
@@ -229,13 +230,10 @@ class SecurityTagManager {
                         $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _sourceId
                                 if (p === 'id') {
-                                    return { [(useHistoryTable ? 'resource.' : '') + '_sourceId']: inQuery };
+                                    return { [fieldMapper.getFieldName('_sourceId')]: inQuery };
                                 }
                                 return {
-                                    [
-                                        (useHistoryTable ? 'resource.' : '') +
-                                        p.replace('.reference', '._sourceId')
-                                    ]: inQuery
+                                    [fieldMapper.getFieldName(p.replace('.reference', '._uuid'))]: inQuery
                                 };
                             }
                         )
@@ -243,12 +241,13 @@ class SecurityTagManager {
                 } else {
                     // if patient itself then search by _sourceId
                     if (patientFilterProperty === 'id') {
-                        patientsNonUuidQuery = { [(useHistoryTable ? 'resource.' : '') + '_sourceId']: inQuery };
+                        patientsNonUuidQuery = { [fieldMapper.getFieldName('_sourceId')]: inQuery };
                     } else {
                         patientsNonUuidQuery = {
                             [
-                                (useHistoryTable ? 'resource.' : '') +
-                                patientFilterProperty.replace('.reference', '._sourceId')
+                                fieldMapper.getFieldName(
+                                    patientFilterProperty.replace('.reference', '._uuid')
+                                )
                             ]: inQuery
                         };
                     }
