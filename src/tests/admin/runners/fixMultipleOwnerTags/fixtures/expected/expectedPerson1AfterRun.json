@@ -1,0 +1,30 @@
+{
+  "id": "person1",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "person1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+    }
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "client",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "client",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "test",
+    "versionId": "1"
+  },
+  "resourceType": "Person"
+}
