@@ -104,7 +104,7 @@ describe('Patient Tests', () => {
             const person_payload = {
                 'cognito:username': 'patient-123@example.com',
                 'custom:bwell_fhir_person_id': 'bwellPerson1',
-                scope: 'patient/*.read user/*.* access/*.*',
+                scope: 'patient/*.read',
                 username: 'patient-123@example.com',
                 'custom:clientFhirPersonId': 'clientFhirPerson',
                 'custom:clientFhirPatientId': 'clientFhirPatient',

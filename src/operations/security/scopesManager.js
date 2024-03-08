@@ -2,17 +2,29 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 
 class ScopesManager {
     /**
      * constructor
      * @param {ConfigManager} configManager
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor ({
-                    configManager
-                }) {
+        configManager,
+        patientFilterManager
+    }) {
+        /**
+         * @type {ConfigManager}
+         */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -114,8 +126,10 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
-        const hasPatientScope = this.hasPatientScope({ scope });
-        if (hasPatientScope) {
+        const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
+            scope, resourceType: resource.resourceType
+        });
+        if (accessViaPatientScopes) {
             return true; // TODO: should double check here that the resources belong to this patient
         }
         // add any access codes from scopes
@@ -202,6 +216,38 @@ class ScopesManager {
     }
 
     /**
+     * Gets patient scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getPatientScopes ({ scope }) {
+        if (!scope) {
+            return [];
+        }
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        return scopes.filter(s => s.startsWith('patient/'));
+    }
+
+    /**
+     * Gets user scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getUserScopes ({ scope }) {
+        if (!scope) {
+            return [];
+        }
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        return scopes.filter(s => s.startsWith('user/'));
+    }
+
+    /**
      * Gets scope from request
      * @param {import('http').IncomingMessage} req
      * @return {string|undefined}
@@ -211,12 +257,21 @@ class ScopesManager {
     }
 
     /**
-     * returns whether the scope has a patient scope
-     * @param {string} scope
+     * returns whether the access to this resource with patient scope is allowed and patient scopes are present
+     * @typedef {Object} IsAccessAllowedByPatientScopesParams
+     * @property {string} scope
+     * @property {string} resourceType
+     *
+     * @param {IsAccessAllowedByPatientScopesParams}
      * @return {boolean}
      */
-    hasPatientScope ({ scope }) {
-        assertIsValid(scope);
+    isAccessAllowedByPatientScopes ({ scope, resourceType }) {
+        assertIsValid(scope, 'Scope is required');
+        assertIsValid(resourceType, 'ResourceType is required');
+
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
+            return false;
+        }
         const scopes = this.parseScopes(scope);
         if (scopes.some(s => s.includes('patient/'))) {
             return true;
@@ -229,10 +284,10 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    hasPatientWriteScope ({ scope }) {
+    hasPatientScope ({ scope }) {
         assertIsValid(scope);
         const scopes = this.parseScopes(scope);
-        if (scopes.some(s => s === 'patient/*.write')) {
+        if (scopes.some(s => s.includes('patient/'))) {
             return true;
         }
         return false;

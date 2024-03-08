@@ -7,7 +7,6 @@ const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ScopesValidator } = require('../security/scopesValidator');
 const { BundleManager } = require('../common/bundleManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
@@ -31,7 +30,6 @@ class MergeOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
-     * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
@@ -46,7 +44,6 @@ class MergeOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator,
             bundleManager,
             configManager,
             bwellPersonFinder,
@@ -90,11 +87,6 @@ class MergeOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
-        /**
-         * @type {ScopesValidator}
-         */
-        this.scopesValidator = scopesValidator;
-        assertTypeEquals(scopesValidator, ScopesValidator);
         /**
          * @type {BundleManager}
          */
@@ -189,17 +181,6 @@ class MergeOperation {
             /** @type {Object | Object[] | null} */
             body
         } = requestInfo;
-
-        await this.scopesValidator.verifyHasValidScopesAsync(
-            {
-                requestInfo,
-                parsedArgs,
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                accessRequested: 'write'
-            }
-        );
 
         /**
          * @type {string}

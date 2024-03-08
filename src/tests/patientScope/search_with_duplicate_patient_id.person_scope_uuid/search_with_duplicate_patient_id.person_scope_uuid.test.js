@@ -136,7 +136,7 @@ describe('Patient Tests', () => {
             const mps_person_payload = {
                 'cognito:username': 'patient-123@example.com',
                 'custom:bwell_fhir_person_id': '41db6857-b989-4617-ac8b-35d853250449',
-                scope: 'patient/*.read user/*.* access/*.*',
+                scope: 'patient/Task.read',
                 username: 'patient-123@example.com',
                 'custom:clientFhirPersonId': 'clientFhirPerson',
                 'custom:clientFhirPatientId': 'clientFhirPatient',

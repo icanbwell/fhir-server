@@ -2,9 +2,6 @@
 const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 
-// expected
-// const expectedConditionResources = require('./fixtures/expected/expected_condition.json');
-
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
     mockHttpContext
@@ -16,7 +13,7 @@ const deepcopy = require('deepcopy');
 const person_payload = {
     'cognito:username': 'patient-123@example.com',
     'custom:bwell_fhir_person_id': 'person1',
-    scope: 'patient/*.read user/*.* access/*.*',
+    scope: 'patient/Condition.*',
     username: 'patient-123@example.com',
     'custom:clientFhirPersonId': 'clientFhirPerson',
     'custom:clientFhirPatientId': 'clientFhirPatient',
@@ -88,7 +85,7 @@ describe('Condition Tests', () => {
             // now try to get with non-patient scope headers to confirm if resource is deleted
             resp = await request
                 .get('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
-                .set(headers)
+                .set(getHeaders())
                 .expect(404);
         });
         test('delete_with_patient_scope fails if patient id does not match', async () => {
@@ -130,6 +127,62 @@ describe('Condition Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(204);
+
+            // now try to get with non-patient scope headers to confirm if resource is deleted
+            resp = await request
+                .get('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
+                .set(getHeaders())
+                .expect(200);
+        });
+
+        test('delete_with_patient_scope fails if patient scopes does not match', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            // add the resources to FHIR server
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // first insert with non-patient scope headers
+            resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(condition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            const person1_payload = {
+                'cognito:username': 'patient-123@example.com',
+                'custom:bwell_fhir_person_id': 'person1',
+                scope: 'patient/Patient.write',
+                username: 'patient-123@example.com',
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'person1',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+            };
+            const headers1 = getHeadersWithCustomPayload(person1_payload);
+
+            // now try to update with patient scope headers
+            resp = await request
+                .delete('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
+                .set(headers1);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(403);
 
             // now try to get with non-patient scope headers to confirm if resource is deleted
             resp = await request

@@ -30,7 +30,7 @@ class MockConfigManager extends ConfigManager {
 const person_payload = {
     'cognito:username': 'patient-123@example.com',
     'custom:bwell_fhir_person_id': 'person1',
-    scope: 'patient/*.read user/*.* access/*.*',
+    scope: 'patient/Observation.read',
     username: 'patient-123@example.com',
     'custom:clientFhirPersonId': 'clientFhirPerson',
     'custom:clientFhirPatientId': 'clientFhirPatient',
@@ -95,6 +95,67 @@ describe('Observation Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
+        });
+        test('using id only without valid scopes', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            const container = getTestContainer();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            const person1_payload = {
+                'cognito:username': 'patient-123@example.com',
+                'custom:bwell_fhir_person_id': 'person1',
+                scope: 'patient/Condition.write user/Observation.read access/*.*',
+                username: 'patient-123@example.com',
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'person1',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+            };
+            const headers1 = getHeadersWithCustomPayload(person1_payload);
+
+            // ACT AND ASSERT
+            // search by owner security tag should only return 1
+            resp = await request
+                .get('/4_0_0/Observation/1/?_debug=1')
+                .set(headers1)
+                .expect(403);
+
+            const body = resp.body;
+            expect(body.resourceType).toStrictEqual('OperationOutcome');
+            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user patient-123@example.com with scopes [patient/Condition.write] failed access check to [Observation.read]');
         });
         test('using id + security filter', async () => {
             const request = await createTestRequest((c) => {

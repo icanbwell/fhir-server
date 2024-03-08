@@ -197,13 +197,13 @@ class SearchManager {
              */
             const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
-            const hasPatientScope = this.scopesManager.hasPatientScope({ scope });
+            const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
 
             /**
              * @type {string[]}
              */
             const securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                accessRequested, user, scope, hasPatientScope
+                accessRequested, user, scope, accessViaPatientScopes
             });
             /**
              * @type {import('mongodb').Document}
@@ -226,8 +226,25 @@ class SearchManager {
                 useHistoryTable
             }));
 
-            // JWT has access tag in scope i.e API call from a specific client
-            if (securityTags && securityTags.length > 0) {
+            if (accessViaPatientScopes) {
+                shouldUpdateColumns = true;
+                /**
+                 * @type {string[]}
+                 */
+                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken
+                });
+
+                if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
+                    allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
+                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
+                } else {
+                    query = this.securityTagManager.getQueryWithPatientFilter({
+                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
+                    });
+                }
+            } else if (securityTags && securityTags.length > 0) {
+                // JWT has access tag in scope i.e API call from a specific client
                 shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
@@ -243,24 +260,6 @@ class SearchManager {
                         query,
                         useHistoryTable,
                         requestId
-                    });
-                }
-            }
-            if (hasPatientScope) {
-                shouldUpdateColumns = true;
-                /**
-                 * @type {string[]}
-                 */
-                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken
-                });
-
-                if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
-                    allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
-                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
-                } else {
-                    query = this.securityTagManager.getQueryWithPatientFilter({
-                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
                     });
                 }
             }
