@@ -195,37 +195,39 @@ class FixDuplicateOwnerTagsRunner extends BaseBulkOperationRunner {
                     collectionName
                 });
 
-                const query = { _uuid: { $in: uuids } };
+                while (uuids.length > 0) {
+                    const query = { _uuid: { $in: uuids.splice(0, this.batchSize) } };
 
-                try {
-                    await this.runForQueryBatchesAsync({
-                        config: mongoConfig,
-                        sourceCollectionName: collectionName,
-                        destinationCollectionName: collectionName,
-                        query,
-                        startFromIdContainer,
-                        fnCreateBulkOperationAsync: async (doc) =>
-                            await this.processRecordAsync(doc),
-                        ordered: false,
-                        batchSize: this.batchSize,
-                        skipExistingIds: false,
-                        limit: this.limit,
-                        useTransaction: this.useTransaction,
-                        skip: this.skip
-                    });
-                } catch (e) {
-                    console.log(e.message);
-                    this.adminLogger.logError(
-                        `Got error ${e}.  At ${startFromIdContainer.startFromId}`
-                    );
-                    throw new RethrownError({
-                        message: `Error processing documents of collection ${collectionName} ${e.message}`,
-                        error: e,
-                        args: {
-                            query
-                        },
-                        source: 'FixDuplicateOwnerTagsRunner.processAsync'
-                    });
+                    try {
+                        await this.runForQueryBatchesAsync({
+                            config: mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query,
+                            startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) =>
+                                await this.processRecordAsync(doc),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: this.useTransaction,
+                            skip: this.skip
+                        });
+                    } catch (e) {
+                        console.log(e.message);
+                        this.adminLogger.logError(
+                            `Got error ${e}.  At ${startFromIdContainer.startFromId}`
+                        );
+                        throw new RethrownError({
+                            message: `Error processing documents of collection ${collectionName} ${e.message}`,
+                            error: e,
+                            args: {
+                                query
+                            },
+                            source: 'FixDuplicateOwnerTagsRunner.processAsync'
+                        });
+                    }
                 }
             }
         } catch (err) {

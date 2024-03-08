@@ -29,7 +29,7 @@ async function main () {
         ? parameters.collections.split(',').map(x => x.trim())
         : ['all'];
 
-    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
     const adminLogger = new AdminLogger();
 
