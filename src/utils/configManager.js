@@ -68,10 +68,29 @@ class ConfigManager {
      * @returns {string[]}
      */
     get accessTagsIndexed () {
-        return (
+        let indexList = (
             env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
                 .map((col) => col.trim())
         ) || [];
+        indexList = indexList.concat(
+            (
+                env.ACCESS_TAGS_INDEXED_ENCOUNTER && env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',')
+                    .map((col) => col.trim())
+            ) || []
+        );
+        indexList = indexList.concat(
+            (
+                env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT && env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',')
+                    .map((col) => col.trim())
+            ) || []
+        );
+        indexList = indexList.concat(
+            (
+                env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
+                    .map((col) => col.trim())
+            ) || []
+        );
+        return indexList;
     }
 
     /**
