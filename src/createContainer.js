@@ -125,11 +125,10 @@ const createContainer = function () {
         : new DummyKafkaClient({ configManager: c.configManager })
     );
 
-    container.register('scopesManager', (c) => new ScopesManager(
-        {
-            configManager: c.configManager
-        }
-    ));
+    container.register('scopesManager', (c) => new ScopesManager({
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager
+    }));
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
@@ -320,8 +319,7 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             personToPatientIdsExpander: c.personToPatientIdsExpander,
             scopesManager: c.scopesManager,
-            patientFilterManager: c.patientFilterManager,
-            configManager: c.configManager
+            patientFilterManager: c.patientFilterManager
         }
     ));
 
@@ -361,6 +359,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
+                scopesValidator: c.scopesValidator,
                 resourceMerger: c.resourceMerger,
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
@@ -540,7 +539,6 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,

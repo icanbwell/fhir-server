@@ -5,7 +5,6 @@ const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const { groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid } = require('../../utils/list.util');
 const async = require('async');
-const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -27,6 +26,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { isUuid } = require('../../utils/uid.util');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { ScopesValidator } = require('../security/scopesValidator');
 
 class MergeManager {
     /**
@@ -36,6 +36,7 @@ class MergeManager {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
+     * @param {ScopesValidator} scopesValidator
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
@@ -51,6 +52,7 @@ class MergeManager {
             databaseBulkInserter,
             databaseBulkLoader,
             scopesManager,
+            scopesValidator,
             resourceMerger,
             resourceValidator,
             preSaveManager,
@@ -85,6 +87,11 @@ class MergeManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
          * @type {ResourceMerger}
@@ -712,25 +719,17 @@ class MergeManager {
                 );
             }
 
-            const user = requestInfo.user;
-            const scopes = this.scopesManager.parseScopes(requestInfo.scope);
-            const { success } = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
-            if (!success) {
+            const forbiddenError = this.scopesValidator.verifyHasValidScopes({
+                requestInfo,
+                resourceType: resourceToMerge.resourceType,
+                accessRequested: 'write'
+            });
+
+            if (forbiddenError) {
                 const operationOutcome = new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
-                            }),
-                            diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
-                            expression: [
-                                resourceToMerge.resourceType + '/' + id
-                            ]
-                        })
-                    ]
+                    issue: forbiddenError.issue
                 });
+
                 return new MergeResultEntry(
                     {
                         id,

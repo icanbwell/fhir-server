@@ -188,7 +188,7 @@ class UpdateOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                accessRequested: 'read'
+                accessRequested: 'write'
             }
         );
 

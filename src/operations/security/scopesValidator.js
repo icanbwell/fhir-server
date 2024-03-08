@@ -54,6 +54,70 @@ class ScopesValidator {
     /**
      * Throws an error if no scope is valid for this request
      * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
+     * @returns {ForbiddenError}
+     */
+    verifyHasValidScopes ({ requestInfo, resourceType, accessRequested }) {
+        // eslint-disable-next-line no-useless-catch
+        try {
+            const { user, scope } = requestInfo;
+            let errorMessage, forbiddenError;
+
+            // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+            if (scope) {
+                /**
+                 * @type {string[]}
+                 */
+                let scopes;
+                const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({
+                    scope, resourceType
+                });
+
+                let error, success;
+                if (accessViaPatientScopes) {
+                    scopes = this.scopesManager.getPatientScopes({ scope });
+                    ({ error, success } = scopeChecker(resourceType, accessRequested, scopes));
+                } else {
+                    scopes = this.scopesManager.getUserScopes({ scope });
+                    // if patient scopes are present then only read is allowed to non patient resources
+                    if (!this.scopesManager.hasPatientScope({ scope }) || accessRequested === 'read') {
+                        ({ error, success } = scopeChecker(resourceType, accessRequested, scopes));
+                    } else {
+                        error = 'Write not allowed using user scopes if patient scope is present';
+                    }
+                }
+
+                if (success) {
+                    // add any access codes from scopes
+                    const accessCodes = this.scopesManager.getAccessCodesFromScopes(accessRequested, user, scope);
+                    // check if atleast one access code with requested access is present or patient scope is present
+                    if (accessCodes.length > 0 || accessViaPatientScopes) {
+                        return;
+                    }
+                }
+
+                if (!success) {
+                    errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    forbiddenError = new ForbiddenError((error.message || error) + ': ' + errorMessage);
+                } else {
+                    const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                    forbiddenError = new ForbiddenError(errorMessage);
+                }
+            } else {
+                errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                forbiddenError = new ForbiddenError(errorMessage);
+            }
+
+            return forbiddenError;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Throws an error if no scope is valid for this request
+     * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {number|null} startTime
@@ -72,49 +136,21 @@ class ScopesValidator {
     ) {
         // eslint-disable-next-line no-useless-catch
         try {
-            const { user, scope } = requestInfo;
-            let errorMessage, forbiddenError;
+            // Verify if scopes are valid
+            const forbiddenError = this.verifyHasValidScopes({ requestInfo, resourceType, accessRequested });
 
-            // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-            if (scope) {
-                /**
-                 * @type {string[]}
-                 */
-                const scopes = this.scopesManager.parseScopes(scope);
-                const { error, success } = scopeChecker(resourceType, accessRequested, scopes);
-
-                if (success) {
-                    const hasPatientScope = this.scopesManager.hasPatientScope({ scope });
-                    // add any access codes from scopes
-                    const accessCodes = this.scopesManager.getAccessCodesFromScopes(accessRequested, user, scope);
-                    // check if atleast one access code with requested access is present or patient scope is present
-                    if (accessCodes.length > 0 || hasPatientScope) {
-                        return;
-                    }
-                }
-
-                if (!success) {
-                    errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                    forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
-                } else {
-                    const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-                    forbiddenError = new ForbiddenError(errorMessage);
-                }
-            } else {
-                errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
-                forbiddenError = new ForbiddenError(errorMessage);
+            if (forbiddenError) {
+                authorizationFailedCounter.inc({ action, resourceType });
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args: parsedArgs?.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action,
+                    error: forbiddenError
+                });
+                throw forbiddenError;
             }
-
-            authorizationFailedCounter.inc({ action, resourceType });
-            await this.fhirLoggingManager.logOperationFailureAsync({
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action,
-                error: forbiddenError
-            });
-            throw forbiddenError;
         } catch (e) {
             throw e;
         }

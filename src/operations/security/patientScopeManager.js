@@ -8,7 +8,6 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { ConfigManager } = require('../../utils/configManager');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
@@ -19,15 +18,13 @@ class PatientScopeManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {PatientFilterManager} patientFilterManager
-     * @param {ConfigManager} configManager
      */
     constructor (
         {
             databaseQueryFactory,
             personToPatientIdsExpander,
             scopesManager,
-            patientFilterManager,
-            configManager
+            patientFilterManager
         }
     ) {
         /**
@@ -53,10 +50,6 @@ class PatientScopeManager {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
-
-        /** @type {ConfigManager} */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -265,31 +258,36 @@ class PatientScopeManager {
      * @param {string | null} scope
      * @returns {Promise<boolean>}
      */
-    async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource, scope }) {
+    async canWriteResourceAsync ({
+        base_version,
+        isUser,
+        personIdFromJwtToken,
+        patientIdsFromJwtToken,
+        resource,
+        scope
+    }) {
         assertIsValid(scope, 'scope is required');
-        if (!this.scopesManager.hasPatientScope({ scope })) {
+        assertIsValid(resource, 'resource is required');
+        if (!this.scopesManager.isAccessAllowedByPatientScopes({
+            scope,
+            resourceType: resource.resourceType
+        })) {
             return true;
         }
-        // TODO: Enable this once we're setting the patient/*.write scope in the JWT tokens
-        // if (!this.scopesManager.hasPatientWriteScope({ scope })) {
-        //     return false;
-        // }
-        const patientIds = await this.getPatientIdsFromScopeAsync(
-            {
-                base_version,
-                isUser,
-                personIdFromJwtToken,
-                patientIdsFromJwtToken
-            }
-        );
+
+        // Validating if resource is related to the patient
+        const patientIds = await this.getPatientIdsFromScopeAsync({
+            base_version,
+            isUser,
+            personIdFromJwtToken,
+            patientIdsFromJwtToken
+        });
         if (patientIds && patientIds.length > 0) {
-            return await this.canWriteResourceWithAllowedPatientIdsAsync(
-                {
-                    patientIds, resource
-                });
-        } else {
-            return false;
+            return await this.canWriteResourceWithAllowedPatientIdsAsync({
+                patientIds, resource
+            });
         }
+        return false;
     }
 }
 
