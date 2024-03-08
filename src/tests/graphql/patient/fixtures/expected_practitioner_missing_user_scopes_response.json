@@ -13,7 +13,7 @@
           "line": 2
         }
       ],
-      "message": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Patient.read,user/Practitioner.read,access/client.*] failed access check to [Patient.write]",
+      "message": "Unable to update patient WPS-5458231534",
       "path": [
         "updateGeneralPractitioner"
       ]

@@ -5,9 +5,9 @@
       "severity": "error",
       "code": "forbidden",
       "details": {
-        "text": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Patient.read,access/client.*] failed access check to [Practitioner.read]"
+        "text": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Patient.read] failed access check to [Practitioner.read]"
       },
-      "diagnostics": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Patient.read,access/client.*] failed access check to [Practitioner.read]"
+      "diagnostics": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Patient.read] failed access check to [Practitioner.read]"
     }
   ]
 }

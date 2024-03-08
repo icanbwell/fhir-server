@@ -188,11 +188,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0].diagnostics;
-            });
+            expect(resp.body[0].operationOutcome).toEqual(expectedMissingAccessScope);
         });
         test('mergeWith_id fails with missing permissions (update)', async () => {
             const request = await createTestRequest();
@@ -239,11 +237,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0].diagnostics;
-            });
+            expect(resp.body[0].operationOutcome).toEqual(expectedMissingAccessScope);
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
             const request = await createTestRequest();
