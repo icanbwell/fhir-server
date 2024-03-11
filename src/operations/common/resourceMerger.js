@@ -86,7 +86,7 @@ class ResourceMerger {
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
         }
-        // compare without checking source, so we don't create a new version just because of a difference in source
+        resourceToMerge.id = currentResource.id;
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
@@ -96,11 +96,43 @@ class ResourceMerger {
         const currentSourceAssigningAuthority = currentResource.meta.security.find(
             s => s.system === SecurityTagSystem.sourceAssigningAuthority
         );
-        if (!resourceToMerge._sourceAssigningAuthority && currentSourceAssigningAuthority) {
+        // Override sourceAssigningAuthority in meta security
+        if (currentSourceAssigningAuthority) {
+            resourceToMerge._sourceAssigningAuthority = currentSourceAssigningAuthority.code;
             if (!resourceToMerge.meta.security) {
                 resourceToMerge.meta.security = [currentSourceAssigningAuthority];
             } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
                 resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
+            } else {
+                resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
+                    if (s.system === SecurityTagSystem.sourceAssigningAuthority) {
+                        security.push(currentSourceAssigningAuthority);
+                    } else {
+                        security.push(s);
+                    }
+                    return security;
+                }, []);
+            }
+        }
+
+        // Override owner in meta security
+        const currentOwner = currentResource.meta.security.find(
+            s => s.system === SecurityTagSystem.owner
+        );
+        if (currentOwner) {
+            if (!resourceToMerge.meta.security) {
+                resourceToMerge.meta.security = [currentOwner];
+            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.owner)) {
+                resourceToMerge.meta.security.push(currentOwner);
+            } else {
+                resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
+                    if (s.system === SecurityTagSystem.owner) {
+                        security.push(currentOwner);
+                    } else {
+                        security.push(s);
+                    }
+                    return security;
+                }, []);
             }
         }
 

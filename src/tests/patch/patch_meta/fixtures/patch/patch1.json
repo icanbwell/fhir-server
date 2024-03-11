@@ -1,0 +1,27 @@
+[
+    {
+        "op": "replace",
+        "path": "/meta/security/1/code",
+        "value": "client2"
+    },
+    {
+        "op": "replace",
+        "path": "/meta/security/0/code",
+        "value": "client2"
+    },
+    {
+        "op": "replace",
+        "path": "/name",
+        "value": "TEST2"
+    },
+    {
+        "op": "replace",
+        "path": "/meta/source",
+        "value": "TEST2"
+    },
+    {
+        "op": "replace",
+        "path": "/id",
+        "value": "TEST2"
+    }
+]
