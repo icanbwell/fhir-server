@@ -248,7 +248,11 @@ class SearchManager {
                 shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
-                    resourceType, securityTags, query, useAccessIndex, useHistoryTable
+                    resourceType,
+                    securityTags,
+                    query,
+                    useAccessIndex,
+                    useHistoryTable
                 });
 
                 if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {

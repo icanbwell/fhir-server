@@ -102,11 +102,9 @@ class SecurityTagManager {
      * @param {boolean} useHistoryTable
      * @return {import('mongodb').Document}
      */
-    getQueryWithSecurityTags (
-        {
-            resourceType, securityTags, query, useAccessIndex = false, useHistoryTable
-        }
-    ) {
+    getQueryWithSecurityTags ({
+        resourceType, securityTags, query, useAccessIndex = false, useHistoryTable
+    }) {
         const fieldMapper = new FieldMapper({ useHistoryTable });
         if (securityTags && securityTags.length > 0) {
             let securityTagQuery;

@@ -343,6 +343,10 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
+                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                    requestInfo, resource: foundResource, base_version
+                });
+
                 const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,

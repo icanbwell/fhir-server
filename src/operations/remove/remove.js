@@ -157,7 +157,8 @@ class RemoveOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: WRITE
+                    operation: WRITE,
+                    accessRequested: 'write'
                 }
             );
 
@@ -172,12 +173,27 @@ class RemoveOperation {
             );
 
             try {
+                res = await databaseQueryManager.findAsync({ query });
+                const uuidsToDelete = [];
+
+                while (await res.hasNext()) {
+                    const resource = await res.next();
+
+                    // eslint-disable-next-line no-useless-catch
+                    try {
+                        await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                            requestInfo, resource, base_version
+                        });
+
+                        uuidsToDelete.push(resource._uuid);
+                    } catch (e) {}
+                }
                 /**
                  * @type {DeleteManyResult}
                  */
                 res = await databaseQueryManager.deleteManyAsync({
                     requestId,
-                    query
+                    query: { _uuid: { $in: uuidsToDelete } }
                 });
 
                 if (resourceType !== 'AuditEvent') {

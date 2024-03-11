@@ -1266,7 +1266,8 @@ containedEntries: []
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 requestId: requestInfo.requestId,
                 parsedArgs,
-                operation: READ
+                operation: READ,
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
             });
 
             /**

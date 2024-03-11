@@ -77,14 +77,12 @@ class ScopesManager {
     }
 
     /**
-     * Checks whether the resource has any access codes that are in the passed in accessCodes list
+     * Checks whether the resource has any access and owner codes that are in the passed in accessCodes list
      * @param {string[]} accessCodes
-     * @param {string} user
-     * @param {string} scope
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, user, scope, resource) {
+    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, resource) {
         // fail if there are no access codes
         if (!accessCodes || accessCodes.length === 0) {
             return false;
@@ -103,18 +101,20 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodesForResource = resource.meta.security
-            .filter(s => s.system === SecurityTagSystem.access)
+        const accessCodesFromOwnerTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.owner)
             .map(s => s.code);
         /**
-         * @type {string}
+         * @type {string[]}
          */
-        for (const accessCode of accessCodes) {
-            if (accessCodesForResource.includes(accessCode)) {
-                return true;
-            }
-        }
-        return false;
+        const accessCodesFromAccessTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
+        const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
+        const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
+
+        return hasOwnerCode && hasAccessCode;
     }
 
     /**
@@ -141,7 +141,7 @@ class ScopesManager {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
-        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
+        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
     }
 
     /**
