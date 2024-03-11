@@ -91,50 +91,31 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
-        // copy sourceAssigningAuthority to be used in GlobalId handler while running preSave
-        // Will only be required when _uuid is passed in id field and there are references to update in the resource
-        const currentSourceAssigningAuthority = currentResource.meta.security.find(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority
-        );
-        // Override sourceAssigningAuthority in meta security
-        if (currentSourceAssigningAuthority) {
-            resourceToMerge._sourceAssigningAuthority = currentSourceAssigningAuthority.code;
+        const updateSecurityTag = (system) => {
+            const currentValue = currentResource.meta.security.find(
+                s => s.system === system
+            );
+            if (!currentValue) {
+                return;
+            }
+            if (system === SecurityTagSystem.sourceAssigningAuthority) {
+                resourceToMerge._sourceAssigningAuthority = currentValue.code;
+            }
             if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [currentSourceAssigningAuthority];
-            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
-                resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
+                resourceToMerge.meta.security = [currentValue];
+            } else if (!resourceToMerge.meta.security.some(s => s.system === system)) {
+                resourceToMerge.meta.security.push(currentValue);
             } else {
                 resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
-                    if (s.system === SecurityTagSystem.sourceAssigningAuthority) {
-                        security.push(currentSourceAssigningAuthority);
-                    } else {
-                        security.push(s);
-                    }
+                    security.push(s.system === system ? currentValue : s);
                     return security;
                 }, []);
             }
-        }
+        };
 
-        // Override owner in meta security
-        const currentOwner = currentResource.meta.security.find(
-            s => s.system === SecurityTagSystem.owner
-        );
-        if (currentOwner) {
-            if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [currentOwner];
-            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.owner)) {
-                resourceToMerge.meta.security.push(currentOwner);
-            } else {
-                resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
-                    if (s.system === SecurityTagSystem.owner) {
-                        security.push(currentOwner);
-                    } else {
-                        security.push(s);
-                    }
-                    return security;
-                }, []);
-            }
-        }
+        // Override sourceAssigningAuthority and owner in meta security
+        updateSecurityTag(SecurityTagSystem.sourceAssigningAuthority);
+        updateSecurityTag(SecurityTagSystem.owner);
 
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that

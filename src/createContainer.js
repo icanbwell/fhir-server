@@ -615,7 +615,8 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            resourceMerger: c.resourceMerger
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

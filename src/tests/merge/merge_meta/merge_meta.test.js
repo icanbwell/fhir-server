@@ -31,7 +31,7 @@ describe('Merge Meta Tests', () => {
 
             // update the resource
             resp = await request
-                .put('/4_0_0/ActivityDefinition/$merge')
+                .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition2Resource)
                 .set(getHeaders())
                 .expect(200);
