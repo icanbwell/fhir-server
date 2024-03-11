@@ -100,18 +100,17 @@ class SecurityTagManager {
      * @param {import('mongodb').Document} query
      * @param {boolean} useAccessIndex
      * @param {boolean} useHistoryTable
+     * @param {boolean} useOwner
      * @return {import('mongodb').Document}
      */
-    getQueryWithSecurityTags (
-        {
-            resourceType, securityTags, query, useAccessIndex = false, useHistoryTable
-        }
-    ) {
+    getQueryWithSecurityTags ({
+        resourceType, securityTags, query, useAccessIndex = false, useHistoryTable, useOwner
+    }) {
         const fieldMapper = new FieldMapper({ useHistoryTable });
         if (securityTags && securityTags.length > 0) {
             let securityTagQuery;
             // special handling for large collections for performance
-            if (useAccessIndex &&
+            if (!useOwner && useAccessIndex &&
                 this.accessIndexManager.resourceHasAccessIndexForAccessCodes(
                     {
                         resourceType,
@@ -133,7 +132,7 @@ class SecurityTagManager {
                 securityTagQuery = {
                     [fieldMapper.getFieldName('meta.security')]: {
                         $elemMatch: {
-                            system: SecurityTagSystem.access,
+                            system: useOwner ? SecurityTagSystem.owner : SecurityTagSystem.access,
                             code: securityTags[0]
                         }
                     }
@@ -142,7 +141,7 @@ class SecurityTagManager {
                 securityTagQuery = {
                     [fieldMapper.getFieldName('meta.security')]: {
                         $elemMatch: {
-                            system: SecurityTagSystem.access,
+                            system: useOwner ? SecurityTagSystem.owner : SecurityTagSystem.access,
                             code: {
                                 $in: securityTags
                             }

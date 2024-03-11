@@ -233,12 +233,8 @@ class ScopesValidator {
     }) {
         // eslint-disable-next-line no-useless-catch
         try {
-            try {
-                // Run preSave to generate _uuid values for references and resource
-                resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
-            } catch (err) {
-                // ignore this error as it might be due to incomplete resource body in merge
-            }
+            // Run preSave to generate _uuid values for references and resource
+            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             // validate access scopes for resource
             this.isAccessToResourceAllowedByAccessScopes({ requestInfo, resource, accessRequested });
             // validate patient scopes for resource

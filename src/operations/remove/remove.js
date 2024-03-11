@@ -157,7 +157,8 @@ class RemoveOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: WRITE
+                    operation: WRITE,
+                    accessRequested: 'write'
                 }
             );
 
