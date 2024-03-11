@@ -32,6 +32,13 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  */
 
 /**
+ * @typedef {Object} UpdateSecurityTagProps
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {string} system
+ */
+
+/**
  * @typedef {Object} OverWriteNonWritableFieldsProp
  * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
  * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
@@ -77,6 +84,33 @@ class ResourceMerger {
     }
 
     /**
+     * Updates security tag with provided system to system present in current resource
+     * @param {UpdateSecurityTagProps}
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     */
+    updateSecurityTag ({ system, resourceToMerge, currentResource }) {
+        const currentValue = currentResource.meta.security.find(
+            s => s.system === system
+        );
+        if (!currentValue) {
+            return;
+        }
+        if (system === SecurityTagSystem.sourceAssigningAuthority) {
+            resourceToMerge._sourceAssigningAuthority = currentValue.code;
+        }
+        if (!resourceToMerge.meta.security) {
+            resourceToMerge.meta.security = [currentValue];
+        } else if (!resourceToMerge.meta.security.some(s => s.system === system)) {
+            resourceToMerge.meta.security.push(currentValue);
+        } else {
+            resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
+                security.push(s.system === system ? currentValue : s);
+                return security;
+            }, []);
+        }
+    };
+
+    /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
@@ -86,23 +120,22 @@ class ResourceMerger {
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
         }
-        // compare without checking source, so we don't create a new version just because of a difference in source
+        resourceToMerge.id = currentResource.id;
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
-        // copy sourceAssigningAuthority to be used in GlobalId handler while running preSave
-        // Will only be required when _uuid is passed in id field and there are references to update in the resource
-        const currentSourceAssigningAuthority = currentResource.meta.security.find(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority
-        );
-        if (!resourceToMerge._sourceAssigningAuthority && currentSourceAssigningAuthority) {
-            if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [currentSourceAssigningAuthority];
-            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
-                resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
-            }
-        }
+        // Override sourceAssigningAuthority and owner in meta security
+        this.updateSecurityTag({
+            system: SecurityTagSystem.sourceAssigningAuthority,
+            currentResource,
+            resourceToMerge
+        });
+        this.updateSecurityTag({
+            system: SecurityTagSystem.owner,
+            currentResource,
+            resourceToMerge
+        });
 
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that

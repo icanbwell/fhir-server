@@ -21,6 +21,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
+const { ResourceMerger } = require('../common/resourceMerger');
 
 class PatchOperation {
     /**
@@ -35,6 +36,7 @@ class PatchOperation {
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
+     * @param {ResourceMerger} resourceMerger
      */
     constructor (
         {
@@ -47,7 +49,8 @@ class PatchOperation {
             databaseAttachmentManager,
             configManager,
             bwellPersonFinder,
-            searchManager
+            searchManager,
+            resourceMerger
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class PatchOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -251,7 +260,6 @@ class PatchOperation {
              * @type {Object}
              */
             const resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
-            const appliedPatchContent = compare(foundResource.toJSONInternal(), resource_incoming);
             /**
              * @type {Resource}
              */
@@ -259,58 +267,69 @@ class PatchOperation {
 
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
-                const meta = foundResource.meta;
-                // noinspection JSUnresolvedVariable
-                meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-                meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-                meta.source = meta.source || resource.meta.source;
-                resource.meta = meta;
+                this.resourceMerger.overWriteNonWritableFields({
+                    currentResource: foundResource, resourceToMerge: resource
+                });
             } else {
                 throw new BadRequestError(new Error(
                     'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
                 ));
             }
+            const appliedPatchContent = compare(foundResource.toJSONInternal(), resource.toJSONInternal());
+            if (appliedPatchContent.length > 0) {
+                // noinspection JSUnresolvedVariable
+                resource.meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
+                resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                // removing the files that are patched
+                await this.databaseAttachmentManager.transformAttachments(
+                    originalResource, DELETE, appliedPatchContent.filter(patch => patch.op !== 'add')
+                );
 
-            // removing the files that are patched
-            await this.databaseAttachmentManager.transformAttachments(
-                originalResource, DELETE, appliedPatchContent.filter(patch => patch.op !== 'add')
-            );
+                // converting attachment.data to attachment._file_id for the response
+                resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
-            // converting attachment.data to attachment._file_id for the response
-            resource = await this.databaseAttachmentManager.transformAttachments(resource);
-
-            // Same as update from this point on
-            // Insert/update our resource record
-            await this.databaseBulkInserter.replaceOneAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    doc: resource,
-                    uuid: resource._uuid,
-                    patches: patchContent.map(
-                        p => {
-                            return {
-                                op: p.op,
-                                path: p.path,
-                                value: p.value
-                            };
-                        }
-                    )
+                // Same as update from this point on
+                // Insert/update our resource record
+                await this.databaseBulkInserter.replaceOneAsync(
+                    {
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        doc: resource,
+                        uuid: resource._uuid,
+                        patches: patchContent.map(
+                            p => {
+                                return {
+                                    op: p.op,
+                                    path: p.path,
+                                    value: p.value
+                                };
+                            }
+                        )
+                    }
+                );
+                /**
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResults = await this.databaseBulkInserter.executeAsync(
+                    {
+                        requestInfo,
+                        currentDate,
+                        base_version
+                    }
+                );
+                if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
                 }
-            );
-            /**
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResults = await this.databaseBulkInserter.executeAsync(
-                {
-                    requestInfo,
-                    currentDate,
-                    base_version
-                }
-            );
-            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
+
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.postSaveProcessor.afterSaveAsync({
+                            requestId, eventType: 'U', resourceType, doc: resource
+                        });
+                    }
+                });
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
@@ -321,15 +340,6 @@ class PatchOperation {
                     startTime,
                     action: currentOperationName
                 });
-
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                    await this.postSaveProcessor.afterSaveAsync({
-                        requestId, eventType: 'U', resourceType, doc: resource
-                    });
-                }
-            });
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
