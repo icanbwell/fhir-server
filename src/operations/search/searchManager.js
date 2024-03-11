@@ -252,8 +252,7 @@ class SearchManager {
                     securityTags,
                     query,
                     useAccessIndex,
-                    useHistoryTable,
-                    useOwner: (accessRequested === 'write')
+                    useHistoryTable
                 });
 
                 if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {

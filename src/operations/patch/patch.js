@@ -244,6 +244,10 @@ class PatchOperation {
             if (!foundResource) {
                 throw new NotFoundError('Resource not found');
             }
+
+            await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                requestInfo, resource: foundResource, base_version
+            });
             const originalResource = foundResource.clone();
             foundResource = await this.databaseAttachmentManager.transformAttachments(
                 foundResource, RETRIEVE, patchContent

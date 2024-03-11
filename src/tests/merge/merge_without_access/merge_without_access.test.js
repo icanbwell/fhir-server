@@ -19,6 +19,18 @@ describe('Patient Tests', () => {
     });
 
     describe('merge Tests', () => {
+        test('merge(create) with scopes matching owner and access tags', async () => {
+            const request = await createTestRequest();
+
+            const resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(patient1Resource)
+                .set(getHeaders('access/owner.* access/access.* user/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+        });
+
         test('merge(create) with scopes matching owner tags but not access tags', async () => {
             const request = await createTestRequest();
 
@@ -28,7 +40,17 @@ describe('Patient Tests', () => {
                 .set(getHeaders('access/owner.* user/*.*'))
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({
+                issue: {
+                    code: 'forbidden',
+                    details: {
+                        text: 'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1'
+                    },
+                    diagnostics:
+                        'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1',
+                    severity: 'error'
+                }
+            });
         });
 
         test('merge(create) with scopes matching access tags but not owner tags', async () => {
@@ -53,6 +75,26 @@ describe('Patient Tests', () => {
             });
         });
 
+        test('merge(update) with scopes matching owner and access tags', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(patient2Resource)
+                .set(getHeaders('access/owner.* access/access.* user/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ updated: true });
+        });
+
         test('merge(update) with scopes matching owner tags but not access tags', async () => {
             const request = await createTestRequest();
 
@@ -70,7 +112,17 @@ describe('Patient Tests', () => {
                 .set(getHeaders('access/owner.* user/*.*'))
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ updated: true });
+            expect(resp).toHaveMergeResponse({
+                issue: {
+                    code: 'forbidden',
+                    details: {
+                        text: 'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1'
+                    },
+                    diagnostics:
+                        'user imran with scopes [access/owner.* user/*.*] has no write access to resource Patient with id 1',
+                    severity: 'error'
+                }
+            });
         });
 
         test('merge(update) with scopes matching access tags but not owner tags', async () => {

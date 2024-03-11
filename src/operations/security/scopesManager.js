@@ -101,18 +101,20 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodesForResource = resource.meta.security
+        const accessCodesFromOwnerTag = resource.meta.security
             .filter(s => s.system === SecurityTagSystem.owner)
             .map(s => s.code);
         /**
-         * @type {string}
+         * @type {string[]}
          */
-        for (const accessCode of accessCodes) {
-            if (accessCodesForResource.includes(accessCode)) {
-                return true;
-            }
-        }
-        return false;
+        const accessCodesFromAccessTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
+        const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
+        const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
+
+        return hasOwnerCode && hasAccessCode;
     }
 
     /**
