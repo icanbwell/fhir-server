@@ -77,7 +77,7 @@ class ScopesManager {
     }
 
     /**
-     * Checks whether the resource has any access codes that are in the passed in accessCodes list
+     * Checks whether the resource has any access or owner codes that are in the passed in accessCodes list
      * @param {string[]} accessCodes
      * @param {Resource} resource
      * @return {boolean}
