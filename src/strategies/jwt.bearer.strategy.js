@@ -149,7 +149,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         // Test that required fields are populated
         let validInput = true;
         requiredJWTFields.forEach((field) => {
-            if (!jwt_payload[`${field}`]) {
+            if (!jwt_payload[`${field}`] && !jwt_payload[`${field.replace('custom:', '')}`]) {
                 logDebug(`Error: ${field} field is missing`, { user: '' });
                 validInput = false;
             }
@@ -157,16 +157,18 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
-        if (jwt_payload['custom:bwell_fhir_ids']) {
-            const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
+        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'] || jwt_payload.bwell_fhir_id;
+
+        let patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'] || jwt_payload.bwell_fhir_ids;
+        if (patientIdsFromJwtToken) {
+            patientIdsFromJwtToken = patientIdsFromJwtToken.split('|');
             if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
                 context.patientIdsFromJwtToken = patientIdsFromJwtToken;
             }
         } else if (fhirPatientId) {
             context.patientIdsFromJwtToken = [fhirPatientId];
         }
-        context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'];
+        context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'] || jwt_payload.bwellFhirPersonId;
     }
 
     return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
@@ -186,7 +188,11 @@ const verify = (request, jwt_payload, done) => {
          * @type {boolean}
          */
         let isUser = false;
-        if (jwt_payload['cognito:username'] || jwt_payload['custom:bwellFhirPersonId']) {
+        if (
+            jwt_payload['cognito:username'] ||
+            jwt_payload['custom:bwellFhirPersonId'] ||
+            jwt_payload.bwellFhirPersonId
+        ) {
             isUser = true;
         }
         const client_id = jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
