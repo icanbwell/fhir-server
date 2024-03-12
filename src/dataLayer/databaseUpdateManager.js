@@ -83,14 +83,12 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a resource into the database
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAsync ({ base_version, requestInfo, doc }) {
+    async insertOneAsync ({ doc }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -117,7 +115,7 @@ class DatabaseUpdateManager {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
         const originalDoc = doc.clone();
-        doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
         /**
          * @type {Resource[]}
          */
@@ -160,7 +158,7 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
-                return { savedResource: await this.insertOneAsync({ base_version, requestInfo, doc }), patches: null };
+                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
             }
             /**
              * @type {Resource|null}
@@ -184,7 +182,7 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const updatedDoc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc.clone() });
+                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: doc.clone() });
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
@@ -290,23 +288,19 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a history collection for a resource
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async postSaveAsync (
-        {
-            base_version,
-            requestInfo,
-            doc
-        }
-    ) {
+    async postSaveAsync ({
+        requestInfo,
+        doc
+    }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
         const requestId = requestInfo.requestId;
         const method = requestInfo.method;
-        doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
         const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({

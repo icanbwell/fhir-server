@@ -166,8 +166,6 @@ class MergeManager {
 
         // found an existing resource
         currentResource = await this.preSaveManager.preSaveAsync({
-            base_version,
-            requestInfo,
             resource: currentResource
         });
 
@@ -525,8 +523,6 @@ class MergeManager {
         try {
             assertTypeEquals(resourceToMerge, Resource);
             resourceToMerge = await this.preSaveManager.preSaveAsync({
-                base_version,
-                requestInfo,
                 resource: resourceToMerge
             });
 
@@ -567,8 +563,6 @@ class MergeManager {
         try {
             assertTypeEquals(resourceToMerge, Resource);
             await this.preSaveManager.preSaveAsync({
-                base_version,
-                requestInfo,
                 resource: resourceToMerge
             });
 

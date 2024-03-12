@@ -9,18 +9,18 @@
   },
   {
     "created": true,
-    "id": "WPS-Claim-429017018331",
-    "resourceType": "ExplanationOfBenefit",
-    "sourceAssigningAuthority": "client",
-    "updated": false,
-    "uuid": "6df8ebde-886b-5033-b053-57274a1bfb3b"
-  },
-  {
-    "created": true,
     "id": "00100000000",
     "resourceType": "Patient",
     "sourceAssigningAuthority": "client",
     "updated": false,
     "uuid": "5b8e2400-af14-56e1-9518-1d18625afe93"
+  },
+  {
+    "created": true,
+    "id": "WPS-Claim-429017018331",
+    "resourceType": "ExplanationOfBenefit",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "6df8ebde-886b-5033-b053-57274a1bfb3b"
   }
 ]

@@ -210,11 +210,11 @@ describe('Condition Tests', () => {
             const body = resp.body;
             expect(body.length).toStrictEqual(2);
 
-            const condition1Response = body[0];
+            const condition1Response = body[1];
             expect(condition1Response.created).toStrictEqual(false);
             expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
 
-            const condition2Response = body[1];
+            const condition2Response = body[0];
             expect(condition2Response.created).toStrictEqual(true);
         });
         test('merge_with_patient_scope with multiple resources does not allow changing of patient property', async () => {

@@ -320,12 +320,7 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
-            doc = await this.preSaveManager.preSaveAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    resource: doc
-                });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -468,7 +463,6 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} uuid
@@ -479,7 +473,6 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async replaceOneAsync (
         {
-            base_version,
             requestInfo,
             resourceType,
             uuid,
@@ -494,7 +487,7 @@ class DatabaseBulkInserter extends EventEmitter {
         const requestId = requestInfo.requestId;
         try {
             assertTypeEquals(doc, Resource);
-            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -585,7 +578,7 @@ class DatabaseBulkInserter extends EventEmitter {
         const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
-            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

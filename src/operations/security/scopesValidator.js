@@ -234,7 +234,7 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Run preSave to generate _uuid values for references and resource
-            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
+            resource = await this.preSaveManager.preSaveAsync({ resource });
             // validate access scopes for resource
             this.isAccessToResourceAllowedByAccessScopes({ requestInfo, resource, accessRequested });
             // validate patient scopes for resource

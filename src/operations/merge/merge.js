@@ -216,15 +216,13 @@ class MergeOperation {
             /**
              * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
              */
-            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync(
-                {
-                    resources_incoming: validResources,
-                    resourceType,
-                    currentDate,
-                    base_version,
-                    requestInfo
-                }
-            );
+            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
+                resources_incoming: validResources,
+                resourceType,
+                currentDate,
+                base_version,
+                requestInfo
+            });
             validResources = mergeResourceResults
                 .flatMap(m => m.resource)
                 .filter(r => r !== null);
@@ -232,12 +230,11 @@ class MergeOperation {
              * mergeResults
              * @type {MergeResultEntry[]}
              */
-            let mergeResults = await this.databaseBulkInserter.executeAsync(
-                {
-                    requestInfo,
-                    currentDate,
-                    base_version
-                });
+            let mergeResults = await this.databaseBulkInserter.executeAsync({
+                requestInfo,
+                currentDate,
+                base_version
+            });
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
@@ -253,22 +250,21 @@ class MergeOperation {
             );
 
             mergeResults.sort((res1, res2) =>
-                res1.uuid ? res2.uuid ? res1.uuid.localeCompare(res2.uuid) : 1 : -1
+                res1._uuid ? res2._uuid ? res1._uuid.localeCompare(res2._uuid) : 1 : -1
             );
 
             await this.mergeManager.logAuditEntriesForMergeResults({
                 requestInfo, requestId, base_version, parsedArgs, mergeResults
             });
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(mergeResults, getCircularReplacer())
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(mergeResults, getCircularReplacer())
+            });
 
             /**
              * @type {number}

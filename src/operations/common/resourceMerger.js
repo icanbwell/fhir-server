@@ -63,8 +63,6 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  * @typedef {Object} ApplyPatchProp
  * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
  * @property {import('fast-json-patch').Operation[]} patchContent
- * @property {string} original_source
- * @property {boolean|undefined} incrementVersion
  */
 
 /**
@@ -279,7 +277,7 @@ class ResourceMerger {
      * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    applyPatch ({ currentResource, patchContent, original_source, incrementVersion }) {
+    applyPatch ({ currentResource, patchContent }) {
         /**
          * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
          */
@@ -290,19 +288,7 @@ class ResourceMerger {
         const patched_incoming_data = patchResult.newDocument;
 
         // Create a new resource to store the merged data
-        /**
-         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
-         */
-        let patched_resource_incoming = currentResource.create(patched_incoming_data);
-
-        patched_resource_incoming = this.updateMeta({
-            patched_resource_incoming,
-            currentResource,
-            original_source,
-            incrementVersion
-        });
-
-        return patched_resource_incoming;
+        return currentResource.create(patched_incoming_data);
     }
 
     /**
@@ -333,9 +319,7 @@ class ResourceMerger {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         // confirm the resource has been run through preSave
         if (!resourceToMerge._uuid) {
-            resourceToMerge = await this.preSaveManager.preSaveAsync(
-                { base_version, requestInfo, resource: resourceToMerge }
-            );
+            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
         }
         assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
@@ -346,8 +330,7 @@ class ResourceMerger {
         // overwrite fields that should not be changed once resource is created
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
-        // fix up any data that we normally fix up before saving so the comparison is correct
-        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: resourceToMerge });
+        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
@@ -397,8 +380,13 @@ class ResourceMerger {
         /**
          * @type {import('../../fhir/classes/4_0_0/resources/resource')}
          */
-        let patched_resource_incoming = this.applyPatch({
-            currentResource, patchContent, original_source, incrementVersion
+        let patched_resource_incoming = this.applyPatch({ currentResource, patchContent });
+
+        patched_resource_incoming = this.updateMeta({
+            patched_resource_incoming,
+            currentResource,
+            original_source,
+            incrementVersion
         });
 
         if (databaseAttachmentManager) {
