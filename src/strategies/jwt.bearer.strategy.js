@@ -6,7 +6,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const { logDebug, logError } = require('../operations/common/logging');
+const { logDebug, logError, logInfo } = require('../operations/common/logging');
 const { isTrue } = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
@@ -185,6 +185,16 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
 const verify = (request, jwt_payload, done) => {
     if (jwt_payload) {
         /**
+         * @type {string}
+         */
+        const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
+
+        if (tokenUse === 'id' && isTrue(env.DISABLE_ID_TOKEN_SUPPORT)) {
+            logInfo('Unable to process ID token as the support is disabled');
+            return done(null, false);
+        }
+
+        /**
          * @type {boolean}
          */
         let isUser = false;
@@ -214,11 +224,6 @@ const verify = (request, jwt_payload, done) => {
          * @type {string}
          */
         const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
-
-        /**
-         * @type {string}
-         */
-        const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
 
         if (groups.length > 0) {
             scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
