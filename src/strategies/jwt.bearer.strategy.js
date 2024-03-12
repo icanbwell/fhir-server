@@ -255,7 +255,7 @@ const verify = (request, jwt_payload, done) => {
                     return done(null, false);
                 });
             }
-        } else {
+        } else if (!isTrue(env.DISABLE_ID_TOKEN_SUPPORT)) {
             return parseUserInfoFromPayload(
                 {
                     username, subject, isUser, jwt_payload, done, client_id, scope
