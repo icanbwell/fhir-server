@@ -9,13 +9,13 @@ const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 class SourceIdColumnHandler extends PreSaveHandler {
     /**
      * fixes up any resources before they are saved
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} resource
-     * @returns {Promise<Resource>}
+     * @typedef {Object} PreSaveAsyncProps
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     *
+     * @param {PreSaveAsyncProps}
+     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async preSaveAsync ({ base_version, requestInfo, resource }) {
+    async preSaveAsync ({ resource }) {
         if (!resource._sourceId) {
             resource._sourceId = resource.id;
         }

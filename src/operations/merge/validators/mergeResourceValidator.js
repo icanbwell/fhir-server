@@ -62,12 +62,11 @@ class MergeResourceValidator extends BaseValidator {
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {date} currentDate
-     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
+    async validate ({ requestInfo, currentDate, incomingResources, base_version }) {
         /**
          * @type {boolean}
          */
@@ -107,7 +106,7 @@ class MergeResourceValidator extends BaseValidator {
                     resource._uuid = resource.id;
                 } else {
                     try {
-                        resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
+                        resource = await this.preSaveManager.preSaveAsync({ resource });
                     } catch (error) {
                         return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
                     }

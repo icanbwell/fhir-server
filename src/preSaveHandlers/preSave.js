@@ -1,36 +1,31 @@
 const { assertTypeEquals } = require('../utils/assertType');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
-const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 
 class PreSaveManager {
     /**
      * constructor
-     * @param {PreSaveHandler[]} preSaveHandlers
+     * @param {import('./handlers/preSaveHandler').PreSaveHandler[]} preSaveHandlers
      */
-    constructor (
-        {
-            preSaveHandlers
-        }
-    ) {
+    constructor ({ preSaveHandlers }) {
         /**
-         * @type {PreSaveHandler[]}
+         * @type {import('./handlers/preSaveHandler').PreSaveHandler[]}
          */
         this.preSaveHandlers = preSaveHandlers;
     }
 
     /**
      * fixes up any resources before they are saved
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} resource
-     * @returns {Promise<Resource>}
+     * @typedef {Object} PreSaveAsyncProps
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     *
+     * @param {PreSaveAsyncProps}
+     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    async preSaveAsync ({ base_version, requestInfo, resource }) {
-        assertTypeEquals(requestInfo, FhirRequestInfo);
+    async preSaveAsync ({ resource }) {
         assertTypeEquals(resource, Resource);
 
         for (const preSaveHandler of this.preSaveHandlers) {
-            resource = await preSaveHandler.preSaveAsync({ base_version, requestInfo, resource });
+            resource = await preSaveHandler.preSaveAsync({ resource });
             assertTypeEquals(resource, Resource,
                 `return value ${typeof resource} from ${preSaveHandler.constructor.name} was not a resource`);
         }

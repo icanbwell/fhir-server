@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
-const { validate, applyPatch, compare } = require('fast-json-patch');
+const { validate } = require('fast-json-patch');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
@@ -263,7 +263,9 @@ class PatchOperation {
             /**
              * @type {Object}
              */
-            const resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
+            const resource_incoming = this.resourceMerger.applyPatch({
+                currentResource: foundResource, patchContent
+            });
             /**
              * @type {Resource}
              */
@@ -279,11 +281,19 @@ class PatchOperation {
                     'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
                 ));
             }
-            const appliedPatchContent = compare(foundResource.toJSONInternal(), resource.toJSONInternal());
+            const appliedPatchContent = this.resourceMerger.compareObjects({
+                currentObject: foundResource.toJSON(),
+                mergedObject: resource.toJSON()
+            });
+
             if (appliedPatchContent.length > 0) {
-                // noinspection JSUnresolvedVariable
-                resource.meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-                resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                this.resourceMerger.updateMeta({
+                    patched_resource_incoming: resource,
+                    currentResource: foundResource,
+                    original_source: foundResource.meta?.source,
+                    incrementVersion: true
+                });
+
                 // removing the files that are patched
                 await this.databaseAttachmentManager.transformAttachments(
                     originalResource, DELETE, appliedPatchContent.filter(patch => patch.op !== 'add')

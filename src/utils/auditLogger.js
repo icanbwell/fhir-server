@@ -210,7 +210,7 @@ class AuditLogger {
             }
         );
 
-        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
+        await this.preSaveManager.preSaveAsync({ resource: doc });
         this.queue.push({ doc, requestInfo });
 
         if (this.queue.length >= this.configManager.postRequestBufferSize) {
