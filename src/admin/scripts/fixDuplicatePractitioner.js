@@ -58,6 +58,7 @@ async function main () {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collections,
                 batchSize,
+                deleteData: !!parameters.deleteData,
                 adminLogger,
                 limit: parameters.limit,
                 skip: parameters.skip,
