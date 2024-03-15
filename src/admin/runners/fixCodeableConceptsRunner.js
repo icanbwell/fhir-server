@@ -282,14 +282,11 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
     isUpdateNeeded (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
-                if (coding.system) {
-                    // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u')
-                        ? coding.system.split(':')[2] : coding.system;
-
-                    if (this.availableOidValues.has(system)) {
-                        return true;
-                    }
+                if (
+                    coding?.system?.toLowerCase().startsWith('urn:oid:') ||
+                    this.availableOidValues.has(coding?.system)
+                ) {
+                    return true;
                 }
             }
             return false;
@@ -312,9 +309,6 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 }
             }
         }
-        if (isUpdateNeeded && resource._uuid) {
-            return resource._uuid;
-        }
         return isUpdateNeeded;
     }
 
@@ -326,13 +320,18 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
     updateResource (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
-                if (coding.system) {
+                if (
+                    coding?.system?.toLowerCase().startsWith('urn:oid:') ||
+                    this.availableOidValues.has(coding?.system)
+                ) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u')
+                    const system = coding.system.toLowerCase().startsWith('urn:oid:')
                         ? coding.system.split(':')[2] : coding.system;
 
                     if (this.availableOidValues.has(system)) {
                         coding.system = this.oidToStandardSystemUrlMap[`${system}`];
+                    } else {
+                        coding.system = system;
                     }
                 }
             }
@@ -442,26 +441,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
-        const filterQuery = {
-            $and: [
-                { _uuid: { $in: uuidChunk } },
-                {
-                    $or: [
-                        {
-                            'meta.security': {
-                                $elemMatch: {
-                                    system: 'https://www.icanbwell.com/connectionType',
-                                    code: 'proa'
-                                }
-                            }
-                        },
-                        {
-                            _sourceAssigningAuthority: 'humanapi'
-                        }
-                    ]
-                }
-            ]
-        };
+        const filterQuery = { _uuid: { $in: uuidChunk } };
 
         // merge query and filterQuery
         if (Object.keys(query).length) {
@@ -512,30 +492,15 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                         /**
                          * @type {import('mongodb').FindCursor}
                          */
-                        const cursor = collection.find({
-                            $or: [
-                                {
-                                    'meta.security': {
-                                        $elemMatch: {
-                                            code: 'proa',
-                                            system: 'https://www.icanbwell.com/connectionType'
-                                        }
-                                    }
-                                },
-                                {
-                                    _sourceAssigningAuthority: 'humanapi'
-                                }
-                            ]
-                        });
+                        const cursor = collection.find({});
 
                         while (await cursor.hasNext()) {
                             const doc = await cursor.next();
 
                             const resource = FhirResourceCreator.create(doc);
 
-                            const value = this.isUpdateNeeded(resource);
-                            if (value) {
-                                uuidsToUpdate.push(value);
+                            if (this.isUpdateNeeded(resource)) {
+                                uuidsToUpdate.push(resource._uuid);
                             }
                         }
 

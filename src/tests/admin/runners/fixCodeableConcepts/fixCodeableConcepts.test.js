@@ -11,6 +11,7 @@ const expectedObservation1AfterRun = require('./fixtures/expected/expectedObserv
 const expectedObservation2BeforeRun = require('./fixtures/expected/expectedObservation2BeforeRun.json');
 const expectedObservation2AfterRun = require('./fixtures/expected/expectedObservation2AfterRun.json');
 const expectedObservation3BeforeRun = require('./fixtures/expected/expectedObservation3BeforeRun.json');
+const expectedObservation3AfterRun = require('./fixtures/expected/expectedObservation3AfterRun.json');
 
 const expectedCareplan1BeforeRun = require('./fixtures/expected/expectedCarePlan1BeforeRun.json');
 const expectedCareplan1AfterRun = require('./fixtures/expected/expectedCarePlan1AfterRun.json');
@@ -190,7 +191,7 @@ describe('FixCodeableConcepts Tests', () => {
 
             const observation3AfterRun = resp.body;
             delete observation3AfterRun.meta.lastUpdated;
-            expect(observation3AfterRun).toEqual(expectedObservation3BeforeRun);
+            expect(observation3AfterRun).toEqual(expectedObservation3AfterRun);
 
             resp = await request
                 .get(`/4_0_0/CarePlan/${careplan1Resource.id}`)
