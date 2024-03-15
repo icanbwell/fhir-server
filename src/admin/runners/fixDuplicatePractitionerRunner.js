@@ -436,11 +436,16 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             const duplicatePractitionerArray = await this.getDuplicatePractitionerArrayAsync({
                 collection: practitionerCollection
             });
+            const strCollections = JSON.stringify(this.collections);
+            this.adminLogger.logInfo(`Collections ${strCollections}`);
             if (duplicatePractitionerArray.length > 0) {
                 await this.createPractitionerSubstitutions(duplicatePractitionerArray);
                 try {
                     for (const collectionName of this.collections) {
-                        if (!this.fieldsToUpdate.has(collectionName)) {
+                         this.adminLogger.logInfo(
+                            `Fixing duplicate practitioners for the collection: ${collectionName}`
+                        );
+                       if (!this.fieldsToUpdate.has(collectionName)) {
                             this.adminLogger.logInfo(`Collection ${collectionName} doesn't have any fields needing updating`);
                             continue;
                         }
@@ -453,7 +458,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                             );
                             try {
                                 const newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids } });
-                                this.adminLogger.logInfo(`New query ${newQuery}`);
+                                // this.adminLogger.logInfo(`New query ${newQuery}`);
                                 await this.runForQueryBatchesAsync({
                                     config: mongoConfig,
                                     sourceCollectionName: collectionName,
