@@ -447,7 +447,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                 await this.createPractitionerSubstitutions(duplicatePractitionerArray);
                 try {
                     for (const collectionName of this.collections) {
-                         this.adminLogger.logInfo(
+                        const startFromIdContainer = this.createStartFromIdContainer();
+                        this.adminLogger.logInfo(
                             `Fixing duplicate practitioners for the collection: ${collectionName}`
                         );
                        if (!this.fieldsToUpdate.has(collectionName)) {
@@ -481,6 +482,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                     sourceCollectionName: collectionName,
                                     destinationCollectionName: collectionName,
                                     query: newQuery,
+                                    startFromIdContainer,
                                     projection: this.properties ? this.getProjection() : undefined,
                                     fnCreateBulkOperationAsync: async (doc) =>
                                         await this.processResourceAsync({
