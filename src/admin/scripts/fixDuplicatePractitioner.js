@@ -39,7 +39,9 @@ async function main () {
     /**
      * @type {string[]}
      */
-    const collections = ['Practitioner_4_0_0'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const adminLogger = new AdminLogger();
