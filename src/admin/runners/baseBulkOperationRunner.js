@@ -94,10 +94,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({ config, destinationCollectionName, sourceCollectionName });
 
-            this.adminLogger.logInfo(
-                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `for ${sourceCollectionName}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            //     `for ${sourceCollectionName}`
+            // );
 
             // first get the count
             let numberOfSourceDocuments, useLimit;
@@ -121,10 +121,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             }
 
-            this.adminLogger.logInfo(
-                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `for ${destinationCollectionName}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            //     `for ${destinationCollectionName}`
+            // );
 
             let numberOfDestinationDocuments;
             if (useEstimatedCount) {

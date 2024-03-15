@@ -472,8 +472,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                     this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
                                     this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
                                     newQuery[fieldQuery] = { $in: this.dupUuids };
-                                    const strNewQuery = JSON.stringify(newQuery);
-                                    this.adminLogger.logInfo(`new query = ${strNewQuery}`);
+                                    // const strNewQuery = JSON.stringify(newQuery);
+                                    // this.adminLogger.logInfo(`new query = ${strNewQuery}`);
                                 }
 
                                 await this.runForQueryBatchesAsync({
