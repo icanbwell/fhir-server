@@ -324,12 +324,15 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     async processResourceAsync ({ doc, collectionName, field }) {
+        const operations = [];
         try {
-            const operations = [];
+            this.adminLogger.logInfo('Inside processResourceAsync');
             /**
              * @type {Resource}
              */
             const resource = FhirResourceCreator.create(doc);
+            const strResource = JSON.stringify(resource);
+            this.adminLogger.logInfo(`resource ${strResource}`);
             this.adminLogger.logInfo(`Updating ${collectionName} uuid ${resource._uuid}`);
             const fields = field.split('.');
             if (fields.length === 1) {
@@ -464,6 +467,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                     newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids } });
                                 } else {
                                     newQuery = { [`${field}._uuid`]: { $in: this.dupUuids } };
+                                    const strNewQuery = JSON.stringify(newQuery.keys);
+                                    this.adminLogger.logInfo(`query keys = ${strNewQuery}`);
                                 }
                                 // this.adminLogger.logInfo(`New query ${newQuery}`);
                                 await this.runForQueryBatchesAsync({
