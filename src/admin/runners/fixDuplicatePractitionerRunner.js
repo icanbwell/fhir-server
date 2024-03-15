@@ -466,21 +466,21 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                 this.adminLogger.logInfo(`query ${strQuery}`);
                                 let newQuery = {};
                                 if (query.$and) {
-                                    newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids.length } });
+                                    newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids } });
                                 } else {
                                     const fieldQuery = `${field}._uuid`;
                                     this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
-                                    this.adminLogger.logInfo(`dup fields count ${this.dupUuids}`);
+                                    this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
                                     newQuery[fieldQuery] = { $in: this.dupUuids };
                                     const strNewQuery = JSON.stringify(newQuery);
-                                    this.adminLogger.logInfo(`query keys = ${strNewQuery}`);
+                                    this.adminLogger.logInfo(`new query = ${strNewQuery}`);
                                 }
-                                // this.adminLogger.logInfo(`New query ${newQuery}`);
+
                                 await this.runForQueryBatchesAsync({
                                     config: mongoConfig,
                                     sourceCollectionName: collectionName,
                                     destinationCollectionName: collectionName,
-                                    newQuery,
+                                    query: newQuery,
                                     projection: this.properties ? this.getProjection() : undefined,
                                     fnCreateBulkOperationAsync: async (doc) =>
                                         await this.processResourceAsync({
