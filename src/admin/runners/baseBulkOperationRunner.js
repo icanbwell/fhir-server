@@ -451,9 +451,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         const doc = await this.next(cursor);
                         this.adminLogger.logInfo('Read doc from curson');
                         bytesLoaded += sizeof(doc);
+                        this.adminLogger.logInfo('cursor process 1');
                         startFromIdContainer.startFromId = doc._id;
+                        this.adminLogger.logInfo('cursor process 2');
                         previouslyCheckedId = doc._id;
+                        this.adminLogger.logInfo('cursor process 3');
                         startFromIdContainer.numScanned += 1;
+                        this.adminLogger.logInfo('cursor process 4');
                         readline.cursorTo(process.stdout, 0);
                         process.stdout.write(`[${moment().toISOString()}] ` +
                             `[${loopNumber}] ` +
