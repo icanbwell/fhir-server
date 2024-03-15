@@ -360,11 +360,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     loopNumber += 1;
                     this.adminLogger.logInfo(`Starting loop for uuidChunk ${loopNumber}/${uuidListChunks.length}`);
 
-                    this.adminLogger.logInfo(
-                        `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-                        `From ${sourceCollectionName} to ${destinationCollectionName}` +
-                        loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
-                    );
+                    // this.adminLogger.logInfo(
+                    //     `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+                    //     `From ${sourceCollectionName} to ${destinationCollectionName}` +
+                    //     loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
+                    // );
 
                     // pass session to find query per:
                     // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
@@ -405,6 +405,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     /**
                      * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
                      */
+                    this.adminLogger.logInfo('Getting sourceCollection cursor')
                     let cursor = await sourceCollection
                         .find(queryForChunk, options)
                         .sort({ _id: 1 })
