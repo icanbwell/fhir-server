@@ -457,6 +457,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                 `Fixing duplicate practitioners for the collection: ${collectionName} and field ${field}`
                             );
                             try {
+                                const strQuery = JSON.stringify(query);
+                                this.adminLogger.logInfo(`query ${strQuery}`);
                                 const newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids } });
                                 // this.adminLogger.logInfo(`New query ${newQuery}`);
                                 await this.runForQueryBatchesAsync({
