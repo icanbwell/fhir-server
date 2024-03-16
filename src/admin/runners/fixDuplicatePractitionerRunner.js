@@ -360,11 +360,13 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     }
                      for (let i = 0; i < f0.length; i++) {
                          let subf = f0[i];
+                         this.adminLogger.logInfo(`subf ${i}  ${JSON.stringify(subf)}`);
                          if (!Array.isArray(subf)) {
                             subf = [subf];
                          }
                          for (let j = 0; j < subf.length; j++) {
-                             let f = subf[i][field[1]];
+                             this.adminLogger.logInfo(` 2nd level field ${fields[1]}`);
+                             let f = subf[j][field[1]];
                              const pref = JSON.stringify(f);
                              this.adminLogger.logInfo(`2-level, pre-update reference ${pref}`);
                              if (this.dupUuids.includes(f._uuid)) {
