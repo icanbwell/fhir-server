@@ -286,6 +286,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise <Object>}
      */
     async substituteOneReference ({ ref }) {
+        this.adminLogger.logInfo(`In Subref, ref = ${JSON.stringify(ref)}`);
         const sourceId = ref.substring(ref.indexOf('/') + 1);
         const subs = this.practitionerSubstitutions.get(sourceId);
         if (subs) {
