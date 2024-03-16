@@ -331,10 +331,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             /**
              * @type {Resource}
              */
-            this.adminLogger.logInfo()
             const resource = FhirResourceCreator.create(doc);
-            const strResource = JSON.stringify(resource);
-            this.adminLogger.logInfo(`resource ${strResource}`);
             this.adminLogger.logInfo(`Updating ${collectionName} uuid ${resource._uuid}`);
             const fields = field.split('.');
             if (fields.length === 1) {
@@ -356,6 +353,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                 }
             } else if (fields.length === 2) {
                 let f0 = resource[fields[0]];
+                this.adminLogger.logInfo(`two level fields ${JSON.stringify(f0)}`);
                 if (f0) {
                     if (!Array.isArray(f0)) {
                         f0 = [f0];
