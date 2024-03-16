@@ -130,16 +130,16 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         ]);
 
         /**
-         * stores substitution values for Practitioners
+         * stores substitution values for Practitioners by sourceid
          * @type {Map<string, Object>}
          */
-        this.practitionerSubstitutions = new Map();
+        this.practitionerSubstitutionsBySourceId = new Map();
 
         /**
-         * stores meta and _id information for each _sourceId
-         * @type {Map<string, {meta: Object, _id: string}[]>}
+         * stores substitution values for Practitioners by uuid
+         * @type {Map<string, Object>}
          */
-        this.metaIdCache = new Map();
+        this.practitionerSubstitutionsByUuid = new Map();
     }
 
     /**
@@ -275,7 +275,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             subs.badReference = `Practitioner/${dup._id}`;
             subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
             subs.badUuid = `Practitioner/${dup.uuid[inCorrectIndex]}`;
-            this.practitionerSubstitutions.set(dup._id, subs);
+ //           this.practitionerSubstitutionsBySourceId.set(dup._id, subs);
+            this.practitionerSubstitutionsByUuid.set(subs.badUuid, subs);
             this.dupUuids.push(subs.badUuid);
         });
     }
@@ -287,8 +288,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      */
     async substituteOneReference ({ ref }) {
         this.adminLogger.logInfo(`In Subref, ref = ${JSON.stringify(ref)}`);
-        const sourceId = ref.substring(ref.indexOf('/') + 1);
-        const subs = this.practitionerSubstitutions.get(sourceId);
+        const subs = this.practitionerSubstitutionsByUuid.get(ref._uuid);
         if (subs) {
             // do simple fields
             ref._uuid = subs.goodUuid;
