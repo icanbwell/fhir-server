@@ -369,7 +369,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                              const subObj = subf[j];
                              this.adminLogger.logInfo(`subObj ${j} ${JSON.stringify(subObj)}`);
                              // const subField = field[1];
-                             const ref = subObj.individual;
+                             // eslint-disable-next-line dot-notation
+                             const ref = subObj['individual'];
                              this.adminLogger.logInfo(`2-level, pre-update reference ${JSON.stringify(ref)}`);
                              if (this.dupUuids.includes(ref._uuid)) {
                                  const newRef = this.substituteOneReference({ ref });
