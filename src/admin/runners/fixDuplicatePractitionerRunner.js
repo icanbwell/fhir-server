@@ -130,12 +130,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         ]);
 
         /**
-         * stores substitution values for Practitioners by sourceid
-         * @type {Map<string, Object>}
-         */
-        this.practitionerSubstitutionsBySourceId = new Map();
-
-        /**
          * stores substitution values for Practitioners by uuid
          * @type {Map<string, Object>}
          */
@@ -270,10 +264,9 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                 inCorrectIndex = 0;
             }
             subs.goodReference = `Practitioner/${dup._id}|nppes`;
-            subs.badReference = `Practitioner/${dup._id}`;
+            subs.goodSourceId = `Practitioner/${dup._id}`;
             subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
             subs.badUuid = `Practitioner/${dup.uuid[inCorrectIndex]}`;
- //           this.practitionerSubstitutionsBySourceId.set(dup._id, subs);
             this.practitionerSubstitutionsByUuid.set(subs.badUuid, subs);
             this.dupUuids.push(subs.badUuid);
         });
@@ -290,18 +283,18 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         if (subs) {
             // do simple fields
             ref._uuid = subs.goodUuid;
-            if (ref.reference.startsWith(subs.badReference)) {
+            if (ref.reference.startsWith(subs.goodSourceId)) {
                 ref.reference = subs.goodReference;
             } else {
                 ref.reference = subs.goodUuid;
             }
-            ref._sourceId = subs.goodReference;
+            ref._sourceId = subs.goodSourceId;
             ref._sourceAssigningAuthority = 'nppes';
             // do the extension fields
             if (ref.extension && Array.isArray(ref.extension)) {
                 ref.extension.forEach(ext => {
                     if (ext.id === 'sourceId') {
-                        ext.valueString = subs.goodReference;
+                        ext.valueString = subs.goodSourceId;
                     }
                     if (ext.id === 'sourceAssigningAuthority') {
                         ext.valueString = 'nppes';
