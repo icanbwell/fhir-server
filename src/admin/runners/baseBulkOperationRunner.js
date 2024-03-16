@@ -405,14 +405,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     /**
                      * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
                      */
-                    this.adminLogger.logInfo('Getting sourceCollection cursor')
                     let cursor = await sourceCollection
                         .find(queryForChunk, options)
                         .sort({ _id: 1 })
                         .maxTimeMS(maxTimeMS) // 20 hours
                         .batchSize(batchSize)
                         .addCursorFlag('noCursorTimeout', true);
-                    this.adminLogger.logInfo('got sourceCollection cursor');
                     if (limit) {
                         cursor = cursor.limit(limit);
                     }
@@ -428,9 +426,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     //     sessionId = session.serverSession.id;
                     //     logInfo('Restarted session', {'session id': sessionId});
                     // };
-                    this.adminLogger.logInfo('Starting while loop for cursor');
                     while (await this.hasNext(cursor)) {
-                        this.adminLogger.logInfo('Inside while loop for cursor');
                         // Check if more than 5 minutes have passed since the last refresh
                         if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                             this.adminLogger.logInfo(
@@ -449,15 +445,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                          * @type {import('mongodb').DefaultSchema}
                          */
                         const doc = await this.next(cursor);
-                        this.adminLogger.logInfo('Read doc from curson');
                         bytesLoaded += sizeof(doc);
-                        this.adminLogger.logInfo('cursor process 1');
                         startFromIdContainer.startFromId = doc._id;
-                        this.adminLogger.logInfo('cursor process 2');
                         previouslyCheckedId = doc._id;
-                        this.adminLogger.logInfo('cursor process 3');
                         startFromIdContainer.numScanned += 1;
-                        this.adminLogger.logInfo('cursor process 4');
                         readline.cursorTo(process.stdout, 0);
                         process.stdout.write(`[${moment().toISOString()}] ` +
                             `[${loopNumber}] ` +
