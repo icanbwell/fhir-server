@@ -200,11 +200,9 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         if (this.startFromId) {
             const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId)
                 : this.startFromId;
-            query.$and.push({
-                _id: {
-                    $gte: startId
-                }
-            });
+            query = {
+                       $and: [query, { _id: { $gte: startId } }]
+            };
         }
 
         return query;
@@ -368,7 +366,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                              this.adminLogger.logInfo(` 2nd level field ${fields[1]}`);
                              const subObj = subf[j];
                              this.adminLogger.logInfo(`subObj ${j} ${JSON.stringify(subObj)}`);
-                             // const subField = field[1];
                              // eslint-disable-next-line dot-notation
                              const ref = subObj[fields[1]];
                              this.adminLogger.logInfo(`2-level, pre-update reference ${JSON.stringify(ref)}`);
