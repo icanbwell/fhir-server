@@ -1,7 +1,7 @@
 const { assertIsValid } = require('../../utils/assertType');
 const { BaseScriptRunner } = require('./baseScriptRunner');
 const readline = require('readline');
-const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+// const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { MongoNetworkTimeoutError } = require('mongodb');
@@ -206,9 +206,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            this.adminLogger.logInfo(
-                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            // );
             let numberOfDestinationDocumentsAtEnd;
             if (useEstimatedCount) {
                 numberOfDestinationDocumentsAtEnd = await destinationCollection.estimatedDocumentCount();

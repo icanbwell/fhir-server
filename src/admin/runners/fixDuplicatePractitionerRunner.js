@@ -302,7 +302,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             // do the extension fields
             if (ref.extension && Array.isArray(ref.extension)) {
                 ref.extension.forEach(ext => {
-                    if (ext.id === 'sourceid') {
+                    if (ext.id === 'sourceId') {
                         ext.valueString = subs.goodReference;
                     }
                     if (ext.id === 'sourceAssigningAuthority') {
@@ -343,12 +343,11 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                         f0 = [f0];
                     }
                     for (let i = 0; i < f0.length; i++) {
-                        let ref = f0[i];
+                        const ref = f0[i];
                         if (this.dupUuids.includes(ref._uuid)) {
-                            ref = this.substituteOneReference({ ref });
-                            const strf = JSON.stringify(ref);
-                            this.adminLogger.logInfo(`New reference ${strf}`);
-                            resource[fields[0]][i] = ref;
+                            const newRef = this.substituteOneReference({ ref });
+                            this.adminLogger.logInfo(`New reference ${JSON.stringify(newRef)}`);
+                            resource[fields[0]][i] = newRef;
                          }
                     }
                 }
@@ -370,14 +369,12 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                              const subObj = subf[j];
                              this.adminLogger.logInfo(`subObj ${j} ${JSON.stringify(subObj)}`);
                              // const subField = field[1];
-                             let ref = subObj.individual;
-                             const pref = JSON.stringify(ref);
-                             this.adminLogger.logInfo(`2-level, pre-update reference ${pref}`);
+                             const ref = subObj.individual;
+                             this.adminLogger.logInfo(`2-level, pre-update reference ${JSON.stringify(ref)}`);
                              if (this.dupUuids.includes(ref._uuid)) {
-                                 ref = this.substituteOneReference({ ref });
-                                 const strf = JSON.stringify(ref);
-                                 this.adminLogger.logInfo(`New reference ${strf}`);
-                                 resource[fields[0]][i][fields[1]][j] = ref;
+                                 const newRef = this.substituteOneReference({ ref });
+                                 this.adminLogger.logInfo(`New reference ${JSON.stringify(newRef)}`);
+                                 resource[fields[0]][i][fields[1]][j] = newRef;
                              }
                          }
                      }
