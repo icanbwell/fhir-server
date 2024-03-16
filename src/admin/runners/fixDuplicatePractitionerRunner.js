@@ -465,10 +465,11 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                 const strQuery = JSON.stringify(query);
                                 this.adminLogger.logInfo(`query ${strQuery}`);
                                 let newQuery = {};
-                                if (query.$and) {
-                                    newQuery = query.$and.push({ [`${field}._uuid`]: { $in: this.dupUuids } });
+                                const fieldQuery = `${field}._uuid`;
+                               if (query.$and) {
+                                    newQuery = query.$and.push({ [fieldQuery]: { $in: this.dupUuids } });
+                                    this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
                                 } else {
-                                    const fieldQuery = `${field}._uuid`;
                                     this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
                                     this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
                                     newQuery[fieldQuery] = { $in: this.dupUuids };
