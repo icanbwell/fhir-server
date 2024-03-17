@@ -254,22 +254,22 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         // loop thru array and create substitution object fields
         dups.forEach(dup => {
             let correctIndex = 0;
-            let inCorrectIndex = 0;
-            const subs = {};
-            if (dup.sourceAssigningAuthority[0] === 'nppes') {
-                correctIndex = 0;
-                inCorrectIndex = 1;
-            } else {
-                correctIndex = 1;
-                inCorrectIndex = 0;
+            for (let i = 0; i < dup.sourceAssigningAuthority.length; i++) {
+                if (dup.sourceAssigningAuthority[i] === 'nppes') {
+                    correctIndex = i;
+                }
             }
+            const subs = {};
             subs.goodReference = `Practitioner/${dup._id}|nppes`;
             subs.goodSourceId = `Practitioner/${dup._id}`;
             subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
-            subs.badUuid = `Practitioner/${dup.uuid[inCorrectIndex]}`;
-            this.practitionerSubstitutionsByUuid.set(subs.badUuid, subs);
+            for (let i = 0; i < dup.uuid.length; i++) {
+                if (i !== correctIndex) {
+                    this.practitionerSubstitutionsByUuid.set(`Practitioner/${dup.uuid[i]}`, subs);
+                    this.dupUuids.push(`Practitioner/${dup.uuid[i]}`);
+                }
+            }
             this.adminLogger.logInfo(`Subs for ${dup._id} are ${JSON.stringify(subs)}`);
-            this.dupUuids.push(subs.badUuid);
         });
     }
 
