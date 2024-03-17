@@ -405,6 +405,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
+                this.collections.pop();
                 for (const key of this.fieldsToUpdate.keys()) {
                     this.collections.push(key);
                 }
@@ -415,7 +416,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     );
                 }
             }
-
+            this.adminLogger.logInfo(`Collections ${JSON.stringify(this.collections)}`);
             /**
              * @type {import('mongodb').Filter<import('mongodb').Document>}
              */
