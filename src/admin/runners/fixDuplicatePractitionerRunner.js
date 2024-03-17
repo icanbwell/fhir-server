@@ -268,6 +268,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
             subs.badUuid = `Practitioner/${dup.uuid[inCorrectIndex]}`;
             this.practitionerSubstitutionsByUuid.set(subs.badUuid, subs);
+            this.adminLogger.logInfo(`Subs for ${dup._id} are ${JSON.stringify(subs)}`);
             this.dupUuids.push(subs.badUuid);
         });
     }
@@ -464,7 +465,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                                     newQuery = {
                                         $and: [query, { [`${field}._uuid`]: { $in: this.dupUuids } }]
                                     };
-                                    this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
+                                    // this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
                                 } else {
                                     this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
                                     this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
