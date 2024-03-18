@@ -251,10 +251,13 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise<}
      */
     async deleteDuplicatePractitioners ({ collection }) {
-        this.adminLogger.logInfo('In ddlete call');
+        const justUuids = this.dupUuids.map(u => {
+            u = u.substring(13);
+            return u;
+        });
         const query = {
             _uuid:
-                { $in: this.dupUuids }
+                { $in: justUuids }
         };
         this.adminLogger.logInfo(`Delete many query ${JSON.stringify(query)}`);
         await collection.deleteMany(query);
