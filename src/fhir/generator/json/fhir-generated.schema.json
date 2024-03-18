@@ -135,6 +135,8 @@
       "StructureDefinition": "#/definitions/StructureDefinition",
       "StructureMap": "#/definitions/StructureMap",
       "Subscription": "#/definitions/Subscription",
+      "SubscriptionStatus": "#/definitions/SubscriptionStatus",
+      "SubscriptionTopic": "#/definitions/SubscriptionTopic",
       "Substance": "#/definitions/Substance",
       "SubstanceNucleicAcid": "#/definitions/SubstanceNucleicAcid",
       "SubstancePolymer": "#/definitions/SubstancePolymer",
@@ -543,6 +545,12 @@
     },
     {
       "$ref": "#/definitions/Subscription"
+    },
+    {
+      "$ref": "#/definitions/SubscriptionStatus"
+    },
+    {
+      "$ref": "#/definitions/SubscriptionTopic"
     },
     {
       "$ref": "#/definitions/Substance"
@@ -1979,6 +1987,8 @@
         "StructureDefinition",
         "StructureMap",
         "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic",
         "Substance",
         "SubstanceNucleicAcid",
         "SubstancePolymer",
@@ -3098,13 +3108,14 @@
         "produced"
       ]
     },
-    "SubscriptionStatus": {
+    "SubscriptionNotificationType": {
       "type": "string",
       "enum": [
-        "requested",
-        "active",
-        "error",
-        "off"
+        "handshake",
+        "heartbeat",
+        "event-notification",
+        "query-status",
+        "query-event"
       ]
     },
     "SubscriptionChannelType": {
@@ -3115,6 +3126,30 @@
         "email",
         "sms",
         "message"
+      ]
+    },
+    "SubscriptionStatusCodes": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "active",
+        "error",
+        "off"
+      ]
+    },
+    "InteractionTrigger": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    "CriteriaNotExistsBehavior": {
+      "type": "string",
+      "enum": [
+        "test-passes",
+        "test-fails"
       ]
     },
     "FHIRSubstanceStatus": {
@@ -3697,6 +3732,12 @@
         },
         {
           "$ref": "#/definitions/Subscription"
+        },
+        {
+          "$ref": "#/definitions/SubscriptionStatus"
+        },
+        {
+          "$ref": "#/definitions/SubscriptionTopic"
         },
         {
           "$ref": "#/definitions/Substance"
@@ -37743,7 +37784,7 @@
           "const": "Subscription"
         },
         "status": {
-          "$ref": "#/definitions/SubscriptionStatus"
+          "$ref": "#/definitions/SubscriptionStatusCodes"
         },
         "contact": {
           "items": {
@@ -37844,6 +37885,445 @@
       },
       "required": [
         "type"
+      ]
+    },
+    "SubscriptionStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "resourceType": {
+          "const": "SubscriptionStatus"
+        },
+        "status": {
+          "$ref": "#/definitions/SubscriptionStatusCodes"
+        },
+        "type": {
+          "$ref": "#/definitions/SubscriptionNotificationType"
+        },
+        "eventsSinceSubscriptionStart": {
+          "$ref": "#/definitions/string"
+        },
+        "notificationEvent": {
+          "items": {
+            "$ref": "#/definitions/SubscriptionStatusNotificationEvent"
+          },
+          "type": "array"
+        },
+        "subscription": {
+          "$ref": "#/definitions/Reference"
+        },
+        "topic": {
+          "$ref": "#/definitions/canonical"
+        },
+        "error": {
+          "items": {
+            "$ref": "#/definitions/CodeableConcept"
+          },
+          "type": "array"
+        },
+        "text": {
+          "$ref": "#/definitions/Narrative"
+        },
+        "contained": {
+          "items": {
+            "$ref": "#/definitions/ResourceContainer"
+          },
+          "type": "array"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "meta": {
+          "$ref": "#/definitions/Meta"
+        },
+        "implicitRules": {
+          "$ref": "#/definitions/uri"
+        },
+        "language": {
+          "$ref": "#/definitions/code"
+        }
+      },
+      "required": [
+        "resourceType",
+        "type",
+        "subscription"
+      ]
+    },
+    "SubscriptionStatusNotificationEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "eventNumber": {
+          "$ref": "#/definitions/string"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/instant"
+        },
+        "focus": {
+          "$ref": "#/definitions/Reference"
+        },
+        "additionalContext": {
+          "items": {
+            "$ref": "#/definitions/Reference"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "eventNumber"
+      ]
+    },
+    "SubscriptionTopic": {
+      "additionalProperties": false,
+      "properties": {
+        "resourceType": {
+          "const": "SubscriptionTopic"
+        },
+        "url": {
+          "$ref": "#/definitions/uri"
+        },
+        "identifier": {
+          "items": {
+            "$ref": "#/definitions/Identifier"
+          },
+          "type": "array"
+        },
+        "version": {
+          "$ref": "#/definitions/string"
+        },
+        "title": {
+          "$ref": "#/definitions/string"
+        },
+        "derivedFrom": {
+          "items": {
+            "$ref": "#/definitions/canonical"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/definitions/PublicationStatus"
+        },
+        "experimental": {
+          "$ref": "#/definitions/boolean"
+        },
+        "date": {
+          "$ref": "#/definitions/dateTime"
+        },
+        "publisher": {
+          "$ref": "#/definitions/string"
+        },
+        "contact": {
+          "items": {
+            "$ref": "#/definitions/ContactDetail"
+          },
+          "type": "array"
+        },
+        "description": {
+          "$ref": "#/definitions/markdown"
+        },
+        "useContext": {
+          "items": {
+            "$ref": "#/definitions/UsageContext"
+          },
+          "type": "array"
+        },
+        "jurisdiction": {
+          "items": {
+            "$ref": "#/definitions/CodeableConcept"
+          },
+          "type": "array"
+        },
+        "purpose": {
+          "$ref": "#/definitions/markdown"
+        },
+        "copyright": {
+          "$ref": "#/definitions/markdown"
+        },
+        "approvalDate": {
+          "$ref": "#/definitions/date"
+        },
+        "lastReviewDate": {
+          "$ref": "#/definitions/date"
+        },
+        "effectivePeriod": {
+          "$ref": "#/definitions/Period"
+        },
+        "resourceTrigger": {
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopicResourceTrigger"
+          },
+          "type": "array"
+        },
+        "eventTrigger": {
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopicEventTrigger"
+          },
+          "type": "array"
+        },
+        "canFilterBy": {
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopicCanFilterBy"
+          },
+          "type": "array"
+        },
+        "notificationShape": {
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopicNotificationShape"
+          },
+          "type": "array"
+        },
+        "text": {
+          "$ref": "#/definitions/Narrative"
+        },
+        "contained": {
+          "items": {
+            "$ref": "#/definitions/ResourceContainer"
+          },
+          "type": "array"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "meta": {
+          "$ref": "#/definitions/Meta"
+        },
+        "implicitRules": {
+          "$ref": "#/definitions/uri"
+        },
+        "language": {
+          "$ref": "#/definitions/code"
+        }
+      },
+      "required": [
+        "resourceType",
+        "url",
+        "status"
+      ]
+    },
+    "SubscriptionTopicResourceTrigger": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/definitions/markdown"
+        },
+        "resource": {
+          "$ref": "#/definitions/uri"
+        },
+        "supportedInteraction": {
+          "items": {
+            "$ref": "#/definitions/InteractionTrigger"
+          },
+          "type": "array"
+        },
+        "queryCriteria": {
+          "$ref": "#/definitions/SubscriptionTopicQueryCriteria"
+        },
+        "fhirPathCriteria": {
+          "$ref": "#/definitions/string"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource"
+      ]
+    },
+    "SubscriptionTopicQueryCriteria": {
+      "additionalProperties": false,
+      "properties": {
+        "previous": {
+          "$ref": "#/definitions/string"
+        },
+        "resultForCreate": {
+          "$ref": "#/definitions/CriteriaNotExistsBehavior"
+        },
+        "current": {
+          "$ref": "#/definitions/string"
+        },
+        "resultForDelete": {
+          "$ref": "#/definitions/CriteriaNotExistsBehavior"
+        },
+        "requireBoth": {
+          "$ref": "#/definitions/boolean"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": []
+    },
+    "SubscriptionTopicEventTrigger": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/definitions/markdown"
+        },
+        "event": {
+          "$ref": "#/definitions/CodeableConcept"
+        },
+        "resource": {
+          "$ref": "#/definitions/uri"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "event",
+        "resource"
+      ]
+    },
+    "SubscriptionTopicCanFilterBy": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/definitions/markdown"
+        },
+        "resource": {
+          "$ref": "#/definitions/uri"
+        },
+        "filterParameter": {
+          "$ref": "#/definitions/string"
+        },
+        "filterDefinition": {
+          "$ref": "#/definitions/uri"
+        },
+        "modifier": {
+          "items": {
+            "$ref": "#/definitions/code"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "filterParameter"
+      ]
+    },
+    "SubscriptionTopicNotificationShape": {
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/uri"
+        },
+        "include": {
+          "items": {
+            "$ref": "#/definitions/string"
+          },
+          "type": "array"
+        },
+        "revInclude": {
+          "items": {
+            "$ref": "#/definitions/string"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource"
       ]
     },
     "Substance": {

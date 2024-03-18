@@ -17,16 +17,26 @@ logger = logging.getLogger(__name__)
 
 class FhirXmlToJsonSchemaParser:
     def generate_resource_list(self, root):
-        # all the resources are present as element tag in fhir-single
+        '''
+        Returns a list of all resource
+        '''
+
         return [element.get('name') for element in root['element']]
 
  
     def generate_simple_type_list(self, root):
-        # all the resources are present as element tag in fhir-single
-        return [element.get('name').replace('-primitive', '').replace('-list', '') for element in root['simpleType']]
+        '''
+        Returns a list of all simpleTypes in fhir
+        '''
+
+        return [element.get('name').replace('-primitive', '').replace('-list', '').replace('Enum', '') for element in root['simpleType']]
 
 
     def generate_discriminator(self, root):
+        '''
+        Generates discriminator for schema
+        '''
+
         return {
             'propertyName': 'resourceType',
             'mapping': { resource: f'#/definitions/{resource}' for resource in self.generate_resource_list(root) }
@@ -34,12 +44,21 @@ class FhirXmlToJsonSchemaParser:
 
 
     def generate_resource_choice(self, root):
+        '''
+        Generates array of resources to consider from while validating with schema
+        One of the reference from this list should match with the resource to be validated
+        '''
+
         return [
             { '$ref': f'#/definitions/{resource}' } for resource in self.generate_resource_list(root)
         ]
 
 
     def generate_simple_type_schema(self, root):
+        '''
+        Generates schema for simpleTypes in fhir
+        '''
+
         schema = {}
         # these fields should have number type
         numerical_typing = [
@@ -50,7 +69,7 @@ class FhirXmlToJsonSchemaParser:
 
         # Add types from schema
         for simple_type in root.simpleType:
-            name: str = simple_type.get('name').replace('-list', '')
+            name: str = simple_type.get('name')
 
             if hasattr(simple_type, 'restriction'):
                 # check for primitive type like string, integer
@@ -66,16 +85,16 @@ class FhirXmlToJsonSchemaParser:
                         }
                 # if not a primitive type then check for list types
                 elif hasattr(simple_type.restriction, 'enumeration'):
-                    name = name.replace('-list', '')
+                    name = name.replace('-list', '').replace('Enum', '')
                     values = [b.get('value') for b in simple_type.restriction.enumeration]
-                    
+
                     if len(values) > 0:
                         logger.info(f'Schema generated for {name}')
                         schema[name] = {
                             'type': 'string' if not name in numerical_typing else 'number',
                             'enum': values
                         }
-        
+
         # Add types that are not present correctly in schema
         schema['xhtml'] = {
             'description': 'xhtml - escaped html (see specfication)'
@@ -84,11 +103,16 @@ class FhirXmlToJsonSchemaParser:
             'pattern': '^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?$',
             'type': 'number'
         }
-        
+
         return schema
 
 
     def generate_properties(self, content):
+        '''
+        Extracts properties from the content provided with fields name, required, is_list, and type.
+        Also returns base type of the content
+        '''
+
         properties = []
         # get all the properties present in the content
         if hasattr(content, 'attribute'):
@@ -133,6 +157,10 @@ class FhirXmlToJsonSchemaParser:
 
 
     def generate_complex_type_schema(self, root):
+        '''
+        Generates schema for complexType in fhir
+        '''
+
         # get list of resources
         resources_list = self.generate_resource_list(root)
         simple_types_list = self.generate_simple_type_list(root)
@@ -200,6 +228,10 @@ class FhirXmlToJsonSchemaParser:
 
 
     def get_schema(self):
+        '''
+        Returns fhir schema generated from fhir-single.xsd for validating resources
+        '''
+        
         # read everything from fhir-single
         fhir_xsd_all_file: Path = (
             data_dir.joinpath('xsd')
@@ -243,6 +275,7 @@ def main():
     json_file_path = data_dir.joinpath('json').joinpath('fhir-generated.schema.json')
     with open(json_file_path, 'w') as json_file:
         json.dump(schema, json_file, indent=2)
+        json_file.write('\n')
 
 
 if __name__ == '__main__':
