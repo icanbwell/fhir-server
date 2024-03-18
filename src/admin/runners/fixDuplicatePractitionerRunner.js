@@ -137,33 +137,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * converts list of properties to a projection
-     * @return {import('mongodb').Document}
-     */
-    getProjection () {
-        /**
-         * @type {import('mongodb').Document}
-         */
-        const projection = {};
-        for (const property of this.properties) {
-            projection[`${property}`] = 1;
-        }
-        // always add projection for needed properties
-        const neededProperties = [
-            'resourceType',
-            'meta',
-            'identifier',
-            '_uuid',
-            '_sourceId',
-            '_sourceAssigningAuthority'
-        ];
-        for (const property of neededProperties) {
-            projection[`${property}`] = 1;
-        }
-        return projection;
-    }
-
-    /**
      * Gets query for resource to fix duplicate Practitioner resources
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
@@ -246,6 +219,15 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Deletes duplicate practitioners with NPI _sourceIds
+     * @param {require('mongodb').collection} collection
+     * @returns {Promise<}
+     */
+    async deleteDuplicatePractitioners ({ collection }) {
+            await collection.deleteMany({ _uuid: { $in: this.dupUuids } });
+    }
+
+    /**
      * Creates map of substitutions for old/new Practitioner values
      * @param {array} dups
      * @return {Promise<any>}
@@ -320,7 +302,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
         const operations = [];
         try {
-            this.adminLogger.logInfo('***************Inside processResourceAsync');
             /**
              * @type {Resource}
              */
@@ -440,76 +421,81 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             if (duplicatePractitionerArray.length > 0) {
                 await this.createPractitionerSubstitutions(duplicatePractitionerArray);
                 try {
-                    for (const collectionName of this.collections) {
-                        const startFromIdContainer = this.createStartFromIdContainer();
-                        this.adminLogger.logInfo(
-                            `Fixing duplicate practitioners for the collection: ${collectionName}`
-                        );
-                       if (!this.fieldsToUpdate.has(collectionName)) {
-                            this.adminLogger.logInfo(`Collection ${collectionName} doesn't have any fields needing updating`);
-                            continue;
-                        }
-                        const fields = this.fieldsToUpdate.get(collectionName);
-                        for (const field of fields) {
-                            // const collection = db.collection(collectionName);
-
+                    if (this.deleteData) {
+                        this.adminLogger.logInfo(`Deleting ${this.dupUuids.length} duplicate Practitioners`);
+                        await this.deleteDuplicatePractitioners({ collection: practitionerCollection });
+                    } else {
+                        for (const collectionName of this.collections) {
+                            const startFromIdContainer = this.createStartFromIdContainer();
                             this.adminLogger.logInfo(
-                                `Fixing duplicate practitioners for the collection: ${collectionName} and field ${field}`
+                                `Fixing duplicate practitioners for the collection: ${collectionName}`
                             );
-                            try {
-                                const strQuery = JSON.stringify(query);
-                                this.adminLogger.logInfo(`query ${strQuery}`);
-                                let newQuery = {};
-                                const fieldQuery = `${field}._uuid`;
-                               if (query.$and) {
-                                    newQuery = {
-                                        $and: [query, { [`${field}._uuid`]: { $in: this.dupUuids } }]
-                                    };
-                                    // this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
-                                } else {
-                                    this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
-                                    this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
-                                    newQuery[fieldQuery] = { $in: this.dupUuids };
-                                    // const strNewQuery = JSON.stringify(newQuery);
-                                    // this.adminLogger.logInfo(`new query = ${strNewQuery}`);
-                                }
-
-                                await this.runForQueryBatchesAsync({
-                                    config: mongoConfig,
-                                    sourceCollectionName: collectionName,
-                                    destinationCollectionName: collectionName,
-                                    query: newQuery,
-                                    startFromIdContainer,
-                                    projection: this.properties ? this.getProjection() : undefined,
-                                    fnCreateBulkOperationAsync: async (doc) =>
-                                        await this.processResourceAsync({
-                                            doc,
-                                            collectionName,
-                                            field
-                                        }),
-                                    ordered: false,
-                                    batchSize: this.batchSize,
-                                    skipExistingIds: false,
-                                    limit: this.limit,
-                                    useTransaction: this.useTransaction,
-                                    skip: this.skip
-                                });
-                            } catch (e) {
-                                console.log(e.message);
-                                this.adminLogger.logError(
-                                    `Got error ${e}. `
-                                );
-                                throw new RethrownError({
-                                    message: `Error processing references of collection ${collectionName} ${e.message}`,
-                                    error: e,
-                                    args: {
-                                        query
-                                    },
-                                    source: 'FixDuplicatePractitionerRunner.processAsync'
-                                });
+                            if (!this.fieldsToUpdate.has(collectionName)) {
+                                this.adminLogger.logInfo(`Collection ${collectionName} doesn't have any fields needing updating`);
+                                continue;
                             }
+                            const fields = this.fieldsToUpdate.get(collectionName);
+                            for (const field of fields) {
+                                // const collection = db.collection(collectionName);
+
+                                this.adminLogger.logInfo(
+                                    `Fixing duplicate practitioners for the collection: ${collectionName} and field ${field}`
+                                );
+                                try {
+                                    const strQuery = JSON.stringify(query);
+                                    this.adminLogger.logInfo(`query ${strQuery}`);
+                                    let newQuery = {};
+                                    const fieldQuery = `${field}._uuid`;
+                                    if (query.$and) {
+                                        newQuery = {
+                                            $and: [query, { [`${field}._uuid`]: { $in: this.dupUuids } }]
+                                        };
+                                        // this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
+                                    } else {
+                                        this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
+                                        this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
+                                        newQuery[fieldQuery] = { $in: this.dupUuids };
+                                        // const strNewQuery = JSON.stringify(newQuery);
+                                        // this.adminLogger.logInfo(`new query = ${strNewQuery}`);
+                                    }
+
+                                    await this.runForQueryBatchesAsync({
+                                        config: mongoConfig,
+                                        sourceCollectionName: collectionName,
+                                        destinationCollectionName: collectionName,
+                                        query: newQuery,
+                                        startFromIdContainer,
+                                        projection: undefined,
+                                        fnCreateBulkOperationAsync: async (doc) =>
+                                            await this.processResourceAsync({
+                                                doc,
+                                                collectionName,
+                                                field
+                                            }),
+                                        ordered: false,
+                                        batchSize: this.batchSize,
+                                        skipExistingIds: false,
+                                        limit: this.limit,
+                                        useTransaction: this.useTransaction,
+                                        skip: this.skip
+                                    });
+                                } catch (e) {
+                                    console.log(e.message);
+                                    this.adminLogger.logError(
+                                        `Got error ${e}. `
+                                    );
+                                    throw new RethrownError({
+                                        message: `Error processing references of collection ${collectionName} ${e.message}`,
+                                        error: e,
+                                        args: {
+                                            query
+                                        },
+                                        source: 'FixDuplicatePractitionerRunner.processAsync'
+                                    });
+                                }
+                            }
+                            this.adminLogger.logInfo(`Finished processing references for ${collectionName}`);
                         }
-                        this.adminLogger.logInfo(`Finished processing references for ${collectionName}`);
                     }
                 } catch (e) {
                     this.adminLogger.logError(`Error ${e}`);
