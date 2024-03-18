@@ -29,7 +29,7 @@ const validatorConfig = {
 };
 const fhirValidator = new JSONValidator(schema, validatorConfig);
 const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfig);
-const validateUsingGeneratedSchema = env.VALIDATE_WITH_GENERATED_SCHEMA?.split(',');
+const validateUsingGeneratedSchema = env.VALIDATE_WITH_GENERATED_SCHEMA?.split(',') ?? [];
 
 /**
  * @function validateResource
