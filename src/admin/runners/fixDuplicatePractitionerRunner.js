@@ -219,15 +219,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Deletes duplicate practitioners with NPI _sourceIds
-     * @param {require('mongodb').collection} collection
-     * @returns {Promise<}
-     */
-    async deleteDuplicatePractitioners ({ collection }) {
-            await collection.deleteMany({ _uuid: { $in: this.dupUuids } });
-    }
-
-    /**
      * Creates map of substitutions for old/new Practitioner values
      * @param {array} dups
      * @return {Promise<any>}
@@ -251,8 +242,20 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     this.dupUuids.push(`Practitioner/${dup.uuid[i]}`);
                 }
             }
-            this.adminLogger.logInfo(`Subs for ${dup._id} are ${JSON.stringify(subs)}`);
         });
+    }
+
+    /**
+     * Deletes duplicate practitioners with NPI _sourceIds
+     * @param {require('mongodb').collection} collection
+     * @returns {Promise<}
+     */
+    async deleteDuplicatePractitioners ({ collection }) {
+        const query = {
+            _uuid:
+                { $in: this.dupUuids }
+        };
+        await collection.deleteMany(query);
     }
 
     /**
