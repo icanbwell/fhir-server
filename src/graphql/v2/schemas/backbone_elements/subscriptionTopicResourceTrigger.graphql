@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import markdown from "../simple_types/markdown.graphql"
 # import uri from "../simple_types/uri.graphql"
-# import InteractionTrigger from "../complex_types/interactionTrigger.graphql"
+# import code from "../simple_types/code.graphql"
 # import SubscriptionTopicQueryCriteria from "../backbone_elements/subscriptionTopicQueryCriteria.graphql"
 
 
@@ -60,7 +60,7 @@ type SubscriptionTopicResourceTrigger {
     the SubscriptionTopic. Multiple values are considered OR joined (e.g., CREATE
     or UPDATE).
     """
-    supportedInteraction: [InteractionTrigger]        
+    supportedInteraction: [code]        
     """
     The FHIR query based rules that the server should use to determine when to
     trigger a notification for this subscription topic.

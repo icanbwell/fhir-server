@@ -139,7 +139,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="code">
+  <xs:simpleType name="SubscriptionNotificationType-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="handshake">
         <xs:annotation>
@@ -175,7 +175,7 @@
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="code" use="optional"/>
+        <xs:attribute name="value" type="SubscriptionNotificationType-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

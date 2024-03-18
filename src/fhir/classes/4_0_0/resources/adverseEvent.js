@@ -27,6 +27,7 @@ class AdverseEvent extends Resource {
      * @param {code} actuality,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {CodeableConcept|undefined} [event],
+     * @param {Reference} subject,
      * @param {Reference|undefined} [encounter],
      * @param {dateTime|undefined} [date],
      * @param {dateTime|undefined} [detected],
@@ -248,7 +249,7 @@ class AdverseEvent extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-
+    
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -800,6 +801,7 @@ class AdverseEvent extends Resource {
      * @param {code} actuality,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {CodeableConcept|undefined} [event],
+     * @param {Reference} subject,
      * @param {Reference|undefined} [encounter],
      * @param {dateTime|undefined} [date],
      * @param {dateTime|undefined} [detected],

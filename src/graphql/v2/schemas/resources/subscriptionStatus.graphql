@@ -6,7 +6,6 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import SubscriptionNotificationType from "../complex_types/subscriptionNotificationType.graphql"
 # import SubscriptionStatusNotificationEvent from "../backbone_elements/subscriptionStatusNotificationEvent.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import canonical from "../simple_types/canonical.graphql"
@@ -91,7 +90,7 @@ type SubscriptionStatus {
     """
     The type of event being conveyed with this notificaiton.
     """
-    type: SubscriptionNotificationType!        
+    type: code!        
     """
     The total number of actual events which have been generated since the
     Subscription was created (inclusive of this notification) - regardless of how
