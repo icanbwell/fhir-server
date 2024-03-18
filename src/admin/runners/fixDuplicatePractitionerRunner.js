@@ -251,6 +251,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise<}
      */
     async deleteDuplicatePractitioners ({ collection }) {
+        this.adminLogger.logInfo('In ddlete call');
         const query = {
             _uuid:
                 { $in: this.dupUuids }
