@@ -18,7 +18,7 @@ class SubscriptionTopicResourceTrigger extends Element {
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {markdown|undefined} [description],
      * @param {uri} resource,
-     * @param {InteractionTrigger[]|undefined} [supportedInteraction],
+     * @param {code[]|undefined} [supportedInteraction],
      * @param {SubscriptionTopicQueryCriteria|undefined} [queryCriteria],
      * @param {String|undefined} [fhirPathCriteria],
     */
@@ -159,7 +159,7 @@ class SubscriptionTopicResourceTrigger extends Element {
          * @description The FHIR RESTful interaction which can be used to trigger a notification for
     the SubscriptionTopic. Multiple values are considered OR joined (e.g., CREATE
     or UPDATE).
-         * @property {InteractionTrigger[]|undefined}
+         * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'supportedInteraction', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -171,9 +171,7 @@ class SubscriptionTopicResourceTrigger extends Element {
                     this.__data.supportedInteraction = undefined;
                     return;
                 }
-                const InteractionTrigger = require('../complex_types/interactionTrigger.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.supportedInteraction = FhirResourceCreator.createArray(valueProvided, InteractionTrigger);
+                this.__data.supportedInteraction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -243,7 +241,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             resource: this.resource,
-            supportedInteraction: this.supportedInteraction && this.supportedInteraction.map(v => v.toJSON()),
+            supportedInteraction: this.supportedInteraction,
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSON(),
             fhirPathCriteria: this.fhirPathCriteria
         });
@@ -257,7 +255,6 @@ class SubscriptionTopicResourceTrigger extends Element {
     async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.supportedInteraction) { await async.each(this.supportedInteraction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.queryCriteria) { await this.queryCriteria.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
@@ -273,7 +270,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             resource: this.resource,
-            supportedInteraction: this.supportedInteraction && this.supportedInteraction.map(v => v.toJSONInternal()),
+            supportedInteraction: this.supportedInteraction,
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSONInternal(),
             fhirPathCriteria: this.fhirPathCriteria
         };

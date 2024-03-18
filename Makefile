@@ -163,7 +163,8 @@ run-pre-commit: setup-pre-commit
 graphql:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_graphql_classes.py" && \
-	graphql-schema-linter src/graphql/v2/**/*.graphql
+	graphql-schema-linter src/graphql/v2/**/*.graphql && \
+	eslint --fix "src/graphql/v2/**/*.js"
 
 .PHONY:classes
 classes:

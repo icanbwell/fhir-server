@@ -80,7 +80,7 @@ class FhirXmlToJsonSchemaParser:
                     if pattern is not None:
                         logger.info(f'Schema generated for {name}')
                         schema[name] = {
-                            'type': 'string' if not name in numerical_typing else 'number',
+                            'type': ('string' if name != 'boolean' else 'boolean') if not name in numerical_typing else 'number',
                             'pattern': f'^{pattern}$'
                         }
                 # if not a primitive type then check for list types

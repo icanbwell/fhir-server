@@ -40108,7 +40108,7 @@ Work addresses are not typically entered in this property as they are usually ro
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="SubscriptionNotificationTypeEnum">
+  <xs:simpleType name="SubscriptionNotificationType-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="handshake">
         <xs:annotation>
@@ -40144,7 +40144,7 @@ Work addresses are not typically entered in this property as they are usually ro
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="SubscriptionNotificationTypeEnum" use="optional"/>
+        <xs:attribute name="value" type="SubscriptionNotificationType-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -40188,7 +40188,7 @@ Work addresses are not typically entered in this property as they are usually ro
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="SubscriptionStatusCodesEnum">
+  <xs:simpleType name="SubscriptionStatusCodes-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="requested">
         <xs:annotation>
@@ -40219,7 +40219,7 @@ Work addresses are not typically entered in this property as they are usually ro
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="SubscriptionStatusCodesEnum" use="optional"/>
+        <xs:attribute name="value" type="SubscriptionStatusCodes-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -40593,7 +40593,7 @@ Work addresses are not typically entered in this property as they are usually ro
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="InteractionTriggerEnum">
+  <xs:simpleType name="InteractionTrigger-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="create">
         <xs:annotation>
@@ -40619,11 +40619,11 @@ Work addresses are not typically entered in this property as they are usually ro
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="InteractionTriggerEnum" use="optional"/>
+        <xs:attribute name="value" type="InteractionTrigger-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="CriteriaNotExistsBehaviorEnum">
+  <xs:simpleType name="CriteriaNotExistsBehavior-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="test-passes">
         <xs:annotation>
@@ -40644,7 +40644,7 @@ Work addresses are not typically entered in this property as they are usually ro
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="CriteriaNotExistsBehaviorEnum" use="optional"/>
+        <xs:attribute name="value" type="CriteriaNotExistsBehavior-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

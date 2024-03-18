@@ -17,9 +17,9 @@ class SubscriptionTopicQueryCriteria extends Element {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {String|undefined} [previous],
-     * @param {CriteriaNotExistsBehavior|undefined} [resultForCreate],
+     * @param {code|undefined} [resultForCreate],
      * @param {String|undefined} [current],
-     * @param {CriteriaNotExistsBehavior|undefined} [resultForDelete],
+     * @param {code|undefined} [resultForDelete],
      * @param {Boolean|undefined} [requireBoth],
     */
     constructor (
@@ -134,7 +134,7 @@ class SubscriptionTopicQueryCriteria extends Element {
         /**
          * @description For "create" interactions, should the "previous" criteria count as an
     automatic pass or an automatic fail.
-         * @property {CriteriaNotExistsBehavior|undefined}
+         * @property {code|undefined}
         */
         Object.defineProperty(this, 'resultForCreate', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -146,9 +146,7 @@ class SubscriptionTopicQueryCriteria extends Element {
                     this.__data.resultForCreate = undefined;
                     return;
                 }
-                const CriteriaNotExistsBehavior = require('../complex_types/criteriaNotExistsBehavior.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.resultForCreate = FhirResourceCreator.create(valueProvided, CriteriaNotExistsBehavior);
+                this.__data.resultForCreate = valueProvided;
             }
         });
 
@@ -174,7 +172,7 @@ class SubscriptionTopicQueryCriteria extends Element {
         /**
          * @description For "delete" interactions, should the "current" criteria count as an automatic
     pass or an automatic fail.
-         * @property {CriteriaNotExistsBehavior|undefined}
+         * @property {code|undefined}
         */
         Object.defineProperty(this, 'resultForDelete', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -186,9 +184,7 @@ class SubscriptionTopicQueryCriteria extends Element {
                     this.__data.resultForDelete = undefined;
                     return;
                 }
-                const CriteriaNotExistsBehavior = require('../complex_types/criteriaNotExistsBehavior.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.resultForDelete = FhirResourceCreator.create(valueProvided, CriteriaNotExistsBehavior);
+                this.__data.resultForDelete = valueProvided;
             }
         });
 
@@ -237,9 +233,9 @@ class SubscriptionTopicQueryCriteria extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             previous: this.previous,
-            resultForCreate: this.resultForCreate && this.resultForCreate.toJSON(),
+            resultForCreate: this.resultForCreate,
             current: this.current,
-            resultForDelete: this.resultForDelete && this.resultForDelete.toJSON(),
+            resultForDelete: this.resultForDelete,
             requireBoth: this.requireBoth
         });
     }
@@ -252,8 +248,6 @@ class SubscriptionTopicQueryCriteria extends Element {
     async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.resultForCreate) { await this.resultForCreate.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.resultForDelete) { await this.resultForDelete.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -267,9 +261,9 @@ class SubscriptionTopicQueryCriteria extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             previous: this.previous,
-            resultForCreate: this.resultForCreate && this.resultForCreate.toJSONInternal(),
+            resultForCreate: this.resultForCreate,
             current: this.current,
-            resultForDelete: this.resultForDelete && this.resultForDelete.toJSONInternal(),
+            resultForDelete: this.resultForDelete,
             requireBoth: this.requireBoth
         };
 

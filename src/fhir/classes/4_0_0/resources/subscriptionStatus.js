@@ -22,7 +22,7 @@ class SubscriptionStatus extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {code|undefined} [status],
-     * @param {SubscriptionNotificationType} type,
+     * @param {code} type,
      * @param {String|undefined} [eventsSinceSubscriptionStart],
      * @param {SubscriptionStatusNotificationEvent[]|undefined} [notificationEvent],
      * @param {Reference} subscription,
@@ -264,7 +264,7 @@ class SubscriptionStatus extends Resource {
 
         /**
          * @description The type of event being conveyed with this notificaiton.
-         * @property {SubscriptionNotificationType}
+         * @property {code}
         */
         Object.defineProperty(this, 'type', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -276,9 +276,7 @@ class SubscriptionStatus extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                const SubscriptionNotificationType = require('../complex_types/subscriptionNotificationType.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.type = FhirResourceCreator.create(valueProvided, SubscriptionNotificationType);
+                this.__data.type = valueProvided;
             }
         });
 
@@ -489,7 +487,7 @@ class SubscriptionStatus extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {code|undefined} [status],
-     * @param {SubscriptionNotificationType} type,
+     * @param {code} type,
      * @param {String|undefined} [eventsSinceSubscriptionStart],
      * @param {SubscriptionStatusNotificationEvent[]|undefined} [notificationEvent],
      * @param {Reference} subscription,
@@ -573,7 +571,7 @@ class SubscriptionStatus extends Resource {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             status: this.status,
-            type: this.type && this.type.toJSON(),
+            type: this.type,
             eventsSinceSubscriptionStart: this.eventsSinceSubscriptionStart,
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSON()),
             subscription: this.subscription && this.subscription.toJSON(),
@@ -593,7 +591,6 @@ class SubscriptionStatus extends Resource {
             if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.notificationEvent) { await async.each(this.notificationEvent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.subscription) { await this.subscription.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.error) { await async.each(this.error, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
@@ -616,7 +613,7 @@ class SubscriptionStatus extends Resource {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             status: this.status,
-            type: this.type && this.type.toJSONInternal(),
+            type: this.type,
             eventsSinceSubscriptionStart: this.eventsSinceSubscriptionStart,
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSONInternal()),
             subscription: this.subscription && this.subscription.toJSONInternal(),
