@@ -255,6 +255,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             _uuid:
                 { $in: this.dupUuids }
         };
+        this.adminLogger.logInfo(`Delete many query ${JSON.stringify(query)}`);
         await collection.deleteMany(query);
     }
 
