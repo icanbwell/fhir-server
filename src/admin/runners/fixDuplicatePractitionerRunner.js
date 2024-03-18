@@ -252,14 +252,13 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      */
     async deleteDuplicatePractitioners ({ collection }) {
         const justUuids = this.dupUuids.map(u => {
-            u = u.substring(13);
+            u = u.substring(13); // remove Practitioner/ in front of uuid
             return u;
         });
         const query = {
             _uuid:
                 { $in: justUuids }
         };
-        this.adminLogger.logInfo(`Delete many query ${JSON.stringify(query)}`);
         await collection.deleteMany(query);
     }
 
@@ -269,7 +268,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise <Object>}
      */
     async substituteOneReference ({ ref }) {
-        this.adminLogger.logInfo(`In Subref, ref = ${JSON.stringify(ref)}`);
         const subs = this.practitionerSubstitutionsByUuid.get(ref._uuid);
         if (subs) {
             // do simple fields
@@ -307,7 +305,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     async processResourceAsync ({ doc, collectionName, field }) {
-        this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
         const operations = [];
         try {
             /**
@@ -318,7 +315,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             const fields = field.split('.');
             if (fields.length === 1) {
                 let f0 = resource[fields[0]];
-                this.adminLogger.logInfo(`One level field ${f0}`);
                 if (f0) {
                     if (!Array.isArray(f0)) {
                         f0 = [f0];
@@ -327,34 +323,27 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                         const ref = f0[i];
                         if (this.dupUuids.includes(ref._uuid)) {
                             const newRef = this.substituteOneReference({ ref });
-                            this.adminLogger.logInfo(`New reference ${JSON.stringify(newRef)}`);
                             resource[fields[0]][i] = newRef;
                          }
                     }
                 }
             } else if (fields.length === 2) {
                 let f0 = resource[fields[0]];
-                this.adminLogger.logInfo(`two level fields ${JSON.stringify(f0)}`);
                 if (f0) {
                     if (!Array.isArray(f0)) {
                         f0 = [f0];
                     }
                      for (let i = 0; i < f0.length; i++) {
                          let subf = f0[i];
-                         this.adminLogger.logInfo(`subf ${i}  ${JSON.stringify(subf)}`);
                          if (!Array.isArray(subf)) {
                             subf = [subf];
                          }
                          for (let j = 0; j < subf.length; j++) {
-                             this.adminLogger.logInfo(` 2nd level field ${fields[1]}`);
                              const subObj = subf[j];
-                             this.adminLogger.logInfo(`subObj ${j} ${JSON.stringify(subObj)}`);
                              // eslint-disable-next-line dot-notation
                              const ref = subObj[fields[1]];
-                             this.adminLogger.logInfo(`2-level, pre-update reference ${JSON.stringify(ref)}`);
                              if (this.dupUuids.includes(ref._uuid)) {
                                  const newRef = this.substituteOneReference({ ref });
-                                 this.adminLogger.logInfo(`New reference ${JSON.stringify(newRef)}`);
                                  resource[fields[0]][i][fields[1]][j] = newRef;
                              }
                          }
@@ -381,7 +370,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     args: {
                         resource: doc
                     },
-                    source: 'FixWalgreenConsentRunner.processRecordAsync'
+                    source: 'FixDuplicatePractitionerRunner.processRecordAsync'
                 }
             );
         }
@@ -424,8 +413,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
             const duplicatePractitionerArray = await this.getDuplicatePractitionerArrayAsync({
                 collection: practitionerCollection
             });
-            const strCollections = JSON.stringify(this.collections);
-            this.adminLogger.logInfo(`Collections ${strCollections}`);
             if (duplicatePractitionerArray.length > 0) {
                 await this.createPractitionerSubstitutions(duplicatePractitionerArray);
                 try {
@@ -444,27 +431,18 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                             }
                             const fields = this.fieldsToUpdate.get(collectionName);
                             for (const field of fields) {
-                                // const collection = db.collection(collectionName);
-
                                 this.adminLogger.logInfo(
                                     `Fixing duplicate practitioners for the collection: ${collectionName} and field ${field}`
                                 );
                                 try {
-                                    const strQuery = JSON.stringify(query);
-                                    this.adminLogger.logInfo(`query ${strQuery}`);
                                     let newQuery = {};
                                     const fieldQuery = `${field}._uuid`;
                                     if (query.$and) {
                                         newQuery = {
                                             $and: [query, { [`${field}._uuid`]: { $in: this.dupUuids } }]
                                         };
-                                        // this.adminLogger.logInfo(`new query = ${JSON.stringify(newQuery)}`);
                                     } else {
-                                        this.adminLogger.logInfo(`Field query = ${fieldQuery}`);
-                                        this.adminLogger.logInfo(`dup fields count ${this.dupUuids.length}`);
                                         newQuery[fieldQuery] = { $in: this.dupUuids };
-                                        // const strNewQuery = JSON.stringify(newQuery);
-                                        // this.adminLogger.logInfo(`new query = ${strNewQuery}`);
                                     }
 
                                     await this.runForQueryBatchesAsync({
