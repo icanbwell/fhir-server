@@ -89,6 +89,7 @@ class ResourceValidator {
         }
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
+        delete resourceToValidateJson?.meta?.lastUpdated;
         /**
          * @type {OperationOutcome | null}
          */

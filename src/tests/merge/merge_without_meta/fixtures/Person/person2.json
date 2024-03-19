@@ -1,0 +1,13 @@
+{
+  "resourceType": "Person",
+  "id": 1,
+  "meta": {
+    "source": "bwell",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      }
+    ]
+  }
+}

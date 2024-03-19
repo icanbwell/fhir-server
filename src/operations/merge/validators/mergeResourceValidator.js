@@ -61,12 +61,11 @@ class MergeResourceValidator extends BaseValidator {
 
     /**
      * @param {FhirRequestInfo} requestInfo
-     * @param {date} currentDate
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, currentDate, incomingResources, base_version }) {
+    async validate ({ requestInfo, incomingResources, base_version }) {
         /**
          * @type {boolean}
          */
@@ -87,10 +86,8 @@ class MergeResourceValidator extends BaseValidator {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
-            base_version,
             requestInfo,
-            resourcesToMerge: resourcesIncomingArray,
-            currentDate
+            resourcesToMerge: resourcesIncomingArray
         });
 
         // process only the resources that are valid
