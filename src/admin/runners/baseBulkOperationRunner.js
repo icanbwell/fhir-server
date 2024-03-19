@@ -1,7 +1,7 @@
 const { assertIsValid } = require('../../utils/assertType');
 const { BaseScriptRunner } = require('./baseScriptRunner');
 const readline = require('readline');
- const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { MongoNetworkTimeoutError } = require('mongodb');
@@ -411,6 +411,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         .maxTimeMS(maxTimeMS) // 20 hours
                         .batchSize(batchSize)
                         .addCursorFlag('noCursorTimeout', true);
+
                     if (limit) {
                         cursor = cursor.limit(limit);
                     }
