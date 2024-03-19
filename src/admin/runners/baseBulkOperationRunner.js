@@ -1,7 +1,7 @@
 const { assertIsValid } = require('../../utils/assertType');
 const { BaseScriptRunner } = require('./baseScriptRunner');
 const readline = require('readline');
-// const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { MongoNetworkTimeoutError } = require('mongodb');
@@ -94,10 +94,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({ config, destinationCollectionName, sourceCollectionName });
 
-            // this.adminLogger.logInfo(
-            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName}`
-            // );
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName}`
+            );
 
             // first get the count
             let numberOfSourceDocuments, useLimit;
@@ -121,10 +121,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             }
 
-            // this.adminLogger.logInfo(
-            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${destinationCollectionName}`
-            // );
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${destinationCollectionName}`
+            );
 
             let numberOfDestinationDocuments;
             if (useEstimatedCount) {
@@ -206,9 +206,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            // this.adminLogger.logInfo(
-            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            // );
+            this.adminLogger.logInfo(
+                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            );
             let numberOfDestinationDocumentsAtEnd;
             if (useEstimatedCount) {
                 numberOfDestinationDocumentsAtEnd = await destinationCollection.estimatedDocumentCount();
@@ -360,11 +360,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     loopNumber += 1;
                     this.adminLogger.logInfo(`Starting loop for uuidChunk ${loopNumber}/${uuidListChunks.length}`);
 
-                    // this.adminLogger.logInfo(
-                    //     `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-                    //     `From ${sourceCollectionName} to ${destinationCollectionName}` +
-                    //     loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
-                    // );
+                    this.adminLogger.logInfo(
+                        `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+                        `From ${sourceCollectionName} to ${destinationCollectionName}` +
+                        loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
+                    );
 
                     // pass session to find query per:
                     // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
