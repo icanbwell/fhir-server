@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
+const { BadRequestError, NotFoundError, NotValidatedError } = require('../../utils/httpErrors');
 const { validate } = require('fast-json-patch');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -22,6 +22,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 const { ResourceMerger } = require('../common/resourceMerger');
+const { ResourceValidator } = require('../common/resourceValidator');
 
 class PatchOperation {
     /**
@@ -37,6 +38,7 @@ class PatchOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
+     * @param {ResourceValidator} resourceValidator
      */
     constructor (
         {
@@ -50,7 +52,8 @@ class PatchOperation {
             configManager,
             bwellPersonFinder,
             searchManager,
-            resourceMerger
+            resourceMerger,
+            resourceValidator
         }
     ) {
         /**
@@ -112,6 +115,12 @@ class PatchOperation {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -137,13 +146,16 @@ class PatchOperation {
             contentTypeFromHeader,
             /** @type {string|null} */
             user,
-            /** @type {string | null} */ scope,
+            /** @type {string | null} */
+            scope,
             /** @type {string[]} */
             patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            /** @type {string} */
+            path
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -270,6 +282,25 @@ class PatchOperation {
              * @type {Resource}
              */
             let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+
+            /**
+             * Validate merged resource with fhir schema
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource.id,
+                resourceType: resource.resourceType,
+                resourceToValidate: resource,
+                path,
+                currentDate,
+                resourceObj: resource
+            });
+
+            if (validationOperationOutcome) {
+                throw new NotValidatedError(validationOperationOutcome);
+            }
 
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {

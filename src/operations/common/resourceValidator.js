@@ -18,6 +18,7 @@ const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('./logging');
 const { RethrownError } = require('../../utils/rethrownError');
+const { isColumnDateType } = require('./isColumnDateType');
 
 class ResourceValidator {
     /**
@@ -89,6 +90,16 @@ class ResourceValidator {
         }
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
+        delete resourceToValidateJson?.meta?.lastUpdated;
+
+        // Convert date fields to string for validation
+        for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
+            if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
+                if (field instanceof Date && field) {
+                    resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                }
+            }
+        }
         /**
          * @type {OperationOutcome | null}
          */

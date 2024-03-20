@@ -1,0 +1,14 @@
+{
+  "resourceType": "Procedure",
+  "id": "1",
+  "meta": {
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "stopped"
+}

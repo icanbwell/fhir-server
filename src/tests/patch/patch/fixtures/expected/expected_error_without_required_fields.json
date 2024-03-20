@@ -1,0 +1,19 @@
+{
+  "issue": [
+    {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300 should have required property 'target' :{\"missingProperty\":\"target\"}: at position .link[0]"
+      },
+      "severity": "error"
+    },
+    {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300 should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+      },
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
+}

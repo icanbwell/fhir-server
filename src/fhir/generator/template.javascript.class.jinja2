@@ -392,6 +392,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% endif %}
 {% endfor %}
 {% for extra_property in extra_properties_for_json %}
+    {% if extra_property.name != '_file_id' %}
     {%  if not extra_property.is_code and (extra_property.is_resource or extra_property.is_extension or extra_property.cleaned_type == "ResourceContainer" or extra_property.fhir_type == "BackboneElement" or extra_property.is_complex or extra_property.fhir_type == "Element") %}
         {% if extra_property.is_list %}
             {{ extra_property.name -}}: this.{{ extra_property.name }} && this.{{ extra_property.name -}}.map(v => v.toJSON()),
@@ -400,6 +401,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         {% endif %}
     {%  else %}
             {{ extra_property.name -}}: this.{{ extra_property.name -}},
+    {% endif %}
     {% endif %}
 {% endfor %}
         });

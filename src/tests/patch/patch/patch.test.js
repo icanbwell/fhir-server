@@ -8,6 +8,7 @@ const expectedPersonResources = require('./fixtures/expected/expected_person.jso
 const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
+const patch4 = require('./fixtures/patches/patch4.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -15,6 +16,7 @@ const expectedActivityDefinition5Resource = require('./fixtures/expected/expecte
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
+const expectedErrorWithoutRequiredFields = require('./fixtures/expected/expected_error_without_required_fields.json');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
@@ -192,6 +194,26 @@ describe('Person Tests', () => {
                 .set(allAccessPatchHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
+        });
+
+        test('patch fails if required field is removed', async () => {
+            const request = await createTestRequest();
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
+            const allAccessPatchHeaders = getHeadersJsonPatch('user/*.read user/*.write access/bwell.* access/client.*');
+
+            let resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person1Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            resp = await request
+                .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .send(patch4)
+                .set(allAccessPatchHeaders)
+                .expect(400);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedErrorWithoutRequiredFields);
         });
     });
 });

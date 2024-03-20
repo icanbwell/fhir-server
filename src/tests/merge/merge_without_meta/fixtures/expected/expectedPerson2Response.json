@@ -1,0 +1,34 @@
+{
+  "created": false,
+  "id": "1",
+  "issue": {
+    "code": "invalid",
+    "details": {
+      "text": "/4_0_0/Person/$merge should have required property 'target' :{\"missingProperty\":\"target\"}: at position .link[0]"
+    },
+    "severity": "error"
+  },
+  "operationOutcome": {
+    "issue": [
+      {
+        "code": "invalid",
+        "details": {
+          "text": "/4_0_0/Person/$merge should have required property 'target' :{\"missingProperty\":\"target\"}: at position .link[0]"
+        },
+        "severity": "error"
+      },
+      {
+        "code": "invalid",
+        "details": {
+          "text": "/4_0_0/Person/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+        },
+        "severity": "error"
+      }
+    ],
+    "resourceType": "OperationOutcome"
+  },
+  "resourceType": "Person",
+  "sourceAssigningAuthority": "bwell",
+  "updated": false,
+  "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+}

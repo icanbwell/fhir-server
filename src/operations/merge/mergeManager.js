@@ -143,16 +143,15 @@ class MergeManager {
      * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @returns {Promise<void>}
+     * @returns {Promise<OperationOutcome|null>}
      */
-    async mergeExistingAsync (
-        {
-            resourceToMerge,
-            currentResource,
-            currentDate,
-            base_version,
-            requestInfo
-        }) {
+    async mergeExistingAsync ({
+        resourceToMerge,
+        currentResource,
+        currentDate,
+        base_version,
+        requestInfo
+    }) {
         assertTypeEquals(resourceToMerge, Resource);
         assertTypeEquals(currentResource, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -195,6 +194,25 @@ class MergeManager {
                 'merge_' + currentResource.meta.versionId + '_' + requestId);
         }
         if (patched_resource_incoming) {
+            /**
+             * Validate merged resource with fhir schema
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: patched_resource_incoming.id,
+                resourceType: patched_resource_incoming.resourceType,
+                resourceToValidate: patched_resource_incoming,
+                path: requestInfo.path,
+                currentDate,
+                resourceObj: patched_resource_incoming
+            });
+
+            if (validationOperationOutcome) {
+                return validationOperationOutcome;
+            }
+
             await this.performMergeDbUpdateAsync({
                     base_version,
                     requestInfo,
@@ -203,6 +221,7 @@ class MergeManager {
                     patches
                 }
             );
+            return null;
         }
     }
 
@@ -210,24 +229,21 @@ class MergeManager {
      * merge insert
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
+     * @param {string} currentDate
      * @param {Resource} resourceToMerge
-     * @param {string | null} user
-     * @returns {Promise<void>}
+     * @returns {Promise<OperationOutcome|null>}
      */
-    async mergeInsertAsync (
-        {
-            base_version,
-            requestInfo,
-            resourceToMerge,
-            user
-        }
-    ) {
+    async mergeInsertAsync ({
+        base_version,
+        requestInfo,
+        currentDate,
+        resourceToMerge
+    }) {
         assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
         logDebug(
             'Merging new resource',
             {
-                user,
                 args: { uuid: resourceToMerge._uuid, resource: resourceToMerge }
             }
         );
@@ -237,11 +253,31 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
 
+        /**
+         * Validate resource to create with fhir schema
+         * @type {OperationOutcome|null}
+         */
+        const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+            base_version,
+            requestInfo,
+            id: resourceToMerge.id,
+            resourceType: resourceToMerge.resourceType,
+            resourceToValidate: resourceToMerge,
+            path: requestInfo.path,
+            currentDate,
+            resourceObj: resourceToMerge
+        });
+
+        if (validationOperationOutcome) {
+            return validationOperationOutcome;
+        }
+
         await this.performMergeDbInsertAsync({
             base_version,
             requestInfo,
             resourceToMerge
         });
+        return null;
     }
 
     /**
@@ -251,7 +287,7 @@ class MergeManager {
      * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @return {Promise<void>}
+     * @return {Promise<MergeResultEntry|null>}
      */
     async mergeResourceAsync (
         {
@@ -313,13 +349,12 @@ class MergeManager {
                 });
             }
 
+            let validationError;
             // check if resource was found in database or not
             if (currentResource && currentResource.meta) {
-                await this.mergeExistingAsync(
-                    {
-                        resourceToMerge, currentResource, currentDate, requestInfo, base_version
-                    }
-                );
+                validationError = await this.mergeExistingAsync({
+                    resourceToMerge, currentResource, currentDate, requestInfo, base_version
+                });
             } else {
                 // Check if meta & meta.source exists in resource
                 if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
@@ -330,12 +365,27 @@ class MergeManager {
                     );
                 }
                 resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
-                await this.mergeInsertAsync({
+                validationError = await this.mergeInsertAsync({
                     base_version,
                     requestInfo,
+                    currentDate,
                     resourceToMerge
                 });
             }
+
+            if (validationError) {
+                return new MergeResultEntry({
+                    id: resourceToMerge.id,
+                    uuid: resourceToMerge._uuid,
+                    sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                    resourceType: resourceToMerge.resourceType,
+                    created: false,
+                    updated: false,
+                    issue: (validationError.issue && validationError.issue.length > 0) ? validationError.issue[0] : null,
+                    operationOutcome: validationError
+                });
+            }
+            return null;
         } catch (e) {
             logError(
                 'Error with merging resource',
@@ -349,10 +399,10 @@ class MergeManager {
                     }
                 }
             );
-            const operationOutcome = {
+            const operationOutcome = new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
-                    {
+                    new OperationOutcomeIssue({
                         severity: 'error',
                         code: 'exception',
                         details: {
@@ -362,9 +412,9 @@ class MergeManager {
                         expression: [
                             resourceToMerge.resourceType + '/' + resourceToMerge.id
                         ]
-                    }
+                    })
                 ]
-            };
+            });
             if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceToMerge.resourceType,
@@ -384,15 +434,16 @@ class MergeManager {
                     message: e.message,
                     error: e,
                     source: 'MergeManager',
-                    args: {
+                    args: new MergeResultEntry({
                         id: resourceToMerge.id,
+                        uuid: resourceToMerge._uuid,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                         resourceType,
                         created: false,
                         updated: false,
                         issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
                         operationOutcome
-                    }
+                    })
                 }
             );
         }
@@ -488,15 +539,14 @@ class MergeManager {
     ) {
         assertTypeEquals(resourceToMerge, Resource);
         try {
-            await this.mergeResourceAsync(
-                {
-                    resourceToMerge,
-                    resourceType,
-                    currentDate,
-                    base_version,
-                    requestInfo
-                });
-            return { resource: resourceToMerge, mergeError: null };
+            const mergeError = await this.mergeResourceAsync({
+                resourceToMerge,
+                resourceType,
+                currentDate,
+                base_version,
+                requestInfo
+            });
+            return { resource: resourceToMerge, mergeError };
         } catch (error) {
             return { resource: null, mergeError: MergeResultEntry.createFromError({ error, resource: resourceToMerge }) }
         }
@@ -586,19 +636,14 @@ class MergeManager {
      * run any pre-checks before merge
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @returns {Promise<MergeResultEntry|null>}
      */
-    async preMergeChecksAsync (
-        {
-            base_version,
-            requestInfo,
-            resourceToMerge,
-            resourceType,
-            currentDate
-        }) {
+    async preMergeChecksAsync ({
+        requestInfo,
+        resourceToMerge,
+        resourceType
+    }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(resourceToMerge, Resource);
         try {
@@ -751,33 +796,6 @@ class MergeManager {
                 resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
             }
 
-            /**
-             * @type {OperationOutcome|null}
-             */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id,
-                resourceType: resourceObjectToValidate.resourceType,
-                resourceToValidate: resourceObjectToValidate,
-                path: requestInfo.path,
-                currentDate,
-                resourceObj: resourceToMerge
-            });
-            if (validationOperationOutcome) {
-                // noinspection JSValidateTypes
-                return {
-                    id,
-                    uuid: resourceToMerge._uuid,
-                    created: false,
-                    updated: false,
-                    issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0)
-                        ? validationOperationOutcome.issue[0] : null,
-                    operationOutcome: validationOperationOutcome,
-                    resourceType: resourceToMerge.resourceType
-                };
-            }
-
             return null;
         } catch (e) {
             throw new RethrownError({
@@ -789,16 +807,14 @@ class MergeManager {
 
     /**
      * run any pre-checks on multiple resources before merge
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource[]} resourcesToMerge
-     * @param {string} currentDate
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
      */
     async preMergeChecksMultipleAsync (
         {
-            base_version, requestInfo,
-            resourcesToMerge, currentDate
+            requestInfo,
+            resourcesToMerge
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertIsValid(Array.isArray(resourcesToMerge), 'resourcesToMerge should be an array');
@@ -817,11 +833,9 @@ class MergeManager {
                  */
                 const mergeResult = await this.preMergeChecksAsync(
                     {
-                        base_version,
                         requestInfo,
                         resourceToMerge: r,
-                        resourceType: r.resourceType,
-                        currentDate
+                        resourceType: r.resourceType
                     }
                 );
                 if (mergeResult) {

@@ -7,6 +7,7 @@ const expectedPersonResources = require('./fixtures/expected/expected_Person.jso
 const expectedMissingAccessScope = require('./fixtures/expected/expectedMissingAccessScope.json');
 const expectedWrongAccessScope = require('./fixtures/expected/expectedWrongAccessScope.json');
 const expectedWrongReferenceValues = require('./fixtures/expected/expectedWrongReferenceValues.json');
+const expectedWrongReferenceValuesCreate = require('./fixtures/expected/expectedWrongReferenceValuesCreate.json');
 
 const {
     commonBeforeEach,
@@ -316,7 +317,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongReferenceValues, r => {
+            expect(resp).toHaveResponse(expectedWrongReferenceValuesCreate, r => {
                 delete r.id;
             });
         });

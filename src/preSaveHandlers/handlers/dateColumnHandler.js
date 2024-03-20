@@ -17,7 +17,7 @@ class DateColumnHandler extends PreSaveHandler {
         for (const [fieldName, field] of Object.entries(resource)) {
             // if a column is of date type then set it to date (if not already)
             // TODO: this currently only handles one level deep fields.  Change it to handle fields multiple levels deep
-            if (isColumnDateType(resource.resourceType, fieldName)) {
+            if (isColumnDateType(resource.resourceType, fieldName) && field) {
                 if (!(resource[`${fieldName}`] instanceof Date)) {
                     resource[`${fieldName}`] = new Date(field);
                 }
