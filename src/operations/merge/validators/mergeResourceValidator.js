@@ -160,6 +160,17 @@ class MergeResourceValidator extends BaseValidator {
                     );
                 }
             }
+            // Check if multiple owner tags are present inside the resource.
+            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource.resourceType}/${resource.id}` +
+                        ' is having multiple security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
         });
 
         return {

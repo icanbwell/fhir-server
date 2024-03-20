@@ -7,6 +7,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
@@ -31,6 +32,7 @@ class PatchOperation {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
@@ -46,6 +48,7 @@ class PatchOperation {
             postSaveProcessor,
             postRequestProcessor,
             fhirLoggingManager,
+            scopesManager,
             scopesValidator,
             databaseBulkInserter,
             databaseAttachmentManager,
@@ -76,6 +79,11 @@ class PatchOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {ScopesValidator}
          */
@@ -300,6 +308,18 @@ class PatchOperation {
 
             if (validationOperationOutcome) {
                 throw new NotValidatedError(validationOperationOutcome);
+            }
+
+            // Check if multiple owner tags are present inside the resource.
+            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource.resourceType}/${resource.id}` +
+                        ' is having multiple security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
             }
 
             // source in metadata must exist either in incoming resource or found resource

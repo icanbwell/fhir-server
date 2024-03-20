@@ -1,6 +1,8 @@
 // test file
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition1.json');
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
+const activitydefinition3Resource = require('./fixtures/ActivityDefinition/activitydefinition3.json');
+const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activitydefinition4.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -37,6 +39,44 @@ describe('Put Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
+        });
+        test('create validation for multiple or no owner tags works', async () => {
+            const request = await createTestRequest();
+
+            // Create the resource
+            let resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition2Resource)
+                .set(getHeaders())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Case when multiple owner tags provided.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 is having multiple security access tag with system: https://www.icanbwell.com/owner'
+            );
+
+            // Case when no owner tag provided.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition4Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
         });
     });
 });
