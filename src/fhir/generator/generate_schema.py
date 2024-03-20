@@ -77,6 +77,9 @@ class FhirXmlToJsonSchemaParser:
                     name = name.replace('-primitive', '')
                     pattern = simple_type.restriction.pattern.get('value') if name != 'string' else '[ \\r\\n\\t\\S]+'
 
+                    if '{1,64}' in pattern:
+                        pattern = pattern.replace('64', '')
+
                     if pattern is not None:
                         logger.info(f'Schema generated for {name}')
                         schema[name] = {
