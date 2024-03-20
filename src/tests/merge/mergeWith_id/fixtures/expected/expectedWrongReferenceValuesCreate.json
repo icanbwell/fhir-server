@@ -1,0 +1,35 @@
+[
+  {
+    "created": false,
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "link.0.target.reference: Person/Person/a58e50292d79469691d3048e787434cc is an invalid reference"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "link.0.target.reference: Person/Person/a58e50292d79469691d3048e787434cc is an invalid reference"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "link.1.target.reference: Patient/Patient/26a2b5508f6840a1b4c5f67d38360060 is an invalid reference"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Person",
+    "sourceAssigningAuthority": "bwell",
+    "uuid": "849cb4f0-033b-5d6e-a614-9bbbbb3ba11e",
+    "updated": false
+  }
+]
