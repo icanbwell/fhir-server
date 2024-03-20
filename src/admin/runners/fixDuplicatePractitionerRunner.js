@@ -226,20 +226,22 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     async createPractitionerSubstitutions (dups) {
         // loop thru array and create substitution object fields
         dups.forEach(dup => {
-            let correctIndex = 0;
+            let correctIndex = -1;
             for (let i = 0; i < dup.sourceAssigningAuthority.length; i++) {
                 if (dup.sourceAssigningAuthority[i] === 'nppes') {
                     correctIndex = i;
                 }
             }
-            const subs = {};
-            subs.goodReference = `Practitioner/${dup._id}|nppes`;
-            subs.goodSourceId = `Practitioner/${dup._id}`;
-            subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
-            for (let i = 0; i < dup.uuid.length; i++) {
-                if (i !== correctIndex) {
-                    this.practitionerSubstitutionsByUuid.set(`Practitioner/${dup.uuid[i]}`, subs);
-                    this.dupUuids.push(`Practitioner/${dup.uuid[i]}`);
+            if (correctIndex > 0) { // only process if there is a resource with nppes
+                const subs = {};
+                subs.goodReference = `Practitioner/${dup._id}|nppes`;
+                subs.goodSourceId = `Practitioner/${dup._id}`;
+                subs.goodUuid = `Practitioner/${dup.uuid[correctIndex]}`;
+                for (let i = 0; i < dup.uuid.length; i++) {
+                    if (i !== correctIndex) {
+                        this.practitionerSubstitutionsByUuid.set(`Practitioner/${dup.uuid[i]}`, subs);
+                        this.dupUuids.push(`Practitioner/${dup.uuid[i]}`);
+                    }
                 }
             }
         });
