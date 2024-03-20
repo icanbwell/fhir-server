@@ -200,6 +200,18 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether the resource has multiple owner tag
+     * @param {Resource|Object} resource
+     * @return {boolean}
+     */
+    doesResourceHaveMultipleOwnerTags (resource) {
+        return (
+            resource.meta?.security &&
+            resource.meta.security.filter(s => s.system === SecurityTagSystem.owner).length > 1
+        );
+    }
+
+    /**
      * Gets admin scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}

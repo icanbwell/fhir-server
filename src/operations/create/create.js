@@ -233,6 +233,17 @@ class CreateOperation {
                     )
                 );
             }
+            // Check if multiple owner tags are present inside the resource.
+            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceType}` +
+                        ' is having multiple security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
             // Check if meta & meta.source exists in resource
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));

@@ -338,6 +338,18 @@ class UpdateOperation {
                 );
             }
 
+            // Check if multiple owner tags are present inside the resource.
+            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource_incoming)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                        ' is having multiple security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {

@@ -610,6 +610,7 @@ const createContainer = function () {
             postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
+            scopesManager: c.scopesManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
