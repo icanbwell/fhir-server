@@ -232,7 +232,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                     correctIndex = i;
                 }
             }
-            if (correctIndex > 0) { // only process if there is a resource with nppes
+            if (correctIndex >= 0) { // only process if there is a resource with nppes
                 const subs = {};
                 subs.goodReference = `Practitioner/${dup._id}|nppes`;
                 subs.goodSourceId = `Practitioner/${dup._id}`;
