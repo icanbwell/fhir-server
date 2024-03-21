@@ -5,9 +5,7 @@
     "versionId": "1",
     "source": "mps",
     "lastUpdated": "2023-02-15T01:06:29.000Z",
-    "profile": [
-      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-    ],
+    "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
@@ -23,6 +21,7 @@
       }
     ]
   },
+  "intent": "plan",
   "status": "draft",
   "for": {
     "reference": "Patient/person.41db6857-b989-4617-ac8b-35d853250449"
