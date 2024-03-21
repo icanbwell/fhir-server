@@ -102,69 +102,70 @@ class ResourceValidator {
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
+        if (resourceType !== 'GraphDefinition') {
+            // Check if meta & meta.source exists in resource
+            if (this.configManager.requireMetaSourceTags && (!resourceToValidateJson.meta || !resourceToValidateJson.meta.source)) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'invalid',
+                            details: new CodeableConcept({
+                                text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+                            })
+                        })
+                    ]
+                });
+            }
 
-        // Check if meta & meta.source exists in resource
-        if (this.configManager.requireMetaSourceTags && (!resourceToValidateJson.meta || !resourceToValidateJson.meta.source)) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+            // Check owner tag is present inside the resource.
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidateJson)) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'invalid',
+                            details: new CodeableConcept({
+                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                    ' is missing a security access tag with system: ' +
+                                    `${SecurityTagSystem.owner}`
+                            })
                         })
-                    })
-                ]
-            });
-        }
+                    ]
+                });
+            }
 
-        // Check owner tag is present inside the resource.
-        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidateJson)) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                ' is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
+            // Check if multiple owner tags are present inside the resource.
+            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resourceToValidateJson)) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'invalid',
+                            details: new CodeableConcept({
+                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                    ' is having multiple security access tag with system: ' +
+                                    `${SecurityTagSystem.owner}`
+                            })
                         })
-                    })
-                ]
-            });
-        }
-
-        // Check if multiple owner tags are present inside the resource.
-        if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resourceToValidateJson)) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                ' is having multiple security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
+                    ]
+                });
+            }
+            // Check if any system or code in the meta.security array is null
+            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resourceToValidateJson)) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'invalid',
+                            details: new CodeableConcept({
+                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                    ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                            })
                         })
-                    })
-                ]
-            });
-        }
-        // Check if any system or code in the meta.security array is null
-        if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resourceToValidateJson)) {
-            return new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                ' has null/empty value for \'system\' or \'code\' in security access tag.'
-                        })
-                    })
-                ]
-            });
+                    ]
+                });
+            }
         }
 
         // Convert date fields to string for validation
