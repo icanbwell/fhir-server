@@ -7,7 +7,6 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
@@ -32,7 +31,6 @@ class PatchOperation {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
-     * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
@@ -48,7 +46,6 @@ class PatchOperation {
             postSaveProcessor,
             postRequestProcessor,
             fhirLoggingManager,
-            scopesManager,
             scopesValidator,
             databaseBulkInserter,
             databaseAttachmentManager,
@@ -79,11 +76,6 @@ class PatchOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {ScopesValidator}
          */
@@ -291,6 +283,13 @@ class PatchOperation {
              */
             let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
+            // source in metadata must exist either in incoming resource or found resource
+            if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
+                this.resourceMerger.overWriteNonWritableFields({
+                    currentResource: foundResource, resourceToMerge: resource
+                });
+            }
+
             /**
              * Validate merged resource with fhir schema
              * @type {OperationOutcome|null}
@@ -310,39 +309,6 @@ class PatchOperation {
                 throw new NotValidatedError(validationOperationOutcome);
             }
 
-            // Check if multiple owner tags are present inside the resource.
-            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resource.resourceType}/${resource.id}` +
-                        ' is having multiple security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-
-            // Check if any system or code in the meta.security array is null
-            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resource.resourceType}/${resource.id}` +
-                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
-                    )
-                );
-            }
-
-            // source in metadata must exist either in incoming resource or found resource
-            if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
-                this.resourceMerger.overWriteNonWritableFields({
-                    currentResource: foundResource, resourceToMerge: resource
-                });
-            } else {
-                throw new BadRequestError(new Error(
-                    'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
-                ));
-            }
             const appliedPatchContent = this.resourceMerger.compareObjects({
                 currentObject: foundResource.toJSON(),
                 mergedObject: resource.toJSON()

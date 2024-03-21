@@ -3,7 +3,6 @@ const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
 const activitydefinition3Resource = require('./fixtures/ActivityDefinition/activitydefinition3.json');
 const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activitydefinition4.json');
-const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
 const activitydefinition6Resource = require('./fixtures/ActivityDefinition/activitydefinition6.json');
 const activitydefinition7Resource = require('./fixtures/ActivityDefinition/activitydefinition7.json');
 const activitydefinition8Resource = require('./fixtures/ActivityDefinition/activitydefinition8.json');
@@ -59,11 +58,11 @@ describe('Merge Meta Tests', () => {
             let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition3Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/2 is having multiple security access tag with system: https://www.icanbwell.com/owner'
             );
@@ -72,11 +71,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition4Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/2 is missing a security access tag with system: https://www.icanbwell.com/owner'
             );
@@ -85,11 +84,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition6Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
@@ -98,11 +97,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition7Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
@@ -111,11 +110,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition8Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
@@ -129,28 +128,15 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Updating resource by providing multiple owner tags
-            resp = await request
-                .post('/4_0_0/ActivityDefinition/$merge')
-                .send(activitydefinition5Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource ActivityDefinition/1 is having multiple security access tag with system: https://www.icanbwell.com/owner'
-            );
-
             // Updating resource by providing empty string in 'system'
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition6Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
@@ -159,11 +145,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition7Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
@@ -172,11 +158,11 @@ describe('Merge Meta Tests', () => {
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition8Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
             expect(
-                resp.body.issue[0].details.text
+                resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/1 has null/empty value for \'system\' or \'code\' in security access tag.'
             );

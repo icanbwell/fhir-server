@@ -6,7 +6,6 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
@@ -35,7 +34,6 @@ class UpdateOperation {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
@@ -52,7 +50,6 @@ class UpdateOperation {
             postSaveProcessor,
             auditLogger,
             postRequestProcessor,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
@@ -84,11 +81,6 @@ class UpdateOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -325,41 +317,6 @@ class UpdateOperation {
              * @type {Resource}
              */
             let foundResource;
-
-            // Check if the resource is missing owner tag
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                        ' is missing a security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-
-            // Check if multiple owner tags are present inside the resource.
-            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource_incoming)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                        ' is having multiple security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-
-            // Check if any system or code in the meta.security array is null
-            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource_incoming)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
-                    )
-                );
-            }
 
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable

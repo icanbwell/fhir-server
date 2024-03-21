@@ -7,9 +7,12 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { ScopesManager } = require('../security/scopesManager');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
@@ -27,13 +30,15 @@ class ResourceValidator {
      * @param {RemoteFhirValidator} remoteFhirValidator
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {ScopesManager} scopesManager
      */
     constructor (
         {
             configManager,
             remoteFhirValidator,
             databaseQueryFactory,
-            databaseUpdateFactory
+            databaseUpdateFactory,
+            scopesManager
         }
     ) {
         /**
@@ -59,6 +64,12 @@ class ResourceValidator {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -73,7 +84,7 @@ class ResourceValidator {
      * @param {Object} resourceObj
      * @param {boolean|undefined} useRemoteFhirValidatorIfAvailable
      * @param {string|undefined} profile
-     * @returns {OperationOutcome | null}
+     * @returns {Promise<OperationOutcome | null>}
      */
     async validateResourceAsync (
         {
@@ -91,6 +102,70 @@ class ResourceValidator {
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
+
+        // Check if meta & meta.source exists in resource
+        if (this.configManager.requireMetaSourceTags && (!resourceToValidateJson.meta || !resourceToValidateJson.meta.source)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check owner tag is present inside the resource.
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidateJson)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check if multiple owner tags are present inside the resource.
+        if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resourceToValidateJson)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                ' is having multiple security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+        // Check if any system or code in the meta.security array is null
+        if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resourceToValidateJson)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
+                                ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                        })
+                    })
+                ]
+            });
+        }
 
         // Convert date fields to string for validation
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {

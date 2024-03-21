@@ -203,7 +203,8 @@ const createContainer = function () {
             configManager: c.configManager,
             remoteFhirValidator: c.remoteFhirValidator,
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseUpdateFactory: c.databaseUpdateFactory
+            databaseUpdateFactory: c.databaseUpdateFactory,
+            scopesManager: c.scopesManager
         }
     ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
@@ -379,7 +380,6 @@ const createContainer = function () {
                     resourceValidator: c.resourceValidator
                 }),
                 new MergeResourceValidator({
-                    scopesManager: c.scopesManager,
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
@@ -498,7 +498,6 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
                 postSaveProcessor: c.postSaveProcessor,
-                scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -515,7 +514,6 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
-                scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -610,7 +608,6 @@ const createContainer = function () {
             postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesManager: c.scopesManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
