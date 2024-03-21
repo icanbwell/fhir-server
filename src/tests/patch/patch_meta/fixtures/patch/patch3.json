@@ -1,6 +1,12 @@
 [
     {
-        "op": "remove",
-        "path": "/meta/security"
+        "op": "replace",
+        "path": "/meta/security",
+        "value": [
+            {
+                "code": "client",
+                "system": "null"
+            }
+        ]
     }
 ]

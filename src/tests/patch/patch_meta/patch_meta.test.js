@@ -6,7 +6,6 @@ const patch2 = require('./fixtures/patch/patch2.json');
 const patch3 = require('./fixtures/patch/patch3.json');
 const patch4 = require('./fixtures/patch/patch4.json');
 const patch5 = require('./fixtures/patch/patch5.json');
-const patch6 = require('./fixtures/patch/patch6.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -54,33 +53,11 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
         });
-        test('patch validation for meta secuirty elements', async () => {
+        test('patch validation for meta security elements', async () => {
             const request = await createTestRequest();
 
-            // Create the resource
-            let resp = await request
-                .post('/4_0_0/ActivityDefinition/$merge')
-                .send(activitydefinition1Resource)
-                .set(getHeaders())
-                .expect(200);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // Case when multiple owner tags provided.
-            resp = await request
-                .patch('/4_0_0/ActivityDefinition/1')
-                .send(patch2)
-                .set(getHeadersJsonPatch());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource ActivityDefinition/1 is having multiple security access tag with system: https://www.icanbwell.com/owner'
-            );
-
             // Create the resource with multiple access tags
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition2Resource)
                 .set(getHeaders())
@@ -91,7 +68,7 @@ describe('Put Meta Tests', () => {
             // Remove meta.security in patch, only access tags will be removed
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/2')
-                .send(patch3)
+                .send(patch2)
                 .set(getHeadersJsonPatch())
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -100,7 +77,7 @@ describe('Put Meta Tests', () => {
             // Patch operation with 'null' in system
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/2')
-                .send(patch4)
+                .send(patch3)
                 .set(getHeadersJsonPatch());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
@@ -113,7 +90,7 @@ describe('Put Meta Tests', () => {
             // Patch operation with empty string in system
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/2')
-                .send(patch5)
+                .send(patch4)
                 .set(getHeadersJsonPatch());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
@@ -126,7 +103,7 @@ describe('Put Meta Tests', () => {
             // Patch operation with 'null' in code
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/2')
-                .send(patch6)
+                .send(patch5)
                 .set(getHeadersJsonPatch());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);

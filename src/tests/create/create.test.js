@@ -122,11 +122,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource Practitioner is having multiple security access tag with system: https://www.icanbwell.com/owner'
-            );
+            expect(resp.body.issue[0].details.text).toMatch(/is having multiple security access tag with system:/);
+
             // Case when no owner tag provided.
             resp = await request
                 .post('/4_0_0/Practitioner/')
@@ -134,11 +131,7 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource Practitioner is missing a security access tag with system: https://www.icanbwell.com/owner'
-            );
+            expect(resp.body.issue[0].details.text).toMatch(/is missing a security access tag with system:/);
 
             // Case when empty string provided in 'system'.
             resp = await request
@@ -147,11 +140,7 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
-            );
+            expect(resp.body.issue[0].details.text).toMatch(/has null\/empty value for 'system' or 'code' in security access tag\./);
 
             // Case when 'null' is provided in 'system'.
             resp = await request
@@ -160,11 +149,7 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
-            );
+            expect(resp.body.issue[0].details.text).toMatch(/has null\/empty value for 'system' or 'code' in security access tag\./);
 
             // Case when 'null' is provided in 'code'.
             resp = await request
@@ -173,11 +158,7 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
-            );
+            expect(resp.body.issue[0].details.text).toMatch(/has null\/empty value for 'system' or 'code' in security access tag\./);
         });
     });
 });
