@@ -1,7 +1,6 @@
 {
     "approvalDate": "2022-09-12",
     "id": "2",
-    "library": ["http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"],
     "meta": {
         "source": "client",
         "security": [

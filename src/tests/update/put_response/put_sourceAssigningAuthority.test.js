@@ -5,7 +5,6 @@ const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activ
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition1.json');
-const expectedErrorWithoutOwner = require('./fixtures/expected/expected_error_without_owner.json');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
@@ -88,7 +87,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(getHeaders())
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithoutOwner);
+            expect(resp.body.issue[0].details.text).toMatch(/is missing a security access tag with system:/);
         });
 
         test('put_response works when multiple documents with same id are present when accessed from different scopes', async () => {

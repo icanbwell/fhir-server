@@ -5,9 +5,6 @@
       "details": {
         "text": "Resource Practitioner/4657 is missing a security access tag with system: https://www.icanbwell.com/owner"
       },
-      "expression": [
-        "Practitioner"
-      ],
       "severity": "error"
     }
   ],

@@ -13,9 +13,6 @@
       "value": "ab2d17e3-3996-487c-bf81-cbe31abde0be"
     }
   ],
-  "library": [
-    "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
-  ],
   "meta": {
     "source": "bwell",
     "security": [
