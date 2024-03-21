@@ -364,7 +364,6 @@ class MergeManager {
                         )
                     );
                 }
-                resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
                 validationError = await this.mergeInsertAsync({
                     base_version,
                     requestInfo,
@@ -576,6 +575,9 @@ class MergeManager {
                 resource: resourceToMerge
             });
 
+            // Update attachments after all validations
+            resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
+
             // Insert/update our resource record
             await this.databaseBulkInserter.mergeOneAsync(
                 {
@@ -615,6 +617,8 @@ class MergeManager {
             await this.preSaveManager.preSaveAsync({
                 resource: resourceToMerge
             });
+            // Update attachments after all validations
+            resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
             await this.databaseBulkInserter.insertOneAsync({

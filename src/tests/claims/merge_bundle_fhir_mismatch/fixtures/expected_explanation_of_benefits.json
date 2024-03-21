@@ -36,6 +36,7 @@
           }
         ],
         "id": "WPS-Claim-20A824417300",
+        "created": "2014-08-16",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -520,7 +521,7 @@
           "source": "https://www.wpshealth.com/medical_claims",
           "versionId": "3"
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "patient": {
           "extension": [
             {
@@ -903,7 +904,7 @@
           ],
           "text": "Claim Type"
         },
-        "use": "Claim"
+        "use": "claim"
       }
     }
   ],

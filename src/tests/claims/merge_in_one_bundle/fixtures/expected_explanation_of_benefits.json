@@ -451,7 +451,8 @@
                     "source": "https://www.wpshealth.com/medical_claims",
                     "versionId": "1"
                 },
-                "outcome": "Complete",
+                "outcome": "complete",
+                "created": "2014-08-16",
                 "patient": {
                     "extension": [
                         {
@@ -550,7 +551,7 @@
                     ],
                     "text": "Claim Type"
                 },
-                "use": "Claim"
+                "use": "claim"
             }
         },
         {
@@ -841,7 +842,8 @@
                     "source": "https://www.wpshealth.com/medical_claims",
                     "versionId": "1"
                 },
-                "outcome": "Complete",
+                "outcome": "complete",
+                "created": "2014-08-16",
                 "patient": {
                     "extension": [
                         {
@@ -929,7 +931,7 @@
                     ],
                     "text": "Claim Type"
                 },
-                "use": "Claim"
+                "use": "claim"
             }
         }
     ],

@@ -1,0 +1,85 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Procedure/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"preparation\",\"in-progress\",\"not-done\",\"on-hold\",\"stopped\",\"completed\",\"entered-in-error\",\"unknown\"]}: at position .status"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Procedure/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"preparation\",\"in-progress\",\"not-done\",\"on-hold\",\"stopped\",\"completed\",\"entered-in-error\",\"unknown\"]}: at position .status"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Procedure/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Procedure",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "941f082a-39a9-5f55-9630-5839a010e1bc"
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "Procedure",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  },
+  {
+    "created": false,
+    "id": "1",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Procedure/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Procedure/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Procedure/$merge should have required property 'subject' :{\"missingProperty\":\"subject\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Procedure/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Procedure",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  }
+]

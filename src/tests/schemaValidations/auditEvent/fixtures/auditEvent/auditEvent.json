@@ -1,0 +1,101 @@
+[
+  {
+    "resourceType": "AuditEvent",
+    "id": "1",
+    "type": {
+      "system": "http://test.com/test",
+      "code": "110112",
+      "display": "Query"
+    },
+    "agent": [
+      {
+        "who": {
+          "reference": "Person/test"
+        },
+        "altId": "user/*.* access/*.*",
+        "name": "test",
+        "requestor": true,
+        "network": {
+          "type": "2"
+        }
+      }
+    ],
+    "source": {
+      "observer": {
+        "reference": "Person/test"
+      }
+    },
+    "recorded": "2023-10-10T00:00:00.000Z",
+    "entity": [
+      {
+        "what": {
+          "reference": "Person/c123456"
+        },
+        "detail": [
+          {
+            "type": "base_version",
+            "valueString": "4_0_0"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "source": "bwell",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "AuditEvent",
+    "id": "2",
+    "type": {
+      "system": "http://test.com/test",
+      "code": "110112",
+      "display": "Query"
+    },
+    "agent": [
+      {
+        "who": {
+          "reference": "Person/test"
+        },
+        "altId": "user/*.* access/*.*",
+        "name": "test",
+        "requestor": true,
+        "network": {
+          "type": "2"
+        }
+      }
+    ],
+    "source": {
+      "observer": {
+        "reference": "Person/test"
+      }
+    },
+    "entity": [
+      {
+        "what": {
+          "reference": "Person/c123456"
+        },
+        "detail": [
+          {
+            "type": "base_version",
+            "valueString": "4_0_0"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "source": "bwell",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        }
+      ]
+    }
+  }
+]

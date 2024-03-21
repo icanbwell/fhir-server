@@ -41,7 +41,7 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
         "patient": {
             "reference": "Patient/WPS-0559166162"
         },
@@ -51,7 +51,7 @@
         "provider": {
             "reference": "Organization/1407857790"
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "insurance": [
             {
                 "focal": true,
@@ -104,7 +104,7 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
         "patient": {
             "reference": "Patient/WPS-6678928210"
         },
@@ -124,7 +124,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "insurance": [
             {

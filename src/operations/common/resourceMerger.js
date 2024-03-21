@@ -389,12 +389,6 @@ class ResourceMerger {
             incrementVersion
         });
 
-        if (databaseAttachmentManager) {
-            patched_resource_incoming = await databaseAttachmentManager.transformAttachments(
-                patched_resource_incoming
-            );
-        }
-
         return {
             updatedResource: patched_resource_incoming,
             patches: patchContent.map(p => {

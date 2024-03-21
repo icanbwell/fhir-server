@@ -43,7 +43,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-5458231534"
         },
@@ -63,7 +64,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -466,7 +467,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-5458231534"
         },
@@ -486,7 +488,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {

@@ -1,0 +1,217 @@
+[
+  {
+    "resourceType": "CarePlan",
+    "id": "1",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>"
+    },
+    "title": "Diabetes self management plan",
+    "status": "active",
+    "intent": "order",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+            "code": "assess-plan"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "period": {
+      "start": "2012-03-03T01:45:51+00:00",
+      "end": "2013-03-03T01:45:51+00:00"
+    },
+    "activity": [
+      {
+        "detail": {
+          "kind": "Appointment",
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "160670007",
+                "display": "Diabetic diet"
+              }
+            ],
+            "text": "Diabetic diet"
+          },
+          "status": "in-progress"
+        }
+      }
+    ]
+  },
+  {
+    "resourceType": "CarePlan",
+    "id": "2",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>"
+    },
+    "title": "Diabetes self management plan",
+    "status": "inactive",
+    "intent": "order1",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+            "code": "assess-plan"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "period": {
+      "start": "2012-03-03T01:45:51+00:00",
+      "end": "2013-03-03T01:45:51+00:00"
+    },
+    "activity": [
+      {
+        "detail": {
+          "kind": "test",
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "160670007",
+                "display": "Diabetic diet"
+              }
+            ],
+            "text": "Diabetic diet"
+          },
+          "status": "in-progress"
+        }
+      }
+    ]
+  },
+  {
+    "resourceType": "CarePlan",
+    "id": "3",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>"
+    },
+    "title": "Diabetes self management plan",
+    "status": "active",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+            "code": "assess-plan"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "period": {
+      "start": "2012-03-03T01:45:51+00:00",
+      "end": "2013-03-03T01:45:51+00:00"
+    },
+    "activity": [
+      {
+        "detail": {
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "160670007",
+                "display": "Diabetic diet"
+              }
+            ],
+            "text": "Diabetic diet"
+          },
+          "status": "in-progress"
+        }
+      }
+    ]
+  },
+  {
+    "resourceType": "CarePlan",
+    "id": "4",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>"
+    },
+    "title": "Diabetes self management plan",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+            "code": "assess-plan"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "period": {
+      "start": "2012-03-03T01:45:51+00:00",
+      "end": "2013-03-03T01:45:51+00:00"
+    },
+    "activity": [
+      {
+        "detail": {
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "160670007",
+                "display": "Diabetic diet"
+              }
+            ],
+            "text": "Diabetic diet"
+          },
+          "status": "in-progress"
+        }
+      }
+    ]
+  }
+]

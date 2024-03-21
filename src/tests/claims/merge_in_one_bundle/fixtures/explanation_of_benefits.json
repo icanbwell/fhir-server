@@ -41,7 +41,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-0559166162"
         },
@@ -61,7 +62,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -316,7 +317,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-6678928210"
         },
@@ -336,7 +338,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -582,7 +584,7 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
         "patient": {
             "reference": "Patient/WPS-5458231534"
         },
@@ -602,7 +604,8 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
+        "created": "2014-08-16",
         "careTeam": [],
         "supportingInfo": [
             {
