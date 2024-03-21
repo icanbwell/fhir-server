@@ -323,7 +323,7 @@ class PatchOperation {
             }
 
             // Check if any system or code in the meta.security array is null
-            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(
                     new Error(

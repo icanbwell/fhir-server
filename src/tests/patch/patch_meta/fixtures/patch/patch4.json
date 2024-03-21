@@ -1,0 +1,12 @@
+[
+    {
+        "op": "replace",
+        "path": "/meta/security",
+        "value": [
+            {
+                "code": "client",
+                "system": "null"
+            }
+        ]
+    }
+]

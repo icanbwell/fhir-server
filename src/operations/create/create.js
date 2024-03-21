@@ -20,7 +20,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
-const { ResourceMerger } = require('../common/resourceMerger');
 
 class CreateOperation {
     /**
@@ -36,7 +35,6 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
-     * @param {ResourceMerger} resourceMerger
      */
     constructor (
         {
@@ -50,8 +48,7 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            postSaveProcessor,
-            resourceMerger
+            postSaveProcessor
         }
     ) {
         /**
@@ -114,12 +111,6 @@ class CreateOperation {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
-
-        /**
-         * @type {ResourceMerger}
-         */
-        this.resourceMerger = resourceMerger;
-        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -254,7 +245,7 @@ class CreateOperation {
                 );
             }
             // Check if any system or code in the meta.security array is null
-            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(
                     new Error(

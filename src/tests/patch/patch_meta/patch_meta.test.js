@@ -4,6 +4,9 @@ const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activ
 const patch1 = require('./fixtures/patch/patch1.json');
 const patch2 = require('./fixtures/patch/patch2.json');
 const patch3 = require('./fixtures/patch/patch3.json');
+const patch4 = require('./fixtures/patch/patch4.json');
+const patch5 = require('./fixtures/patch/patch5.json');
+const patch6 = require('./fixtures/patch/patch6.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -51,7 +54,7 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
         });
-        test('create validation for multiple or no owner tags works', async () => {
+        test('patch validation for meta secuirty elements', async () => {
             const request = await createTestRequest();
 
             // Create the resource
@@ -93,6 +96,45 @@ describe('Put Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinition2Resources);
+
+            // Patch operation with 'null' in system
+            resp = await request
+                .patch('/4_0_0/ActivityDefinition/2')
+                .send(patch4)
+                .set(getHeadersJsonPatch());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Patch operation with empty string in system
+            resp = await request
+                .patch('/4_0_0/ActivityDefinition/2')
+                .send(patch5)
+                .set(getHeadersJsonPatch());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Patch operation with 'null' in code
+            resp = await request
+                .patch('/4_0_0/ActivityDefinition/2')
+                .send(patch6)
+                .set(getHeadersJsonPatch());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
         });
     });
 });
