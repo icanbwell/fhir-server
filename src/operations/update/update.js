@@ -350,6 +350,17 @@ class UpdateOperation {
                 );
             }
 
+            // Check if any system or code in the meta.security array is null
+            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource_incoming)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                    )
+                );
+            }
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {

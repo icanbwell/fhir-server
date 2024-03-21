@@ -11,6 +11,7 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { ResourceMerger } = require('../../common/resourceMerger');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -19,14 +20,16 @@ class MergeResourceValidator extends BaseValidator {
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
+     * @param {ResourceMerger} resourceMerger
      */
     constructor ({
-                    scopesManager,
-                    mergeManager,
-                    databaseBulkLoader,
-                    preSaveManager,
-                    configManager
-                }) {
+        scopesManager,
+        mergeManager,
+        databaseBulkLoader,
+        preSaveManager,
+        configManager,
+        resourceMerger
+    }) {
         super();
         /**
          * @type {ScopesManager}
@@ -57,6 +60,12 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -168,6 +177,17 @@ class MergeResourceValidator extends BaseValidator {
                         `Resource ${resource.resourceType}/${resource.id}` +
                         ' is having multiple security access tag with system: ' +
                         `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
+
+            // Check if any system or code in the meta.security array is null
+            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource.resourceType}/${resource.id}` +
+                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
                     )
                 );
             }

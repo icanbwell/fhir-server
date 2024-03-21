@@ -383,7 +383,8 @@ const createContainer = function () {
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    resourceMerger: c.resourceMerger
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,
@@ -505,7 +506,8 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                resourceMerger: c.resourceMerger
             }
         )
     );

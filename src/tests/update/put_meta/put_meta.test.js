@@ -3,6 +3,9 @@ const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
 const activitydefinition3Resource = require('./fixtures/ActivityDefinition/activitydefinition3.json');
 const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activitydefinition4.json');
+const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
+const activitydefinition6Resource = require('./fixtures/ActivityDefinition/activitydefinition6.json');
+const activitydefinition7Resource = require('./fixtures/ActivityDefinition/activitydefinition7.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -76,6 +79,45 @@ describe('Put Meta Tests', () => {
                 resp.body.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/2 is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
+
+            // Case when empty string provided in 'system'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'system'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition6Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'code'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition7Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
         });
     });

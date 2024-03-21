@@ -210,6 +210,20 @@ class ResourceMerger {
     }
 
     /**
+     * Returns true if any system or code in the meta.security array is 'null' or empty string
+     * @param {Resource|Object} resource
+     * @return {boolean}
+     */
+    hasInvalidSystemOrCodeInMetaSecurity (resource) {
+        return (
+            resource.meta?.security &&
+            resource.meta.security.some(
+                s => s.system?.toLowerCase() === 'null' || s.system === '' || s.code?.toLowerCase() === 'null'
+            )
+        );
+    }
+
+    /**
      * Compares objects provided and returns patch to convert first object to second
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}

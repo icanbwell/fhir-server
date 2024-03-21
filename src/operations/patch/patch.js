@@ -322,6 +322,17 @@ class PatchOperation {
                 );
             }
 
+            // Check if any system or code in the meta.security array is null
+            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource.resourceType}/${resource.id}` +
+                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                    )
+                );
+            }
+
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
                 this.resourceMerger.overWriteNonWritableFields({

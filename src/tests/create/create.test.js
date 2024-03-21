@@ -3,6 +3,9 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.json');
 const practitioner3Resource = require('./fixtures/Practitioner/practitioner3.json');
 const practitioner4Resource = require('./fixtures/Practitioner/practitioner4.json');
+const practitioner5Resource = require('./fixtures/Practitioner/practitioner5.json');
+const practitioner6Resource = require('./fixtures/Practitioner/practitioner6.json');
+const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.json');
 
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
@@ -110,7 +113,7 @@ describe('Practitioner Tests', () => {
                 'qualification.1.issuer.reference: Stanford_Medical_School is an invalid reference'
             );
         });
-        test('create validation for multiple or no owner tags works', async () => {
+        test('create validation for meta security elements', async () => {
             const request = await createTestRequest();
             // Case when multiple owner tags provided.
             let resp = await request
@@ -135,6 +138,45 @@ describe('Practitioner Tests', () => {
                 resp.body.issue[0].details.text
             ).toStrictEqual(
                 'Resource Practitioner is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
+
+            // Case when empty string provided in 'system'.
+            resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'system'.
+            resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner6Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'code'.
+            resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner7Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource Practitioner has null/empty value for \'system\' or \'code\' in security access tag.'
             );
         });
     });

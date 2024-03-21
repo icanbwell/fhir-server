@@ -1,0 +1,20 @@
+{
+  "approvalDate": "2022-09-12",
+  "id": "2",
+  "library": ["http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"],
+  "meta": {
+    "source": "client1",
+    "security": [
+      {
+        "code": "client1",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "null",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ]
+  },
+  "name": "TEST1",
+  "resourceType": "ActivityDefinition"
+}
