@@ -40,6 +40,7 @@
   }],
   "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/545110b2-d9af-4f15-b978-417ceb27db36",
   "status": "ready",
+  "intent": "plan",
   "code": {
     "coding": [{
       "system": "https://www.icanbwell.com/activityType",

@@ -24,6 +24,7 @@
     ]
   },
   "status": "draft",
+  "intent": "plan",
   "for": {
     "reference": "Patient/bwellFhirPatient1"
   }

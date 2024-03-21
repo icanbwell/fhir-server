@@ -145,6 +145,7 @@
           "reference": "Practitioner/1376656959"
         },
         "resourceType": "ExplanationOfBenefit",
+        "created": "2023-11-11",
         "status": "active",
         "type": {
           "coding": [

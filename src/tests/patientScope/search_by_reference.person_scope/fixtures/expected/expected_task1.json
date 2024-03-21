@@ -54,5 +54,6 @@
     "versionId": "1"
   },
   "resourceType": "Task",
+  "intent": "plan",
   "status": "draft"
 }

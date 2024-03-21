@@ -135,6 +135,7 @@
           "reference": "Organization/1407857790"
         },
         "resourceType": "ExplanationOfBenefit",
+        "created": "2023-11-11",
         "status": "active",
         "type": {
           "coding": [

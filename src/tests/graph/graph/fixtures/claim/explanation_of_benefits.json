@@ -32,6 +32,7 @@
             }
         ],
         "status": "active",
+        "created": "2023-11-11",
         "type": {
             "coding": [
                 {
@@ -94,6 +95,7 @@
                 "value": "230916613368"
             }
         ],
+        "created": "2023-11-11",
         "status": "active",
         "type": {
             "coding": [

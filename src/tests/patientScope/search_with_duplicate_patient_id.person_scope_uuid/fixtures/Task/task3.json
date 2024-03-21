@@ -23,6 +23,7 @@
       }
     ]
   },
+  "intent": "plan",
   "status": "draft",
   "for": {
     "reference": "Patient/mps-patient-1"
