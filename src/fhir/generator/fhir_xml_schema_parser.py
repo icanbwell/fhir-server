@@ -360,7 +360,7 @@ class FhirXmlSchemaParser:
                     if fhir_property.is_code:
                         has_code = True
 
-                    if not any([p for p in fhir_entity.properties_unique if p.type_ == fhir_property.type_]):
+                    if not any(p for p in fhir_entity.properties_unique if p.type_ == fhir_property.type_):
                         fhir_entity.properties_unique.append(fhir_property)
 
         return fhir_entities
