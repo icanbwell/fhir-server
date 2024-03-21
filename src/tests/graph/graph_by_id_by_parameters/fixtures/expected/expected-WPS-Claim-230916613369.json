@@ -93,7 +93,7 @@
           "source": "https://www.wpshealth.com/medical_claims",
           "versionId": "1"
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "patient": {
           "extension": [
             {
@@ -135,6 +135,7 @@
           "reference": "Organization/1407857790"
         },
         "resourceType": "ExplanationOfBenefit",
+        "created": "2023-11-11",
         "status": "active",
         "type": {
           "coding": [
@@ -145,7 +146,7 @@
           ],
           "text": "Claim Type"
         },
-        "use": "Claim"
+        "use": "claim"
       }
     }
   ],

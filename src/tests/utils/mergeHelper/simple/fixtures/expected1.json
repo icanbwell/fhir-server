@@ -445,7 +445,7 @@
         "source": "https://www.wpshealth.com/medical_claims",
         "versionId": "2"
     },
-    "outcome": "Complete",
+    "outcome": "complete",
     "patient": {
         "reference": "Patient/WPS-7426744142"
     },
@@ -777,5 +777,5 @@
         ],
         "text": "Claim Type"
     },
-    "use": "Claim"
+    "use": "claim"
 }

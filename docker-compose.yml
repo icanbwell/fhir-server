@@ -67,7 +67,7 @@ services:
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
-      VALIDATE_WITH_GENERATED_SCHEMA: 'MedicationStatement,MedicationRequest'
+      VALIDATE_WITH_GENERATED_SCHEMA: 'AuditEvent,CarePlan,DocumentReference,ExplanationOfBenefit,Group,MedicationRequest,MedicationStatement,Observation,Patient,Person,Practitioner,Procedure,Task,Encounter,Coverage'
 #      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
 #      MONGO_VECTORSTORE_USERNAME: ''
 #      MONGO_VECTORSTORE_PASSWORD: ''

@@ -362,6 +362,9 @@ class UpdateOperation {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
 
+                    // Update attachments after all validations
+                    doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             base_version,

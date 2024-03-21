@@ -41,6 +41,7 @@
     }
   ],
   "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/34ad8566-9e53-4d2e-9049-d0dd8c46e904",
+  "intent": "plan",
   "status": "ready",
   "code": {
     "coding": [

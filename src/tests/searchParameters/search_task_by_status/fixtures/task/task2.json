@@ -24,6 +24,7 @@
     }
   ],
   "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",
+  "intent": "plan",
   "status": "draft",
   "for": {
     "reference": "Patient/012ed963-6899-417f-895d-a561dc1eead4",

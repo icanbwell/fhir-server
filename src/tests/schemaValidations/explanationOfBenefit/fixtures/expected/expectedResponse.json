@@ -1,0 +1,148 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/ExplanationOfBenefit/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"claim\",\"preauthorization\",\"predetermination\"]}: at position .use"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"claim\",\"preauthorization\",\"predetermination\"]}: at position .use"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"queued\",\"complete\",\"error\",\"partial\"]}: at position .outcome"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "ExplanationOfBenefit",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "941f082a-39a9-5f55-9630-5839a010e1bc"
+  },
+  {
+    "created": false,
+    "id": "3",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'type' :{\"missingProperty\":\"type\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'use' :{\"missingProperty\":\"use\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'patient' :{\"missingProperty\":\"patient\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'created' :{\"missingProperty\":\"created\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'insurer' :{\"missingProperty\":\"insurer\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'provider' :{\"missingProperty\":\"provider\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'outcome' :{\"missingProperty\":\"outcome\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'insurance' :{\"missingProperty\":\"insurance\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should have required property 'sequence' :{\"missingProperty\":\"sequence\"}: at position .item[1].detail[0]"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/ExplanationOfBenefit/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "ExplanationOfBenefit",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "aef217d8-2f34-56f7-b748-b24a120b2654"
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "ExplanationOfBenefit",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  }
+]

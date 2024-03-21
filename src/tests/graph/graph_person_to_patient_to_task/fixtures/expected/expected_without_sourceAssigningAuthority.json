@@ -282,6 +282,7 @@
               "versionId": "1"
             },
             "resourceType": "Task",
+            "intent": "plan",
             "status": "ready"
           },
           {
@@ -344,6 +345,7 @@
               "versionId": "1"
             },
             "resourceType": "Task",
+            "intent": "plan",
             "status": "cancelled"
           },
           {
@@ -435,6 +437,7 @@
               "versionId": "1"
             },
             "resourceType": "Task",
+            "intent": "plan",
             "status": "ready"
           }
         ],

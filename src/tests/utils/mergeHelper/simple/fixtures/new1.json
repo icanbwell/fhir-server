@@ -38,7 +38,7 @@
         ],
         "text": "Claim Type"
     },
-    "use": "Claim",
+    "use": "claim",
     "patient": {
         "reference": "Patient/WPS-7426744142"
     },
@@ -65,7 +65,7 @@
             ]
         }
     },
-    "outcome": "Complete",
+    "outcome": "complete",
     "supportingInfo": [
         {
             "sequence": 1,

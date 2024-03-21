@@ -1,0 +1,51 @@
+[
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "Group",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  },
+  {
+    "created": false,
+    "id": "1",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Group/$merge should have required property 'type' :{\"missingProperty\":\"type\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Group/$merge should have required property 'type' :{\"missingProperty\":\"type\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Group/$merge should have required property 'actual' :{\"missingProperty\":\"actual\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Group/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Group",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  }
+]

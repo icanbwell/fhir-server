@@ -22,6 +22,7 @@
       }
     ],
     "status": "active",
+    "intent": "plan",
     "medicationCodeableConcept": {
       "coding": [
         {
@@ -84,6 +85,7 @@
         "value": "1235"
       }
     ],
+    "intent": "plan",
     "status": "active",
     "medicationCodeableConcept": {
       "coding": [
