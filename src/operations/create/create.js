@@ -20,6 +20,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { ResourceMerger } = require('../common/resourceMerger');
 
 class CreateOperation {
     /**
@@ -35,6 +36,7 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {ResourceMerger} resourceMerger
      */
     constructor (
         {
@@ -48,7 +50,8 @@ class CreateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            postSaveProcessor
+            postSaveProcessor,
+            resourceMerger
         }
     ) {
         /**
@@ -111,6 +114,12 @@ class CreateOperation {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -241,6 +250,15 @@ class CreateOperation {
                         `Resource ${resourceType}` +
                         ' is having multiple security access tag with system: ' +
                         `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
+            // Check if any system or code in the meta.security array is null
+            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceType} has null/empty value for 'system' or 'code' in security access tag.`
                     )
                 );
             }
