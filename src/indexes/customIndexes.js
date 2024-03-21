@@ -815,6 +815,14 @@ module.exports = {
                 options: {
                     name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
+            },
+            {
+                keys: {
+                    'link.other._uuid': 1
+                },
+                options: {
+                    name: 'link.other._uuid_1'
+                }
             }
         ],
         Person_4_0_0: [
