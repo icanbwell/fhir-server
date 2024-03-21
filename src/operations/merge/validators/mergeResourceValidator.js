@@ -11,7 +11,6 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const { ResourceMerger } = require('../../common/resourceMerger');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -20,15 +19,13 @@ class MergeResourceValidator extends BaseValidator {
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
-     * @param {ResourceMerger} resourceMerger
      */
     constructor ({
         scopesManager,
         mergeManager,
         databaseBulkLoader,
         preSaveManager,
-        configManager,
-        resourceMerger
+        configManager
     }) {
         super();
         /**
@@ -60,12 +57,6 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {ResourceMerger}
-         */
-        this.resourceMerger = resourceMerger;
-        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -182,7 +173,7 @@ class MergeResourceValidator extends BaseValidator {
             }
 
             // Check if any system or code in the meta.security array is null
-            if (this.resourceMerger.hasInvalidSystemOrCodeInMetaSecurity(resource)) {
+            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(
                     new Error(

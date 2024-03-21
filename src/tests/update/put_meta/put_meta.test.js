@@ -43,7 +43,7 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
         });
-        test('create validation for multiple or no owner tags works', async () => {
+        test('put validation for meta security elements', async () => {
             const request = await createTestRequest();
 
             // Create the resource

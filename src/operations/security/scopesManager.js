@@ -212,6 +212,20 @@ class ScopesManager {
     }
 
     /**
+     * Returns true if any system or code in the meta.security array is 'null' or empty string
+     * @param {Resource|Object} resource
+     * @return {boolean}
+     */
+    doesResourceHaveInvalidMetaSecurity (resource) {
+        return (
+            resource.meta?.security &&
+            resource.meta.security.some(
+                s => s.system?.toLowerCase() === 'null' || s.system === '' || s.code?.toLowerCase() === 'null'
+            )
+        );
+    }
+
+    /**
      * Gets admin scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}
