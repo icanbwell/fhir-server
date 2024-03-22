@@ -10,7 +10,7 @@ console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../createContainer');
 const { AdminLogger } = require('../adminLogger');
 const { CommandLineParser } = require('./commandLineParser');
-const { GetMasterPatientUsageDataRunner } = require('../runners/getMasterPatientUsageDataRunner');
+const { GetProxyPatientUsageDataRunner } = require('../runners/getProxyPatientUsageDataRunner');
 
 /**
  * main function
@@ -23,18 +23,18 @@ async function main () {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
-    const csvFileName = 'masterPatientUsage.csv';
+    const csvFileName = 'proxyPatientUsage.csv';
 
     const adminLogger = new AdminLogger();
 
     const currentDateTime = new Date();
-    adminLogger.logInfo(`[${currentDateTime}] Running getMasterPatientUsageDataRunner script`);
+    adminLogger.logInfo(`[${currentDateTime}] Running getProxyPatientUsageDataRunner script`);
 
     // set up all the standard services in the container
     const container = createContainer();
 
     // now add our class
-    container.register('getMasterPatientUsageDataRunner', (c) => new GetMasterPatientUsageDataRunner({
+    container.register('getProxyPatientUsageDataRunner', (c) => new GetProxyPatientUsageDataRunner({
         mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         adminLogger,
@@ -45,10 +45,10 @@ async function main () {
     }));
 
     /**
-     * @type {GetMasterPatientUsageDataRunner}
+     * @type {GetProxyPatientUsageDataRunner}
      */
-    const getMasterPatientUsageDataRunner = container.getMasterPatientUsageDataRunner;
-    await getMasterPatientUsageDataRunner.processAsync();
+    const getProxyPatientUsageDataRunner = container.getProxyPatientUsageDataRunner;
+    await getProxyPatientUsageDataRunner.processAsync();
 
     adminLogger.logInfo('Exiting process');
     process.exit(0);
@@ -57,11 +57,11 @@ async function main () {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/getMasterPatientUsageData.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --csvFileName masterPatientUsage.csv
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --collections Observation_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --batchSize 1000
+ * node src/admin/scripts/getProxyPatientUsageData.js
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --csvFileName proxyPatientUsage.csv
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --collections Observation_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --batchSize 1000
  */
 main().catch(reason => {
     console.error(reason);
