@@ -76,6 +76,7 @@ describe('ActivityDefinition Tests', () => {
                 .expect(200);
 
             activitydefinition1Resource.name = 'TEST1';
+            const security = activitydefinition1Resource.meta.security;
 
             activitydefinition1Resource.meta.security = activitydefinition1Resource.meta.security.filter(
                 s => s.system !== SecurityTagSystem.owner
@@ -85,9 +86,9 @@ describe('ActivityDefinition Tests', () => {
                 .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
                 .send(activitydefinition1Resource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp.body.issue[0].details.text).toMatch(/is missing a security access tag with system:/);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(security));
         });
 
         test('put_response works when multiple documents with same id are present when accessed from different scopes', async () => {

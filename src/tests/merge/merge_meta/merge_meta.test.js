@@ -9,6 +9,7 @@ const activitydefinition7Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition8Resource = require('./fixtures/ActivityDefinition/activitydefinition8.json');
 const activitydefinition9Resource = require('./fixtures/ActivityDefinition/activitydefinition9.json');
 const activitydefinition10Resource = require('./fixtures/ActivityDefinition/activitydefinition10.json');
+const activitydefinition11Resource = require('./fixtures/ActivityDefinition/activitydefinition11.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -187,6 +188,19 @@ describe('Merge Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false, updated: false });
+
+            // Create a resource with id as uuid with no owner tag
+            resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition11Resource)
+                .set(getHeaders())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(
+                resp.body.operationOutcome.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/d3a73c01-6cdc-5f21-8a98-73327acb6490 is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
 
             // Create a resource with id as uuid
             resp = await request

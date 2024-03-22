@@ -25,7 +25,7 @@ describe('Put Meta Tests', () => {
     });
 
     describe('Put meta update Tests', () => {
-        test('meta update doesn\'t work with different owner and sourceAssingingAuthority tags', async () => {
+        test('meta update doesn\'t work with different owner and sourceAssigningAuthority tags', async () => {
             const request = await createTestRequest();
             // Create the resource
             let resp = await request
@@ -57,31 +57,23 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Case when multiple owner tags provided.
+            // Case when multiple owner tags provided, owner tags not updated.
             resp = await request
                 .put('/4_0_0/ActivityDefinition/2')
                 .send(activitydefinition3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource ActivityDefinition/2 is having multiple security access tag with system: https://www.icanbwell.com/owner'
-            );
+            expect(resp).toHaveStatusCode(200);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(activitydefinition2Resource.meta.security));
 
-            // Case when no owner tag provided.
+            // Case when no owner tag provided, owner tags not updated.
             resp = await request
                 .put('/4_0_0/ActivityDefinition/2')
                 .send(activitydefinition4Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
-            expect(
-                resp.body.issue[0].details.text
-            ).toStrictEqual(
-                'Resource ActivityDefinition/2 is missing a security access tag with system: https://www.icanbwell.com/owner'
-            );
+            expect(resp).toHaveStatusCode(200);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(activitydefinition2Resource.meta.security));
 
             // Case when empty string provided in 'system'.
             resp = await request

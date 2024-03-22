@@ -212,26 +212,19 @@ class UpdateOperation {
         const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs._validate) {
-            // Truncate id to 64 so it passes the validator since we support more than 64 internally
-            resource_incoming_json.id = rawId.slice(0, 64);
             /**
              * @type {OperationOutcome|null}
              */
-            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
-                resource_incoming_json
-            );
-            if (!validationOperationOutcome) {
-                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming_json.id,
-                    resourceType,
-                    resourceToValidate: resource_incoming_json,
-                    path,
-                    currentDate,
-                    resourceObj: resource_incoming
-                });
-            }
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource_incoming_json.id,
+                resourceType,
+                resourceToValidate: resource_incoming_json,
+                path,
+                currentDate,
+                resourceObj: resource_incoming
+            });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 if (this.configManager.logValidationFailures) {
@@ -322,6 +315,12 @@ class UpdateOperation {
              */
             let foundResource;
 
+            /**
+             * @type {Resource}
+             */
+            let updatedResource;
+            let patches;
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
@@ -331,24 +330,32 @@ class UpdateOperation {
                     requestInfo, resource: foundResource, base_version
                 });
 
-                const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
+                ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
                     databaseAttachmentManager: this.databaseAttachmentManager
-                });
+                }));
                 doc = updatedResource;
-                if (doc) { // if there is a change
-                    // Check if meta & meta.source exists in updated resource
-                    if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
-                        throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
-                    }
-
-                    // Update attachments after all validations
-                    doc = await this.databaseAttachmentManager.transformAttachments(doc);
-
+            } else {
+                doc = resource_incoming
+            }
+            if (doc) {
+                // Validating resource meta tags
+                /**
+                 * @type {OperationOutcome|null}
+                 */
+                const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                    doc
+                );
+                if (validationOperationOutcome) {
+                    throw new NotValidatedError(validationOperationOutcome);
+                }
+                // Update attachments after all validations
+                doc = await this.databaseAttachmentManager.transformAttachments(doc);
+                if (data && data.meta) {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             base_version,
@@ -359,24 +366,15 @@ class UpdateOperation {
                             patches
                         }
                     );
+                } else {
+                    // not found so insert
+                    doc.meta.versionId = '1';
+                    doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                    await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                        resource: doc, requestInfo, base_version
+                    });
+                    await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
                 }
-            } else {
-                // not found so insert
-                // Check if meta & meta.source exists in incoming resource
-                if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
-                    throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
-                }
-                resource_incoming.meta.versionId = '1';
-                resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-
-                await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                    resource: resource_incoming, requestInfo, base_version
-                });
-
-                // changing the attachment.data to attachment._file_id from request
-                doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
-
-                await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
             }
 
             if (doc) {

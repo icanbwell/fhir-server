@@ -6,6 +6,7 @@ const patch2 = require('./fixtures/patch/patch2.json');
 const patch3 = require('./fixtures/patch/patch3.json');
 const patch4 = require('./fixtures/patch/patch4.json');
 const patch5 = require('./fixtures/patch/patch5.json');
+const patch6 = require('./fixtures/patch/patch6.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -112,6 +113,15 @@ describe('Put Meta Tests', () => {
             ).toStrictEqual(
                 'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
             );
+
+            // On adding more owner tags, they should not be added
+            resp = await request
+                .patch('/4_0_0/ActivityDefinition/2')
+                .send(patch6)
+                .set(getHeadersJsonPatch())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(expectedActivityDefinition2Resources.meta.security));
         });
     });
 });
