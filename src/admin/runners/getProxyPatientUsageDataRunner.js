@@ -10,7 +10,7 @@ class GetProxyPatientUsageDataRunner extends GetMasterPatientUsageDataRunner {
     }
 
     /**
-     * Checks if the reference has masterPatient uuid
+     * Checks if the reference has proxyPatient reference
      * @typedef {Object} HasUsageProps
      * @property {import('../../fhir/classes/4_0_0/complex_types/reference')} reference
      *
