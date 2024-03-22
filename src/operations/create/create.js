@@ -7,14 +7,12 @@ const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -26,7 +24,6 @@ class CreateOperation {
      * constructor
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
@@ -40,7 +37,6 @@ class CreateOperation {
         {
             auditLogger,
             postRequestProcessor,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
@@ -61,11 +57,6 @@ class CreateOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -189,8 +180,11 @@ class CreateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
-                {
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
                     id: resource_incoming.id,
@@ -200,6 +194,7 @@ class CreateOperation {
                     currentDate,
                     resourceObj: resource
                 });
+            }
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 // noinspection JSValidateTypes
@@ -222,21 +217,6 @@ class CreateOperation {
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
         try {
-            // Check owner tag is present inside the resource.
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resourceType}` +
-                        ' is missing a security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-            // Check if meta & meta.source exists in resource
-            if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
-                throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
-            }
             resource.meta.versionId = '1';
             // noinspection JSValidateTypes,SpellCheckingInspection
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));

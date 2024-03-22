@@ -1,8 +1,6 @@
 const carePlanBundleResource = require('./fixtures/carePlans.json');
 const expectedCarePlanBundleResource = require('./fixtures/expected_carePlans.json');
 
-const patientBundleResource = require('./fixtures/patients.json');
-
 const observationResource = require('./fixtures/observation.json');
 
 const fs = require('fs');
@@ -39,15 +37,6 @@ describe('GraphQL CarePlan Tests', () => {
             logInfo('', { resp: resp.body });
             logInfo('------- end response 1 ------------');
 
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge')
-                .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(400);
-
-            logInfo('------- response 2 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 2  ------------');
             resp = await request
                 .post('/4_0_0/CarePlan/1/$merge')
                 .send(carePlanBundleResource)

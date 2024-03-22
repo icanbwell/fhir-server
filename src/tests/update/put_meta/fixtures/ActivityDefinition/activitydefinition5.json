@@ -1,0 +1,19 @@
+{
+  "approvalDate": "2022-09-12",
+  "id": "2",
+  "meta": {
+    "source": "client1",
+    "security": [
+      {
+        "code": "client1",
+        "system": ""
+      },
+      {
+        "code": "client1",
+        "system": "https://www.icanbwell.com/owner"
+      }
+    ]
+  },
+  "name": "TEST1",
+  "resourceType": "ActivityDefinition"
+}

@@ -283,35 +283,35 @@ class PatchOperation {
              */
             let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-            /**
-             * Validate merged resource with fhir schema
-             * @type {OperationOutcome|null}
-             */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id: resource.id,
-                resourceType: resource.resourceType,
-                resourceToValidate: resource,
-                path,
-                currentDate,
-                resourceObj: resource
-            });
-
-            if (validationOperationOutcome) {
-                throw new NotValidatedError(validationOperationOutcome);
-            }
-
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
                 this.resourceMerger.overWriteNonWritableFields({
                     currentResource: foundResource, resourceToMerge: resource
                 });
-            } else {
-                throw new BadRequestError(new Error(
-                    'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
-                ));
             }
+
+            /**
+             * @type {OperationOutcome|null}
+             */
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
+                    id: resource.id,
+                    resourceType: resource.resourceType,
+                    resourceToValidate: resource,
+                    path,
+                    currentDate,
+                    resourceObj: resource
+                });
+            }
+            if (validationOperationOutcome) {
+                throw new NotValidatedError(validationOperationOutcome);
+            }
+
             const appliedPatchContent = this.resourceMerger.compareObjects({
                 currentObject: foundResource.toJSON(),
                 mergedObject: resource.toJSON()

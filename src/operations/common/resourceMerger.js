@@ -101,8 +101,17 @@ class ResourceMerger {
         } else if (!resourceToMerge.meta.security.some(s => s.system === system)) {
             resourceToMerge.meta.security.push(currentValue);
         } else {
+            let currentValueInserted = false;
             resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
-                security.push(s.system === system ? currentValue : s);
+                if (s.system === system) {
+                    // Added check to make sure duplicate security elements are not inserted in resource.
+                    if (!currentValueInserted) {
+                        security.push(currentValue);
+                        currentValueInserted = true;
+                    }
+                } else {
+                    security.push(s);
+                }
                 return security;
             }, []);
         }

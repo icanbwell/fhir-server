@@ -195,20 +195,23 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             /**
-             * Validate merged resource with fhir schema
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id: patched_resource_incoming.id,
-                resourceType: patched_resource_incoming.resourceType,
-                resourceToValidate: patched_resource_incoming,
-                path: requestInfo.path,
-                currentDate,
-                resourceObj: patched_resource_incoming
-            });
-
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                patched_resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
+                    id: patched_resource_incoming.id,
+                    resourceType: patched_resource_incoming.resourceType,
+                    resourceToValidate: patched_resource_incoming,
+                    path: requestInfo.path,
+                    currentDate,
+                    resourceObj: patched_resource_incoming
+                });
+            }
             if (validationOperationOutcome) {
                 return validationOperationOutcome;
             }

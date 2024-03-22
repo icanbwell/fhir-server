@@ -8,7 +8,7 @@ const {
     createTestRequest
 } = require('../../common');
 
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Invalid Resource Tests', () => {
     beforeEach(async () => {
@@ -23,11 +23,16 @@ describe('Invalid Resource Tests', () => {
         test('Merge throws 400 status code', async () => {
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
-            await request
+            const resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(invalidResource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(200);
+            expect(
+                resp.body.operationOutcome.issue[0].details.text
+            ).toStrictEqual(
+                'Unable to create/update resource. Missing either metadata or metadata source.'
+            );
         });
     });
 });

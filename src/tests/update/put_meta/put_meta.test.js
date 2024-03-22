@@ -1,6 +1,13 @@
 // test file
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition1.json');
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
+const activitydefinition3Resource = require('./fixtures/ActivityDefinition/activitydefinition3.json');
+const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activitydefinition4.json');
+const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
+const activitydefinition6Resource = require('./fixtures/ActivityDefinition/activitydefinition6.json');
+const activitydefinition7Resource = require('./fixtures/ActivityDefinition/activitydefinition7.json');
+const activitydefinition8Resource = require('./fixtures/ActivityDefinition/activitydefinition8.json');
+const activitydefinition9Resource = require('./fixtures/ActivityDefinition/activitydefinition9.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -18,7 +25,7 @@ describe('Put Meta Tests', () => {
     });
 
     describe('Put meta update Tests', () => {
-        test('meta update doesn\'t work with different owner and sourceAssingingAuthority tags', async () => {
+        test('meta update doesn\'t work with different owner and sourceAssigningAuthority tags', async () => {
             const request = await createTestRequest();
             // Create the resource
             let resp = await request
@@ -37,6 +44,101 @@ describe('Put Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
+        });
+        test('put validation for meta security elements', async () => {
+            const request = await createTestRequest();
+
+            // Create the resource
+            let resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition2Resource)
+                .set(getHeaders())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Case when multiple owner tags provided, owner tags not updated.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(activitydefinition2Resource.meta.security));
+
+            // Case when no owner tag provided, owner tags not updated.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition4Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(activitydefinition2Resource.meta.security));
+
+            // Case when empty string provided in 'system'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'system'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition6Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Case when 'null' is provided in 'code'.
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/2')
+                .send(activitydefinition7Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Creating resource having multiple owner tags using put request
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/5')
+                .send(activitydefinition8Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/5 is having multiple security access tag with system: https://www.icanbwell.com/owner'
+            );
+
+            // Creating resource having no owner tag using put request
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/5')
+                .send(activitydefinition9Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/5 is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
         });
     });
 });
