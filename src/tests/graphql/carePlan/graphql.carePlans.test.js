@@ -43,7 +43,13 @@ describe('GraphQL CarePlan Tests', () => {
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(
+                resp.body.operationOutcome.issue[0].details.text
+            ).toStrictEqual(
+                'Resource Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b is missing a security access tag with system: https://www.icanbwell.com/owner'
+            );
 
             logInfo('------- response 2 ------------');
             logInfo('', { resp: resp.body });

@@ -5,6 +5,7 @@ const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { MergeManager } = require('../mergeManager');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const { ResourceValidator } = require('../../common/resourceValidator');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
@@ -15,12 +16,14 @@ class MergeResourceValidator extends BaseValidator {
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
+     * @param {ResourceValidator} resourceValidator
      */
     constructor ({
         mergeManager,
         databaseBulkLoader,
         preSaveManager,
-        configManager
+        configManager,
+        resourceValidator
     }) {
         super();
 
@@ -47,6 +50,12 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -72,7 +81,7 @@ class MergeResourceValidator extends BaseValidator {
             return resource;
         });
 
-        const {
+        let {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
@@ -121,8 +130,43 @@ class MergeResourceValidator extends BaseValidator {
             }
         );
 
+        validResources = [];
+        for (const /** @type {Resource} */ resource of resourcesIncomingArray) {
+            const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
+                requestId: requestInfo.requestId,
+                resourceType: resource.resourceType,
+                uuid: resource._uuid
+            });
+            if (!foundResource) {
+                const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                    resource
+                );
+                if (validationOperationOutcome) {
+                    const issue = (
+                        validationOperationOutcome.issue &&
+                        validationOperationOutcome.issue.length > 0
+                    ) ? validationOperationOutcome.issue[0] : null;
+                    mergePreCheckErrors.push(new MergeResultEntry(
+                        {
+                            id: resource.id,
+                            uuid: resource._uuid,
+                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            created: false,
+                            updated: false,
+                            issue,
+                            operationOutcome: validationOperationOutcome,
+                            resourceType: resource.resourceType
+                        }
+                    ));
+                } else {
+                    validResources.push(resource);
+                }
+            } else {
+                validResources.push(resource);
+            }
+        };
         return {
-            preCheckErrors: mergePreCheckErrors, validatedObjects: resourcesIncomingArray, wasAList: wasIncomingAList
+            preCheckErrors: mergePreCheckErrors, validatedObjects: validResources, wasAList: wasIncomingAList
         };
     }
 }

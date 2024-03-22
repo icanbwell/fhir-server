@@ -102,71 +102,6 @@ class ResourceValidator {
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
-        if (resourceType !== 'GraphDefinition') {
-            // Check if meta & meta.source exists in resource
-            if (this.configManager.requireMetaSourceTags && (!resourceToValidateJson.meta || !resourceToValidateJson.meta.source)) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'invalid',
-                            details: new CodeableConcept({
-                                text: 'Unable to create/update resource. Missing either metadata or metadata source.'
-                            })
-                        })
-                    ]
-                });
-            }
-
-            // Check owner tag is present inside the resource.
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidateJson)) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'invalid',
-                            details: new CodeableConcept({
-                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                    ' is missing a security access tag with system: ' +
-                                    `${SecurityTagSystem.owner}`
-                            })
-                        })
-                    ]
-                });
-            }
-
-            // Check if multiple owner tags are present inside the resource.
-            if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resourceToValidateJson)) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'invalid',
-                            details: new CodeableConcept({
-                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                    ' is having multiple security access tag with system: ' +
-                                    `${SecurityTagSystem.owner}`
-                            })
-                        })
-                    ]
-                });
-            }
-            // Check if any system or code in the meta.security array is null
-            if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resourceToValidateJson)) {
-                return new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'invalid',
-                            details: new CodeableConcept({
-                                text: `Resource ${resourceToValidateJson.resourceType}/${resourceToValidateJson.id}` +
-                                    ' has null/empty value for \'system\' or \'code\' in security access tag.'
-                            })
-                        })
-                    ]
-                });
-            }
-        }
 
         // Convert date fields to string for validation
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
@@ -229,6 +164,77 @@ class ResourceValidator {
             return validationOperationOutcome;
         }
         return null;
+    }
+
+    /**
+     * Validate meta of a resource
+     * @param {Object|Resource} resource
+     * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
+     */
+    validateResourceMetaSync (resource) {
+        // Check if meta & meta.source exists in resource
+        if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check owner tag is present inside the resource.
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check if multiple owner tags are present inside the resource.
+        if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' is having multiple security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+        // Check if any system or code in the meta.security array is null
+        if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                        })
+                    })
+                ]
+            });
+        }
     }
 
     /**

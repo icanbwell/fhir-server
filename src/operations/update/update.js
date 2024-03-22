@@ -217,8 +217,11 @@ class UpdateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
-                {
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming_json
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
                     id: resource_incoming_json.id,
@@ -228,6 +231,7 @@ class UpdateOperation {
                     currentDate,
                     resourceObj: resource_incoming
                 });
+            }
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 if (this.configManager.logValidationFailures) {

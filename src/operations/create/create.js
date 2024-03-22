@@ -180,8 +180,11 @@ class CreateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
-                {
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
                     id: resource_incoming.id,
@@ -191,6 +194,7 @@ class CreateOperation {
                     currentDate,
                     resourceObj: resource
                 });
+            }
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 // noinspection JSValidateTypes

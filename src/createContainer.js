@@ -383,7 +383,8 @@ const createContainer = function () {
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    resourceValidator: c.resourceValidator
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,

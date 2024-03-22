@@ -291,20 +291,23 @@ class PatchOperation {
             }
 
             /**
-             * Validate merged resource with fhir schema
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id: resource.id,
-                resourceType: resource.resourceType,
-                resourceToValidate: resource,
-                path,
-                currentDate,
-                resourceObj: resource
-            });
-
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
+                    id: resource.id,
+                    resourceType: resource.resourceType,
+                    resourceToValidate: resource,
+                    path,
+                    currentDate,
+                    resourceObj: resource
+                });
+            }
             if (validationOperationOutcome) {
                 throw new NotValidatedError(validationOperationOutcome);
             }
