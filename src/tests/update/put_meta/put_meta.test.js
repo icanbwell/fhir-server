@@ -6,6 +6,8 @@ const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
 const activitydefinition6Resource = require('./fixtures/ActivityDefinition/activitydefinition6.json');
 const activitydefinition7Resource = require('./fixtures/ActivityDefinition/activitydefinition7.json');
+const activitydefinition8Resource = require('./fixtures/ActivityDefinition/activitydefinition8.json');
+const activitydefinition9Resource = require('./fixtures/ActivityDefinition/activitydefinition9.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -118,6 +120,32 @@ describe('Put Meta Tests', () => {
                 resp.body.issue[0].details.text
             ).toStrictEqual(
                 'Resource ActivityDefinition/2 has null/empty value for \'system\' or \'code\' in security access tag.'
+            );
+
+            // Creating resource having multiple owner tags using put request
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/5')
+                .send(activitydefinition8Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/5 is having multiple security access tag with system: https://www.icanbwell.com/owner'
+            );
+
+            // Creating resource having no owner tag using put request
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/5')
+                .send(activitydefinition9Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'Resource ActivityDefinition/5 is missing a security access tag with system: https://www.icanbwell.com/owner'
             );
         });
     });
