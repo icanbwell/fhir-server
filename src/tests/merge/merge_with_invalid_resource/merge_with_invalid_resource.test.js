@@ -31,7 +31,7 @@ describe('Invalid Resource Tests', () => {
             expect(
                 resp.body.operationOutcome.issue[0].details.text
             ).toStrictEqual(
-                'Unable to merge resource. Missing either metadata or metadata source.'
+                'Unable to create/update resource. Missing either metadata or metadata source.'
             );
         });
     });
