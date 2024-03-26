@@ -59,6 +59,9 @@ class FixCompositionRunner extends BaseBulkOperationRunner {
         }
         try {
             const historyResource = await this.getRecentHistory(resource._uuid, resource.resourceType);
+            if (!historyResource) {
+                return resource;
+            }
             // Update first coding array element in every section
             resource.section = resource.section.map((section) => {
                 const historySection = historyResource.section?.find(s => (
