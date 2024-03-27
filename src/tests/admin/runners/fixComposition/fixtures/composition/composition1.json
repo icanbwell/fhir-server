@@ -1,0 +1,149 @@
+{
+  "resourceType": "Composition",
+  "id": "1",
+  "meta": {
+    "source": "https://www.icanbwell.com/intelligence-layer-pipeline",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      }
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "Encounter Summary Grouped by Encounter Class and Type"
+  },
+  "identifier": {
+    "system": "https://www.icanbwell.com/intelligence-layer-pipeline/version",
+    "value": "1.0"
+  },
+  "status": "preliminary",
+  "type": {
+    "coding": [
+      {
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+        "code": "encounter_summary_document",
+        "display": "b.Well Encounter Summary Composition Document"
+      },
+      {
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+        "code": "encounter_group_class_and_type",
+        "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
+      },
+      {
+        "system": "https://hl7.org/fhir/allergyintolerance",
+        "code": "Encounter",
+        "display": "FHIR resource type"
+      }
+    ],
+    "text": "Encounter Summary Composition Document"
+  },
+  "subject": {
+    "reference": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0",
+    "type": "Patient"
+  },
+  "date": "2024-03-14T16:52:11Z",
+  "author": [
+    {
+      "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+      "type": "Organization",
+      "display": "bwell Connected Health"
+    }
+  ],
+  "title": "Encounter Summary Grouped by Encounter Class and Type",
+  "section": [
+    {
+      "id": "770500bd-1eb1-55a9-874c-b96abb5dd97c",
+      "title": "Hov - outpatient",
+      "code": {
+        "coding": [
+          {
+            "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
+            "code": "4",
+            "display": "HOV"
+          },
+          {
+            "system": "urn:oid:1.2.840.114350.1.13.300.2.7.10.698084.10110",
+            "code": "102",
+            "display": "Outpatient"
+          }
+        ]
+      },
+      "mode": "working",
+      "orderedBy": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/list-order",
+            "code": "event-date",
+            "display": "Sorted by Event Date"
+          }
+        ],
+        "text": "Sorted by period.start DESC"
+      },
+      "entry": [
+        {
+          "id": "cfc6ef87-c267-5d61-9d3f-8f55366dfe63",
+          "reference": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec",
+          "type": "Encounter"
+        }
+      ],
+      "section": [
+        {
+          "id": "f69bf24e-c309-5bef-b1db-91731b0bd74d",
+          "title": "Visit Name",
+          "text": {
+            "status": "generated",
+            "div": "Hov - outpatient"
+          }
+        }
+      ]
+    },
+    {
+      "id": "377beddd-028f-529e-922d-9c797efe4f06",
+      "title": "Appointment - office visit",
+      "code": {
+        "coding": [
+          {
+            "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
+            "code": "5",
+            "display": "Appointment"
+          },
+          {
+            "system": "1.2.840.114350.1.13.300.2.7.10.698084.30",
+            "code": "101",
+            "display": "Office Visit"
+          }
+        ]
+      },
+      "mode": "working",
+      "orderedBy": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/list-order",
+            "code": "event-date",
+            "display": "Sorted by Event Date"
+          }
+        ],
+        "text": "Sorted by period.start DESC"
+      },
+      "entry": [
+        {
+          "id": "6809677f-79aa-55f3-8faa-4601958c7c7b",
+          "reference": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961",
+          "type": "Encounter"
+        }
+      ],
+      "section": [
+        {
+          "id": "5247d36c-1450-5d0e-9c5c-222d36e43f4b",
+          "title": "Visit Name",
+          "text": {
+            "status": "generated",
+            "div": "Appointment - office visit"
+          }
+        }
+      ]
+    }
+  ]
+}
