@@ -144,6 +144,11 @@ class SearchByIdOperation {
             accessRequested: 'read'
         });
 
+        // check if required filters for AuditEvent are passed
+        if (resourceType === 'AuditEvent') {
+            this.searchManager.validateAuditEventQueryParameters(parsedArgs);
+        }
+
         try {
             // Common search params
             const { id, base_version } = parsedArgs;

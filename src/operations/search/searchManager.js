@@ -1148,18 +1148,22 @@ class SearchManager {
      * @param {string[]|null} requiredFiltersForAuditEvent
      */
     auditEventValidateRequiredFilters (parsedArgs, requiredFiltersForAuditEvent) {
-        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-            if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
-                const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
-                throw new BadRequestError(
-                    {
-                        message,
-                        toString: function () {
-                            return message;
-                        }
-                    }
-                );
-            }
+        const missingFilters = requiredFiltersForAuditEvent.filter(filter => !parsedArgs[filter]);
+        if (missingFilters.length > 0) {
+            const missingFilterExamples = missingFilters.map(filter => {
+                if (filter === 'date') {
+                    return '?date=ge2024-01-01&date=le2024-01-07';
+                }
+                return null;
+            }).filter(example => example !== null);
+            const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] is required to ` +
+                `query AuditEvent. Example: ${missingFilterExamples.join(', ')}`;
+            throw new BadRequestError({
+                message,
+                toString: function () {
+                    return message;
+                }
+            });
         }
     }
 
