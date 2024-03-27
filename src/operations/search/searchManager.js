@@ -1152,10 +1152,7 @@ class SearchManager {
         if (missingFilters.length > 0) {
             const missingFilterExamples = missingFilters.map(filter => {
                 if (filter === 'date') {
-                    // Construct example date filter query string with 7-day window from current date
-                    const startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-                    const endDate = moment().format('YYYY-MM-DD');
-                    return `?date=ge${startDate}&date=le${endDate}`;
+                    return '?date=ge2024-01-01&date=le2024-01-07';
                 }
                 return null;
             }).filter(example => example !== null);
