@@ -1148,8 +1148,8 @@ class SearchManager {
      * @param {string[]|null} requiredFiltersForAuditEvent
      */
     auditEventValidateRequiredFilters (parsedArgs, requiredFiltersForAuditEvent) {
-        const missingFilters = requiredFiltersForAuditEvent.filter(filter => !parsedArgs[filter]);
-        if (missingFilters.length > 0) {
+        const missingFilters = requiredFiltersForAuditEvent?.filter(filter => !parsedArgs[filter]);
+        if (missingFilters?.length > 0) {
             const missingFilterExamples = missingFilters.map(filter => {
                 if (filter === 'date') {
                     return '?date=ge2024-01-01&date=le2024-01-07';
