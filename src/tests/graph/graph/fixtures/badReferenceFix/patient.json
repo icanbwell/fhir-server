@@ -1,0 +1,80 @@
+{
+	"resourceType" : "Patient",
+	"id" : "f24f4aef-08a9-41c1-8280-b85d12049ab2",
+	"meta" : {
+		"versionId" : "1",
+		"source" : "https://api.humanapi.co/v1/human/medical/profile",
+		"security" : [
+			{
+				"id" : "owner",
+				"system" : "https://www.icanbwell.com/owner",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/access",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/vendor",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/sourceAssigningAuthority",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/connectionType",
+				"code" : "humanapi"
+			}
+		]
+	},
+	"identifier" : [
+		{
+			"id" : "sourceId",
+			"system" : "https://www.icanbwell.com/sourceId",
+			"value" : "f24f4aef-08a9-41c1-8280-b85d12049ab2"
+		},
+		{
+			"id" : "uuid",
+			"system" : "https://www.icanbwell.com/uuid",
+			"value" : "f24f4aef-08a9-41c1-8280-b85d12049ab2"
+		}
+	],
+	"name" : [
+		{
+			"family" : "Smith",
+			"given" : [ "Bob"]
+		}
+	],
+	"gender" : "male",
+	"birthDate" : "1965-11-11",
+	"address" : [
+		{
+			"id" : "demographics.homeAddress",
+			"line" : [ "505 CHICAGO ST" ],
+			"city" : "BLOOMINGTON",
+			"state" : "MN",
+			"postalCode" : "55438"
+		}
+	],
+	"communication" : [
+		{
+			"language" : {
+				"coding" : [
+					{
+						"id" : "demographics.language",
+						"system" : "urn:ietf:bcp:47",
+						"display" : "eng"
+					}
+				]
+			},
+			"preferred" : true
+		}
+	],
+	"_access" : {
+		"humanapi" : 1
+	},
+	"_sourceAssigningAuthority" : "humanapi",
+	"_uuid" : "f24f4aef-08a9-41c1-8280-b85d12049ab2",
+	"_sourceId" : "f24f4aef-08a9-41c1-8280-b85d12049ab2"
+}
