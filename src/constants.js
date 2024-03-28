@@ -28,6 +28,7 @@ module.exports = {
         CHARGEITEMDEFINITION: 'ChargeItemDefinition',
         CLAIM: 'Claim',
         CLAIMRESPONSE: 'ClaimResponse',
+        CLIENT: 'Client',
         CLINICALIMPRESSION: 'ClinicalImpression',
         CODESYSTEM: 'CodeSystem',
         COMMUNICATION: 'Communication',
@@ -138,6 +139,8 @@ module.exports = {
         STRUCTUREDEFINITION: 'StructureDefinition',
         STRUCTUREMAP: 'StructureMap',
         SUBSCRIPTION: 'Subscription',
+        SUBSCRIPTIONSTATUS: 'SubscriptionStatus',
+        SUBSCRIPTIONTOPIC: 'SubscriptionTopic',
         SUBSTANCE: 'Substance',
         SUBSTANCENUCLEICACID: 'SubstanceNucleicAcid',
         SUBSTANCEPOLYMER: 'SubstancePolymer',
@@ -153,8 +156,7 @@ module.exports = {
         TESTSCRIPT: 'TestScript',
         VALUESET: 'ValueSet',
         VERIFICATIONRESULT: 'VerificationResult',
-        VISIONPRESCRIPTION: 'VisionPrescription',
-        CLIENT: 'Client'
+        VISIONPRESCRIPTION: 'VisionPrescription'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',

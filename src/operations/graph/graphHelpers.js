@@ -36,6 +36,7 @@ const { sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { isValidResource } = require('../../utils/validResourceCheck');
 
 /**
  * This class helps with creating graph responses
@@ -254,7 +255,7 @@ class GraphHelper {
                                         supportLegacyId = true
                                     }) {
         try {
-            if (!parentEntities || parentEntities.length === 0) {
+            if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
                 return; // nothing to do
             }
 
@@ -498,6 +499,10 @@ class GraphHelper {
         try {
             if (!(reverse_filter)) {
                 throw new Error('reverse_filter must be set');
+            }
+            // Case when invalid relatedResourceType is passed.
+            if (!isValidResource(relatedResourceType)) {
+                return; // nothing to do
             }
 
             /**
