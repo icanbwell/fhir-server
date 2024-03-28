@@ -8,13 +8,16 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getTestContainer
+    getTestContainer,
+    mockHttpContext
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('No invalid collections made through Graph endpoint Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -51,12 +54,17 @@ describe('No invalid collections made through Graph endpoint Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // Check that after the above requests, only person & person history collection is made in db.
             collections = await db.listCollections().toArray();
             const collectionNames = collections.map(collection => collection.name);
             expect(collectionNames).toEqual(expect.arrayContaining([
-                'Person_4_0_0', 'ExplanationOfBenefit_4_0_0', 'ExplanationOfBenefit_4_0_0_History',
+                'Person_4_0_0', 'ExplanationOfBenefit_4_0_0',
                 'Organization_4_0_0', 'Patient_4_0_0'
             ]));
         });

@@ -350,5 +350,49 @@ describe('Person Tests', () => {
                 delete r.id;
             });
         });
+        test('No invalid collections should be made through merge operation', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo fhirDb connection
+             * @type {import('mongodb').Db}
+             */
+            const db = await mongoDatabaseManager.getClientDbAsync();
+            let collections = await db.listCollections().toArray();
+            // Check that initially there are no collections in db.
+            expect(collections.length).toEqual(0);
+
+            // Create a valid resource with merge
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Create invalid resource with merge
+            resp = await request
+                .post('/4_0_0/XYZ/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // Check that after the above requests, only valid collections are made in db.
+            collections = await db.listCollections().toArray();
+            const collectionNames = collections.map(collection => collection.name);
+            expect(collectionNames).toEqual(expect.arrayContaining([
+                'Person_4_0_0', 'Person_4_0_0_History'
+            ]));
+        });
     });
 });

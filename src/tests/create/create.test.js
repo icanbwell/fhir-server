@@ -6,6 +6,7 @@ const practitioner4Resource = require('./fixtures/Practitioner/practitioner4.jso
 const practitioner5Resource = require('./fixtures/Practitioner/practitioner5.json');
 const practitioner6Resource = require('./fixtures/Practitioner/practitioner6.json');
 const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.json');
+const practitioner8Resource = require('./fixtures/Practitioner/practitioner8.json');
 
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
@@ -15,15 +16,19 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest,
+    getTestContainer,
+    mockHttpContext
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -159,6 +164,50 @@ describe('Practitioner Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
             expect(resp.body.issue[0].details.text).toMatch(/has null\/empty value for 'system' or 'code' in security access tag\./);
+        });
+        test('No invalid collections should be made through create operation', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo fhirDb connection
+             * @type {import('mongodb').Db}
+             */
+            const db = await mongoDatabaseManager.getClientDbAsync();
+            let collections = await db.listCollections().toArray();
+            // Check that initially there are no collections in db.
+            expect(collections.length).toEqual(0);
+
+            // Create api hit with valid resource
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner8Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
+
+            // Create api hit with invalid resource
+            resp = await request
+                .post('/4_0_0/XYZ/')
+                .send(practitioner8Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // Check that after the above requests, only valid collections are made in db.
+            collections = await db.listCollections().toArray();
+            const collectionNames = collections.map(collection => collection.name);
+            expect(collectionNames).toEqual(expect.arrayContaining([
+                'Practitioner_4_0_0', 'Practitioner_4_0_0_History'
+            ]));
         });
     });
 });
