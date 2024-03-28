@@ -6,9 +6,7 @@ const { COLLECTION } = require('../constants');
  * @returns {boolean}
  */
 function isValidResource (collectionName) {
-    return Object.keys(
-        COLLECTION).some(key => COLLECTION[key].toLowerCase() === collectionName.toLowerCase()
-    );
+    return Object.values(COLLECTION).some(value => value === collectionName);
 }
 
 module.exports = {
