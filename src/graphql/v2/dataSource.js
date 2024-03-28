@@ -7,6 +7,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { R4ArgsParser } = require('../../operations/query/r4ArgsParser');
 const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
 const { ResourceWithId } = require('./resourceWithId');
+const { isValidResource } = require('../../utils/validResourceCheck');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -240,6 +241,10 @@ class FhirDataSource {
             /** @type {string} **/
             id
         } = referenceObj;
+        // Case when invalid resourceType is passed.
+        if (!isValidResource(resourceType)) {
+            return null;
+        }
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
