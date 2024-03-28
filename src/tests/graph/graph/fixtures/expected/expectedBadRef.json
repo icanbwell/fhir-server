@@ -1,0 +1,332 @@
+{
+    "entry": [
+        {
+            "id": "222a029a-ff26-4b16-b36c-1b6375deb433",
+            "resource": {
+                "resourceType": "Person",
+                "id": "222a029a-ff26-4b16-b36c-1b6375deb433",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-03-27T18:06:14.000Z",
+                    "source": "https://www.icanbwell.com/enterprise-person-service",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bWell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bWell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bWell"
+                        }
+                    ]
+                },
+                "contained": [
+                    {
+                        "resourceType": "Patient",
+                        "id": "f24f4aef-08a9-41c1-8280-b85d12049ab2",
+                        "meta": {
+                            "versionId": "1",
+                            "lastUpdated": "2024-03-27T18:06:15.000Z",
+                            "source": "https://api.humanapi.co/v1/human/medical/profile",
+                            "security": [
+                                {
+                                    "id": "owner",
+                                    "system": "https://www.icanbwell.com/owner",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/access",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/vendor",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/connectionType",
+                                    "code": "humanapi"
+                                }
+                            ]
+                        },
+                        "identifier": [
+                            {
+                                "id": "sourceId",
+                                "system": "https://www.icanbwell.com/sourceId",
+                                "value": "f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                            },
+                            {
+                                "id": "uuid",
+                                "system": "https://www.icanbwell.com/uuid",
+                                "value": "f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                            }
+                        ],
+                        "name": [
+                            {
+                                "family": "Smith",
+                                "given": [
+                                    "Bob"
+                                ]
+                            }
+                        ],
+                        "gender": "male",
+                        "birthDate": "1965-11-11",
+                        "address": [
+                            {
+                                "id": "demographics.homeAddress",
+                                "line": [
+                                    "505 CHICAGO ST"
+                                ],
+                                "city": "BLOOMINGTON",
+                                "state": "MN",
+                                "postalCode": "55438"
+                            }
+                        ],
+                        "communication": [
+                            {
+                                "language": {
+                                    "coding": [
+                                        {
+                                            "id": "demographics.language",
+                                            "system": "urn:ietf:bcp:47",
+                                            "display": "eng"
+                                        }
+                                    ]
+                                },
+                                "preferred": true
+                            }
+                        ]
+                    },
+                    {
+                        "resourceType": "Encounter",
+                        "id": "5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+                        "meta": {
+                            "versionId": "1",
+                            "lastUpdated": "2024-03-27T18:06:15.000Z",
+                            "source": "https://api.humanapi.co/v1//human/medical/encounters/5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+                            "security": [
+                                {
+                                    "id": "owner",
+                                    "system": "https://www.icanbwell.com/owner",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/access",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/vendor",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "code": "humanapi"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/connectionType",
+                                    "code": "humanapi"
+                                }
+                            ]
+                        },
+                        "identifier": [
+                            {
+                                "id": "uuid",
+                                "system": "https://www.icanbwell.com/uuid",
+                                "value": "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
+                            },
+                            {
+                                "id": "sourceId",
+                                "system": "https://www.icanbwell.com/sourceId",
+                                "value": "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
+                            }
+                        ],
+                        "status": "arrived",
+                        "class": {
+                            "system": "2.16.840.1.113883.5.4",
+                            "code": "AMB"
+                        },
+                        "type": [
+                            {
+                                "coding": [
+                                    {
+                                        "id": "G0108",
+                                        "system": "http://www.ama-assn.org/go/cpt",
+                                        "code": "G0108"
+                                    }
+                                ]
+                            }
+                        ],
+                        "subject": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "humanapi"
+                                }
+                            ],
+                            "reference": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                        },
+                        "participant": [
+                            {
+                                "individual": {
+                                    "display": "foo"
+                                }
+                            }
+                        ],
+                        "period": {
+                            "start": "2020-11-23T19:00:00+00:00"
+                        },
+                        "serviceProvider": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "humanapi"
+                                }
+                            ],
+                            "reference": "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7"
+                        }
+                    }
+                ],
+                "extension": [
+                    {
+                        "id": "3bbd5d30-82e6-4cf8-b065-a2ffffb8e8e1",
+                        "url": "https://icanbwell.com/userType",
+                        "valueCodeableConcept": {
+                            "id": "3865dc99-5dc3-4639-8112-0784409b8cdf",
+                            "coding": [
+                                {
+                                    "system": "https://icanbwell.com/userType",
+                                    "code": "RX_AUTH",
+                                    "display": "RX_AUTH"
+                                }
+                            ],
+                            "text": "user type"
+                        }
+                    }
+                ],
+                "identifier": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://www.icanbwell.com/identifier-types",
+                                    "code": "user-identifier"
+                                }
+                            ]
+                        },
+                        "system": "http://www.icanbwell.com/profileid",
+                        "value": "22733928447"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "222a029a-ff26-4b16-b36c-1b6375deb433"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "222a029a-ff26-4b16-b36c-1b6375deb433"
+                    }
+                ],
+                "name": [
+                    {
+                        "family": "smith",
+                        "given": [
+                            "bob"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "email",
+                        "value": "bobsmith@email.com"
+                    },
+                    {
+                        "system": "phone",
+                        "value": "5557775555",
+                        "use": "mobile"
+                    }
+                ],
+                "gender": "male",
+                "birthDate": "1965-11-11",
+                "address": [
+                    {
+                        "id": "abc6c9d4-1874-489d-9055-b69ce4afa664",
+                        "line": [
+                            "505 CHICAGO ST"
+                        ],
+                        "city": "BLOOMINGTON",
+                        "state": "MN",
+                        "postalCode": "554382902"
+                    }
+                ],
+                "active": true,
+                "link": [
+                    {
+                        "id": "f24f4aef-08a9-41c1-8280-b85d12049ab2",
+                        "target": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "bWell"
+                                }
+                            ],
+                            "reference": "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2",
+                            "type": "Patient"
+                        },
+                        "assurance": "level4"
+                    }
+                ]
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2024-03-27T06:06:20.2020Z",
+    "total": 1,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Person/222a029a-ff26-4b16-b36c-1b6375deb433/$graph?contained=true"
+        }
+    ]
+}

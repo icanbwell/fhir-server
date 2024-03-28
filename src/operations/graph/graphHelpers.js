@@ -1194,7 +1194,7 @@ containedEntries: []
          * @type {BundleEntry[]}
          */
         let result = [];
-        if (entityAndContained.includeInOutput && entityAndContained.resource.id) { // only include entities the caller has requested and are defined
+        if (entityAndContained.includeInOutput && entityAndContained.resource && entityAndContained.resource.id) { // only include entities the caller has requested and are defined
             result = result.concat(
                 [
                     new BundleEntry(

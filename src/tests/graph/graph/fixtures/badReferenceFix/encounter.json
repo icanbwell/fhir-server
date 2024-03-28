@@ -1,0 +1,121 @@
+{
+	"_uuid" : "5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+	"_access" : {
+		"humanapi" : 1
+	},
+	"_sourceAssigningAuthority" : "humanapi",
+	"_sourceId" : "5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+	"class" : {
+		"system" : "2.16.840.1.113883.5.4",
+		"code" : "AMB"
+	},
+	"id" : "5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+	"identifier" : [
+		{
+			"id" : "uuid",
+			"system" : "https://www.icanbwell.com/uuid",
+			"value" : "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
+		},
+		{
+			"id" : "sourceId",
+			"system" : "https://www.icanbwell.com/sourceId",
+			"value" : "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
+		}
+	],
+	"meta" : {
+		"versionId" : "1",
+		"source" : "https://api.humanapi.co/v1//human/medical/encounters/5d171fb0-75e7-4b7e-af6d-5db5402ce778",
+		"security" : [
+			{
+				"id" : "owner",
+				"system" : "https://www.icanbwell.com/owner",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/access",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/vendor",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/sourceAssigningAuthority",
+				"code" : "humanapi"
+			},
+			{
+				"system" : "https://www.icanbwell.com/connectionType",
+				"code" : "humanapi"
+			}
+		]
+	},
+	"period" : {
+		"start" : "2020-11-23T19:00:00+00:00"
+	},
+	"resourceType" : "Encounter",
+	"serviceProvider" : {
+		"extension" : [
+			{
+				"id" : "sourceId",
+				"url" : "https://www.icanbwell.com/sourceId",
+				"valueString" : "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea79"
+			},
+			{
+				"id" : "uuid",
+				"url" : "https://www.icanbwell.com/uuid",
+				"valueString" : "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7"
+			},
+			{
+				"id" : "sourceAssigningAuthority",
+				"url" : "https://www.icanbwell.com/sourceAssigningAuthority",
+				"valueString" : "humanapi"
+			}
+		],
+		"reference" : "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7",
+		"_sourceAssigningAuthority" : "humanapi",
+		"_uuid" : "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7",
+		"_sourceId" : "Organization/f130a53c-bb61-46d3-9380-417e5ef01ea7"
+	},
+	"status" : "arrived",
+	"subject" : {
+		"extension" : [
+			{
+				"id" : "sourceId",
+				"url" : "https://www.icanbwell.com/sourceId",
+				"valueString" : "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+			},
+			{
+				"id" : "uuid",
+				"url" : "https://www.icanbwell.com/uuid",
+				"valueString" : "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+			},
+			{
+				"id" : "sourceAssigningAuthority",
+				"url" : "https://www.icanbwell.com/sourceAssigningAuthority",
+				"valueString" : "humanapi"
+			}
+		],
+		"reference" : "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2",
+		"_sourceAssigningAuthority" : "humanapi",
+		"_uuid" : "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2",
+		"_sourceId" : "Patient/f24f4aef-08a9-41c1-8280-b85d12049ab2"
+	},
+	"type" : [
+		{
+			"coding" : [
+				{
+					"id" : "G0108",
+					"system" : "http://www.ama-assn.org/go/cpt",
+					"code" : "G0108"
+				}
+			]
+		}
+	],
+	"participant" : [
+		{
+			"individual" : {
+				"display" : "foo"
+			}
+		}
+	]
+}

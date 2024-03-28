@@ -1,0 +1,20 @@
+{
+    "resourceType": "Parameters",
+    "parameter": [
+        {
+            "name": "graph",
+            "resource": {
+                "resourceType": "GraphDefinition",
+                "start": "Person",
+                "link": [
+                     {"path":"link[x].target","description":"linked Patients",
+                       "target":[
+                         {"type":"Patient", "link":[
+                            {"target":[
+                               {"type":"Encounter","params":"patient={ref}", "link":[
+                                   {"path":"participant.individual","target":[
+                                       {"type":"Practitioner", "link":[
+                                         {"target":[
+                                           {"type":"PractitionerRole","params":"practitioner={ref}"}]}]}]},
+                                   {"path":"participant.individual","target":[
+                                     {"type":"PractitionerRole"}]}]}]}]}]}]}}]}
