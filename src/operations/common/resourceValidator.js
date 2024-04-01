@@ -1,7 +1,6 @@
 const async = require('async');
 const { validateResource } = require('../../utils/validator.util');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
-const sendToS3 = require('../../utils/aws-s3');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -147,20 +146,6 @@ class ResourceValidator {
                     ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
             }
 
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('validation_failures',
-                    resourceType,
-                    resourceToValidateJson,
-                    currentDate,
-                    id,
-                    'merge');
-                await sendToS3('validation_failures',
-                    resourceType,
-                    validationOperationOutcome,
-                    currentDate,
-                    id,
-                    'merge_failure');
-            }
             return validationOperationOutcome;
         }
         return null;

@@ -198,14 +198,6 @@ class ConfigManager {
     }
 
     /**
-     * whether we should log all merges
-     * @returns {boolean}
-     */
-    get logAllMerges () {
-        return isTrue(env.LOG_ALL_MERGES);
-    }
-
-    /**
      * whether to handle concurrency
      * @return {boolean}
      */
@@ -345,22 +337,6 @@ class ConfigManager {
      */
     get batchSizeForRemoteFhir () {
         return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
-    }
-
-    /**
-     * whether to log validation failures
-     * @returns {boolean}
-     */
-    get logValidationFailures () {
-        return isTrue(env.LOG_VALIDATION_FAILURES);
-    }
-
-    /**
-     * whether to log all saves
-     * @returns {boolean}
-     */
-    get logAllSaves () {
-        return isTrue(env.LOG_ALL_SAVES);
     }
 
     /**

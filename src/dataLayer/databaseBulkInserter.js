@@ -1,6 +1,5 @@
 'use strict';
 const async = require('async');
-const sendToS3 = require('../utils/aws-s3');
 const { EventEmitter } = require('events');
 const {
     logVerboseAsync,
@@ -914,14 +913,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     /** @type {BulkInsertUpdateEntry[]} */
                     operationsByCollection] = operationsByCollectionName;
 
-                if (this.configManager.logAllMerges) {
-                    await sendToS3('bulk_inserter',
-                        resourceType,
-                        operations,
-                        currentDate,
-                        requestId,
-                        'merge');
-                }
                 try {
                     /**
                      * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
