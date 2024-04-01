@@ -77,8 +77,12 @@ class FhirXmlToJsonSchemaParser:
                     name = name.replace('-primitive', '')
                     pattern = simple_type.restriction.pattern.get('value') if name != 'string' else '[ \\r\\n\\t\\S]+'
 
+                    if name == 'base64Binary':
+                        pattern = '[A-Za-z0-9+/]*={0,2}'
+
                     if '{1,64}' in pattern:
-                        pattern = pattern.replace('64', '')
+                        # we can have id with length more than 64
+                        pattern = pattern.replace('{1,64}', '{1,}')
 
                     if pattern is not None:
                         logger.info(f'Schema generated for {name}')
