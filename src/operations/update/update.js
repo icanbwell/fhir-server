@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const sendToS3 = require('../../utils/aws-s3');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -196,15 +195,6 @@ class UpdateOperation {
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
 
-        if (this.configManager.logAllSaves) {
-            await sendToS3('logs',
-                resourceType,
-                resource_incoming_json,
-                currentDate,
-                id,
-                currentOperationName);
-        }
-
         // create a resource with incoming data
         /**
          * @type {Resource}
@@ -228,20 +218,6 @@ class UpdateOperation {
                 });
                 if (validationOperationOutcome) {
                     validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
-                    if (this.configManager.logValidationFailures) {
-                        await sendToS3('validation_failures',
-                            resourceType,
-                            resource_incoming_json,
-                            currentDate,
-                            resource_incoming_json.id,
-                            currentOperationName);
-                        await sendToS3('validation_failures',
-                            resourceType,
-                            validationOperationOutcome,
-                            currentDate,
-                            resource_incoming_json.id,
-                            'update_failure');
-                    }
                     throw new NotValidatedError(validationOperationOutcome);
                 }
             }
@@ -468,14 +444,6 @@ class UpdateOperation {
                 return result;
             }
         } catch (e) {
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('errors',
-                    resourceType,
-                    resource_incoming_json,
-                    currentDate,
-                    id,
-                    currentOperationName);
-            }
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,

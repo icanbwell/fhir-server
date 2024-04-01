@@ -1,7 +1,6 @@
 const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const sendToS3 = require('../../utils/aws-s3');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -162,15 +161,6 @@ class CreateOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        if (this.configManager.logAllSaves) {
-            await sendToS3('logs',
-                resourceType,
-                resource_incoming,
-                currentDate,
-                resource_incoming.id,
-                currentOperationName
-            );
-        }
         /**
          * @type {Resource}
          */
@@ -296,14 +286,6 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('errors',
-                    resourceType,
-                    resource_incoming,
-                    currentDate,
-                    resource_incoming.id,
-                    currentOperationName);
-            }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

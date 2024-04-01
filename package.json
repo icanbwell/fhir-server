@@ -106,8 +106,6 @@
     "@apollo/subgraph": "^2.7.1",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@aws-sdk/client-s3": "^3.521.0",
-    "@aws-sdk/client-sts": "^3.521.0",
     "@aws-sdk/credential-provider-node": "^3.521.0",
     "@aws-sdk/credential-providers": "^3.521.0",
     "@dqbd/tiktoken": "^1.0.13",

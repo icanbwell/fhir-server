@@ -2,7 +2,6 @@ const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const { BadRequestError } = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
-const sendToS3 = require('../../utils/aws-s3');
 const { groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid } = require('../../utils/list.util');
 const async = require('async');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -156,7 +155,6 @@ class MergeManager {
         assertTypeEquals(currentResource, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
-        const requestId = requestInfo.requestId;
         /**
          * @type {string}
          */
@@ -181,18 +179,6 @@ class MergeManager {
             limitToPaths: undefined,
             databaseAttachmentManager: this.databaseAttachmentManager
         });
-        if (this.configManager.logAllMerges) {
-            await sendToS3('logs',
-                resourceToMerge.resourceType,
-                {
-                    old: currentResource,
-                    new: resourceToMerge,
-                    after: patched_resource_incoming
-                },
-                currentDate,
-                uuid,
-                'merge_' + currentResource.meta.versionId + '_' + requestId);
-        }
         if (patched_resource_incoming) {
             /**
              * @type {OperationOutcome|null}
@@ -319,15 +305,6 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
         }
 
-        if (this.configManager.logAllSaves) {
-            await sendToS3('logs',
-                resourceToMerge.resourceType,
-                resourceToMerge,
-                currentDate,
-                uuid,
-                'merge_' + requestId);
-        }
-
         try {
             // Query our collection for this id
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
@@ -417,20 +394,6 @@ class MergeManager {
                     })
                 ]
             });
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('errors',
-                    resourceToMerge.resourceType,
-                    resourceToMerge,
-                    currentDate,
-                    uuid,
-                    'merge');
-                await sendToS3('errors',
-                    resourceToMerge.resourceType,
-                    operationOutcome,
-                    currentDate,
-                    uuid,
-                    'merge_error');
-            }
             throw new RethrownError(
                 {
                     message: e.message,
