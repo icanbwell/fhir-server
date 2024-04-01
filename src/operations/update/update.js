@@ -211,41 +211,41 @@ class UpdateOperation {
          */
         const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs._validate) {
-            /**
-             * @type {OperationOutcome|null}
-             */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                base_version,
-                requestInfo,
-                id: resource_incoming_json.id,
-                resourceType,
-                resourceToValidate: resource_incoming_json,
-                path,
-                currentDate,
-                resourceObj: resource_incoming
-            });
-            if (validationOperationOutcome) {
-                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
-                if (this.configManager.logValidationFailures) {
-                    await sendToS3('validation_failures',
-                        resourceType,
-                        resource_incoming_json,
-                        currentDate,
-                        resource_incoming_json.id,
-                        currentOperationName);
-                    await sendToS3('validation_failures',
-                        resourceType,
-                        validationOperationOutcome,
-                        currentDate,
-                        resource_incoming_json.id,
-                        'update_failure');
-                }
-                throw new NotValidatedError(validationOperationOutcome);
-            }
-        }
-
         try {
+            if (this.configManager.validateSchema || parsedArgs._validate) {
+                /**
+                 * @type {OperationOutcome|null}
+                 */
+                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
+                    id: resource_incoming_json.id,
+                    resourceType,
+                    resourceToValidate: resource_incoming_json,
+                    path,
+                    currentDate,
+                    resourceObj: resource_incoming
+                });
+                if (validationOperationOutcome) {
+                    validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
+                    if (this.configManager.logValidationFailures) {
+                        await sendToS3('validation_failures',
+                            resourceType,
+                            resource_incoming_json,
+                            currentDate,
+                            resource_incoming_json.id,
+                            currentOperationName);
+                        await sendToS3('validation_failures',
+                            resourceType,
+                            validationOperationOutcome,
+                            currentDate,
+                            resource_incoming_json.id,
+                            'update_failure');
+                    }
+                    throw new NotValidatedError(validationOperationOutcome);
+                }
+            }
+
             /**
              * @type {boolean}
              */
