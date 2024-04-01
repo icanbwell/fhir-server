@@ -3,7 +3,6 @@
  */
 
 const { ServerError } = require('../middleware/fhir/utils/server.error');
-const env = require('var');
 
 class BadRequestError extends ServerError {
     constructor (error, options = {}) {
@@ -15,9 +14,7 @@ class BadRequestError extends ServerError {
                 {
                     severity: 'error',
                     code: 'invalid',
-                    details: { text: error.message },
-                    diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function')
-                        ? error.message : error.toString()
+                    details: { text: error.message }
                 }
             ]
         });

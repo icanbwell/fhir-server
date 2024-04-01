@@ -1,7 +1,6 @@
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const env = require('var');
 
 /**
  * Converts Error to OperationOutcome
@@ -20,8 +19,7 @@ function convertErrorToOperationOutcome ({ error }) {
                     code: 'internal',
                     details: new CodeableConcept({
                         text: `Unexpected: ${error.message}`
-                    }),
-                    diagnostics: env.IS_PRODUCTION ? error.message : error.stack
+                    })
                 })
             ]
         });

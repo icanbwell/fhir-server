@@ -37,8 +37,7 @@ describe('AuditEventRecordedTests', () => {
                         code: 'invalid',
                         details: {
                             text: '2020-02-02 is not valid to query AuditEvent. [lt, gt] operation is required'
-                        },
-                        diagnostics: '2020-02-02 is not valid to query AuditEvent. [lt, gt] operation is required'
+                        }
                     }
                 ]
             });
@@ -54,8 +53,7 @@ describe('AuditEventRecordedTests', () => {
                         code: 'invalid',
                         details: {
                             text: 'gt2020-13-35 is not a valid query.'
-                        },
-                        diagnostics: 'gt2020-13-35 is not a valid query.'
+                        }
                     }
                 ]
             });
@@ -71,8 +69,7 @@ describe('AuditEventRecordedTests', () => {
                         code: 'invalid',
                         details: {
                             text: 'eq2020-02-02 is not a valid query.'
-                        },
-                        diagnostics: 'eq2020-02-02 is not a valid query.'
+                        }
                     }
                 ]
             });
@@ -88,8 +85,7 @@ describe('AuditEventRecordedTests', () => {
                         code: 'invalid',
                         details: {
                             text: 'The difference between dates to query AuditEvent should not be greater than 240'
-                        },
-                        diagnostics: 'The difference between dates to query AuditEvent should not be greater than 240'
+                        }
                     }
                 ]
             });
