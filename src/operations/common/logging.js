@@ -28,7 +28,7 @@ const setRequestIdInLog = (args) => {
 };
 
 /**
- * Always logs regardless of env.IS_PRODUCTION
+ * Logs information
  * @param {string} message
  * @param {Object} args
  */
@@ -38,12 +38,12 @@ const logInfo = (message, args) => {
 };
 
 /**
- * Logs as info if env.IS_PRODUCTION is not set
+ * Logs as debug if log level set
  * @param {string} message
  * @param {Object} args
  */
 const logDebug = (message, args) => {
-    if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
+    if (env.LOGLEVEL === 'DEBUG') {
         setRequestIdInLog(args);
         logger.debug(message, args);
     }

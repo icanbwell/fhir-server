@@ -51,11 +51,6 @@ class RethrownError extends Error {
         const oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
         const stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
         this.stack = typeof stackDescriptor === 'function' ? stackDescriptor.get() : stackDescriptor.value;
-        if (this.issue) {
-            this.issue.forEach(i => {
-                i.diagnostics = env.IS_PRODUCTION ? this.message : this.stack;
-            });
-        }
     }
 
     /**

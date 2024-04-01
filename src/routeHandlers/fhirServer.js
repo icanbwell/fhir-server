@@ -56,7 +56,6 @@ class MyFHIRServer {
 
         const { server = {} } = this.config;
         this.env = {
-            IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
             USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
         };
 
@@ -73,9 +72,6 @@ class MyFHIRServer {
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
             this.app.use(this.config.errorTracking.requestHandler());
         }
-
-        // Enable stack traces
-        this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
         this.app.use(
             compression({

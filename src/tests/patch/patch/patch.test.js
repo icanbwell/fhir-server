@@ -92,8 +92,7 @@ describe('Person Tests', () => {
                         code: 'invalid',
                         details: {
                             text: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
-                        },
-                        diagnostics: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        }
                     }
                 ]
             });
@@ -122,7 +121,6 @@ describe('Person Tests', () => {
                         details: {
                             text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        diagnostics: 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
                         severity: 'error'
                     }
                 ],
