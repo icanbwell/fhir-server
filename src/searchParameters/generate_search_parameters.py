@@ -167,7 +167,7 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_pytho
 
             # now write the target.  assume target is same for all search parameters with same name
             if search_parameter_entries[0].target:
-                file2.write(f"\t\t\t'target': [")
+                file2.write("\t\t\t'target': [")
                 target_list = [f"'{t}'" for t in search_parameter_entries[0].target]
                 file2.write(f"{', '.join(target_list)}")
                 file2.write("],\n")
