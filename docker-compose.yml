@@ -53,7 +53,6 @@ services:
       WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
-      DD_TRACE_ENABLED: 'False'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'

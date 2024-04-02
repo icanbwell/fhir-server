@@ -8,7 +8,7 @@ function getImageVersion () {
     /**
      * @type {string|null}
      */
-    return env.DD_VERSION || env.DOCKER_IMAGE_VERSION || (image ? image.slice(image.lastIndexOf(':') + 1) : null);
+    return env.DOCKER_IMAGE_VERSION || (image ? image.slice(image.lastIndexOf(':') + 1) : null);
 }
 
 module.exports = {
