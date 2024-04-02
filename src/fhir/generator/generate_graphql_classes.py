@@ -115,7 +115,7 @@ def main() -> int:
         template_contents = file.read()
         from jinja2 import Template
 
-        file_path = graphql_schema_dir.joinpath(f"schema.graphql")
+        file_path = graphql_schema_dir.joinpath("schema.graphql")
         template = Template(
             template_contents, trim_blocks=True, lstrip_blocks=True
         )
