@@ -35,6 +35,7 @@ const { logInfo } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
+const { requestCompletionLogData } = require('./utils/requestCompletionLogData.js');
 
 /**
  * Creates the FHIR app
@@ -110,20 +111,8 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
         res.on('finish', () => {
-            const finishTime = new Date().getTime();
-            const altId = req.authInfo?.context?.username ||
-                req.authInfo?.context?.subject ||
-                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
-
-            logInfo('Request Completed', {
-                status: res.statusCode,
-                responseTime: `${(finishTime - startTime) / 1000}s`,
-                requestUrl: reqPath,
-                method: reqMethod,
-                userAgent: req.headers['user-agent'],
-                scope: req.authInfo?.scope,
-                altId
-            });
+            const logData = requestCompletionLogData(req, res, reqPath, reqMethod, startTime);
+            logInfo('Request Completed', logData);
         });
         next();
     });
