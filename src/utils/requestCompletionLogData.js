@@ -1,13 +1,11 @@
 /**
- * Constructs log data object for request completion.
+ * Creates request completion arguments for logging.
  * @param {object} req The request object.
  * @param {object} res The response object.
- * @param {string} reqPath The path of the request.
- * @param {string} reqMethod The method of the request.
  * @param {number} startTime The start time of the request in milliseconds.
  * @returns {object} Log data object containing information about the request completion.
  */
-function requestCompletionLogData (req, res, reqPath, reqMethod, startTime) {
+function requestCompletionLogData (req, res, startTime) {
     const finishTime = new Date().getTime();
     const username = req.authInfo?.context?.username ||
         req.authInfo?.context?.subject ||
@@ -16,15 +14,15 @@ function requestCompletionLogData (req, res, reqPath, reqMethod, startTime) {
     const logData = {
         status: res.statusCode,
         responseTime: `${(finishTime - startTime) / 1000}s`,
-        requestUrl: reqPath,
-        method: reqMethod,
+        requestUrl: req.originalUrl,
+        method: req.method.toUpperCase(),
         userAgent: req.headers['user-agent'],
         scope: req.authInfo?.scope,
         altId: username
     };
 
     if (res.statusCode === 401) {
-        const authHeader = req.headers['authorization'];
+        const authHeader = req.headers.authorization;
         if (!authHeader) {
             logData.errorMessage = 'No authorization token provided';
         } else {

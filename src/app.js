@@ -111,7 +111,7 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
         res.on('finish', () => {
-            const logData = requestCompletionLogData(req, res, reqPath, reqMethod, startTime);
+            const logData = requestCompletionLogData(req, res, startTime);
             logInfo('Request Completed', logData);
         });
         next();
