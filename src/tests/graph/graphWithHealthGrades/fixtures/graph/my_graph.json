@@ -40,7 +40,6 @@
               "path": "extension.extension:url=plan",
               "target": [
                 {
-                  "type": "InsurancePlan",
                   "link": [
                     {
                       "path": "valueReference",

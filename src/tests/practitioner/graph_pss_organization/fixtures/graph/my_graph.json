@@ -41,7 +41,6 @@
                             "path": "extension.extension:url=plan",
                             "target": [
                                 {
-                                    "type": "OrganizationAffiliation",
                                     "link": [
                                         {
                                             "path": "valueReference",
