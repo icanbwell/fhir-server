@@ -18,5 +18,6 @@
     "reference": "location"
   },
   "name": "TEST",
+  "status": "draft",
   "approvalDate": "2022-09-12"
 }

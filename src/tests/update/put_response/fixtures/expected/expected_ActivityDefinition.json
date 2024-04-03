@@ -32,5 +32,6 @@
     "versionId": "1"
   },
   "name": "TEST",
+  "status": "draft",
   "resourceType": "ActivityDefinition"
 }

@@ -19,5 +19,6 @@
     ]
   },
   "name": "TEST1",
+  "status": "draft",
   "resourceType": "ActivityDefinition"
 }

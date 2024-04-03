@@ -30,6 +30,7 @@
     "source": "bwell",
     "versionId": "1"
   },
-  "priority": "6",
+  "priority": "asap",
+  "status": "active",
   "resourceType": "ActivityDefinition"
 }
