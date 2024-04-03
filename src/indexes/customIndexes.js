@@ -303,6 +303,16 @@ module.exports = {
             },
             {
                 keys: {
+                    'agent.altId': 1,
+                    _uuid: 1,
+                    recorded: 1
+                },
+                options: {
+                    name: 'agent_altId_1._uuid_1.recorded_1'
+                }
+            },
+            {
+                keys: {
                     'entity.what._uuid': 1,
                     _uuid: 1,
                     recorded: 1
