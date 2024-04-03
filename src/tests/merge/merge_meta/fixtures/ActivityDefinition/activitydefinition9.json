@@ -18,6 +18,7 @@
       }
     ]
   },
+  "status": "draft",
   "name": "TEST1",
   "resourceType": "ActivityDefinition"
 }

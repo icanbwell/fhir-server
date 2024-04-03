@@ -10,6 +10,7 @@
       }
     ]
   },
+  "status": "draft",
   "name": "TEST",
   "resourceType": "ActivityDefinition"
 }
