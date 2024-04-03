@@ -132,9 +132,8 @@ class AuditLogger {
                     who: new Reference({
                         reference: `Person/${requestInfo.user}`
                     }),
-                    altId: requestInfo.scope,
+                    altId: requestInfo.user,
                     requestor: true,
-                    name: requestInfo.user,
                     network: new AuditEventNetwork({
                         address: requestInfo.remoteIPAddress,
                         type: '2'
