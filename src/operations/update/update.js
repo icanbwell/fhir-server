@@ -1,6 +1,5 @@
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
-const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -217,7 +216,6 @@ class UpdateOperation {
                     resourceObj: resource_incoming
                 });
                 if (validationOperationOutcome) {
-                    validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                     throw new NotValidatedError(validationOperationOutcome);
                 }
             }

@@ -4,7 +4,6 @@
 const express = require('express');
 const httpContext = require('express-http-context');
 const { fhirServerConfig } = require('./config');
-const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
@@ -80,10 +79,9 @@ function createFhirApp (fnGetContainer, app1) {
 /**
  * Creates the app
  * @param {function (): SimpleContainer} fnGetContainer
- * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp ({ fnGetContainer, trackMetrics }) {
+function createApp ({ fnGetContainer }) {
     const swaggerUi = require('swagger-ui-express');
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
@@ -155,16 +153,6 @@ function createApp ({ fnGetContainer, trackMetrics }) {
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
-
-    if (trackMetrics) {
-        // prometheus tracks the metrics
-        app.use(Prometheus.requestCounters);
-        // noinspection JSCheckFunctionSignatures
-        app.use(Prometheus.responseCounters);
-        app.use(Prometheus.httpRequestTimer);
-        Prometheus.injectMetricsRoute(app);
-        Prometheus.startCollection();
-    }
 
     // Used to initialize context for each request
     app.use(httpContext.middleware);

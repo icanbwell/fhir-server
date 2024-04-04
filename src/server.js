@@ -1,13 +1,11 @@
+const env = require('var');
+const http = require('http');
+const { createTerminus } = require('@godaddy/terminus');
 const { createApp } = require('./app');
 const { fhirServerConfig } = require('./config');
-const env = require('var');
 const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
-const http = require('http');
-const { isTrue } = require('./utils/isTrue');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { MongoDatabaseManager } = require('./utils/mongoDatabaseManager');
-const { createTerminus } = require('@godaddy/terminus');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -43,11 +41,9 @@ const flushBuffer = async (fnGetContainer) => {
  */
 async function createServer (fnGetContainer) {
     const container = fnGetContainer();
-    await new MongoDatabaseManager({
-        configManager: container.configManager
-    }).connectAsync();
+    await container.mongoDatabaseManager.connectAsync();
 
-    const app = createApp({ fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS) });
+    const app = createApp({ fnGetContainer });
 
     const server = http
         .createServer(app)

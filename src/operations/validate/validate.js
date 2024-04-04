@@ -1,4 +1,3 @@
-const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -347,7 +346,6 @@ class ValidateOperation {
                 profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

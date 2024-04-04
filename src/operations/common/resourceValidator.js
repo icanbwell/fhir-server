@@ -1,6 +1,5 @@
 const async = require('async');
 const { validateResource } = require('../../utils/validator.util');
-const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -133,7 +132,6 @@ class ResourceValidator {
                 }
             );
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({ action: 'validate', resourceType }, 1);
             validationOperationOutcome.expression = [
                 resourceType + '/' + id
             ];

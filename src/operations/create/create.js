@@ -2,7 +2,6 @@ const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
-const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -186,7 +185,6 @@ class CreateOperation {
                 });
             }
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}

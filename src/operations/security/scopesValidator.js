@@ -1,6 +1,5 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const { ForbiddenError } = require('../../utils/httpErrors');
-const { authorizationFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('./scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -140,7 +139,6 @@ class ScopesValidator {
             const forbiddenError = this.verifyHasValidScopes({ requestInfo, resourceType, accessRequested });
 
             if (forbiddenError) {
-                authorizationFailedCounter.inc({ action, resourceType });
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args: parsedArgs?.getRawArgs(),

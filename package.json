@@ -180,8 +180,6 @@
     "passport": "^0.7.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",
-    "prom-client": "^15.1.0",
-    "response-time": "^2.3.2",
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.12.1",
     "snappy": "^7.2.2",

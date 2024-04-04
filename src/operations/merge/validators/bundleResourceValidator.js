@@ -1,6 +1,5 @@
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ResourceValidator } = require('../../common/resourceValidator');
-const { validationsFailedCounter } = require('../../../utils/prometheus.utils');
 const { BaseValidator } = require('./baseValidator');
 
 class BundleResourceValidator extends BaseValidator {
@@ -47,7 +46,6 @@ class BundleResourceValidator extends BaseValidator {
                 }
             );
             if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({ action: currentOperationName, resourceType: 'Bundle' }, 1);
                 return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             // unwrap the resources
