@@ -25,7 +25,7 @@ const sdk = new opentelemetry.NodeSDK({
     resource: new Resource(),
     traceExporter: new OTLPTraceExporter(),
     metricReader: new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter(),
+        exporter: new OTLPMetricExporter()
     }),
     instrumentations: [
         new DataloaderInstrumentation(),
@@ -33,15 +33,15 @@ const sdk = new opentelemetry.NodeSDK({
         new FsInstrumentation(),
         new GraphQLInstrumentation(),
         new HttpInstrumentation({
-            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url)
         }),
         new LruMemoizerInstrumentation(),
         new MongoDBInstrumentation({
-            enhancedDatabaseReporting: true,
+            enhancedDatabaseReporting: true
         }),
         new RouterInstrumentation(),
-        new WinstonInstrumentation(),
-    ],
+        new WinstonInstrumentation()
+    ]
 });
 
 sdk.start();
