@@ -2,7 +2,6 @@ const env = require('var');
 const { MongoError } = require('../../utils/mongoErrors');
 const { isTrue } = require('../../utils/isTrue');
 const { fhirContentTypes } = require('../../utils/contentTypes');
-const { fhirRequestTimer } = require('../../utils/prometheus.utils');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SearchManager } = require('./searchManager');
@@ -104,8 +103,6 @@ class SearchStreamingOperation {
         const extraInfo = {
             currentOperationName
         };
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -482,8 +479,6 @@ class SearchStreamingOperation {
                     message: `Error in streaming resources: ${e.message}`
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
-        } finally {
-            timer({ action: currentOperationName, resourceType });
         }
     }
 }

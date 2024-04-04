@@ -2,12 +2,12 @@
  * Implements the main function
  */
 // Load the rest of the modules
+const Sentry = require('@sentry/node');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { logError } = require('./operations/common/logging');
-const Sentry = require('@sentry/node');
 const { getImageVersion } = require('./utils/getImageVersion');
 
 Sentry.init({

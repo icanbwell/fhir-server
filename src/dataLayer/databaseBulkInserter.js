@@ -19,7 +19,6 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { RethrownError } = require('../utils/rethrownError');
-const { databaseBulkInserterTimer } = require('../utils/prometheus.utils');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
@@ -848,8 +847,6 @@ class DatabaseBulkInserter extends EventEmitter {
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = databaseBulkInserterTimer.startTimer();
         try {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
@@ -1075,8 +1072,6 @@ class DatabaseBulkInserter extends EventEmitter {
             throw new RethrownError({
                 error: e
             });
-        } finally {
-            timer({ resourceType });
         }
     }
 

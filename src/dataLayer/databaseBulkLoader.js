@@ -3,7 +3,6 @@ const async = require('async');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
-const { databaseBulkLoaderTimer } = require('../utils/prometheus.utils');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ConfigManager } = require('../utils/configManager');
 
@@ -109,8 +108,6 @@ class DatabaseBulkLoader {
      */
     // eslint-disable-next-line no-unused-vars
     async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = databaseBulkLoaderTimer.startTimer();
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {
@@ -132,8 +129,6 @@ class DatabaseBulkLoader {
             throw new RethrownError({
                 error: e
             });
-        } finally {
-            timer({ resourceType });
         }
     }
 

@@ -3,7 +3,6 @@ const { MongoError } = require('../../utils/mongoErrors');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
-const { fhirRequestTimer } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { SearchManager } = require('./searchManager');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
@@ -116,8 +115,6 @@ class SearchBundleOperation {
         const extraInfo = {
             currentOperationName
         };
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -414,8 +411,6 @@ class SearchBundleOperation {
                     })
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
-        } finally {
-            timer({ action: currentOperationName, resourceType });
         }
     }
 }

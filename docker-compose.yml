@@ -186,5 +186,3 @@ volumes:
   mongo_data:
   es_data:
   es_cert:
-  prometheus_data: { }
-  grafana_data: { }

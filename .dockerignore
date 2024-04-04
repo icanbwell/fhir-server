@@ -8,8 +8,6 @@
 tmp
 .vscode
 node_modules
-grafana
-prometheus
 npm-debug.log
 Dockerfile
 src/admin/scripts/.env*

@@ -3,7 +3,6 @@
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { BadRequestError, NotValidatedError } = require('../../utils/httpErrors');
-const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { GraphHelper } = require('./graphHelpers');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -164,7 +163,6 @@ class GraphOperation {
                 }
             );
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 logDebug('GraphDefinition schema failed validation', { user });
                 // noinspection JSValidateTypes
                 /**

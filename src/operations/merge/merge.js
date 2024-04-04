@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const { fhirRequestTimer } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
@@ -157,8 +156,6 @@ class MergeOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'merge';
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -362,8 +359,6 @@ class MergeOperation {
                     error: e
                 });
             throw e;
-        } finally {
-            timer({ action: currentOperationName, resourceType });
         }
     }
 }
