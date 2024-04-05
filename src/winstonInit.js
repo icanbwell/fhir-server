@@ -35,7 +35,7 @@ const defaultConfig = {
         version: getImageVersion()
     },
     colorize: true,
-    transports: [new transports.Console()]
+    transports: [new transports.Console({ level: 'debug' })]
 };
 
 /**
