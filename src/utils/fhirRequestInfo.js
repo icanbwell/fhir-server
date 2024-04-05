@@ -19,7 +19,6 @@ class FhirRequestInfo {
      * @param {Object | Object[] | null} [body]
      * @param {string | null} [accept]
      * @param {boolean | null} [isUser]
-     * @param {string[] | null} [patientIdsFromJwtToken]
      * @param {string | null} [personIdFromJwtToken]
      * @param {Object} headers
      * @param {string} method
@@ -39,7 +38,6 @@ class FhirRequestInfo {
             body,
             accept,
             isUser,
-            patientIdsFromJwtToken,
             personIdFromJwtToken,
             headers,
             method,
@@ -95,10 +93,6 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.isUser = isUser;
-        /**
-         * @type {string[] | null}
-         */
-        this.patientIdsFromJwtToken = patientIdsFromJwtToken;
         /**
          * @type {string | null}
          */

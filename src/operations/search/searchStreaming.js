@@ -119,8 +119,6 @@ class SearchStreamingOperation {
             protocol,
             /** @type {string | null} */
             host,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
@@ -170,7 +168,6 @@ class SearchStreamingOperation {
                     user,
                     scope,
                     isUser,
-                    patientIdsFromJwtToken,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,

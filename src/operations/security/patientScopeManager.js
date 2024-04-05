@@ -118,10 +118,9 @@ class PatientScopeManager {
      * @param {string} base_version
      * @param {boolean | null} isUser
      * @param {string} personIdFromJwtToken
-     * @param {string[] | null} patientIdsFromJwtToken
      * @returns {Promise<string[]|null>}
      */
-    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken }) {
+    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken }) {
         /**
          * @type {string[]}
          */
@@ -139,14 +138,8 @@ class PatientScopeManager {
         } else {
             patientIdsLinkedToPersonId = []
         }
-        /**
-         * @type {string[]|null}
-         */
-        const allPatientIdsFromJwtToken = patientIdsFromJwtToken
-            ? patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId)
-            : patientIdsLinkedToPersonId;
 
-        return allPatientIdsFromJwtToken;
+        return patientIdsLinkedToPersonId;
     }
 
     /**
@@ -253,7 +246,6 @@ class PatientScopeManager {
      * @param {string} base_version
      * @param {boolean | null} isUser
      * @param {string|null} personIdFromJwtToken
-     * @param {string[] | null} patientIdsFromJwtToken
      * @param {Resource} resource
      * @param {string | null} scope
      * @returns {Promise<boolean>}
@@ -262,7 +254,6 @@ class PatientScopeManager {
         base_version,
         isUser,
         personIdFromJwtToken,
-        patientIdsFromJwtToken,
         resource,
         scope
     }) {
@@ -279,8 +270,7 @@ class PatientScopeManager {
         const patientIds = await this.getPatientIdsFromScopeAsync({
             base_version,
             isUser,
-            personIdFromJwtToken,
-            patientIdsFromJwtToken
+            personIdFromJwtToken
         });
         if (patientIds && patientIds.length > 0) {
             return await this.canWriteResourceWithAllowedPatientIdsAsync({

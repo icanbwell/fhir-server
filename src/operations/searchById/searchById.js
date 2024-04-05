@@ -121,8 +121,6 @@ class SearchByIdOperation {
          */
         const startTime = Date.now();
         const {
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -175,7 +173,6 @@ class SearchByIdOperation {
                 user,
                 scope,
                 isUser,
-                patientIdsFromJwtToken,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,

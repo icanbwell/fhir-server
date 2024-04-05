@@ -106,8 +106,6 @@ class RemoveOperation {
             scope,
             /** @type {string|null} */
             requestId,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {boolean | null} */
             isUser,
             /** @type {string} */
@@ -152,7 +150,6 @@ class RemoveOperation {
                     user,
                     scope,
                     isUser,
-                    patientIdsFromJwtToken,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,

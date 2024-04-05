@@ -126,8 +126,6 @@ class SearchBundleOperation {
             scope,
             /** @type {string | null} */
             originalUrl: url,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
@@ -180,7 +178,6 @@ class SearchBundleOperation {
                     user,
                     scope,
                     isUser,
-                    patientIdsFromJwtToken,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
