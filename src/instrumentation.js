@@ -37,7 +37,15 @@ const sdk = new opentelemetry.NodeSDK({
         }),
         new LruMemoizerInstrumentation(),
         new MongoDBInstrumentation({
-            enhancedDatabaseReporting: true
+            enhancedDatabaseReporting: true,
+            responseHook: (span) => {
+                if (
+                    span.attributes['db.system'] === 'mongodb' &&
+                    span.attributes['db.operation'] !== 'find'
+                ) {
+                    delete span.attributes['db.statement'];
+                }
+            }
         }),
         new RouterInstrumentation(),
         new WinstonInstrumentation()
