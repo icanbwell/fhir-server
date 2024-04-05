@@ -35,7 +35,7 @@ const { logInfo, logDebug } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
-const { requestCompletionLogData } = require('./utils/requestCompletionLogData.js');
+const { generateLogDetail } = require('./utils/requestCompletionLogData.js');
 
 /**
  * Creates the FHIR app
@@ -111,15 +111,35 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
         res.on('finish', () => {
-            const logData = requestCompletionLogData(req, res, startTime);
-            logInfo('Request Completed', logData);
-            // Debug log added for logging authentication token sent in case of error
-            if (logData.detail && req.headers.authorization) {
-                logDebug(
-                    'Request Completed',
-                    { authenticationToken: req.headers.authorization }
-                );
+            const finishTime = new Date().getTime();
+            const username = req.authInfo?.context?.username ||
+                req.authInfo?.context?.subject ||
+                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+            const logData = {
+                status: res.statusCode,
+                responseTime: `${(finishTime - startTime) / 1000}s`,
+                requestUrl: reqPath,
+                method: reqMethod,
+                userAgent: req.headers['user-agent'],
+                scope: req.authInfo?.scope,
+                altId: username
+            };
+            if (res.statusCode === 401 || res.statusCode === 403) {
+                logData.detail = generateLogDetail({
+                    authToken: req.headers.authorization,
+                    scope: req.authInfo?.scope,
+                    statusCode: res.statusCode,
+                    username
+                });
+                // Debug log added for logging authentication token
+                if (req.headers.authorization) {
+                    logDebug(
+                        'Request Completed',
+                        { authenticationToken: req.headers.authorization }
+                    );
+                }
             }
+            logInfo('Request Completed', logData);
         });
         next();
     });

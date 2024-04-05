@@ -1,30 +1,20 @@
 /**
- * Creates request completion arguments for logging.
- * @param {object} req The request object.
- * @param {object} res The response object.
- * @param {number} startTime The start time of the request in milliseconds.
- * @returns {object} Log data object containing information about the request completion.
+ * Generates a detailed log message based on the provided request and response objects.
+ * @typedef GenerateLogDetailParams
+ * @property {string} authToken - The authorization token present in request header.
+ * @property {string} scope - The scope present in request header.
+ * @property {number} statusCode - The status code in response.
+ * @property {string} username - The username of user who requested.
+ * @param {GenerateLogDetailParams} options
+ * @returns {string} A detailed log message describing the request and response context.
  */
-function requestCompletionLogData (req, res, startTime) {
-    const finishTime = new Date().getTime();
-    const username = req.authInfo?.context?.username ||
-        req.authInfo?.context?.subject ||
-        ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+function generateLogDetail ({ authToken, scope, statusCode, username }) {
+    let logDetail = '';
 
-    const logData = {
-        status: res.statusCode,
-        responseTime: `${(finishTime - startTime) / 1000}s`,
-        requestUrl: req.originalUrl,
-        method: req.method.toUpperCase(),
-        userAgent: req.headers['user-agent'],
-        scope: req.authInfo?.scope,
-        altId: username
-    };
-
-    if (res.statusCode === 401) {
-        const authHeader = req.headers.authorization;
+    if (statusCode === 401) {
+        const authHeader = authToken;
         if (!authHeader) {
-            logData.detail = 'No authorization token provided';
+            logDetail = 'No authorization token provided';
         } else {
             try {
                 const token = authHeader.split(' ')[1];
@@ -32,23 +22,23 @@ function requestCompletionLogData (req, res, startTime) {
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));
                 // Check if token is expired
                 if (decodedToken.exp < new Date().getTime() / 1000) {
-                    logData.detail = 'Expired token';
+                    logDetail = 'Expired token';
                 } else {
-                    logData.detail = 'Invalid token';
+                    logDetail = 'Invalid token';
                 }
             } catch (error) {
-                logData.detail = 'Invalid token';
+                logDetail = 'Invalid token';
             }
         }
-    } else if (res.statusCode === 403) {
-        logData.detail = `User '${username}' with scopes '${
-            req.authInfo?.scope || []
+    } else if (statusCode === 403) {
+        logDetail = `User '${username}' with scopes '${
+            scope || []
         }' was denied access to the requested resource.`;
     }
 
-    return logData;
+    return logDetail;
 }
 
 module.exports = {
-    requestCompletionLogData
+    generateLogDetail
 };
