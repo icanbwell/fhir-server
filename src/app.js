@@ -31,7 +31,7 @@ const { handleAdmin } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
 const { generateUUID } = require('./utils/uid.util');
-const { logInfo } = require('./operations/common/logging');
+const { logInfo, logDebug } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
@@ -113,6 +113,13 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         res.on('finish', () => {
             const logData = requestCompletionLogData(req, res, startTime);
             logInfo('Request Completed', logData);
+            // Debug log added for logging authentication token sent in case of error
+            if (logData.detail && req.headers.authorization) {
+                logDebug(
+                    'Request Completed',
+                    { authenticationToken: req.headers.authorization }
+                );
+            }
         });
         next();
     });

@@ -24,7 +24,7 @@ function requestCompletionLogData (req, res, startTime) {
     if (res.statusCode === 401) {
         const authHeader = req.headers.authorization;
         if (!authHeader) {
-            logData.errorMessage = 'No authorization token provided';
+            logData.detail = 'No authorization token provided';
         } else {
             try {
                 const token = authHeader.split(' ')[1];
@@ -32,16 +32,16 @@ function requestCompletionLogData (req, res, startTime) {
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));
                 // Check if token is expired
                 if (decodedToken.exp < new Date().getTime() / 1000) {
-                    logData.errorMessage = 'Expired token';
+                    logData.detail = 'Expired token';
                 } else {
-                    logData.errorMessage = 'Invalid token';
+                    logData.detail = 'Invalid token';
                 }
             } catch (error) {
-                logData.errorMessage = 'Invalid token';
+                logData.detail = 'Invalid token';
             }
         }
     } else if (res.statusCode === 403) {
-        logData.errorMessage = `User '${username}' with scopes '${
+        logData.detail = `User '${username}' with scopes '${
             req.authInfo?.scope || []
         }' was denied access to the requested resource.`;
     }
