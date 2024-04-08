@@ -50,7 +50,7 @@ services:
       AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
-      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051"
+      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
@@ -64,6 +64,7 @@ services:
       WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
+      FHIR_ADMIN_UI_URL: 'http://localhost:4000'
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       VALIDATE_WITH_GENERATED_SCHEMA: 'Account,ActivityDefinition,AdverseEvent,AllergyIntolerance,Appointment,AppointmentResponse,AuditEvent,Basic,Binary,BiologicallyDerivedProduct,BodyStructure,Bundle,CapabilityStatement,CarePlan,CareTeam,CatalogEntry,ChargeItem,ChargeItemDefinition,Claim,ClaimResponse,Client,ClinicalImpression,CodeSystem,Communication,CommunicationRequest,CompartmentDefinition,Composition,ConceptMap,Condition,Consent,Contract,Coverage,CoverageEligibilityRequest,CoverageEligibilityResponse,DetectedIssue,Device,DeviceDefinition,DeviceMetric,DeviceRequest,DeviceUseStatement,DiagnosticReport,DocumentManifest,DocumentReference,EffectEvidenceSynthesis,Encounter,Endpoint,EnrollmentRequest,EnrollmentResponse,EpisodeOfCare,EventDefinition,Evidence,EvidenceVariable,ExampleScenario,ExplanationOfBenefit,FamilyMemberHistory,Flag,Goal,Group,GuidanceResponse,HealthcareService,ImagingStudy,Immunization,ImmunizationEvaluation,ImmunizationRecommendation,ImplementationGuide,InsurancePlan,Invoice,Library,Linkage,List,Location,Measure,MeasureReport,Media,Medication,MedicationAdministration,MedicationDispense,MedicationKnowledge,MedicationRequest,MedicationStatement,MedicinalProduct,MedicinalProductAuthorization,MedicinalProductContraindication,MedicinalProductIndication,MedicinalProductIngredient,MedicinalProductInteraction,MedicinalProductManufactured,MedicinalProductPackaged,MedicinalProductPharmaceutical,MedicinalProductUndesirableEffect,MessageDefinition,MessageHeader,MolecularSequence,NamingSystem,NutritionOrder,Observation,ObservationDefinition,OperationDefinition,OperationOutcome,Organization,OrganizationAffiliation,Parameters,Patient,PaymentNotice,PaymentReconciliation,Person,PlanDefinition,Practitioner,PractitionerRole,Procedure,Provenance,Questionnaire,QuestionnaireResponse,RelatedPerson,RequestGroup,ResearchDefinition,ResearchElementDefinition,ResearchStudy,ResearchSubject,RiskAssessment,RiskEvidenceSynthesis,Schedule,SearchParameter,ServiceRequest,Slot,Specimen,SpecimenDefinition,StructureDefinition,StructureMap,Subscription,SubscriptionStatus,SubscriptionTopic,Substance,SubstanceNucleicAcid,SubstancePolymer,SubstanceProtein,SubstanceReferenceInformation,SubstanceSourceMaterial,SubstanceSpecification,SupplyDelivery,SupplyRequest,Task,TerminologyCapabilities,TestReport,TestScript,ValueSet,VerificationResult,VisionPrescription'
