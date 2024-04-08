@@ -156,7 +156,7 @@ function createApp ({ fnGetContainer }) {
             const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0');
             const isAdminUrl = reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI)) {
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
                 if (isAdminUrl) {
                     res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
@@ -164,7 +164,6 @@ function createApp ({ fnGetContainer }) {
                 if (isResourceUrl) {
                     res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
                 }
-                return;
             }
         }
         next();
