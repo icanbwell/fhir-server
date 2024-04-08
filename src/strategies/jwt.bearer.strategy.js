@@ -157,17 +157,6 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'] || jwt_payload.bwell_fhir_id;
-
-        let patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'] || jwt_payload.bwell_fhir_ids;
-        if (patientIdsFromJwtToken) {
-            patientIdsFromJwtToken = patientIdsFromJwtToken.split('|');
-            if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
-                context.patientIdsFromJwtToken = patientIdsFromJwtToken;
-            }
-        } else if (fhirPatientId) {
-            context.patientIdsFromJwtToken = [fhirPatientId];
-        }
         context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'] || jwt_payload.bwellFhirPersonId;
     }
 

@@ -163,8 +163,6 @@ class UpdateOperation {
             body,
             /** @type {string|null} */
             requestId,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {boolean | null} */
             isUser,
             /** @type {string} */
@@ -237,7 +235,6 @@ class UpdateOperation {
                 user,
                 scope,
                 isUser,
-                patientIdsFromJwtToken,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,

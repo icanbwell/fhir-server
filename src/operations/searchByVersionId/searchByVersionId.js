@@ -87,8 +87,6 @@ class SearchByVersionIdOperation {
          */
         const startTime = Date.now();
         const {
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -132,7 +130,6 @@ class SearchByVersionIdOperation {
                 user,
                 scope,
                 isUser,
-                patientIdsFromJwtToken,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,

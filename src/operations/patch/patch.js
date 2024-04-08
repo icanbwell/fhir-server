@@ -148,8 +148,6 @@ class PatchOperation {
             user,
             /** @type {string | null} */
             scope,
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -215,7 +213,6 @@ class PatchOperation {
                 user,
                 scope,
                 isUser,
-                patientIdsFromJwtToken,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,

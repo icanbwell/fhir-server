@@ -164,7 +164,6 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {boolean | null} isUser
-     * @param {string[] | null} patientIdsFromJwtToken
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
@@ -180,7 +179,6 @@ class SearchManager {
             user,
             scope,
             isUser,
-            patientIdsFromJwtToken,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
@@ -232,7 +230,7 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken
+                    base_version, isUser, personIdFromJwtToken
                 });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
@@ -289,7 +287,6 @@ class SearchManager {
                         user,
                         scope,
                         isUser,
-                        patientIdsFromJwtToken,
                         parsedArgs,
                         resourceType,
                         useAccessIndex,

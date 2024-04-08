@@ -253,115 +253,6 @@ describe('PatientScopeManager Tests', () => {
         });
     });
 
-    describe('patientScopeManager canWriteResourceAsync Tests (using patientIdsFromJwtToken)', () => {
-        const base_version = '4_0_0';
-        test('canWriteResourceAsync works for Condition', async () => {
-            /** @type {SimpleContainer} */
-            const container = createTestContainer();
-            /** @type {PatientScopeManager} */
-            const patientScopeManager = container.patientScopeManager;
-            /** @type {PreSaveManager} */
-            const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            // generate all the uuids
-            await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
-            const patientReference = condition.subject.reference;
-            const patientId = patientReference.split('/')[1];
-            const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
-            // now do the test
-            /** @type {boolean} */
-            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
-                base_version: '4_0_0',
-                isUser: true,
-                personIdFromJwtToken: null,
-                patientIdsFromJwtToken: [patientUuid],
-                resource: condition,
-                scope: 'patient/*.read user/*.* access/*.*'
-            });
-            expect(writeAllowed).toStrictEqual(true);
-        });
-        test('canWriteResourceWithAllowedPatientIds works with multiple uuids for Patient', async () => {
-            /** @type {SimpleContainer} */
-            const container = createTestContainer();
-            /** @type {PatientScopeManager} */
-            const patientScopeManager = container.patientScopeManager;
-            /** @type {PreSaveManager} */
-            const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            // generate all the uuids
-            await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
-            const patientReference = condition.subject.reference;
-            const patientId = patientReference.split('/')[1];
-            const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
-            // now do the test
-            /** @type {boolean} */
-            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
-                base_version,
-                isUser: true,
-                personIdFromJwtToken: null,
-                patientIdsFromJwtToken: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
-                resource: condition,
-                scope: 'patient/*.read user/*.* access/*.*'
-            });
-            expect(writeAllowed).toStrictEqual(true);
-        });
-        test('canWriteResourceWithAllowedPatientIds fails with wrong uuid for Patient', async () => {
-            /** @type {SimpleContainer} */
-            const container = createTestContainer();
-            /** @type {PatientScopeManager} */
-            const patientScopeManager = container.patientScopeManager;
-            /** @type {PreSaveManager} */
-            const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            // generate all the uuids
-            await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
-            const patientUuid = generateUUIDv5(`123|${condition.meta.security[0].code}`);
-            // now do the test
-            /** @type {boolean} */
-            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
-                base_version,
-                isUser: true,
-                personIdFromJwtToken: null,
-                patientIdsFromJwtToken: [patientUuid],
-                resource: condition,
-                scope: 'patient/*.read user/*.* access/*.*'
-            });
-            expect(writeAllowed).toStrictEqual(false);
-        });
-        test('canWriteResourceWithAllowedPatientIds fails with multiple wrong uuid for Patient', async () => {
-            /** @type {SimpleContainer} */
-            const container = createTestContainer();
-            /** @type {PatientScopeManager} */
-            const patientScopeManager = container.patientScopeManager;
-            /** @type {PreSaveManager} */
-            const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
-            // generate all the uuids
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
-            const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
-            const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
-            // now do the test
-            /** @type {boolean} */
-            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
-                base_version,
-                isUser: true,
-                personIdFromJwtToken: null,
-                patientIdsFromJwtToken: [patientUuid, patientUuid2],
-                resource: condition,
-                scope: 'patient/*.read user/*.* access/*.*'
-            });
-            expect(writeAllowed).toStrictEqual(false);
-        });
-    });
-
     describe('patientScopeManager canWriteResourceAsync Tests (using personIdFromJwtToken)', () => {
         const base_version = '4_0_0';
         test('canWriteResourceAsync works for Condition', async () => {
@@ -398,7 +289,6 @@ describe('PatientScopeManager Tests', () => {
                 base_version: '4_0_0',
                 isUser: true,
                 personIdFromJwtToken: person1Resource.id,
-                patientIdsFromJwtToken: undefined,
                 resource: condition,
                 scope: 'patient/*.read user/*.* access/*.*'
             });
@@ -439,7 +329,6 @@ describe('PatientScopeManager Tests', () => {
                 base_version,
                 isUser: true,
                 personIdFromJwtToken: person1Resource.id,
-                patientIdsFromJwtToken: undefined,
                 resource: condition,
                 scope: 'patient/*.read user/*.* access/*.*'
             });
@@ -480,7 +369,6 @@ describe('PatientScopeManager Tests', () => {
                 base_version: '4_0_0',
                 isUser: true,
                 personIdFromJwtToken: person1Resource.id,
-                patientIdsFromJwtToken: undefined,
                 resource: condition,
                 scope: 'user/*.* access/*.*'
             });

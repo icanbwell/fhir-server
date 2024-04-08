@@ -120,8 +120,6 @@ class HistoryOperation {
             protocol,
             /** @type {string | null} */
             host,
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -157,7 +155,6 @@ class HistoryOperation {
             user,
             scope,
             isUser,
-            patientIdsFromJwtToken,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
