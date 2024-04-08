@@ -158,10 +158,11 @@ function createApp ({ fnGetContainer }) {
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (isTrue(env.REDIRECT_TO_NEW_UI)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
+                if (isAdminUrl) {
+                    res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
+                }
                 if (isResourceUrl) {
                     res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
-                } else if (isAdminUrl) {
-                    res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
                 }
                 return;
             }
