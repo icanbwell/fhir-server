@@ -148,16 +148,13 @@ class KafkaClient {
                 shouldRetry = false;
                 return;
             } catch (e) {
-                if (e instanceof KafkaJSNonRetriableError || e.message?.includes('The producer is disconnected')) {
+                if (e instanceof KafkaJSNonRetriableError) {
                     const cause = e.cause;
                     /**
                      * Error code 72 represents LISTENER_NOT_FOUND error. It can be considered as transient error
                      * For more info about it check: https://kafka.apache.org/20/javadoc/index.html?org/apache/kafka/common/errors/ListenerNotFoundException.html
                      */
-                    if (
-                        (cause instanceof KafkaJSProtocolError && cause.code === 72) ||
-                        e.message?.includes('The producer is disconnected')
-                    ) {
+                    if (cause instanceof KafkaJSProtocolError && cause.code === 72) {
                         // reconfigure the client by reordering brokers array
                         const oldBrokers = this.brokers || [];
                         const reorderedBrokers = oldBrokers.length > 1 ? [...oldBrokers.slice(1), oldBrokers[0]] : [...oldBrokers];
@@ -178,11 +175,11 @@ class KafkaClient {
                         // should retry again
                         shouldRetry = true;
                     } else {
-                        shouldRetry = false;
+                        this.producerConnected = false;
                         throw e;
                     }
                 } else {
-                    shouldRetry = false;
+                    this.producerConnected = false;
                     throw e;
                 }
             }
