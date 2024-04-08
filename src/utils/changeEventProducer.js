@@ -3,7 +3,7 @@ const { generateUUID } = require('./uid.util');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ResourceManager } = require('../operations/common/resourceManager');
-const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { logTraceSystemEventAsync, logSystemErrorAsync } = require('../operations/common/systemEventLogging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -411,43 +411,52 @@ isCreate,
                         value: JSON.stringify(messageJson)
                     };
                 };
-                // --- Process Patient events ---
-                /**
-                 * @type {KafkaClientMessage[]}
-                 */
-                const patientMessages = Array.from(
-                    patientMessageMap.entries(), createKafkaClientMessageFn
-                );
-
-                await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
-
-                patientMessageMap.clear();
-
-                // --- Process Consent events ---
-                /**
-                 * @type {KafkaClientMessage[]}
-                 */
-                const consentMessages = Array.from(
-                    consentMessageMap.entries(), createKafkaClientMessageFn
-                );
-
-                await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
-
-                consentMessageMap.clear();
-
-                if (numberOfMessagesBefore > 0) {
-                    await logTraceSystemEventAsync(
-                        {
-                            event: 'changeEventProducer',
-                            message: 'Finished',
-                            args: {
-                                numberOfMessagesBefore,
-                                numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
-                                patientTopic: this.patientChangeTopic,
-                                consentTopic: this.consentChangeTopic
-                            }
-                        }
+                try {
+                    // --- Process Patient events ---
+                    /**
+                     * @type {KafkaClientMessage[]}
+                     */
+                    const patientMessages = Array.from(
+                        patientMessageMap.entries(), createKafkaClientMessageFn
                     );
+
+                    await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
+
+                    patientMessageMap.clear();
+
+                    // --- Process Consent events ---
+                    /**
+                     * @type {KafkaClientMessage[]}
+                     */
+                    const consentMessages = Array.from(
+                        consentMessageMap.entries(), createKafkaClientMessageFn
+                    );
+
+                    await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
+
+                    consentMessageMap.clear();
+
+                    if (numberOfMessagesBefore > 0) {
+                        await logTraceSystemEventAsync(
+                            {
+                                event: 'changeEventProducer',
+                                message: 'Finished',
+                                args: {
+                                    numberOfMessagesBefore,
+                                    numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
+                                    patientTopic: this.patientChangeTopic,
+                                    consentTopic: this.consentChangeTopic
+                                }
+                            }
+                        );
+                    }
+                } catch (e) {
+                    await logSystemErrorAsync({
+                        event: 'KafkaClient',
+                        message: e.message,
+                        error: e,
+                        args: {}
+                    });
                 }
             }
         );
