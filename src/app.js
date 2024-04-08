@@ -160,9 +160,11 @@ function createApp ({ fnGetContainer }) {
                 logInfo('Redirecting to new UI', { path: reqPath });
                 if (isAdminUrl) {
                     res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
+                    return;
                 }
                 if (isResourceUrl) {
                     res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
+                    return;
                 }
             }
         }
