@@ -225,10 +225,8 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
-    app.use(express.static(path.join(__dirname, 'oauth')));
-
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
-    app.get('/authcallback', (req, res) => {
+    app.get('/authcallback', express.static(path.join(__dirname, 'oauth')), (req, res) => {
         const state = req.query.state;
         const resourceUrl = state
             ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
