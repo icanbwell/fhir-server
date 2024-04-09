@@ -2077,15 +2077,6 @@
     "@opentelemetry/instrumentation" "^0.50.0"
     "@opentelemetry/semantic-conventions" "^1.22.0"
 
-"@opentelemetry/instrumentation-fs@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-fs/-/instrumentation-fs-0.11.0.tgz#3a631eeb75602a62688f3299eedc67bffb22c737"
-  integrity sha512-vVhrKNYc8S/tN5kRsuGDNaCdDVFoMSGFSrOKt9NaB53edWNB2psoUwR+aHUg0U+87zVnXMvRf2e0yDssg3WMcg==
-  dependencies:
-    "@opentelemetry/core" "^1.8.0"
-    "@opentelemetry/instrumentation" "^0.50.0"
-    "@opentelemetry/semantic-conventions" "^1.0.0"
-
 "@opentelemetry/instrumentation-graphql@^0.39.0":
   version "0.39.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-graphql/-/instrumentation-graphql-0.39.0.tgz#34385482d73060b57f2b9e18517fa7eb7ba117db"

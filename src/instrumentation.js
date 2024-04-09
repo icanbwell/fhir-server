@@ -9,7 +9,6 @@ const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 // Instrumentations
 const { DataloaderInstrumentation } = require('@opentelemetry/instrumentation-dataloader');
 const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
-const { FsInstrumentation } = require('@opentelemetry/instrumentation-fs');
 const { GraphQLInstrumentation } = require('@opentelemetry/instrumentation-graphql');
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 const { LruMemoizerInstrumentation } = require('@opentelemetry/instrumentation-lru-memoizer');
@@ -30,7 +29,6 @@ const sdk = new opentelemetry.NodeSDK({
     instrumentations: [
         new DataloaderInstrumentation(),
         new ExpressInstrumentation(),
-        new FsInstrumentation(),
         new GraphQLInstrumentation(),
         new HttpInstrumentation({
             ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url)

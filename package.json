@@ -129,7 +129,6 @@
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.48.0",
     "@opentelemetry/instrumentation-dataloader": "^0.8.0",
     "@opentelemetry/instrumentation-express": "^0.37.0",
-    "@opentelemetry/instrumentation-fs": "^0.11.0",
     "@opentelemetry/instrumentation-graphql": "^0.39.0",
     "@opentelemetry/instrumentation-http": "^0.50.0",
     "@opentelemetry/instrumentation-lru-memoizer": "^0.36.0",
