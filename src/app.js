@@ -225,14 +225,16 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
+    app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
+
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
-    app.get('/authcallback', express.static(path.join(__dirname, 'oauth')), (req, res) => {
+    app.get('/authcallback', (req, res) => {
         const state = req.query.state;
         const resourceUrl = state
             ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
-            `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
+            `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
             `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
             `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
         );
