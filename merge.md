@@ -47,8 +47,78 @@ For each resource in the bundle, the FHIR server checks:
 
 ### Notes:
 
-A FHIR resource must be specified in the URL in order for the $merge call to be processed.
+1. A FHIR resource must be specified in the URL in order for the $merge call to be processed.
     * ex. https://fhir.icanbwell.com/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
+
+2. The $merge endpoint in the FHIR server behaves differently from other endpoints when it comes to HTTP status codes. Instead of returning 403 Forbidden or 400 Bad Request for validation errors or forbidden actions, it always returns a 200 OK status code. However, details related to validation and forbidden actions are included in the response body as operation outcome.
+    * Example of $merge response in case of validation error
+    ```json
+    {
+        "operationOutcome": {
+            "resourceType": "OperationOutcome",
+            "issue": [
+                {
+                    "severity": "error",
+                    "code": "invalid",
+                    "details": {
+                        "text": "/4_0_0/MedicationStatement/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+                    }
+                },
+                {
+                    "severity": "error",
+                    "code": "invalid",
+                    "details": {
+                        "text": "/4_0_0/MedicationStatement/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+                    }
+                }
+            ]
+        },
+        "issue": {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+                "text": "/4_0_0/MedicationStatement/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+            }
+        },
+        "created": false,
+        "id": "2bd12e28-0fe9-4436-9d40-52b5995db598",
+        "uuid": "2bd12e28-0fe9-4436-9d40-52b5995db598",
+        "resourceType": "MedicationStatement",
+        "updated": false,
+        "sourceAssigningAuthority": "client"
+    }
+    ```
+
+    * Example of $merge response in case of forbidden error
+    ```json
+    {
+        "operationOutcome": {
+            "resourceType": "OperationOutcome",
+            "issue": [
+                {
+                    "severity": "error",
+                    "code": "forbidden",
+                    "details": {
+                        "text": "None of the provided scopes matched an allowed scope.: user test with scopes [patient/*.read] failed access check to [Patient.write]"
+                    },
+                    "diagnostics": "None of the provided scopes matched an allowed scope.: user test with scopes [patient/*.read] failed access check to [Patient.write]"
+                }
+            ]
+        },
+        "issue": {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+                "text": "None of the provided scopes matched an allowed scope.: user test with scopes [patient/*.read] failed access check to [Patient.write]"
+            },
+            "diagnostics": "None of the provided scopes matched an allowed scope.: user test with scopes [patient/*.read] failed access check to [Patient.write]"
+        },
+        "created": false,
+        "id": "3da9c5e3-db83-4788-8f06-6d574e5e49f3",
+        "resourceType": "Patient",
+        "updated": false
+    }
+    ```
 
 ### Implementation in FHIR server
 
