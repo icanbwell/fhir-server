@@ -168,11 +168,9 @@ class HistoryOperation {
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
          */
         const options = {
-            sort: [
-                {
-                    'resource.meta.versionId': -1
-                }
-            ]
+            sort: {
+                'resource.meta.versionId': -1
+            }
         };
 
         // Query our collection for this observation

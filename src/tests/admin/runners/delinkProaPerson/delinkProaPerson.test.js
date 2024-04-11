@@ -226,7 +226,7 @@ describe('Person Tests', () => {
 
             const person1History = resp.body;
             expect(person1History.entry).toHaveLength(3);
-            expect(person1History?.entry[2]?.request?.method).toEqual('DELETE');
+            expect(person1History?.entry[1]?.request?.method).toEqual('DELETE');
 
             resp = await request
                 .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
@@ -441,7 +441,7 @@ describe('Person Tests', () => {
 
             const person1History = resp.body;
             expect(person1History.entry).toHaveLength(3);
-            expect(person1History?.entry[2]?.request?.method).toEqual('DELETE');
+            expect(person1History?.entry[1]?.request?.method).toEqual('DELETE');
 
             resp = await request
                 .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
