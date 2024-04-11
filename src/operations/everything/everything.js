@@ -10,7 +10,6 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { ChatGPTLangChainManager } = require('../../chatgpt/managers/chatgptLangChainManager');
 
 class EverythingOperation {
     /**
@@ -18,14 +17,12 @@ class EverythingOperation {
      * @param {GraphOperation} graphOperation
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
-     * @param {ChatGPTLangChainManager} chatgptManager
      */
     constructor (
         {
             graphOperation,
             fhirLoggingManager,
-            scopesValidator,
-            chatgptManager
+            scopesValidator
         }
     ) {
         /**
@@ -44,11 +41,6 @@ class EverythingOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-        /**
-         * @type {ChatGPTLangChainManager}
-         */
-        this.chatgptManager = chatgptManager;
-        assertTypeEquals(chatgptManager, ChatGPTLangChainManager);
     }
 
     /**

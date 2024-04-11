@@ -1,8 +1,8 @@
-const { getHash } = require('../../../../utils/uid.util');
-const { MergeOperation } = require('../../../../operations/merge/merge');
-const { assertTypeEquals } = require('../../../../utils/assertType');
-const { SimpleContainer } = require('../../../../utils/simpleContainer');
-const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
+const { getHash } = require('../../../utils/uid.util');
+const { MergeOperation } = require('../../../operations/merge/merge');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { SimpleContainer } = require('../../../utils/simpleContainer');
+const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 
 function mapParticipants (members) {
     const result = [];

@@ -84,10 +84,7 @@ const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnric
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const { HashReferencesEnrichmentProvider } = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const { ChatGPTLangChainManager } = require('./chatgpt/managers/chatgptLangChainManager');
 const { FhirResourceWriterFactory } = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
-const { FhirToSummaryDocumentConverter } = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
-const { ResourceConverterFactory } = require('./chatgpt/resourceConverters/resourceConverterFactory');
 const { ProaConsentManager } = require('./operations/search/proaConsentManager');
 const { DataSharingManager } = require('./operations/search/dataSharingManager');
 const { SearchQueryBuilder } = require('./operations/search/searchQueryBuilder');
@@ -96,14 +93,7 @@ const { ParametersResourceValidator } = require('./operations/merge/validators/p
 const { BundleResourceValidator } = require('./operations/merge/validators/bundleResourceValidator');
 const { MergeResourceValidator } = require('./operations/merge/validators/mergeResourceValidator');
 const { RemoteFhirValidator } = require('./utils/remoteFhirValidator');
-const { OpenSearchVectorStoreManager } = require('./chatgpt/vectorStores/openSearchVectorStoreManager');
 const { PostSaveProcessor } = require('./dataLayer/postSaveProcessor');
-const { FhirSummaryWriter } = require('./chatgpt/summaryWriters/fhirSummaryWriter');
-const { VectorStoreFactory } = require('./chatgpt/vectorStores/vectorStoreFactory');
-const { MemoryVectorStoreManager } = require('./chatgpt/vectorStores/memoryVectorStoreManager');
-const { ChatGptEnrichmentProvider } = require('./enrich/providers/chatGptEnrichmentProvider');
-const { OpenAILLMFactory } = require('./chatgpt/llms/openaiLLMFactory');
-const { MongoAtlasVectorStoreManager } = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
@@ -144,13 +134,7 @@ const createContainer = function () {
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
-            new HashReferencesEnrichmentProvider(),
-            new ChatGptEnrichmentProvider(
-                {
-                    chatgptManager: c.chatgptManager,
-                    configManager: c.configManager
-                }
-            )
+            new HashReferencesEnrichmentProvider()
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -547,8 +531,7 @@ const createContainer = function () {
     container.register('everythingOperation', (c) => new EverythingOperation({
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
-        scopesValidator: c.scopesValidator,
-        chatgptManager: c.chatgptManager
+        scopesValidator: c.scopesValidator
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
@@ -769,66 +752,15 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
-    container.register('fhirToDocumentConverter', () => new FhirToSummaryDocumentConverter(
-        {
-            resourceConverterFactory: new ResourceConverterFactory()
-        }
-    ));
-
-    container.register('openSearchVectorStoreManager', (c) => new OpenSearchVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('memoryVectorStoreManager', (c) => new MemoryVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('mongoAtlasVectorStoreManager', (c) => new MongoAtlasVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('vectorStoreFactory', (c) => new VectorStoreFactory(
-        {
-            vectorStoreManagers: [
-                c.mongoAtlasVectorStoreManager,
-                c.openSearchVectorStoreManager,
-                c.memoryVectorStoreManager
-            ]
-        }
-    ));
-
-    container.register('llmFactory', (c) => new OpenAILLMFactory(
-        {
-            configManager: c.configManager
-        }
-    ));
-
-    container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
-        fhirToDocumentConverter: c.fhirToDocumentConverter,
-        vectorStoreFactory: c.vectorStoreFactory,
-        configManager: c.configManager,
-        llmFactory: c.llmFactory
-    }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
         }
     ));
 
-    container.register('fhirSummaryWriter', (c) => new FhirSummaryWriter(
-            {
-                fhirToDocumentConverter: c.fhirToDocumentConverter,
-                vectorStoreFactory: c.vectorStoreFactory,
-                configManager: c.configManager,
-                patientFilterManager: c.patientFilterManager
-            }
-        )
-    );
-
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
-            c.changeEventProducer,
-            c.fhirSummaryWriter
+            c.changeEventProducer
         ],
         configManager: c.configManager
     }));

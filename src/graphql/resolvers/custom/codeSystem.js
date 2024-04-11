@@ -1,5 +1,5 @@
 const graphqlFields = require('graphql-fields');
-const { graphqlFieldsToMongoProjection } = require('../../../../utils/graphqlFieldsProjection');
+const { graphqlFieldsToMongoProjection } = require('../../../utils/graphqlFieldsProjection');
 
 module.exports = {
     CodeSystem: {

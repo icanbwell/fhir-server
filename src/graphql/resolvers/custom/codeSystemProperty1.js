@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { Binary } = require('../../../../fhir/classes/4_0_0/resources/binary');
+const { Binary } = require('../../../fhir/classes/4_0_0/resources/binary');
 
 module.exports = {
     CodeSystemProperty1: {
