@@ -64,9 +64,9 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -107,9 +107,9 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationSubjectQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -150,9 +150,9 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationNotSubjectQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -194,9 +194,9 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationQuantityQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {

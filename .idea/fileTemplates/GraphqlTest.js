@@ -62,9 +62,9 @@ describe('GraphQL ${ResourceName} Tests', () => {
             const graphqlQueryText = ${ResourceNameLower}Query.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {

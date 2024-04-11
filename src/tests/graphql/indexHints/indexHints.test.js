@@ -75,7 +75,7 @@ describe('Graphql IndexHints Test', () => {
 
             // now check that we get the right record back
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -90,7 +90,7 @@ describe('Graphql IndexHints Test', () => {
             expect(desiredObject.code).toEqual('[id_1]');
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},

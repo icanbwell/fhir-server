@@ -57,7 +57,7 @@ describe('No invalid collections made through GraphQL Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},

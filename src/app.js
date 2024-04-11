@@ -339,8 +339,6 @@ function createApp ({ fnGetContainer }) {
                 });
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
-                app.use('/graphqlv2', router);
-                app.use('/graphql', router);
                 app.use('/\\$graphql', router);
             })
             .then((_) => {
@@ -366,17 +364,5 @@ function createApp ({ fnGetContainer }) {
 
     return app;
 }
-
-// /**
-//  *
-//  * @param {import('express').Express} app
-//  * @return {boolean}
-//  */
-// function unmountRoutes(app) {
-//     // eslint-disable-next-line new-cap
-//     app.use('/graphql', express.Router());
-//     // eslint-disable-next-line new-cap
-//     app.use('/graphqlv2', express.Router());
-// }
 
 module.exports = { createApp };

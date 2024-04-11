@@ -68,7 +68,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
             expect(patient[0].photo[0]._file_id).toBeDefined();
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
