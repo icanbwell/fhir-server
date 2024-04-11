@@ -39,7 +39,7 @@ const sdk = new opentelemetry.NodeSDK({
             responseHook: (span) => {
                 if (
                     span.attributes['db.system'] === 'mongodb' &&
-                    ['find', 'aggregate'].includes(span.attributes['db.operation'])
+                    !['find', 'aggregate'].includes(span.attributes['db.operation'])
                 ) {
                     delete span.attributes['db.statement'];
                 }
