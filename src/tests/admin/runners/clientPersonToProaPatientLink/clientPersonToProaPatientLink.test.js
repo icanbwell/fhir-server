@@ -140,11 +140,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -156,11 +156,11 @@ describe('Person Tests', () => {
             expect(person2History.entry).toBeDefined();
             expect(person2History.entry.length).toEqual(2);
 
-            delete person2History.entry[1].resource.meta.lastUpdated;
-            expect(person2History.entry[1].resource).toEqual(expectedPerson2AfterRun);
-
             delete person2History.entry[0].resource.meta.lastUpdated;
-            expect(person2History.entry[0].resource).toEqual(expectedPerson2BeforeRun);
+            expect(person2History.entry[0].resource).toEqual(expectedPerson2AfterRun);
+
+            delete person2History.entry[1].resource.meta.lastUpdated;
+            expect(person2History.entry[1].resource).toEqual(expectedPerson2BeforeRun);
         });
 
         test('Only client person 1 is linked, no change in client person 2', async () => {
@@ -262,11 +262,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -381,11 +381,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -397,11 +397,11 @@ describe('Person Tests', () => {
             expect(person2History.entry).toBeDefined();
             expect(person2History.entry.length).toEqual(2);
 
-            delete person2History.entry[1].resource.meta.lastUpdated;
-            expect(person2History.entry[1].resource).toEqual(expectedPerson2AfterRun);
-
             delete person2History.entry[0].resource.meta.lastUpdated;
-            expect(person2History.entry[0].resource).toEqual(expectedPerson2BeforeRun);
+            expect(person2History.entry[0].resource).toEqual(expectedPerson2AfterRun);
+
+            delete person2History.entry[1].resource.meta.lastUpdated;
+            expect(person2History.entry[1].resource).toEqual(expectedPerson2BeforeRun);
         });
     });
 });
