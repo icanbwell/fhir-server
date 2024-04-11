@@ -82,9 +82,9 @@ describe('GraphQL AllergyIntolerance Tests', () => {
             const graphqlQueryText = allergyintoleranceQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {

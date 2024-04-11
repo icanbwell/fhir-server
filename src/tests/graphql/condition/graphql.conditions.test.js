@@ -57,9 +57,9 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResourceCount(10);
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -71,9 +71,9 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResponse(expectedConditionBundleResource);
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -85,7 +85,7 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResponse(expectedConditionBundleResource);
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/$graphql')
                 .send({

@@ -62,7 +62,7 @@ describe('GraphQL MedicationRequest Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -111,7 +111,7 @@ describe('GraphQL MedicationRequest Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},

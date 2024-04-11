@@ -68,9 +68,9 @@ describe('GraphQL AllergyIntolerance Tests', () => {
             logInfo('------- end response 2  ------------');
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},

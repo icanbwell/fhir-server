@@ -8,11 +8,11 @@ This FHIR server implements support for querying FHIR data using GraphQL(https:/
 
 ### Playground
 
-You can access the GraphQL playground by going to the /graphql url in your browser e.g., http://fhir.dev.bwell.zone/graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
+You can access the GraphQL playground by going to the /$graphql url in your browser e.g., http://fhir.dev.bwell.zone/$graphql. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
 
 ### Making GraphQL calls to the server
 
-You can use the standard GraphQL client libraries or Postman and access the /graphql url. You will need to pass the OAuth token as a Bearer token to authenticate. See https://github.com/icanbwell/fhir-server/blob/master/security.md for details.
+You can use the standard GraphQL client libraries or Postman and access the /$graphql url. You will need to pass the OAuth token as a Bearer token to authenticate. See https://github.com/icanbwell/fhir-server/blob/master/security.md for details.
 
 ### Documentation
 
@@ -53,7 +53,7 @@ query {
 import requests
 import json
 
-url = "https://fhir.dev.bwell.zone/graphqlv2"
+url = "https://fhir.dev.bwell.zone/$graphql"
 
 payload="{\"query\":\"query {\\n entry {\\n resource {\\n  practitionerRole {\\n    id\\n    practitioner {\\n      name {\\n        family\\n        given\\n      }\\n    }\\n    organization {\\n      name\\n    }\\n    healthcareService {\\n      name\\n    }\\n    location {\\n      name\\n    }\\n  }\\n}\\n}\\n}\",\"variables\":{}}"
 headers = {
@@ -75,7 +75,7 @@ var fs = require('fs');
 var options = {
     method: 'POST',
     hostname: 'fhir.dev.bwell.zone',
-    path: '/graphqlv2',
+    path: '/$graphql',
     headers: {
         Authorization: 'Bearer {put token here}',
         'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ req.end();
 ### Sample cUrl Code
 
 ```shell
-curl --location --request POST 'https://fhir.dev.bwell.zone/graphqlv2' \
+curl --location --request POST 'https://fhir.dev.bwell.zone/$graphql' \
 --header 'Authorization: Bearer {put token here}' \
 --header 'Content-Type: application/json' \
 --data-raw '{"query":"query {\n entry {\n resource {\n  practitionerRole {\n    id\n    practitioner {\n      name {\n        family\n        given\n      }\n    }\n    organization {\n      name\n    }\n    healthcareService {\n      name\n    }\n    location {\n      name\n    }\n  }\n}\n}\n}","variables":{}}'
