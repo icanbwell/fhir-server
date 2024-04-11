@@ -132,7 +132,7 @@
     "@opentelemetry/instrumentation-graphql": "^0.39.0",
     "@opentelemetry/instrumentation-http": "^0.50.0",
     "@opentelemetry/instrumentation-lru-memoizer": "^0.36.0",
-    "@opentelemetry/instrumentation-mongodb": "^0.41.0",
+    "@opentelemetry/instrumentation-mongodb": "^0.42.0",
     "@opentelemetry/instrumentation-router": "^0.36.0",
     "@opentelemetry/instrumentation-winston": "^0.36.0",
     "@opentelemetry/resources": "^1.21.0",
