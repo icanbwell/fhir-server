@@ -18,13 +18,11 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
-const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {PostSaveProcessor} postSaveProcessor
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -38,7 +36,6 @@ class MergeOperation {
         {
             mergeManager,
             databaseBulkInserter,
-            postSaveProcessor,
             databaseBulkLoader,
             postRequestProcessor,
             scopesManager,
@@ -59,11 +56,6 @@ class MergeOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {DatabaseBulkLoader}
          */

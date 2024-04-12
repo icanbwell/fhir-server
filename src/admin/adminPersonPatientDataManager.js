@@ -13,6 +13,7 @@ const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { DatabaseUpdateManager } = require('../dataLayer/databaseUpdateManager');
 const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
+const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -24,6 +25,7 @@ class AdminPersonPatientDataManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor (
         {
@@ -31,7 +33,8 @@ class AdminPersonPatientDataManager {
             everythingOperation,
             databaseQueryFactory,
             databaseUpdateFactory,
-            r4ArgsParser
+            r4ArgsParser,
+            postSaveProcessor
         }
     ) {
         /**
@@ -62,6 +65,12 @@ class AdminPersonPatientDataManager {
          */
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -143,9 +152,9 @@ class AdminPersonPatientDataManager {
                         base_version,
                         requestInfo,
                         bundle,
-resourceType: 'Patient',
-databaseQueryManagerForPerson,
-databaseUpdateManagerForPerson,
+                        resourceType: 'Patient',
+                        databaseQueryManagerForPerson,
+                        databaseUpdateManagerForPerson,
                         responseStreamer
                     })
             );
@@ -154,9 +163,9 @@ databaseUpdateManagerForPerson,
                     base_version,
                     requestInfo,
                     bundle,
-resourceType: 'Person',
-databaseQueryManagerForPerson,
-databaseUpdateManagerForPerson,
+                    resourceType: 'Person',
+                    databaseQueryManagerForPerson,
+                    databaseUpdateManagerForPerson,
                     responseStreamer
                 })
             );
@@ -267,7 +276,7 @@ databaseUpdateManagerForPerson,
                 for (
                     const /** @type {import('mongodb').DefaultSchema} */
                     personRecordWithLinkToDeletedResourceId of personRecordsWithLinkToDeletedResourceId
-                    ) {
+                ) {
                     /**
                      * @type {Person}
                      */
@@ -305,6 +314,13 @@ databaseUpdateManagerForPerson,
                             bundleEntry
                         );
                     }
+
+                    await this.postSaveProcessor.afterSaveAsync({
+                        requestId,
+                        eventType: 'U',
+                        resourceType: 'Person',
+                        doc: person
+                    });
                 }
             }
             return updatedRecords;
