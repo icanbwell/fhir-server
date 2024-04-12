@@ -1,13 +1,13 @@
-const { logWarn } = require('../../operations/common/logging');
+const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ } } = require('../../constants');
-const { groupByLambda } = require('../../utils/list.util');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { R4ArgsParser } = require('../../operations/query/r4ArgsParser');
-const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
+const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ } } = require('../constants');
+const { groupByLambda } = require('../utils/list.util');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
+const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager');
 const { ResourceWithId } = require('./resourceWithId');
-const { isValidResource } = require('../../utils/validResourceCheck');
+const { isValidResource } = require('../utils/validResourceCheck');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data

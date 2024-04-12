@@ -4,11 +4,11 @@
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const { join } = require('path');
-const resolvers = require('../../graphql/v2/resolvers');
+const resolvers = require('../../graphql/resolvers');
 const { REQUEST_ID_TYPE } = require('../../constants');
 const { loadFilesSync } = require('@graphql-tools/load-files');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
-const { FhirDataSource } = require('../../graphql/v2/dataSource');
+const { FhirDataSource } = require('../../graphql/dataSource');
 const { buildSubgraphSchema } = require('@apollo/subgraph');
 
 const { ApolloServerPluginLandingPageDisabled, ApolloServerPluginInlineTraceDisabled } = require('@apollo/server/plugin/disabled');
@@ -32,7 +32,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
  * @return {Promise<e.Router>}
  */
 const graphql = async (fnGetContainer) => {
-    const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), { recursive: true });
+    const typesArray = loadFilesSync(join(__dirname, '../../graphql/schemas/'), { recursive: true });
     const typeDefs = mergeTypeDefs(typesArray);
 
     /**

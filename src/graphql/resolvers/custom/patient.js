@@ -1,7 +1,7 @@
-const { RemoveOperation } = require('../../../../operations/remove/remove');
-const { MergeOperation } = require('../../../../operations/merge/merge');
-const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
-const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
+const { RemoveOperation } = require('../../../operations/remove/remove');
+const { MergeOperation } = require('../../../operations/merge/merge');
+const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
+const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 
 /**
  method to match general practitioners to an id and remove from the provided list
