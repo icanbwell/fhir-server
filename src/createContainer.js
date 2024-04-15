@@ -165,7 +165,7 @@ const createContainer = function () {
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager,
-        databaseAttachmentManager: c.databaseAttachmentManager
+        patientFilterManager: c.patientFilterManager
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,

@@ -1,16 +1,18 @@
 const deepEqual = require('fast-deep-equal');
-const { mergeObject } = require('../../utils/mergeHelper');
-const { compare, applyPatch } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
-const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { getFirstElementOrNull } = require('../../utils/list.util');
-const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { isUuid } = require('../../utils/uid.util');
+const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { getFirstElementOrNull } = require('../../utils/list.util');
+const { isUuid } = require('../../utils/uid.util');
+const { mergeObject } = require('../../utils/mergeHelper');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
+const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
  * @typedef {object} MergePatchEntry
@@ -71,14 +73,24 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 class ResourceMerger {
     /**
      * constructor
-     * @param {PreSaveManager} preSaveManager
+     * @typedef {Object} Params
+     * @property {PreSaveManager} preSaveManager
+     * @property {PatientFilterManager} patientFilterManager
+     *
+     * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, patientFilterManager }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -206,6 +218,29 @@ class ResourceMerger {
             }
         }
 
+        // copy main patient reference to avoid changing it
+        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType: currentResource.resourceType
+        });
+        if (patientField) {
+            const currentValue = NestedPropertyReader.getNestedProperty({
+                obj: currentResource, path: patientField
+            });
+
+            if (currentValue) {
+                const fields = patientField.replace('.reference', '').split('.');
+                let referenceObj = resourceToMerge;
+                for (const field of fields) {
+                    referenceObj = referenceObj[`${field}`];
+                    if (!referenceObj) {
+                        break;
+                    }
+                }
+                if (referenceObj) {
+                    referenceObj.reference = currentValue;
+                }
+            }
+        }
         return resourceToMerge;
     }
 
