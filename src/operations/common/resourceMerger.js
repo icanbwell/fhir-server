@@ -222,7 +222,8 @@ class ResourceMerger {
         const patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: currentResource.resourceType
         });
-        if (patientField) {
+        // No need to change patient id
+        if (patientField && currentResource.resourceType !== 'Patient') {
             const currentValue = NestedPropertyReader.getNestedProperty({
                 obj: currentResource, path: patientField
             });
