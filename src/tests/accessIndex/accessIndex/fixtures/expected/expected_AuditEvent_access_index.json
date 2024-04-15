@@ -263,7 +263,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'_access.client1':1}]}, {}).sort({'_uuid':1}).limit(2)",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'_access.client1':1},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -275,7 +275,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','_access.client1','_uuid']",
+        "display": "['recorded','_access.client1','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

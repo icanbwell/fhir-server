@@ -69,7 +69,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'status':'completed'}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'$and':[{'status':'completed'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -81,7 +81,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['status','_uuid']",
+        "display": "['status','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

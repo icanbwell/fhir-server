@@ -42,7 +42,7 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.Patient_4_0_0.find({'$nor':[{'_sourceId':'WPS-0559166162'}]}, {}).sort({'_uuid':1}).limit(100)]"
+                        "display": "[db.Patient_4_0_0.find({'$and':[{'$nor':[{'_sourceId':'WPS-0559166162'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryCollection",
@@ -54,7 +54,7 @@
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
-                        "display": "[['_sourceId','_uuid']]"
+                        "display": "[['_sourceId','meta.tag.system','meta.tag.code','_uuid']]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryTime",

@@ -71,6 +71,12 @@ describe('Observation Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByIdResources);
+
+            resp = await request
+                .get('/4_0_0/Observation?id=2')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationByIdResources);
         });
     });
 });

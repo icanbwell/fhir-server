@@ -65,12 +65,26 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    $in: [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single uuid reference with resourceType', async () => {
@@ -104,7 +118,21 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                $and: [
+                    {
+                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference without resourceType and sourceAssigningAuthority', async () => {
@@ -138,12 +166,26 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    $in: [
-                        'Patient/1234',
-                        'Group/1234'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/1234',
+                                'Group/1234'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference with resourceType but no sourceAssigningAuthority', async () => {
@@ -177,7 +219,21 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': 'Patient/1234'
+                $and: [
+                    {
+                        'subject._sourceId': 'Patient/1234'
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference with resourceType and sourceAssigningAuthority', async () => {
@@ -212,6 +268,16 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual({
                 $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
                     {
                         'subject._sourceAssigningAuthority': 'abc'
                     },
@@ -254,14 +320,28 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    $in: [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Patient/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1',
-                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Patient/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1',
+                                'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple uuid reference with resourceType', async () => {
@@ -295,12 +375,26 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    $in: [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference without resourceType and without sourceAssigningAuthority', async () => {
@@ -334,14 +428,28 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    $in: [
-                        'Patient/123',
-                        'Group/123',
-                        'Patient/456',
-                        'Group/456'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/123',
+                                'Group/123',
+                                'Patient/456',
+                                'Group/456'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference with resourceType and without sourceAssigningAuthority', async () => {
@@ -375,12 +483,26 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    $in: [
-                        'Patient/123',
-                        'Group/456'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/123',
+                                'Group/456'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference without resourceType and with same sourceAssigningAuthority', async () => {
@@ -415,6 +537,16 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual({
                 $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
                     {
                         'subject._sourceAssigningAuthority': 'client'
                     },
@@ -464,6 +596,16 @@ describe('r4 search Tests', () => {
             expect(result.query).toStrictEqual({
                 $and: [
                     {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
+                    {
                         'subject._sourceAssigningAuthority': 'client'
                     },
                     {
@@ -508,36 +650,50 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/123',
-                                        'Group/123'
-                                    ]
-                                }
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/456',
-                                        'Group/456'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -573,26 +729,40 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Group/456'
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': 'Group/456'
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -628,38 +798,52 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/123',
-                                        'Group/123'
-                                    ]
-                                }
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456',
+                                                'Patient/789',
+                                                'Group/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/456',
-                                        'Group/456',
-                                        'Patient/789',
-                                        'Group/789'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -695,31 +879,45 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Group/456',
+                                                'Patient/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -757,21 +955,35 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': {
-                            $in: [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
-                        }
+                        $or: [
+                            {
+                                'subject._uuid': {
+                                    $in: [
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                                    ]
+                                }
+                            },
+                            {
+                                'subject._sourceId': {
+                                    $in: [
+                                        'Patient/123',
+                                        'Group/123'
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     {
-                        'subject._sourceId': {
-                            $in: [
-                                'Patient/123',
-                                'Group/123'
-                            ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
                     }
                 ]
@@ -808,12 +1020,26 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                        $or: [
+                            {
+                                'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            },
+                            {
+                                'subject._sourceId': 'Patient/123'
+                            }
+                        ]
                     },
                     {
-                        'subject._sourceId': 'Patient/123'
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -849,29 +1075,43 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': {
-                            $in: [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
-                        }
-                    },
-                    {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'client'
-                            },
-                            {
-                                'subject._sourceId': {
+                                'subject._uuid': {
                                     $in: [
-                                        'Patient/123',
-                                        'Group/123'
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                                     ]
                                 }
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'client'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -907,19 +1147,33 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'client'
+                                'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'client'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             }
                         ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -955,46 +1209,60 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': {
-                            $in: [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
+                        $or: [
+                            {
+                                'subject._uuid': {
+                                    $in: [
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                                    ]
+                                }
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456',
+                                                'Patient/789',
+                                                'Group/789'
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
-                    },
-                    {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/123',
-                                        'Group/123'
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Patient/456',
-                                        'Group/456',
-                                        'Patient/789',
-                                        'Group/789'
-                                    ]
-                                }
-                            }
-                        ]
                     }
                 ]
             });
@@ -1030,34 +1298,48 @@ describe('r4 search Tests', () => {
                 resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        $and: [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Group/456',
+                                                'Patient/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        $and: [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    $in: [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
