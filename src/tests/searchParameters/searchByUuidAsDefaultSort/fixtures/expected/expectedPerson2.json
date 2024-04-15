@@ -53,7 +53,7 @@
 	"meta": {
 		"tag": [{
 			"system": "https://www.icanbwell.com/query",
-			"display": "db.Person_4_0_0.find({'_uuid':{'$gt':'9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}}, {}).sort({'_uuid':1}).limit(2)"
+			"display": "db.Person_4_0_0.find({'$and':[{'_uuid':{'$gt':'9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(2)"
 		}, {
 			"system": "https://www.icanbwell.com/queryCollection",
 			"code": "Person_4_0_0"
@@ -62,7 +62,7 @@
 			"display": "{'limit':2,'sort':{'_uuid':1}}"
 		}, {
 			"system": "https://www.icanbwell.com/queryFields",
-			"display": "['_uuid']"
+			"display": "['_uuid','meta.tag.system','meta.tag.code']"
 		}, {
 			"system": "https://www.icanbwell.com/queryTime",
 			"display": "0.053"

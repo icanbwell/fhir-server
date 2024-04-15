@@ -94,7 +94,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'code.coding.code':'health-activity'},{'code.coding.code':'education'}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'code.coding.code':'health-activity'},{'code.coding.code':'education'}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -106,7 +106,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['code.coding.code','_uuid']",
+        "display": "['meta.tag.system','meta.tag.code','code.coding.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

@@ -62,7 +62,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Measure_4_0_0.find({'$or':[{'relatedArtifact.resource':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'},{'library':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Measure_4_0_0.find({'$and':[{'$or':[{'relatedArtifact.resource':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'},{'library':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -74,7 +74,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['relatedArtifact.resource','library','_uuid']",
+        "display": "['relatedArtifact.resource','library','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
