@@ -14,6 +14,7 @@ const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
 const { mergeObject } = require('../../../../utils/mergeHelper');
 const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
+const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 
 describe('ResourceMerger Tests', () => {
     beforeEach(async () => {
@@ -35,14 +36,13 @@ describe('ResourceMerger Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
             const resourceMerger = new ResourceMerger({
                 preSaveManager: new PreSaveManager({
-                     preSaveHandlers: [
-                                        new UuidColumnHandler(
-                                            {
-                                                configManager
-                                            }
-                                        )
-                                        ]
-                    })
+                    preSaveHandlers: [
+                        new UuidColumnHandler({
+                            configManager
+                        })
+                    ]
+                }),
+                patientFilterManager: new PatientFilterManager()
             });
             const currentResource = new Person(person1Resource);
             const resourceToMerge = new Person(personMergeResource);
@@ -64,14 +64,12 @@ describe('ResourceMerger Tests', () => {
             /**
              * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}
              */
-            const result = await resourceMerger.mergeResourceAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    currentResource,
-                    resourceToMerge
-                }
-            );
+            const result = await resourceMerger.mergeResourceAsync({
+                base_version,
+                requestInfo,
+                currentResource,
+                resourceToMerge
+            });
             expect(result.updatedResource).toStrictEqual(null);
         });
     });
