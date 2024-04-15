@@ -142,6 +142,20 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
+        if (!parsedArgs.id) {
+            query.$and = query.$and || [];
+            query.$and.push({
+                'meta.tag': {
+                    $not: {
+                        $elemMatch: {
+                            system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                            code: 'hidden'
+                        }
+                    }
+                }
+            });
+        }
+
         if (!includesQuantityType) {
             // the simplifier mangles quantity-type queries
             query = MongoQuerySimplifier.simplifyFilter({ filter: query });

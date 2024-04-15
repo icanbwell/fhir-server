@@ -64,7 +64,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$and['1'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['2'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
@@ -166,7 +166,7 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task', parsedArgs
             });
-            expect(result.query['for._sourceId']).toStrictEqual('Patient/1234');
+            expect(result.query.$and[0]['for._sourceId']).toStrictEqual('Patient/1234');
         });
         test('r4 works with Person and multiple patients', async () => {
             await createTestRequest((container) => {
@@ -197,7 +197,7 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Person', args })
             });
-            expect(result.query['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query.$and[0]['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with Person and multiple patients with reference type', async () => {
             await createTestRequest((container) => {
@@ -229,7 +229,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Person',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Person', args })
             });
-            expect(result.query['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query.$and[0]['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with Task and multiple subjects', async () => {
             await createTestRequest((container) => {
@@ -261,9 +261,9 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Task', args })
             });
-            expect(result.query['for._sourceId'].$in[0]).toStrictEqual('Account/1234');
-            expect(result.query['for._sourceId'].$in[1]).toStrictEqual('ActivityDefinition/1234');
-            expect(result.query['for._sourceId'].$in[145]).toStrictEqual('Account/4567');
+            expect(result.query.$and[0]['for._sourceId'].$in[0]).toStrictEqual('Account/1234');
+            expect(result.query.$and[0]['for._sourceId'].$in[1]).toStrictEqual('ActivityDefinition/1234');
+            expect(result.query.$and[0]['for._sourceId'].$in[145]).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple codes', async () => {
             await createTestRequest((container) => {
@@ -295,7 +295,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Task', args })
             });
-            expect(result.query['code.coding.code'].$in).toStrictEqual(['1234', '4567']);
+            expect(result.query.$and[0]['code.coding.code'].$in).toStrictEqual(['1234', '4567']);
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {
@@ -327,7 +327,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Task', args })
             });
-            expect(result.query['for._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query.$and[0]['for._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with boolean type true', async () => {
             await createTestRequest((container) => {
@@ -359,7 +359,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'PractitionerRole',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'PractitionerRole', args })
             });
-            expect(result.query.active).toStrictEqual(true);
+            expect(result.query.$and[0].active).toStrictEqual(true);
         });
         test('r4 works with boolean type false', async () => {
             await createTestRequest((container) => {
@@ -391,7 +391,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'PractitionerRole',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'PractitionerRole', args })
             });
-            expect(result.query.active).toStrictEqual(false);
+            expect(result.query.$and[0].active).toStrictEqual(false);
         });
         test('r4 works when both id and id:above are passed', async () => {
             await createTestRequest((container) => {
@@ -459,7 +459,9 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$nor['0']._sourceId).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(result.query.$and[0].$nor[0]._sourceId).toStrictEqual(
+                'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            );
         });
         test('r4 works with :not for _security', async () => {
             await createTestRequest((container) => {
@@ -491,7 +493,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
+            expect(result.query.$and[0].$nor[0]['meta.security'].$elemMatch).toStrictEqual({
                 system: 'https://www.icanbwell.com/access',
                 code: 'bwell'
             });
@@ -526,7 +528,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
+            expect(result.query.$and[0].$nor[0]['meta.security'].$elemMatch).toStrictEqual({
                 system: 'https://www.icanbwell.com/access',
                 code: 'bwell'
             });
@@ -562,10 +564,24 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                'identifier.value': {
-                    $regex: '465',
-                    $options: 'i'
-                }
+                $and: [
+                    {
+                        'identifier.value': {
+                            $regex: '465',
+                            $options: 'i'
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('r4 works with :contains for identifier multiple values', async () => {
@@ -599,17 +615,31 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                $or: [
+                $and: [
                     {
-                        'identifier.value': {
-                            $options: 'i',
-                            $regex: '465'
-                        }
+                        $or: [
+                                {
+                                    'identifier.value': {
+                                        $options: 'i',
+                                        $regex: '465'
+                                    }
+                                },
+                                {
+                                    'identifier.value': {
+                                        $options: 'i',
+                                        $regex: '789'
+                                    }
+                                }
+                        ]
                     },
                     {
-                        'identifier.value': {
-                            $options: 'i',
-                            $regex: '789'
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
                     }
                 ]
@@ -646,18 +676,32 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                identifier: {
-                    $elemMatch: {
-                        system: {
-                            $options: 'i',
-                            $regex: 'foo'
-                        },
-                        value: {
-                            $options: 'i',
-                            $regex: '465'
+                $and: [
+                    {
+                        identifier: {
+                            $elemMatch: {
+                                system: {
+                                    $options: 'i',
+                                    $regex: 'foo'
+                                },
+                                value: {
+                                    $options: 'i',
+                                    $regex: '465'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
                     }
-                }
+                ]
             });
         });
         test('r4 works with :contains for name in Patient', async () => {
@@ -691,10 +735,24 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                'name.given': {
-                    $options: 'i',
-                    $regex: 'foo'
-                }
+                $and: [
+                    {
+                        'name.given': {
+                            $options: 'i',
+                            $regex: 'foo'
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('r4 works with :contains for gender in Patient', async () => {
@@ -728,10 +786,24 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                gender: {
-                    $options: 'i',
-                    $regex: 'foo'
-                }
+                $and: [
+                    {
+                        gender: {
+                            $options: 'i',
+                            $regex: 'foo'
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('r4 works with depends-upon in Measure', async () => {
@@ -766,12 +838,26 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    $or: [
+                    $and: [
                         {
-                            'relatedArtifact.resource': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                            $or: [
+                                {
+                                    'relatedArtifact.resource': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                                },
+                                {
+                                    library: 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                                }
+                            ]
                         },
                         {
-                            library: 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                            'meta.tag': {
+                                $not: {
+                                    $elemMatch: {
+                                        code: 'hidden',
+                                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                    }
+                                }
+                            }
                         }
                     ]
                 });
@@ -808,44 +894,58 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    $or: [
+                    $and: [
                         {
-                            effectiveDateTime: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
-                            }
-                        },
-                        {
-                            $and: [
+                            $or: [
                                 {
-                                    'effectivePeriod.start': {
-                                        $lte: '2019-10-16T22:12:29+00:00'
+                                    effectiveDateTime: {
+                                        $options: 'i',
+                                        $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
                                     }
                                 },
                                 {
-                                    $or: [
+                                    $and: [
                                         {
-                                            'effectivePeriod.end': {
-                                                $gte: '2019-10-16T22:12:29+00:00'
+                                            'effectivePeriod.start': {
+                                                $lte: '2019-10-16T22:12:29+00:00'
                                             }
                                         },
                                         {
-                                            'effectivePeriod.end': null
+                                            $or: [
+                                                {
+                                                    'effectivePeriod.end': {
+                                                        $gte: '2019-10-16T22:12:29+00:00'
+                                                    }
+                                                },
+                                                {
+                                                    'effectivePeriod.end': null
+                                                }
+                                            ]
                                         }
                                     ]
+                                },
+                                {
+                                    effectiveTiming: {
+                                        $options: 'i',
+                                        $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                                    }
+                                },
+                                {
+                                    effectiveInstant: {
+                                        $options: 'i',
+                                        $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                                    }
                                 }
                             ]
                         },
                         {
-                            effectiveTiming: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
-                            }
-                        },
-                        {
-                            effectiveInstant: {
-                                $options: 'i',
-                                $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                            'meta.tag': {
+                                $not: {
+                                    $elemMatch: {
+                                        code: 'hidden',
+                                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                    }
+                                }
                             }
                         }
                     ]
@@ -984,6 +1084,16 @@ describe('r4 search Tests', () => {
                         },
                         {
                             'name.family': 'HIEMASTERONE'
+                        },
+                        {
+                            'meta.tag': {
+                                $not: {
+                                    $elemMatch: {
+                                        code: 'hidden',
+                                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                    }
+                                }
+                            }
                         }
                     ]
                 });

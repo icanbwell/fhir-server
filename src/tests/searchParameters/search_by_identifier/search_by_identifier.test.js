@@ -44,7 +44,7 @@ describe('Practitioner Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
         });
-         test('search with contains works', async () => {
+        test('search with contains works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server

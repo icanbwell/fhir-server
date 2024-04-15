@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Encounter_4_0_0.find({'subject._uuid':'Patient/3ec4d201-e816-5cc2-899c-832cf5a81c79'}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Encounter_4_0_0.find({'$and':[{'subject._uuid':'Patient/3ec4d201-e816-5cc2-899c-832cf5a81c79'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -15,7 +15,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject._uuid','_uuid']",
+        "display": "['subject._uuid','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

@@ -48,10 +48,13 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1')
+                .get('/4_0_0/Observation/?_bundle=1&_total=accurate')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
+            // Number of resources returned in this case is 2 as 1 of them has hidden tag
+            expect(resp.body.entry.length).toEqual(2);
+            expect(resp.body.total).toEqual(2);
         });
         test('hidden resources are returned in query by id', async () => {
             const request = await createTestRequest();
@@ -68,6 +71,12 @@ describe('Observation Tests', () => {
             // search by token system and code and make sure we get the right Observation back
             resp = await request
                 .get('/4_0_0/Observation/2')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationByIdResources);
+
+            resp = await request
+                .get('/4_0_0/Observation?id=2')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByIdResources);

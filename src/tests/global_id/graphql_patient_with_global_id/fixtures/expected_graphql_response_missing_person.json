@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Person_4_0_0.find({'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'1000000-a-01'}}}, {}).sort({'_uuid':1}).limit(100)]",
+        "display": "[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'1000000-a-01'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -15,7 +15,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['identifier.system','identifier.value','_uuid']]",
+        "display": "[['identifier.system','identifier.value','meta.tag.system','meta.tag.code','_uuid']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

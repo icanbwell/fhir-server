@@ -169,7 +169,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Encounter_4_0_0.find({'$and':[{'class.system':'http://terminology.hl7.org/CodeSystem/v3-ActCode'},{'class.code':'AMB'}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Encounter_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'class.system':'http://terminology.hl7.org/CodeSystem/v3-ActCode'},{'class.code':'AMB'}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -181,7 +181,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['class.system','class.code','_uuid']",
+        "display": "['meta.tag.system','meta.tag.code','class.system','class.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

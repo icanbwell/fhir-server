@@ -178,7 +178,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/7a81f87f-d358-593f-bf6f-908dbb0cb26b','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
+        "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/7a81f87f-d358-593f-bf6f-908dbb0cb26b','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -190,7 +190,7 @@
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['subject._uuid','meta.security.system','meta.security.code','_uuid']"
+        "display": "['subject._uuid','meta.tag.system','meta.tag.code','meta.security.system','meta.security.code','_uuid']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"

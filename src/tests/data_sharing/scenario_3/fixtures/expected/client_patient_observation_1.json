@@ -90,7 +90,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc']}},{'subject._sourceId':'Patient/person.c12345'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {}).sort({'_uuid':1}).limit(100)"
+                "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc']}},{'subject._sourceId':'Patient/person.c12345'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {}).sort({'_uuid':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -102,7 +102,7 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryFields",
-                "display": "['subject._uuid','subject._sourceId','meta.security.system','meta.security.code','_uuid']"
+                "display": "['subject._uuid','subject._sourceId','meta.tag.system','meta.tag.code','meta.security.system','meta.security.code','_uuid']"
             },
             {
                 "system": "https://www.icanbwell.com/queryTime",
