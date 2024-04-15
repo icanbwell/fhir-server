@@ -96,7 +96,6 @@ const { RemoteFhirValidator } = require('./utils/remoteFhirValidator');
 const { PostSaveProcessor } = require('./dataLayer/postSaveProcessor');
 const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
-const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
 const { PatientScopeManager } = require('./operations/security/patientScopeManager');
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const { READ } = require('./constants').OPERATIONS;
@@ -126,7 +125,6 @@ const createContainer = function () {
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
-            new HiddenMetaTagEnrichmentProvider(),
             new IdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager
