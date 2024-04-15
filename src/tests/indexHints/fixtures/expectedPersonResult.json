@@ -140,7 +140,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Person_4_0_0.find({'name.given':'Daniel'}, {}).sort({'_uuid':1}).limit(100)"
+        "display": "db.Person_4_0_0.find({'$and':[{'name.given':'Daniel'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -152,7 +152,7 @@
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['name.given','_uuid']"
+        "display": "['name.given','meta.tag.system','meta.tag.code','_uuid']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime",
