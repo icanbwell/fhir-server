@@ -686,7 +686,7 @@ class AdminPersonPatientLinkManager {
         result.linksRemoved = parentPersonResponses;
 
         await this.postSaveProcessor.afterSaveAsync({
-            requestId: requestId,
+            requestId,
             eventType: 'U',
             resourceType: 'Person',
             doc: personToDelete
