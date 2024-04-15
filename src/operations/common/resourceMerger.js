@@ -227,7 +227,7 @@ class ResourceMerger {
             const currentValue = NestedPropertyReader.getNestedProperty({
                 obj: currentResource, path: patientField
             });
-
+            // Patient reference from Person and Group resource are not updated here
             if (currentValue) {
                 const fields = patientField.replace('.reference', '').split('.');
                 let referenceObj = resourceToMerge;
