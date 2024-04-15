@@ -517,7 +517,6 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            postSaveProcessor: c.postSaveProcessor,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
@@ -714,7 +713,8 @@ const createContainer = function () {
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
-        fhirOperationsManager: c.fhirOperationsManager
+        fhirOperationsManager: c.fhirOperationsManager,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
@@ -727,7 +727,8 @@ const createContainer = function () {
             everythingOperation: c.everythingOperation,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
-            r4ArgsParser: c.r4ArgsParser
+            r4ArgsParser: c.r4ArgsParser,
+            postSaveProcessor: c.postSaveProcessor
         }));
 
     container.register('personMatchManager', (c) => new PersonMatchManager(

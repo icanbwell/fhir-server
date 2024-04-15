@@ -1,15 +1,16 @@
-const { assertTypeEquals } = require('../utils/assertType');
-const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
-const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
-const Person = require('../fhir/classes/4_0_0/resources/person');
-const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
-const { generateUUID, isUuid } = require('../utils/uid.util');
 const moment = require('moment-timezone');
-const { SecurityTagSystem } = require('../utils/securityTagSystem');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
+const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
+const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
+const Person = require('../fhir/classes/4_0_0/resources/person');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
-const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { logInfo } = require('../operations/common/logging');
+const { assertTypeEquals } = require('../utils/assertType');
+const { generateUUID, isUuid } = require('../utils/uid.util');
+const { SecurityTagSystem } = require('../utils/securityTagSystem');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -23,12 +24,14 @@ class AdminPersonPatientLinkManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {FhirOperationsManager} fhirOperationsManager
+     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor (
         {
             databaseQueryFactory,
             databaseUpdateFactory,
-            fhirOperationsManager
+            fhirOperationsManager,
+            postSaveProcessor
         }
     ) {
         /**
@@ -48,6 +51,12 @@ class AdminPersonPatientLinkManager {
          */
         this.fhirOperationsManager = fhirOperationsManager;
         assertTypeEquals(fhirOperationsManager, FhirOperationsManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -122,6 +131,13 @@ class AdminPersonPatientLinkManager {
                 base_version,
                 requestInfo,
                 doc: savedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType: 'Person',
+                doc: bwellPerson
             });
 
             return {
@@ -207,6 +223,13 @@ class AdminPersonPatientLinkManager {
                 base_version,
                 requestInfo,
                 doc: savedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType: 'Person',
+                doc: bwellPerson
             });
 
             return {
@@ -306,6 +329,13 @@ class AdminPersonPatientLinkManager {
                 doc: savedResource
             });
 
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType: 'Person',
+                doc: sourcePerson
+            });
+
             return {
                 message: `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
                 patientId,
@@ -353,6 +383,13 @@ class AdminPersonPatientLinkManager {
                 base_version,
                 requestInfo,
                 doc: savedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType: 'Person',
+                doc: sourcePerson
             });
 
             return {
@@ -433,6 +470,13 @@ class AdminPersonPatientLinkManager {
                 base_version,
                 requestInfo,
                 doc: savedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType: 'Person',
+                doc: person
             });
 
             return {
@@ -628,6 +672,10 @@ class AdminPersonPatientLinkManager {
             });
             parentPersonResponses.push(removePersonResult);
         }
+
+        const personToDelete = await databaseQueryManager.findOneAsync({
+            query: { [isUuid(personId) ? '_uuid' : 'id']: personId }
+        })
         /**
          * @type {{deletedCount: (number|null), error: (Error|null)}}
          */
@@ -636,6 +684,14 @@ class AdminPersonPatientLinkManager {
             requestId
         });
         result.linksRemoved = parentPersonResponses;
+
+        await this.postSaveProcessor.afterSaveAsync({
+            requestId,
+            eventType: 'U',
+            resourceType: 'Person',
+            doc: personToDelete
+        });
+
         return result;
     }
 }
