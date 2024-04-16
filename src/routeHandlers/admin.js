@@ -1,16 +1,16 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-const { AdminLogManager } = require('../admin/adminLogManager');
-const { assertIsValid } = require('../utils/assertType');
-const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
-const { generateUUID } = require('../utils/uid.util');
+const httpContext = require('express-http-context');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
+const { AdminLogManager } = require('../admin/adminLogManager');
+const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const { REQUEST_ID_HEADER } = require('../constants');
+const { assertIsValid } = require('../utils/assertType');
+const { generateUUID } = require('../utils/uid.util');
 const { logInfo } = require('../operations/common/logging');
-const httpContext = require('express-http-context');
+const { REQUEST_ID_HEADER } = require('../constants');
 
 /**
  * shows indexes
@@ -20,11 +20,12 @@ const httpContext = require('express-http-context');
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync (
-    {
-        req, container, res,
-        filterToProblems
-    }) {
+async function showIndexesAsync ({
+    req,
+    res,
+    container,
+    filterToProblems
+}) {
     logInfo('showIndexesAsync', { 'req.query': req.query });
     const audit = req.query.audit;
     /**
@@ -47,13 +48,11 @@ async function showIndexesAsync (
  * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
-async function synchronizeIndexesAsync (
-    {
-        req,
-        container,
-        res
-    }
-) {
+async function synchronizeIndexesAsync ({
+    req,
+    container,
+    res
+}) {
     logInfo('synchronizeIndexesAsync', { 'req.query': req.query });
     const audit = req.query.audit;
     /**
@@ -369,8 +368,8 @@ async function handleAdmin (
                     return await showIndexesAsync(
                         {
                             req,
-container,
-res,
+                            container,
+                            res,
                             filterToProblems: false
                         }
                     );
@@ -380,8 +379,8 @@ res,
                     return await showIndexesAsync(
                         {
                             req,
-container,
-res,
+                            container,
+                            res,
                             filterToProblems: true
                         }
                     );
@@ -412,6 +411,29 @@ res,
                         targetId
                     });
                     return res.json(json);
+                }
+
+                case 'updatePatientReference': {
+                    logInfo('', { 'req.query': req.query });
+                    const patientId = req.query.patientId;
+                    const resourceType = req.query.resourceType;
+                    const resourceId = req.query.resourceId;
+                    if (resourceId && resourceType && patientId) {
+                        /**
+                         * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.updatePatientLinkAsync({
+                            req,
+                            resourceType,
+                            resourceId,
+                            patientId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
+                    });
                 }
 
                 default: {

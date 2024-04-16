@@ -103,6 +103,39 @@ class DatabaseUpdateManager {
     }
 
     /**
+     * Updates the resource present in db
+     * @typedef {Object} UpdateOneAsyncParams
+     * @property {Resource} doc
+     * @property {FhirRequestInfo} requestInfo
+     *
+     * @param {UpdateOneAsyncParams}
+     */
+    async updateOneAsync ({ doc, requestInfo }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
+
+        try {
+            await this.preSaveManager.preSaveAsync({ resource: doc });
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+             */
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+
+            await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
+
+            // create history for the resource
+            await this.postSaveAsync({ requestInfo, doc });
+        } catch (err) {
+            throw new RethrownError({
+                error: err,
+                args: {
+                    doc
+                }
+            });
+        }
+    }
+
+    /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {string} base_version

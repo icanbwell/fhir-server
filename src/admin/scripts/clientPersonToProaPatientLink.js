@@ -62,7 +62,8 @@ async function main () {
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
             fhirOperationsManager: c.fhirOperationsManager,
-            postSaveProcessor: c.postSaveProcessor
+            postSaveProcessor: c.postSaveProcessor,
+            resourceMerger: c.resourceMerger
         })
     }));
 

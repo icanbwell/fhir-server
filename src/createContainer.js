@@ -712,7 +712,8 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
         fhirOperationsManager: c.fhirOperationsManager,
-        postSaveProcessor: c.postSaveProcessor
+        postSaveProcessor: c.postSaveProcessor,
+        resourceMerger: c.resourceMerger
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({

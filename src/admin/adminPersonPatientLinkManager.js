@@ -3,6 +3,8 @@ const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { ReferenceParser } = require('../utils/referenceParser');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
@@ -25,13 +27,15 @@ class AdminPersonPatientLinkManager {
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {ResourceMerger} resourceMerger
      */
     constructor (
         {
             databaseQueryFactory,
             databaseUpdateFactory,
             fhirOperationsManager,
-            postSaveProcessor
+            postSaveProcessor,
+            resourceMerger
         }
     ) {
         /**
@@ -57,6 +61,12 @@ class AdminPersonPatientLinkManager {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -693,6 +703,79 @@ class AdminPersonPatientLinkManager {
         });
 
         return result;
+    }
+
+    /**
+     * Updates patient in the provided resource
+     * @typedef {Object} UpdatePatientLinkAsyncParams
+     * @property {import('http').IncomingMessage} req
+     * @property {string} resourceId
+     * @property {string} resourceType
+     * @property {string} patientId
+     *
+     * @param {UpdatePatientLinkAsyncParams}
+     */
+    async updatePatientLinkAsync ({ req, resourceId, resourceType, patientId }) {
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+
+        /**
+         * @type {import('../dataLayer/databaseQueryManager').DatabaseQueryManager}
+         */
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version
+        });
+        /**
+         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         */
+        const relatedResource = await databaseQueryManager.findOneAsync({
+            query: {
+                [isUuid(resourceId) ? '_sourceId' : '_uuid']: resourceId
+            }
+        });
+
+        if (!relatedResource) {
+            return {
+                message: `${resourceType} with id ${resourceId} does not exist`
+            };
+        }
+
+        const isReferenceUpdated = this.resourceMerger.updatePatientReference({
+            reference: ReferenceParser.createReference({ resourceType: 'Patient', id: patientId }),
+            resourceToMerge: relatedResource
+        });
+
+        if (isReferenceUpdated) {
+            // increment versionId
+            relatedResource.meta.versionId++;
+
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType,
+                base_version
+            });
+
+            await databaseUpdateManager.updateOneAsync({
+                requestInfo,
+                doc: relatedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType,
+                doc: relatedResource
+            });
+
+            return {
+                message: `Patient reference updated for ${resourceType} with id ${resourceId}`,
+                patientId
+            };
+        }
+
+        return {
+            message: `Patient reference with same value is present in ${resourceType} with id ${resourceId}`,
+            patientId
+        };
     }
 }
 
