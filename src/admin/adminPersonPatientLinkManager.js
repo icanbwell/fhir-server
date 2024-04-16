@@ -11,6 +11,7 @@ const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink')
 const { logInfo } = require('../operations/common/logging');
 const { assertTypeEquals } = require('../utils/assertType');
 const { generateUUID, isUuid, generateUUIDv5 } = require('../utils/uid.util');
+const { COLLECTION } = require('../constants');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
@@ -716,12 +717,20 @@ class AdminPersonPatientLinkManager {
      * @param {UpdatePatientLinkAsyncParams}
      */
     async updatePatientLinkAsync ({ req, resourceId, resourceType, patientId }) {
+        if (!Object.values(COLLECTION).includes(resourceType)) {
+            return {
+                message: `ResourceType ${resourceType} not supported`
+            };
+        }
+
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
 
         // if id and sourceAssigningAuthority is passed convert to uuid
         const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(resourceId);
-        if (id && sourceAssigningAuthority) {
+        if (id && !isUuid(id) && sourceAssigningAuthority) {
             resourceId = generateUUIDv5(resourceId);
+        } else {
+            resourceId = id;
         }
         /**
          * @type {import('../dataLayer/databaseQueryManager').DatabaseQueryManager}

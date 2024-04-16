@@ -297,5 +297,49 @@ describe('Patient reference tests', () => {
 
             expect(resp).toHaveResponse(expectedEncounterAfterUpdate);
         });
+
+        test('Updating reference without required fields doesn\'t work', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .get('/admin/updatePatientReference?resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveResponse({
+                message: 'No resourceId: c87b8e53-b3db-53a0-aa92-05f4a3fb9d15 or resourceType: Encounter or patientId: undefined passed'
+            });
+
+            resp = await request
+                .get('/admin/updatePatientReference?patientId=2&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveResponse({
+                message: 'No resourceId: c87b8e53-b3db-53a0-aa92-05f4a3fb9d15 or resourceType: undefined or patientId: 2 passed'
+            });
+
+            resp = await request
+                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter')
+                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveResponse({
+                message: 'No resourceId: undefined or resourceType: Encounter or patientId: 2 passed'
+            });
+        });
+
+        test('Updating invalid resource doesn\'t work', async () => {
+            const request = await createTestRequest();
+
+            const resp = await request
+                .get('/admin/updatePatientReference?patientId=1&resourceType=Test&resourceId=1')
+                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveResponse({
+                message: 'ResourceType Test not supported'
+            });
+        });
     });
 });

@@ -147,17 +147,20 @@ class ResourceMerger {
         const patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: resourceToMerge.resourceType
         });
-        const fields = patientField.replace('.reference', '').split('.');
-        let referenceObj = resourceToMerge;
-        for (const field of fields) {
-            referenceObj = referenceObj[`${field}`];
-            if (!referenceObj) {
-                return;
+
+        if (patientField) {
+            const fields = patientField.replace('.reference', '').split('.');
+            let referenceObj = resourceToMerge;
+            for (const field of fields) {
+                referenceObj = referenceObj[`${field}`];
+                if (!referenceObj) {
+                    return;
+                }
             }
-        }
-        if (referenceObj && referenceObj.reference !== reference) {
-            referenceObj.reference = reference;
-            return true;
+            if (referenceObj && referenceObj.reference !== reference) {
+                referenceObj.reference = reference;
+                return true;
+            }
         }
         return false;
     }
