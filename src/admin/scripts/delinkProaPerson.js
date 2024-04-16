@@ -86,7 +86,8 @@ async function main () {
         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
-            fhirOperationsManager: c.fhirOperationsManager
+            fhirOperationsManager: c.fhirOperationsManager,
+            postSaveProcessor: c.postSaveProcessor
         })
     }));
 
