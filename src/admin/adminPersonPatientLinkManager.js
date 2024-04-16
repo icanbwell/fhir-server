@@ -10,7 +10,7 @@ const Person = require('../fhir/classes/4_0_0/resources/person');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
 const { logInfo } = require('../operations/common/logging');
 const { assertTypeEquals } = require('../utils/assertType');
-const { generateUUID, isUuid } = require('../utils/uid.util');
+const { generateUUID, isUuid, generateUUIDv5 } = require('../utils/uid.util');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
@@ -718,6 +718,11 @@ class AdminPersonPatientLinkManager {
     async updatePatientLinkAsync ({ req, resourceId, resourceType, patientId }) {
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
 
+        // if id and sourceAssigningAuthority is passed convert to uuid
+        const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(resourceId);
+        if (id && sourceAssigningAuthority) {
+            resourceId = generateUUIDv5(resourceId);
+        }
         /**
          * @type {import('../dataLayer/databaseQueryManager').DatabaseQueryManager}
          */
@@ -730,7 +735,7 @@ class AdminPersonPatientLinkManager {
          */
         const relatedResource = await databaseQueryManager.findOneAsync({
             query: {
-                [isUuid(resourceId) ? '_sourceId' : '_uuid']: resourceId
+                [isUuid(resourceId) ? '_uuid' : '_sourceId']: resourceId
             }
         });
 
@@ -747,7 +752,7 @@ class AdminPersonPatientLinkManager {
 
         if (isReferenceUpdated) {
             // increment versionId
-            relatedResource.meta.versionId++;
+            relatedResource.meta.versionId = `${parseInt(relatedResource.meta.versionId) + 1}`;
 
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType,
@@ -773,7 +778,7 @@ class AdminPersonPatientLinkManager {
         }
 
         return {
-            message: `Patient reference with same value is present in ${resourceType} with id ${resourceId}`,
+            message: `Couldn't update Patient reference in ${resourceType} with id ${resourceId}`,
             patientId
         };
     }
