@@ -31,7 +31,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPersonLink?bwellPersonId=Person/aba5bcf41cf64435839cf0568c121843&externalPersonId=Person/a58e50292d79469691d3048e787434cc')
+                .post('/admin/removePersonToPersonLink')
+                .send({
+                    bwellPersonId: 'Person/aba5bcf41cf64435839cf0568c121843',
+                    externalPersonId: 'Person/a58e50292d79469691d3048e787434cc'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
 
             // Expect removed meesage to be returned
