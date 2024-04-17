@@ -286,16 +286,26 @@ function createApp ({ fnGetContainer }) {
 
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router({ mergeParams: true });
-    // Add allowed types for json body parser
-    const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
-    adminRouter.use(express.json({ type: allowedContentTypes }));
     // Add authentication
     adminRouter.use(passport.initialize());
     adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
-    // Add admin routes
-    adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
-    adminRouter.post('/admin/:op?', (req, res) => handleAdminPost(fnGetContainer, req, res));
-    adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+    // Add admin routes with json body parser
+    const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+    adminRouter.get(
+        '/admin/:op?',
+        express.json({ type: allowedContentTypes }),
+        (req, res) => handleAdminGet(fnGetContainer, req, res)
+    );
+    adminRouter.post(
+        '/admin/:op?',
+        express.json({ type: allowedContentTypes }),
+        (req, res) => handleAdminPost(fnGetContainer, req, res)
+    );
+    adminRouter.delete(
+        '/admin/:op?',
+        express.json({ type: allowedContentTypes }),
+        (req, res) => handleAdminDelete(fnGetContainer, req, res)
+    );
 
     app.use(adminRouter);
 
