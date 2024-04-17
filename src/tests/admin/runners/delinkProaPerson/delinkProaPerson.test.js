@@ -99,7 +99,8 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                            postSaveProcessor: c.postSaveProcessor
+                            postSaveProcessor: c.postSaveProcessor,
+                            resourceMerger: c.resourceMerger
                         })
                     })
             );
@@ -191,7 +192,8 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                            postSaveProcessor: c.postSaveProcessor
+                            postSaveProcessor: c.postSaveProcessor,
+                            resourceMerger: c.resourceMerger
                         })
                     })
             );
@@ -291,7 +293,8 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                            postSaveProcessor: c.postSaveProcessor
+                            postSaveProcessor: c.postSaveProcessor,
+                            resourceMerger: c.resourceMerger
                         })
                     })
             );
@@ -399,7 +402,8 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                            postSaveProcessor: c.postSaveProcessor
+                            postSaveProcessor: c.postSaveProcessor,
+                            resourceMerger: c.resourceMerger
                         })
                     })
             );

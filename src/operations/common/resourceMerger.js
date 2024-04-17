@@ -130,6 +130,42 @@ class ResourceMerger {
     };
 
     /**
+     * Update main patient reference from currentResource to resourceToMerge
+     * @typedef {Object} UpdatePatientReferenceParams
+     * @property {string} reference
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+     *
+     * @param {UpdatePatientReferenceParams}
+     * @returns {boolean}
+     */
+    updatePatientReference ({ reference, resourceToMerge }) {
+        // Patient reference from Person and Group resource are not updated here
+        if (!reference) {
+            return;
+        }
+        // copy main patient reference to avoid changing it
+        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType: resourceToMerge.resourceType
+        });
+
+        if (patientField) {
+            const fields = patientField.replace('.reference', '').split('.');
+            let referenceObj = resourceToMerge;
+            for (const field of fields) {
+                referenceObj = referenceObj[`${field}`];
+                if (!referenceObj) {
+                    return;
+                }
+            }
+            if (referenceObj && referenceObj.reference !== reference) {
+                referenceObj.reference = reference;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
@@ -227,20 +263,7 @@ class ResourceMerger {
             const currentValue = NestedPropertyReader.getNestedProperty({
                 obj: currentResource, path: patientField
             });
-            // Patient reference from Person and Group resource are not updated here
-            if (currentValue) {
-                const fields = patientField.replace('.reference', '').split('.');
-                let referenceObj = resourceToMerge;
-                for (const field of fields) {
-                    referenceObj = referenceObj[`${field}`];
-                    if (!referenceObj) {
-                        break;
-                    }
-                }
-                if (referenceObj) {
-                    referenceObj.reference = currentValue;
-                }
-            }
+            this.updatePatientReference({ reference: currentValue, resourceToMerge });
         }
         return resourceToMerge;
     }

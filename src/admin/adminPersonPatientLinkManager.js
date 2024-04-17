@@ -3,12 +3,15 @@ const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { ReferenceParser } = require('../utils/referenceParser');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
 const { logInfo } = require('../operations/common/logging');
 const { assertTypeEquals } = require('../utils/assertType');
-const { generateUUID, isUuid } = require('../utils/uid.util');
+const { generateUUID, isUuid, generateUUIDv5 } = require('../utils/uid.util');
+const { COLLECTION } = require('../constants');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
@@ -25,13 +28,15 @@ class AdminPersonPatientLinkManager {
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {ResourceMerger} resourceMerger
      */
     constructor (
         {
             databaseQueryFactory,
             databaseUpdateFactory,
             fhirOperationsManager,
-            postSaveProcessor
+            postSaveProcessor,
+            resourceMerger
         }
     ) {
         /**
@@ -57,6 +62,12 @@ class AdminPersonPatientLinkManager {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -693,6 +704,92 @@ class AdminPersonPatientLinkManager {
         });
 
         return result;
+    }
+
+    /**
+     * Updates patient in the provided resource
+     * @typedef {Object} UpdatePatientLinkAsyncParams
+     * @property {import('http').IncomingMessage} req
+     * @property {string} resourceId
+     * @property {string} resourceType
+     * @property {string} patientId
+     *
+     * @param {UpdatePatientLinkAsyncParams}
+     */
+    async updatePatientLinkAsync ({ req, resourceId, resourceType, patientId }) {
+        if (!Object.values(COLLECTION).includes(resourceType)) {
+            return {
+                message: `ResourceType ${resourceType} not supported`
+            };
+        }
+
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+
+        // if id and sourceAssigningAuthority is passed convert to uuid
+        const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(resourceId);
+        if (id && !isUuid(id) && sourceAssigningAuthority) {
+            resourceId = generateUUIDv5(resourceId);
+        } else {
+            resourceId = id;
+        }
+        /**
+         * @type {import('../dataLayer/databaseQueryManager').DatabaseQueryManager}
+         */
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version
+        });
+        /**
+         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         */
+        const relatedResource = await databaseQueryManager.findOneAsync({
+            query: {
+                [isUuid(resourceId) ? '_uuid' : '_sourceId']: resourceId
+            }
+        });
+
+        if (!relatedResource) {
+            return {
+                message: `${resourceType} with id ${resourceId} does not exist`
+            };
+        }
+
+        const isReferenceUpdated = this.resourceMerger.updatePatientReference({
+            reference: ReferenceParser.createReference({ resourceType: 'Patient', id: patientId }),
+            resourceToMerge: relatedResource
+        });
+
+        if (isReferenceUpdated) {
+            // increment versionId
+            relatedResource.meta.versionId = `${parseInt(relatedResource.meta.versionId) + 1}`;
+
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType,
+                base_version
+            });
+
+            await databaseUpdateManager.updateOneAsync({
+                requestInfo,
+                doc: relatedResource
+            });
+
+            await this.postSaveProcessor.afterSaveAsync({
+                requestId: requestInfo.requestId,
+                eventType: 'U',
+                resourceType,
+                doc: relatedResource
+            });
+
+            return {
+                message: `Patient reference updated for ${resourceType} with id ${resourceId}`,
+                patientId
+            };
+        }
+
+        return {
+            message: `Couldn't update Patient reference in ${resourceType} with id ${resourceId}`,
+            patientId
+        };
     }
 }
 
