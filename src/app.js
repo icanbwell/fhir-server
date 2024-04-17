@@ -291,21 +291,13 @@ function createApp ({ fnGetContainer }) {
     adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
-    adminRouter.get(
-        '/admin/:op?',
-        express.json({ type: allowedContentTypes }),
-        (req, res) => handleAdminGet(fnGetContainer, req, res)
-    );
+    adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
     adminRouter.post(
         '/admin/:op?',
         express.json({ type: allowedContentTypes }),
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
-    adminRouter.delete(
-        '/admin/:op?',
-        express.json({ type: allowedContentTypes }),
-        (req, res) => handleAdminDelete(fnGetContainer, req, res)
-    );
+    adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
 
     app.use(adminRouter);
 
