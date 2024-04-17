@@ -150,10 +150,10 @@ function createApp ({ fnGetContainer }) {
 
     // redirect to new fhir-ui if html is requested
     app.use((req, res, next) => {
-        if (shouldReturnHtml(req)) {
+        if (!!req.query._format || shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             // check if this is home page, resource page, or admin page
-            const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0');
+            const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
             const isAdminUrl = reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
