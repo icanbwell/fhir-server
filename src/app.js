@@ -150,7 +150,7 @@ function createApp ({ fnGetContainer }) {
 
     // redirect to new fhir-ui if html is requested
     app.use((req, res, next) => {
-        if (!!req.query._format || shouldReturnHtml(req)) {
+        if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             // check if this is home page, resource page, or admin page
             const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
