@@ -67,12 +67,12 @@ async function synchronizeIndexesAsync ({
 }
 
 /**
- * Handles admin routes
+ * Handles admin GET routes
  * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdmin (
+async function handleAdminGet (
     fnGetContainer,
     req,
     res
@@ -134,30 +134,121 @@ async function handleAdmin (
                     });
                 }
 
-                case 'deletePerson': {
-                    logInfo('', { 'req.query': req.query });
-                    const personId = req.query.personId;
-                    if (personId) {
-                        /**
-                         * @type {AdminPersonPatientLinkManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
-                        const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                case 'indexes': {
+                    return await showIndexesAsync(
+                        {
                             req,
-                            requestId: req.id,
-                            personId
-                        });
-                        return res.json(json);
-                    }
-                    return res.json({
-                        message: `No personId: ${personId} passed`
-                    });
+                            container,
+                            res,
+                            filterToProblems: false
+                        }
+                    );
                 }
 
-                case 'createPersonToPersonLink': {
+                case 'indexProblems': {
+                    return await showIndexesAsync(
+                        {
+                            req,
+                            container,
+                            res,
+                            filterToProblems: true
+                        }
+                    );
+                }
+
+                case 'synchronizeIndexes': {
+                    return await synchronizeIndexesAsync(
+                        {
+                            req,
+                            container,
+                            res
+                        }
+                    );
+                }
+
+                case 'runPersonMatch': {
                     logInfo('', { 'req.query': req.query });
-                    const bwellPersonId = req.query.bwellPersonId;
-                    const externalPersonId = req.query.externalPersonId;
+                    const sourceId = req.query.sourceId;
+                    const sourceType = req.query.sourceType;
+                    const targetId = req.query.targetId;
+                    const targetType = req.query.targetType;
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.personMatchAsync({
+                        sourceType,
+                        sourceId,
+                        targetType,
+                        targetId
+                    });
+                    return res.json(json);
+                }
+
+                default: {
+                    return res.json({ message: 'Invalid Path' });
+                }
+            }
+        } else {
+            return res.status(403).json({
+                message: `Missing scopes for admin/*.read in ${scope}`
+            });
+        }
+    } catch (e) {
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
+        });
+        return res.end(JSON.stringify(operationOutcome));
+    }
+}
+
+/**
+ * Handles admin POST routes
+ * @param {function (): SimpleContainer} fnGetContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ */
+async function handleAdminPost (
+    fnGetContainer,
+    req,
+    res
+) {
+    try {
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
+        const operation = req.params.op;
+        logInfo(`op=${operation}`, {});
+
+        // set up all the standard services in the container
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = fnGetContainer();
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({ req });
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({ scope });
+
+        if (adminScopes.length > 0) {
+            switch (operation) {
+                case 'createPersonToPersonLink': {
+                    logInfo('', { 'req.body': req.body });
+                    const bwellPersonId = req.body.bwellPersonId;
+                    const externalPersonId = req.body.externalPersonId;
                     if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -176,9 +267,9 @@ async function handleAdmin (
                 }
 
                 case 'removePersonToPersonLink': {
-                    logInfo('', { 'req.query': req.query });
-                    const bwellPersonId = req.query.bwellPersonId;
-                    const externalPersonId = req.query.externalPersonId;
+                    logInfo('', { 'req.body': req.body });
+                    const bwellPersonId = req.body.bwellPersonId;
+                    const externalPersonId = req.body.externalPersonId;
                     if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -197,9 +288,9 @@ async function handleAdmin (
                 }
 
                 case 'createPersonToPatientLink': {
-                    logInfo('', { 'req.query': req.query });
-                    const externalPersonId = req.query.externalPersonId;
-                    const patientId = req.query.patientId;
+                    logInfo('', { 'req.body': req.body });
+                    const externalPersonId = req.body.externalPersonId;
+                    const patientId = req.body.patientId;
                     if (patientId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -218,9 +309,9 @@ async function handleAdmin (
                 }
 
                 case 'removePersonToPatientLink': {
-                    logInfo('', { 'req.query': req.query });
-                    const personId = req.query.personId;
-                    const patientId = req.query.patientId;
+                    logInfo('', { 'req.body': req.body });
+                    const personId = req.body.personId;
+                    const patientId = req.body.patientId;
                     if (personId && patientId) {
                         /**
                          * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
@@ -235,6 +326,111 @@ async function handleAdmin (
                     }
                     return res.json({
                         message: `No personId: ${personId} or patientId: ${patientId} passed`
+                    });
+                }
+
+                case 'updatePatientReference': {
+                    logInfo('', { 'req.body': req.body });
+                    const patientId = req.body.patientId;
+                    const resourceType = req.body.resourceType;
+                    const resourceId = req.body.resourceId;
+                    if (resourceId && resourceType && patientId) {
+                        /**
+                         * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.updatePatientLinkAsync({
+                            req,
+                            resourceType,
+                            resourceId,
+                            patientId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
+                    });
+                }
+
+                default: {
+                    return res.json({ message: 'Invalid Path' });
+                }
+            }
+        } else {
+            return res.status(403).json({
+                message: `Missing scopes for admin/*.read in ${scope}`
+            });
+        }
+    } catch (e) {
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
+        });
+        return res.end(JSON.stringify(operationOutcome));
+    }
+}
+
+/**
+ * Handles admin delete routes
+ * @param {function (): SimpleContainer} fnGetContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ */
+async function handleAdminDelete (
+    fnGetContainer,
+    req,
+    res
+) {
+    try {
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
+        const operation = req.params.op;
+        logInfo(`op=${operation}`, {});
+
+        // set up all the standard services in the container
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = fnGetContainer();
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({ req });
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({ scope });
+
+        if (adminScopes.length > 0) {
+            switch (operation) {
+                case 'deletePerson': {
+                    logInfo('', { 'req.query': req.query });
+                    const personId = req.query.personId;
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            req,
+                            requestId: req.id,
+                            personId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} passed`
                     });
                 }
 
@@ -364,78 +560,6 @@ async function handleAdmin (
                     });
                 }
 
-                case 'indexes': {
-                    return await showIndexesAsync(
-                        {
-                            req,
-                            container,
-                            res,
-                            filterToProblems: false
-                        }
-                    );
-                }
-
-                case 'indexProblems': {
-                    return await showIndexesAsync(
-                        {
-                            req,
-                            container,
-                            res,
-                            filterToProblems: true
-                        }
-                    );
-                }
-
-                case 'synchronizeIndexes': {
-                    return await synchronizeIndexesAsync(
-                        {
-                            req,
-                            container,
-                            res
-                        }
-                    );
-                }
-
-                case 'runPersonMatch': {
-                    logInfo('', { 'req.query': req.query });
-                    const sourceId = req.query.sourceId;
-                    const sourceType = req.query.sourceType;
-                    const targetId = req.query.targetId;
-                    const targetType = req.query.targetType;
-                    const personMatchManager = container.personMatchManager;
-                    assertIsValid(personMatchManager);
-                    const json = await personMatchManager.personMatchAsync({
-                        sourceType,
-                        sourceId,
-                        targetType,
-                        targetId
-                    });
-                    return res.json(json);
-                }
-
-                case 'updatePatientReference': {
-                    logInfo('', { 'req.query': req.query });
-                    const patientId = req.query.patientId;
-                    const resourceType = req.query.resourceType;
-                    const resourceId = req.query.resourceId;
-                    if (resourceId && resourceType && patientId) {
-                        /**
-                         * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
-                        const json = await adminPersonPatientLinkManager.updatePatientLinkAsync({
-                            req,
-                            resourceType,
-                            resourceId,
-                            patientId
-                        });
-                        return res.json(json);
-                    }
-                    return res.json({
-                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
-                    });
-                }
-
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -462,5 +586,7 @@ async function handleAdmin (
 }
 
 module.exports = {
-    handleAdmin
+    handleAdminGet,
+    handleAdminPost,
+    handleAdminDelete
 };

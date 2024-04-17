@@ -44,7 +44,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/1')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
@@ -90,7 +94,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/1|test')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1|test'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
@@ -136,7 +144,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/0bf61676-9672-50e0-ae12-347ecddca84f')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/0bf61676-9672-50e0-ae12-347ecddca84f'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 

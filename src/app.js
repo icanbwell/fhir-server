@@ -26,7 +26,7 @@ const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration
 const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
-const { handleAdmin } = require('./routeHandlers/admin');
+const { handleAdminGet, handleAdminPost, handleAdminDelete } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
 const { generateUUID } = require('./utils/uid.util');
@@ -286,13 +286,17 @@ function createApp ({ fnGetContainer }) {
 
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router({ mergeParams: true });
+    // Add allowed types for json body parser
+    const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+    adminRouter.use(express.json({ type: allowedContentTypes }));
+    // Add authentication
     adminRouter.use(passport.initialize());
     adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
-    const adminHandler = (req, res) => handleAdmin(
-        fnGetContainer, req, res
-    );
-    adminRouter.get('/admin/:op?', adminHandler);
-    adminRouter.post('/admin/:op?', adminHandler);
+    // Add admin routes
+    adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
+    adminRouter.post('/admin/:op?', (req, res) => handleAdminPost(fnGetContainer, req, res));
+    adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+
     app.use(adminRouter);
 
     // noinspection JSCheckFunctionSignatures

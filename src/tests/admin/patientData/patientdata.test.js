@@ -55,7 +55,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?id=patient1')
+                .delete('/admin/deletePatientDataGraph?id=patient1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
@@ -149,7 +149,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?id=patient1&sync=1')
+                .delete('/admin/deletePatientDataGraph?id=patient1&sync=1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletionResources);
@@ -209,7 +209,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?id=patient1')
+                .delete('/admin/deletePatientDataGraph?id=patient1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.* access/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletion1Resources);

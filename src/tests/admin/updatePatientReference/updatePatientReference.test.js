@@ -43,7 +43,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: '1'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -86,7 +91,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1|client')
+                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1|client')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: '1|client'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -129,7 +139,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -172,7 +187,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=1&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '1',
+                    resourceType: 'Encounter',
+                    resourceId: '1'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -203,7 +223,12 @@ describe('Patient reference tests', () => {
                 .expect(404);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -231,7 +256,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: '1'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/client1.* admin/*.*'))
                 .expect(200);
 
@@ -274,7 +304,12 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '2',
+                    resourceType: 'Encounter',
+                    resourceId: '1'
+                })
                 .set(getHeadersWithCustomToken('user/Task.* access/client1.* admin/*.*'))
                 .expect(200);
 
@@ -302,7 +337,11 @@ describe('Patient reference tests', () => {
             const request = await createTestRequest();
 
             let resp = await request
-                .get('/admin/updatePatientReference?resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference')
+                .send({
+                    resourceType: 'Encounter',
+                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -311,7 +350,11 @@ describe('Patient reference tests', () => {
             });
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '2',
+                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -320,7 +363,11 @@ describe('Patient reference tests', () => {
             });
 
             resp = await request
-                .get('/admin/updatePatientReference?patientId=2&resourceType=Encounter')
+                .post('/admin/updatePatientReference')
+                .send({
+                    resourceType: 'Encounter',
+                    patientId: '2'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
@@ -333,7 +380,12 @@ describe('Patient reference tests', () => {
             const request = await createTestRequest();
 
             const resp = await request
-                .get('/admin/updatePatientReference?patientId=1&resourceType=Test&resourceId=1')
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '1',
+                    resourceType: 'Test',
+                    resourceId: '1'
+                })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
