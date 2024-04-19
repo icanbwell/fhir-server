@@ -195,7 +195,8 @@ class MergeManager {
                     resourceToValidate: patched_resource_incoming,
                     path: requestInfo.path,
                     currentDate,
-                    resourceObj: patched_resource_incoming
+                    resourceObj: patched_resource_incoming,
+                    currentResource
                 });
             }
             if (validationOperationOutcome) {
