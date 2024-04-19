@@ -7,6 +7,7 @@ const observation2Resource = require('./fixtures/observation/observation2.json')
 // expected
 const expectedTaskResource = require('./fixtures/expected/expectedTask.json');
 const expectedObservationResource = require('./fixtures/expected/expectedObservation.json');
+const expectedOperationOutcome = require('./fixtures/expected/expectedOperationOutcome.json');
 
 const {
     commonBeforeEach,
@@ -51,7 +52,11 @@ describe('Patient reference tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ created: false, updated: false });
+            expect(resp).toHaveMergeResponse({
+                created: false,
+                updated: false,
+                issue: expectedOperationOutcome.issue[0]
+            });
 
             resp = await request
                 .get('/4_0_0/Task/1')
@@ -85,7 +90,11 @@ describe('Patient reference tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ created: false, updated: false });
+            expect(resp).toHaveMergeResponse({
+                created: false,
+                updated: false,
+                issue: expectedOperationOutcome.issue[0]
+            });
 
             resp = await request
                 .get('/4_0_0/Observation/1')
@@ -117,12 +126,12 @@ describe('Patient reference tests', () => {
                 .put('/4_0_0/Task/1')
                 .send(task2Resource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(400);
 
-            expect(resp).toHaveResponse(expectedTaskResource);
+            expect(resp).toHaveResponse(expectedOperationOutcome);
         });
 
-        test('Reference update using merge for Observation', async () => {
+        test('Reference update using put for Observation', async () => {
             const request = await createTestRequest();
 
             let resp = await request
@@ -144,9 +153,9 @@ describe('Patient reference tests', () => {
                 .put('/4_0_0/Observation/1')
                 .send(observation2Resource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(400);
 
-            expect(resp).toHaveResponse(expectedObservationResource);
+            expect(resp).toHaveResponse(expectedOperationOutcome);
         });
 
         test('Reference update using patch for Task', async () => {
@@ -177,8 +186,9 @@ describe('Patient reference tests', () => {
                     }
                 ])
                 .set(getHeadersJsonPatch())
+                .expect(400);
 
-            expect(resp).toHaveResponse(expectedTaskResource);
+            expect(resp).toHaveResponse(expectedOperationOutcome);
         });
 
         test('Reference update using patch for Observation', async () => {
@@ -209,9 +219,9 @@ describe('Patient reference tests', () => {
                     }
                 ])
                 .set(getHeadersJsonPatch())
-                .expect(200);
+                .expect(400);
 
-            expect(resp).toHaveResponse(expectedObservationResource);
+            expect(resp).toHaveResponse(expectedOperationOutcome);
         });
     });
 });

@@ -1,25 +1,27 @@
 const async = require('async');
-const { validateResource } = require('../../utils/validator.util');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { getCircularReplacer } = require('../../utils/getCircularReplacer');
-const { assertTypeEquals } = require('../../utils/assertType');
+const { BadRequestError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
+const { RethrownError } = require('../../utils/rethrownError');
+const { ScopesManager } = require('../security/scopesManager');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { ScopesManager } = require('../security/scopesManager');
-const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const { BadRequestError } = require('../../utils/httpErrors');
-const { logError } = require('./logging');
-const { RethrownError } = require('../../utils/rethrownError');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { isColumnDateType } = require('./isColumnDateType');
+const { logError } = require('./logging');
+const { validateResource } = require('../../utils/validator.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 
 class ResourceValidator {
     /**
@@ -29,6 +31,7 @@ class ResourceValidator {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ScopesManager} scopesManager
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor (
         {
@@ -36,7 +39,8 @@ class ResourceValidator {
             remoteFhirValidator,
             databaseQueryFactory,
             databaseUpdateFactory,
-            scopesManager
+            scopesManager,
+            patientFilterManager
         }
     ) {
         /**
@@ -68,20 +72,68 @@ class ResourceValidator {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
+    }
+
+    /**
+     * Patient reference should be same in current and new resource
+     * @typedef {Object} ValidatePatientReferenceParams
+     * @property {Resource} currentResource
+     * @property {Object} resourceToValidateJson
+     *
+     * @param {ValidatePatientReferenceParams}
+     * @returns {OperationOutcome | null}
+     */
+    validatePatientReference ({ currentResource, resourceToValidateJson }) {
+        // Get Patient field
+        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType: currentResource.resourceType
+        });
+
+        if (patientField) {
+            const currentValue = NestedPropertyReader.getNestedProperty({
+                obj: currentResource, path: patientField
+            });
+            const newValue = NestedPropertyReader.getNestedProperty({
+                obj: resourceToValidateJson, path: patientField
+            });
+
+            // Return operationOutcome is patientReference are not same to avoid patientReference change
+            if (currentValue !== newValue) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'invalid',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: 'Patient reference did not match with patient reference present in the database'
+                        })
+                    })
+                });
+            }
+        }
+        return null;
     }
 
     /**
      * validates a resource
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {Object|Resource} resourceToValidate
-     * @param {string} path
-     * @param {string} currentDate
-     * @param {Object} resourceObj
-     * @param {boolean|undefined} useRemoteFhirValidatorIfAvailable
-     * @param {string|undefined} profile
+     * @typedef {Object} ValidateResourceAsyncParams
+     * @property {string} base_version
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} id
+     * @property {string} resourceType
+     * @property {Object|Resource} resourceToValidate
+     * @property {string} path
+     * @property {Object} resourceObj
+     * @property {boolean|undefined} useRemoteFhirValidatorIfAvailable
+     * @property {string|undefined} profile
+     * @property {Resource|undefined} currentResource
+     *
+     * @param {ValidateResourceAsyncParams}
      * @returns {Promise<OperationOutcome | null>}
      */
     async validateResourceAsync (
@@ -92,10 +144,10 @@ class ResourceValidator {
             resourceType,
             resourceToValidate,
             path,
-            currentDate,
             resourceObj = null,
             useRemoteFhirValidatorIfAvailable = false,
-            profile
+            profile,
+            currentResource
         }
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
@@ -112,7 +164,7 @@ class ResourceValidator {
         /**
          * @type {OperationOutcome | null}
          */
-        const validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
+        let validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
             ? await this.validateResourceFromServerAsync(
                 {
                     base_version,
@@ -131,6 +183,13 @@ class ResourceValidator {
                     resourceObj
                 }
             );
+
+        if (!validationOperationOutcome && currentResource) {
+            validationOperationOutcome = this.validatePatientReference({
+                currentResource,
+                resourceToValidateJson
+            });
+        }
         if (validationOperationOutcome) {
             validationOperationOutcome.expression = [
                 resourceType + '/' + id

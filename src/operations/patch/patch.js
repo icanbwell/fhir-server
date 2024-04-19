@@ -302,7 +302,8 @@ class PatchOperation {
                     resourceToValidate: resource,
                     path,
                     currentDate,
-                    resourceObj: resource
+                    resourceObj: resource,
+                    currentResource: foundResource
                 });
             }
             if (validationOperationOutcome) {

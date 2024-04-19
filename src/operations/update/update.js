@@ -199,25 +199,6 @@ class UpdateOperation {
         const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         try {
-            if (this.configManager.validateSchema || parsedArgs._validate) {
-                /**
-                 * @type {OperationOutcome|null}
-                 */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming_json.id,
-                    resourceType,
-                    resourceToValidate: resource_incoming_json,
-                    path,
-                    currentDate,
-                    resourceObj: resource_incoming
-                });
-                if (validationOperationOutcome) {
-                    throw new NotValidatedError(validationOperationOutcome);
-                }
-            }
-
             /**
              * @type {boolean}
              */
@@ -276,6 +257,25 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             const data = resources[0];
+            if (this.configManager.validateSchema || parsedArgs._validate) {
+                /**
+                 * @type {OperationOutcome|null}
+                 */
+                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
+                    id: resource_incoming_json.id,
+                    resourceType,
+                    resourceToValidate: resource_incoming_json,
+                    path,
+                    currentDate,
+                    resourceObj: resource_incoming,
+                    currentResource: data
+                });
+                if (validationOperationOutcome) {
+                    throw new NotValidatedError(validationOperationOutcome);
+                }
+            }
             /**
              * @type {Resource|null}
              */

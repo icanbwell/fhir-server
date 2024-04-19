@@ -4,14 +4,12 @@ const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
-const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const { isUuid } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
@@ -75,22 +73,15 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
-     * @property {PatientFilterManager} patientFilterManager
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager, patientFilterManager }) {
+    constructor ({ preSaveManager }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-
-        /**
-         * @type {PatientFilterManager}
-         */
-        this.patientFilterManager = patientFilterManager;
-        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -128,42 +119,6 @@ class ResourceMerger {
             }, []);
         }
     };
-
-    /**
-     * Update main patient reference from currentResource to resourceToMerge
-     * @typedef {Object} UpdatePatientReferenceParams
-     * @property {string} reference
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
-     *
-     * @param {UpdatePatientReferenceParams}
-     * @returns {boolean}
-     */
-    updatePatientReference ({ reference, resourceToMerge }) {
-        // Patient reference from Person and Group resource are not updated here
-        if (!reference) {
-            return;
-        }
-        // copy main patient reference to avoid changing it
-        const patientField = this.patientFilterManager.getPatientPropertyForResource({
-            resourceType: resourceToMerge.resourceType
-        });
-
-        if (patientField) {
-            const fields = patientField.replace('.reference', '').split('.');
-            let referenceObj = resourceToMerge;
-            for (const field of fields) {
-                referenceObj = referenceObj[`${field}`];
-                if (!referenceObj) {
-                    return;
-                }
-            }
-            if (referenceObj && referenceObj.reference !== reference) {
-                referenceObj.reference = reference;
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
@@ -254,17 +209,6 @@ class ResourceMerger {
             }
         }
 
-        // copy main patient reference to avoid changing it
-        const patientField = this.patientFilterManager.getPatientPropertyForResource({
-            resourceType: currentResource.resourceType
-        });
-        // No need to change patient id
-        if (patientField && currentResource.resourceType !== 'Patient') {
-            const currentValue = NestedPropertyReader.getNestedProperty({
-                obj: currentResource, path: patientField
-            });
-            this.updatePatientReference({ reference: currentValue, resourceToMerge });
-        }
         return resourceToMerge;
     }
 
