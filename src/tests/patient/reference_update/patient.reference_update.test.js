@@ -3,10 +3,12 @@ const task1Resource = require('./fixtures/task/task1.json');
 const task2Resource = require('./fixtures/task/task2.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
+const observation3Resource = require('./fixtures/observation/observation3.json');
 
 // expected
 const expectedTaskResource = require('./fixtures/expected/expectedTask.json');
 const expectedObservationResource = require('./fixtures/expected/expectedObservation.json');
+const expectedObservation2Resource = require('./fixtures/expected/expectedObservation2.json');
 const expectedOperationOutcome = require('./fixtures/expected/expectedOperationOutcome.json');
 
 const {
@@ -97,11 +99,22 @@ describe('Patient reference tests', () => {
             });
 
             resp = await request
+                .post('/4_0_0/Observation/$merge')
+                .send(observation3Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({
+                created: false,
+                updated: true
+            });
+
+            resp = await request
                 .get('/4_0_0/Observation/1')
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveResponse(expectedObservationResource);
+            expect(resp).toHaveResponse(expectedObservation2Resource);
         });
 
         test('Reference update using update for Task', async () => {
@@ -182,7 +195,7 @@ describe('Patient reference tests', () => {
                     {
                         op: 'replace',
                         path: '/for/reference',
-                        value: 'patient/2'
+                        value: 'Patient/2'
                     }
                 ])
                 .set(getHeadersJsonPatch())
@@ -215,7 +228,7 @@ describe('Patient reference tests', () => {
                     {
                         op: 'replace',
                         path: '/subject/reference',
-                        value: 'patient/2'
+                        value: 'Patient/2'
                     }
                 ])
                 .set(getHeadersJsonPatch())
