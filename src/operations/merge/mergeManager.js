@@ -1,4 +1,4 @@
-const { logDebug, logError } = require('../common/logging');
+const { logDebug, logError, logWarn } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const { BadRequestError } = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
@@ -453,6 +453,12 @@ class MergeManager {
              * @type {Resource[]}
              */
             const duplicate_uuid_resources = findDuplicateResourcesByUuid(resources_incoming);
+            if (duplicate_uuid_resources.length > 0) {
+                logWarn(
+                    'Resource with same body is present multiple times in the request body, ' +
+                    `resource ids are ${duplicate_uuid_resources.map(r => r.id).join()}`
+                );
+            }
             /**
              * @type {Resource[]}
              */
