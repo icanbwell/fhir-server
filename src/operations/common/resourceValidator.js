@@ -110,7 +110,7 @@ class ResourceValidator {
                         code: 'invalid',
                         severity: 'error',
                         details: new CodeableConcept({
-                            text: 'Patient reference did not match with patient reference present in the database'
+                            text: `Patient Reference ${newValue} did not match with patient reference ${currentValue} reference present in database`
                         })
                     })
                 });

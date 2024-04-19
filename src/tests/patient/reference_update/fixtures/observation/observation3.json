@@ -1,0 +1,75 @@
+{
+  "resourceType": "Observation",
+  "id": "1",
+  "meta": {
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      }
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div>Hello World</div>"
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "URN:OID:2.16.840.1.113883.6.96",
+        "code": "11557-6",
+        "display": "Carbon dioxide in blood"
+      }
+    ]
+  },
+  "status": "final",
+  "subject": {
+    "reference": "Patient/1",
+    "display": "P. van de Heuvel"
+  },
+  "encounter": {
+    "reference": "Encounter/1"
+  },
+  "effectiveDateTime": "2013-04-02T10:30:10+01:00",
+  "issued": "2013-04-03T15:30:10+01:00",
+  "performer": [
+    {
+      "reference": "Practitioner/f005",
+      "display": "A. Langeveld"
+    }
+  ],
+  "valueQuantity": {
+    "value": 6.2,
+    "unit": "kPa",
+    "system": "http://unitsofmeasure.org",
+    "code": "kPa"
+  },
+  "interpretation": [
+    {
+      "coding": [
+        {
+          "system": "urn:oid:2.16.840.1.113883.6.96",
+          "code": "H",
+          "display": "High"
+        }
+      ]
+    }
+  ],
+  "referenceRange": [
+    {
+      "low": {
+        "value": 4.8,
+        "unit": "kPa",
+        "system": "http://unitsofmeasure.org",
+        "code": "kPa"
+      },
+      "high": {
+        "value": 6,
+        "unit": "kPa",
+        "system": "http://unitsofmeasure.org",
+        "code": "kPa"
+      }
+    }
+  ]
+}
