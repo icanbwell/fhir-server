@@ -9,6 +9,9 @@ function isColumnDateType (resourceType, columnName) {
     if (!resourceType || !columnName) {
         return false;
     }
+    if (columnName === 'meta.lastUpdated') {
+        return true;
+    }
     switch (resourceType) {
         case 'AuditEvent':
             if (columnName === 'recorded') {
@@ -94,6 +97,9 @@ function isColumnDateType (resourceType, columnName) {
                 columnName === 'activity.detail.scheduledTiming.repeat.timeOfDay' ||
                 columnName === 'activity.detail.scheduledPeriod.start' ||
                 columnName === 'activity.detail.scheduledPeriod.end' ||
+                columnName === 'activity.detail.scheduledString' ||
+                columnName === 'period.start' ||
+                columnName === 'period.end' ||
                 columnName === 'created') {
                 return true;
             }
@@ -496,7 +502,6 @@ function isColumnDateType (resourceType, columnName) {
         case 'Immunization':
             if (columnName === 'occurrenceDateTime' ||
                 columnName === 'occurrenceString' ||
-                columnName === 'reaction.date' ||
                 columnName === 'expirationDate' ||
                 columnName === 'series.started' ||
                 columnName === 'education.publicationDate' ||

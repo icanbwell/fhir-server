@@ -15,57 +15,54 @@ class DateColumnHandler extends PreSaveHandler {
      */
     // if a column is of date type then set it to date (if not already)
     async preSaveAsync ({ resource }) {
-        for (const [fieldName, field] of Object.entries(resource)) {
-            // if a column is of date type then set it to date (if not already)
-            // TODO: this currently only handles one level deep fields.  Change it to handle fields multiple levels deep
-            if (isColumnDateType(resource.resourceType, fieldName)) {
-                if (!(resource[`${fieldName}`] instanceof Date)) {
-                    resource[`${fieldName}`] = new Date(field);
-                }
-            }
-        }
+        await this.processResource(resource, '');
         return resource;
     }
 
-    async processObject (resource, field, fieldName, namePath) {
-        if (typeof field === 'object' && !Array.isArray(field)) {
-            for (const [subFieldName, subField] of Object.entries(field)) {
-                await this.processObject(resource, subField, subFieldName, `${namePath}.${fieldName}`);
-            }
-        } else if (Array.isArray(field)) {
-            await this.processArray(resource, field, fieldName, `${namePath}.${fieldName}`);
-        } else {
-            let path = fieldName;
-            if (namePath.length > 0) {
-                path = `${namePath}.${fieldName}`;
-            }
-            if (isColumnDateType(resource.resourceType, path)) {
-                if (!(resource[`${path}`] instanceof Date)) {
-                    resource[`${path}`] = new Date(field);
-                }
-            }
-        }
-    }
+    async processResource (resource, path) {
+        const extendPath = (existingPath, key) => {
+            return existingPath ? `${existingPath}.${key}` : key;
+        };
 
-    async processArray (resource, field, fieldName, namePath) {
-        for (let i = 0; i < field.length(); i++) {
-            if (typeof field[i] === 'object' && !Array.isArray(field[i])) {
-                for (const [subFieldName, subField] of Object.entries(field[i])) {
-                    await this.processObject(resource, subField, subFieldName, `${namePath}.${fieldName}`);
-                }
-            } else if (Array.isArray(field[i])) {
-                await this.processArray(resource, field[i], fieldName, `${namePath}.${fieldName}`);
-            } else {
-                let path = fieldName;
-                if (namePath.length > 0) {
-                    path = `${namePath}.${fieldName}`;
-                }
-                if (isColumnDateType(resource.resourceType, path)) {
-                    if (!(field[i] instanceof Date)) {
-                        field[i] = new Date(field[i]);
+        const recurseData = (object, parentPath) => {
+            Object.keys(object).forEach(key => {
+                const currentPath = extendPath(parentPath, key);
+                const value = object[key];
+                if (Array.isArray(value)) {
+                    value.forEach((item, index) => {
+                    if (typeof item === 'object' && item !== null) {
+                        recurseData(item, extendPath(currentPath, index));
+                    } else {
+                        if (this.shouldUpdate(resource, extendPath(currentPath, index))) {
+                            object[key][index] = this.setDate(item);
+                        }
+                    }
+                });
+                } else if (typeof value === 'object' && value !== null) {
+                    recurseData(value, currentPath);
+                } else {
+                    if (value && this.shouldUpdate(resource, currentPath)) {
+                        object[key] = this.setDate(value);
                     }
                 }
-            }
+            });
+        };
+
+        recurseData(resource, path);
+    }
+
+    shouldUpdate (resource, path) {
+        const cleanPath = path.replace(/\.\d+(\.|$)/g, '.');
+        return isColumnDateType(resource.resourceType, cleanPath);
+    }
+
+    setDate (scalar) {
+        const newDate = new Date(scalar);
+        if (isNaN(newDate.getTime())) {
+            // return input if not valid date
+            return scalar;
+        } else {
+            return newDate;
         }
     }
 }
