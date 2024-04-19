@@ -70,7 +70,7 @@ function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
     /**
      * @type {number}
      */
-    const matchingOldItemIndex = oldArray.findIndex(x => x.id === newArrayItem.id);
+    const matchingOldItemIndex = (resultArray || oldArray).findIndex(x => x.id === newArrayItem.id);
     /**
      * @type {boolean}
      */
@@ -83,7 +83,10 @@ function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
         }
         // call deepmerge recursively to merge into items in this array
         resultArray[`${matchingOldItemIndex}`] = deepmerge(
-            oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
+            oldArray[`${matchingOldItemIndex}`],
+            newArrayItem,
+            options
+        );
         foundMatch = true;
     }
     return { foundMatch, resultArray };
