@@ -58,7 +58,9 @@
                 "reference": "Person/a4bbcb7e-aba6-4076-a5f0-c34c83e54324",
                 "type": "Person"
               },
-              "assurance": "level4"
+              "assurance": "level4",
+              "type": "refer",
+              "other": "No"
             }
           ]
         }

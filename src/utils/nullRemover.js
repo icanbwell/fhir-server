@@ -19,13 +19,7 @@ const removeNull = (obj) => {
             if (type === 'object' && !(value instanceof Date)) {
                 // Recurse...
                 removeNull(value);
-                if (!Object.keys(value).length) {
-                    delete obj[`${key}`];
-                }
                 if (Array.isArray(value)) {
-                    if (value.length === 0) {
-                        delete obj[`${key}`];
-                    }
                     for (const arrayItem of value) {
                         removeNull(arrayItem);
                     }
