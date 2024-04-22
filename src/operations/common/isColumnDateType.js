@@ -5,7 +5,6 @@
  * @returns {boolean}
  */
 function isColumnDateType (resourceType, columnName) {
-    // TODO: for now hardcoded for AuditEvent but later we should generate from fhir schema for all date properties
     if (!resourceType || !columnName) {
         return false;
     }
