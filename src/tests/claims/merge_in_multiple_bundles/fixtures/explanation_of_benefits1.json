@@ -160,7 +160,6 @@
                         "text": "Procedure Modifier 1"
                     }
                 ],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
