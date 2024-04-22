@@ -16,7 +16,7 @@
         "state": "Texas"
       }
     ],
-    "birthDate": "1996-01-01",
+    "birthDate": "1996-01-01T00:00:00.000Z",
     "gender": "male",
     "id": "aab16fc4c5914e38b489bcd096369623",
     "identifier": [
@@ -132,7 +132,7 @@
         "state": "TX"
       }
     ],
-    "birthDate": "1991-09-10",
+    "birthDate": "1991-09-10T00:00:00.000Z",
     "gender": "male",
     "id": "0318898e65044aaab3115d048d44c434",
     "identifier": [

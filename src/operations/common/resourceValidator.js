@@ -20,6 +20,7 @@ const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('./logging');
 const { RethrownError } = require('../../utils/rethrownError');
 const { isColumnDateType } = require('./isColumnDateType');
+const { isColumnDateTimeType } = require('./isColumnDateTimeType');
 
 class ResourceValidator {
     /**
@@ -105,7 +106,11 @@ class ResourceValidator {
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
             if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
                 if (field instanceof Date && field) {
-                    resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                    if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
+                        resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                    } else {
+                        resourceToValidateJson[`${fieldName}`] = field.toISOString().substring(0, 10);
+                    }
                 }
             }
         }

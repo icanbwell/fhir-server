@@ -13,7 +13,7 @@
                                 ]
                             }
                         ],
-                        "birthDate": "2017-01-01",
+                        "birthDate": "2017-01-01T00:00:00.000Z",
                         "explanationOfBenefit": [
                             {
                                 "id": "WPS-Claim-429017018331",
