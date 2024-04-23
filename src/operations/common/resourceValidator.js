@@ -19,6 +19,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { isColumnDateType } = require('./isColumnDateType');
 const { isColumnDateTimeType } = require('./isColumnDateTimeType');
+const { isColumnDatePeriodType } = require('./isColumnDatePeriodType');
 const { logError } = require('./logging');
 const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
@@ -156,12 +157,19 @@ class ResourceValidator {
 
         // Convert date fields to string for validation
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
-            if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
-                if (field instanceof Date && field) {
-                    if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
-                        resourceToValidateJson[`${fieldName}`] = field.toISOString();
-                    } else {
-                        resourceToValidateJson[`${fieldName}`] = field.toISOString().substring(0, 10);
+            if (isColumnDatePeriodType(resourceToValidateJson.resourceType, fieldName)) {
+                const newField = {};
+                newField.start = field.start.toISOString();
+                newField.end = field.end.toISOString();
+                resourceToValidateJson[`${fieldName}`] = newField;
+            } else {
+                if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
+                    if (field instanceof Date && field) {
+                        if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
+                            resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                        } else {
+                            resourceToValidateJson[`${fieldName}`] = field.toISOString().substring(0, 10);
+                        }
                     }
                 }
             }

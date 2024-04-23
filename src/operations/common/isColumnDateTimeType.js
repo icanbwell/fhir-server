@@ -28,8 +28,10 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Appointment':
-            if (columnName === 'start' ||
+            if (columnName === 'created' ||
+                columnName === 'start' ||
                 columnName === 'end' ||
+                columnName === 'requestedPeriod.start' ||
                 columnName === 'requestedPeriod.end' ||
                 columnName === 'participant.period.start' ||
                 columnName === 'participant.period.end') {

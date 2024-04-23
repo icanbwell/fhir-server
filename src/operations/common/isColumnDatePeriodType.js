@@ -1,608 +1,254 @@
 /**
- * returns whether the specified column in the specified resource is of Date type
+ * returns whether the specified column in the specified resource is of Date Period type (for validation purposes)
  * @param {string} resourceType
  * @param {string} columnName
  * @returns {boolean}
  */
-function isColumnDateType (resourceType, columnName) {
+function isColumnDatePeriodType (resourceType, columnName) {
     if (!resourceType || !columnName) {
         return false;
     }
-    if (columnName === 'meta.lastUpdated') {
-        return true;
-    }
     switch (resourceType) {
-        case 'AuditEvent':
-            if (columnName === 'recorded') {
-                return true;
-            }
-            break;
         case 'Account':
-            if (columnName === 'servicePeriod.start' ||
-                columnName === 'servicePeriod.end' ||
-                columnName === 'guarantor.period.start' ||
-                columnName === 'guarantor.period.end') {
+            if (columnName === 'servicePeriod' ||
+                columnName === 'guarantor.period') {
                 return true;
             }
             break;
         case 'ActivityDefinition':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'timingPeriod.start' ||
-                columnName === 'timingPeriod.end' ||
-                columnName === 'timingTiming.event') {
-                return true;
-            }
-            break;
-        case 'AdverseEvent':
-            if (columnName === 'date' ||
-                columnName === 'detected' ||
-                columnName === 'recordedDate') {
-                return true;
-            }
-            break;
-        case 'AllergyIntolerance':
-            if (columnName === 'recordedDate' ||
-                columnName === 'lastOccurrence' ||
-                columnName === 'onsetDateTime' ||
-                columnName === 'reaction.onset') {
+            if (columnName === 'effectivePeriod' ||
+                columnName === 'timingPeriod') {
                 return true;
             }
             break;
         case 'Appointment':
-            if (columnName === 'created' ||
-                columnName === 'start' ||
-                columnName === 'end' ||
-                columnName === 'requestedPeriod.start' ||
-                columnName === 'requestedPeriod.end' ||
-                columnName === 'participant.period.start' ||
-                columnName === 'participant.period.end') {
-                return true;
-            }
-            break;
-        case 'Basic':
-            if (columnName === 'created') {
+            if (columnName === 'requestedPeriod' ||
+                columnName === 'participant.period') {
                 return true;
             }
             break;
         case 'BiologicallyDerivedProduct':
-            if (columnName === 'collection.collectedPeriod.start' ||
-                columnName === 'collection.collectedPeriod.end' ||
-                columnName === 'collection.collectedDateTime' ||
-                columnName === 'manipulation.timePeriod.start' ||
-                columnName === 'manipulation.timePeriod.end' ||
-                columnName === 'manipulation.timeDateTime' ||
-                columnName === 'processing.timePeriod.start' ||
-                columnName === 'processing.timePeriod.end' ||
-                columnName === 'processing.timeDateTime' ||
-                columnName === 'storage.duration.start' ||
-                columnName === 'storage.duration.end') {
-                return true;
-            }
-            break;
-        case 'Bundle':
-            if (columnName === 'timestamp' ||
-                columnName === 'entry.request.ifModifiedSince' ||
-                columnName === 'entry.response.lastModified') {
-                return true;
-            }
-            break;
-        case 'CapabilityStatement':
-            if (columnName === 'date' ||
-                columnName === 'software.releaseDate') {
+            if (columnName === 'collection.collectedPeriod' ||
+                columnName === 'manipulation.timePeriod' ||
+                columnName === 'processing.timePeriod' ||
+                columnName === 'storage.duration') {
                 return true;
             }
             break;
         case 'CarePlan':
-            if (columnName === 'activity.detail.scheduledTiming.event' ||
-                columnName === 'activity.detail.scheduledTiming.repeat.boundsPeriod.start' ||
-                columnName === 'activity.detail.scheduledTiming.repeat.boundsPeriod.end' ||
-                columnName === 'activity.detail.scheduledTiming.repeat.timeOfDay' ||
-                columnName === 'activity.detail.scheduledPeriod.start' ||
-                columnName === 'activity.detail.scheduledPeriod.end' ||
-                columnName === 'activity.detail.scheduledString' ||
-                columnName === 'period.start' ||
-                columnName === 'period.end' ||
-                columnName === 'created') {
+            if (columnName === 'activity.detail.scheduledTiming.repeat.boundsPeriod' ||
+                columnName === 'activity.detail.scheduledPeriod' ||
+                columnName === 'period') {
                 return true;
             }
             break;
         case 'CareTeam':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end' ||
-                columnName === 'participant.period.start' ||
-                columnName === 'participant.period.end') {
+            if (columnName === 'period' ||
+                columnName === 'participant.period') {
                 return true;
             }
             break;
         case 'CatalogEntry':
-            if (columnName === 'valueTo' ||
-                columnName === 'validityPeriod.start' ||
-                columnName === 'validityPeriod.end' ||
-                columnName === 'lastUpdated') {
+            if (columnName === 'validityPeriod') {
                 return true;
             }
             break;
        case 'ChargeItem':
-            if (columnName === 'enteredDate' ||
-                columnName === 'occurrenceDateTime' ||
-                columnName === 'occurrencePeriod.start' ||
-                columnName === 'occurrencePeriod.end' ||
-                columnName === 'occurrenceTiming.event') {
+            if (columnName === 'occurrencePeriod') {
                 return true;
             }
             break;
         case 'ChargeItemDefinition':
-            if (columnName === 'date' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'Claim':
-            if (columnName === 'created' ||
-                columnName === 'item.servicedDate' ||
-                columnName === 'item.servicedPeriod.start' ||
-                columnName === 'item.servicedPeriod.end' ||
-                columnName === 'supportingInfo.timingDate' ||
-                columnName === 'supportingInfo.timingPeriod.start' ||
-                columnName === 'supportingInfo.timingPeriod.end' ||
-                columnName === 'procedure.date') {
+            if (columnName === 'item.servicedPeriod' ||
+                columnName === 'supportingInfo.timingPeriod') {
                 return true;
             }
             break;
         case 'ClaimResponse':
-            if (columnName === 'created' ||
-                columnName === 'payment.date' ||
-                columnName === 'item.servicedDate' ||
-                columnName === 'item.servicedPeriod.start' ||
-                columnName === 'item.servicedPeriod.end' ||
-                columnName === 'addItem.servicedDate' ||
-                columnName === 'addItem.servicedPeriod.start' ||
-                columnName === 'addItem.servicedPeriod.end' ||
-                columnName === 'procedure.date') {
-                return true;
-            }
-            break;
-        case 'ClinicalImpression':
-            if (columnName === 'date' || columnName === 'effectiveDateTime') {
-                return true;
-            }
-            break;
-        case 'CodeSystem':
-            if (columnName === 'date' ||
-                columnName === 'concept.property.valueDateTime') {
-                return true;
-            }
-            break;
-        case 'Communication':
-            if (columnName === 'received' || columnName === 'sent') {
+            if (columnName === 'item.servicedPeriod' ||
+                columnName === 'addItem.servicedPeriod') {
                 return true;
             }
             break;
         case 'CommunicationRequest':
-            if (columnName === 'authoredOn' ||
-                columnName === 'occurrenceDateTime' ||
-                columnName === 'occurrencePeriod.start' ||
-                columnName === 'occurrencePeriod.end') {
+            if (columnName === 'occurrencePeriod') {
                 return true;
             }
             break;
-        case 'CompartmentDefinition':
-            if (columnName === 'date') {
-                return true;
-            }
-            break;
-        case 'Composition':
-            if (columnName === 'date' ||
-                columnName === 'event.period.start' ||
-                columnName === 'event.period.end' ||
-                columnName === 'attester.time') {
-                return true;
-            }
-            break;
-        case 'ConceptMap':
-            if (columnName === 'date') {
+       case 'Composition':
+            if (columnName === 'event.period') {
                 return true;
             }
             break;
         case 'Condition':
-            if (columnName === 'abatementDateTime' ||
-                columnName === 'abatementPeriod.start' ||
-                columnName === 'abatementPeriod.end' ||
-                columnName === 'onsetDateTime' ||
-                columnName === 'onsetPeriod.start' ||
-                columnName === 'onsetPeriod.end' ||
-                columnName === 'recordedDate') {
+            if (columnName === 'abatementPeriod' ||
+                columnName === 'onsetPeriod') {
                 return true;
             }
             break;
         case 'Consent':
-            if (columnName === 'dateTime' ||
-                columnName === 'provision.period.start' ||
-                columnName === 'provision.period.end' ||
-                columnName === 'provision.dataPeriod.start' ||
-                columnName === 'provision.dataPeriod.end' ||
-                columnName === 'verification.verificationDate') {
+            if (columnName === 'provision.period' ||
+                columnName === 'provision.dataPeriod') {
                 return true;
             }
             break;
         case 'Contract':
-            if (columnName === 'issued' ||
-                columnName === 'applies.start' ||
-                columnName === 'applies.end' ||
-                columnName === 'contentDefinition.publicationDate' ||
-                columnName === 'term.action.occurrencePeriod.start' ||
-                columnName === 'term.action.occurrencePeriod.end' ||
-                columnName === 'term.action.occurrenceTiming.event' ||
-                columnName === 'term.action.occurrenceTiming.repeat.boundsPeriod.start' ||
-                columnName === 'term.action.occurrenceTiming.repeat.boundsPeriod.end' ||
-                columnName === 'term.action.occurrenceTiming.repeat.timeOfDay' ||
-                columnName === 'term.action.occurrenceDateTime' ||
-                columnName === 'term.asset.period.start' ||
-                columnName === 'term.asset.period.end' ||
-                columnName === 'term.asset.usePeriod.start' ||
-                columnName === 'term.asset.usePeriod.end' ||
-                columnName === 'term.asset.answer.valueDateTime' ||
-                columnName === 'term.asset.answer.valueDate' ||
-                columnName === 'term.asset.answer.valueTime' ||
-                columnName === 'term.asset.valuedItem.effectiveTime' ||
-                columnName === 'term.asset.valuedItem.paymentDate' ||
-                columnName === 'term.offer.answer.valueDateTime' ||
-                columnName === 'term.offer.answer.valueDate' ||
-                columnName === 'term.offer.answer.valueTime' ||
-                columnName === 'term.applies.start' ||
-                columnName === 'term.applies.end' ||
-                columnName === 'term.issued') {
+            if (columnName === 'applies' ||
+                columnName === 'term.action.occurrencePeriod' ||
+                columnName === 'term.action.occurrenceTiming.repeat.boundsPeriod' ||
+                columnName === 'term.asset.period' ||
+                columnName === 'term.asset.usePeriod' ||
+                columnName === 'term.applies') {
                 return true;
             }
             break;
         case 'Coverage':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end' ||
-                columnName === 'costToBeneficiary.period.start' ||
-                columnName === 'costToBeneficiary.period.end') {
+            if (columnName === 'period' ||
+                columnName === 'costToBeneficiary.period') {
                 return true;
             }
             break;
         case 'CoverageEligibilityRequest':
-            if (columnName === 'created' ||
-                columnName === 'serviceDate' ||
-                columnName === 'servicePeriod.start' ||
-                columnName === 'servicePeriod.end') {
+            if (columnName === 'servicePeriod') {
                 return true;
             }
             break;
         case 'CoverageEligibilityResponse':
-            if (columnName === 'created' ||
-                columnName === 'serviceDate' ||
-                columnName === 'servicePeriod.start' ||
-                columnName === 'servicePeriod.end' ||
-                columnName === 'insurance.benefitPeriod.start' ||
-                columnName === 'insurance.benefitPeriod.end') {
+            if (columnName === 'servicePeriod' ||
+                columnName === 'insurance.benefitPeriod') {
                 return true;
             }
             break;
         case 'DetectedIssue':
-            if (columnName === 'identifiedDateTime' ||
-                columnName === 'identifiedPeriod.start' ||
-                columnName === 'identifiedPeriod.end' ||
-                columnName === 'mitigation.date') {
-                return true;
-            }
-            break;
-        case 'Device':
-            if (columnName === 'manufactureDate' ||
-                columnName === 'expirationDate') {
-                return true;
-            }
-            break;
-        case 'DeviceMetric':
-            if (columnName === 'calibration.time' ||
-                columnName === 'measurementPeriod.event') {
+            if (columnName === 'identifiedPeriod') {
                 return true;
             }
             break;
         case 'DeviceRequest':
-            if (columnName === 'authoredOn' ||
-                columnName === 'occurrenceDateTime' ||
-                columnName === 'occurrencePeriod.start' ||
-                columnName === 'occurrencePeriod.end' ||
-                columnName === 'occurrenceTiming.event') {
+            if (columnName === 'occurrencePeriod') {
                 return true;
             }
             break;
         case 'DeviceUseStatement':
-            if (columnName === 'recordedOn' ||
-                columnName === 'timingDateTime' ||
-                columnName === 'timingTiming.event' ||
-                columnName === 'timingPeriod.start' ||
-                columnName === 'timingPeriod.end') {
+            if (columnName === 'timingPeriod') {
                 return true;
             }
             break;
         case 'DiagnosticReport':
-            if (columnName === 'effectiveDateTime' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'issued') {
-                return true;
-            }
-            break;
-        case 'DocumentManifest':
-            if (columnName === 'created') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'DocumentReference':
-            if (columnName === 'date' ||
-                columnName === 'context.period' ||
-                columnName === 'context.period.end') {
+            if (columnName === 'context.period') {
                 return true;
             }
             break;
         case 'EffectEvidenceSynthesis':
-            if (columnName === 'date' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'Encounter':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end' ||
-                columnName === 'location.period.start' ||
-                columnName === 'location.period.end' ||
-                columnName === 'classHistory.period.start' ||
-                columnName === 'classHistory.period.end' ||
-                columnName === 'participant.period.start' ||
-                columnName === 'participant.period.end' ||
-                columnName === 'statusHistory.period.start' ||
-                columnName === 'statusHistory.period.end') {
+            if (columnName === 'period' ||
+                columnName === 'location.period' ||
+                columnName === 'classHistory.period' ||
+                columnName === 'participant.period' ||
+                columnName === 'statusHistory.period') {
                 return true;
             }
             break;
         case 'Endpoint':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end') {
-                return true;
-            }
-            break;
-        case 'EnrollmentRequest':
-            if (columnName === 'created') {
-                return true;
-            }
-            break;
-        case 'EnrollmentResponse':
-            if (columnName === 'created') {
+            if (columnName === 'period') {
                 return true;
             }
             break;
         case 'EpisodeOfCare':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end' ||
-                columnName === 'statusHistory.period.start' ||
-                columnName === 'statusHistory.period.end') {
+            if (columnName === 'period' ||
+                columnName === 'statusHistory.period') {
                 return true;
             }
             break;
         case 'EventDefinition':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'Evidence':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'EvidenceVariable':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'characteristic.participantEffectivePeriod.start' ||
-                columnName === 'characteristic.participantEffectivePeriod.end' ||
-                columnName === 'characteristic.participantEffectiveTiming.repeat.boundsPeriod.start' ||
-                columnName === 'characteristic.participantEffectiveTiming.repeat.boundsPeriod.end' ||
-                columnName === 'characteristic.participantEffectiveTiming.repeat.timeOfDay' ||
-                columnName === 'characteristic.participantEffectiveDateTime' ||
-                columnName === 'characteristic.participantEffectiveTiming.event') {
-                return true;
-            }
-            break;
-        case 'ExampleScenario':
-            if (columnName === 'date') {
+            if (columnName === 'effectivePeriod' ||
+                columnName === 'characteristic.participantEffectivePeriod' ||
+                columnName === 'characteristic.participantEffectiveTiming.repeat.boundsPeriod') {
                 return true;
             }
             break;
         case 'ExplanationOfBenefit':
-            if (columnName === 'created' ||
-                columnName === 'preAuthRefPeriod.start' ||
-                columnName === 'preAuthRefPeriod.end' ||
-                columnName === 'benefitPeriod.start' ||
-                columnName === 'benefitPeriod.end' ||
-                columnName === 'accident.date' ||
-                columnName === 'item.servicedDate' ||
-                columnName === 'item.servicedPeriod.start' ||
-                columnName === 'item.servicedPeriod.end' ||
-                columnName === 'addItem.servicedDate' ||
-                columnName === 'addItem.servicedPeriod.start' ||
-                columnName === 'addItem.servicedPeriod.end' ||
-                columnName === 'payment.date' ||
-                columnName === 'supportingInfo.timingDate' ||
-                columnName === 'supportingInfo.timingPeriod.start' ||
-                columnName === 'supportingInfo.timingPeriod.end' ||
-                columnName === 'procedure.date') {
+            if (columnName === 'preAuthRefPeriod' ||
+                columnName === 'benefitPeriod' ||
+                columnName === 'item.servicedPeriod' ||
+                columnName === 'addItem.servicedPeriod' ||
+                columnName === 'supportingInfo.timingPeriod') {
                 return true;
             }
             break;
         case 'FamilyMemberHistory':
-            if (columnName === 'date' ||
-                columnName === 'bornDate' ||
-                columnName === 'bornPeriod.start' ||
-                columnName === 'bornPeriod.end' ||
-                columnName === 'deceasedDate' ||
-                columnName === 'condition.onsetPeriod.start' ||
-                columnName === 'condition.onsetPeriod.end') {
+            if (columnName === 'bornPeriod' ||
+                columnName === 'condition.onsetPeriod') {
                 return true;
             }
             break;
         case 'Flag':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end') {
-                return true;
-            }
-            break;
-        case 'Goal':
-            if (columnName === 'startDate' ||
-                columnName === 'target.dueDate' ||
-                columnName === 'statusDate') {
-                return true;
-            }
-            break;
-        case 'GraphDefinition':
-            if (columnName === 'date') {
+            if (columnName === 'period') {
                 return true;
             }
             break;
         case 'Group':
-            if (columnName === 'characteristic.period.start' ||
-                columnName === 'characteristic.period.end' ||
-                columnName === 'member.period.start' ||
-                columnName === 'member.period.end') {
-                return true;
-            }
-            break;
-        case 'GuidanceResponse':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'characteristic.period' ||
+                columnName === 'member.period') {
                 return true;
             }
             break;
         case 'HealthcareService':
-            if (columnName === 'availableTime.availableStartTime' ||
-                columnName === 'availableTime.availableEndTime' ||
-                columnName === 'notAvailable.during.start' ||
-                columnName === 'notAvailable.during.end') {
-                return true;
-            }
-            break;
-        case 'ImagingStudy':
-            if (columnName === 'started') {
-                return true;
-            }
-            break;
-        case 'Immunization':
-            if (columnName === 'occurrenceDateTime' ||
-                columnName === 'occurrenceString' ||
-                columnName === 'expirationDate' ||
-                columnName === 'series.started' ||
-                columnName === 'education.publicationDate' ||
-                columnName === 'education.presentationDate' ||
-                columnName === 'reaction.date') {
-                return true;
-            }
-            break;
-        case 'ImmunizationEvaluation':
-            if (columnName === 'date') {
-                return true;
-            }
-            break;
-        case 'ImmunizationRecommendation':
-            if (columnName === 'date' ||
-                columnName === 'recommendation.dateCriterion.value') {
-                return true;
-            }
-            break;
-        case 'ImplementationGuide':
-            if (columnName === 'date') {
+            if (columnName === 'notAvailable.during') {
                 return true;
             }
             break;
         case 'InsurancePlan':
-            if (columnName === 'period.start' ||
-                columnName === 'period.end') {
-                return true;
-            }
-            break;
-        case 'Invoice':
-            if (columnName === 'date') {
+            if (columnName === 'period') {
                 return true;
             }
             break;
         case 'Library':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
            break;
-        case 'List':
-            if (columnName === 'date' ||
-                columnName === 'entry.date') {
-                return true;
-            }
-            break;
-        case 'Location':
-            if (columnName === 'hoursOfOperation.openingTime' ||
-                columnName === 'hoursOfOperation.closingTime') {
-                return true;
-            }
-            break;
         case 'Measure':
-            if (columnName === 'date' ||
-                columnName === 'approvalDate' ||
-                columnName === 'lastReviewDate' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
         case 'MeasureReport':
-            if (columnName === 'date' ||
-                columnName === 'period.start' ||
-                columnName === 'period.end') {
+            if (columnName === 'period') {
                 return true;
             }
             break;
         case 'Media':
-            if (columnName === 'createdDateTime' ||
-                columnName === 'createdPeriod.start' ||
-                columnName === 'createdPeriod.end' ||
-                columnName === 'issued') {
-                return true;
-            }
-            break;
-        case 'Medication':
-            if (columnName === 'batch.expirationDate') {
+            if (columnName === 'createdPeriod') {
                 return true;
             }
             break;
         case 'MedicationAdministration':
-            if (columnName === 'effectiveDateTime' || columnName === 'effectivePeriod.start' || columnName === 'effectivePeriod.end') {
-                return true;
-            }
-            break;
-        case 'MedicationDispense':
-            if (columnName === 'whenPrpared' || columnName === 'whenHandedOver') {
+            if (columnName === 'effectivePeriod') {
                 return true;
             }
             break;
@@ -685,20 +331,9 @@ function isColumnDateType (resourceType, columnName) {
             }
             break;
         case 'Observation':
-            if (columnName === 'effectiveDateTime' ||
-                columnName === 'effectivePeriod.start' ||
-                columnName === 'effectivePeriod.end' ||
-                columnName === 'effectiveTiming.event' ||
-                columnName === 'effectiveInstant' ||
-                columnName === 'issued' ||
-                columnName === 'valueTime' ||
-                columnName === 'valueDateTime' ||
-                columnName === 'valuePeriod.start' ||
-                columnName === 'valuePeriod.end' ||
-                columnName === 'component.valuePeriod.start' ||
-                columnName === 'component.valuePeriod.end' ||
-                columnName === 'component.valueDateTime' ||
-                columnName === 'component.valueTime') {
+            if (columnName === 'effectivePeriod' ||
+                columnName === 'valuePeriod' ||
+                columnName === 'component.valuePeriod') {
                 return true;
             }
             break;
@@ -1106,5 +741,5 @@ function isColumnDateType (resourceType, columnName) {
 }
 
 module.exports = {
-    isColumnDateType
+    isColumnDatePeriodType
 };
