@@ -16,7 +16,8 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
       case 'ActivityDefinition':
-            if (columnName === 'timingDateTime') {
+            if (columnName === 'timingDateTime' ||
+                columnName === 'timingTiming.event') {
                 return true;
             }
             break;
@@ -43,22 +44,52 @@ function isColumnDateTimeType (resourceType, columnName) {
             break;
         case 'BiologicallyDerivedProduct':
             if (columnName === 'manipulation.timeDateTime' ||
+                columnName === 'collection.collectedDateTime' ||
                 columnName === 'processing.timeDateTime') {
                 return true;
             }
             break;
         case 'Bundle':
-            if (columnName === 'timestamp') {
+            if (columnName === 'timestamp' ||
+                columnName === 'entry.request.ifModifiedSince' ||
+                columnName === 'entry.response.lastModified') {
+                return true;
+            }
+            break;
+        case 'CapabilityStatement':
+            if (columnName === 'software.releaseDate') {
+                return true;
+            }
+            break;
+        case 'CarePlan':
+            if (columnName === 'activity.detail.scheduledTiming.event' ||
+                columnName === 'activity.detail.scheduledTiming.repeat.timeOfDay') {
                 return true;
             }
             break;
        case 'ChargeItem':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'occurrenceTiming.event') {
+                return true;
+            }
+            break;
+        case 'Claim':
+            if (columnName === 'procedure.date') {
+                return true;
+            }
+            break;
+        case 'ClaimResponse':
+            if (columnName === 'procedure.date') {
                 return true;
             }
             break;
         case 'ClinicalImpression':
             if (columnName === 'effectiveDateTime') {
+                return true;
+            }
+            break;
+        case 'CodeSystem':
+            if (columnName === 'concept.property.valueDateTime') {
                 return true;
             }
             break;
@@ -84,30 +115,46 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Consent':
-            if (columnName === 'dateTime') {
+            if (columnName === 'dateTime' ||
+                columnName === 'verification.verificationDate') {
                 return true;
             }
             break;
         case 'Contract':
             if (columnName === 'term.action.occurrenceDateTime' ||
+                columnName === 'term.action.occurrenceTiming.event' ||
+                columnName === 'term.action.occurrenceTiming.repeat.timeOfDay' ||
                 columnName === 'term.asset.answer.valueDateTime' ||
                 columnName === 'term.asset.answer.valueDate' ||
+                columnName === 'contentDefinition.publicationDate' ||
+                columnName === 'term.issued' ||
+                columnName === 'term.asset.valuedItem.effectiveTime' ||
+                columnName === 'term.asset.valuedItem.paymentDate' ||
                 columnName === 'term.offer.answer.valueDateTime') {
                 return true;
             }
             break;
         case 'DetectedIssue':
-            if (columnName === 'identifiedDateTime') {
+            if (columnName === 'identifiedDateTime' ||
+                columnName === 'mitigation.date') {
+                return true;
+            }
+            break;
+        case 'DeviceMetric':
+            if (columnName === 'calibration.time' ||
+                columnName === 'measurementPeriod.event') {
                 return true;
             }
             break;
         case 'DeviceRequest':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'occurrenceTiming.event') {
                 return true;
             }
             break;
         case 'DeviceUseStatement':
-            if (columnName === 'timingDateTime') {
+            if (columnName === 'timingTiming.event' ||
+                columnName === 'timingDateTime') {
                 return true;
             }
             break;
@@ -123,7 +170,14 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'EvidenceVariable':
-            if (columnName === 'characteristic.participantEffectiveDateTime') {
+            if (columnName === 'characteristic.participantEffectiveDateTime' ||
+                columnName === 'characteristic.participantEffectiveTiming.repeat.timeOfDay' ||
+                columnName === 'characteristic.participantEffectiveTiming.event') {
+                return true;
+            }
+            break;
+        case 'ExplanationOfBenefit':
+            if (columnName === 'procedure.date') {
                 return true;
             }
             break;
@@ -132,8 +186,26 @@ function isColumnDateTimeType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'ImagingStudy':
+            if (columnName === 'started') {
+                return true;
+            }
+            break;
         case 'Immunization':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'education.publicationDate' ||
+                columnName === 'education.presentationDate' ||
+                columnName === 'reaction.date') {
+                return true;
+            }
+            break;
+        case 'ImmunizationRecommendation':
+            if (columnName === 'recommendation.dateCriterion.value') {
+                return true;
+            }
+            break;
+        case 'List':
+            if (columnName === 'entry.date') {
                 return true;
             }
             break;
@@ -143,8 +215,19 @@ function isColumnDateTimeType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'Medication':
+            if (columnName === 'batch.expirationDate') {
+                return true;
+            }
+            break;
         case 'MedicationAdministration':
             if (columnName === 'effectiveDateTime') {
+                return true;
+            }
+            break;
+        case 'MedicationRequest':
+            if (columnName === 'dosageInstruction.timing.event' ||
+                columnName === 'dosageInstruction.timing.repeat.timeOfDay') {
                 return true;
             }
             break;
@@ -153,8 +236,24 @@ function isColumnDateTimeType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'MedicinalProduct':
+            if (columnName === 'manufacturingBusinessOperation.effectiveDate' ||
+                columnName === 'marketingStatus.restoreDate' ||
+                columnName === 'procedure.dateDateTime' ||
+                columnName === 'specialDesignation.date') {
+                return true;
+            }
+            break;
+        case 'MedicinalProductPackaged':
+            if (columnName === 'marketingStatus.restoreDate') {
+                return true;
+            }
+            break;
         case 'NutritionOrder':
-            if (columnName === 'dateTime') {
+            if (columnName === 'enteralFormula.administration.schedule.event' ||
+                columnName === 'oralDiet.schedule.event' ||
+                columnName === 'supplement.schedule.event' ||
+                columnName === 'dateTime') {
                 return true;
             }
             break;
@@ -163,12 +262,15 @@ function isColumnDateTimeType (resourceType, columnName) {
                 columnName === 'valueDateTime' ||
                 columnName === 'effectiveInstant' ||
                 columnName === 'issued' ||
+                columnName === 'effectiveTiming.event' ||
                 columnName === 'component.valueDateTime') {
                 return true;
             }
             break;
         case 'Parameters':
-            if (columnName === 'parameter.valueDateTime') {
+            if (columnName === 'parameter.valueDateTime' ||
+                columnName === 'parameter.valueTiming.event' ||
+                columnName === 'parameter.valueInstant') {
                 return true;
             }
             break;
@@ -178,7 +280,9 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'PlanDefinition':
-            if (columnName === 'action.timingDateTime') {
+            if (columnName === 'action.timingTiming.event' ||
+                columnName === 'action.timingDateTime' ||
+                columnName === 'action.timingTiming.repeat.timeOfDay') {
                 return true;
             }
             break;
@@ -205,12 +309,18 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'RequestGroup':
-            if (columnName === 'action.timingDateTime') {
+            if (columnName === 'action.timingTiming.event' ||
+                columnName === 'action.timingTiming.repeat.timeOfDay' ||
+                columnName === 'action.timingDateTime') {
                 return true;
             }
             break;
         case 'ResearchElementDefinition':
             if (columnName === 'characteristic.studyEffectiveDateTime' ||
+                columnName === 'characteristic.studyEffectiveTiming.event' ||
+                columnName === 'characteristic.studyEffectiveTiming.repeat.timeOfDay' ||
+                columnName === 'characteristic.participantEffectiveTiming.event' ||
+                columnName === 'characteristic.participantEffectiveTiming.repeat.timeOfDay' ||
                 columnName === 'characteristic.participantEffectiveDateTime') {
                 return true;
             }
@@ -221,7 +331,8 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'ServiceRequest':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'occurrenceTiming.event') {
                 return true;
             }
             break;
@@ -237,8 +348,48 @@ function isColumnDateTimeType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'StructureDefinition':
+            if (columnName === 'snapshot.element.defaultValueInstant' ||
+                columnName === 'snapshot.element.fixedInstant' ||
+                columnName === 'snapshot.element.patternInstant' ||
+                columnName === 'snapshot.element.minvalueInstant' ||
+                columnName === 'snapshot.element.maxValueInstant' ||
+                columnName === 'snapshot.element.example.valueInstant' ||
+                columnName === 'snapshot.element.example.valueDateTime' ||
+                columnName === 'snapshot.element.example.valueTiming.event' ||
+                columnName === 'snapshot.element.defaultValueDateTime' ||
+                columnName === 'snapshot.element.fixedDateTime' ||
+                columnName === 'snapshot.element.patternDateTime' ||
+                columnName === 'snapshot.element.minValueDateTime' ||
+                columnName === 'snapshot.element.maxValueDateTime' ||
+                columnName === 'snapshot.element.defaultValueTiming.event' ||
+                columnName === 'snapshot.element.fixedTiming.event' ||
+                columnName === 'snapshot.element.patternTiming.event' ||
+                columnName === 'differential.element.defaultValueInstant' ||
+                columnName === 'differential.element.fixedInstant' ||
+                columnName === 'differential.element.patternInstant' ||
+                columnName === 'differential.element.minValueInstant' ||
+                columnName === 'differential.element.defaultValueTiming.event' ||
+                columnName === 'differential.element.fixedTiming.event' ||
+                columnName === 'differential.element.patternTiming.event' ||
+                columnName === 'differential.element.example.valueInstant' ||
+                columnName === 'differential.element.example.valueDateTime' ||
+                columnName === 'differential.element.example.valueTiming.event' ||
+                columnName === 'differential.element.defaultValueDateTime' ||
+                columnName === 'differential.element.fixedDateTime' ||
+                columnName === 'differential.element.patternDateTime' ||
+                columnName === 'differential.element.minValueDateTime' ||
+                columnName === 'differential.element.maxValueDateTime' ||
+                columnName === 'differential.element.maxValueInstant') {
+                return true;
+            }
+            break;
         case 'StructureMap':
-            if (columnName === 'group.rule.source.defaultValueDateTime') {
+            if (columnName === 'group.rule.source.defaultValueDateTime' ||
+                columnName === 'group.rule.source.defaultValueInstant' ||
+                columnName === 'group.rule.source.defaultValueTiming.event' ||
+                columnName === 'group.rule.source.defaultValueTiming.repeat.timeOfDay' ||
+                columnName === 'group.rule.source.defaultValueTime') {
                 return true;
             }
             break;
@@ -247,25 +398,56 @@ function isColumnDateTimeType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'SubscriptionStatus':
+            if (columnName === 'notificationEvent.timestamp') {
+                return true;
+            }
+            break;
+        case 'Substance':
+            if (columnName === 'instance.expiry') {
+                return true;
+            }
+            break;
+        case 'SubstanceSpecification':
+            if (columnName === 'code.statusDate' ||
+                columnName === 'name.official.date') {
+                return true;
+            }
+            break;
         case 'SupplyDelivery':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'occurrenceTiming.event') {
                 return true;
             }
             break;
         case 'SupplyRequest':
-            if (columnName === 'occurrenceDateTime') {
+            if (columnName === 'occurrenceDateTime' ||
+                columnName === 'occurrenceTiming.event') {
                 return true;
             }
             break;
         case 'Task':
             if (columnName === 'input.valueDateTime' ||
+                columnName === 'input.valueInstant' ||
+                columnName === 'input.valueTiming.event' ||
+                columnName === 'input.valueTiming.repeat.timeOfDay' ||
+                columnName === 'output.valueInstant' ||
+                columnName === 'output.valueTiming.event' ||
+                columnName === 'output.valueTiming.repeat.timeOfDay' ||
                 columnName === 'output.valueDateTime') {
                 return true;
             }
             break;
         case 'ValueSet':
-            if (columnName === 'expansion.parameter.valueDateTime') {
+            if (columnName === 'expansion.timestamp' ||
+                columnName === 'expansion.parameter.valueDateTime') {
                 return true;
+            }
+            break;
+        case 'VerificationResult':
+            if (columnName === 'primarySource.validationDate' ||
+                columnName === 'frequency.event') {
+                    return true;
             }
             break;
    }
