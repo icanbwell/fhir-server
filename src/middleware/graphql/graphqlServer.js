@@ -26,6 +26,7 @@ const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlVal
 const httpContext = require('express-http-context');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { removeNull } = require('../../utils/nullRemover');
 
 /**
  * @param {function (): SimpleContainer} fnGetContainer
@@ -147,7 +148,7 @@ const graphql = async (fnGetContainer) => {
                 return formattedError;
             },
             stringifyResult: (value) => {
-                return JSON.stringify(value, null, 2);
+                return JSON.stringify(removeNull(value), null, 2);
             }
         });
 

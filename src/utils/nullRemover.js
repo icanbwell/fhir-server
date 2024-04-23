@@ -23,6 +23,11 @@ const removeNull = (obj) => {
                     for (const arrayItem of value) {
                         removeNull(arrayItem);
                     }
+                    for (let i=value.length-1; i>=0; i--) {
+                        if (typeof value[i] === 'object' && Object.entries(value[i]).length === 0) {
+                            value.splice(i, 1);
+                        }
+                    }
                 }
             } else if (type === 'undefined') {
                 delete obj[`${key}`];
