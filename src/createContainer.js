@@ -162,8 +162,7 @@ const createContainer = function () {
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager,
-        patientFilterManager: c.patientFilterManager
+        preSaveManager: c.preSaveManager
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
@@ -186,7 +185,8 @@ const createContainer = function () {
             remoteFhirValidator: c.remoteFhirValidator,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
-            scopesManager: c.scopesManager
+            scopesManager: c.scopesManager,
+            patientFilterManager: c.patientFilterManager
         }
     ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
@@ -713,7 +713,7 @@ const createContainer = function () {
         databaseUpdateFactory: c.databaseUpdateFactory,
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
-        resourceMerger: c.resourceMerger
+        patientFilterManager: c.patientFilterManager
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({

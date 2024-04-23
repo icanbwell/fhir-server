@@ -337,14 +337,26 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
         try {
             const query = {
-                'meta.security': {
-                    $elemMatch: {
-                        system: SecurityTagSystem.connectionType,
-                        code: {
-                            $in: this.proaConnectionTypes
+                $or: [
+                    {
+                        'meta.security': {
+                            $elemMatch: {
+                                system: SecurityTagSystem.connectionType,
+                                code: {
+                                    $in: this.proaConnectionTypes
+                                }
+                            }
+                        }
+                    },
+                    {
+                        'meta.security': {
+                            $elemMatch: {
+                                system: SecurityTagSystem.vendor,
+                                code: 'humanapi'
+                            }
                         }
                     }
-                }
+                ]
             };
 
             const options = {

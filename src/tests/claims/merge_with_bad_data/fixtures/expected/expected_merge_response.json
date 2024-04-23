@@ -72,13 +72,6 @@
         {
           "code": "invalid",
           "details": {
-            "text": "/4_0_0/ExplanationOfBenefit/1/$merge should have required property 'patient' :{\"missingProperty\":\"patient\"}: at position root"
-          },
-          "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
             "text": "/4_0_0/ExplanationOfBenefit/1/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
           },
           "severity": "error"

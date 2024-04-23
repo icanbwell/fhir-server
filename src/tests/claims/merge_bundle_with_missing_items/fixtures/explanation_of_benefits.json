@@ -184,8 +184,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
@@ -317,8 +315,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
@@ -608,8 +604,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {

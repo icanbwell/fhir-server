@@ -429,8 +429,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {

@@ -93,7 +93,7 @@ describe('Person Tests', () => {
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
                             postSaveProcessor: c.postSaveProcessor,
-                            resourceMerger: c.resourceMerger
+                            patientFilterManager: c.patientFilterManager
                         })
                     })
             );
@@ -217,7 +217,7 @@ describe('Person Tests', () => {
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
                             postSaveProcessor: c.postSaveProcessor,
-                            resourceMerger: c.resourceMerger
+                            patientFilterManager: c.patientFilterManager
                         })
                     })
             );
@@ -338,7 +338,7 @@ describe('Person Tests', () => {
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
                             postSaveProcessor: c.postSaveProcessor,
-                            resourceMerger: c.resourceMerger
+                            patientFilterManager: c.patientFilterManager
                         })
                     })
             );

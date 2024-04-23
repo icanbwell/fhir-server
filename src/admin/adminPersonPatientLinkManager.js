@@ -2,9 +2,9 @@ const moment = require('moment-timezone');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
+const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 const { ReferenceParser } = require('../utils/referenceParser');
-const { ResourceMerger } = require('../operations/common/resourceMerger');
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
@@ -28,7 +28,7 @@ class AdminPersonPatientLinkManager {
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {PostSaveProcessor} postSaveProcessor
-     * @param {ResourceMerger} resourceMerger
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor (
         {
@@ -36,7 +36,7 @@ class AdminPersonPatientLinkManager {
             databaseUpdateFactory,
             fhirOperationsManager,
             postSaveProcessor,
-            resourceMerger
+            patientFilterManager
         }
     ) {
         /**
@@ -64,10 +64,10 @@ class AdminPersonPatientLinkManager {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
-         * @type {ResourceMerger}
+         * @type {PatientFilterManager}
          */
-        this.resourceMerger = resourceMerger;
-        assertTypeEquals(resourceMerger, ResourceMerger);
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -754,9 +754,9 @@ class AdminPersonPatientLinkManager {
             };
         }
 
-        const isReferenceUpdated = this.resourceMerger.updatePatientReference({
+        const isReferenceUpdated = this.updatePatientReference({
             reference: ReferenceParser.createReference({ resourceType: 'Patient', id: patientId }),
-            resourceToMerge: relatedResource
+            currentResource: relatedResource
         });
 
         if (isReferenceUpdated) {
@@ -790,6 +790,42 @@ class AdminPersonPatientLinkManager {
             message: `Couldn't update Patient reference in ${resourceType} with id ${resourceId}`,
             patientId
         };
+    }
+
+    /**
+     * Updates main patient reference in currentResource
+     * @typedef {Object} UpdatePatientReferenceParams
+     * @property {string} reference
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+     *
+     * @param {UpdatePatientReferenceParams}
+     * @returns {boolean}
+     */
+    updatePatientReference ({ reference, currentResource }) {
+        // Patient reference from Person and Group resource are not updated here
+        if (!reference) {
+            return;
+        }
+
+        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType: currentResource.resourceType
+        });
+
+        if (patientField) {
+            const fields = patientField.replace('.reference', '').split('.');
+            let referenceObj = currentResource;
+            for (const field of fields) {
+                referenceObj = referenceObj[`${field}`];
+                if (!referenceObj) {
+                    return;
+                }
+            }
+            if (referenceObj && referenceObj.reference !== reference) {
+                referenceObj.reference = reference;
+                return true;
+            }
+        }
+        return false;
     }
 }
 
