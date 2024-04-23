@@ -33,7 +33,7 @@ module.exports = {
                     info,
                     { reference: codeSystemProperty1.valueString }
                 );
-                if (binaryResource?.data) {
+                if (binaryResource.data) {
                     return Buffer.from(binaryResource.data, 'base64').toString('utf8');
                 } else {
                     return null;

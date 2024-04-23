@@ -227,13 +227,6 @@ class FhirDataSource {
             }
             return enrichedResource;
         }
-        // Check the resources request by the user
-        const requestedResources = info
-            .fieldNodes[0]
-            .selectionSet
-            ?.selections?.map(s => s.typeCondition?.name?.value)
-            ?.filter(s => s) || [];
-
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
         const referenceValue = ['Person', 'Practitioner'].includes(
             ResourceWithId.getResourceTypeFromReference(reference.reference)
@@ -248,14 +241,8 @@ class FhirDataSource {
             /** @type {string} **/
             id
         } = referenceObj;
-        // Case when invalid resourceType is passed and if this resourceType is requested in the query
-        // if requested resources contains Resource then all resources are allowed here
-        if (!isValidResource(resourceType) || (
-                requestedResources.length > 0 &&
-                !requestedResources.includes('Resource') &&
-                !requestedResources.includes(resourceType)
-            )
-        ) {
+        // Case when invalid resourceType is passed.
+        if (!isValidResource(resourceType)) {
             return null;
         }
         try {

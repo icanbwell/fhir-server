@@ -3,6 +3,7 @@ query Totals {
     entry {
       resource {
         about {
+          resourceType
           ... on Resource {
             id
             resourceType
