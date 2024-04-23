@@ -51,6 +51,8 @@ function isColumnDateType (resourceType, columnName) {
             break;
         case 'Appointment':
             if (columnName === 'created' ||
+                columnName === 'start' ||
+                columnName === 'end' ||
                 columnName === 'requestedPeriod.start' ||
                 columnName === 'requestedPeriod.end' ||
                 columnName === 'participant.period.start' ||
@@ -576,7 +578,8 @@ function isColumnDateType (resourceType, columnName) {
         case 'Media':
             if (columnName === 'createdDateTime' ||
                 columnName === 'createdPeriod.start' ||
-                columnName === 'createdPeriod.end') {
+                columnName === 'createdPeriod.end' ||
+                columnName === 'issued') {
                 return true;
             }
             break;

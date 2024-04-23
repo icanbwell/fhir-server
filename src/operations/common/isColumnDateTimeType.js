@@ -1,5 +1,6 @@
 /**
  * returns whether the specified column in the specified resource is of DateTime type (for validation purposes)
+ * also covers instant type
  * @param {string} resourceType
  * @param {string} columnName
  * @returns {boolean}
@@ -9,6 +10,11 @@ function isColumnDateTimeType (resourceType, columnName) {
         return false;
     }
     switch (resourceType) {
+        case 'AuditEvent':
+            if (columnName === 'recorded') {
+                return true;
+            }
+            break;
       case 'ActivityDefinition':
             if (columnName === 'timingDateTime') {
                 return true;
@@ -17,6 +23,21 @@ function isColumnDateTimeType (resourceType, columnName) {
         case 'AllergyIntolerance':
             if (columnName === 'onsetDateTime' ||
                 columnName === 'reaction.onset') {
+                return true;
+            }
+            break;
+        case 'Appointment':
+            if (columnName === 'start' ||
+                columnName === 'end' ||
+                columnName === 'requestedPeriod.end' ||
+                columnName === 'participant.period.start' ||
+                columnName === 'participant.period.end') {
+                return true;
+            }
+            break;
+        case 'AppointmentResponse':
+            if (columnName === 'start' ||
+                columnName === 'end') {
                 return true;
             }
             break;
@@ -91,7 +112,13 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'DiagnosticReport':
-            if (columnName === 'effectiveDateTime') {
+            if (columnName === 'effectiveDateTime' ||
+                columnName === 'issued') {
+                return true;
+            }
+            break;
+        case 'DocumentReference':
+            if (columnName === 'date') {
                 return true;
             }
             break;
@@ -111,7 +138,8 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Media':
-            if (columnName === 'createdDateTime') {
+            if (columnName === 'createdDateTime' ||
+                columnName === 'issued') {
                 return true;
             }
             break;
@@ -133,6 +161,8 @@ function isColumnDateTimeType (resourceType, columnName) {
         case 'Observation':
             if (columnName === 'effectiveDateTime' ||
                 columnName === 'valueDateTime' ||
+                columnName === 'effectiveInstant' ||
+                columnName === 'issued' ||
                 columnName === 'component.valueDateTime') {
                 return true;
             }
@@ -158,7 +188,8 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Provenance':
-            if (columnName === 'occurredDateTime') {
+            if (columnName === 'occurredDateTime' ||
+                columnName === 'recorded') {
                 return true;
             }
             break;
@@ -208,6 +239,11 @@ function isColumnDateTimeType (resourceType, columnName) {
             break;
         case 'StructureMap':
             if (columnName === 'group.rule.source.defaultValueDateTime') {
+                return true;
+            }
+            break;
+        case 'Subscription':
+            if (columnName === 'end') {
                 return true;
             }
             break;
