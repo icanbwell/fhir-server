@@ -230,7 +230,12 @@ class FhirDataSource {
                     }
                 }
             }
-            if (reference.type && requestedResources.length !== 0 && !requestedResources.includes(reference.type)) {
+            if (
+                reference.type &&
+                requestedResources.length !== 0 &&
+                !requestedResources.includes(reference.type) &&
+                !requestedResources.includes('Resource')
+            ) {
                 return null;
             }
             const possibleResourceType = reference.type ? reference.type : requestedResources[0];
