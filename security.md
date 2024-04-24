@@ -2,9 +2,19 @@
 
 ## High Level Sequence
 
-![](https://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgRkhJUiBTZXJ2ZXIvQ2xpZW50IEFwcCBBdXRob3JpemF0aW9uCgoAEAotPgAODQA0ByhzKToALwUgVG9rZW4gUmVxdWVzdAoAFRctPgBhCjogUmVjZWl2ZXMANgsAZA0AgRgLOiBHcmFwaFFML1Jlc291cmNlAGMIIHcvADQLAIFLCwCBFhtWZXJpZnkAgSwMYWdhaW5zdACBcQ4AghgHIEpXS1Mga2V5cwCBPRoAgR4NAIIFCwBlBWllZACBCw5Nb25nb0RiOiBRdWVyeSBmb3IgcgCCMwZlZACDEwZyAIFfBwoAJAcAgX4PUmV0dXJuABwPAIFvDQCCWg4AKQUASxgKCg&s=default)
+![](https://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgRkhJUiBTZXJ2ZXIvQ2xpZW50IEFwcCBBdXRob3J6YXRpb24KAA4KLT4AEwZpABQGADIHKHMpOgAtBSBUb2tlbiBSZXF1ZXN0CgAVFy0-AF8KOiBSZWNlaXZlcwA2Cwpub3RlIG92ZXIAgRMMOiBGZXRjaGVzIGV4dGVybmFsIGF1dGggSldLUyBkdXJpbmcgcwCBRAUgc3RhcnR1cACBLA0APQ1HcmFwaFFML1Jlc291cmNlAIErCCB3LwB8CwCCEQsAMQ9WZXJpZnkAgWgMYWdhaW5zdACCRAcncwCBEQZrZXlzADkOTW9uZ29EYjogUXVlcnkgZm9yIHIAgikGZWQAgwcGcgCBDQcKACQHAIEsD1JldHVybgAcDwCBHQ0AglAOACkFAEwX&s=default)
 
-### Get OAuth Url for a FHIR server
+### Configuring OAuth for a FHIR server
+
+
+The FHIR server implements OAuth for authentication purposes. To configure OAuth, you need to set the following environment variables:
+
+1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json.
+2. AUTH_CODE_FLOW_URL: This variable is used to specify the URL of the OAuth provider's authorization endpoint for the Authorization Code Flow. This endpoint is where users are redirected to authorize the application.
+3. AUTH_CODE_FLOW_CLIENT_ID: This variable holds the client ID of the application registered with the OAuth provider. This ID is used during the OAuth process to identify the application.
+4. REDIRECT_TO_LOGIN: This variable determines whether a GET request from a web browser should be redirected to the OAuth provider's login page if the user is not authenticated.
+
+These environment variables allow the FHIR server to interact with the OAuth provider for authentication purposes. 
 
 Helix FHIR server supports the `well-known configuration` feature so you can get the token-url from the FHIR server. (The helix fhir client sdk does this automatically)
 
@@ -17,7 +27,7 @@ OAuth 2.0 standard controls authorization to a protected resource via scopes.
 
 OpenID Connect standard builds on OAuth 2.0 and adds authentication and user information.
 
-SMART on FHIR builds on OpenID Connect and defines standard scopes for FHIR: user, patient and launch
+SMART on FHIR builds on OpenID Connect and defines standard scopes for FHIR: user and patient
 
 b.well FHIR server builds on SMART on FHIR and adds additional scopes: admin, access
 
@@ -26,7 +36,7 @@ In OAuth, there are two types of tokens (https://auth0.com/blog/id-token-access-
 1. access token: used to provide access
 2. id token: provides identification information for the user
 
-Id token is used only for Person/Patient Authentication scenario below.
+Note: In our system, we are not utilizing id tokens anymore.
 
 ### 2.3 OAuth Claims and Scopes
 In OAuth, claims are attributes inside the tokens that assert something about the service/user connecting e.g., name, who issued the token etc.
@@ -44,11 +54,12 @@ This is used by a service to talk to the FHIR server.
 
 This uses the OAuth Client Credentials workflow (https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/).
 
-Once a new service account has been created in OAuth provider, the service uses a client id and client secret to get an OAuth access token.  This token is passed in every call to the FHIR server as a bearer token in the Authorization header.
+Once a new service account has been created in OAuth provider, the service uses a client id and client secret to get an OAuth access token. This token is passed in every call to the FHIR server as a bearer token in the Authorization header.
 
 The following scopes are required in this access token:
 1. user (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `user/Patient.read`
 2. access (see Access Control section below) e.g., `access/aetna.*`
+3. patient e.g. `patient/Observation.read`
 
 An optional admin scope can be passed to enable access to admin functions e.g., `admin/*.*`.
 
@@ -68,6 +79,7 @@ If users are accessing the FHIR server via REST or GraphQL then they can first g
 The following scopes are required in this access token:
 1. user (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `user/Patient.read`
 2. access (see Access Control section below) e.g., `access/aetna.*`
+3. patient e.g. `patient/Observation.read`
 
 An optional admin scope can be passed to enable access to admin functions e.g., `admin/*.*`.
 
@@ -81,30 +93,27 @@ This uses the SMART on FHIR standard on top of OAuth2 (https://www.hl7.org/fhir/
 Once the person/patient account has been created in OAuth provider, the client app can bring up the login screen for the end user to enter their username and password.  The OAuth server will send the authorization code to the client app.  The client app can exchange the authorization code for a token from the OAuth server. https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow
 
 The following scopes are required in the access token:
-1. launch (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `launch/patient`
-2. patient (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `patient/*.read`
+1. user (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `user/Patient.read`
+2. access (see Access Control section below) e.g., `access/aetna.*`
+3. patient e.g. `patient/Observation.read`
 
 The client app can then pass this token to the FHIR server as a bearer token in the Authorization header.
 
-Passing the id token is optional.  If the id token is not passed then the FHIR server will automatically ask the OAuth server to get it via the /userInfo functionality of OpenID Connect (https://openid.net/specs/openid-connect-userinfo-vc-1_0.html).
-
-If the id token is passed, it must be passed in the `x-bwell-identity` header.
-
-The id token must have ONE of the following custom attributes:
-1. custom:bwellFhirPersonId
-2. custom:bwell_fhir_id
-3. custom:bwell_fhir_ids
+The access token must all of the following custom attributes:
+1. custom:clientFhirPatientId
+2. custom:clientFhirPersonId
+3. custom:bwellFhirPatientId
+4. custom:bwellFhirPersonId
 
 These attributes define the person or patient accessing the FHIR server.
 
-FHIR server will restrict the data returned to only data belonging to that person or patient by looking at the Person or Patient id in the id token.
+FHIR server will restrict the data returned to only data belonging to that person or patient by looking at the Person or Patient id in the provided token.
 
 #### 2.5 How to pass tokens
-Tokens can be passed in four ways in an HTTP request:
-1. `x-bwell-identity` header (id token only)
-2. In Authorization header as a bearer token (access token only)
-3. In secure cookie (set by FHIR Server Web UI)
-4. As a `token` query string parameter (discouraged because it can be intercepted more easily)
+Tokens can be passed in three ways in an HTTP request:
+1. In Authorization header as a bearer token (access token only)
+2. In secure cookie (set by FHIR Server Web UI)
+3. As a `token` query string parameter (discouraged because it can be intercepted more easily)
 
 ### 3.1 Steps
 
@@ -145,8 +154,6 @@ request(options, function (error, response) {
 });
 ```
 
-Python:
-
 We recommend using the FHIR Client SDK: https://github.com/icanbwell/helix.fhir.client.sdk
 
 ### 4. Authorization
@@ -180,18 +187,17 @@ request(options, function (error, response) {
 });
 ```
 
-Python:
-
 We recommend using the FHIR Client SDK: https://github.com/icanbwell/helix.fhir.client.sdk
 
-### 5. Access Control via user and access scopes
+### 5. Access Control via user, access and patient scopes
 
-FHIR Server has two mechanisms to control access:
+FHIR Server has three mechanisms to control access:
 
 1. Control access by resource
 2. Control access by security tags
+3. Control access by patient data graph
 
-Both mechanisms are implemented using the scopes mechanism in SMART on FHIR.
+All above mechanisms are implemented using the scopes mechanism in SMART on FHIR.
 
 When a user authenticates with the FHIR server they pass in a token they have received after authenticating with OAuth Server. See above for details.
 
@@ -246,14 +252,19 @@ Here's an example meta field of a resource:
       ]
     }
 ```
+#### 5.3 Control access by patient data graph
 
-#### 5.3 Access
+The FHIR server looks for the patient scopes that start with patient/”. Patient scopes look like `patient/{resourceType}.{permissions}` and denotes that access to the patients data who are related to the `bwellFhirPersonId` in the JWT Token is permitted according to the permissions mentioned.
 
-Note that the final access for a user is a combination of both of the above methods.
+If someone has scopes like `patient/Observation.read` then that person has read access to Observation resources of the patients related to master person.
 
-#### 5.4 Examples
+#### 5.4 Access
 
-##### 5.4.1 Example 1
+Note that the final access for a user is a combination of both present in 5.1[Control access by resource] & 5.2[Control access by security tags] or only by using 5.3[Control access by patient data graph] only
+
+#### 5.5 Examples
+
+##### 5.5.1 Example 1
 
 A user has scopes:
 
@@ -267,7 +278,7 @@ This means:
 2. User can write to Practitioner resource only
 3. When reading or writing, the user can access any resource where the security access tag is somehealth or goodhealth only
 
-##### 5.4.2 Example 2
+##### 5.5.2 Example 2
 
 A user has scopes:
 
@@ -277,13 +288,25 @@ user/*.* access/*.*
 
 This means the user can read/write ANY resource and there is no restriction by security tags either.
 
-### 5.5 Multiple scopes
+##### 5.5.3 Example 3
+
+The scopes provided are:
+```
+patient/*.read
+```
+User can read all Patient related Resource linked via bwellPersonID EMPI Tree
+
+```
+patient/*.read user/*.read access/*.read
+```
+User can read all Patient related Resource linked via bwellPersonID EMPI Tree & the non-Patient resources.
+
+Note: With patient scopes, User can not write(create/update/delete) on non-patient resources.
+
+### 5.6 Multiple scopes
 
 NOTE: Multiple scopes must be separate by space (NOT comma) per the OAuth spec: https://datatracker.ietf.org/doc/html/rfc6749#section-3.3
 
-### 5.6 Patient scope
-
-The patient scope provides access to resources that are associated with the ID from the JWT or contain no patient data. See `src/fhir/patientFilterManager.js` to view or update this security configuration.
 
 #### 6.1 Patient-associated resources
 
