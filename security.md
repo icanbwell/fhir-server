@@ -9,12 +9,28 @@
 
 The FHIR server implements OAuth for authentication purposes. To configure OAuth, you need to set the following environment variables:
 
-1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json.
+1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.<region-name>.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json.
 2. AUTH_CODE_FLOW_URL: This variable is used to specify the URL of the OAuth provider's authorization endpoint for the Authorization Code Flow. This endpoint is where users are redirected to authorize the application.
 3. AUTH_CODE_FLOW_CLIENT_ID: This variable holds the client ID of the application registered with the OAuth provider. This ID is used during the OAuth process to identify the application.
 4. REDIRECT_TO_LOGIN: This variable determines whether a GET request from a web browser should be redirected to the OAuth provider's login page if the user is not authenticated.
+5. AUTH_CONFIGURATION_URI: This variable specifies the URI where the OAuth provider's configuration can be obtained. This configuration typically includes important details such as authorization endpoint URLs, token endpoint URLs, supported OAuth flows, and other OAuth-related settings.
+6. EXTERNAL_AUTH_JWKS_URLS: This variable is used to specify the URLs where the public keys (JSON Web Key Sets) of external authentication providers can be obtained. These keys are used to verify the signatures of JWT tokens issued by external authentication providers.
 
-These environment variables allow the FHIR server to interact with the OAuth provider for authentication purposes. 
+These environment variables allow the FHIR server to interact with the OAuth provider for authentication purposes.
+
+#### Configuring OAuth using AWS Cognito
+1. To set up OAuth2 authentication with AWS Cognito, start by creating a user pool in the AWS Cognito console. Configure the user pool settings, including user attributes, authentication methods, and app clients.
+2. FHIR server can trust multiple user pools(OAuth servers). A user pool is trusted if FHIR's server configuration includes the url to get public keys for that user pool. Basically the AUTH_JWKS_URLS and EXTERNAL_AUTH_JWKS_URLS.
+3. Obtain the App client ID and App client secret provided by AWS Cognito.
+4. To obtain the required variables: AUTH_JWKS_URL, AUTH_CODE_FLOW_URL, and AUTH_CODE_FLOW_CLIENT_ID, you can find them in your AWS Cognito user pool settings.
+
+#### Configuring OAuth using Auth0
+1. To set up OAuth2 authentication with Auth0, begin by creating an account and application on the Auth0 platform. Configure your application settings to specify callback URLs and other necessary details.
+2. Obtain the Client ID and Client Secret provided by Auth0 for your application.
+3. To obtain the required variables: AUTH_JWKS_URL, AUTH_CODE_FLOW_URL, and AUTH_CODE_FLOW_CLIENT_ID, you can find them in your Auth0 application settings.
+4. AUTH_CONFIGURATION_URI typically points to the OAuth2 discovery document provided by Auth0.
+5. If using multiple authentication providers, obtain the EXTERNAL_AUTH_JWKS_URLS from each provider's documentation.
+
 
 Helix FHIR server supports the `well-known configuration` feature so you can get the token-url from the FHIR server. (The helix fhir client sdk does this automatically)
 
