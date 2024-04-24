@@ -83,9 +83,6 @@ describe('GraphQL CarePlan Tests', () => {
             const graphqlQueryText = carePlanQuery.replace(/\\n/g, '');
             let resp = await request.get('/4_0_0/CarePlan').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
-            logInfo('------- response 1 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/CarePlan/$merge')
@@ -95,12 +92,8 @@ describe('GraphQL CarePlan Tests', () => {
 
             resp = await request.get('/4_0_0/CarePlan/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(1);
-            logInfo('------- response 2 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 2  ------------');
+
             resp = await request
-                // .get('/$graphql/?query=' + graphqlQueryText)
-                // .set(getHeaders())
                 .post('/$graphql')
                 .send({
                     operationName: null,
@@ -109,7 +102,7 @@ describe('GraphQL CarePlan Tests', () => {
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
-            // noinspection JSUnresolvedFunction
+
             expect(resp).toHaveResponse(expectedCarePlan1);
         });
     });
