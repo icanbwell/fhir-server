@@ -85,15 +85,6 @@ Go to `/version` to see what version you're running.
 
 Use `/health` as the url for health check in Kubernetes or other systems
 
-## OAuth
-
-The FHIR server implements OAuth. You can set these environment variables:
-
-1. AUTH_JWKS_URL: Where to get the public keys of the OAuth provider (e.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json)
-2. AUTH_CODE_FLOW_URL:
-3. AUTH_CODE_FLOW_CLIENT_ID:
-4. REDIRECT_TO_LOGIN: whether to redirect a GET call from a web browser to the OAuth Provider login page
-
 ## Change Events
 
 The FHIR server can optionally send change events to a Kafka queue:
