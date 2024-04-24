@@ -230,6 +230,9 @@ class FhirDataSource {
                     }
                 }
             }
+            if (reference.type && requestedResources.length !== 0 && !requestedResources.includes(reference.type)) {
+                return null;
+            }
             const possibleResourceType = reference.type ? reference.type : requestedResources[0];
 
             const enrichedResource = this.enrichResourceWithReferenceData(
