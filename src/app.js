@@ -119,6 +119,7 @@ function createApp ({ fnGetContainer }) {
                 requestUrl: reqPath,
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
+                forwardedHost: req.headers['x-forwarded-host'],
                 scope: req.authInfo?.scope,
                 altId: username
             };
