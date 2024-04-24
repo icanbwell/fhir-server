@@ -212,27 +212,32 @@ class FhirDataSource {
         if (!reference) {
             return null;
         }
-        if (!reference.reference) {
-            let possibleResourceType = reference.type;
-            if (!possibleResourceType && info.returnType) {
-                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0) {
-                    possibleResourceType = info.returnType.ofType._types[0].name;
-                } else if (info.returnType._types && info.returnType._types.length > 0) {
-                    possibleResourceType = info.returnType._types[0].name;
-                }
-            }
-            const enrichedResource = this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
-            if (Object.keys(enrichedResource).length === 0) {
-                return null;
-            }
-            return enrichedResource;
-        }
+
         // Check the resources request by the user
         const requestedResources = info
             .fieldNodes[0]
             .selectionSet
             ?.selections?.map(s => s.typeCondition?.name?.value)
             ?.filter(s => s) || [];
+
+        if (!reference.reference) {
+            if (requestedResources.length === 0) {
+                return null;
+            }
+            const possibleResourceType = requestedResources.includes(reference.type)
+                ? reference.type
+                : requestedResources[0];
+
+            const enrichedResource = this.enrichResourceWithReferenceData(
+                {},
+                reference,
+                possibleResourceType
+            );
+            if (Object.keys(enrichedResource).length === 0) {
+                return null;
+            }
+            return enrichedResource;
+        }
 
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
         const referenceValue = ['Person', 'Practitioner'].includes(
