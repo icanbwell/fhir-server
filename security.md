@@ -9,12 +9,12 @@
 
 The FHIR server implements OAuth for authentication purposes. To configure OAuth, you need to set the following environment variables:
 
-1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.<region-name>.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json.
+1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_<cognito-id>/.well-known/jwks.json.
 2. AUTH_CODE_FLOW_URL: This variable is used to specify the URL of the OAuth provider's authorization endpoint for the Authorization Code Flow. This endpoint is where users are redirected to authorize the application.
 3. AUTH_CODE_FLOW_CLIENT_ID: This variable holds the client ID of the application registered with the OAuth provider. This ID is used during the OAuth process to identify the application.
 4. REDIRECT_TO_LOGIN: This variable determines whether a GET request from a web browser should be redirected to the OAuth provider's login page if the user is not authenticated.
 5. AUTH_CONFIGURATION_URI: This variable specifies the URI where the OAuth provider's configuration can be obtained. This configuration typically includes important details such as authorization endpoint URLs, token endpoint URLs, supported OAuth flows, and other OAuth-related settings.
-6. EXTERNAL_AUTH_JWKS_URLS: This variable is used to specify the URLs where the public keys (JSON Web Key Sets) of external authentication providers can be obtained. These keys are used to verify the signatures of JWT tokens issued by external authentication providers.
+6. EXTERNAL_AUTH_JWKS_URLS: This variable is used to specify the additional URLs where the public keys (JWKS) of other user pools(oauth providers) can be obtained. These keys are used to verify the signatures of JWT tokens issued by the authentication providers.
 
 These environment variables allow the FHIR server to interact with the OAuth provider for authentication purposes.
 
@@ -50,9 +50,7 @@ b.well FHIR server builds on SMART on FHIR and adds additional scopes: admin, ac
 ### 2.2 Types of tokens in OAuth
 In OAuth, there are two types of tokens (https://auth0.com/blog/id-token-access-token-what-is-the-difference/):
 1. access token: used to provide access
-2. id token: provides identification information for the user
-
-Note: In our system, we are not utilizing id tokens anymore.
+2. id token: provides identification information for the user [Not supported in FHIR Server]
 
 ### 2.3 OAuth Claims and Scopes
 In OAuth, claims are attributes inside the tokens that assert something about the service/user connecting e.g., name, who issued the token etc.
@@ -113,11 +111,11 @@ The following scopes are allowed in the access token:
 
 The client app can then pass this token to the FHIR server as a bearer token in the Authorization header.
 
-The access token must have all of the following custom attributes:
-1. custom:clientFhirPatientId
-2. custom:clientFhirPersonId
-3. custom:bwellFhirPatientId
-4. custom:bwellFhirPersonId
+The access token must have all of the following attributes:
+1. clientFhirPatientId
+2. clientFhirPersonId
+3. bwellFhirPatientId
+4. bwellFhirPersonId
 
 These attributes define the person or patient accessing the FHIR server.
 
@@ -238,8 +236,6 @@ Every resource in the FHIR server is tagged with security tags:
 
 1. owner: which entity owns this resource.
 2. access: which entities can access this resource
-3. vendor: which entity sent this resource
-4. connectionType: which entities the source type of connection of the resource
 
 Here's an example meta field of a resource:
 
@@ -258,21 +254,14 @@ Here's an example meta field of a resource:
         {
           "system": "https://www.icanbwell.com/access",
           "code": "yourhealth"
-        },
-        {
-          "system": "https://www.icanbwell.com/vendor",
-          "code": "datasender"
-        },
-        {
-          "system": "https://www.icanbwell.com/connectionType",
-          "code": "myhealth"
         }
       ]
     }
 ```
+
 #### 5.3 Control access by patient data graph
 
-The FHIR server looks for the patient scopes that start with patient/”. Patient scopes look like `patient/{resourceType}.{permissions}` and denotes that access to the patients data who are related to the `bwellFhirPersonId` in the JWT Token is permitted according to the permissions mentioned.
+The FHIR server looks for the patient scopes that start with "patient/”. Patient scopes look like `patient/{resourceType}.{permissions}` and denotes that access to the patients data who are related to the `bwellFhirPersonId` in the JWT Token is permitted according to the permissions mentioned.
 
 If someone has scopes like `patient/Observation.read` then that person has read access to Observation resources of the patients related to master person.
 
