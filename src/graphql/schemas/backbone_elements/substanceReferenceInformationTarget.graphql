@@ -15,7 +15,7 @@ type SubstanceReferenceInformationTarget {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +23,7 @@ type SubstanceReferenceInformationTarget {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -39,45 +39,45 @@ type SubstanceReferenceInformationTarget {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Todo.
     """
-    target: Identifier        
+    target: Identifier
     """
     Todo.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     Todo.
     """
-    interaction: CodeableConcept        
+    interaction: CodeableConcept
     """
     Todo.
     """
-    organism: CodeableConcept        
+    organism: CodeableConcept
     """
     Todo.
     """
-    organismType: CodeableConcept        
+    organismType: CodeableConcept
     """
     None
     """
-    amountQuantity: Quantity        
+    amountQuantity: Quantity
     """
     None
     """
-    amountRange: Range        
+    amountRange: Range
     """
     None
     """
-    amountString: String        
+    amountString: String
     """
     Todo.
     """
-    amountType: CodeableConcept        
+    amountType: CodeableConcept
     """
     Todo.
     """
-    source: [DocumentReference]        
+    source: [DocumentReference]
 }

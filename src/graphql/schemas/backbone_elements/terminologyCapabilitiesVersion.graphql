@@ -14,7 +14,7 @@ type TerminologyCapabilitiesVersion {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type TerminologyCapabilitiesVersion {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,30 +38,30 @@ type TerminologyCapabilitiesVersion {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     For version-less code systems, there should be a single version with no
     identifier.
     """
-    code: String        
+    code: String
     """
     If this is the default version for this code system.
     """
-    isDefault: Boolean        
+    isDefault: Boolean
     """
     If the compositional grammar defined by the code system is supported.
     """
-    compositional: Boolean        
+    compositional: Boolean
     """
     Language Displays supported.
     """
-    language: [code]        
+    language: [code]
     """
     Filter Properties supported.
     """
-    filter: [TerminologyCapabilitiesFilter]        
+    filter: [TerminologyCapabilitiesFilter]
     """
     Properties supported for $lookup.
     """
-    property: [code]        
+    property: [code]
 }

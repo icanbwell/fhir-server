@@ -166,7 +166,7 @@ type ImplementationGuideResource {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -174,7 +174,7 @@ type ImplementationGuideResource {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -190,41 +190,41 @@ type ImplementationGuideResource {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Where this resource is found.
     """
-    referenceV2: ImplementationGuideResourceReferenceV2        
+    referenceV2: ImplementationGuideResourceReferenceV2
     """
     Where this resource is found.
     """
-    reference: Resource        
+    reference: Resource
     """
     Indicates the FHIR Version(s) this artifact is intended to apply to. If no
     versions are specified, the resource is assumed to apply to all the versions
     stated in ImplementationGuide.fhirVersion.
     """
-    fhirVersion: [code]        
+    fhirVersion: [code]
     """
     A human assigned name for the resource. All resources SHOULD have a name, but
     the name may be extracted from the resource (e.g. ValueSet.name).
     """
-    name: String        
+    name: String
     """
     A description of the reason that a resource has been included in the
     implementation guide.
     """
-    description: String        
+    description: String
     """
     None
     """
-    exampleBoolean: Boolean        
+    exampleBoolean: Boolean
     """
     None
     """
-    exampleCanonical: canonical        
+    exampleCanonical: canonical
     """
     Reference to the id of the grouping this resource appears in.
     """
-    groupingId: id        
+    groupingId: id
 }

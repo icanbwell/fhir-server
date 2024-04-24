@@ -12,7 +12,7 @@ type SubscriptionTopicNotificationShape {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -20,7 +20,7 @@ type SubscriptionTopicNotificationShape {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -36,7 +36,7 @@ type SubscriptionTopicNotificationShape {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     URL of the Resource that is the type used in this shape. This is the "focus"
     of the topic (or one of them if there are more than one) and the root resource
@@ -44,19 +44,19 @@ type SubscriptionTopicNotificationShape {
     of SubscriptionTopic.resourceTrigger.resource or
     SubscriptionTopic.eventTrigger.resource when they are present.
     """
-    resource: uri!        
+    resource: uri
     """
     Search-style _include directives, rooted in the resource for this shape.
     Servers SHOULD include resources listed here, if they exist and the user is
     authorized to receive them.  Clients SHOULD be prepared to receive these
     additional resources, but SHALL function properly without them.
     """
-    include: [String]        
+    include: [String]
     """
     Search-style _revinclude directives, rooted in the resource for this shape.
     Servers SHOULD include resources listed here, if they exist and the user is
     authorized to receive them.  Clients SHOULD be prepared to receive these
     additional resources, but SHALL function properly without them.
     """
-    revInclude: [String]        
+    revInclude: [String]
 }
