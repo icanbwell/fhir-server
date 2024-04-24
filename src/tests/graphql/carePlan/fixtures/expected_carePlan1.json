@@ -1,0 +1,64 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "activity": [
+                    {
+                        "detail": {
+                            "code": {
+                                "text": "Airborne precautions (procedure)"
+                            }
+                        },
+                        "outcomeReference": [
+                            {
+                                "id": null,
+                                "resourceType": "Patient"
+                            }
+                        ],
+                        "outcomeReferenceV2": []
+                    },
+                    {
+                        "detail": {
+                            "code": {
+                                "text": "Personal protective equipment (physical object)"
+                            }
+                        },
+                        "outcomeReference": null,
+                        "outcomeReferenceV2": null
+                    }
+                ],
+                "author": null,
+                "careTeam": [],
+                "category": [
+                    {
+                        "text": null
+                    },
+                    {
+                        "text": "Infectious disease care plan (record artifact)"
+                    }
+                ],
+                "encounter": {
+                    "extension": [
+                        {
+                            "id": "referenceDisplay",
+                            "url": "https://www.icanbwell.com/referenceDisplay",
+                            "valueString": "Visit with another Dr. Who",
+                            "valueUri": null
+                        },
+                        {
+                            "id": "referenceType",
+                            "url": "https://www.icanbwell.com/referenceType",
+                            "valueString": null,
+                            "valueUri": "Encounter"
+                        }
+                    ]
+                },
+                "id": "8dea4e52-5e76-35a7-0bf9-0f07b83a7e7f",
+                "period": {
+                    "start": "2020-02-29T20:33:52-05:00"
+                }
+            }
+        }
+    ],
+    "meta": null
+}
