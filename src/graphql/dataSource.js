@@ -222,11 +222,15 @@ class FhirDataSource {
 
         if (!reference.reference) {
             if (requestedResources.length === 0) {
-                return null;
+                if (info.returnType) {
+                    if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType?._types?.length > 0) {
+                        requestedResources.push(info.returnType.ofType._types[0].name);
+                    } else if (info.returnType._types?.length > 0) {
+                        requestedResources.push(info.returnType._types[0].name);
+                    }
+                }
             }
-            const possibleResourceType = requestedResources.includes(reference.type)
-                ? reference.type
-                : requestedResources[0];
+            const possibleResourceType = reference.type ? reference.type : requestedResources[0];
 
             const enrichedResource = this.enrichResourceWithReferenceData(
                 {},
