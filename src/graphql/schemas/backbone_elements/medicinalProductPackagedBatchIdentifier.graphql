@@ -11,7 +11,7 @@ type MedicinalProductPackagedBatchIdentifier {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -19,7 +19,7 @@ type MedicinalProductPackagedBatchIdentifier {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,13 +35,13 @@ type MedicinalProductPackagedBatchIdentifier {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A number appearing on the outer packaging of a specific batch.
     """
-    outerPackaging: Identifier!        
+    outerPackaging: Identifier
     """
     A number appearing on the immediate packaging (and not the outer packaging).
     """
-    immediatePackaging: Identifier        
+    immediatePackaging: Identifier
 }

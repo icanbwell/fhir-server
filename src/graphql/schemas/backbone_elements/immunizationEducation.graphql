@@ -13,7 +13,7 @@ type ImmunizationEducation {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,7 +21,7 @@ type ImmunizationEducation {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,22 +37,22 @@ type ImmunizationEducation {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Identifier of the material presented to the patient.
     """
-    documentType: String        
+    documentType: String
     """
     Reference pointer to the educational material given to the patient if the
     information was on line.
     """
-    reference: uri        
+    reference: uri
     """
     Date the educational material was published.
     """
-    publicationDate: dateTime        
+    publicationDate: dateTime
     """
     Date the educational material was given to the patient.
     """
-    presentationDate: dateTime        
+    presentationDate: dateTime
 }

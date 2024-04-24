@@ -12,7 +12,7 @@ type MolecularSequenceVariant {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -20,7 +20,7 @@ type MolecularSequenceVariant {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -36,19 +36,19 @@ type MolecularSequenceVariant {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Start position of the variant on the  reference sequence. If the coordinate
     system is either 0-based or 1-based, then start position is inclusive.
     """
-    start: Int        
+    start: Int
     """
     End position of the variant on the reference sequence. If the coordinate
     system is 0-based then end is exclusive and does not include the last
     position. If the coordinate system is 1-base, then end is inclusive and
     includes the last position.
     """
-    end: Int        
+    end: Int
     """
     An allele is one of a set of coexisting sequence variants of a gene ([SO:00010
     23](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).
@@ -57,7 +57,7 @@ type MolecularSequenceVariant {
     sequence  type is DNA, it should be the sequence on the positive (+) strand.
     This will lay in the range between variant.start and variant.end.
     """
-    observedAllele: String        
+    observedAllele: String
     """
     An allele is one of a set of coexisting sequence variants of a gene ([SO:00010
     23](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).
@@ -66,16 +66,16 @@ type MolecularSequenceVariant {
     sequence  type is DNA, it should be the sequence on the positive (+) strand.
     This will lay in the range between variant.start and variant.end.
     """
-    referenceAllele: String        
+    referenceAllele: String
     """
     Extended CIGAR string for aligning the sequence with reference bases. See
     detailed documentation [here](http://support.illumina.com/help/SequencingAnaly
     sisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_Ext
     endedCIGARFormat.htm).
     """
-    cigar: String        
+    cigar: String
     """
     A pointer to an Observation containing variant information.
     """
-    variantPointer: Observation        
+    variantPointer: Observation
 }

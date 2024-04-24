@@ -14,7 +14,7 @@ type NutritionOrderSupplement {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type NutritionOrderSupplement {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,30 +38,30 @@ type NutritionOrderSupplement {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The kind of nutritional supplement product required such as a high protein or
     pediatric clear liquid supplement.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     The product or brand name of the nutritional supplement such as "Acme Protein
     Shake".
     """
-    productName: String        
+    productName: String
     """
     The time period and frequency at which the supplement(s) should be given.  The
     supplement should be given for the combination of all schedules if more than
     one schedule is present.
     """
-    schedule: [Timing]        
+    schedule: [Timing]
     """
     The amount of the nutritional supplement to be given.
     """
-    quantity: Quantity        
+    quantity: Quantity
     """
     Free text or additional instructions or information pertaining to the oral
     supplement.
     """
-    instruction: String        
+    instruction: String
 }

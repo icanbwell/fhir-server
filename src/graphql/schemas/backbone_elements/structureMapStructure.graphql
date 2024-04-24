@@ -13,7 +13,7 @@ type StructureMapStructure {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,7 +21,7 @@ type StructureMapStructure {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,21 +37,21 @@ type StructureMapStructure {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The canonical reference to the structure.
     """
-    url: canonical!        
+    url: canonical
     """
     How the referenced structure is used in this mapping.
     """
-    mode: code!        
+    mode: code
     """
     The name used for this type in the map.
     """
-    alias: String        
+    alias: String
     """
     Documentation that describes how the structure is used in the mapping.
     """
-    documentation: String        
+    documentation: String
 }
