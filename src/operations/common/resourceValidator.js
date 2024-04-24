@@ -159,16 +159,16 @@ class ResourceValidator {
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
             if (isColumnDatePeriodType(resourceToValidateJson.resourceType, fieldName)) {
                 const newField = {};
-                newField.start = field.start.toISOString();
-                newField.end = field.end.toISOString();
+                newField.start = (field && field.start) ? field.start.toISOString() : '';
+                newField.end = (field && field.end) ? field.end.toISOString() : '';
                 resourceToValidateJson[`${fieldName}`] = newField;
             } else {
                 if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
                     if (field instanceof Date && field) {
                         if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
-                            resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                            resourceToValidateJson[`${fieldName}`] = field ? field.toISOString() : '';
                         } else {
-                            resourceToValidateJson[`${fieldName}`] = field.toISOString().substring(0, 10);
+                            resourceToValidateJson[`${fieldName}`] = field ? field.toISOString().substring(0, 10) : '';
                         }
                     }
                 }
