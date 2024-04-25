@@ -109,7 +109,7 @@ class FhirLogger {
      */
     async createSecureLoggerAsync () {
         const logger = winston.createLogger({
-            level: 'info',
+            level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
             format: winston.format.json(),
             transports: []
         });
@@ -166,7 +166,7 @@ class FhirLogger {
      */
     async createInSecureLoggerAsync () {
         const logger = winston.createLogger({
-            level: 'info',
+            level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
             format: winston.format.json(),
             transports: [
                 (env.LOGLEVEL === 'DEBUG')

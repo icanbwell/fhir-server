@@ -25,7 +25,7 @@ const container = new Container();
  * @description Default configuration for logger
  */
 const defaultConfig = {
-    level: 'info',
+    level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
     format: combine(
         timestamp({ format: 'YYYY-MM-DDTHH:mm:ssZ' }),
         json()
@@ -35,6 +35,7 @@ const defaultConfig = {
         version: getImageVersion()
     },
     colorize: true,
+    silent: (process.env.LOGLEVEL?.toLocaleLowerCase() === 'silent'),
     transports: [new transports.Console({ level: 'debug' })]
 };
 

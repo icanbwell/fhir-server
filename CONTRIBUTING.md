@@ -25,6 +25,8 @@ Run `make lint` to do lint checking
 
 Run `make tests` to run all the tests locally. Or click a test in PyCharm and choose "Run test".
 
+Note: Logs are set to `SILENT` for unit tests in `jest/setEnvVars.js` file. If you want to enable logging for testcases you can change the `LOGLEVEL` env variable to `DEBUG` and for getting all the logs that might help tracing db calls you can change the `LOGLEVEL` env variable to `SILLY`.
+
 ### Update packages
 
 To add a new package or update version of a package, edit package.json and then run `make update` to regenerate `yarn.lock` file.
