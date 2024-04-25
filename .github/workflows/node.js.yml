@@ -57,11 +57,11 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
       - name: Rename coverage file name
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: mv coverage/coverage-final.json coverage/${{matrix.shard}}.json
       - name: Upload coverage file
         uses: actions/upload-artifact@v3
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         with:
           name: coverage-artifacts
           path: coverage/
