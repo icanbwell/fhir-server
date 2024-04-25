@@ -90,7 +90,6 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
         test('search by id do not work as person & patient ids are not provided in access token', async () => {
             const request = await createTestRequest();
             const payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Observation.*',
                 username: 'patient-123@example.com',
                 token_use: 'access'
@@ -107,7 +106,6 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
         test('search by id do not work as id token provided', async () => {
             const request = await createTestRequest();
             const payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Observation.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

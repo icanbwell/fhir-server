@@ -43,7 +43,6 @@ describe('Condition Tests', () => {
             });
 
             const person1_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Condition.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

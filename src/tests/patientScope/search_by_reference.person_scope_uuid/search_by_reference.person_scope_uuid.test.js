@@ -102,7 +102,6 @@ describe('Patient Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const person_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Task.read',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

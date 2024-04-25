@@ -13,7 +13,6 @@ const deepcopy = require('deepcopy');
 const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
 
 const person_payload = {
-    'cognito:username': 'patient-123@example.com',
     scope: 'patient/Condition.write',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'clientFhirPerson',
@@ -131,7 +130,6 @@ describe('Condition Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             const person1_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Encounter.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

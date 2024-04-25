@@ -11,7 +11,6 @@ const { ConfigManager } = require('../../../utils/configManager');
 const deepcopy = require('deepcopy');
 
 const person_payload = {
-    'cognito:username': 'patient-123@example.com',
     scope: 'patient/Condition.*',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'clientFhirPerson',
@@ -166,7 +165,6 @@ describe('Condition Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             const person1_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/Patient.write',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

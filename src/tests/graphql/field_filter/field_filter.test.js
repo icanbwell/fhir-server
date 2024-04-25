@@ -199,7 +199,6 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
@@ -283,7 +282,6 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
@@ -471,7 +469,6 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

@@ -258,7 +258,6 @@ module.exports.getGraphQLHeaders = (scope) => {
 
 module.exports.getGraphQLHeadersWithPerson = (personId) => {
     const payload = {
-        'cognito:username': 'patient-123@example.com',
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
         clientFhirPersonId: 'clientFhirPerson',

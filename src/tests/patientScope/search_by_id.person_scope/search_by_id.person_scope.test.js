@@ -29,7 +29,6 @@ class MockConfigManager extends ConfigManager {
 }
 
 const person_payload = {
-    'cognito:username': 'patient-123@example.com',
     scope: 'patient/Observation.read user/*.* access/*.*',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'clientFhirPerson',
