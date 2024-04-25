@@ -2,16 +2,15 @@
  * This file implements the Passport strategy that reads a JWT token and decrypts it using the public key of the OAuth Provider
  */
 
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwksRsa = require('jwks-rsa');
-const env = require('var');
-const { logDebug, logError } = require('../operations/common/logging');
-const { isTrue } = require('../utils/isTrue');
+const { ExtractJwt, Strategy: JwtStrategy } = require('passport-jwt');
 const async = require('async');
+const env = require('var');
+const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
-const { Issuer } = require('openid-client');
+
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
+const { isTrue } = require('../utils/isTrue');
+const { logDebug } = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
@@ -67,34 +66,6 @@ const getExternalJwksAsync = async () => {
     }
 
     return [];
-};
-
-/**
- * Gets or creates an OpenID client issuer
- * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
- */
-const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
-    return await Issuer.discover(iss);
-};
-
-/**
- * Gets user info from OpenID Connect provider
- * @param {string} accessToken
- * @param iss
- * @param clientId
- * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
- */
-const getUserInfoAsync = async (accessToken, iss, clientId) => {
-    const issuer = await getOrCreateOpenIdClientIssuerAsync(iss);
-
-    /**
-     * @type {import('openid-client').BaseClient}
-     */
-    const client = new issuer.Client({
-        client_id: clientId
-    }); // => Client
-
-    return await client.userinfo(accessToken);
 };
 
 /**
@@ -171,85 +142,48 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
  * @param {requestCallback} done
  * @return {*}
  */
-const verify = (request, jwt_payload, done) => {
+const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-        /**
-         * @type {string}
-         */
-        const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
-
-        /**
-         * @type {boolean}
-         */
-        let isUser = false;
-        if (
-            jwt_payload['cognito:username'] ||
-            jwt_payload[requiredJWTFields.bwellFhirPersonId]
-        ) {
-            isUser = true;
+        // Case when provided token is not access token
+        if (jwt_payload.token_use !== 'access') {
+            return done(null, false);
         }
-        const client_id = jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
+
+        // Calculate scopes from jwt_payload
         /**
          * @type {string}
          */
         let scope = jwt_payload.scope ? jwt_payload.scope : jwt_payload[env.AUTH_CUSTOM_SCOPE];
+
         /**
          * @type {string[]}
          */
-        const groups = jwt_payload[env.AUTH_CUSTOM_GROUP] ? jwt_payload[env.AUTH_CUSTOM_GROUP] : '';
-
-        /**
-         * @type {string}
-         */
-        const username = jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'];
-
-        /**
-         * @type {string}
-         */
-        const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
+        const groups = jwt_payload[env.AUTH_CUSTOM_GROUP] ? jwt_payload[env.AUTH_CUSTOM_GROUP] : [];
 
         if (groups.length > 0) {
             scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
         }
 
-        // see if there is a patient scope and no user scope
         /**
          * @type {string[]}
          */
         const scopes = scope ? scope.split(' ') : [];
-        if (
-            scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
-            scopes.some(s => s.toLowerCase().startsWith('openid')) &&
-            scopes.every(s => !s.toLowerCase().startsWith('user/')) &&
-            tokenUse === 'access'
-        ) {
-            // we were passed an access token for a user and now need to get the user's info from our
-            // OpenID Connect provider
-            isUser = true;
-            const authorizationHeader = request.header('Authorization');
-            // get token from either the request or the cookie
-            const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
-            if (accessToken) {
-                return getUserInfoAsync(accessToken, jwt_payload.iss, client_id).then(
-                    (id_token_payload) => {
-                        return parseUserInfoFromPayload(
-                            {
-                                username, subject, isUser, jwt_payload: id_token_payload, done, client_id, scope
-                            }
-                        );
-                    }
-                ).catch(error => {
-                    logError('Error in parsing token for patient scope', error);
-                    return done(null, false);
-                });
-            }
-        } else if (tokenUse === 'access') {
-            return parseUserInfoFromPayload(
-                {
-                    username, subject, isUser, jwt_payload, done, client_id, scope
-                }
-            );
-        }
+
+        /**
+         * If the patient scope is present, it indicates that the request is coming from a user
+         * @type {boolean}
+         */
+        const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
+
+        return parseUserInfoFromPayload({
+            username: jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'],
+            subject: jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT],
+            isUser,
+            jwt_payload,
+            done,
+            client_id: jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID],
+            scope
+        });
     }
 
     return done(null, false);

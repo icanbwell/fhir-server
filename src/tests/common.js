@@ -1,8 +1,8 @@
 const env = require('var');
-const { jest, expect } = require('@jest/globals');
+const { jest } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
-const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
+const { jwksEndpoint } = require('./mocks/jwks');
 const { publicKey, privateKey } = require('./mocks/keys');
 const { createToken } = require('./mocks/tokens');
 const nock = require('nock');
@@ -107,26 +107,6 @@ module.exports.commonBeforeEach = async () => {
             ]);
         }
     });
-};
-
-/**
- * sets up mock OpenId server
- * @param {string} token
- * @param {string} patientId
- * @param {string} personId
- */
-module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
-    expect(env.AUTH_ISSUER).toBeDefined();
-    expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
-    const discoveryUrlObject = new URL(env.AUTH_ISSUER);
-    jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
-    jwksUserInfoEndpoint(
-        {
-            host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
-            token,
-            patientId,
-            personId
-        });
 };
 
 /**
