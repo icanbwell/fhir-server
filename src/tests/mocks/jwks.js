@@ -72,14 +72,15 @@ function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
         .get('/userInfo')
         .reply(200, () => {
             return {
-                'custom:bwellFhirPatientId': patientId,
-                'custom:bwellFhirPersonId': personId,
+                bwellFhirPatientId: patientId,
+                bwellFhirPersonId: personId,
                 sub: 'f559569d-a6c8-4f70-8447-489b42f48b07',
                 email_verified: 'true',
-                'custom:clientFhirPersonId': personId,
-                'custom:clientFhirPatientId': patientId,
+                clientFhirPersonId: personId,
+                clientFhirPatientId: patientId,
                 email: 'imran@icanbwell.com',
-                username: 'bwell-demo-provider'
+                username: 'bwell-demo-provider',
+                token_use: 'access'
             };
         });
 }

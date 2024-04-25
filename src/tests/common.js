@@ -1,8 +1,8 @@
 const env = require('var');
-const { jest, expect } = require('@jest/globals');
+const { jest } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
-const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
+const { jwksEndpoint } = require('./mocks/jwks');
 const { publicKey, privateKey } = require('./mocks/keys');
 const { createToken } = require('./mocks/tokens');
 const nock = require('nock');
@@ -110,26 +110,6 @@ module.exports.commonBeforeEach = async () => {
 };
 
 /**
- * sets up mock OpenId server
- * @param {string} token
- * @param {string} patientId
- * @param {string} personId
- */
-module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
-    expect(env.AUTH_ISSUER).toBeDefined();
-    expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
-    const discoveryUrlObject = new URL(env.AUTH_ISSUER);
-    jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
-    jwksUserInfoEndpoint(
-        {
-            host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
-            token,
-            patientId,
-            personId
-        });
-};
-
-/**
  * cleans up the mongo db
  * @return {Promise<void>}
  */
@@ -175,10 +155,11 @@ const getToken = (module.exports.getToken = (scope) => {
         username: 'imran',
         client_id: 'my_client_id',
         scope,
-        'custom:clientFhirPersonId': 'clientFhirPerson',
-        'custom:clientFhirPatientId': 'clientFhirPatient',
-        'custom:bwellFhirPersonId': 'root-person',
-        'custom:bwellFhirPatientId': 'bwellFhirPatient'
+        clientFhirPersonId: 'clientFhirPerson',
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: 'root-person',
+        bwellFhirPatientId: 'bwellFhirPatient',
+        token_use: 'access'
     };
     return createToken(privateKey, '123', payload);
 });
@@ -192,7 +173,8 @@ const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (sco
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
         customscope: scope,
-        groups: ['access/*.*']
+        groups: ['access/*.*'],
+        token_use: 'access'
     });
 });
 
@@ -276,14 +258,13 @@ module.exports.getGraphQLHeaders = (scope) => {
 
 module.exports.getGraphQLHeadersWithPerson = (personId) => {
     const payload = {
-        'cognito:username': 'patient-123@example.com',
-        'custom:bwell_fhir_person_id': personId,
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
-        'custom:clientFhirPersonId': 'clientFhirPerson',
-        'custom:clientFhirPatientId': 'clientFhirPatient',
-        'custom:bwellFhirPersonId': personId,
-        'custom:bwellFhirPatientId': 'bwellFhirPatient'
+        clientFhirPersonId: 'clientFhirPerson',
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: personId,
+        bwellFhirPatientId: 'bwellFhirPatient',
+        token_use: 'access'
     };
     return {
         'Content-Type': 'application/json; charset=utf-8',
@@ -377,7 +358,8 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
-        groups: ['admin/*.*']
+        groups: ['admin/*.*'],
+        token_use: 'access'
     });
 });
 

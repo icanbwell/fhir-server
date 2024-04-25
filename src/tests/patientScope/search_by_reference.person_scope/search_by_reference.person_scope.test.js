@@ -102,14 +102,13 @@ describe('Patient Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const person_payload = {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'bwellPerson1',
                 scope: 'patient/*.read',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'bwellPerson1',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'bwellPerson1',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
             };
             const headers = getHeadersWithCustomPayload(person_payload);
             // ACT & ASSERT
