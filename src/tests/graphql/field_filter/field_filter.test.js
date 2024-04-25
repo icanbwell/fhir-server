@@ -203,10 +203,11 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
          };
 
             resp = await request
@@ -287,10 +288,11 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+token_use: 'access'
            };
 
             resp = await request
@@ -475,10 +477,11 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+token_use: 'access'
             };
 
             resp = await request

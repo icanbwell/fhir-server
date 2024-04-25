@@ -157,9 +157,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        context.personIdFromJwtToken =
-            jwt_payload[requiredJWTFields.bwellFhirPersonId] ||
-            jwt_payload.bwellFhirPersonId;
+        context.personIdFromJwtToken = jwt_payload[requiredJWTFields.bwellFhirPersonId]
     }
 
     return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
@@ -186,8 +184,7 @@ const verify = (request, jwt_payload, done) => {
         let isUser = false;
         if (
             jwt_payload['cognito:username'] ||
-            jwt_payload[requiredJWTFields.bwellFhirPersonId] ||
-            jwt_payload.bwellFhirPersonId
+            jwt_payload[requiredJWTFields.bwellFhirPersonId]
         ) {
             isUser = true;
         }

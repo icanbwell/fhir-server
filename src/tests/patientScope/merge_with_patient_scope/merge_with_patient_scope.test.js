@@ -17,10 +17,11 @@ const person_payload = {
     'custom:bwell_fhir_person_id': 'person1',
     scope: 'patient/Condition.write',
     username: 'patient-123@example.com',
-    'custom:clientFhirPersonId': 'clientFhirPerson',
-    'custom:clientFhirPatientId': 'clientFhirPatient',
-    'custom:bwellFhirPersonId': 'person1',
-    'custom:bwellFhirPatientId': 'bwellFhirPatient'
+    clientFhirPersonId: 'clientFhirPerson',
+    clientFhirPatientId: 'clientFhirPatient',
+    bwellFhirPersonId: 'person1',
+    bwellFhirPatientId: 'bwellFhirPatient',
+    token_use: 'access'
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 
@@ -135,10 +136,11 @@ describe('Condition Tests', () => {
                 'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Encounter.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'person1',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'person1',
+                bwellFhirPatientId: 'bwellFhirPatient',
+token_use: 'access'
             };
             const headers1 = getHeadersWithCustomPayload(person1_payload);
             // ARRANGE
