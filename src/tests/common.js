@@ -175,10 +175,11 @@ const getToken = (module.exports.getToken = (scope) => {
         username: 'imran',
         client_id: 'my_client_id',
         scope,
-        'custom:clientFhirPersonId': 'clientFhirPerson',
-        'custom:clientFhirPatientId': 'clientFhirPatient',
-        'custom:bwellFhirPersonId': 'root-person',
-        'custom:bwellFhirPatientId': 'bwellFhirPatient'
+        clientFhirPersonId: 'clientFhirPerson',
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: 'root-person',
+        bwellFhirPatientId: 'bwellFhirPatient',
+        token_use: 'access'
     };
     return createToken(privateKey, '123', payload);
 });
