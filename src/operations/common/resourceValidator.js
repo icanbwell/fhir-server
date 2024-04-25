@@ -157,14 +157,15 @@ class ResourceValidator {
 
         // Convert date fields to string for validation
         for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
-            if (isColumnDatePeriodType(resourceToValidateJson.resourceType, fieldName)) {
+            const newFieldName = fieldName.replace(/\[\d+\]/g, '');
+            if (isColumnDatePeriodType(resourceToValidateJson.resourceType, newFieldName)) {
                 const newField = {};
                 newField.start = (field && field.start) ? field.start.toISOString() : '';
                 newField.end = (field && field.end) ? field.end.toISOString() : '';
                 resourceToValidateJson[`${fieldName}`] = newField;
             } else {
-                if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
-                    if (field instanceof Date && field) {
+                if (isColumnDateType(resourceToValidateJson.resourceType, newFieldName)) {
+                    if (field && field instanceof Date) {
                         if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
                             resourceToValidateJson[`${fieldName}`] = field ? field.toISOString() : '';
                         } else {

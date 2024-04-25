@@ -223,7 +223,7 @@
           "reference": "Practitioner/1376656959"
         },
         "resourceType": "ExplanationOfBenefit",
-        "created": "2023-11-11",
+        "created": "2023-11-11T00:00:00.000Z",
         "status": "active",
         "type": {
           "coding": [
@@ -421,7 +421,7 @@
           "reference": "Organization/1407857790"
         },
         "resourceType": "ExplanationOfBenefit",
-        "created": "2023-11-11",
+        "created": "2023-11-11T00:00:00.000Z",
         "status": "active",
         "type": {
           "coding": [

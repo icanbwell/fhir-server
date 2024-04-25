@@ -24,7 +24,7 @@
           ],
           "tag": null
         },
-        "occurrenceDateTime": "2021-03-30T00:00:00-05:00",
+        "occurrenceDateTime": "2021-03-30T05:00:00.000Z",
         "protocolApplied": [
           {
             "doseNumberPositiveInt": null,
