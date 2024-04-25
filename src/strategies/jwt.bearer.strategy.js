@@ -6,7 +6,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const { logDebug, logError, logInfo } = require('../operations/common/logging');
+const { logDebug, logError } = require('../operations/common/logging');
 const { isTrue } = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
@@ -14,12 +14,12 @@ const { Issuer } = require('openid-client');
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
-const requiredJWTFields = [
-    // 'custom:clientFhirPersonId',
-    // 'custom:clientFhirPatientId',
-    'custom:bwellFhirPersonId'
-    // 'custom:bwellFhirPatientId',
-];
+const requiredJWTFields = {
+    clientFhirPersonId: 'clientFhirPersonId',
+    clientFhirPatientId: 'clientFhirPatientId',
+    bwellFhirPersonId: 'bwellFhirPersonId',
+    bwellFhirPatientId: 'bwellFhirPatientId'
+};
 
 /**
  * Retrieve jwks for URL
@@ -148,8 +148,8 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         context.isUser = isUser;
         // Test that required fields are populated
         let validInput = true;
-        requiredJWTFields.forEach((field) => {
-            if (!jwt_payload[`${field}`] && !jwt_payload[`${field.replace('custom:', '')}`]) {
+        Object.values(requiredJWTFields).forEach((field) => {
+            if (!jwt_payload[field]) {
                 logDebug(`Error: ${field} field is missing`, { user: '' });
                 validInput = false;
             }
@@ -157,7 +157,9 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'] || jwt_payload.bwellFhirPersonId;
+        context.personIdFromJwtToken =
+            jwt_payload[requiredJWTFields.bwellFhirPersonId] ||
+            jwt_payload.bwellFhirPersonId;
     }
 
     return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
@@ -178,18 +180,13 @@ const verify = (request, jwt_payload, done) => {
          */
         const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
 
-        if (tokenUse === 'id' && isTrue(env.DISABLE_ID_TOKEN_SUPPORT)) {
-            logInfo('Unable to process ID token as the support is disabled');
-            return done(null, false);
-        }
-
         /**
          * @type {boolean}
          */
         let isUser = false;
         if (
             jwt_payload['cognito:username'] ||
-            jwt_payload['custom:bwellFhirPersonId'] ||
+            jwt_payload[requiredJWTFields.bwellFhirPersonId] ||
             jwt_payload.bwellFhirPersonId
         ) {
             isUser = true;
@@ -249,7 +246,7 @@ const verify = (request, jwt_payload, done) => {
                     return done(null, false);
                 });
             }
-        } else {
+        } else if (tokenUse === 'access') {
             return parseUserInfoFromPayload(
                 {
                     username, subject, isUser, jwt_payload, done, client_id, scope
@@ -295,16 +292,6 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-const extractors = [
-    ExtractJwt.fromAuthHeaderAsBearerToken(),
-    cookieExtractor,
-    ExtractJwt.fromUrlQueryParameter('token')
-];
-
-if (!isTrue(env.DISABLE_X_BWELL_IDENTITY_SUPPORT)) {
-    extractors.unshift(ExtractJwt.fromHeader('x-bwell-identity'));
-}
-
 /**
  * Bearer Strategy
  *
@@ -336,7 +323,11 @@ module.exports.strategy = new MyJwtStrategy(
             }
         }),
         /* specify a list of extractors and it will use the first one that returns the token */
-        jwtFromRequest: ExtractJwt.fromExtractors(extractors),
+        jwtFromRequest: ExtractJwt.fromExtractors([
+            ExtractJwt.fromAuthHeaderAsBearerToken(),
+            cookieExtractor,
+            ExtractJwt.fromUrlQueryParameter('token')
+        ]),
 
         // Validate the audience and the issuer.
         // audience: 'urn:my-resource-server',
