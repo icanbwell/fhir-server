@@ -200,7 +200,6 @@ describe('GraphQL CodeSystem Tests', () => {
 
             const only_fhir_person_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
@@ -285,7 +284,6 @@ describe('GraphQL CodeSystem Tests', () => {
 
             const only_fhir_person_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
@@ -474,7 +472,6 @@ token_use: 'access'
 
             const only_fhir_person_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

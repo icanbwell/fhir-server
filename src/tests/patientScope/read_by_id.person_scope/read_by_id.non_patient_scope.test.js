@@ -71,7 +71,6 @@ describe('Observation Tests', () => {
 
             const person1_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Condition.write user/Observation.read access/C.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
@@ -102,7 +101,6 @@ describe('Observation Tests', () => {
 
             const person1_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Condition.write user/Observation.write access/C.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

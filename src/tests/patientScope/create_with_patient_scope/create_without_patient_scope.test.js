@@ -44,7 +44,6 @@ describe('Condition Tests', () => {
 
             const person1_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Condition.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',

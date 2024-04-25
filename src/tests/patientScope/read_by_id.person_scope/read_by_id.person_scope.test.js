@@ -29,7 +29,6 @@ class MockConfigManager extends ConfigManager {
 
 const person_payload = {
     'cognito:username': 'patient-123@example.com',
-    'custom:bwell_fhir_person_id': 'person1',
     scope: 'patient/Observation.read',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'clientFhirPerson',
@@ -137,7 +136,6 @@ describe('Observation Tests', () => {
 
             const person1_payload = {
                 'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Condition.write user/Observation.read access/*.*',
                 username: 'patient-123@example.com',
                 clientFhirPersonId: 'clientFhirPerson',
