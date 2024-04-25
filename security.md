@@ -2,7 +2,7 @@
 
 ## High Level Sequence
 
-![](https://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgRkhJUiBTZXJ2ZXIvQ2xpZW50IEFwcCBBdXRob3J6YXRpb24KAA4KLT4AEwZpABQGADIHKHMpOgAtBSBUb2tlbiBSZXF1ZXN0CgAVFy0-AF8KOiBSZWNlaXZlcwA2Cwpub3RlIG92ZXIAgRMMOiBGZXRjaGVzIGV4dGVybmFsIGF1dGggSldLUyBkdXJpbmcgcwCBRAUgc3RhcnR1cACBLA0APQ1HcmFwaFFML1Jlc291cmNlAIErCCB3LwB8CwCCEQsAMQ9WZXJpZnkAgWgMYWdhaW5zdACCRAcncwCBEQZrZXlzADkOTW9uZ29EYjogUXVlcnkgZm9yIHIAgikGZWQAgwcGcgCBDQcKACQHAIEsD1JldHVybgAcDwCBHQ0AglAOACkFAEwX&s=default)
+![](https://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgRkhJUiBTZXJ2ZXIvQ2xpZW50IEFwcCBBdXRob3J6YXRpb24KAA4KLT4AEwZpABQGADIHKHMpOgAtBSBUb2tlbiBSZXF1ZXN0CgAVFy0-AF8KOiBSZWNlaXZlcwA2CwBkDQCBFgs6IEdyYXBoUUwvUmVzb3VyY2UAYwggdy8ANAsKAIFKCy0tPj4rAIEcGUxvYWRzIEpXS3MAgRQZLT4-LQB4DABQDgCBEQ5WZXJpZnkAgX8MYWdhaW5zdACCWwcnAGcFUyBrZXlzADkOTW9uZ29EYjogUXVlcnkgZm9yIHIAgkAGZWQAgx4GcgCBbAcKACQHAIILD1JldHVybgAcDwCBHQ0AgmcOACkFAEwX&s=default)
 
 ### Configuring OAuth for a FHIR server
 
@@ -155,7 +155,7 @@ var options = {
     },
     form: {
         grant_type: 'client_credentials',
-        scope: 'user/*.read',
+        scope: 'user/*.read access*/read',
         client_id: '[put client id here]',
         client_secret: '[put client secret here]',
     },
