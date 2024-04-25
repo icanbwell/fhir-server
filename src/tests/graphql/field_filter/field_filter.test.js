@@ -290,7 +290,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: 'root-person',
                 bwellFhirPatientId: 'bwellFhirPatient',
-token_use: 'access'
+                token_use: 'access'
            };
 
             resp = await request
@@ -478,7 +478,7 @@ token_use: 'access'
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: 'root-person',
                 bwellFhirPatientId: 'bwellFhirPatient',
-token_use: 'access'
+                token_use: 'access'
             };
 
             resp = await request

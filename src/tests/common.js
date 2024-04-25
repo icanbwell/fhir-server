@@ -193,7 +193,8 @@ const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (sco
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
         customscope: scope,
-        groups: ['access/*.*']
+        groups: ['access/*.*'],
+        token_use: 'access'
     });
 });
 
@@ -378,7 +379,8 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
-        groups: ['admin/*.*']
+        groups: ['admin/*.*'],
+        token_use: 'access'
     });
 });
 

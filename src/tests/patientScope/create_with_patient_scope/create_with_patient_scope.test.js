@@ -123,7 +123,7 @@ describe('Condition Tests', () => {
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: 'person1',
                 bwellFhirPatientId: 'bwellFhirPatient',
-token_use: 'access'
+                token_use: 'access'
             };
             const headers1 = getHeadersWithCustomPayload(person1_payload);
             // add the resources to FHIR server
