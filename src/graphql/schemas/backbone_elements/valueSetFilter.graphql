@@ -14,7 +14,7 @@ type ValueSetFilter {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type ValueSetFilter {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,15 +38,15 @@ type ValueSetFilter {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A code that identifies a property or a filter defined in the code system.
     """
-    property: code!        
+    property: code
     """
     The kind of operation to perform as a part of the filter criteria.
     """
-    op: code!        
+    op: code
     """
     The match value may be either a code defined by the system, or a string value,
     which is a regex match on the literal string of the property value  (if the
@@ -55,5 +55,5 @@ type ValueSetFilter {
     operation is 'regex', or one of the values (true and false), when the
     operation is 'exists'.
     """
-    value: String!        
+    value: String
 }

@@ -212,21 +212,45 @@ class FhirDataSource {
         if (!reference) {
             return null;
         }
+
+        // Check the resources request by the user
+        const requestedResources = info
+            .fieldNodes[0]
+            .selectionSet
+            ?.selections?.map(s => s.typeCondition?.name?.value)
+            ?.filter(s => s) || [];
+
         if (!reference.reference) {
-            let possibleResourceType = reference.type;
-            if (!possibleResourceType && info.returnType) {
-                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0) {
-                    possibleResourceType = info.returnType.ofType._types[0].name;
-                } else if (info.returnType._types && info.returnType._types.length > 0) {
-                    possibleResourceType = info.returnType._types[0].name;
+            if (requestedResources.length === 0) {
+                if (info.returnType) {
+                    if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType?._types?.length > 0) {
+                        requestedResources.push(info.returnType.ofType._types[0].name);
+                    } else if (info.returnType._types?.length > 0) {
+                        requestedResources.push(info.returnType._types[0].name);
+                    }
                 }
             }
-            const enrichedResource = this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
+            if (
+                reference.type &&
+                requestedResources.length !== 0 &&
+                !requestedResources.includes(reference.type) &&
+                !requestedResources.includes('Resource')
+            ) {
+                return null;
+            }
+            const possibleResourceType = reference.type ? reference.type : requestedResources[0];
+
+            const enrichedResource = this.enrichResourceWithReferenceData(
+                {},
+                reference,
+                possibleResourceType
+            );
             if (Object.keys(enrichedResource).length === 0) {
                 return null;
             }
             return enrichedResource;
         }
+
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
         const referenceValue = ['Person', 'Practitioner'].includes(
             ResourceWithId.getResourceTypeFromReference(reference.reference)
@@ -241,8 +265,14 @@ class FhirDataSource {
             /** @type {string} **/
             id
         } = referenceObj;
-        // Case when invalid resourceType is passed.
-        if (!isValidResource(resourceType)) {
+        // Case when invalid resourceType is passed and if this resourceType is requested in the query
+        // if requested resources contains Resource then all resources are allowed here
+        if (!isValidResource(resourceType) || (
+                requestedResources.length > 0 &&
+                !requestedResources.includes('Resource') &&
+                !requestedResources.includes(resourceType)
+            )
+        ) {
             return null;
         }
         try {

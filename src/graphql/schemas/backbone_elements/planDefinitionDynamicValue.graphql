@@ -14,7 +14,7 @@ type PlanDefinitionDynamicValue {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type PlanDefinitionDynamicValue {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,7 +38,7 @@ type PlanDefinitionDynamicValue {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The path to the element to be customized. This is the path on the resource
     that will hold the result of the calculation defined by the expression. The
@@ -49,9 +49,9 @@ type PlanDefinitionDynamicValue {
     multiple-cardinality sub-elements (see the [Simple FHIRPath
     Profile](fhirpath.html#simple) for full details).
     """
-    path: String        
+    path: String
     """
     An expression specifying the value of the customized element.
     """
-    expression: Expression        
+    expression: Expression
 }

@@ -14,7 +14,7 @@ type ExampleScenarioInstance {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type ExampleScenarioInstance {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,30 +38,30 @@ type ExampleScenarioInstance {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The id of the resource for referencing.
     """
-    resourceId: String!        
+    resourceId: String
     """
     The type of the resource.
     """
-    resourceType: code!        
+    resourceType: code
     """
     A short name for the resource instance.
     """
-    name: String        
+    name: String
     """
     Human-friendly description of the resource instance.
     """
-    description: markdown        
+    description: markdown
     """
     A specific version of the resource.
     """
-    version: [ExampleScenarioVersion]        
+    version: [ExampleScenarioVersion]
     """
     Resources contained in the instance (e.g. the observations contained in a
     bundle).
     """
-    containedInstance: [ExampleScenarioContainedInstance]        
+    containedInstance: [ExampleScenarioContainedInstance]
 }

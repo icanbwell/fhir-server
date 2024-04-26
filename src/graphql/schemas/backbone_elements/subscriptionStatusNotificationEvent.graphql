@@ -13,7 +13,7 @@ type SubscriptionStatusNotificationEvent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,7 +21,7 @@ type SubscriptionStatusNotificationEvent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,25 +37,25 @@ type SubscriptionStatusNotificationEvent {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The sequential number of this event in this subscription context. Note that
     this value is a 64-bit integer value, encoded as a string.
     """
-    eventNumber: String!        
+    eventNumber: String
     """
     The actual time this event occured on the server.
     """
-    timestamp: instant        
+    timestamp: instant
     """
     The focus of this event. While this will usually be a reference to the focus
     resource of the event, it MAY contain a reference to a non-FHIR object.
     """
-    focus: Resource        
+    focus: Resource
     """
     Additional context information for this event. Generally, this will contain
     references to additional resources included with the event (e.g., the Patient
     relevant to an Encounter), however it MAY refer to non-FHIR objects.
     """
-    additionalContext: [Resource]        
+    additionalContext: [Resource]
 }

@@ -119,6 +119,7 @@ function createApp ({ fnGetContainer }) {
                 requestUrl: reqPath,
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
+                originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
                 altId: username
             };

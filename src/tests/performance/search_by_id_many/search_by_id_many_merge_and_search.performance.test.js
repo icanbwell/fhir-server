@@ -10,10 +10,8 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const env = require('var');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ResponseChunkParser } = require('../responseChunkParser');
-let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
     get defaultSortId () {
@@ -44,13 +42,10 @@ class MockConfigManagerStreaming extends ConfigManager {
 describe('seach by id many performance', () => {
     beforeEach(async () => {
         await commonBeforeEach();
-        oldEnvLogLevel = env.LOGLEVEL;
-        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner Merge & Search By 10,0000 Tests', () => {

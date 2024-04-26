@@ -13,14 +13,13 @@ const deepcopy = require('deepcopy');
 const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
 
 const person_payload = {
-    'cognito:username': 'patient-123@example.com',
-    'custom:bwell_fhir_person_id': 'person1',
     scope: 'patient/Condition.write',
     username: 'patient-123@example.com',
-    'custom:clientFhirPersonId': 'clientFhirPerson',
-    'custom:clientFhirPatientId': 'clientFhirPatient',
-    'custom:bwellFhirPersonId': 'person1',
-    'custom:bwellFhirPatientId': 'bwellFhirPatient'
+    clientFhirPersonId: 'clientFhirPerson',
+    clientFhirPatientId: 'clientFhirPatient',
+    bwellFhirPersonId: 'person1',
+    bwellFhirPatientId: 'bwellFhirPatient',
+    token_use: 'access'
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 
@@ -131,14 +130,13 @@ describe('Condition Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             const person1_payload = {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'person1',
                 scope: 'patient/Encounter.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'person1',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'person1',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
             };
             const headers1 = getHeadersWithCustomPayload(person1_payload);
             // ARRANGE
@@ -176,6 +174,7 @@ describe('Condition Tests', () => {
 
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
+            condition1WithDifferentPatientId.id = '2';
 
             const bundle = new Bundle(
                 {

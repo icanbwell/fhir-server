@@ -15,7 +15,7 @@ type SubscriptionTopicResourceTrigger {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +23,7 @@ type SubscriptionTopicResourceTrigger {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -39,13 +39,13 @@ type SubscriptionTopicResourceTrigger {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The human readable description of this resource trigger for the
     SubscriptionTopic -  for example, "An Encounter enters the 'in-progress'
     state".
     """
-    description: markdown        
+    description: markdown
     """
     URL of the Resource that is the type used in this resource trigger.  Relative
     URLs are relative to the StructureDefinition root of the implemented FHIR
@@ -54,21 +54,21 @@ type SubscriptionTopicResourceTrigger {
     information, see <a href="elementdefinition-
     definitions.html#ElementDefinition.type.code">ElementDefinition.type.code</a>.
     """
-    resource: uri!        
+    resource: uri
     """
     The FHIR RESTful interaction which can be used to trigger a notification for
     the SubscriptionTopic. Multiple values are considered OR joined (e.g., CREATE
     or UPDATE).
     """
-    supportedInteraction: [code]        
+    supportedInteraction: [code]
     """
     The FHIR query based rules that the server should use to determine when to
     trigger a notification for this subscription topic.
     """
-    queryCriteria: SubscriptionTopicQueryCriteria        
+    queryCriteria: SubscriptionTopicQueryCriteria
     """
     The FHIRPath based rules that the server should use to determine when to
     trigger a notification for this topic.
     """
-    fhirPathCriteria: String        
+    fhirPathCriteria: String
 }

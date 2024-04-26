@@ -1,5 +1,6 @@
 query {
     person(
+        _debug: true
         identifier: {
             value: {
                 system: "http://www.client.com/profileid"

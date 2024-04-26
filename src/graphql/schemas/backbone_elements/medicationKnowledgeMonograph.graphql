@@ -13,7 +13,7 @@ type MedicationKnowledgeMonograph {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,7 +21,7 @@ type MedicationKnowledgeMonograph {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,14 +37,14 @@ type MedicationKnowledgeMonograph {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The category of documentation about the medication. (e.g. professional
     monograph, patient education monograph).
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     Associated documentation about the medication.
     """
-    source: MedicationKnowledgeMonographSource        
+    source: MedicationKnowledgeMonographSource
 }

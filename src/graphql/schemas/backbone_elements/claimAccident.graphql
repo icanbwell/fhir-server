@@ -16,7 +16,7 @@ type ClaimAccident {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +24,7 @@ type ClaimAccident {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -40,24 +40,24 @@ type ClaimAccident {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Date of an accident event  related to the products and services contained in
     the claim.
     """
-    date: date!        
+    date: date
     """
     The type or context of the accident event for the purposes of selection of
     potential insurance coverages and determination of coordination between
     insurers.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     None
     """
-    locationAddress: Address        
+    locationAddress: Address
     """
     None
     """
-    locationReference: Location        
+    locationReference: Location
 }

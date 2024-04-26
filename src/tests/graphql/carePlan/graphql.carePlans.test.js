@@ -1,5 +1,7 @@
 const carePlanBundleResource = require('./fixtures/carePlans.json');
+const carePlanResource = require('./fixtures/carePlan1.json');
 const expectedCarePlanBundleResource = require('./fixtures/expected_carePlans.json');
+const expectedCarePlan1 = require('./fixtures/expected_carePlan1.json');
 
 const observationResource = require('./fixtures/observation.json');
 
@@ -74,6 +76,34 @@ describe('GraphQL CarePlan Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCarePlanBundleResource);
+        });
+
+        test('Reference type doesn\'t match testcase works', async () => {
+            const request = await createTestRequest();
+            const graphqlQueryText = carePlanQuery.replace(/\\n/g, '');
+            let resp = await request.get('/4_0_0/CarePlan').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(0);
+
+            resp = await request
+                .post('/4_0_0/CarePlan/$merge')
+                .send(carePlanResource)
+                .set(getHeaders())
+                .expect(200);
+
+            resp = await request.get('/4_0_0/CarePlan/').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(1);
+
+            resp = await request
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResponse(expectedCarePlan1);
         });
     });
 });
