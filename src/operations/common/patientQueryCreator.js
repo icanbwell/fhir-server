@@ -4,14 +4,18 @@ const { isUuid } = require('../../utils/uid.util');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { R4SearchQueryCreator } = require('../query/r4');
+const { R4ArgsParser } = require('../query/r4ArgsParser');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const querystring = require('querystring');
 
 class PatientQueryCreator {
     /**
      * constructor
      * @param {PatientFilterManager} patientFilterManager
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {R4ArgsParser} r4ArgsParser
      */
-    constructor ({ patientFilterManager, r4SearchQueryCreator }) {
+    constructor ({ patientFilterManager, r4SearchQueryCreator, r4ArgsParser }) {
         /**
          * @type {PatientFilterManager}
          */
@@ -23,6 +27,12 @@ class PatientQueryCreator {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -49,6 +59,12 @@ class PatientQueryCreator {
              * @type {string|string[]|null}
              */
             const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+                resourceType
+            });
+            /**
+             * @type {string|string[]|null}
+             */
+            const patientFilterWithQueryProperty = this.patientFilterManager.getFilterQueryForResource({
                 resourceType
             });
             if (patientFilterProperty) {
@@ -79,6 +95,22 @@ class PatientQueryCreator {
                         };
                     }
                 }
+            } else if (patientFilterWithQueryProperty) {
+                // replace patient with value of patient
+                /**
+                 * @type {ParsedUrlQuery}
+                 */
+                const args = querystring.parse(patientFilterWithQueryProperty);
+                args.identifier = patientUuids.map(p => args.identifier.replace('{patient}', p));
+                args.base_version = VERSIONS['4_0_0'];
+                const parsedArgs = this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args,
+                    useOrFilterForArrays: true
+                });
+                ({ query: patientsUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType, parsedArgs, useHistoryTable
+                }));
             }
         }
         const patientNonUuids = patientIds.filter(id => !isUuid(id));
@@ -131,7 +163,7 @@ class PatientQueryCreator {
             patientsQuery = patientsUuidQuery || patientsNonUuidQuery;
         }
         if (patientsQuery) {
-            query = this.r4SearchQueryCreator.appendAndQuery(query, patientsQuery);
+            query = this.r4SearchQueryCreator.appendAndSimplifyQuery(query, patientsQuery);
         }
         return query;
     }

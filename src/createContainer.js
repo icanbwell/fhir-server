@@ -770,7 +770,8 @@ const createContainer = function () {
 
     container.register('patientQueryCreator', (c) => new PatientQueryCreator({
         patientFilterManager: c.patientFilterManager,
-        r4SearchQueryCreator: c.r4SearchQueryCreator
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        r4ArgsParser: c.r4ArgsParser
     }));
 
     return container;
