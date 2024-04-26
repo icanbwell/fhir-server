@@ -65,6 +65,8 @@ class MergeResourceValidator extends BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate ({ requestInfo, incomingResources, base_version }) {
+        // Merge duplicate resources from the incomingObjects array
+        incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
         /**
          * @type {boolean}
          */

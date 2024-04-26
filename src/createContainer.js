@@ -359,8 +359,7 @@ const createContainer = function () {
             validators: [
                 new ParametersResourceValidator(),
                 new BundleResourceValidator({
-                    resourceValidator: c.resourceValidator,
-                    mergeManager: c.mergeManager
+                    resourceValidator: c.resourceValidator
                 }),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,

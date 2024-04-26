@@ -1,25 +1,18 @@
 const { BaseValidator } = require('./baseValidator');
-const { MergeManager } = require('../mergeManager');
 const { ResourceValidator } = require('../../common/resourceValidator');
 const { assertTypeEquals } = require('../../../utils/assertType');
 
 class BundleResourceValidator extends BaseValidator {
     /**
      * @param {ResourceValidator} resourceValidator
-     * @param {MergeManager} mergeManager
      */
-    constructor ({ resourceValidator, mergeManager }) {
+    constructor ({ resourceValidator }) {
         super();
         /**
          * @type {ResourceValidator}
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-        /**
-         * @type {MergeManager}
-         */
-        this.mergeManager = mergeManager;
-        assertTypeEquals(mergeManager, MergeManager);
     }
 
     /**
@@ -57,8 +50,6 @@ class BundleResourceValidator extends BaseValidator {
             }
             // unwrap the resources
             incomingResources = incomingResources.entry ? incomingResources.entry.map(e => e.resource) : [];
-
-            incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
         }
 
         return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };

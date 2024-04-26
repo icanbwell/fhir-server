@@ -456,17 +456,14 @@ class MergeManager {
         Object.values(resourceGroups).forEach((duplicateResourceArray) => {
             if (duplicateResourceArray.length > 1) {
                 duplicateResources.push(duplicateResourceArray[0].id);
+                const mergedResource = duplicateResourceArray.reduce(
+                    (mergedResource, resource) => mergeObject(mergedResource, resource.toJSON()),
+                    {}
+                );
+                mergedResources.push(duplicateResourceArray[0].create(mergedResource));
+            } else {
+                mergedResources.push(duplicateResourceArray[0]);
             }
-            mergedResources.push(
-                duplicateResourceArray.reduce((mergedResource, resource) => {
-                    if (resource instanceof Resource) {
-                        const mergedObject = mergeObject(mergedResource, resource.toJSONInternal());
-                        return resource.create(mergedObject);
-                    } else {
-                        return mergeObject(mergedResource, resource);
-                    }
-                }, {})
-            );
         });
 
         if (duplicateResources.length > 0) {
