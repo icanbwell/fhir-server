@@ -438,12 +438,12 @@ class MergeManager {
                 )
             ) {
                 const sourceAssigningAuthority =
-                    resource?.meta?.security?.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)?.code ||
-                    resource?.meta?.security?.some(s => s.system === SecurityTagSystem.owner)?.code;
+                    resource?.meta?.security?.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)?.code ||
+                    resource?.meta?.security?.find(s => s.system === SecurityTagSystem.owner)?.code;
 
-                return generateUUIDv5(`${resource?.id}|${sourceAssigningAuthority}`);
+                return generateUUIDv5(`${resource?.id}|${sourceAssigningAuthority}|${resource?.resourceType}`);
             }
-            return resource?.id;
+            return generateUUIDv5(`${resource?.id}|${resource?.resourceType}`);
         });
         /**
          * @type {string[]}
@@ -528,7 +528,7 @@ class MergeManager {
                 chunkSize,
                 mergeResourceFn
             );
-            return result.flatMap(r => r);
+            return result.filter(r => (r.resource || r.mergeError));
         } catch (e) {
             throw new RethrownError({
                 error: e
