@@ -71,7 +71,7 @@
               }
             ],
             "gender": "female",
-            "birthDate": "2017-01-01"
+            "birthDate": "2017-01-01T00:00:00.000Z"
           },
           {
             "resourceType": "Account",
@@ -151,8 +151,8 @@
               }
             ],
             "servicePeriod": {
-              "start": "2016-01-01",
-              "end": "2016-06-30"
+              "start": "2016-01-01T00:00:00.000Z",
+              "end": "2016-06-30T00:00:00.000Z"
             },
             "coverage": [
               {
@@ -246,7 +246,7 @@
               }
             ],
             "gender": "female",
-            "birthDate": "2017-01-01",
+            "birthDate": "2017-01-01T00:00:00.000Z",
             "link": [
               {
                 "other": {
@@ -566,7 +566,7 @@
               }
             ],
             "gender": "male",
-            "birthDate": "1990-01-01",
+            "birthDate": "1990-01-01T00:00:00.000Z",
             "link": [
               {
                 "target": {
@@ -677,7 +677,7 @@
               "start": "2021-01-01T00:00:00.000Z",
               "end": "2021-12-31T00:00:00.000Z"
             },
-            "issued": "2021-01-01T12:00:00Z",
+            "issued": "2021-01-01T12:00:00.000Z",
             "valueBoolean": false
           }
         ],
