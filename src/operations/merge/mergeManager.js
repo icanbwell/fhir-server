@@ -460,7 +460,7 @@ class MergeManager {
             mergedResources.push(
                 duplicateResourceArray.reduce((mergedResource, resource) => {
                     if (resource instanceof Resource) {
-                        const mergedObject = mergeObject(mergedResource, resource);
+                        const mergedObject = mergeObject(mergedResource, resource.toJSONInternal());
                         return resource.create(mergedObject);
                     } else {
                         return mergeObject(mergedResource, resource);
