@@ -12,6 +12,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { MongoFilterGenerator } = require('../../utils/mongoFilterGenerator');
@@ -460,7 +461,7 @@ class MergeManager {
                     (mergedResource, resource) => mergeObject(mergedResource, resource.toJSON()),
                     {}
                 );
-                mergedResources.push(duplicateResourceArray[0].create(mergedResource));
+                mergedResources.push(FhirResourceCreator.create(mergedResource));
             } else {
                 mergedResources.push(duplicateResourceArray[0]);
             }
