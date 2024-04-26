@@ -174,6 +174,7 @@ describe('Condition Tests', () => {
 
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
+            condition1WithDifferentPatientId.id = '2';
 
             const bundle = new Bundle(
                 {
