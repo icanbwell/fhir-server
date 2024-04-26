@@ -250,7 +250,7 @@ module.exports.getHeadersJsonPatch = (scope) => {
 
 module.exports.getGraphQLHeaders = (scope) => {
     return {
-        'Content-Type': 'application/fhir+json; charset=utf-8',
+        'Content-Type': 'application/json; charset=utf-8',
         accept: '*/*',
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
@@ -267,7 +267,7 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         token_use: 'access'
     };
     return {
-        'Content-Type': 'application/fhir+json',
+        'Content-Type': 'application/json; charset=utf-8',
         accept: '*/*',
         Authorization: `Bearer ${
             getTokenWithCustomPayload(payload)

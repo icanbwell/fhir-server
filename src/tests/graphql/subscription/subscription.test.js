@@ -59,7 +59,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/subscription')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -71,7 +71,7 @@ describe('GraphQL Subscription Tests', () => {
                 // .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, '{query name from query.graphql}');
+            expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscription');
         });
     });
 });
