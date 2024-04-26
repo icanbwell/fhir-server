@@ -1,31 +1,34 @@
-const { logDebug, logError, logWarn } = require('../common/logging');
-const deepcopy = require('deepcopy');
-const { BadRequestError } = require('../../utils/httpErrors');
-const moment = require('moment-timezone');
-const { groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid } = require('../../utils/list.util');
 const async = require('async');
-const { AuditLogger } = require('../../utils/auditLogger');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
-const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
-const { ScopesManager } = require('../security/scopesManager');
+const deepcopy = require('deepcopy');
+const moment = require('moment-timezone');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const { ResourceMerger } = require('../common/resourceMerger');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { ResourceValidator } = require('../common/resourceValidator');
-const { RethrownError } = require('../../utils/rethrownError');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { BadRequestError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { MongoFilterGenerator } = require('../../utils/mongoFilterGenerator');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { isUuid } = require('../../utils/uid.util');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { ResourceMerger } = require('../common/resourceMerger');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { RethrownError } = require('../../utils/rethrownError');
+const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { logDebug, logError, logWarn } = require('../common/logging');
+const { groupByLambda } = require('../../utils/list.util');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { mergeObject } = require('../../utils/mergeHelper');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 class MergeManager {
     /**
@@ -416,6 +419,65 @@ class MergeManager {
     }
 
     /**
+     * merges duplicate resources present in the list
+     * @param {Object[]} resources
+     * @returns {Object[]}
+     */
+    mergeDuplicateResourceEntries (resources) {
+        if (!Array.isArray(resources)) {
+            return resources;
+        }
+        /**
+         * @type {{string: Resource[]}}
+         */
+        const resourceGroups = groupByLambda(resources, resource => {
+            if (
+                !isUuid(resource?.id) &&
+                (
+                    resource?.meta?.security?.some(s => s.system === SecurityTagSystem.owner) ||
+                    resource?.meta?.security?.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
+                )
+            ) {
+                const sourceAssigningAuthority =
+                    resource?.meta?.security?.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)?.code ||
+                    resource?.meta?.security?.find(s => s.system === SecurityTagSystem.owner)?.code;
+
+                return generateUUIDv5(`${resource?.id}|${sourceAssigningAuthority}|${resource?.resourceType}`);
+            }
+            return generateUUIDv5(`${resource?.id}|${resource?.resourceType}`);
+        });
+        /**
+         * @type {string[]}
+         */
+        const duplicateResources = [];
+        /**
+         * @type {Resource[]}
+         */
+        const mergedResources = [];
+        Object.values(resourceGroups).forEach((duplicateResourceArray) => {
+            if (duplicateResourceArray.length > 1) {
+                duplicateResources.push(duplicateResourceArray[0].id);
+                const mergedResource = duplicateResourceArray.reduce(
+                    (mergedResource, resource) => mergeObject(mergedResource, resource.toJSON()),
+                    {}
+                );
+                mergedResources.push(FhirResourceCreator.create(mergedResource));
+            } else {
+                mergedResources.push(duplicateResourceArray[0]);
+            }
+        });
+
+        if (duplicateResources.length > 0) {
+            logWarn(
+                'Resource with same body is present multiple times in the request body, ' +
+                `resource ids are ${duplicateResources.join(', ')}`
+            );
+        }
+
+        return mergedResources;
+    }
+
+    /**
      * merges a list of resources
      * @param {Resource[]} resources_incoming
      * @param {string} resourceType
@@ -439,49 +501,32 @@ class MergeManager {
              * @type {string[]}
              */
             const uuidsOfResources = resources_incoming.map(r => r._uuid);
-            logDebug(
-                'Merge received array',
-                {
-                    user: requestInfo.user,
-                    args: { length: resources_incoming.length, id: uuidsOfResources }
-                }
-            );
-            // find items without duplicates and run them in parallel
-            // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
-            //  may not finish adding to the db before the next item tries to merge
-            /**
-             * @type {Resource[]}
-             */
-            const duplicate_uuid_resources = findDuplicateResourcesByUuid(resources_incoming);
-            if (duplicate_uuid_resources.length > 0) {
-                logWarn(
-                    'Resource with same body is present multiple times in the request body, ' +
-                    `resource ids are ${duplicate_uuid_resources.map(r => r.id).join()}`
-                );
-            }
-            /**
-             * @type {Resource[]}
-             */
-            const non_duplicate_uuid_resources = findUniqueResourcesByUuid(resources_incoming);
+            logDebug('Merge received array', {
+                user: requestInfo.user,
+                args: { length: resources_incoming.length, id: uuidsOfResources }
+            });
+
             /**
              * @type {number}
              */
             const chunkSize = this.configManager.mergeParallelChunkSize;
-            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                {
-                    resourceToMerge: x,
-                    resourceType,
-                    currentDate,
-                    base_version,
-                    requestInfo
-                });
+            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync({
+                resourceToMerge: x,
+                resourceType,
+                currentDate,
+                base_version,
+                requestInfo
+            });
 
-            /** @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]} */
-            const result = (await Promise.all([
-                async.mapLimit(non_duplicate_uuid_resources, chunkSize, mergeResourceFn), // run chunks in parallel
-                async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
-            ])).flatMap(x => x); // remove any empty arrays
-            return result;
+            /**
+             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             */
+            const result = await async.mapLimit(
+                resources_incoming,
+                chunkSize,
+                mergeResourceFn
+            );
+            return result.filter(r => (r.resource || r.mergeError));
         } catch (e) {
             throw new RethrownError({
                 error: e

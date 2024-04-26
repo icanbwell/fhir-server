@@ -16,7 +16,7 @@ type DocumentReferenceContent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +24,7 @@ type DocumentReferenceContent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -40,15 +40,15 @@ type DocumentReferenceContent {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The document or URL of the document along with critical metadata to prove
     content has integrity.
     """
-    attachment: Attachment!        
+    attachment: Attachment
     """
     An identifier of the document encoding, structure, and template that the
     document conforms to beyond the base format indicated in the mimeType.
     """
-    format: Coding        
+    format: Coding
 }

@@ -14,7 +14,7 @@ type InvoiceParticipant {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type InvoiceParticipant {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,15 +38,15 @@ type InvoiceParticipant {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Describes the type of involvement (e.g. transcriptionist, creator etc.). If
     the invoice has been created automatically, the Participant may be a billing
     engine or another kind of device.
     """
-    role: CodeableConcept        
+    role: CodeableConcept
     """
     The device, practitioner, etc. who performed or participated in the service.
     """
-    actor: InvoiceParticipantActor        
+    actor: InvoiceParticipantActor
 }

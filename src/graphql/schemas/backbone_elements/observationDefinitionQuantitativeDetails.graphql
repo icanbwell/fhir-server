@@ -14,7 +14,7 @@ type ObservationDefinitionQuantitativeDetails {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +22,7 @@ type ObservationDefinitionQuantitativeDetails {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,25 +38,25 @@ type ObservationDefinitionQuantitativeDetails {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Customary unit used to report quantitative results of observations conforming
     to this ObservationDefinition.
     """
-    customaryUnit: CodeableConcept        
+    customaryUnit: CodeableConcept
     """
     SI unit used to report quantitative results of observations conforming to this
     ObservationDefinition.
     """
-    unit: CodeableConcept        
+    unit: CodeableConcept
     """
     Factor for converting value expressed with SI unit to value expressed with
     customary unit.
     """
-    conversionFactor: decimal        
+    conversionFactor: decimal
     """
     Number of digits after decimal separator when the results of such observations
     are of type Quantity.
     """
-    decimalPrecision: Int        
+    decimalPrecision: Int
 }

@@ -10,7 +10,7 @@ const {
     commonAfterEach,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getTokenWithCustomPayload, setupMockOpenIdServer, getHeaders
+    getTokenWithCustomPayload, getHeaders
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
@@ -38,9 +38,6 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 username: 'bwell-demo-provider'
             };
             const token = getTokenWithCustomPayload(payload);
-            const patientId = '00100000000';
-            const personId = '10';
-            setupMockOpenIdServer({ token, patientId, personId });
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getUnAuthenticatedHeaders())
@@ -69,7 +66,6 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            setupMockOpenIdServer({ token, patientId, personId });
             resp = await request
                 .get('/4_0_0/Patient')
                 .set(getUnAuthenticatedHeaders())
@@ -78,7 +74,6 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            setupMockOpenIdServer({ token, patientId, personId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
                 .set(getUnAuthenticatedHeaders())

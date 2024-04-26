@@ -9,17 +9,12 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const env = require('var');
-let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
     const numberOfResources = 1000;
 
     beforeEach(async () => {
         await commonBeforeEach();
-        oldEnvLogLevel = env.LOGLEVEL;
-        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
-        env.LOG_STREAM_STEPS = true;
         const initialId = practitionerResource.id;
         const bundle = {
             resourceType: 'Bundle',
@@ -46,12 +41,10 @@ describe('CSV Performance tests', () => {
         for (const result of resp.body) {
             expect(result.created).toStrictEqual(true);
         }
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner CSV Search By 10,0000 Tests', () => {
