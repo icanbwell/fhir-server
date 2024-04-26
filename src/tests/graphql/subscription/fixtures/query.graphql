@@ -3,6 +3,24 @@ query subscriptionQuery {
         entry {
             resource {
                 id
+                subscriptionStatus {
+                    id
+                    topic
+                    status
+                    type
+                    error {
+                        text
+                        coding {
+                            system
+                            code
+                            display
+                        }
+                    }
+                    notificationEvent {
+                        eventNumber
+                        timestamp
+                    }
+                }
             }
         }
     }
