@@ -73,7 +73,6 @@ Once a new service account has been created in OAuth provider, the service uses 
 The following scopes are allowed in this access token:
 1. user (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `user/Patient.read`
 2. access (see Access Control section below) e.g., `access/aetna.*`
-3. patient e.g. `patient/Observation.read`
 
 An optional admin scope can be passed to enable access to admin functions e.g., `admin/*.*`.
 
@@ -82,9 +81,7 @@ FHIR server will automatically restrict the data returned to data that is permit
 #### 2.4.2 Admin user to Service Auth
 This is used by FHIR administrators and testers to view FHIR server data for troubleshooting and testing.
 
-This uses the OpenID Connect standard on top of OAuth2 (https://openid.net/connect/).
-
-Once a new user account has been created in OAuth provider, users use their username and password to login.  Multi-factor authentication can be enabled when the user account is created.
+Once a new user account has been created in OAuth provider, users use their username and password to login. Multi-factor authentication can be enabled when the user account is created.
 
 If users are accessing the FHIR server Web UI then they are automatically redirected to the login page.
 
@@ -93,7 +90,6 @@ If users are accessing the FHIR server via REST or GraphQL then they can first g
 The following scopes are allowed in this access token:
 1. user (http://hl7.org/fhir/smart-app-launch/1.0.0/scopes-and-launch-context/index.html) e.g., `user/Patient.read`
 2. access (see Access Control section below) e.g., `access/aetna.*`
-3. patient e.g. `patient/Observation.read`
 
 An optional admin scope can be passed to enable access to admin functions e.g., `admin/*.*`.
 
@@ -273,7 +269,7 @@ Note that the final access for a user is a combination of both present in 5.1[Co
 
 ##### 5.5.1 Example 1
 
-A user has scopes:
+The scopes provided are:
 
 ```
 user/Practitioner.read user/Practitioner.write user/Organization.read access/somehealth.* access/goodhealth.*
@@ -283,11 +279,11 @@ This means:
 
 1. User can read Practitioner and Organization resources
 2. User can write to Practitioner resource only
-3. When reading or writing, the user can access any resource where the security access tag is somehealth or goodhealth only
+3. When reading or writing, the user can access all the resource having security access tag: somehealth or goodhealth
 
 ##### 5.5.2 Example 2
 
-A user has scopes:
+The scopes provided are:
 
 ```
 user/*.* access/*.*
@@ -306,7 +302,7 @@ User can read all Patient related Resource linked via bwellPersonID EMPI Tree & 
 ```
 patient/*.read user/*.read access/*.read
 ```
-User can read all Patient related Resource linked via bwellPersonID EMPI Tree & the non-Patient resources.
+User can read all Patient related Resource linked via bwellPersonID EMPI Tree & the non-Patient resources. NOTE: Here `user` & `access` tags are ignored due to patient scope being present.
 
 Note: With patient scopes, User can not write(create/update/delete) on non-patient resources.
 
