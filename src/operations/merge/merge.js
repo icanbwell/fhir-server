@@ -186,6 +186,9 @@ class MergeOperation {
              */
             const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
+            // Merge duplicate resources from the incomingObjects array
+            const mergedResources = this.mergeManager.mergeDuplicateResourceEntries(incomingObjects);
+
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
@@ -194,7 +197,7 @@ class MergeOperation {
                 base_version,
                 currentDate,
                 currentOperationName,
-                incomingObjects,
+                incomingObjects: mergedResources,
                 resourceType,
                 requestInfo
             });

@@ -70,7 +70,7 @@ function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
     /**
      * @type {number}
      */
-    const matchingOldItemIndex = (resultArray || oldArray).findIndex(x => x.id === newArrayItem.id);
+    const matchingOldItemIndex = oldArray.findIndex(x => x.id === newArrayItem.id);
     /**
      * @type {boolean}
      */
@@ -132,7 +132,7 @@ function mergeArrays (oldArray, newArray) {
                 /**
                  * @type {{foundMatch: boolean, resultArray: (Object[]|null)}}
                  */
-                const mergeArrayByIdResult = mergeArraysWithId(oldArray, newArrayItem, resultArray);
+                const mergeArrayByIdResult = mergeArraysWithId((resultArray || oldArray), newArrayItem, resultArray);
                 resultArray = mergeArrayByIdResult.resultArray;
                 if (mergeArrayByIdResult.foundMatch) {
                     continue;
@@ -140,7 +140,7 @@ function mergeArrays (oldArray, newArray) {
             }
             // if 'sequence' is present then use that to find matching elements
             if (typeof newArrayItem === 'object' && 'sequence' in newArrayItem) {
-                resultArray = mergeArraysWithSequenceNumbers(oldArray, newArrayItem);
+                resultArray = mergeArraysWithSequenceNumbers((resultArray || oldArray), newArrayItem);
             } else {
                 // no sequence property is set on this item so just insert at the end
                 if (resultArray === null) {
