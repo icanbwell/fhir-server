@@ -88,8 +88,8 @@
         "versionId": "1"
     },
     "period": {
-        "end": "2013-03-03T01:45:51+00:00",
-        "start": "2012-03-03T01:45:51+00:00"
+        "end": "2013-03-03T01:45:51.000Z",
+        "start": "2012-03-03T01:45:51.000Z"
     },
     "resourceType": "CarePlan",
     "status": "active",
