@@ -2,4 +2,5 @@
 
 extend type Subscription {
     subscriptionStatus: [SubscriptionStatus]
+#    topic: [SubscriptionTopic]
 }
