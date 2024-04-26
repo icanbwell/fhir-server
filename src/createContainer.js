@@ -98,6 +98,7 @@ const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { PatientScopeManager } = require('./operations/security/patientScopeManager');
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
+const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -323,7 +324,8 @@ const createContainer = function () {
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
-                patientScopeManager: c.patientScopeManager
+                patientScopeManager: c.patientScopeManager,
+                patientQueryCreator: c.patientQueryCreator
             }
         )
     );
@@ -332,7 +334,8 @@ const createContainer = function () {
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            patientFilterManager: c.patientFilterManager
+            patientFilterManager: c.patientFilterManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator
         }));
 
     container.register('mergeManager', (c) => new MergeManager(
@@ -763,6 +766,11 @@ const createContainer = function () {
             c.changeEventProducer
         ],
         configManager: c.configManager
+    }));
+
+    container.register('patientQueryCreator', (c) => new PatientQueryCreator({
+        patientFilterManager: c.patientFilterManager,
+        r4SearchQueryCreator: c.r4SearchQueryCreator
     }));
 
     return container;
