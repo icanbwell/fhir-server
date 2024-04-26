@@ -267,7 +267,7 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         token_use: 'access'
     };
     return {
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/fhir+json',
         accept: '*/*',
         Authorization: `Bearer ${
             getTokenWithCustomPayload(payload)

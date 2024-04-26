@@ -1,0 +1,43 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Subscription",
+        "id": "subscription1",
+        "meta": {
+          "id": "90d8a9a1-ce43-4b2d-9c6a-84d1c5fe1c36",
+          "versionId": "3",
+          "lastUpdated": "2023-02-02T20:33:41.000Z",
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
+            }
+          ]
+        },
+        "status": "active",
+        "topic": {
+          "reference": "https://www.icanbwell.com/Topic/123"
+        },
+        "channel": {
+          "type": "rest-hook",
+          "endpoint": "https://www.icanbwell.com/Subscription/123"
+        },
+        "reason": "Monitor all changes to the Topic",
+        "criteria": "Topic/123"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
