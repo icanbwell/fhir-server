@@ -1,15 +1,7 @@
 [
   {
-    "created": true,
-    "id": "1",
-    "resourceType": "Group",
-    "sourceAssigningAuthority": "client",
-    "updated": false,
-    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
-  },
-  {
     "created": false,
-    "id": "1",
+    "id": "2",
     "issue": {
       "code": "invalid",
       "details": {
@@ -43,6 +35,14 @@
       ],
       "resourceType": "OperationOutcome"
     },
+    "resourceType": "Group",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "941f082a-39a9-5f55-9630-5839a010e1bc"
+  },
+  {
+    "created": true,
+    "id": "1",
     "resourceType": "Group",
     "sourceAssigningAuthority": "client",
     "updated": false,

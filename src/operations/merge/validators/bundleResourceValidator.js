@@ -1,6 +1,6 @@
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { ResourceValidator } = require('../../common/resourceValidator');
 const { BaseValidator } = require('./baseValidator');
+const { ResourceValidator } = require('../../common/resourceValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
 
 class BundleResourceValidator extends BaseValidator {
     /**
