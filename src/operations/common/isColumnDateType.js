@@ -63,6 +63,12 @@ function isColumnDateType (resourceType, columnName) {
                 return true;
             }
             break;
+        case 'AppointmentResponse':
+            if (columnName === 'start' ||
+                columnName === 'end') {
+                return true;
+            }
+            break;
         case 'Basic':
             if (columnName === 'created') {
                 return true;
@@ -103,7 +109,6 @@ function isColumnDateType (resourceType, columnName) {
                 columnName === 'activity.detail.scheduledTiming.repeat.timeOfDay' ||
                 columnName === 'activity.detail.scheduledPeriod.start' ||
                 columnName === 'activity.detail.scheduledPeriod.end' ||
-                columnName === 'activity.detail.scheduledString' ||
                 columnName === 'period.start' ||
                 columnName === 'period.end' ||
                 columnName === 'created') {
@@ -170,7 +175,10 @@ function isColumnDateType (resourceType, columnName) {
             }
             break;
         case 'ClinicalImpression':
-            if (columnName === 'date' || columnName === 'effectiveDateTime') {
+            if (columnName === 'date' ||
+                columnName === 'effectivePeriod.start' ||
+                columnName === 'effectivePeriod.end' ||
+                columnName === 'effectiveDateTime') {
                 return true;
             }
             break;
@@ -341,7 +349,7 @@ function isColumnDateType (resourceType, columnName) {
             break;
         case 'DocumentReference':
             if (columnName === 'date' ||
-                columnName === 'context.period' ||
+                columnName === 'context.period.start' ||
                 columnName === 'context.period.end') {
                 return true;
             }
