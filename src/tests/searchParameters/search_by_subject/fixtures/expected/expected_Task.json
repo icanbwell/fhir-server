@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "authoredOn": "2016-10-31T08:25:05+10:00",
+        "authoredOn": "2016-10-30T00:00:00.000Z",
         "basedOn": [
           {
             "display": "General Wellness Careplan"
@@ -37,7 +37,7 @@
           "reference": "Encounter/7890"
         },
         "executionPeriod": {
-          "start": "2016-10-31T08:25:05+10:00"
+          "start": "2016-10-30T00:00:00.000Z"
         },
         "focus": {
           "display": "Lipid Panel Request",
@@ -105,7 +105,7 @@
           }
         ],
         "intent": "order",
-        "lastModified": "2016-10-31T16:45:05+10:00",
+        "lastModified": "2016-10-31T00:00:00.000Z",
         "meta": {
           "security": [
             {
@@ -217,7 +217,7 @@
         "resourceType": "Task",
         "restriction": {
           "period": {
-            "end": "2016-11-02T09:45:05+10:00"
+            "end": "2016-11-01T00:00:00.000Z"
           },
           "repetitions": 1
         },

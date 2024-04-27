@@ -1,10 +1,28 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { isColumnDateType } = require('../../operations/common/isColumnDateType');
+const { isColumnDateTimeType } = require('../../operations/common/isColumnDateTimeType');
 
 /**
  * @classdesc Converts date field from string to Date()
  */
 class DateColumnHandler extends PreSaveHandler {
+    /**
+     * constructor
+     */
+    constructor () {
+        super();
+        this.fromDateToString = false;
+    }
+
+    /**
+     *
+     * @param {flag} boolean
+     * @returns
+     */
+    setFlag (flag) {
+        this.fromDateToString = flag;
+    }
+
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
@@ -38,17 +56,27 @@ class DateColumnHandler extends PreSaveHandler {
                         }
                     }
                 });
-                } else if (typeof value === 'object' && value !== null) {
-                    recurseData(value, currentPath);
+                } else if (this.fromDateToString) {
+                    if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+                        recurseData(value, currentPath);
+                    } else {
+                        if (value && this.shouldUpdate(resource, currentPath)) {
+                            object[key] = this.setDate(value, resource, currentPath);
+                        }
+                    }
                 } else {
-                    if (value && this.shouldUpdate(resource, currentPath)) {
-                        object[key] = this.setDate(value);
+                    if ((typeof value === 'object' && value !== null)) {
+                        recurseData(value, currentPath);
+                    } else {
+                        if (value && this.shouldUpdate(resource, currentPath)) {
+                            object[key] = this.setDate(value, resource, currentPath);
+                        }
                     }
                 }
             });
         };
 
-        recurseData(resource, path);
+        await recurseData(resource, path);
     }
 
     shouldUpdate (resource, path) {
@@ -56,13 +84,25 @@ class DateColumnHandler extends PreSaveHandler {
         return isColumnDateType(resource.resourceType, cleanPath);
     }
 
-    setDate (scalar) {
-        const newDate = new Date(scalar);
-        if (isNaN(newDate.getTime())) {
-            // return input if not valid date
-            return scalar;
+    setDate (scalar, resource, path) {
+        if (!this.fromDateToString) {
+            const newDate = new Date(scalar);
+            if (isNaN(newDate.getTime())) {
+                // return input if not valid date
+                return scalar;
+            } else {
+                return newDate;
+            }
         } else {
-            return newDate;
+            if (!scalar || !(scalar instanceof Date)) {
+                return scalar;
+            }
+            const cleanPath = path.replace(/\.\d+(\.|$)/g, '.');
+            if (isColumnDateTimeType(resource.resourceType, cleanPath)) {
+                return scalar ? scalar.toISOString() : '';
+            } else {
+                return scalar ? scalar.toISOString().substring(0, 10) : '';
+            }
         }
     }
 }

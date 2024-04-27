@@ -17,9 +17,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
-const { isColumnDateType } = require('./isColumnDateType');
-const { isColumnDateTimeType } = require('./isColumnDateTimeType');
-const { isColumnDatePeriodType } = require('./isColumnDatePeriodType');
+const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const { logError } = require('./logging');
 const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
@@ -152,29 +150,11 @@ class ResourceValidator {
             currentResource
         }
     ) {
+        const dateColumnHandler = new DateColumnHandler();
+        dateColumnHandler.setFlag(true);
+        resourceToValidate = await dateColumnHandler.preSaveAsync({ resource: resourceToValidate });
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
-
-        // Convert date fields to string for validation
-        for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
-            const newFieldName = fieldName.replace(/\[\d+\]/g, '');
-            if (isColumnDatePeriodType(resourceToValidateJson.resourceType, newFieldName)) {
-                const newField = {};
-                newField.start = (field && field.start) ? (field.start instanceof Date) ? field.start.toISOString() : field.start : '';
-                newField.end = (field && field.end) ? (field.end instanceof Date) ? field.end.toISOString() : field.end : '';
-                resourceToValidateJson[`${fieldName}`] = newField;
-            } else {
-                if (isColumnDateType(resourceToValidateJson.resourceType, newFieldName)) {
-                    if (field && field instanceof Date) {
-                        if (isColumnDateTimeType(resourceToValidateJson.resourceType, fieldName)) {
-                            resourceToValidateJson[`${fieldName}`] = field ? field.toISOString() : '';
-                        } else {
-                            resourceToValidateJson[`${fieldName}`] = field ? field.toISOString().substring(0, 10) : '';
-                        }
-                    }
-                }
-            }
-        }
         /**
          * @type {OperationOutcome | null}
          */
