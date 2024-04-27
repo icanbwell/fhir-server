@@ -8497,10 +8497,10 @@ const searchParameterQueries = {
             type: 'uri',
             field: 'channel.endpoint'
         }),
-        identifier: new SearchParameterDefinition({
-            description: 'External identifier for the plan definition',
+        extension: new SearchParameterDefinition({
+            description: 'Extension',
             type: 'token',
-            field: 'identifier'
+            field: 'extension'
         })
 },
     SubscriptionTopic: {

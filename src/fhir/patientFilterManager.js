@@ -85,7 +85,7 @@ class PatientFilterManager {
          * @type {Object}
          */
         this.patientFilterWithQueryMapping = {
-            Subscription: 'identifier=https://icanbwell.com/codes/source_patient_id|{patient}'
+            Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
         };
         /**
          * defines resources that don't have patient data

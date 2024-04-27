@@ -101,7 +101,8 @@ class PatientQueryCreator {
                  * @type {ParsedUrlQuery}
                  */
                 const args = querystring.parse(patientFilterWithQueryProperty);
-                args.identifier = patientUuids.map(p => args.identifier.replace('{patient}', p));
+                // TODO: don't hardcode extension here.  Use name of property from above
+                args.extension = patientUuids.map(p => args.extension.replace('{patient}', p));
                 args.base_version = VERSIONS['4_0_0'];
                 const parsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType,

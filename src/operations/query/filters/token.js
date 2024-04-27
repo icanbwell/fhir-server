@@ -32,7 +32,7 @@ class FilterByToken extends BaseFilter {
                     resourceType: this.resourceType
                 }
             );
-        } else if (field === 'identifier') {
+        } else if (field === 'identifier' || field === 'extension') {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(
                 {

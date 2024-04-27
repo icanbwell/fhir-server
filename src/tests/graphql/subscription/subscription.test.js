@@ -43,6 +43,10 @@ describe('GraphQL Subscription Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
+                .get('/4_0_0/Subscription/subscription1')
+                .set(getHeaders());
+
+            resp = await request
                 .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
