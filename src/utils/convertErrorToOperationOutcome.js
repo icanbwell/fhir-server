@@ -8,7 +8,11 @@ const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableCon
  * @returns {OperationOutcome}
  */
 function convertErrorToOperationOutcome ({ error }) {
-    return error.issue && error.issue.length > 0
+    /**
+     * @type {string}
+     */
+    const message = Object.hasOwn(error, 'stack') ? error.message + '\n' + error.stack : error.message;
+    return Object.hasOwn(error, 'issue') && error.issue && error.issue.length > 0
         ? new OperationOutcome({
             issue: error.issue
         })
@@ -18,7 +22,7 @@ function convertErrorToOperationOutcome ({ error }) {
                     severity: 'error',
                     code: 'internal',
                     details: new CodeableConcept({
-                        text: `Unexpected: ${error.message}`
+                        text: `Unexpected Error: ${message}`
                     })
                 })
             ]
