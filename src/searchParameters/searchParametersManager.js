@@ -17,6 +17,14 @@ class SearchParametersManager {
                     type: 'token',
                     field: 'extension'
                 })
+            },
+            SubscriptionStatus: {
+                subscription: new SearchParameterDefinition({
+                    description: 'Subscription that this status is for',
+                    type: 'reference',
+                    field: 'subscription',
+                    target: ['Subscription']
+                })
             }
         };
         /**
@@ -24,6 +32,13 @@ class SearchParametersManager {
          */
         this.combinedSearchParameters = {};
         const { searchParameterQueries } = require('./searchParameters');
+        // first add any custom search parameters that are missing from standard search parameters
+        for (const [resourceType] of Object.entries(customSearchParameterQueries)) {
+            const searchParameters = searchParameterQueries[`${resourceType}`];
+            if (!searchParameters) {
+                searchParameterQueries[`${resourceType}`] = {};
+            }
+        }
         // combine standard search parameters with custom search parameters
         for (const [resourceType, searchParameters] of Object.entries(searchParameterQueries)) {
             const customSearchParameters = customSearchParameterQueries[`${resourceType}`];
@@ -62,7 +77,7 @@ class SearchParametersManager {
          */
         const searchParametersForResource = this.getSearchParametersForResource({ resourceType });
         if (searchParametersForResource) {
-            propertyObj = this.combinedSearchParameters[`${resourceType}`][`${queryParameter}`];
+            propertyObj = searchParametersForResource[`${queryParameter}`];
         }
         if (!propertyObj) {
             const searchParametersInheritedFromResource = this.combinedSearchParameters.Resource[`${queryParameter}`];

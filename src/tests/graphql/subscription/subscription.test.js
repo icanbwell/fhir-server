@@ -1,6 +1,9 @@
 // test file
 const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
+const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
 const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
+const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
+const subscriptionStatus3Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus3.json');
 const patientBundleResource = require('./fixtures/Patient/patient1.json');
 const personBundleResource = require('./fixtures/Person/person1.json');
 
@@ -36,19 +39,40 @@ describe('GraphQL Subscription Tests', () => {
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
-                .post('/4_0_0/Subscription/1/$merge?validate=true')
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            resp = await request
-                .get('/4_0_0/Subscription/subscription1')
-                .set(getHeaders());
+            // resp = await request
+            //     .get('/4_0_0/Subscription/subscription1')
+            //     .set(getHeaders());
 
             resp = await request
-                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
+                .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
