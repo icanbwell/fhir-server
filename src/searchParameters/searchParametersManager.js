@@ -1,4 +1,4 @@
-const { assertTypeEquals } = require('../utils/assertType');
+const { assertIsValid } = require('../utils/assertType');
 const { SearchParameterDefinition } = require('./searchParameterTypes');
 
 class SearchParametersManager {
@@ -41,7 +41,7 @@ class SearchParametersManager {
      * @return {Record<string, SearchParameterDefinition>}
      */
     getSearchParametersForResource ({ resourceType }) {
-        assertTypeEquals(resourceType, 'string');
+        assertIsValid(resourceType, 'resourceType is null or undefined');
         const searchParameters = this.combinedSearchParameters[`${resourceType}`];
         return searchParameters;
     }
@@ -60,7 +60,7 @@ class SearchParametersManager {
         /**
          * @type {Record<string, SearchParameterDefinition>}
          */
-        const searchParametersForResource = this.getSearchParametersForResource(resourceType);
+        const searchParametersForResource = this.getSearchParametersForResource({ resourceType });
         if (searchParametersForResource) {
             propertyObj = this.combinedSearchParameters[`${resourceType}`][`${queryParameter}`];
         }

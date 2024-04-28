@@ -17,6 +17,7 @@ class ServerError extends Error {
             Error.captureStackTrace(this, ServerError);
         } // Mixin any additional options
         Object.assign(this, options);
+        this.stack = (new Error()).stack; // Capture the stack trace
     }
 }
 
