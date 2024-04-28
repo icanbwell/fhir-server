@@ -40,7 +40,7 @@
         ],
         "id": "7ce5b86e-e0a1-032d-c71e-1ec032394b3c",
         "period": {
-            "start": "2021-02-14T02:21:20.00Z"
+            "start": "2021-02-14T01:21:20.000Z"
         },
         "encounter": {
             "extension": [
@@ -243,7 +243,7 @@
         ],
         "id": "b0f52463-73a1-5a09-e7e9-a65c62663f1e",
         "period": {
-            "start": "1974-02-08T02:21:20.000Z"
+            "start": "1974-02-08T01:21:20.000Z"
         },
         "encounter": null,
         "author": null,
@@ -290,7 +290,7 @@
         ],
         "id": "b180158b-dfa3-2a5f-c305-3ca0baf28b81",
         "period": {
-            "start": "1982-03-26T02:21:20.000Z"
+            "start": "1982-03-26T01:21:20.000Z"
         },
         "encounter": null,
         "author": null,
