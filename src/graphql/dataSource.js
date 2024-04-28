@@ -57,6 +57,12 @@ class FhirDataSource {
          */
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
+
+        /**
+         * whether the caller has requested debug mode
+         * @type {boolean}
+         */
+        this.debugMode = false;
     }
 
     /**
@@ -75,7 +81,7 @@ class FhirDataSource {
      * This function orders the resources by key so DataLoader can find the right results.
      * IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
      * https://github.com/graphql/dataloader#batching
-     * @param {{Resource}[]} resources
+     * @param {Resource[]} resources
      * @param {string[]} keys
      * @return {(Resource|null)[]}
      */
@@ -188,6 +194,7 @@ class FhirDataSource {
     // eslint-disable-next-line no-unused-vars
     resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
+            // noinspection JSUnresolvedReference
             return obj.resourceType;
         }
         if (obj.length > 0) {
@@ -205,7 +212,7 @@ class FhirDataSource {
      * @param {Object} args
      * @param {GraphQLContext} context
      * @param {Object} info
-     * @param {{reference: string}} reference
+     * @param {{reference: string, type: string, _uuid: string}} reference
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference (parent, args, context, info, reference) {
@@ -283,6 +290,7 @@ class FhirDataSource {
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
                 logWarn(
                     'findResourcesByReference: Resource not found for parent',
                     {
@@ -308,7 +316,7 @@ class FhirDataSource {
      * @param {Object} args
      * @param {GraphQLContext} context
      * @param {Object} info
-     * @param {{reference: string}[]} references
+     * @param {{reference: string, type: string, _uuid: string}[]} references
      * @return {Promise<null|Resource[]>}
      */
     async findResourcesByReference (parent, args, context, info, references) {
@@ -330,6 +338,10 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
+        // if _debug is not set and we are in debug mode, set it
+        if (!args._debug && this.debugMode) {
+            args._debug = true;
+        }
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -388,6 +400,7 @@ class FhirDataSource {
         );
     }
 
+    // noinspection OverlyComplexFunctionJS
     /**
      * Finds resources with args
      * @param {Resource|null} parent
@@ -433,6 +446,7 @@ class FhirDataSource {
      */
     createDataLoader (args) {
         if (!this.dataLoader) {
+            // noinspection JSValidateTypes
             this.dataLoader = new DataLoader(
                 async (keys) => await this.getResourcesInBatch(
                     {
@@ -445,6 +459,9 @@ class FhirDataSource {
                     }
                 )
             );
+            if (args._debug) {
+                this.debugMode = true;
+            }
         }
     }
 
@@ -469,11 +486,11 @@ class FhirDataSource {
                 const foundCombinedMetaTag = combinedMeta.tag.find(
                     (tag) => tag.system === metaTag.system
                 );
-                if (!foundCombinedMetaTag) {
-                    combinedMeta.tag.push(metaTag);
-                } else {
+                if (foundCombinedMetaTag) {
                     // concatenate code and/or display
                     this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
+                } else {
+                    combinedMeta.tag.push(metaTag);
                 }
             }
         }
