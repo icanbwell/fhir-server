@@ -158,7 +158,10 @@ class FhirDataSource {
                         _bundle: '1',
                         ...args
                     };
-
+                    // if _debug is not set and we are in debug mode, set it
+                    if (!args1._debug && this.debugMode) {
+                        args1._debug = true;
+                    }
                     const bundle = await this.searchBundleOperation.searchBundleAsync(
                         {
                             requestInfo,
@@ -338,16 +341,16 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
-        // if _debug is not set and we are in debug mode, set it
-        if (!args._debug && this.debugMode) {
-            args._debug = true;
-        }
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         return this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
                 {
@@ -382,6 +385,10 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         return this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
                 {
@@ -420,6 +427,10 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         const bundle = await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: context.fhirRequestInfo,
