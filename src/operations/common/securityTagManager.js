@@ -129,7 +129,7 @@ class SecurityTagManager {
             }
 
             // if there is already an $and statement then just add to it
-            query = this.r4SearchQueryCreator.appendAndQuery(query, securityTagQuery);
+            query = this.r4SearchQueryCreator.appendAndSimplifyQuery({ query, andQuery: securityTagQuery });
         }
         return query;
     }

@@ -246,8 +246,8 @@ class R4SearchQueryCreator {
      * @param {import('mongodb').Document} andQuery
      * @return {import('mongodb').Document}
      */
-    appendAndSimplifyQuery (query, andQuery) {
-        query = this.appendAndQuery(query, andQuery);
+    appendAndSimplifyQuery ({ query, andQuery }) {
+        query = this.appendAndQuery({ query, andQuery });
         return MongoQuerySimplifier.simplifyFilter({ filter: query });
     }
 
@@ -257,7 +257,7 @@ class R4SearchQueryCreator {
      * @param {import('mongodb').Document} andQuery
      * @return {import('mongodb').Document}
      */
-    appendAndQuery (query, andQuery) {
+    appendAndQuery ({ query, andQuery }) {
         if (query.$and) {
             query.$and.push(
                 andQuery

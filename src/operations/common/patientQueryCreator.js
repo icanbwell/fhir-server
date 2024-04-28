@@ -164,7 +164,7 @@ class PatientQueryCreator {
             patientsQuery = patientsUuidQuery || patientsNonUuidQuery;
         }
         if (patientsQuery) {
-            query = this.r4SearchQueryCreator.appendAndSimplifyQuery(query, patientsQuery);
+            query = this.r4SearchQueryCreator.appendAndSimplifyQuery({ query, andQuery: patientsQuery });
         }
         return query;
     }
