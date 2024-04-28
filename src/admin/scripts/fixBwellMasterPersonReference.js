@@ -74,7 +74,8 @@ async function main () {
             useTransaction: !!parameters.useTransaction,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
-            logUnresolvedReferencesToFile: !!parameters.logUnresolvedReferencesToFile
+            logUnresolvedReferencesToFile: !!parameters.logUnresolvedReferencesToFile,
+            searchParametersManager: c.searchParametersManager
         }
     )
     );

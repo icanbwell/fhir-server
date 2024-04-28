@@ -94,7 +94,8 @@ describe('Person Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oldSourceAssigningAuthority: 'client-1',
-                    newSourceAssigningAuthority: 'client'
+                    newSourceAssigningAuthority: 'client',
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -209,7 +210,8 @@ describe('Person Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oldSourceAssigningAuthority: 'client-1',
-                    newSourceAssigningAuthority: 'client'
+                    newSourceAssigningAuthority: 'client',
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
