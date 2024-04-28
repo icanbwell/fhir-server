@@ -1,4 +1,4 @@
-const { tokenQueryBuilder, exactMatchQueryBuilder } = require('../../../utils/querybuilder.util');
+const { tokenQueryBuilder, exactMatchQueryBuilder, extensionQueryBuilder } = require('../../../utils/querybuilder.util');
 const { BaseFilter } = require('./baseFilter');
 
 /**
@@ -12,6 +12,7 @@ class FilterByToken extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem (field, value) {
+        // noinspection IfStatementWithTooManyBranchesJS
         if (this.propertyObj.fieldFilter === '[system/@value=\'email\']') {
             return tokenQueryBuilder(
                 {
@@ -32,12 +33,22 @@ class FilterByToken extends BaseFilter {
                     resourceType: this.resourceType
                 }
             );
-        } else if (field === 'identifier' || field === 'extension') {
+        } else if (field === 'identifier') {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(
                 {
                     target: value,
                     type: 'value',
+                    field: this.fieldMapper.getFieldName(field),
+                    resourceType: this.resourceType
+                }
+            );
+        } else if (field === 'extension') {
+            // http://www.hl7.org/fhir/search.html#token
+            return extensionQueryBuilder(
+                {
+                    target: value,
+                    type: 'valueString',
                     field: this.fieldMapper.getFieldName(field),
                     resourceType: this.resourceType
                 }
