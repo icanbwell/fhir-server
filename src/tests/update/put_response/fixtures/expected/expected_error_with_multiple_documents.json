@@ -6,7 +6,8 @@
       "code": "invalid",
       "details": {
         "text": "Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|client OR use uuid to query."
-      }
+      },
+      "diagnostics": "Error: Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|client OR use uuid to query.\n    at UpdateOperation.updateAsync (/Users/imranqureshi/git/fhir-server/src/operations/update/update.js:249:43)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at FhirOperationsManager.update (/Users/imranqureshi/git/fhir-server/src/operations/fhirOperationsManager.js:456:16)\n    at /Users/imranqureshi/git/fhir-server/src/middleware/fhir/4_0_0/controllers/generic.controller.js:263:32\n    at /Users/imranqureshi/git/fhir-server/src/middleware/fhir/router.js:114:17"
     }
   ]
 }
