@@ -6,16 +6,20 @@ const { ServerError } = require('../middleware/fhir/utils/server.error');
 
 class BadRequestError extends ServerError {
     constructor (error, options = {}) {
+        const operationOutcomeIssue = {
+            severity: 'error',
+            code: 'invalid',
+            details: { text: error.message }
+        };
+        if (Object.hasOwn(error, 'stack')) {
+            operationOutcomeIssue.diagnostics = error.stack;
+        }
         super(error.message, {
             // Set this to make the HTTP status code 409
             statusCode: 400,
             // Add any normal operation outcome stuff here
             issue: [
-                {
-                    severity: 'error',
-                    code: 'invalid',
-                    details: { text: error.message }
-                }
+                operationOutcomeIssue
             ]
         });
 
