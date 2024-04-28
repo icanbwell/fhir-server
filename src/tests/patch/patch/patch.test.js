@@ -114,14 +114,17 @@ describe('Person Tests', () => {
                 .send(patch2)
                 .set(getHeadersJsonPatch());
 
-            expect(resp.body).toStrictEqual({
+            const body = resp.body;
+            if (body.issue.length > 0) {
+                delete body.issue[0].diagnostics;
+            }
+            expect(body).toStrictEqual({
                 issue: [
                     {
                         code: 'invalid',
                         details: {
                             text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        diagnostics: 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}\n    at new PatchError (/Users/imranqureshi/git/fhir-server/node_modules/fast-json-patch/commonjs/helpers.js:170:28)\n    at validator (/Users/imranqureshi/git/fhir-server/node_modules/fast-json-patch/commonjs/core.js:329:15)\n    at applyOperation (/Users/imranqureshi/git/fhir-server/node_modules/fast-json-patch/commonjs/core.js:120:13)\n    at applyPatch (/Users/imranqureshi/git/fhir-server/node_modules/fast-json-patch/commonjs/core.js:280:22)\n    at validate (/Users/imranqureshi/git/fhir-server/node_modules/fast-json-patch/commonjs/core.js:371:13)\n    at PatchOperation.validate [as patchAsync] (/Users/imranqureshi/git/fhir-server/src/operations/patch/patch.js:266:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at FhirOperationsManager.patch (/Users/imranqureshi/git/fhir-server/src/operations/fhirOperationsManager.js:733:16)\n    at /Users/imranqureshi/git/fhir-server/src/middleware/fhir/4_0_0/controllers/generic.controller.js:326:32\n    at /Users/imranqureshi/git/fhir-server/src/middleware/fhir/router.js:114:17',
                         severity: 'error'
                     }
                 ],
@@ -195,7 +198,11 @@ describe('Person Tests', () => {
                 .set(allAccessPatchHeaders)
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
 
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/sameid|client')
