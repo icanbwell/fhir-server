@@ -18,9 +18,9 @@ const { ResourceMerger } = require('../../operations/common/resourceMerger');
 const { RethrownError } = require('../../utils/rethrownError');
 const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
-const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const referenceCollections = require('../utils/referenceCollections.json');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
  * @classdesc Finds proa resources whose id needs to be changed and changes the id along with its references
@@ -49,6 +49,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToRecordsWithFields]
      * @param {string|undefined} [startFromId]
+     * @param {SearchParametersManager} searchParametersManager
      */
     constructor (
         {
@@ -72,7 +73,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             useTransaction,
             skip,
             filterToRecordsWithFields,
-            startFromId
+            startFromId,
+            searchParametersManager
         }) {
         super({
             mongoCollectionManager,
@@ -194,6 +196,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {string[]|null}
          */
         this.collectionsInDb = null;
+
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
     }
 
     /**
@@ -781,7 +789,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     let referenceFieldNames = new Set();
 
                     // get all the reference fields present in the resource
-                    const resourceObj = searchParameterQueries[`${resourceName}`];
+                    const resourceObj = this.searchParametersManager.getSearchParametersForResource({ resourceType: resourceName });
                     if (resourceObj) {
                         for (const propertyObj of Object.values(resourceObj)) {
                             if (propertyObj.type === 'reference') {

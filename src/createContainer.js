@@ -99,6 +99,7 @@ const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/reference
 const { PatientScopeManager } = require('./operations/security/patientScopeManager');
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -276,7 +277,10 @@ const createContainer = function () {
             configManager: c.configManager
         }));
 
-    container.register('resourceManager', () => new ResourceManager());
+    container.register('resourceManager', (c) => new ResourceManager(
+        {
+            searchParametersManager: c.searchParametersManager
+        }));
     container.register('indexHinter', (c) => new IndexHinter({
         indexProvider: c.indexProvider
     }));
@@ -428,7 +432,8 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
@@ -748,7 +753,8 @@ const createContainer = function () {
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        searchParametersManager: c.searchParametersManager
     }));
 
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
@@ -773,6 +779,8 @@ const createContainer = function () {
         r4SearchQueryCreator: c.r4SearchQueryCreator,
         r4ArgsParser: c.r4ArgsParser
     }));
+
+    container.register('searchParametersManager', () => new SearchParametersManager());
 
     return container;
 };

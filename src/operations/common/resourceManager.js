@@ -1,9 +1,22 @@
-const { searchParameterQueries } = require('../../searchParameters/searchParameters');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
  * This class provides helper functions for dealing with resources
  */
 class ResourceManager {
+    /**
+     * constructor
+     * @param {SearchParametersManager} searchParametersManager
+     */
+    constructor ({ searchParametersManager }) {
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
+    }
+
     /**
      * Gets name of the patient field from resource
      * @param {string} resourceType
@@ -13,7 +26,7 @@ class ResourceManager {
         if (resourceType === 'Patient') {
             return 'id';
         }
-        for (const [resourceType1, resourceObj] of Object.entries(searchParameterQueries)) {
+        for (const [resourceType1, resourceObj] of this.searchParametersManager.getAllSearchParameters()) {
             if (resourceType1 === resourceType) {
                 // see if there is a 'patient' property
                 for (const [

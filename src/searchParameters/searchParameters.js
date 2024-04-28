@@ -8496,13 +8496,8 @@ const searchParameterQueries = {
             description: 'The uri that will receive the notifications',
             type: 'uri',
             field: 'channel.endpoint'
-        }),
-        extension: new SearchParameterDefinition({
-            description: 'Extension',
-            type: 'token',
-            field: 'extension'
         })
-},
+    },
     SubscriptionTopic: {
         date: new SearchParameterDefinition({
             description: 'Date status first applied',

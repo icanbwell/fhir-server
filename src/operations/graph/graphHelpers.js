@@ -4,7 +4,6 @@
 const async = require('async');
 const { R4SearchQueryCreator } = require('../query/r4');
 const env = require('var');
-const { getFieldNameForSearchParameter } = require('../../searchParameters/searchParameterHelpers');
 const { escapeRegExp } = require('../../utils/regexEscaper');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
@@ -37,6 +36,7 @@ const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
  * This class helps with creating graph responses
@@ -55,6 +55,7 @@ class GraphHelper {
      * @param {EnrichmentManager} enrichmentManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SearchParametersManager} searchParametersManager
      */
     constructor ({
                     databaseQueryFactory,
@@ -68,7 +69,8 @@ class GraphHelper {
                     searchManager,
                     enrichmentManager,
                     r4ArgsParser,
-                    databaseAttachmentManager
+                    databaseAttachmentManager,
+                    searchParametersManager
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -138,6 +140,12 @@ class GraphHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
     }
 
     /**
@@ -596,7 +604,7 @@ class GraphHelper {
             /**
              * @type {string}
              */
-            const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
+            const fieldForSearchParameter = this.searchParametersManager.getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
 
             if (!fieldForSearchParameter) {
                 throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
@@ -1776,7 +1784,7 @@ containedEntries: []
                     resource: FhirResourceCreator.create({
                         id: resource.id,
                         _uuid: resource._uuid,
-                        resourceType: resultResourceType
+                        [resourceType]: resultResourceType
                     }, ResourceContainer),
                     request: new BundleRequest(
                         {
