@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -8,6 +9,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 
 class ExpandOperation {
@@ -115,7 +117,7 @@ class ExpandOperation {
                 { resourceType, base_version }
             ).findOneAsync({ query: { id: id.toString() } });
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync({
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,
@@ -133,7 +135,7 @@ class ExpandOperation {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
-                await this.fhirLoggingManager.logOperationFailureAsync({
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
                     resourceType,
@@ -155,16 +157,14 @@ class ExpandOperation {
                 )
             )[0];
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-args: parsedArgs.getRawArgs(),
-resourceType,
-startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(resource.toJSON())
-                });
-
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(resource.toJSON())
+            });
             resource = this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
             return resource;

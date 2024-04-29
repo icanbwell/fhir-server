@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -6,6 +7,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientScopeManager } = require('./patientScopeManager');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class ScopesValidator {
     /**
@@ -139,7 +141,7 @@ class ScopesValidator {
             const forbiddenError = this.verifyHasValidScopes({ requestInfo, resourceType, accessRequested });
 
             if (forbiddenError) {
-                await this.fhirLoggingManager.logOperationFailureAsync({
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     requestInfo,
                     args: parsedArgs?.getRawArgs(),
                     resourceType,

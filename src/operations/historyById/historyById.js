@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -14,7 +15,7 @@ const { ResourceManager } = require('../common/resourceManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class HistoryByIdOperation {
     /**
@@ -235,15 +236,13 @@ class HistoryByIdOperation {
             if (entries.length === 0) {
                 throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                }
-            );
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             /**
              * @type {number}
              */
@@ -286,15 +285,14 @@ class HistoryByIdOperation {
                 }
             );
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

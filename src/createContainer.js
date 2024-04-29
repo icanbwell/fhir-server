@@ -2,6 +2,7 @@
 
 const { SimpleContainer } = require('./utils/simpleContainer');
 const env = require('var');
+const { AccessLogger } = require('./utils/accessLogger');
 const { ChangeEventProducer } = require('./utils/changeEventProducer');
 const { ResourceManager } = require('./operations/common/resourceManager');
 const { DatabaseBulkInserter } = require('./dataLayer/databaseBulkInserter');
@@ -416,6 +417,13 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 preSaveManager: c.preSaveManager
+            }
+        )
+    );
+    container.register('accessLogger', (c) => new AccessLogger(
+            {
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                scopesManager: c.scopesManager
             }
         )
     );

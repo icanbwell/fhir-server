@@ -6,15 +6,12 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getTestContainer,
-    mockHttpContext
+    getTestContainer
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 describe('AccessLogs Tests', () => {
-    let requestId;
     beforeEach(async () => {
-        requestId = mockHttpContext();
         await commonBeforeEach();
     });
 
@@ -27,25 +24,15 @@ describe('AccessLogs Tests', () => {
             const request = await createTestRequest();
 
             const container = await getTestContainer();
-            /**
-             * @type {import('../../utils/postRequestProcessor').PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            /**
-             * @type {import('../../operations/common/fhirLoggingManager').FhirLoggingManager}
-             */
-            const fhirLoggingManager = container.fhirLoggingManager;
 
-            const logOperationFailureAsync = jest.spyOn(
-                fhirLoggingManager,
-                'logOperationFailureAsync'
-            );
-            const logOperationSuccessAsync = jest.spyOn(
-                fhirLoggingManager,
-                'logOperationSuccessAsync'
+            const accessLogger = container.accessLogger;
+
+            const logAccessLogAsync = jest.spyOn(
+                accessLogger,
+                'logAccessLogAsync'
             );
 
-            expect(logOperationFailureAsync).toHaveBeenCalledTimes(0);
+            expect(logAccessLogAsync).toHaveBeenCalledTimes(0);
             await request
                 .post('/4_0_0/Observation/')
                 .send(observationResource)
@@ -64,9 +51,7 @@ describe('AccessLogs Tests', () => {
                 .set(getHeaders())
                 .expect(201);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId });
-            expect(logOperationFailureAsync).toHaveBeenCalledTimes(2);
-            expect(logOperationSuccessAsync).toHaveBeenCalledTimes(1);
+            expect(logAccessLogAsync).toHaveBeenCalledTimes(3);
         });
     });
 });

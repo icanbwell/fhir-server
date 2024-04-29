@@ -329,8 +329,6 @@ class AdminPersonPatientLinkManager {
                 ]
             });
             const savedResource = await databaseUpdateManager.insertOneAsync({
-                base_version,
-                requestInfo,
                 doc: sourcePerson
             });
 

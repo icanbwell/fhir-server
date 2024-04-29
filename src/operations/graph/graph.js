@@ -1,5 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
+const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { BadRequestError, NotValidatedError } = require('../../utils/httpErrors');
@@ -12,6 +13,7 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class GraphOperation {
     /**
@@ -169,7 +171,7 @@ class GraphOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                await this.fhirLoggingManager.logOperationFailureAsync({
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
                     resourceType,
@@ -206,26 +208,23 @@ class GraphOperation {
                     }
                 );
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return resultBundle;
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: err
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
             throw err;
         }
     }

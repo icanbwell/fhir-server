@@ -28,7 +28,7 @@ const cookieParser = require('cookie-parser');
 const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
 const { handleAdminGet, handleAdminPost, handleAdminDelete } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
+const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
 const { generateUUID } = require('./utils/uid.util');
 const { logInfo, logDebug } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
@@ -363,6 +363,24 @@ function createApp ({ fnGetContainer }) {
         // Your logic for the route goes here
         // If the resource is not found, send a 404 response
         res.status(404).send('Not Found');
+    });
+
+    // middleware to create access logs
+    app.use((req, res, next) => {
+        res.on('finish', () => {
+            // Check the status code of the response
+            const statusCode = res.statusCode;
+            const accessLogsData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            // Check if the status code is in the 200 series & send success message
+            container.accessLogger.logAccessLogAsync({
+                ...accessLogsData,
+                message:
+                    (statusCode >= 200 && statusCode < 300)
+                    ? 'operationCompleted'
+                    : 'operationFailed'
+            });
+        });
+        next();
     });
 
     // enables access to reverse proxy information

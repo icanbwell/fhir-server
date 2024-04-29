@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
@@ -10,6 +11,7 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class EverythingOperation {
     /**
@@ -72,15 +74,14 @@ class EverythingOperation {
                 responseStreamer // disable response streaming if we are answering a question
             });
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: 'everything',
-                    error: err
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: 'everything',
+                error: err
+            });
             throw err;
         }
     }
@@ -134,7 +135,7 @@ class EverythingOperation {
                     const result = await this.graphOperation.graph({
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -148,7 +149,7 @@ class EverythingOperation {
                     const result = await this.graphOperation.graph({
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -162,7 +163,7 @@ class EverythingOperation {
                     const result = await this.graphOperation.graph({
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -176,7 +177,7 @@ class EverythingOperation {
                     const result = await this.graphOperation.graph({
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -190,7 +191,7 @@ class EverythingOperation {
                     const result = await this.graphOperation.graph({
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -203,15 +204,14 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: err
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
             throw err;
         }
     }

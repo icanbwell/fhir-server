@@ -1,19 +1,22 @@
 /**
  * This class manages inserts and updates to the database
  */
+const { ReadPreference } = require('mongodb');
+
 const { assertTypeEquals } = require('../utils/assertType');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { ConfigManager } = require('../utils/configManager');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { RethrownError } = require('../utils/rethrownError');
+
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
-const { RethrownError } = require('../utils/rethrownError');
-const { ResourceMerger } = require('../operations/common/resourceMerger');
-const { PreSaveManager } = require('../preSaveHandlers/preSave');
-const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
-const { DatabaseQueryFactory } = require('./databaseQueryFactory');
-const { ConfigManager } = require('../utils/configManager');
-const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { ReadPreference } = require('mongodb');
-const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 class DatabaseUpdateManager {
@@ -88,12 +91,19 @@ class DatabaseUpdateManager {
      */
     async insertOneAsync ({ doc }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
-                doc.meta.versionId = '1';
+            let collection;
+            if (this._resourceType === ACCESS_LOGS_COLLECTION_NAME) {
+                collection =
+                    await this.resourceLocator.getOrCreateCollectionAsync(ACCESS_LOGS_COLLECTION_NAME);
+                await collection.insertOne(doc);
+            } else {
+                doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+                collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+                if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
+                    doc.meta.versionId = '1';
+                }
+                await collection.insertOne(doc.toJSONInternal());
             }
-            await collection.insertOne(doc.toJSONInternal());
             return doc;
         } catch (e) {
             throw new RethrownError({

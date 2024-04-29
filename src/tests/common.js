@@ -15,6 +15,7 @@ const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../constants');
 
 /**
  * @type {import('http').Server}
@@ -414,14 +415,21 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-                                      systemGeneratedRequestId,
-                                      userRequestId
-                                  } = {}) => {
+    systemGeneratedRequestId,
+    userRequestId
+} = {}) => {
     // eslint-disable-next-line no-undef
     jest.spyOn(httpContext, 'get');
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
-        userRequestId: userRequestId || '1234'
+        userRequestId: userRequestId || '1234',
+        [ACCESS_LOGS_ENTRY_DATA]: {
+            requestInfo: {},
+            startTime: Date.now(),
+            args: {},
+            action: '',
+            message: ''
+        }
     };
     httpContext.get.mockImplementation((key) => {
         return values[key];

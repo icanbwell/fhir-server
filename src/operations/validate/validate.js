@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -14,6 +15,7 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { READ } = require('../../constants').OPERATIONS;
 
 class ValidateOperation {
@@ -202,15 +204,14 @@ class ValidateOperation {
                 }
             );
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }
@@ -343,14 +344,13 @@ class ValidateOperation {
                 profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
@@ -373,14 +373,13 @@ class ValidateOperation {
             });
         }
 
-        await this.fhirLoggingManager.logOperationSuccessAsync(
-            {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
+        httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+            requestInfo,
+            args: parsedArgs.getRawArgs(),
+            resourceType,
+            startTime,
+            action: currentOperationName
+        });
 
         // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
         // Note: as this is the only out parameter, it is a resource, and it has the name 'return',
