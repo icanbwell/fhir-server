@@ -7,7 +7,7 @@
     "_sourceAssigningAuthority": "client",
     "_sourceId": "2354",
     "_uuid": "f752caa1-8585-5e6f-bb32-a5b949b7e5f6",
-    "birthDate": "2017-01-01",
+    "birthDate": "2017-01-01T00:00:00.000Z",
     "gender": "female",
     "id": "2354",
     "identifier": [

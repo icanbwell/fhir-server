@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "client-1",
         "identifier": [
@@ -48,7 +48,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "client-2",
         "identifier": [
@@ -94,7 +94,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "client-3",
         "identifier": [
@@ -140,7 +140,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "client-4",
         "identifier": [

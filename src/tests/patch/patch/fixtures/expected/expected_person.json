@@ -11,7 +11,7 @@
       "state": "CT"
     }
   ],
-  "birthDate": "1901-01-01",
+  "birthDate": "1901-01-01T00:00:00.000Z",
   "extension": [
     {
       "id": "CHANGE_ID",

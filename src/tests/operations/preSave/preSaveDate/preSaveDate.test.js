@@ -5,10 +5,10 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const Resource = require('../../../../fhir/classes/4_0_0/resources/carePlan');
 const { assertTypeEquals } = require('../../../../utils/assertType');
-const activityDetails0Date = new Date('2023-10-06T00:00:00Z');
+const activityDetails0String = '2023-10-06';
 const activityDetails1StartDate = new Date('2023-01-01T00:00:00');
 const activityDetails1EndDate = new Date('2023-02-28T00:00:00');
-const activityDetails2Date = new Date('2022-05-21T00:00:00');
+const activityDetails2String = '2022/05/21';
 const metaLastUpdatedDate = new Date('2024-04-17T15:18:45.000Z');
 const badDate = 'bad date';
 
@@ -38,10 +38,10 @@ describe('PreSave Date Tests', () => {
             const resource = new Resource(carePlan1Resource);
             const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             const newResource = new Resource(result);
-            expect(newResource.activity[0].detail.scheduledString).toEqual(activityDetails0Date);
+            expect(newResource.activity[0].detail.scheduledString).toEqual(activityDetails0String);
             expect(newResource.activity[1].detail.scheduledPeriod.start).toEqual(activityDetails1StartDate);
             expect(newResource.activity[1].detail.scheduledPeriod.end).toEqual(activityDetails1EndDate);
-            expect(newResource.activity[2].detail.scheduledString).toEqual(activityDetails2Date);
+            expect(newResource.activity[2].detail.scheduledString).toEqual(activityDetails2String);
             expect(newResource.meta.lastUpdated).toEqual(metaLastUpdatedDate);
             expect(newResource.created).toEqual(badDate);
         });

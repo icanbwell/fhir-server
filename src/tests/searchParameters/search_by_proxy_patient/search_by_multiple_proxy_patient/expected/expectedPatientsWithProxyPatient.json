@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "person.54808e62-6445-4bb6-8f89-b2ed7e6865d2",
         "identifier": [
@@ -48,7 +48,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "person.54808e62-6445-4bb6-8f89-b2ed7e6865d2",
         "identifier": [
@@ -94,7 +94,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "person.cda43a72-b5e0-476a-a928-4d768e66d6f8",
         "identifier": [
@@ -140,7 +140,7 @@
     },
     {
       "resource": {
-        "birthDate": "2017-01-01",
+        "birthDate": "2017-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "person.cda43a72-b5e0-476a-a928-4d768e66d6f8",
         "identifier": [

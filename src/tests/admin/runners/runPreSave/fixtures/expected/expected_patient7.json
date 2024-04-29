@@ -30,7 +30,7 @@
       "state": "MA"
     }
   ],
-  "birthDate": "1973-06-07",
+  "birthDate": "1973-06-07T00:00:00.000Z",
   "communication": [
     {
       "language": {

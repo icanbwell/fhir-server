@@ -75,7 +75,7 @@
           ],
           "reference": "Patient/WPS-0559166162"
         },
-        "created": "2023-11-11",
+        "created": "2023-11-11T00:00:00.000Z",
         "insurer": {
           "extension": [
             {
