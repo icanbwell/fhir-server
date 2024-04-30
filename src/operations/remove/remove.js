@@ -245,24 +245,9 @@ class RemoveOperation {
                 startTime,
                 action: currentOperationName
             });
-            await this.fhirLoggingManager.logOperationFailureAsync({
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
             return { deleted: res.deletedCount };
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
-            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,
