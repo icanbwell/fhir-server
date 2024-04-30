@@ -1,0 +1,13 @@
+{
+  "id": "2",
+  "resourceType": "DiagnosticReport",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "final",
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "code": {}
+}

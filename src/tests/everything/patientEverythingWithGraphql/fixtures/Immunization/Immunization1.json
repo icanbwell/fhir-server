@@ -1,0 +1,15 @@
+{
+  "id": "1",
+  "resourceType": "Immunization",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "vaccineCode": {},
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "occurrenceDateTime": "2023-10-10T10:20:10.000Z",
+  "occurrenceString": "a"
+}

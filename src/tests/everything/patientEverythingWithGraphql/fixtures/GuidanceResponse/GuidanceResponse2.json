@@ -1,0 +1,15 @@
+{
+  "id": "2",
+  "resourceType": "GuidanceResponse",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "moduleUri": "",
+  "moduleCanonical": "",
+  "moduleCodeableConcept": {},
+  "status": "success",
+  "subject": {
+    "reference": "Patient/2"
+  }
+}

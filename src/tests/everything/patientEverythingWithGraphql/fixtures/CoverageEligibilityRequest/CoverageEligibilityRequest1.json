@@ -1,0 +1,17 @@
+{
+  "id": "1",
+  "resourceType": "CoverageEligibilityRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "purpose": ["benefits"],
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "insurer": {
+    "reference": "Organization/1"
+  },
+  "created": "2023-10-10T10:20:10.000Z"
+}
