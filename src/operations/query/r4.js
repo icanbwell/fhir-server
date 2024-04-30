@@ -144,7 +144,7 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        if (!parsedArgs.id && operation !== DELETE) {
+        if (!parsedArgs.id && operation !== DELETE && !useHistoryTable) {
             query.$and = query.$and || [];
             query.$and.push({
                 'meta.tag': {
