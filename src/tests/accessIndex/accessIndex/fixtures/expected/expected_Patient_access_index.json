@@ -52,7 +52,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client1'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(2)",
+        "display": "db.Patient_4_0_0.find({'$and':[{'_access.client1':1},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -64,7 +64,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['meta.security.system','meta.security.code','meta.tag.system','meta.tag.code','_uuid']",
+        "display": "['_access.client1','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
