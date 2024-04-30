@@ -1,35 +1,62 @@
 {
+  "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Observation_4_0_0_History.find({}, {}).sort({'resource.meta.versionId':-1})"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Observation_4_0_0_History"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'sort':{'resource.meta.versionId':-1}}"
+      },
+      { "system": "https://www.icanbwell.com/queryFields" },
+      { "system": "https://www.icanbwell.com/queryTime", "display": "0.041" },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain",
+        "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Observation_4_0_0_History\",\"indexFilterSet\":false,\"parsedQuery\":{},\"queryHash\":\"854BADE8\",\"planCacheKey\":\"854BADE8\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"resource.meta.versionId\":-1},\"memLimit\":104857600,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":2,\"needTime\":3,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"resource.meta.versionId\":-1},\"memLimit\":104857600,\"type\":\"simple\",\"totalDataSizeSorted\":3398,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":2,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":2}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Observation_4_0_0_History\",\"filter\":{},\"sort\":{\"resource.meta.versionId\":-1},\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00017-jtg\",\"port\":59245,\"version\":\"6.0.9\",\"gitVersion\":\"90c65f9cc8fc4e6664a5848230abaa9b3f3b02f7\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7363653212026437652\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7363653212026437652\"}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple",
+        "display": "[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"docsExamined\":2,\"nReturned\":2,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2},\"query\":\"db.Observation_4_0_0_History.find({}, {}).sort({'resource.meta.versionId':-1})\"}]"
+      }
+    ]
+  },
+  "type": "history",
+  "total": 2,
+  "link": [
+    { "relation": "self", "url": "http://localhost:3000/4_0_0/Observation/_history?_debug=1" }
+  ],
   "entry": [
     {
       "id": "007ae95f-1ce4-43af-a881-7eeff3fd264e",
-      "request": {
-        "method": "PUT",
-        "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264e"
-      },
       "resource": {
-        "code": {
-          "coding": [
+        "resourceType": "Observation",
+        "id": "007ae95f-1ce4-43af-a881-7eeff3fd264e",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-02-16T01:12:00.000Z",
+          "source": "http://www.icanbwell.com/cql",
+          "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
             {
-              "code": "Rx",
-              "system": "http://www.icanbwell.com/cql/library"
-            },
-            {
-              "system": "http://www.icanbwell.com/cql/libraryVersion"
-            },
-            {
-              "code": "NoRx_ind_Output_Obs",
-              "system": "http://www.icanbwell.com/cql/rule"
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
             }
           ]
         },
-        "effectiveDateTime": "2023-02-10T08:34:04+00:00",
         "extension": [
-          {
-            "url": "https://www.icanbwell.com/sourceType",
-            "valueString": "cql-engine"
-          }
+          { "url": "https://www.icanbwell.com/sourceType", "valueString": "cql-engine" }
         ],
-        "id": "007ae95f-1ce4-43af-a881-7eeff3fd264e",
         "identifier": [
           {
             "system": "https://www.icanbwell.com",
@@ -44,66 +71,90 @@
             "value": "007ae95f-1ce4-43af-a881-7eeff3fd264e"
           }
         ],
+        "status": "final",
+        "code": {
+          "coding": [
+            { "system": "http://www.icanbwell.com/cql/library", "code": "Rx" },
+            { "system": "http://www.icanbwell.com/cql/libraryVersion" },
+            {
+              "system": "http://www.icanbwell.com/cql/rule",
+              "code": "NoRx_ind_Output_Obs"
+            }
+          ]
+        },
+        "subject": { "reference": "Patient/person.14aacd66e74844e48d97571e85009508" },
+        "effectiveDateTime": "2023-02-10T08:34:04+00:00",
+        "valueBoolean": true
+      },
+      "request": {
+        "id": "152b59e0-9502-4ccd-bdf9-d6ca96ec804a",
+        "method": "PUT",
+        "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264e"
+      }
+    },
+    {
+      "id": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
         "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-02-16T01:12:00.000Z",
+          "source": "http://www.icanbwell.com/cql",
           "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
             {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
             }
           ],
-          "source": "http://www.icanbwell.com/cql",
-          "versionId": "1"
+          "tag": [
+            {
+              "id": "hidden",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
+              "code": "hidden",
+              "display": "Hidden"
+            }
+          ]
         },
-        "resourceType": "Observation",
+        "extension": [
+          { "url": "https://www.icanbwell.com/sourceType", "valueString": "cql-engine" }
+        ],
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+          }
+        ],
         "status": "final",
-        "subject": {
-          "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
+        "code": {
+          "coding": [
+            { "system": "http://www.icanbwell.com/cql/library", "code": "Rx" },
+            { "system": "http://www.icanbwell.com/cql/libraryVersion" },
+            {
+              "system": "http://www.icanbwell.com/cql/rule",
+              "code": "NoRx_ind_Output_Obs"
+            }
+          ]
         },
+        "subject": { "reference": "Patient/person.14aacd66e74844e48d97571e85009508" },
+        "effectiveDateTime": "2023-02-10T08:34:04+00:00",
         "valueBoolean": true
+      },
+      "request": {
+        "id": "152b59e0-9502-4ccd-bdf9-d6ca96ec804a",
+        "method": "PUT",
+        "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264f"
       }
     }
-  ],
-  "meta": {
-    "tag": [
-      {
-        "display": "db.Observation_4_0_0_History.find({'resource.meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'resource.meta.versionId':-1})",
-        "system": "https://www.icanbwell.com/query"
-      },
-      {
-        "code": "Observation_4_0_0_History",
-        "system": "https://www.icanbwell.com/queryCollection"
-      },
-      {
-        "display": "{'sort':{'resource.meta.versionId':-1}}",
-        "system": "https://www.icanbwell.com/queryOptions"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryFields"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryExplain"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryExplainSimple"
-      }
-    ]
-  },
-  "resourceType": "Bundle",
-  "total": 1,
-  "type": "history"
+  ]
 }

@@ -45,7 +45,7 @@ describe('Observation Tests', () => {
             await observationHistoryCollection.insertOne(observation1Resource);
             await observationHistoryCollection.insertOne(observation2Resource);
 
-            // Only 1 observation's history is returned as second one has hidden tag
+            // Both observation's history is returned even second one has hidden tag
             const resp = await request
                 .get('/4_0_0/Observation/_history?_debug=1')
                 .set(getHeaders());

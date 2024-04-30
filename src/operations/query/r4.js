@@ -144,10 +144,10 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        if (!parsedArgs.id && operation !== DELETE) {
+        if (!parsedArgs.id && operation !== DELETE && !useHistoryTable) {
             query.$and = query.$and || [];
             query.$and.push({
-                [useHistoryTable ? 'resource.meta.tag' : 'meta.tag']: {
+                'meta.tag': {
                     $not: {
                         $elemMatch: {
                             system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
