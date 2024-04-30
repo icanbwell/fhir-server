@@ -445,6 +445,14 @@ class UpdateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(result, getCircularReplacer())
                 });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
@@ -483,11 +491,27 @@ class UpdateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(result, getCircularReplacer())
                 });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
 
                 return result;
             }
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

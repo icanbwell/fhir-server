@@ -74,6 +74,14 @@ class EverythingOperation {
                 responseStreamer // disable response streaming if we are answering a question
             });
         } catch (err) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: 'everything',
+                error: err
+            });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -142,6 +150,13 @@ class EverythingOperation {
                         startTime,
                         action: currentOperationName
                     });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
                     return result;
                 }
                 case 'Organization': {
@@ -150,6 +165,13 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -170,6 +192,13 @@ class EverythingOperation {
                         startTime,
                         action: currentOperationName
                     });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
                     return result;
                 }
                 case 'Person': {
@@ -178,6 +207,13 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
                         args: parsedArgs.getRawArgs(),
                         resourceType,
@@ -198,6 +234,13 @@ class EverythingOperation {
                         startTime,
                         action: currentOperationName
                     });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
                     return result;
                 }
                 default:
@@ -205,6 +248,14 @@ class EverythingOperation {
             }
         } catch (err) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

@@ -179,6 +179,14 @@ class GraphOperation {
                     action: currentOperationName,
                     error: notValidatedError
                 });
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: notValidatedError
+                });
                 throw notValidatedError;
             }
             /**
@@ -215,9 +223,24 @@ class GraphOperation {
                 startTime,
                 action: currentOperationName
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return resultBundle;
         } catch (err) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

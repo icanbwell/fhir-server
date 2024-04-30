@@ -149,6 +149,14 @@ class ScopesValidator {
                     action,
                     error: forbiddenError
                 });
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args: parsedArgs?.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action,
+                    error: forbiddenError
+                });
                 throw forbiddenError;
             }
         } catch (e) {

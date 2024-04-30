@@ -1,5 +1,5 @@
 // test file
-const observationResource = require('./fixtures/observation.json');
+const observationResource = require('./fixtures/observation/observation.json');
 
 const {
     commonBeforeEach,

@@ -208,6 +208,14 @@ class CreateOperation {
                     action: currentOperationName,
                     error: notValidatedError
                 });
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: notValidatedError
+                });
                 throw notValidatedError;
             }
         }
@@ -292,6 +300,14 @@ class CreateOperation {
                 action: currentOperationName,
                 result: JSON.stringify(doc, getCircularReplacer())
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
 
             this.postRequestProcessor.add({
                 requestId,
@@ -305,6 +321,14 @@ class CreateOperation {
             return doc;
         } catch (/** @type {Error} */ e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

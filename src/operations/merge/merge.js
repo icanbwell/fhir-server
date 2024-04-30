@@ -287,6 +287,14 @@ class MergeOperation {
                 action: currentOperationName,
                 result: JSON.stringify(mergeResults, getCircularReplacer())
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(mergeResults, getCircularReplacer())
+            });
 
             /**
              * @type {number}
@@ -375,6 +383,14 @@ class MergeOperation {
             }
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

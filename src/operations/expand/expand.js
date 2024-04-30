@@ -125,6 +125,14 @@ class ExpandOperation {
                 action: currentOperationName,
                 error: e
             });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
         }
 
@@ -136,6 +144,14 @@ class ExpandOperation {
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: forbiddenError
+                });
+                await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
                     resourceType,
@@ -158,6 +174,14 @@ class ExpandOperation {
             )[0];
 
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(resource.toJSON())
+            });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

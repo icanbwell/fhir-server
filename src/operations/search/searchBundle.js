@@ -194,6 +194,14 @@ class SearchBundleOperation {
                 action: currentOperationName,
                 error: e
             });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
         /**
@@ -378,6 +386,21 @@ class SearchBundleOperation {
                     options
                 })
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify({
+                    query: new QueryItem({
+                        query,
+                        collectionName,
+                        resourceType
+                    }),
+                    options
+                })
+            });
             return bundle;
         } catch (e) {
             /**
@@ -387,6 +410,24 @@ class SearchBundleOperation {
                 query
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                query: mongoQueryAndOptionsStringify({
+                    query: new QueryItem(
+                        {
+                            query,
+                            resourceType,
+                            collectionName
+                        }
+                    ),
+                    options
+                })
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

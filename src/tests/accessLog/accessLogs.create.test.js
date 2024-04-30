@@ -9,6 +9,7 @@ const {
     getTestContainer
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
+const { MockedAccessLogger } = require('./mocks/mockedAccessLogger');
 
 describe('AccessLogs Tests', () => {
     beforeEach(async () => {
@@ -25,6 +26,10 @@ describe('AccessLogs Tests', () => {
 
             const container = await getTestContainer();
 
+            container.register('accessLogger', (c) => new MockedAccessLogger({
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                scopesManager: c.scopesManager
+            }));
             const accessLogger = container.accessLogger;
 
             const logAccessLogAsync = jest.spyOn(
@@ -38,6 +43,7 @@ describe('AccessLogs Tests', () => {
                 .send(observationResource)
                 .set(getHeaders())
                 .expect(400);
+
             await request
                 .post('/4_0_0/Observation/')
                 .send(observationResource)

@@ -186,6 +186,15 @@ class SearchStreamingOperation {
                 error: e,
                 message: `Error in constructing query: ${e.message}`
             });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                message: `Error in constructing query: ${e.message}`
+            });
             throw e;
         }
         /**
@@ -449,6 +458,22 @@ class SearchStreamingOperation {
                     }
                 )
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
         } catch (e) {
             /**
              * @type {string}
@@ -457,6 +482,24 @@ class SearchStreamingOperation {
                 query
             }));
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                ),
+                message: `Error in streaming resources: ${e.message}`
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,

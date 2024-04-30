@@ -212,6 +212,14 @@ class ValidateOperation {
                 action: currentOperationName,
                 error: e
             });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }
@@ -351,6 +359,13 @@ class ValidateOperation {
                 startTime,
                 action: currentOperationName
             });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
@@ -374,6 +389,13 @@ class ValidateOperation {
         }
 
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+            requestInfo,
+            args: parsedArgs.getRawArgs(),
+            resourceType,
+            startTime,
+            action: currentOperationName
+        });
+        await this.fhirLoggingManager.logOperationSuccessAsync({
             requestInfo,
             args: parsedArgs.getRawArgs(),
             resourceType,
