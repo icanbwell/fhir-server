@@ -13,6 +13,14 @@
         "system": "https://www.icanbwell.com/owner",
         "code": "owner"
       }
+    ],
+    "tag": [
+      {
+        "code": "hidden",
+        "display": "Hidden",
+        "id": "hidden",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+      }
     ]
   }
 }

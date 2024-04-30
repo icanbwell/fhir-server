@@ -61,8 +61,9 @@ describe('Patient Tests for Remove operation', () => {
                 .set(getHeaders())
                 .expect(200);
 
+            // Here 2 are found as 1 of them is hidden.
             // noinspection JSUnresolvedFunction
-            expect(resp.body.length).toEqual(3);
+            expect(resp.body.length).toEqual(2);
 
             // Matched resources are deleted
             resp = await request
