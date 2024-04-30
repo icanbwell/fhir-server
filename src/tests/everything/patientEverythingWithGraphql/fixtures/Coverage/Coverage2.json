@@ -1,0 +1,13 @@
+{
+  "id": "2",
+  "resourceType": "Coverage",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "beneficiary": {
+    "reference": "Patient/2"
+  },
+  "payor": [{ "reference": "Patient/2" }]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "1",
+  "resourceType": "AppointmentResponse",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "appointment": {
+    "reference": "Appointment/1"
+  },
+  "actor": {
+    "reference": "Patient/1"
+  },
+  "participantStatus": "accepted"
+}
