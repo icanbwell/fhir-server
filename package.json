@@ -129,6 +129,7 @@
     "@opentelemetry/sdk-metrics": "^1.21.0",
     "@opentelemetry/sdk-node": "^0.48.0",
     "@sentry/node": "6.9.0",
+    "antlr4": "~4.9.3",
     "async": "^3.2.5",
     "async-mutex": "^0.4.1",
     "axios": "^1.6.7",
@@ -161,7 +162,7 @@
     "passport-jwt": "^4.0.1",
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.12.1",
-    "superagent": "^8.1.2",
+    "superagent": "^9.0.2",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
@@ -214,6 +215,7 @@
     "npm-check-updates": "^16.14.15",
     "pre-commit": "^1.2.2",
     "prettier": "^3.2.5",
+    "rollup": "^4.17.1",
     "supertest": "^6.3.4"
   },
   "private": false
