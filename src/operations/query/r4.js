@@ -147,7 +147,7 @@ class R4SearchQueryCreator {
         if (!parsedArgs.id && operation !== DELETE) {
             query.$and = query.$and || [];
             query.$and.push({
-                'meta.tag': {
+                [useHistoryTable ? 'resource.meta.tag' : 'meta.tag']: {
                     $not: {
                         $elemMatch: {
                             system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
