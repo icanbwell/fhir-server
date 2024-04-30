@@ -1,8 +1,6 @@
 /**
  * This class manages inserts and updates to the database
  */
-const { ReadPreference } = require('mongodb');
-
 const { assertTypeEquals } = require('../utils/assertType');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 const { ConfigManager } = require('../utils/configManager');
@@ -11,10 +9,10 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
-
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');

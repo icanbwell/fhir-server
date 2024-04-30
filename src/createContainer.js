@@ -423,7 +423,8 @@ const createContainer = function () {
     container.register('accessLogger', (c) => new AccessLogger(
             {
                 databaseUpdateFactory: c.databaseUpdateFactory,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                imageVersion: getImageVersion()
             }
         )
     );

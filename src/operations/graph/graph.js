@@ -166,28 +166,7 @@ class GraphOperation {
             );
             if (validationOperationOutcome) {
                 logDebug('GraphDefinition schema failed validation', { user });
-                // noinspection JSValidateTypes
-                /**
-                 * @type {Error}
-                 */
-                const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
-                await this.fhirLoggingManager.logOperationFailureAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
-                throw notValidatedError;
+                throw new NotValidatedError(validationOperationOutcome);
             }
             /**
              * @type {Bundle}

@@ -15,13 +15,15 @@ class AccessLogger {
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ScopesManager} scopesManager
      * @property {string} base_version
+     * @param {string|null} imageVersion
      *
      * @param {params}
      */
     constructor ({
         databaseUpdateFactory,
         scopesManager,
-        base_version = '4_0_0'
+        base_version = '4_0_0',
+        imageVersion
     }) {
         /**
          * @type {DatabaseUpdateFactory}
@@ -37,6 +39,10 @@ class AccessLogger {
          * @type {string}
          */
         this.base_version = base_version;
+        /**
+         * @type {string|null}
+         */
+        this.imageVersion = imageVersion;
     }
 
     /**
