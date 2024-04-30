@@ -805,13 +805,22 @@ $options: 'i'
 // noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
 const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
+    let date = null;
+    let operation = null;
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     if (!matches) {
-        throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
+        if (!moment.utc(dateSearchParameter).isValid()) {
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
+        }
+        date = moment.utc(dateSearchParameter).toDate();
+    } else {
+        operation = matches[1];
+        date = moment.utc(matches[2]).toDate();
     }
-    const operation = matches[1];
-    const date = moment.utc(matches[2]).toDate();
+    if (!operation) {
+        operation = 'eq';
+    }
     const query = {};
     // from http://hl7.org/fhir/r4/search.html#date
     switch (operation) {

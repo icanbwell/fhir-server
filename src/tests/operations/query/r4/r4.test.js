@@ -64,7 +64,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$and['2'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['1'].birthDate.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
@@ -899,8 +899,8 @@ describe('r4 search Tests', () => {
                             $or: [
                                 {
                                     effectiveDateTime: {
-                                        $options: 'i',
-                                        $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                                        $gte: new Date('2019-10-16T00:00:00.000Z'),
+                                        $lte: new Date('2019-10-16T23:59:59.999Z')
                                     }
                                 },
                                 {
@@ -932,8 +932,8 @@ describe('r4 search Tests', () => {
                                 },
                                 {
                                     effectiveInstant: {
-                                        $options: 'i',
-                                        $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
+                                        $gte: new Date('2019-10-16T00:00:00.000Z'),
+                                        $lte: new Date('2019-10-16T23:59:59.999Z')
                                     }
                                 }
                             ]

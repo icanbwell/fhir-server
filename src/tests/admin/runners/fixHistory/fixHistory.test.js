@@ -107,6 +107,8 @@ describe('Patient History Tests', () => {
             const patient1 = await collection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
+            expectedPatient1DatabaseAfterRun.resource.birthDate = new Date(expectedPatient1DatabaseAfterRun.resource.birthDate);
+            expectedPatient1DatabaseAfterRun.resource.meta.lastUpdated = new Date(expectedPatient1DatabaseAfterRun.resource.meta.lastUpdated);
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
         test('runPreSave works for patient 2 with resource', async () => {

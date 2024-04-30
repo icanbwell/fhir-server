@@ -50,7 +50,9 @@ async function setupDatabaseAsync (mongoDatabaseManager, personResource, expecte
     delete resource._id;
 
     personResource.meta.lastUpdated = resource.meta.lastUpdated;
-
+    if (resource.birthDate) {
+        resource.birthDate = new Date(resource.birthDate).toISOString();
+    }
     expect(resource).toStrictEqual(expectedPersonInDatabase);
     return collection;
 }
@@ -144,6 +146,7 @@ describe('Person Tests', () => {
             expectedPerson1DatabaseAfterRun.identifier
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = person1._uuid;
+            expectedPerson1DatabaseAfterRun.birthDate = new Date(expectedPerson1DatabaseAfterRun.birthDate);
             expect(person1).toStrictEqual(expectedPerson1DatabaseAfterRun);
         });
         test('fixReferenceSourceAssigningAuthority works for patient 1 with specified properties', async () => {

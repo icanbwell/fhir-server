@@ -9,6 +9,9 @@ function isColumnDateTimeType (resourceType, columnName) {
     if (!resourceType || !columnName) {
         return false;
     }
+    if (columnName === 'meta.lastUpdated') {
+        return true;
+    }
     switch (resourceType) {
         case 'AuditEvent':
             if (columnName === 'recorded') {
