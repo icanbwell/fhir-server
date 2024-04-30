@@ -21,6 +21,7 @@ const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { FilterParameters } = require('./filters/filterParameters');
 const { UrlParser } = require('../../utils/urlParser');
 const { FilterByQuantity } = require('./filters/quantity');
+const { OPERATIONS: { DELETE } } = require('../../constants');
 
 class R4SearchQueryCreator {
     /**
@@ -57,9 +58,10 @@ class R4SearchQueryCreator {
      * @param {string} resourceType
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
+     * @param {string} operation
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable }) {
+    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable, operation }) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -142,7 +144,7 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        if (!parsedArgs.id) {
+        if (!parsedArgs.id && operation !== DELETE) {
             query.$and = query.$and || [];
             query.$and.push({
                 'meta.tag': {

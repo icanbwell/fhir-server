@@ -210,6 +210,7 @@ module.exports = {
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
     OPERATIONS: {
         READ: 'READ',
-        WRITE: 'WRITE'
+        WRITE: 'WRITE',
+        DELETE: 'DELETE'
     }
 };
