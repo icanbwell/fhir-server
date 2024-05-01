@@ -368,16 +368,10 @@ function createApp ({ fnGetContainer }) {
     // middleware to create access logs
     app.use((req, res, next) => {
         res.on('finish', () => {
-            // Check the status code of the response
-            const statusCode = res.statusCode;
-            const accessLogsData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
-            // Check if the status code is in the 200 series & send success message
             container.accessLogger.logAccessLogAsync({
-                ...accessLogsData,
-                message:
-                    (statusCode >= 200 && statusCode < 300)
-                    ? 'operationCompleted'
-                    : 'operationFailed'
+                ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                req,
+                statusCode: res.statusCode
             });
         });
         next();

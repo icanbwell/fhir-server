@@ -409,9 +409,6 @@ class PatchOperation {
             }
 
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName
             });
@@ -435,9 +432,6 @@ class PatchOperation {
             };
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e

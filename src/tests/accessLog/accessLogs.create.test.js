@@ -14,34 +14,27 @@ const { AccessLogger } = require('../../utils/accessLogger');
 class MockedAccessLogger extends AccessLogger {
     /**
      * Logs a FHIR operation
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
-     * @param {string} resourceType
+     * @param {Request} req
+     * @param {number} statusCode
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
-     * @param {string} message
      * @param {string} action
      * @param {Error|undefined} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
     async logAccessLogAsync ({
-        /** @type {FhirRequestInfo} */ requestInfo,
-        args,
-        resourceType,
+        req,
+        statusCode,
         startTime,
         stopTime = Date.now(),
-        message,
         action,
         error,
         query,
         result
     }) {
-        expect(resourceType).toEqual('Observation');
-        expect(message).toEqual('operationFailed');
         expect(action).toEqual('create');
         expect(error.message).toEqual('Validation Failed');
-        expect(args).toEqual({ base_version: '4_0_0' });
     }
 }
 
@@ -63,7 +56,8 @@ describe('AccessLogs Tests', () => {
             // Using mocked access logger to test creation of access logs in db
             container.register('accessLogger', (c) => new MockedAccessLogger({
                 databaseUpdateFactory: c.databaseUpdateFactory,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                fhirOperationsManager: c.fhirOperationsManager
             }));
             const accessLogger = container.accessLogger;
 

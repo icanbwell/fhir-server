@@ -22,7 +22,8 @@ const createTestContainer = function (fnUpdateContainer) {
     container.register('accessLogger', (c) => new MockAccessLogger(
         {
             databaseUpdateFactory: c.databaseUpdateFactory,
-            scopesManager: c.scopesManager
+            scopesManager: c.scopesManager,
+            fhirOperationsManager: c.fhirOperationsManager
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
         configManager: c.configManager

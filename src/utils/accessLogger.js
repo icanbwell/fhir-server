@@ -5,7 +5,10 @@ const os = require('os');
 const { ACCESS_LOGS_COLLECTION_NAME, REQUEST_ID_TYPE } = require('../constants');
 const { assertTypeEquals } = require('./assertType');
 const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
+const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
+const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
+const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 
 class AccessLogger {
@@ -14,6 +17,7 @@ class AccessLogger {
      * @typedef {Object} params
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ScopesManager} scopesManager
+     * @param {FhirOperationsManager} fhirOperationsManager
      * @property {string} base_version
      * @param {string|null} imageVersion
      *
@@ -22,6 +26,7 @@ class AccessLogger {
     constructor ({
         databaseUpdateFactory,
         scopesManager,
+        fhirOperationsManager,
         base_version = '4_0_0',
         imageVersion
     }) {
@@ -35,6 +40,11 @@ class AccessLogger {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirOperationsManager}
+         */
+        this.fhirOperationsManager = fhirOperationsManager;
+        assertTypeEquals(fhirOperationsManager, FhirOperationsManager);
         /**
          * @type {string}
          */
@@ -59,29 +69,52 @@ class AccessLogger {
 
     /**
      * Logs a FHIR operation
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
-     * @param {string} resourceType
+     * @param {Request} req
+     * @param {number} statusCode
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
-     * @param {string} message
      * @param {string} action
      * @param {Error|undefined} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
     async logAccessLogAsync ({
-        /** @type {FhirRequestInfo} */ requestInfo,
-        args,
-        resourceType,
+        req,
+        statusCode,
         startTime,
         stopTime = Date.now(),
-        message,
         action,
         error,
         query,
         result
     }) {
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        /**
+         * @type {string}
+         */
+        const resourceType = req.url.split('/')[2];
+        /**
+         * @type {string}
+         */
+        const message = statusCode >= 200 && statusCode < 300 ? 'operationCompleted' : 'operationFailed';
+
+        // Fetching args
+        let combined_args = get_all_args(req, req.sanitized_args);
+        combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
+        const operation = req.method === 'GET'
+            ? READ
+            : (req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE);
+        /**
+         * @type {ParsedArgs}
+         */
+        const args = await this.fhirOperationsManager.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, operation
+        });
+
+        // Fetching detail
         const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
                 return {
                     type: k,
@@ -111,6 +144,7 @@ class AccessLogger {
                 valuePositiveInt: elapsedMilliSeconds
             });
         }
+
         /**
          * @type {string[]}
          */
@@ -124,11 +158,52 @@ class AccessLogger {
         if (accessCodes && accessCodes.length > 0) {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
+
         /**
          * @type {string}
          */
         const level = error ? 'error' : 'info';
 
+        detail.push({
+            type: 'method',
+            valueString: requestInfo.method
+        });
+
+        if (requestInfo.contentTypeFromHeader) {
+            detail.push({
+                type: 'content-type',
+                valueString: requestInfo.contentTypeFromHeader.type
+            });
+        }
+
+        const finalMessage = error
+            ? `${error.message}: ${error.stack || ''}`
+            : message;
+
+        if (requestInfo.body) {
+            detail.push({
+                type: 'body',
+                valueString: (!requestInfo.body || typeof requestInfo.body === 'string')
+                    ? requestInfo.body
+                    : JSON.stringify(requestInfo.body, getCircularReplacer())
+            });
+        }
+
+        if (query) {
+            detail.push({
+                type: 'query',
+                valueString: query
+            });
+        }
+
+        if (result) {
+            detail.push({
+                type: 'result',
+                valueString: result
+            });
+        }
+
+        // Creating log entry
         const logEntry = {
             id: requestInfo.userRequestId,
             type: {
@@ -172,41 +247,6 @@ class AccessLogger {
                 systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
             }
         };
-        detail.push({
-            type: 'method',
-            valueString: requestInfo.method
-        });
-        if (requestInfo.contentTypeFromHeader) {
-            detail.push({
-                type: 'content-type',
-                valueString: requestInfo.contentTypeFromHeader.type
-            });
-        }
-        const finalMessage = error
-            ? `${error.message}: ${error.stack || ''}`
-            : message;
-
-        if (requestInfo.body) {
-            detail.push({
-                type: 'body',
-                valueString: (!requestInfo.body || typeof requestInfo.body === 'string')
-                    ? requestInfo.body
-                    : JSON.stringify(requestInfo.body, getCircularReplacer())
-            });
-        }
-        if (query) {
-            detail.push({
-                type: 'query',
-                valueString: query
-            });
-        }
-        if (result) {
-            detail.push({
-                type: 'result',
-                valueString: result
-            });
-        }
-        logEntry.entity[0].detail = detail;
 
         const accessLogEntry = {
             message: finalMessage,

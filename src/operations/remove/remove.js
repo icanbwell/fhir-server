@@ -232,9 +232,6 @@ class RemoveOperation {
             }
 
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName
             });
@@ -248,9 +245,6 @@ class RemoveOperation {
             return { deleted: res.deletedCount };
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e

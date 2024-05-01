@@ -191,9 +191,6 @@ class HistoryOperation {
             cursor = await databaseHistoryManager.findAsync({ query, options });
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e
@@ -242,9 +239,6 @@ class HistoryOperation {
             throw new NotFoundError('Resource not found');
         }
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-            requestInfo,
-            args: parsedArgs.getRawArgs(),
-            resourceType,
             startTime,
             action: currentOperationName
         });

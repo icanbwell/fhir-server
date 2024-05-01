@@ -142,9 +142,6 @@ class ScopesValidator {
 
             if (forbiddenError) {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    requestInfo,
-                    args: parsedArgs?.getRawArgs(),
-                    resourceType,
                     startTime,
                     action,
                     error: forbiddenError

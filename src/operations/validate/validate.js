@@ -205,9 +205,6 @@ class ValidateOperation {
             );
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e
@@ -353,9 +350,6 @@ class ValidateOperation {
             });
         if (validationOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName
             });
@@ -389,9 +383,6 @@ class ValidateOperation {
         }
 
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-            requestInfo,
-            args: parsedArgs.getRawArgs(),
-            resourceType,
             startTime,
             action: currentOperationName
         });

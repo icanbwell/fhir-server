@@ -187,9 +187,6 @@ class SearchBundleOperation {
                 }));
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e
@@ -372,9 +369,6 @@ class SearchBundleOperation {
                 }
             );
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 query: mongoQueryAndOptionsStringify({
@@ -410,9 +404,6 @@ class SearchBundleOperation {
                 query
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e,

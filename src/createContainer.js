@@ -424,6 +424,7 @@ const createContainer = function () {
             {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 scopesManager: c.scopesManager,
+                fhirOperationsManager: c.fhirOperationsManager,
                 imageVersion: getImageVersion()
             }
         )

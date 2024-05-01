@@ -201,9 +201,6 @@ class CreateOperation {
                  */
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
                     startTime,
                     action: currentOperationName,
                     error: notValidatedError
@@ -293,9 +290,6 @@ class CreateOperation {
 
             // log operation
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 result: JSON.stringify(doc, getCircularReplacer())
@@ -321,9 +315,6 @@ class CreateOperation {
             return doc;
         } catch (/** @type {Error} */ e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e

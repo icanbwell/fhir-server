@@ -15,12 +15,10 @@ class MockAccessLogger extends AccessLogger {
      * @param {string|undefined} [result]
      */
     async logAccessLogAsync ({
-        /** @type {FhirRequestInfo} */ requestInfo,
-        args,
-        resourceType,
+        req,
+        statusCode,
         startTime,
         stopTime = Date.now(),
-        message,
         action,
         error,
         query,

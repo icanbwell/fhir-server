@@ -237,9 +237,6 @@ class HistoryByIdOperation {
                 throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName
             });
@@ -293,9 +290,6 @@ class HistoryByIdOperation {
             );
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e

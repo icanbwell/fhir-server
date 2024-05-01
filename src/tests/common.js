@@ -15,7 +15,6 @@ const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../constants');
 
 /**
  * @type {import('http').Server}
@@ -422,14 +421,7 @@ module.exports.mockHttpContext = ({
     jest.spyOn(httpContext, 'get');
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
-        userRequestId: userRequestId || '1234',
-        [ACCESS_LOGS_ENTRY_DATA]: {
-            requestInfo: {},
-            startTime: Date.now(),
-            args: {},
-            action: '',
-            message: ''
-        }
+        userRequestId: userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
         return values[key];

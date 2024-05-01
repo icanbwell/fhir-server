@@ -118,9 +118,6 @@ class ExpandOperation {
             ).findOneAsync({ query: { id: id.toString() } });
         } catch (e) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: e
@@ -144,9 +141,6 @@ class ExpandOperation {
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
                     startTime,
                     action: currentOperationName,
                     error: forbiddenError
@@ -174,9 +168,6 @@ class ExpandOperation {
             )[0];
 
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 result: JSON.stringify(resource.toJSON())

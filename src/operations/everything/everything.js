@@ -83,9 +83,6 @@ class EverythingOperation {
                 error: err
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: 'everything',
                 error: err
@@ -144,9 +141,6 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
                         startTime,
                         action: currentOperationName
                     });
@@ -165,9 +159,6 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
                         startTime,
                         action: currentOperationName
                     });
@@ -186,9 +177,6 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
                         startTime,
                         action: currentOperationName
                     });
@@ -207,9 +195,6 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
                         startTime,
                         action: currentOperationName
                     });
@@ -228,9 +213,6 @@ class EverythingOperation {
                         requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
                         startTime,
                         action: currentOperationName
                     });
@@ -248,9 +230,6 @@ class EverythingOperation {
             }
         } catch (err) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
                 startTime,
                 action: currentOperationName,
                 error: err
