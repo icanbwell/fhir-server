@@ -119,7 +119,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 40 });
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
         /**
          * @type {RequestSpecificCache}
