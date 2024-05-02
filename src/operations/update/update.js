@@ -21,6 +21,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
+const { logInfo } = require('../common/logging');
 
 /**
  * Update Operation
@@ -273,6 +274,13 @@ class UpdateOperation {
                     currentResource: data
                 });
                 if (validationOperationOutcome) {
+                    logInfo('Resource Validation Failed', {
+                        operation: currentOperationName,
+                        id: resource_incoming_json.id,
+                        uuid: resource_incoming_json._uuid,
+                        sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
+                        resourceType: resource_incoming_json.resourceType
+                    });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
             }
@@ -322,6 +330,13 @@ class UpdateOperation {
                     doc
                 );
                 if (validationOperationOutcome) {
+                    logInfo('Resource Validation Failed', {
+                        operation: currentOperationName,
+                        id: doc.id,
+                        uuid: doc.id,
+                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        resourceType: doc.resourceType
+                    });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
                 // Update attachments after all validations
@@ -366,6 +381,32 @@ class UpdateOperation {
                             : 'No merge result'
                         )
                     );
+                }
+
+                if (mergeResults[0].created) {
+                    logInfo('Resource Created', {
+                        operation: currentOperationName,
+                        id: doc.id,
+                        uuid: doc._uuid,
+                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        resourceType: doc.resourceType
+                    });
+                } else if (mergeResults[0].updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        id: doc.id,
+                        uuid: doc._uuid,
+                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        resourceType: doc.resourceType
+                    });
+                } else {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        id: doc.id,
+                        uuid: doc._uuid,
+                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        resourceType: doc.resourceType
+                    });
                 }
 
                 if (resourceType !== 'AuditEvent') {
@@ -418,6 +459,13 @@ class UpdateOperation {
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
 
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    id: foundResource.id,
+                    uuid: foundResource._uuid,
+                    sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                    resourceType: foundResource.resourceType
+                });
                 const result = {
                     id,
                     created: false,

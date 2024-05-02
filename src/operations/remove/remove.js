@@ -12,6 +12,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { SearchManager } = require('../search/searchManager');
 const { OPERATIONS: { DELETE } } = require('../../constants');
+const { logInfo } = require('../common/logging');
 
 class RemoveOperation {
     /**
@@ -171,7 +172,7 @@ class RemoveOperation {
 
             try {
                 res = await databaseQueryManager.findAsync({ query });
-                const uuidsToDelete = [];
+                const resourcesToDelete = {};
 
                 while (await res.hasNext()) {
                     const resource = await res.next();
@@ -182,7 +183,12 @@ class RemoveOperation {
                             requestInfo, resource, base_version
                         });
 
-                        uuidsToDelete.push(resource._uuid);
+                        resourcesToDelete[resource._uuid] = {
+                            id: resource.id,
+                            uuid: resource._uuid,
+                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            resourceType: resource.resourceType
+                        };
                     } catch (e) {}
                 }
                 /**
@@ -190,7 +196,14 @@ class RemoveOperation {
                  */
                 res = await databaseQueryManager.deleteManyAsync({
                     requestId,
-                    query: { _uuid: { $in: uuidsToDelete } }
+                    query: { _uuid: { $in: Object.keys(resourcesToDelete) } }
+                });
+
+                Object.values(resourcesToDelete).forEach(data => {
+                    logInfo('Resource Deleted', {
+                        action: currentOperationName,
+                        ...data
+                    });
                 });
 
                 if (resourceType !== 'AuditEvent') {
@@ -205,7 +218,7 @@ class RemoveOperation {
                                     resourceType,
                                     operation: 'delete',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: uuidsToDelete
+                                    ids: Object.keys(resourcesToDelete)
                                 }
                             );
                         }

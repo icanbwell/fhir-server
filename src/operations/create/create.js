@@ -1,4 +1,4 @@
-const { logDebug } = require('../common/logging');
+const { logDebug, logInfo } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
@@ -185,6 +185,13 @@ class CreateOperation {
                 });
             }
             if (validationOperationOutcome) {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    uuid: resource.id,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType
+                });
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -254,12 +261,29 @@ class CreateOperation {
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    uuid: resource.id,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType
+                });
                 throw new BadRequestError(
                     new Error(mergeResults.length > 0
                         ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
                         : 'No merge result'
                     )
                 );
+            }
+
+            if (mergeResults[0].created) {
+                logInfo('Resource Created', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    uuid: resource._uuid,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType
+                });
             }
 
             // log operation
