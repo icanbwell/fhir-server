@@ -28,10 +28,11 @@ class SearchQueryBuilder {
      * @property {ParsedArgs} parsedArgs Parsed Args
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {string} resourceType Resource Type
+     * @property {string} operation Operation being performed
      * @param {BuildSearchQueryBasedOnVersion} param Params for building search query based on version
      * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
      */
-    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable }) {
+    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable, operation }) {
         /** @type {import('mongodb').Document} */
         let query;
         /** @type {Set<string>} */
@@ -43,7 +44,7 @@ class SearchQueryBuilder {
                 query = buildDstu2SearchQuery(parsedArgs);
             } else {
                 ({ query, columns } = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable
+                    resourceType, parsedArgs, useHistoryTable, operation
                 }));
             }
 

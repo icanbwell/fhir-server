@@ -1,0 +1,281 @@
+query PatientTest {
+  patient {
+    entry {
+      resource {
+        id
+        account {
+          id
+          resourceType
+        }
+        adverseEvent {
+          id
+          resourceType
+        }
+        allergyIntolerance {
+          id
+          resourceType
+        }
+        appointment {
+          id
+          resourceType
+        }
+        appointmentResponse {
+          id
+          resourceType
+        }
+        basic {
+          id
+          resourceType
+        }
+        bodyStructure {
+          id
+          resourceType
+        }
+        carePlan {
+          id
+          resourceType
+        }
+        careTeam {
+          id
+          resourceType
+        }
+        chargeItem {
+          id
+          resourceType
+        }
+        claim {
+          id
+          resourceType
+        }
+        claimResponse {
+          id
+          resourceType
+        }
+        clinicalImpression {
+          id
+          resourceType
+        }
+        communicationV2 {
+          id
+          resourceType
+        }
+        communicationRequest {
+          id
+          resourceType
+        }
+        composition {
+          id
+          resourceType
+        }
+        condition {
+          id
+          resourceType
+        }
+        consent {
+          id
+          resourceType
+        }
+        contract {
+          id
+          resourceType
+        }
+        coverage {
+          id
+          resourceType
+        }
+        coverageEligibilityRequest {
+          id
+          resourceType
+        }
+        coverageEligibilityResponse {
+          id
+          resourceType
+        }
+        detectedIssue {
+          id
+          resourceType
+        }
+        device {
+          id
+          resourceType
+        }
+        deviceRequest {
+          id
+          resourceType
+        }
+        deviceUseStatement {
+          id
+          resourceType
+        }
+        diagnosticReport {
+          id
+          resourceType
+        }
+        documentManifest {
+          id
+          resourceType
+        }
+        documentReference {
+          id
+          resourceType
+        }
+        encounter {
+          id
+          resourceType
+        }
+        enrollmentRequest {
+          id
+          resourceType
+        }
+        episodeOfCare {
+          id
+          resourceType
+        }
+        explanationOfBenefit {
+          id
+          resourceType
+        }
+        familyMemberHistory {
+          id
+          resourceType
+        }
+        flag {
+          id
+          resourceType
+        }
+        goal {
+          id
+          resourceType
+        }
+        group {
+          id
+          resourceType
+        }
+        guidanceResponse {
+          id
+          resourceType
+        }
+        imagingStudy {
+          id
+          resourceType
+        }
+        immunization {
+          id
+          resourceType
+        }
+        immunizationEvaluation {
+          id
+          resourceType
+        }
+        immunizationRecommendation {
+          id
+          resourceType
+        }
+        invoice {
+          id
+          resourceType
+        }
+        list {
+          id
+          resourceType
+        }
+        measureReport {
+          id
+          resourceType
+        }
+        media {
+          id
+          resourceType
+        }
+        medicationAdministration {
+          id
+          resourceType
+        }
+        medicationDispense {
+          id
+          resourceType
+        }
+        medicationRequest {
+          id
+          resourceType
+        }
+        medicationStatement {
+          id
+          resourceType
+        }
+        molecularSequence {
+          id
+          resourceType
+        }
+        nutritionOrder {
+          id
+          resourceType
+        }
+        observation {
+          id
+          resourceType
+        }
+        person {
+          id
+          resourceType
+        }
+        procedure {
+          id
+          resourceType
+        }
+        provenance {
+          id
+          resourceType
+        }
+        questionnaireResponse {
+          id
+          resourceType
+        }
+        relatedPerson {
+          id
+          resourceType
+        }
+        requestGroup {
+          id
+          resourceType
+        }
+        researchSubject {
+          id
+          resourceType
+        }
+        riskAssessment {
+          id
+          resourceType
+        }
+        schedule {
+          id
+          resourceType
+        }
+        serviceRequest {
+          id
+          resourceType
+        }
+        specimen {
+          id
+          resourceType
+        }
+        supplyDelivery {
+          id
+          resourceType
+        }
+        supplyRequest {
+          id
+          resourceType
+        }
+        task {
+          id
+          resourceType
+        }
+        visionPrescription {
+          id
+          resourceType
+        }
+      }
+    }
+  }
+}

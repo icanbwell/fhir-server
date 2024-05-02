@@ -1,0 +1,83 @@
+{
+  "id": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
+  "resource": {
+    "resourceType": "Observation",
+    "id": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
+    "_uuid": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
+    "_sourceId": "007ae95f-1ce4-43af-a881-7eeff3fd264f",
+    "_sourceAssigningAuthority": "bwell",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-02-16T01:12:00.000Z",
+      "source": "http://www.icanbwell.com/cql",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "bwell"
+        }
+      ],
+      "tag": [
+        {
+          "code": "hidden",
+          "display": "Hidden",
+          "id": "hidden",
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+        }
+      ]
+    },
+    "extension": [
+      {
+        "url": "https://www.icanbwell.com/sourceType",
+        "valueString": "cql-engine"
+      }
+    ],
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com",
+        "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "007ae95f-1ce4-43af-a881-7eeff3fd264f"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/cql/library",
+          "code": "Rx"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/libraryVersion"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/rule",
+          "code": "NoRx_ind_Output_Obs"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
+    },
+    "effectiveDateTime": "2023-02-10T08:34:04+00:00",
+    "valueBoolean": true
+  },
+  "request": {
+    "id": "152b59e0-9502-4ccd-bdf9-d6ca96ec804a",
+    "method": "PUT",
+    "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264f"
+  }
+}

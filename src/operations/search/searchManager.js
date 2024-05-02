@@ -230,7 +230,8 @@ class SearchManager {
                 base_version,
                 parsedArgs,
                 resourceType,
-                useHistoryTable
+                useHistoryTable,
+                operation
             }));
 
             if (accessViaPatientScopes) {

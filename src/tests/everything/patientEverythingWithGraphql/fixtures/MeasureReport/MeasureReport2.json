@@ -1,0 +1,15 @@
+{
+  "id": "2",
+  "resourceType": "MeasureReport",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "complete",
+  "type": "individual",
+  "measure": "a",
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "period": {}
+}

@@ -11,7 +11,7 @@ const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterMana
 const { ParsedArgs } = require('../query/parsedArgs');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { SearchManager } = require('../search/searchManager');
-const { OPERATIONS: { WRITE } } = require('../../constants');
+const { OPERATIONS: { DELETE } } = require('../../constants');
 
 class RemoveOperation {
     /**
@@ -154,7 +154,7 @@ class RemoveOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: WRITE,
+                    operation: DELETE,
                     accessRequested: 'write'
                 }
             );
@@ -205,7 +205,7 @@ class RemoveOperation {
                                     resourceType,
                                     operation: 'delete',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: []
+                                    ids: uuidsToDelete
                                 }
                             );
                         }
