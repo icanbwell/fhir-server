@@ -6,7 +6,6 @@ const { logSystemEventAsync } = require('../operations/common/systemEventLogging
 const { MongoClient, GridFSBucket } = require('mongodb');
 const { ConfigManager } = require('./configManager');
 const { assertTypeEquals } = require('./assertType');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 /**
  * client connection
@@ -112,9 +111,6 @@ class MongoDatabaseManager {
      * @returns {Promise<import('mongodb').Db>}
      */
     async getDatabaseForResourceAsync ({ resourceType, extraInfo = {} }) {
-        if (resourceType === ACCESS_LOGS_COLLECTION_NAME) {
-            return await this.getAccessLogsDbAsync();
-        }
         const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
         if (resourceType === 'AuditEvent') {
             if (searchOperationNames.includes(extraInfo.currentOperationName)) {

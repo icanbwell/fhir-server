@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -437,11 +436,6 @@ class UpdateOperation {
                     resource_version: doc.meta.versionId,
                     resource: doc
                 };
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
-                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -480,11 +474,6 @@ class UpdateOperation {
                     resource: foundResource
                 };
 
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
-                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -497,11 +486,6 @@ class UpdateOperation {
                 return result;
             }
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

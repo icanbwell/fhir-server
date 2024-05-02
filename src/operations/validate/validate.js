@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -15,7 +14,6 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { READ } = require('../../constants').OPERATIONS;
 
 class ValidateOperation {
@@ -204,11 +202,6 @@ class ValidateOperation {
                 }
             );
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -349,10 +342,6 @@ class ValidateOperation {
                 profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -382,10 +371,6 @@ class ValidateOperation {
             });
         }
 
-        httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-            startTime,
-            action: currentOperationName
-        });
         await this.fhirLoggingManager.logOperationSuccessAsync({
             requestInfo,
             args: parsedArgs.getRawArgs(),

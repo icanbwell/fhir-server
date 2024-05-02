@@ -28,13 +28,9 @@ class MockedAccessLogger extends AccessLogger {
         statusCode,
         startTime,
         stopTime = Date.now(),
-        action,
-        error,
-        query,
-        result
+        query
     }) {
-        expect(action).toEqual('create');
-        expect(error.message).toEqual('Validation Failed');
+        expect(statusCode).toEqual(400);
     }
 }
 

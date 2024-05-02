@@ -17,7 +17,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
     /**
@@ -200,11 +199,6 @@ class CreateOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -289,11 +283,6 @@ class CreateOperation {
             }
 
             // log operation
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                result: JSON.stringify(doc, getCircularReplacer())
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -314,11 +303,6 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

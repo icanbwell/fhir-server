@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const { NotFoundError, BadRequestError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { removeNull } = require('../../utils/nullRemover');
@@ -16,7 +15,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchByIdOperation {
     /**
@@ -252,10 +251,6 @@ class SearchByIdOperation {
                         }
                     });
                 }
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    startTime,
-                    action: currentOperationName
-                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -271,11 +266,6 @@ class SearchByIdOperation {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
             }
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

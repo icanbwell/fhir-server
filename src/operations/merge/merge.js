@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
@@ -279,11 +278,6 @@ class MergeOperation {
                 requestInfo, requestId, base_version, parsedArgs, mergeResults
             });
 
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                result: JSON.stringify(mergeResults, getCircularReplacer())
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -379,11 +373,6 @@ class MergeOperation {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

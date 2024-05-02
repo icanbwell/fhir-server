@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { BadRequestError, NotValidatedError } = require('../../utils/httpErrors');
@@ -13,7 +12,6 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class GraphOperation {
     /**
@@ -195,10 +193,6 @@ class GraphOperation {
                     }
                 );
 
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -208,11 +202,6 @@ class GraphOperation {
             });
             return resultBundle;
         } catch (err) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: err
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

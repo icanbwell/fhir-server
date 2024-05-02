@@ -177,12 +177,6 @@ class SearchStreamingOperation {
                     operation: READ
                 }));
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e,
-                message: `Error in constructing query: ${e.message}`
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -440,8 +434,6 @@ class SearchStreamingOperation {
                 }
             }
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
                 query: mongoQueryAndOptionsStringify({
                         query: new QueryItem({
                             query,
@@ -476,9 +468,6 @@ class SearchStreamingOperation {
                 query
             }));
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e,
                 query: mongoQueryAndOptionsStringify({
                         query: new QueryItem({
                             query,

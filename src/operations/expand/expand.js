@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -9,7 +8,6 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 
 class ExpandOperation {
@@ -117,11 +115,6 @@ class ExpandOperation {
                 { resourceType, base_version }
             ).findOneAsync({ query: { id: id.toString() } });
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -140,11 +133,6 @@ class ExpandOperation {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    startTime,
-                    action: currentOperationName,
-                    error: forbiddenError
-                });
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -167,11 +155,6 @@ class ExpandOperation {
                 )
             )[0];
 
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                result: JSON.stringify(resource.toJSON())
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

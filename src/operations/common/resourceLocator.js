@@ -180,6 +180,21 @@ class ResourceLocator {
     }
 
     /**
+     * Creates a db collection for access log
+     * @param {string} collectionName
+     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
+     */
+    async getOrCreateAccessLogCollectionAsync (collectionName) {
+        /**
+         * Access log mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        const db = await this.mongoDatabaseManager.getAccessLogsDbAsync();
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync(
+            { db, collectionName });
+    }
+
+    /**
      * Gets the collection for this resource.  If collection does not exist then it is created
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}

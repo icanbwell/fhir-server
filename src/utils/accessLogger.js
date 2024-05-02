@@ -64,7 +64,7 @@ class AccessLogger {
             resourceType: ACCESS_LOGS_COLLECTION_NAME,
             base_version: this.base_version
         });
-        await databaseUpdateManager.insertOneAsync({ doc: accessLogEntry });
+        await databaseUpdateManager.insertOneAccessLogsAsync({ doc: accessLogEntry });
     }
 
     /**
@@ -73,7 +73,6 @@ class AccessLogger {
      * @param {number} statusCode
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
-     * @param {string} action
      * @param {Error|undefined} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
@@ -83,10 +82,7 @@ class AccessLogger {
         statusCode,
         startTime,
         stopTime = Date.now(),
-        action,
-        error,
-        query,
-        result
+        query
     }) {
         /**
          * @type {FhirRequestInfo}
@@ -97,9 +93,9 @@ class AccessLogger {
          */
         const resourceType = req.url.split('/')[2];
         /**
-         * @type {string}
+         * @type {boolean}
          */
-        const message = statusCode >= 200 && statusCode < 300 ? 'operationCompleted' : 'operationFailed';
+        const isError = !(statusCode >= 200 && statusCode < 300);
 
         // Fetching args
         let combined_args = get_all_args(req, req.sanitized_args);
@@ -134,16 +130,10 @@ class AccessLogger {
             });
         }
 
-        if (startTime && stopTime) {
-            /**
-             * @type {number}
-             */
-            const elapsedMilliSeconds = stopTime - startTime;
-            detail.push({
-                type: 'duration',
-                valuePositiveInt: elapsedMilliSeconds
-            });
-        }
+        detail.push({
+            type: 'duration',
+            valuePositiveInt: stopTime - startTime
+        });
 
         /**
          * @type {string[]}
@@ -159,11 +149,6 @@ class AccessLogger {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
 
-        /**
-         * @type {string}
-         */
-        const level = error ? 'error' : 'info';
-
         detail.push({
             type: 'method',
             valueString: requestInfo.method
@@ -175,10 +160,6 @@ class AccessLogger {
                 valueString: requestInfo.contentTypeFromHeader.type
             });
         }
-
-        const finalMessage = error
-            ? `${error.message}: ${error.stack || ''}`
-            : message;
 
         if (requestInfo.body) {
             detail.push({
@@ -196,27 +177,19 @@ class AccessLogger {
             });
         }
 
-        if (result) {
-            detail.push({
-                type: 'result',
-                valueString: result
-            });
-        }
-
         // Creating log entry
         const logEntry = {
             id: requestInfo.userRequestId,
             type: {
                 code: 'operation'
             },
-            action,
             period: {
                 start: new Date(startTime).toISOString(),
                 end: new Date(stopTime).toISOString()
             },
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            outcome: error ? 8 : 0,
-            outcomeDesc: error ? 'Error' : 'Success',
+            outcome: isError ? 8 : 0,
+            outcomeDesc: isError ? 'Error' : 'Success',
             agent: [
                 {
                     type: {
@@ -249,8 +222,8 @@ class AccessLogger {
         };
 
         const accessLogEntry = {
-            message: finalMessage,
-            level,
+            message: isError ? 'operationFailed' : 'operationCompleted',
+            level: isError ? 'error' : 'info',
             timestamp: logEntry.recorded,
             meta: logEntry
         };

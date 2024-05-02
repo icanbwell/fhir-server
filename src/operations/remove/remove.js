@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const httpContext = require('express-http-context');
 const { NotAllowedError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
@@ -231,10 +230,6 @@ class RemoveOperation {
                 throw new NotAllowedError(e.message);
             }
 
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -244,11 +239,6 @@ class RemoveOperation {
             });
             return { deleted: res.deletedCount };
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

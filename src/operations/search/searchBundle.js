@@ -186,11 +186,6 @@ class SearchBundleOperation {
                     operation: READ
                 }));
         } catch (e) {
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -369,8 +364,6 @@ class SearchBundleOperation {
                 }
             );
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
                 query: mongoQueryAndOptionsStringify({
                     query: new QueryItem({
                         query,
@@ -404,9 +397,6 @@ class SearchBundleOperation {
                 query
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                startTime,
-                action: currentOperationName,
-                error: e,
                 query: mongoQueryAndOptionsStringify({
                     query: new QueryItem(
                         {

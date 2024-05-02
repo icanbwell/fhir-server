@@ -89,19 +89,12 @@ class DatabaseUpdateManager {
      */
     async insertOneAsync ({ doc }) {
         try {
-            let collection;
-            if (this._resourceType === ACCESS_LOGS_COLLECTION_NAME) {
-                collection =
-                    await this.resourceLocator.getOrCreateCollectionAsync(ACCESS_LOGS_COLLECTION_NAME);
-                await collection.insertOne(doc);
-            } else {
-                doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-                collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-                if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
-                    doc.meta.versionId = '1';
-                }
-                await collection.insertOne(doc.toJSONInternal());
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
+                doc.meta.versionId = '1';
             }
+            await collection.insertOne(doc.toJSONInternal());
             return doc;
         } catch (e) {
             throw new RethrownError({
@@ -355,6 +348,24 @@ class DatabaseUpdateManager {
                 }
             )
         }).toJSONInternal());
+    }
+
+    /**
+     * Inserts a resource into the Access logs database
+     * @param {Resource} doc
+     * @return {Promise<Resource>}
+     */
+    async insertOneAccessLogsAsync ({ doc }) {
+        try {
+            const collection =
+                await this.resourceLocator.getOrCreateAccessLogCollectionAsync(ACCESS_LOGS_COLLECTION_NAME);
+            await collection.insertOne(doc);
+            return doc;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 }
 
