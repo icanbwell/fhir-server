@@ -246,7 +246,7 @@ class R4SearchQueryCreator {
      * if there is already an $and statement then just add to it
      * @param {import('mongodb').Document} query
      * @param {import('mongodb').Document} andQuery
-     * @return {import('mongodb').Document}
+     * @return {import('mongodb').Document|null}
      */
     appendAndSimplifyQuery ({ query, andQuery }) {
         query = this.appendAndQuery({ query, andQuery });

@@ -288,6 +288,9 @@ class SearchManager {
                 resourceType,
                 operation
             }));
+            if (query) {
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
             return { base_version, query, columns };
         } catch (e) {
             throw new RethrownError({
