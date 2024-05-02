@@ -114,7 +114,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['hipaa']}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
+                "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'hipaa'}}},{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
