@@ -577,8 +577,11 @@ const getDateFromNum = function (days) {
  */
 const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
-    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
     const match = date.match(regex);
+    if (!match) {
+        throw new BadRequestError(new Error(`Invalid date parameter value: ${date}`));
+    }
     let str = '';
     let toReturn = [];
     const pArr = []; // will have other possibilities such as just year, just year and month, etc
@@ -722,7 +725,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
                     pArr[4] +
                     ')';
                 const regPoss = {
-                    $regex: new RegExp(escapeRegExp(regexPattern))
+                    $regex: new RegExp(regexPattern)
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -748,11 +751,8 @@ const dateQueryBuilder = function ({ date, type, path }) {
                     toReturn = [
                         {
                             [pDT]: {
-                                $regex: new RegExp(
-                                    escapeRegExp(
-                                        '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                                ),
-$options: 'i'
+                                $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                                $options: 'i'
                             }
                         },
                         {
@@ -772,11 +772,8 @@ $options: 'i'
                     return toReturn;
                 }
                 return {
-                    $regex: new RegExp(
-                        escapeRegExp(
-                            '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                    ),
-$options: 'i'
+                    $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                    $options: 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
