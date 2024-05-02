@@ -2,7 +2,6 @@
  * This class manages inserts and updates to the database
  */
 const { assertTypeEquals } = require('../utils/assertType');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 const { ConfigManager } = require('../utils/configManager');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
@@ -351,19 +350,20 @@ class DatabaseUpdateManager {
     }
 
     /**
-     * Inserts a resource into the Access logs database
+     * Insert a resource into the Access logs database
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAccessLogsAsync ({ doc }) {
+    async insertOneAccessLogAsync ({ doc }) {
         try {
             const collection =
-                await this.resourceLocator.getOrCreateAccessLogCollectionAsync(ACCESS_LOGS_COLLECTION_NAME);
+                await this.resourceLocator.getOrCreateAccessLogCollectionAsync();
             await collection.insertOne(doc);
             return doc;
         } catch (e) {
             throw new RethrownError({
-                error: e
+                error: e,
+                message: 'Error while inserting access log'
             });
         }
     }

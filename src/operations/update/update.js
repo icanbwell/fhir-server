@@ -474,6 +474,7 @@ class UpdateOperation {
                     resource: foundResource
                 };
 
+                // not modified
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),

@@ -64,7 +64,7 @@ class AccessLogger {
             resourceType: ACCESS_LOGS_COLLECTION_NAME,
             base_version: this.base_version
         });
-        await databaseUpdateManager.insertOneAccessLogsAsync({ doc: accessLogEntry });
+        await databaseUpdateManager.insertOneAccessLogAsync({ doc: accessLogEntry });
     }
 
     /**

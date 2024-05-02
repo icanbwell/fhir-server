@@ -476,8 +476,7 @@ class SearchStreamingOperation {
                         }),
                         options
                     }
-                ),
-                message: `Error in streaming resources: ${e.message}`
+                )
             });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

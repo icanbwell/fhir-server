@@ -398,13 +398,11 @@ class SearchBundleOperation {
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 query: mongoQueryAndOptionsStringify({
-                    query: new QueryItem(
-                        {
-                            query,
-                            resourceType,
-                            collectionName
-                        }
-                    ),
+                    query: new QueryItem({
+                        query,
+                        resourceType,
+                        collectionName
+                    }),
                     options
                 })
             });
@@ -416,13 +414,11 @@ class SearchBundleOperation {
                 action: currentOperationName,
                 error: e,
                 query: mongoQueryAndOptionsStringify({
-                    query: new QueryItem(
-                        {
-                            query,
-                            resourceType,
-                            collectionName
-                        }
-                    ),
+                    query: new QueryItem({
+                        query,
+                        resourceType,
+                        collectionName
+                    }),
                     options
                 })
             });

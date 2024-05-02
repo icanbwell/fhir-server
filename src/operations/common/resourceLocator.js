@@ -1,4 +1,5 @@
 const async = require('async');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { PartitioningManager } = require('../../partitioners/partitioningManager');
@@ -181,17 +182,16 @@ class ResourceLocator {
 
     /**
      * Creates a db collection for access log
-     * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateAccessLogCollectionAsync (collectionName) {
+    async getOrCreateAccessLogCollectionAsync () {
         /**
          * Access log mongo db connection
          * @type {import('mongodb').Db}
          */
         const db = await this.mongoDatabaseManager.getAccessLogsDbAsync();
         return await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            { db, collectionName });
+            { db, collectionName: ACCESS_LOGS_COLLECTION_NAME });
     }
 
     /**
