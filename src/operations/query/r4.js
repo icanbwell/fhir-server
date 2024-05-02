@@ -250,7 +250,8 @@ class R4SearchQueryCreator {
      */
     appendAndSimplifyQuery ({ query, andQuery }) {
         query = this.appendAndQuery({ query, andQuery });
-        return MongoQuerySimplifier.simplifyFilter({ filter: query });
+        const simplifyFilter = MongoQuerySimplifier.simplifyFilter({ filter: query });
+        return simplifyFilter;
     }
 
     /**
