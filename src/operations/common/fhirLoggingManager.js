@@ -317,12 +317,17 @@ class FhirLoggingManager {
 
         logEntry.entity[0].detail = detail;
 
-        const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-        // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-        if (error) {
-            fhirSecureLogger.error(logEntry);
-        } else {
-            fhirSecureLogger.info(logEntry);
+        try {
+            // It will be moved to middelware without winston-mongodb
+            const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
+            // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
+            if (error) {
+                fhirSecureLogger.error(logEntry);
+            } else {
+                fhirSecureLogger.info(logEntry);
+            }
+        } catch (err) {
+            console.error(JSON.stringify({ message: 'Error in Access Logs caught', err }));
         }
     }
 }
