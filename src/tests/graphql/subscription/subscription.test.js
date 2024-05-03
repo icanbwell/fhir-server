@@ -9,6 +9,7 @@ const personBundleResource = require('./fixtures/Person/person1.json');
 
 // expected
 const expectedSubscriptionResources = require('./fixtures/expected/expected_subscription.json');
+const expectedSubscriptionInvalidResources = require('./fixtures/expected/expected_subscription_invalid.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -109,6 +110,82 @@ describe('GraphQL Subscription Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscription');
+        });
+        test('GraphQL subscription requires patient access', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // resp = await request
+            //     .get('/4_0_0/Subscription/subscription1')
+            //     .set(getHeaders());
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
+                .send(subscriptionStatus3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const graphqlQueryText = subscriptionQuery.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                // .get('/subscription/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText
+                })
+                // .set(getGraphQLHeaders());
+                .set(getGraphQLHeadersWithPerson('xyz'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscription');
         });
     });
 });
