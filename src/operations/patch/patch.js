@@ -23,6 +23,7 @@ const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
+const { logInfo } = require('../common/logging');
 
 class PatchOperation {
     /**
@@ -307,6 +308,13 @@ class PatchOperation {
                 });
             }
             if (validationOperationOutcome) {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    id: foundResource.id,
+                    uuid: foundResource._uuid,
+                    sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                    resourceType: foundResource.resourceType
+                });
                 throw new NotValidatedError(validationOperationOutcome);
             }
 
@@ -362,9 +370,25 @@ class PatchOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType
+                    });
                     throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
                 }
 
+                if (mergeResults[0].updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType
+                    });
+                }
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
@@ -372,6 +396,14 @@ class PatchOperation {
                             requestId, eventType: 'U', resourceType, doc: resource
                         });
                     }
+                });
+            } else {
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    uuid: resource._uuid,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType
                 });
             }
 

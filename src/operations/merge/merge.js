@@ -18,6 +18,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
+const { logInfo } = require('../common/logging');
 
 class MergeOperation {
     /**
@@ -131,6 +132,13 @@ class MergeOperation {
                     }
                 );
                 mergeResults.push(mergeResultItem);
+                logInfo('Resource neither created or updated', {
+                    operation: 'merge',
+                    id: resource.id,
+                    uuid: resource._uuid,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType
+                });
             }
         }
         return mergeResults;
@@ -199,6 +207,16 @@ class MergeOperation {
                 requestInfo
             });
 
+            mergePreCheckErrors.forEach(mergeResultEntry => {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    id: mergeResultEntry.id,
+                    uuid: mergeResultEntry._uuid,
+                    sourceAssigningAuthority: mergeResultEntry._sourceAssigningAuthority,
+                    resourceType: mergeResultEntry.resourceType
+                });
+            });
+
             let validResources = resourcesIncomingArray;
 
             // merge the resources
@@ -223,6 +241,34 @@ class MergeOperation {
                 requestInfo,
                 currentDate,
                 base_version
+            });
+
+            mergeResults.forEach(mergeResult => {
+                if (mergeResult.created) {
+                    logInfo('Resource Created', {
+                        operation: currentOperationName,
+                        id: mergeResult.id,
+                        uuid: mergeResult._uuid,
+                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
+                        resourceType: mergeResult.resourceType
+                    });
+                } else if (mergeResult.updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        id: mergeResult.id,
+                        uuid: mergeResult._uuid,
+                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
+                        resourceType: mergeResult.resourceType
+                    });
+                } else {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        id: mergeResult.id,
+                        uuid: mergeResult._uuid,
+                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
+                        resourceType: mergeResult.resourceType
+                    });
+                }
             });
 
             // add in any pre-merge failures
