@@ -29,7 +29,7 @@
         "subscription": {
           "reference": "Subscription/subscription1"
         },
-        "topic": "SubscriptionTopic/subscriptionTopic1",
+        "topic": "SubscriptionTopic/subscriptionTopic3",
         "error": [
           {
             "text": "SubscriptionStatus error message",
