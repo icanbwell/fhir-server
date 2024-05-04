@@ -30,7 +30,59 @@
             ],
             "status": "active",
             "subscriptionTopic": {
-              "id": "subscriptionTopic1"
+              "id": "subscriptionTopic1",
+              "resourceTrigger": [
+                {
+                  "resource": "AllergyIntolerance"
+                },
+                {
+                  "resource": "Appointment"
+                },
+                {
+                  "resource": "CarePlan"
+                },
+                {
+                  "resource": "Condition"
+                },
+                {
+                  "resource": "DiagnosticReport"
+                },
+                {
+                  "resource": "Encounter"
+                },
+                {
+                  "resource": "Immunization"
+                },
+                {
+                  "resource": "MedicationAdministration"
+                },
+                {
+                  "resource": "MedicationRequest"
+                },
+                {
+                  "resource": "Observation"
+                },
+                {
+                  "resource": "Organization"
+                },
+                {
+                  "resource": "Patient"
+                },
+                {
+                  "resource": "Practitioner"
+                },
+                {
+                  "resource": "Procedure"
+                },
+                {
+                  "resource": "Schedule"
+                },
+                {
+                  "resource": "Slot"
+                }
+              ],
+              "url": "https://fhir-myrecord.cerner.com/r4/5c7467fb-60f9-4172-add4-57667a5dfcfa/",
+              "version": "R4"
             },
             "type": "query-status"
           },
@@ -60,7 +112,59 @@
             ],
             "status": "active",
             "subscriptionTopic": {
-              "id": "subscriptionTopic1"
+              "id": "subscriptionTopic1",
+              "resourceTrigger": [
+                {
+                  "resource": "AllergyIntolerance"
+                },
+                {
+                  "resource": "Appointment"
+                },
+                {
+                  "resource": "CarePlan"
+                },
+                {
+                  "resource": "Condition"
+                },
+                {
+                  "resource": "DiagnosticReport"
+                },
+                {
+                  "resource": "Encounter"
+                },
+                {
+                  "resource": "Immunization"
+                },
+                {
+                  "resource": "MedicationAdministration"
+                },
+                {
+                  "resource": "MedicationRequest"
+                },
+                {
+                  "resource": "Observation"
+                },
+                {
+                  "resource": "Organization"
+                },
+                {
+                  "resource": "Patient"
+                },
+                {
+                  "resource": "Practitioner"
+                },
+                {
+                  "resource": "Procedure"
+                },
+                {
+                  "resource": "Schedule"
+                },
+                {
+                  "resource": "Slot"
+                }
+              ],
+              "url": "https://fhir-myrecord.cerner.com/r4/5c7467fb-60f9-4172-add4-57667a5dfcfa/",
+              "version": "R4"
             },
             "type": "query-status"
           }

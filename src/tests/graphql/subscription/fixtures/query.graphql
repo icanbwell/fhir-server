@@ -7,6 +7,11 @@ query subscriptionQuery {
                     id
                     subscriptionTopic {
                         id
+                        url
+                        version
+                        resourceTrigger {
+                            resource
+                        }
                     }
                     status
                     type
