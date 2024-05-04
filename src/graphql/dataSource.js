@@ -278,10 +278,10 @@ class FhirDataSource {
         // Case when invalid resourceType is passed and if this resourceType is requested in the query
         // if requested resources contains Resource then all resources are allowed here
         if (!isValidResource(resourceType) || (
-                requestedResources.length > 0 &&
-                !requestedResources.includes('Resource') &&
-                !requestedResources.includes(resourceType)
-            )
+            requestedResources.length > 0 &&
+            !requestedResources.includes('Resource') &&
+            !requestedResources.includes(resourceType)
+        )
         ) {
             return null;
         }
@@ -547,7 +547,7 @@ class FhirDataSource {
         let parsedArgs = this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-args,
+                args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -570,14 +570,14 @@ args,
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-     async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
+    async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-args,
+                args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -616,6 +616,25 @@ args,
             }
         }
         return resource;
+    }
+
+    /**
+     * Finds a single resource by canonical reference
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @param {string|null} canonical
+     * @return {Promise<null|Resource>}
+     */
+    async findResourceByCanonicalReference (parent, args, context, info, canonical) {
+        // parse the canonical to remove server and version
+        const referenceString = canonical;
+        return await this.findResourceByReference(
+            parent, args, context, info, {
+                reference: referenceString
+            }
+        );
     }
 }
 

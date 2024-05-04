@@ -8,15 +8,12 @@ module.exports = {
          * @return {Promise<Resource[]>}
          */
         subscriptionTopic: async (parent, args, context, info) => {
-            return await context.dataApi.getResources(
+            return await context.dataApi.findResourceByCanonicalReference(
                 parent,
-                {
-                    ...args,
-                    subscription: parent.id
-                },
+                args,
                 context,
                 info,
-                'SubscriptionTopic'
+                parent.topic
             );
         }
     }

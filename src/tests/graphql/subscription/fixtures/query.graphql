@@ -5,7 +5,9 @@ query subscriptionQuery {
                 id
                 subscriptionStatus {
                     id
-                    topic
+                    subscriptionTopic {
+                        id
+                    }
                     status
                     type
                     error {
