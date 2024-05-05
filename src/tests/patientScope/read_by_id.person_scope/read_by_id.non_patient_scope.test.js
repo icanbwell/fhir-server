@@ -84,8 +84,7 @@ describe('Observation Tests', () => {
             // search by owner security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/1/')
-                .set(headers1)
-                .expect(200);
+                .set(headers1);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);

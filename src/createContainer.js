@@ -98,6 +98,8 @@ const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { PatientScopeManager } = require('./operations/security/patientScopeManager');
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
+const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -275,7 +277,10 @@ const createContainer = function () {
             configManager: c.configManager
         }));
 
-    container.register('resourceManager', () => new ResourceManager());
+    container.register('resourceManager', (c) => new ResourceManager(
+        {
+            searchParametersManager: c.searchParametersManager
+        }));
     container.register('indexHinter', (c) => new IndexHinter({
         indexProvider: c.indexProvider
     }));
@@ -323,7 +328,8 @@ const createContainer = function () {
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
-                patientScopeManager: c.patientScopeManager
+                patientScopeManager: c.patientScopeManager,
+                patientQueryCreator: c.patientQueryCreator
             }
         )
     );
@@ -332,7 +338,8 @@ const createContainer = function () {
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            patientFilterManager: c.patientFilterManager
+            patientFilterManager: c.patientFilterManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator
         }));
 
     container.register('mergeManager', (c) => new MergeManager(
@@ -425,7 +432,8 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
@@ -745,7 +753,8 @@ const createContainer = function () {
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        searchParametersManager: c.searchParametersManager
     }));
 
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
@@ -764,6 +773,14 @@ const createContainer = function () {
         ],
         configManager: c.configManager
     }));
+
+    container.register('patientQueryCreator', (c) => new PatientQueryCreator({
+        patientFilterManager: c.patientFilterManager,
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        r4ArgsParser: c.r4ArgsParser
+    }));
+
+    container.register('searchParametersManager', () => new SearchParametersManager());
 
     return container;
 };

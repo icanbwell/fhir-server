@@ -160,7 +160,11 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
 
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid|client')

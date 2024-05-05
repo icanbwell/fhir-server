@@ -20,9 +20,9 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeadersWithPerson,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GraphQL ${ResourceName} Tests', () => {
     beforeEach(async () => {
@@ -62,8 +62,6 @@ describe('GraphQL ${ResourceName} Tests', () => {
             const graphqlQueryText = ${ResourceNameLower}Query.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                // .get('/$graphql/?query=' + graphqlQueryText)
-                // .set(getHeaders())
                 .post('/$graphql')
                 .send({
                     operationName: null,
@@ -75,7 +73,7 @@ describe('GraphQL ${ResourceName} Tests', () => {
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expected${ResourceName}Resources, '{query name from query.graphql}');
+            expect(resp).toHaveGraphQLResponse(expected${ResourceName}Resources, '${ResourceNameLower}');
         });
     });
 });

@@ -109,6 +109,7 @@ class R4SearchQueryCreator {
                 });
 
                 // replace andSegments according to modifiers
+                // noinspection IfStatementWithTooManyBranchesJS
                 if (parsedArg.modifiers.includes('missing')) {
                     andSegments = new FilterByMissing(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('contains')) {
@@ -239,6 +240,46 @@ class R4SearchQueryCreator {
         }
 
         return { andSegments };
+    }
+
+    /**
+     * if there is already an $and statement then just add to it
+     * @param {import('mongodb').Document} query
+     * @param {import('mongodb').Document} andQuery
+     * @return {import('mongodb').Document|null}
+     */
+    appendAndSimplifyQuery ({ query, andQuery }) {
+        query = this.appendAndQuery({ query, andQuery });
+        const simplifyFilter = MongoQuerySimplifier.simplifyFilter({ filter: query });
+        return simplifyFilter;
+    }
+
+    /**
+     * if there is already an $and statement then just add to it
+     * @param {import('mongodb').Document} query
+     * @param {import('mongodb').Document} andQuery
+     * @return {import('mongodb').Document}
+     */
+    appendAndQuery ({ query, andQuery }) {
+        if (query.$and) {
+            query.$and.push(
+                andQuery
+            );
+            return query;
+        } else if (Object.keys(query).length === 0) { // empty query then just replace
+            return {
+                $and: [
+                    andQuery
+                ]
+            };
+        } else {
+            return {
+                $and: [
+                    query,
+                    andQuery
+                ]
+            };
+        }
     }
 }
 

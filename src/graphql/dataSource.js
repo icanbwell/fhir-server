@@ -8,6 +8,7 @@ const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager');
 const { ResourceWithId } = require('./resourceWithId');
 const { isValidResource } = require('../utils/validResourceCheck');
+const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -57,6 +58,12 @@ class FhirDataSource {
          */
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
+
+        /**
+         * whether the caller has requested debug mode
+         * @type {boolean}
+         */
+        this.debugMode = false;
     }
 
     /**
@@ -75,7 +82,7 @@ class FhirDataSource {
      * This function orders the resources by key so DataLoader can find the right results.
      * IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
      * https://github.com/graphql/dataloader#batching
-     * @param {{Resource}[]} resources
+     * @param {Resource[]} resources
      * @param {string[]} keys
      * @return {(Resource|null)[]}
      */
@@ -152,7 +159,10 @@ class FhirDataSource {
                         _bundle: '1',
                         ...args
                     };
-
+                    // if _debug is not set and we are in debug mode, set it
+                    if (!args1._debug && this.debugMode) {
+                        args1._debug = true;
+                    }
                     const bundle = await this.searchBundleOperation.searchBundleAsync(
                         {
                             requestInfo,
@@ -188,6 +198,7 @@ class FhirDataSource {
     // eslint-disable-next-line no-unused-vars
     resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
+            // noinspection JSUnresolvedReference
             return obj.resourceType;
         }
         if (obj.length > 0) {
@@ -205,7 +216,7 @@ class FhirDataSource {
      * @param {Object} args
      * @param {GraphQLContext} context
      * @param {Object} info
-     * @param {{reference: string}} reference
+     * @param {{reference: string, type: string, _uuid: string}} reference
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference (parent, args, context, info, reference) {
@@ -268,10 +279,10 @@ class FhirDataSource {
         // Case when invalid resourceType is passed and if this resourceType is requested in the query
         // if requested resources contains Resource then all resources are allowed here
         if (!isValidResource(resourceType) || (
-                requestedResources.length > 0 &&
-                !requestedResources.includes('Resource') &&
-                !requestedResources.includes(resourceType)
-            )
+            requestedResources.length > 0 &&
+            !requestedResources.includes('Resource') &&
+            !requestedResources.includes(resourceType)
+        )
         ) {
             return null;
         }
@@ -283,6 +294,7 @@ class FhirDataSource {
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
                 logWarn(
                     'findResourcesByReference: Resource not found for parent',
                     {
@@ -308,7 +320,7 @@ class FhirDataSource {
      * @param {Object} args
      * @param {GraphQLContext} context
      * @param {Object} info
-     * @param {{reference: string}[]} references
+     * @param {{reference: string, type: string, _uuid: string}[]} references
      * @return {Promise<null|Resource[]>}
      */
     async findResourcesByReference (parent, args, context, info, references) {
@@ -336,6 +348,10 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         return this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
                 {
@@ -370,6 +386,10 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         return this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
                 {
@@ -388,6 +408,7 @@ class FhirDataSource {
         );
     }
 
+    // noinspection OverlyComplexFunctionJS
     /**
      * Finds resources with args
      * @param {Resource|null} parent
@@ -407,6 +428,10 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
+        // if _debug is not set and we are in debug mode, set it
+        if (!args1._debug && this.debugMode) {
+            args1._debug = true;
+        }
         const bundle = await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: context.fhirRequestInfo,
@@ -433,6 +458,7 @@ class FhirDataSource {
      */
     createDataLoader (args) {
         if (!this.dataLoader) {
+            // noinspection JSValidateTypes
             this.dataLoader = new DataLoader(
                 async (keys) => await this.getResourcesInBatch(
                     {
@@ -445,6 +471,9 @@ class FhirDataSource {
                     }
                 )
             );
+            if (args._debug) {
+                this.debugMode = true;
+            }
         }
     }
 
@@ -469,11 +498,11 @@ class FhirDataSource {
                 const foundCombinedMetaTag = combinedMeta.tag.find(
                     (tag) => tag.system === metaTag.system
                 );
-                if (!foundCombinedMetaTag) {
-                    combinedMeta.tag.push(metaTag);
-                } else {
+                if (foundCombinedMetaTag) {
                     // concatenate code and/or display
                     this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
+                } else {
+                    combinedMeta.tag.push(metaTag);
                 }
             }
         }
@@ -519,7 +548,7 @@ class FhirDataSource {
         let parsedArgs = this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-args,
+                args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -542,14 +571,14 @@ args,
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-     async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
+    async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-args,
+                args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -588,6 +617,33 @@ args,
             }
         }
         return resource;
+    }
+
+    /**
+     * Finds a single resource by canonical reference
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @param {string|null} canonical
+     * @return {Promise<null|Resource>}
+     */
+    async findResourceByCanonicalReference (parent, args, context, info, canonical) {
+        // parse the canonical to remove server and version
+        const parsedReference = ReferenceParser.parseCanonicalReference(
+            {
+                url: canonical
+            }
+        );
+        if (parsedReference === null) {
+            return null;
+        }
+        const { resourceType, id } = parsedReference;
+        return await this.findResourceByReference(
+            parent, args, context, info, {
+                reference: `${resourceType}/${id}`
+            }
+        );
     }
 }
 
