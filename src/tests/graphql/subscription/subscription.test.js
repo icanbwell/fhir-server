@@ -5,6 +5,8 @@ const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subsc
 const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
 const subscriptionStatus3Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus3.json');
 const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
+const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
+const subscriptionTopic3Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic3.json');
 const patientBundleResource = require('./fixtures/Patient/patient1.json');
 const personBundleResource = require('./fixtures/Person/person1.json');
 
@@ -82,6 +84,20 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
                 .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/subscriptionTopic2/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/subscriptionTopic3/$merge?validate=true')
+                .send(subscriptionTopic3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });

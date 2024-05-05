@@ -100,7 +100,7 @@ class ReferenceParser {
      */
     static parseCanonicalReference ({ url }) {
         if (UrlParser.isUrl(url)) {
-            const regex = /^(?:.*\/)?(.*?)\/(\d+)$/;
+            const regex = /\/([^/]+)\/([^/]+)$/;
             const match = url.match(regex);
 
             if (match && match.length > 2) {
