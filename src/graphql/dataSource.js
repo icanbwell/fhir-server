@@ -8,6 +8,7 @@ const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager');
 const { ResourceWithId } = require('./resourceWithId');
 const { isValidResource } = require('../utils/validResourceCheck');
+const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -629,10 +630,18 @@ class FhirDataSource {
      */
     async findResourceByCanonicalReference (parent, args, context, info, canonical) {
         // parse the canonical to remove server and version
-        const referenceString = canonical;
+        const parsedReference = ReferenceParser.parseCanonicalReference(
+            {
+                url: canonical
+            }
+        );
+        if (parsedReference === null) {
+            return null;
+        }
+        const { resourceType, id } = parsedReference;
         return await this.findResourceByReference(
             parent, args, context, info, {
-                reference: referenceString
+                reference: `${resourceType}/${id}`
             }
         );
     }
