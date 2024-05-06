@@ -208,7 +208,11 @@ class MergeManager {
                     id: patched_resource_incoming.id,
                     uuid: patched_resource_incoming._uuid,
                     sourceAssigningAuthority: patched_resource_incoming._sourceAssigningAuthority,
-                    resourceType: patched_resource_incoming.resourceType
+                    resourceType: patched_resource_incoming.resourceType,
+                    operationOutcome: validationOperationOutcome,
+                    issue: validationOperationOutcome.issue[0],
+                    created: false,
+                    updated: false
                 });
                 return validationOperationOutcome;
             }
@@ -274,7 +278,11 @@ class MergeManager {
                 id: resourceToMerge.id,
                 uuid: resourceToMerge._uuid,
                 sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                resourceType: resourceToMerge.resourceType
+                resourceType: resourceToMerge.resourceType,
+                operationOutcome: validationOperationOutcome,
+                issue: validationOperationOutcome.issue[0],
+                created: false,
+                updated: false
             });
             return validationOperationOutcome;
         }
