@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
@@ -19,6 +20,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
 const { logInfo } = require('../common/logging');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class MergeOperation {
     /**
@@ -285,6 +287,9 @@ class MergeOperation {
                 action: currentOperationName,
                 result: JSON.stringify(mergeResults, getCircularReplacer())
             });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(mergeResults, getCircularReplacer())
+            });
 
             /**
              * @type {number}
@@ -372,15 +377,14 @@ class MergeOperation {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

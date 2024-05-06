@@ -164,20 +164,7 @@ class GraphOperation {
             );
             if (validationOperationOutcome) {
                 logDebug('GraphDefinition schema failed validation', { user });
-                // noinspection JSValidateTypes
-                /**
-                 * @type {Error}
-                 */
-                const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                await this.fhirLoggingManager.logOperationFailureAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
-                throw notValidatedError;
+                throw new NotValidatedError(validationOperationOutcome);
             }
             /**
              * @type {Bundle}
@@ -206,26 +193,23 @@ class GraphOperation {
                     }
                 );
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return resultBundle;
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: err
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
             throw err;
         }
     }

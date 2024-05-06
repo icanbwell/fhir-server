@@ -202,15 +202,14 @@ class ValidateOperation {
                 }
             );
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }
@@ -343,14 +342,13 @@ class ValidateOperation {
                 profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
@@ -373,14 +371,13 @@ class ValidateOperation {
             });
         }
 
-        await this.fhirLoggingManager.logOperationSuccessAsync(
-            {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
+        await this.fhirLoggingManager.logOperationSuccessAsync({
+            requestInfo,
+            args: parsedArgs.getRawArgs(),
+            resourceType,
+            startTime,
+            action: currentOperationName
+        });
 
         // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
         // Note: as this is the only out parameter, it is a resource, and it has the name 'return',

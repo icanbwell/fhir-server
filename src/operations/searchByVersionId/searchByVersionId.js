@@ -177,28 +177,26 @@ class SearchByVersionIdOperation {
                 )[0];
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                await this.fhirLoggingManager.logOperationSuccessAsync(
-                    {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
                 return resource;
             } else {
                 throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

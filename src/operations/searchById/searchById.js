@@ -251,14 +251,13 @@ class SearchByIdOperation {
                         }
                     });
                 }
-                await this.fhirLoggingManager.logOperationSuccessAsync(
-                    {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
@@ -267,15 +266,14 @@ class SearchByIdOperation {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const { logDebug, logInfo } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
@@ -16,6 +17,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
     /**
@@ -282,15 +284,17 @@ class CreateOperation {
             }
 
             // log operation
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(doc, getCircularReplacer())
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
 
             this.postRequestProcessor.add({
                 requestId,

@@ -414,9 +414,9 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-                                      systemGeneratedRequestId,
-                                      userRequestId
-                                  } = {}) => {
+    systemGeneratedRequestId,
+    userRequestId
+} = {}) => {
     // eslint-disable-next-line no-undef
     jest.spyOn(httpContext, 'get');
     const values = {

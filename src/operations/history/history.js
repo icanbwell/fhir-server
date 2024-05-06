@@ -189,15 +189,14 @@ class HistoryOperation {
             );
             cursor = await databaseHistoryManager.findAsync({ query, options });
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw new NotFoundError(e.message);
         }
         /**
@@ -233,15 +232,13 @@ class HistoryOperation {
         if (resources.length === 0) {
             throw new NotFoundError('Resource not found');
         }
-        await this.fhirLoggingManager.logOperationSuccessAsync(
-            {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            }
-        );
+        await this.fhirLoggingManager.logOperationSuccessAsync({
+            requestInfo,
+            args: parsedArgs.getRawArgs(),
+            resourceType,
+            startTime,
+            action: currentOperationName
+        });
         /**
          * @type {number}
          */
