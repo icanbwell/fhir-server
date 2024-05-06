@@ -19,8 +19,6 @@ class MockAccessLogger extends AccessLogger {
         statusCode,
         startTime,
         stopTime = Date.now(),
-        action,
-        error,
         query,
         result
     }) {

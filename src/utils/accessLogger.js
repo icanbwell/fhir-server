@@ -92,6 +92,9 @@ class AccessLogger {
          * @type {string}
          */
         const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2];
+        if (!resourceType) {
+            return;
+        }
         /**
          * @type {boolean}
          */

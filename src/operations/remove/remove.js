@@ -11,7 +11,7 @@ const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterMana
 const { ParsedArgs } = require('../query/parsedArgs');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { SearchManager } = require('../search/searchManager');
-const { OPERATIONS: { DELETE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { OPERATIONS: { DELETE } } = require('../../constants');
 const { logInfo } = require('../common/logging');
 
 class RemoveOperation {
