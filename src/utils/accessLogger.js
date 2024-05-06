@@ -73,7 +73,6 @@ class AccessLogger {
      * @param {number} statusCode
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
-     * @param {Error|undefined} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
@@ -82,7 +81,8 @@ class AccessLogger {
         statusCode,
         startTime,
         stopTime = Date.now(),
-        query
+        query,
+        result
     }) {
         /**
          * @type {FhirRequestInfo}
@@ -125,6 +125,12 @@ class AccessLogger {
             type: 'version',
             valueString: String(this.imageVersion)
         });
+        if (result) {
+            detail.push({
+                type: 'result',
+                valueString: result
+            });
+        }
         if (os.hostname()) {
             const hostname = os.hostname();
             detail.push({

@@ -17,6 +17,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
     /**
@@ -289,6 +290,9 @@ class CreateOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 result: JSON.stringify(doc, getCircularReplacer())
             });
 

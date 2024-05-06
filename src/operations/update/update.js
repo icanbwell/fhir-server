@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -444,6 +445,9 @@ class UpdateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(result, getCircularReplacer())
                 });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
@@ -481,6 +485,9 @@ class UpdateOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     result: JSON.stringify(result, getCircularReplacer())
                 });
 
