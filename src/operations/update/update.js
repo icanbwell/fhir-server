@@ -279,7 +279,11 @@ class UpdateOperation {
                         id: resource_incoming_json.id,
                         uuid: resource_incoming_json._uuid,
                         sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
-                        resourceType: resource_incoming_json.resourceType
+                        resourceType: resource_incoming_json.resourceType,
+                        created: false,
+                        updated: false,
+                        operationOutcome: validationOperationOutcome,
+                        issue: validationOperationOutcome.issue[0]
                     });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
@@ -335,7 +339,11 @@ class UpdateOperation {
                         id: doc.id,
                         uuid: doc.id,
                         sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                        resourceType: doc.resourceType
+                        resourceType: doc.resourceType,
+                        created: false,
+                        updated: false,
+                        operationOutcome: validationOperationOutcome,
+                        issue: validationOperationOutcome.issue[0]
                     });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
@@ -386,26 +394,17 @@ class UpdateOperation {
                 if (mergeResults[0].created) {
                     logInfo('Resource Created', {
                         operation: currentOperationName,
-                        id: doc.id,
-                        uuid: doc._uuid,
-                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                        resourceType: doc.resourceType
+                        ...mergeResults[0]
                     });
                 } else if (mergeResults[0].updated) {
                     logInfo('Resource Updated', {
                         operation: currentOperationName,
-                        id: doc.id,
-                        uuid: doc._uuid,
-                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                        resourceType: doc.resourceType
+                        ...mergeResults[0]
                     });
                 } else {
                     logInfo('Resource neither created or updated', {
                         operation: currentOperationName,
-                        id: doc.id,
-                        uuid: doc._uuid,
-                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                        resourceType: doc.resourceType
+                        ...mergeResults[0]
                     });
                 }
 
@@ -464,7 +463,9 @@ class UpdateOperation {
                     id: foundResource.id,
                     uuid: foundResource._uuid,
                     sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
-                    resourceType: foundResource.resourceType
+                    resourceType: foundResource.resourceType,
+                    created: false,
+                    updated: false
                 });
                 const result = {
                     id,

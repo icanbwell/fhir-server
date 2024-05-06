@@ -134,10 +134,7 @@ class MergeOperation {
                 mergeResults.push(mergeResultItem);
                 logInfo('Resource neither created or updated', {
                     operation: 'merge',
-                    id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType
+                    ...mergeResultItem
                 });
             }
         }
@@ -210,10 +207,7 @@ class MergeOperation {
             mergePreCheckErrors.forEach(mergeResultEntry => {
                 logInfo('Resource Validation Failed', {
                     operation: currentOperationName,
-                    id: mergeResultEntry.id,
-                    uuid: mergeResultEntry._uuid,
-                    sourceAssigningAuthority: mergeResultEntry._sourceAssigningAuthority,
-                    resourceType: mergeResultEntry.resourceType
+                    ...mergeResultEntry
                 });
             });
 
@@ -247,26 +241,17 @@ class MergeOperation {
                 if (mergeResult.created) {
                     logInfo('Resource Created', {
                         operation: currentOperationName,
-                        id: mergeResult.id,
-                        uuid: mergeResult._uuid,
-                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
-                        resourceType: mergeResult.resourceType
+                        ...mergeResult
                     });
                 } else if (mergeResult.updated) {
                     logInfo('Resource Updated', {
                         operation: currentOperationName,
-                        id: mergeResult.id,
-                        uuid: mergeResult._uuid,
-                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
-                        resourceType: mergeResult.resourceType
+                        ...mergeResult
                     });
                 } else {
                     logInfo('Resource neither created or updated', {
                         operation: currentOperationName,
-                        id: mergeResult.id,
-                        uuid: mergeResult._uuid,
-                        sourceAssigningAuthority: mergeResult._sourceAssigningAuthority,
-                        resourceType: mergeResult.resourceType
+                        ...mergeResult
                     });
                 }
             });

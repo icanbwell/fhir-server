@@ -166,9 +166,6 @@ class CreateOperation {
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs._validate) {
-            /**
-             * @type {OperationOutcome|null}
-             */
             let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
                 resource_incoming
             );
@@ -190,7 +187,11 @@ class CreateOperation {
                     id: resource.id,
                     uuid: resource.id,
                     sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType
+                    resourceType: resource.resourceType,
+                    created: false,
+                    updated: false,
+                    OperationOutcome: validationOperationOutcome,
+                    issue: validationOperationOutcome.issue[0]
                 });
                 // noinspection JSValidateTypes
                 /**
@@ -263,10 +264,7 @@ class CreateOperation {
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
                 logInfo('Resource neither created or updated', {
                     operation: currentOperationName,
-                    id: resource.id,
-                    uuid: resource.id,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType
+                    ...mergeResults[0]
                 });
                 throw new BadRequestError(
                     new Error(mergeResults.length > 0
@@ -279,10 +277,7 @@ class CreateOperation {
             if (mergeResults[0].created) {
                 logInfo('Resource Created', {
                     operation: currentOperationName,
-                    id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType
+                    ...mergeResults[0]
                 });
             }
 

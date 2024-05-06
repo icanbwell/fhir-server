@@ -187,7 +187,9 @@ class RemoveOperation {
                             id: resource.id,
                             uuid: resource._uuid,
                             sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                            resourceType: resource.resourceType
+                            resourceType: resource.resourceType,
+                            created: false,
+                            deleted: true
                         };
                     } catch (e) {}
                 }
