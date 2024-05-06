@@ -423,6 +423,7 @@ class FhirDataSource {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
+        context.req.resourceType = resourceType;
         const args1 = {
             base_version: '4_0_0',
             _bundle: '1',

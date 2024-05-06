@@ -91,7 +91,7 @@ class AccessLogger {
         /**
          * @type {string}
          */
-        const resourceType = req.url.split('/')[2];
+        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2];
         /**
          * @type {boolean}
          */
@@ -103,15 +103,18 @@ class AccessLogger {
         const operation = req.method === 'GET'
             ? READ
             : (req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE);
+        if (!combined_args.base_version) {
+            combined_args.base_version = '4_0_0';
+        }
         /**
          * @type {ParsedArgs}
          */
         const args = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation
+            args: combined_args, resourceType, operation
         });
 
         // Fetching detail
-        const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
+        const detail = Object.entries(args.getRawArgs()).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
                 return {
                     type: k,
                     valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
