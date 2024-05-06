@@ -1,4 +1,5 @@
 const env = require('var');
+const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { isTrue } = require('../../utils/isTrue');
 const { fhirContentTypes } = require('../../utils/contentTypes');
@@ -14,6 +15,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { READ } = require('../../constants').OPERATIONS;
 
 class SearchStreamingOperation {
@@ -175,16 +177,15 @@ class SearchStreamingOperation {
                     operation: READ
                 }));
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    message: `Error in constructing query: ${e.message}`
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                message: `Error in constructing query: ${e.message}`
+            });
             throw e;
         }
         /**
@@ -432,23 +433,33 @@ class SearchStreamingOperation {
                     }
                 }
             }
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify({
-                            query: new QueryItem({
-                                query,
-                                resourceType,
-                                collectionName
-                            }),
-                            options
-                        }
-                    )
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
         } catch (e) {
             /**
              * @type {string}
@@ -456,25 +467,35 @@ class SearchStreamingOperation {
             collectionName = collectionName || (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                 query
             }));
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    query: mongoQueryAndOptionsStringify({
-                            query: new QueryItem({
-                                query,
-                                resourceType,
-                                collectionName
-                            }),
-                            options
-                        }
-                    ),
-                    message: `Error in streaming resources: ${e.message}`
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                ),
+                message: `Error in streaming resources: ${e.message}`
+            });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         }
     }

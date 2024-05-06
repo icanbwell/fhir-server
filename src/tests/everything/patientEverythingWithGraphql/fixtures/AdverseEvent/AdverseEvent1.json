@@ -1,0 +1,12 @@
+{
+  "id": "1",
+  "resourceType": "AdverseEvent",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "subject": {
+    "reference": "Patient/1"
+  },
+  "actuality": "actual"
+}

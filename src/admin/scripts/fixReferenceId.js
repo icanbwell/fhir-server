@@ -93,7 +93,8 @@ async function main () {
                 useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
                 filterToRecordsWithFields,
-                startFromId: parameters.startFromId
+                startFromId: parameters.startFromId,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );

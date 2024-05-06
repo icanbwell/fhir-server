@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
@@ -18,6 +19,8 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
+const { logInfo } = require('../common/logging');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class MergeOperation {
     /**
@@ -131,6 +134,10 @@ class MergeOperation {
                     }
                 );
                 mergeResults.push(mergeResultItem);
+                logInfo('Resource neither created or updated', {
+                    operation: 'merge',
+                    ...mergeResultItem
+                });
             }
         }
         return mergeResults;
@@ -199,6 +206,13 @@ class MergeOperation {
                 requestInfo
             });
 
+            mergePreCheckErrors.forEach(mergeResultEntry => {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    ...mergeResultEntry
+                });
+            });
+
             let validResources = resourcesIncomingArray;
 
             // merge the resources
@@ -223,6 +237,25 @@ class MergeOperation {
                 requestInfo,
                 currentDate,
                 base_version
+            });
+
+            mergeResults.forEach(mergeResult => {
+                if (mergeResult.created) {
+                    logInfo('Resource Created', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                } else if (mergeResult.updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                } else {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                }
             });
 
             // add in any pre-merge failures
@@ -252,6 +285,9 @@ class MergeOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
+                result: JSON.stringify(mergeResults, getCircularReplacer())
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 result: JSON.stringify(mergeResults, getCircularReplacer())
             });
 
@@ -341,15 +377,14 @@ class MergeOperation {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

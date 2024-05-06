@@ -92,6 +92,31 @@ class ReferenceParser {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
         return ReferenceParser.createReference({ resourceType, id });
     }
+
+    /**
+     * parses a canonical reference and returns the resource name and id
+     * @param {string} url
+     * @return {{id: string, resourceType: string}|null}
+     */
+    static parseCanonicalReference ({ url }) {
+        if (UrlParser.isUrl(url)) {
+            const regex = /\/([^/]+)\/([^/]+)$/;
+            const match = url.match(regex);
+
+            if (match && match.length > 2) {
+                const resourceType = match[1];
+                const id = match[2];
+                return { resourceType, id };
+            } else {
+                // If the URL doesn't match the expected format
+                return null;
+            }
+        } else {
+            // If the URL is not a URL then it is a relative reference
+            const { resourceType, id } = ReferenceParser.parseReference(url);
+            return { resourceType, id };
+        }
+    }
 }
 
 module.exports = {

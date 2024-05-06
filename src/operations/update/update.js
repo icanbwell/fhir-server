@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -20,7 +21,8 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { logInfo } = require('../common/logging');
 
 /**
  * Update Operation
@@ -273,6 +275,17 @@ class UpdateOperation {
                     currentResource: data
                 });
                 if (validationOperationOutcome) {
+                    logInfo('Resource Validation Failed', {
+                        operation: currentOperationName,
+                        id: resource_incoming_json.id,
+                        uuid: resource_incoming_json._uuid,
+                        sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
+                        resourceType: resource_incoming_json.resourceType,
+                        created: false,
+                        updated: false,
+                        operationOutcome: validationOperationOutcome,
+                        issue: validationOperationOutcome.issue[0]
+                    });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
             }
@@ -322,6 +335,17 @@ class UpdateOperation {
                     doc
                 );
                 if (validationOperationOutcome) {
+                    logInfo('Resource Validation Failed', {
+                        operation: currentOperationName,
+                        id: doc.id,
+                        uuid: doc.id,
+                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        resourceType: doc.resourceType,
+                        created: false,
+                        updated: false,
+                        operationOutcome: validationOperationOutcome,
+                        issue: validationOperationOutcome.issue[0]
+                    });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
                 // Update attachments after all validations
@@ -368,6 +392,23 @@ class UpdateOperation {
                     );
                 }
 
+                if (mergeResults[0].created) {
+                    logInfo('Resource Created', {
+                        operation: currentOperationName,
+                        ...mergeResults[0]
+                    });
+                } else if (mergeResults[0].updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        ...mergeResults[0]
+                    });
+                } else {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        ...mergeResults[0]
+                    });
+                }
+
                 if (resourceType !== 'AuditEvent') {
                     this.postRequestProcessor.add({
                         requestId,
@@ -396,15 +437,17 @@ class UpdateOperation {
                     resource_version: doc.meta.versionId,
                     resource: doc
                 };
-                await this.fhirLoggingManager.logOperationSuccessAsync(
-                    {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName,
-                        result: JSON.stringify(result, getCircularReplacer())
-                    });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
@@ -418,6 +461,15 @@ class UpdateOperation {
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
 
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    id: foundResource.id,
+                    uuid: foundResource._uuid,
+                    sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                    resourceType: foundResource.resourceType,
+                    created: false,
+                    updated: false
+                });
                 const result = {
                     id,
                     created: false,
@@ -435,19 +487,21 @@ class UpdateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(result, getCircularReplacer())
                 });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
 
                 return result;
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

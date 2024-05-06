@@ -800,5 +800,88 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             });
         });
+        test('mongoQuerySimplifier handles duplicate $and', () => {
+            const query = {
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                    code: 'hidden'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $or: [
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: 'person.79e59046-ffc7-4c41-9819-c8ef83275454'
+                                    }
+                                }
+                            },
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: '8ba1017f-0aad-1b91-ff9e-416a96e11f0b'
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                    code: 'hidden'
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
+            expect(result).toStrictEqual({
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $or: [
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: 'person.79e59046-ffc7-4c41-9819-c8ef83275454'
+                                    }
+                                }
+                            },
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: '8ba1017f-0aad-1b91-ff9e-416a96e11f0b'
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
     });
 });

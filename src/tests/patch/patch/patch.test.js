@@ -114,7 +114,11 @@ describe('Person Tests', () => {
                 .send(patch2)
                 .set(getHeadersJsonPatch());
 
-            expect(resp.body).toStrictEqual({
+            const body = resp.body;
+            if (body.issue.length > 0) {
+                delete body.issue[0].diagnostics;
+            }
+            expect(body).toStrictEqual({
                 issue: [
                     {
                         code: 'invalid',
@@ -194,7 +198,11 @@ describe('Person Tests', () => {
                 .set(allAccessPatchHeaders)
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
 
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/sameid|client')

@@ -79,6 +79,14 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
+
+        /**
+         * defines the field in each resource that links to patient
+         * @type {Object}
+         */
+        this.patientFilterWithQueryMapping = {
+            Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
+        };
         /**
          * defines resources that don't have patient data
          * @type {string[]}
@@ -113,20 +121,22 @@ class PatientFilterManager {
     }
 
     /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getFilterQueryForResource ({ resourceType }) {
+        return this.patientFilterWithQueryMapping[`${resourceType}`];
+    }
+
+    /**
      * Returns whether access is allowed to the specified resource with patient scope
      * @param {string} resourceType
      * @returns {boolean}
      */
     canAccessResourceWithPatientScope ({ resourceType }) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
+            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
-    }
-
-    /**
-     * Returns the patient filter mapping
-     */
-    getAllResourcesLinkedWithPatient () {
-        return this.patientFilterMapping;
     }
 
     /**

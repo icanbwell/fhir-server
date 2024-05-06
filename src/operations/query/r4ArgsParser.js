@@ -1,5 +1,4 @@
 const deepcopy = require('deepcopy');
-const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const { STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS } = require('../../constants');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { convertGraphQLParameters } = require('./convertGraphQLParameters');
@@ -9,6 +8,7 @@ const { FhirTypesManager } = require('../../fhir/fhirTypesManager');
 const { QueryParameterValue } = require('./queryParameterValue');
 const { ParsedArgs } = require('./parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -18,8 +18,9 @@ class R4ArgsParser {
      *  constructor
      * @param {FhirTypesManager} fhirTypesManager
      * @param {ConfigManager} configManager
+     * @param {SearchParametersManager} searchParametersManager
      */
-    constructor ({ fhirTypesManager, configManager }) {
+    constructor ({ fhirTypesManager, configManager, searchParametersManager }) {
         /**
          * @type {FhirTypesManager}
          */
@@ -31,6 +32,12 @@ class R4ArgsParser {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
     }
 
     /**
@@ -107,13 +114,12 @@ class R4ArgsParser {
             /**
              * @type {SearchParameterDefinition}
              */
-            let propertyObj;
-            if (searchParameterQueries[`${resourceType}`]) {
-                propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
-            }
-            if (!propertyObj) {
-                propertyObj = searchParameterQueries.Resource[`${queryParameter}`];
-            }
+            const propertyObj = this.searchParametersManager.getPropertyObject(
+                {
+                    resourceType,
+                    queryParameter
+                }
+            );
             /**
              * @type {string | string[]}
              */

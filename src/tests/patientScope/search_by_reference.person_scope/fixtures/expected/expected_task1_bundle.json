@@ -35,8 +35,11 @@
             "value": "553fd2a4-e82d-54ed-b52a-9b74d05d4f82"
           }
         ],
+        "intent": "plan",
         "meta": {
-          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ],
           "security": [
             {
               "code": "mps-api",
@@ -55,7 +58,6 @@
           "versionId": "1"
         },
         "resourceType": "Task",
-        "intent": "plan",
         "status": "draft"
       }
     }
@@ -63,7 +65,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'_sourceId':'Task1'},{'$or':[{'for._uuid':{'$in':['Patient/34a735dd-6532-56b7-bcca-7b01327a179e','Patient/1fef74f0-775c-56c7-a550-07766a37ac44']}},{'for._sourceId':{'$in':['Patient/person.bwellPerson1']}}]}]}, {}).sort({'_uuid':1}).limit(1000)",
+        "display": "db.Task_4_0_0.find({'$and':[{'_sourceId':'Task1'},{'$or':[{'for._uuid':{'$in':['Patient/34a735dd-6532-56b7-bcca-7b01327a179e','Patient/1fef74f0-775c-56c7-a550-07766a37ac44']}},{'for._sourceId':'Patient/person.bwellPerson1'}]}]}, {}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {

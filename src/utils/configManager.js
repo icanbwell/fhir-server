@@ -399,6 +399,16 @@ class ConfigManager {
     }
 
     /**
+     * whether to write access logs from middleware
+     */
+    get enableAccessLogsMiddleware () {
+        if (env.ENABLE_ACCESS_LOGS_MIDDLEWARE === null || env.ENABLE_ACCESS_LOGS_MIDDLEWARE === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_ACCESS_LOGS_MIDDLEWARE);
+    }
+
+    /**
      * whether to rewrite patient references to proxy-patient reference
      */
     get rewritePatientReference () {

@@ -115,7 +115,8 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -229,7 +230,8 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -330,7 +332,8 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );

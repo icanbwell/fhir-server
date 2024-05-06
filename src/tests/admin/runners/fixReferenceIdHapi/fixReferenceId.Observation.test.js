@@ -95,7 +95,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -175,7 +176,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -241,7 +243,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -307,7 +310,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 

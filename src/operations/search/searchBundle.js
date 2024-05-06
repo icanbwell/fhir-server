@@ -1,4 +1,5 @@
 const env = require('var');
+const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
@@ -15,7 +16,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class SearchBundleOperation {
     /**
@@ -185,15 +186,14 @@ class SearchBundleOperation {
                     operation: READ
                 }));
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
         /**
@@ -363,23 +363,28 @@ class SearchBundleOperation {
                     parsedArgs
                 }
             );
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
+            const logQuery = mongoQueryAndOptionsStringify({
+                query: new QueryItem({
+                    query,
                     resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify(
-                        {
-                            query: new QueryItem({
-                                query,
-                                collectionName,
-                                resourceType
-                            }),
-                            options
-                        })
-                });
+                    collectionName
+                }),
+                options
+            });
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
+            }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                query: logQuery
+            });
             return bundle;
         } catch (e) {
             /**
@@ -388,25 +393,36 @@ class SearchBundleOperation {
             const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                 query
             });
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
+            const logQuery = mongoQueryAndOptionsStringify({
+                query: new QueryItem({
+                    query,
                     resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem(
-                            {
-                                query,
-                                resourceType,
-                                collectionName
-                            }
-                        ),
-                        options
-                    })
-                });
+                    collectionName
+                }),
+                options
+            });
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
+            }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                query: mongoQueryAndOptionsStringify({
+                    query: new QueryItem({
+                        query,
+                        resourceType,
+                        collectionName
+                    }),
+                    options
+                })
+            });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         }
     }

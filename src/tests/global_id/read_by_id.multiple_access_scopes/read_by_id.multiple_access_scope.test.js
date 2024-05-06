@@ -74,7 +74,11 @@ describe('Observation Tests', () => {
                 .get('/4_0_0/Observation/1/?_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByAccessResources);
+            expect(resp).toHaveResponse(expectedObservationByAccessResources, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
         });
         test('using id + security filter', async () => {
             const request = await createTestRequest((c) => {

@@ -2,18 +2,18 @@
  * This class manages inserts and updates to the database
  */
 const { assertTypeEquals } = require('../utils/assertType');
+const { ConfigManager } = require('../utils/configManager');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { ReadPreference } = require('mongodb');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
-const { RethrownError } = require('../utils/rethrownError');
-const { ResourceMerger } = require('../operations/common/resourceMerger');
-const { PreSaveManager } = require('../preSaveHandlers/preSave');
-const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
-const { DatabaseQueryFactory } = require('./databaseQueryFactory');
-const { ConfigManager } = require('../utils/configManager');
-const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { ReadPreference } = require('mongodb');
-const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 class DatabaseUpdateManager {
@@ -347,6 +347,25 @@ class DatabaseUpdateManager {
                 }
             )
         }).toJSONInternal());
+    }
+
+    /**
+     * Insert a resource into the Access logs database
+     * @param {Resource} doc
+     * @return {Promise<Resource>}
+     */
+    async insertOneAccessLogAsync ({ doc }) {
+        try {
+            const collection =
+                await this.resourceLocator.getOrCreateAccessLogCollectionAsync();
+            await collection.insertOne(doc);
+            return doc;
+        } catch (e) {
+            throw new RethrownError({
+                error: e,
+                message: 'Error while inserting access log'
+            });
+        }
     }
 }
 

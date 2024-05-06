@@ -5,7 +5,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'_uuid':1}).limit(1000)"
+                "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'proa'}}},{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]}]}, {}).sort({'_uuid':1}).limit(1000)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",

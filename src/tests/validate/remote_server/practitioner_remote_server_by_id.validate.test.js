@@ -497,6 +497,9 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResponse(expected404FromProfile,
                 resource => {
                     delete resource.details; // has lastUpdated
+                    if (resource.issue && resource.issue.length > 0) {
+                        delete resource.issue[0].diagnostics;
+                    }
                     return resource;
                 });
             expect(getProfileScope.isDone()).toBeTruthy();
@@ -587,6 +590,9 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResponse(expected404FromProfileInsideResource,
                 resource => {
                     delete resource.details; // has lastUpdated
+                    if (resource.issue && resource.issue.length > 0) {
+                        delete resource.issue[0].diagnostics;
+                    }
                     return resource;
                 });
         });
@@ -682,6 +688,9 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResponse(expected404FromProfilesInsideResource,
                 resource => {
                     delete resource.details; // has lastUpdated
+                    if (resource.issue && resource.issue.length > 0) {
+                        delete resource.issue[0].diagnostics;
+                    }
                     return resource;
                 });
         });

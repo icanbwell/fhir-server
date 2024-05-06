@@ -11,7 +11,8 @@ const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterMana
 const { ParsedArgs } = require('../query/parsedArgs');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { SearchManager } = require('../search/searchManager');
-const { OPERATIONS: { WRITE } } = require('../../constants');
+const { OPERATIONS: { DELETE } } = require('../../constants');
+const { logInfo } = require('../common/logging');
 
 class RemoveOperation {
     /**
@@ -154,7 +155,7 @@ class RemoveOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: WRITE,
+                    operation: DELETE,
                     accessRequested: 'write'
                 }
             );
@@ -171,7 +172,7 @@ class RemoveOperation {
 
             try {
                 res = await databaseQueryManager.findAsync({ query });
-                const uuidsToDelete = [];
+                const resourcesToDelete = {};
 
                 while (await res.hasNext()) {
                     const resource = await res.next();
@@ -182,7 +183,14 @@ class RemoveOperation {
                             requestInfo, resource, base_version
                         });
 
-                        uuidsToDelete.push(resource._uuid);
+                        resourcesToDelete[resource._uuid] = {
+                            id: resource.id,
+                            uuid: resource._uuid,
+                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            resourceType: resource.resourceType,
+                            created: false,
+                            deleted: true
+                        };
                     } catch (e) {}
                 }
                 /**
@@ -190,7 +198,14 @@ class RemoveOperation {
                  */
                 res = await databaseQueryManager.deleteManyAsync({
                     requestId,
-                    query: { _uuid: { $in: uuidsToDelete } }
+                    query: { _uuid: { $in: Object.keys(resourcesToDelete) } }
+                });
+
+                Object.values(resourcesToDelete).forEach(data => {
+                    logInfo('Resource Deleted', {
+                        action: currentOperationName,
+                        ...data
+                    });
                 });
 
                 if (resourceType !== 'AuditEvent') {
@@ -205,7 +220,7 @@ class RemoveOperation {
                                     resourceType,
                                     operation: 'delete',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: []
+                                    ids: Object.keys(resourcesToDelete)
                                 }
                             );
                         }
@@ -215,25 +230,23 @@ class RemoveOperation {
                 throw new NotAllowedError(e.message);
             }
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return { deleted: res.deletedCount };
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

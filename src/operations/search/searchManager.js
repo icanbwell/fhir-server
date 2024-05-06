@@ -34,6 +34,7 @@ const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
+const { PatientQueryCreator } = require('../common/patientQueryCreator');
 
 class SearchManager {
     /**
@@ -53,6 +54,7 @@ class SearchManager {
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
+     * @param {PatientQueryCreator} patientQueryCreator
      */
     constructor (
         {
@@ -70,7 +72,8 @@ class SearchManager {
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
-            patientScopeManager
+            patientScopeManager,
+            patientQueryCreator
         }
     ) {
         /**
@@ -156,6 +159,12 @@ class SearchManager {
          */
         this.patientScopeManager = patientScopeManager;
         assertTypeEquals(patientScopeManager, PatientScopeManager);
+
+        /**
+         * @type {PatientQueryCreator}
+         */
+        this.patientQueryCreator = patientQueryCreator;
+        assertTypeEquals(patientQueryCreator, PatientQueryCreator);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -221,7 +230,8 @@ class SearchManager {
                 base_version,
                 parsedArgs,
                 resourceType,
-                useHistoryTable
+                useHistoryTable,
+                operation
             }));
 
             if (accessViaPatientScopes) {
@@ -237,7 +247,7 @@ class SearchManager {
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
                     query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
-                    query = this.securityTagManager.getQueryWithPatientFilter({
+                    query = this.patientQueryCreator.getQueryWithPatientFilter({
                         patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
                     });
                 }
@@ -278,6 +288,9 @@ class SearchManager {
                 resourceType,
                 operation
             }));
+            if (query) {
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
             return { base_version, query, columns };
         } catch (e) {
             throw new RethrownError({

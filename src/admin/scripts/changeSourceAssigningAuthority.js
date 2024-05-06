@@ -81,7 +81,8 @@ async function main () {
             skip: parameters.skip,
             startFromId: parameters.startFromId,
             oldSourceAssigningAuthority,
-            newSourceAssigningAuthority
+            newSourceAssigningAuthority,
+            searchParametersManager: c.searchParametersManager
         }
     )
     );

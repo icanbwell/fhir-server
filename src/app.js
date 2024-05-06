@@ -28,7 +28,7 @@ const cookieParser = require('cookie-parser');
 const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
 const { handleAdminGet, handleAdminPost, handleAdminDelete } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
+const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
 const { generateUUID } = require('./utils/uid.util');
 const { logInfo, logDebug } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
@@ -364,6 +364,22 @@ function createApp ({ fnGetContainer }) {
         // If the resource is not found, send a 404 response
         res.status(404).send('Not Found');
     });
+
+    // middleware to create access logs
+    if (configManager.enableAccessLogsMiddleware) {
+        app.use((req, res, next) => {
+            const startTime = Date.now();
+            res.on('finish', () => {
+                container.accessLogger.logAccessLogAsync({
+                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                    req,
+                    statusCode: res.statusCode,
+                    startTime
+                });
+            });
+            next();
+        });
+    }
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html

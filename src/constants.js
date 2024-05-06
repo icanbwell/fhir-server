@@ -197,6 +197,7 @@ module.exports = {
     },
     RESPONSE_NONCE: 'responseNonce',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
+    ACCESS_LOGS_ENTRY_DATA: 'access-logs-entry-data',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',
@@ -210,6 +211,7 @@ module.exports = {
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
     OPERATIONS: {
         READ: 'READ',
-        WRITE: 'WRITE'
+        WRITE: 'WRITE',
+        DELETE: 'DELETE'
     }
 };

@@ -1,79 +1,76 @@
 {
-    "data": {
-        "patient": {
-            "entry": [
-                {
-                    "resource": {
-                        "id": "WPS-5458231534",
-                        "name": [
-                            {
-                                "family": "PATIENT2",
-                                "given": [
-                                    "SHYLA"
-                                ]
-                            }
-                        ],
-                        "birthDate": "2017-01-01T00:00:00.000Z",
-                        "explanationOfBenefit": [
-                            {
-                                "id": "WPS-Claim-429017018331",
-                                "identifier": [
-                                    {
-                                        "system": "https://www.wpshealth.com/",
-                                        "value": "429017018331"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/sourceId",
-                                        "value": "WPS-Claim-429017018331"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/uuid",
-                                        "value": "6df8ebde-886b-5033-b053-57274a1bfb3b"
-                                    }
-                                ]
-                            }
-                        ],
-                        "allergyIntolerance": [],
-                        "careTeam": []
-                    }
-                }
-            ],
-            "meta": {
-                "tag": [
-                    {
-                        "system": "https://www.icanbwell.com/query",
-                        "display": "[db.Patient_4_0_0.find({'$and':[{'$nor':[{'_sourceId':'WPS-0559166162'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryCollection",
-                        "code": ""
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryFields",
-                        "display": "[['_sourceId','meta.tag.system','meta.tag.code','_uuid']]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryTime",
-                        "display": "[0.041]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryOptimization",
-                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryExplain",
-                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Patient_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"_sourceId\":{\"$not\":{\"$eq\":\"WPS-0559166162\"}}},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"_sourceId\":{\"$not\":{\"$eq\":\"WPS-0559166162\"}}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[{\"stage\":\"SORT\",\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_sourceId\":1,\"_uuid\":1},\"indexName\":\"sourceId\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_sourceId\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_sourceId\":[\"[MinKey, \\\"WPS-0559166162\\\")\",\"(\\\"WPS-0559166162\\\", MaxKey]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},{\"stage\":\"SORT\",\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"_uuid\":1},\"indexName\":\"sourceId._sourceAssigningAuthority\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_sourceId\":[],\"_sourceAssigningAuthority\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_sourceId\":[\"[MinKey, \\\"WPS-0559166162\\\")\",\"(\\\"WPS-0559166162\\\", MaxKey]\"],\"_sourceAssigningAuthority\":[\"[MinKey, MaxKey]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]}}}}]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":1,\"totalKeysExamined\":2,\"totalDocsExamined\":2,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"_sourceId\":{\"$not\":{\"$eq\":\"WPS-0559166162\"}}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":2,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":2,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":2,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[{\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":2,\"totalDocsExamined\":2,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"_sourceId\":{\"$not\":{\"$eq\":\"WPS-0559166162\"}}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":2,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":2,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":2,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},{\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":2,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":3,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":0,\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":981,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_sourceId\":1,\"_uuid\":1},\"indexName\":\"sourceId\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_sourceId\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_sourceId\":[\"[MinKey, \\\"WPS-0559166162\\\")\",\"(\\\"WPS-0559166162\\\", MaxKey]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":2,\"seeks\":2,\"dupsTested\":0,\"dupsDropped\":0}}}},{\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":2,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":3,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":0,\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":981,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":1,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"_uuid\":1},\"indexName\":\"sourceId._sourceAssigningAuthority\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_sourceId\":[],\"_sourceAssigningAuthority\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_sourceId\":[\"[MinKey, \\\"WPS-0559166162\\\")\",\"(\\\"WPS-0559166162\\\", MaxKey]\"],\"_sourceAssigningAuthority\":[\"[MinKey, MaxKey]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":2,\"seeks\":2,\"dupsTested\":0,\"dupsDropped\":0}}}}]},\"command\":{\"find\":\"Patient_4_0_0\",\"filter\":{\"$nor\":[{\"_sourceId\":\"WPS-0559166162\"}]},\"sort\":{\"id\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Darryls-MacBook-Pro.local\",\"port\":58168,\"version\":\"5.0.18\",\"gitVersion\":\"796abe56bfdbca6968ff570311bf72d93632825b\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7257623710872371201\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7257623710872371201\"}}]]"
-                    },
-                    {
-                        "system": "https://www.icanbwell.com/queryExplainSimple",
-                        "display": "[[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"id_1\",\"keysExamined\":2,\"nReturned\":2,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"_sourceId\":{\"$not\":{\"$eq\":\"WPS-0559166162\"}}},\"docsExamined\":2,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":1,\"totalKeysExamined\":2,\"totalDocsExamined\":2},\"query\":\"db.Patient_4_0_0.find({'$nor':[{'_sourceId':'WPS-0559166162'}]}, {}).sort({'id':1}).limit(100)\"}]]"
-                    }
+  "data": {
+    "patient": {
+      "entry": [
+        {
+          "resource": {
+            "allergyIntolerance": [],
+            "birthDate": "2017-01-01",
+            "careTeam": [],
+            "explanationOfBenefit": [
+              {
+                "id": "WPS-Claim-429017018331",
+                "identifier": [
+                  {
+                    "system": "https://www.wpshealth.com/",
+                    "value": "429017018331"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/sourceId",
+                    "value": "WPS-Claim-429017018331"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/uuid",
+                    "value": "6df8ebde-886b-5033-b053-57274a1bfb3b"
+                  }
                 ]
-            }
+              }
+            ],
+            "id": "WPS-5458231534",
+            "name": [
+              {
+                "family": "PATIENT2",
+                "given": [
+                  "SHYLA"
+                ]
+              }
+            ]
+          }
         }
+      ],
+      "meta": {
+        "tag": [
+          {
+            "display": "[db.Patient_4_0_0.find({'$and':[{'$nor':[{'_sourceId':'WPS-0559166162'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.ExplanationOfBenefit_4_0_0.find({'$and':[{'patient._sourceId':'Patient/WPS-5458231534'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.CareTeam_4_0_0.find({'$and':[{'subject._sourceId':{'$in':['Patient/WPS-5458231534','Group/WPS-5458231534']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.AllergyIntolerance_4_0_0.find({'$and':[{'patient._sourceId':{'$in':['Patient/WPS-5458231534','Group/WPS-5458231534']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]",
+            "system": "https://www.icanbwell.com/query"
+          },
+          {
+            "code": "",
+            "system": "https://www.icanbwell.com/queryCollection"
+          },
+          {
+            "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}}]",
+            "system": "https://www.icanbwell.com/queryOptions"
+          },
+          {
+            "display": "[['_sourceId','meta.tag.system','meta.tag.code','_uuid'],['patient._sourceId','meta.tag.system','meta.tag.code','_uuid'],['subject._sourceId','meta.tag.system','meta.tag.code','_uuid'],['patient._sourceId','meta.tag.system','meta.tag.code','_uuid']]",
+            "system": "https://www.icanbwell.com/queryFields"
+          },
+          {
+            "system": "https://www.icanbwell.com/queryTime"
+          },
+          {
+            "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined}]",
+            "system": "https://www.icanbwell.com/queryOptimization"
+          },
+          {
+            "system": "https://www.icanbwell.com/queryExplain"
+          },
+          {
+            "system": "https://www.icanbwell.com/queryExplainSimple"
+          }
+        ]
+      }
     }
+  }
 }

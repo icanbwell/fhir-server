@@ -1,0 +1,12 @@
+{
+  "id": "2",
+  "resourceType": "MolecularSequence",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "coordinateSystem": 1,
+  "patient": {
+    "reference": "Patient/2"
+  }
+}

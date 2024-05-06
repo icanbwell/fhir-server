@@ -3,8 +3,8 @@ const { removeDuplicatesWithLambda } = require('./list.util');
 class MongoQuerySimplifier {
     /**
      * simplifies the filter by removing duplicate segments and $or statements with just one child
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>|null} filter
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|null}
      */
     static simplifyFilter ({ filter }) {
         if (filter === null || filter === undefined) {
@@ -153,10 +153,7 @@ class MongoQuerySimplifier {
         if (Array.isArray(value) && value.length === 0) {
             return true;
         }
-        if (this.isFilter(value) && Object.keys(value).length === 0) {
-            return true;
-        }
-        return false;
+        return this.isFilter(value) && Object.keys(value).length === 0;
     }
 
     /**

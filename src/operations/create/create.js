@@ -1,4 +1,5 @@
-const { logDebug } = require('../common/logging');
+const httpContext = require('express-http-context');
+const { logDebug, logInfo } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
@@ -16,6 +17,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
     /**
@@ -166,9 +168,6 @@ class CreateOperation {
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs._validate) {
-            /**
-             * @type {OperationOutcome|null}
-             */
             let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
                 resource_incoming
             );
@@ -185,6 +184,17 @@ class CreateOperation {
                 });
             }
             if (validationOperationOutcome) {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    uuid: resource.id,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType,
+                    created: false,
+                    updated: false,
+                    OperationOutcome: validationOperationOutcome,
+                    issue: validationOperationOutcome.issue[0]
+                });
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -254,6 +264,10 @@ class CreateOperation {
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    ...mergeResults[0]
+                });
                 throw new BadRequestError(
                     new Error(mergeResults.length > 0
                         ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
@@ -262,16 +276,25 @@ class CreateOperation {
                 );
             }
 
-            // log operation
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(doc, getCircularReplacer())
+            if (mergeResults[0].created) {
+                logInfo('Resource Created', {
+                    operation: currentOperationName,
+                    ...mergeResults[0]
                 });
+            }
+
+            // log operation
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
 
             this.postRequestProcessor.add({
                 requestId,

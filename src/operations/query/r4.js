@@ -21,6 +21,7 @@ const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { FilterParameters } = require('./filters/filterParameters');
 const { UrlParser } = require('../../utils/urlParser');
 const { FilterByQuantity } = require('./filters/quantity');
+const { OPERATIONS: { DELETE } } = require('../../constants');
 
 class R4SearchQueryCreator {
     /**
@@ -57,9 +58,10 @@ class R4SearchQueryCreator {
      * @param {string} resourceType
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
+     * @param {string} operation
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable }) {
+    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable, operation }) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -107,6 +109,7 @@ class R4SearchQueryCreator {
                 });
 
                 // replace andSegments according to modifiers
+                // noinspection IfStatementWithTooManyBranchesJS
                 if (parsedArg.modifiers.includes('missing')) {
                     andSegments = new FilterByMissing(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('contains')) {
@@ -142,7 +145,7 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        if (!parsedArgs.id) {
+        if (!parsedArgs.id && operation !== DELETE && !useHistoryTable) {
             query.$and = query.$and || [];
             query.$and.push({
                 'meta.tag': {
@@ -237,6 +240,46 @@ class R4SearchQueryCreator {
         }
 
         return { andSegments };
+    }
+
+    /**
+     * if there is already an $and statement then just add to it
+     * @param {import('mongodb').Document} query
+     * @param {import('mongodb').Document} andQuery
+     * @return {import('mongodb').Document|null}
+     */
+    appendAndSimplifyQuery ({ query, andQuery }) {
+        query = this.appendAndQuery({ query, andQuery });
+        const simplifyFilter = MongoQuerySimplifier.simplifyFilter({ filter: query });
+        return simplifyFilter;
+    }
+
+    /**
+     * if there is already an $and statement then just add to it
+     * @param {import('mongodb').Document} query
+     * @param {import('mongodb').Document} andQuery
+     * @return {import('mongodb').Document}
+     */
+    appendAndQuery ({ query, andQuery }) {
+        if (query.$and) {
+            query.$and.push(
+                andQuery
+            );
+            return query;
+        } else if (Object.keys(query).length === 0) { // empty query then just replace
+            return {
+                $and: [
+                    andQuery
+                ]
+            };
+        } else {
+            return {
+                $and: [
+                    query,
+                    andQuery
+                ]
+            };
+        }
     }
 }
 

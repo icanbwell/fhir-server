@@ -1,14 +1,140 @@
-# import ExplanationOfBenefit from 'explanationOfBenefit.graphql'
-# import AllergyIntolerance from 'allergyIntolerance.graphql'
-# import CarePlan from 'carePlan.graphql'
-# import CareTeam from 'careTeam.graphql'
+# import Account from 'account.graphql'
+# import AdverseEvent from 'adverseevent.graphql'
+# import AllergyIntolerance from 'allergyintolerance.graphql'
+# import Appointment from 'appointment.graphql'
+# import AppointmentResponse from 'appointmentresponse.graphql'
+# import Basic from 'basic.graphql'
+# import BodyStructure from 'bodystructure.graphql'
+# import CarePlan from 'careplan.graphql'
+# import CareTeam from 'careteam.graphql'
+# import ChargeItem from 'chargeitem.graphql'
+# import Claim from 'claim.graphql'
+# import ClaimResponse from 'claimresponse.graphql'
+# import ClinicalImpression from 'clinicalimpression.graphql'
+# import CommunicationRequest from 'communicationrequest.graphql'
+# import Composition from 'composition.graphql'
+# import Condition from 'condition.graphql'
+# import Consent from 'consent.graphql'
+# import Contract from 'contract.graphql'
+# import Coverage from 'coverage.graphql'
+# import CoverageEligibilityRequest from 'coverageeligibilityrequest.graphql'
+# import CoverageEligibilityResponse from 'coverageeligibilityresponse.graphql'
+# import DetectedIssue from 'detectedissue.graphql'
+# import Device from 'device.graphql'
+# import DeviceRequest from 'devicerequest.graphql'
+# import DeviceUseStatement from 'deviceusestatement.graphql'
+# import DiagnosticReport from 'diagnosticreport.graphql'
+# import DocumentManifest from 'documentmanifest.graphql'
+# import DocumentReference from 'documentreference.graphql'
+# import Encounter from 'encounter.graphql'
+# import EnrollmentRequest from 'enrollmentrequest.graphql'
+# import EpisodeOfCare from 'episodeofcare.graphql'
+# import ExplanationOfBenefit from 'explanationofbenefit.graphql'
+# import FamilyMemberHistory from 'familymemberhistory.graphql'
+# import Flag from 'flag.graphql'
+# import Goal from 'goal.graphql'
+# import Group from 'group.graphql'
+# import GuidanceResponse from 'guidanceresponse.graphql'
+# import ImagingStudy from 'imagingstudy.graphql'
+# import Immunization from 'immunization.graphql'
+# import ImmunizationEvaluation from 'immunizationevaluation.graphql'
+# import ImmunizationRecommendation from 'immunizationrecommendation.graphql'
+# import Invoice from 'invoice.graphql'
+# import List from 'list.graphql'
+# import MeasureReport from 'measurereport.graphql'
+# import Media from 'media.graphql'
+# import MedicationAdministration from 'medicationadministration.graphql'
+# import MedicationDispense from 'medicationdispense.graphql'
+# import MedicationRequest from 'medicationrequest.graphql'
+# import MedicationStatement from 'medicationstatement.graphql'
+# import MolecularSequence from 'molecularsequence.graphql'
+# import NutritionOrder from 'nutritionorder.graphql'
+# import Observation from 'observation.graphql'
+# import Person from 'person.graphql'
+# import Procedure from 'procedure.graphql'
+# import Provenance from 'provenance.graphql'
+# import QuestionnaireResponse from 'questionnaireresponse.graphql'
+# import RelatedPerson from 'relatedperson.graphql'
+# import RequestGroup from 'requestgroup.graphql'
+# import ResearchSubject from 'researchsubject.graphql'
+# import RiskAssessment from 'riskassessment.graphql'
+# import Schedule from 'schedule.graphql'
+# import ServiceRequest from 'servicerequest.graphql'
+# import Specimen from 'specimen.graphql'
+# import SupplyDelivery from 'supplydelivery.graphql'
+# import SupplyRequest from 'supplyrequest.graphql'
+# import Task from 'task.graphql'
+# import VisionPrescription from 'visionprescription.graphql'
 
 extend type Patient {
-    explanationOfBenefit: [ExplanationOfBenefit]
+    account: [Account]
+    adverseEvent: [AdverseEvent]
     allergyIntolerance: [AllergyIntolerance]
+    appointment: [Appointment]
+    appointmentResponse: [AppointmentResponse]
+    basic: [Basic]
+    bodyStructure: [BodyStructure]
     carePlan: [CarePlan]
     careTeam: [CareTeam]
+    chargeItem: [ChargeItem]
+    claim: [Claim]
+    claimResponse: [ClaimResponse]
+    clinicalImpression: [ClinicalImpression]
+    communicationV2: [Communication]
+    communicationRequest: [CommunicationRequest]
+    composition: [Composition]
     condition: [Condition]
+    consent: [Consent]
+    contract: [Contract]
+    coverage: [Coverage]
+    coverageEligibilityRequest: [CoverageEligibilityRequest]
+    coverageEligibilityResponse: [CoverageEligibilityResponse]
+    detectedIssue: [DetectedIssue]
+    device: [Device]
+    deviceRequest: [DeviceRequest]
+    deviceUseStatement: [DeviceUseStatement]
+    diagnosticReport: [DiagnosticReport]
+    documentManifest: [DocumentManifest]
+    documentReference: [DocumentReference]
+    encounter: [Encounter]
+    enrollmentRequest: [EnrollmentRequest]
+    episodeOfCare: [EpisodeOfCare]
+    explanationOfBenefit: [ExplanationOfBenefit]
+    familyMemberHistory: [FamilyMemberHistory]
+    flag: [Flag]
+    goal: [Goal]
+    group: [Group]
+    guidanceResponse: [GuidanceResponse]
+    imagingStudy: [ImagingStudy]
+    immunization: [Immunization]
+    immunizationEvaluation: [ImmunizationEvaluation]
+    immunizationRecommendation: [ImmunizationRecommendation]
+    invoice: [Invoice]
+    list: [List]
+    measureReport: [MeasureReport]
+    media: [Media]
+    medicationAdministration: [MedicationAdministration]
+    medicationDispense: [MedicationDispense]
+    medicationRequest: [MedicationRequest]
+    medicationStatement: [MedicationStatement]
+    molecularSequence: [MolecularSequence]
+    nutritionOrder: [NutritionOrder]
+    observation: [Observation]
+    person: [Person]
+    procedure: [Procedure]
+    provenance: [Provenance]
+    questionnaireResponse: [QuestionnaireResponse]
+    relatedPerson: [RelatedPerson]
+    requestGroup: [RequestGroup]
+    researchSubject: [ResearchSubject]
+    riskAssessment: [RiskAssessment]
+    schedule: [Schedule]
+    serviceRequest: [ServiceRequest]
+    specimen: [Specimen]
+    supplyDelivery: [SupplyDelivery]
+    supplyRequest: [SupplyRequest]
+    task: [Task]
+    visionPrescription: [VisionPrescription]
 }
 
 """

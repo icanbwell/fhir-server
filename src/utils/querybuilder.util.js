@@ -577,8 +577,11 @@ const getDateFromNum = function (days) {
  */
 const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
-    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
     const match = date.match(regex);
+    if (!match) {
+        throw new BadRequestError(new Error(`Invalid date parameter value: ${date}`));
+    }
     let str = '';
     let toReturn = [];
     const pArr = []; // will have other possibilities such as just year, just year and month, etc
@@ -722,7 +725,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
                     pArr[4] +
                     ')';
                 const regPoss = {
-                    $regex: new RegExp(escapeRegExp(regexPattern))
+                    $regex: new RegExp(regexPattern)
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -748,11 +751,8 @@ const dateQueryBuilder = function ({ date, type, path }) {
                     toReturn = [
                         {
                             [pDT]: {
-                                $regex: new RegExp(
-                                    escapeRegExp(
-                                        '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                                ),
-$options: 'i'
+                                $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                                $options: 'i'
                             }
                         },
                         {
@@ -772,11 +772,8 @@ $options: 'i'
                     return toReturn;
                 }
                 return {
-                    $regex: new RegExp(
-                        escapeRegExp(
-                            '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                    ),
-$options: 'i'
+                    $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                    $options: 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
@@ -1112,6 +1109,88 @@ const partialTextQueryBuilder = function ({ field, partialText, ignoreCase }) {
 };
 
 /**
+ * @name extensionQueryBuilder
+ * @typedef {Object} TokenQueryBuilderProps
+ * @property {?string} target what we are searching for
+ * @property {string} type codeable concepts use a code field and identifiers use a value
+ * @property {string} field path to system and value from field
+ * @property {string|undefined} [required] the required system if specified
+ * @property {boolean|undefined} [exists_flag] whether to check for existence
+ * @property {string} resourceType whether to check for existence
+ *
+ * @param {TokenQueryBuilderProps}
+ * @return {JSON} queryBuilder
+ * Using to assign a single variable:
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
+ query[i] = queryBuilder[i];
+ }
+ * Use in an or query
+ *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
+ */
+const extensionQueryBuilder = function ({ target, type, field, required, exists_flag, resourceType }) {
+    let queryBuilder = {};
+    let url = '';
+    let value;
+
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = { $exists: false };
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = { $exists: true };
+        return queryBuilder;
+    }
+
+    if (typeof target === 'string' && target.includes('|')) {
+        [url, value] = target.split('|');
+    } else {
+        value = target;
+    }
+
+    if (required) {
+        url = required;
+    }
+
+    const queryBuilderElementMatch = {};
+    if (url) {
+        queryBuilder[`${field}.url`] = url;
+        queryBuilderElementMatch.url = url;
+    }
+
+    if (value) {
+        if (typeof value === 'string' && value.includes(',')) {
+            const values = value.split(',');
+            queryBuilder[`${field}.${type}`] = {
+                $in: values
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $in: values
+            };
+        } else {
+            queryBuilder[`${field}.${type}`] = value;
+            queryBuilderElementMatch[`${type}`] = value;
+        }
+    }
+
+    if (url && value) {
+        // check if the field is an array field
+        const fhirTypesManager = new FhirTypesManager();
+        const fieldData = fhirTypesManager.getDataForField({ resourceType, field });
+        if (fieldData?.max !== '1') {
+            // $elemMatch so we match on BOTH url and value in the same array element
+            queryBuilder = {};
+            queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
+        } else {
+            queryBuilder = {
+                $and: Object.entries(queryBuilder).map(([k, v]) => ({ [k]: v }))
+            };
+        }
+    }
+    return queryBuilder;
+};
+
+/**
  * @todo build out all prefix functionality for number and quantity and add date queries
  */
 module.exports = {
@@ -1129,5 +1208,6 @@ module.exports = {
     datetimePeriodQueryBuilder,
     partialTextQueryBuilder,
     exactMatchQueryBuilder,
-    tokenQueryContainsBuilder
+    tokenQueryContainsBuilder,
+    extensionQueryBuilder
 };
