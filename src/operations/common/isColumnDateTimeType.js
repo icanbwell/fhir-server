@@ -712,8 +712,7 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Practitioner':
-            if (columnName === 'birthDate' ||
-                columnName === 'qualification.period.start' ||
+            if (columnName === 'qualification.period.start' ||
                 columnName === 'qualification.period.end') {
                 return true;
             }

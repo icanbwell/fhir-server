@@ -78,7 +78,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedHistorySinglePatient);
 
             // now merge the modified patient.  There should be an additional history record created
-            patient1Resource.birthDate = '2015-01-01';
+            patient1Resource.birthDate = '2015-01-01T00:00:00.000Z';
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
