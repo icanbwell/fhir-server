@@ -366,18 +366,20 @@ function createApp ({ fnGetContainer }) {
     });
 
     // middleware to create access logs
-    app.use((req, res, next) => {
-        const startTime = Date.now();
-        res.on('finish', () => {
-            container.accessLogger.logAccessLogAsync({
-                ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
-                req,
-                statusCode: res.statusCode,
-                startTime
+    if (configManager.enableAccessLogsMiddleware) {
+        app.use((req, res, next) => {
+            const startTime = Date.now();
+            res.on('finish', () => {
+                container.accessLogger.logAccessLogAsync({
+                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                    req,
+                    statusCode: res.statusCode,
+                    startTime
+                });
             });
+            next();
         });
-        next();
-    });
+    }
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
