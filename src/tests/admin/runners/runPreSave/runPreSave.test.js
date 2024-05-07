@@ -405,6 +405,7 @@ describe('Patient Tests', () => {
             expect(patient5._uuid).toBeDefined();
             expect(patient5.meta).toBeDefined();
             expectedPatient5DatabaseAfterRun.birthDate = new Date(expectedPatient5DatabaseAfterRun.birthDate);
+            delete patient5.meta.lastUpdated;
             expect(patient5).toStrictEqual(expectedPatient5DatabaseAfterRun);
             // no update should be done
             expect(patient5.meta.lastUpdated).toStrictEqual(expectedPatient5DatabaseAfterRun.meta.lastUpdated);

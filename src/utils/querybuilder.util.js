@@ -783,7 +783,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
                 }
                 const moment_dt = moment.utc(str);
                 // convert to format that mongo uses to store
-                const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+                const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:sssZ');
                 return {
                     [prefix]: datetime_utc
                 };
@@ -813,6 +813,9 @@ const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
         date = moment.utc(dateSearchParameter).toDate();
     } else {
         operation = matches[1];
+        if (!moment.utc(matches[2]).isValid()) {
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${matches[2]}`));
+        }
         date = moment.utc(matches[2]).toDate();
     }
     if (!operation) {
