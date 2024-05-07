@@ -11,7 +11,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { AccessLogger } = require('../../utils/accessLogger');
 
-class MockedAccessLogger extends AccessLogger {
+class MockAccessLogger extends AccessLogger {
     /**
      * Logs a FHIR operation
      * @param {Request} req
@@ -50,7 +50,7 @@ describe('AccessLogs Tests', () => {
             const container = await getTestContainer();
 
             // Using mocked access logger to test creation of access logs in db
-            container.register('accessLogger', (c) => new MockedAccessLogger({
+            container.register('accessLogger', (c) => new MockAccessLogger({
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 scopesManager: c.scopesManager,
                 fhirOperationsManager: c.fhirOperationsManager
