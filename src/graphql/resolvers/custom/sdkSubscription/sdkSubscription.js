@@ -5,7 +5,7 @@ module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        subscription: async (parent, args, context, info) => {
+        subscription_subscription: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,

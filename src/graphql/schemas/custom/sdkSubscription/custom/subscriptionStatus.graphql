@@ -1,0 +1,5 @@
+# import SubscriptionTopic from 'SubscriptionTopic.graphql'
+
+extend type Subscription_SubscriptionStatus {
+    subscriptionTopic: Subscription_SubscriptionTopic
+}

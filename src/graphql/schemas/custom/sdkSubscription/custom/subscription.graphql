@@ -1,0 +1,5 @@
+# import SubscriptionStatus from 'SubscriptionStatus.graphql'
+
+extend type Subscription_Subscription {
+    subscriptionStatus: [Subscription_SubscriptionStatus]
+}

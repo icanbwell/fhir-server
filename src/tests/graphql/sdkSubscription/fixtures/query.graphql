@@ -1,5 +1,5 @@
 query subscriptionQuery {
-    subscription(_debug: true) {
+    subscription_subscription(_debug: true) {
         entry {
             resource {
                 id

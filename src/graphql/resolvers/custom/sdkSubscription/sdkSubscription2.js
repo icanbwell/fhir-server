@@ -1,5 +1,5 @@
 module.exports = {
-    Subscription_SubscriptionStatus: {
+    Subscription_Subscription: {
         /**
          * @param {Resource|null} parent
          * @param {Object} args
@@ -7,13 +7,16 @@ module.exports = {
          * @param {Object} info
          * @return {Promise<Resource[]>}
          */
-        subscriptionTopic: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByCanonicalReference(
+        subscriptionStatus: async (parent, args, context, info) => {
+            return await context.dataApi.getResources(
                 parent,
-                args,
+                {
+                    ...args,
+                    subscription: parent.id
+                },
                 context,
                 info,
-                parent.topic
+                'SubscriptionStatus'
             );
         }
     }
