@@ -102,6 +102,9 @@ function createApp ({ fnGetContainer }) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+    // Urls to be ignored for which access logs are to be created in db.
+    const ignoredUrls = ['/live', '/health', '/ready'];
+
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
@@ -138,8 +141,7 @@ function createApp ({ fnGetContainer }) {
                     );
                 }
             }
-            // Urls to be ignored for which access logs are to be created.
-            const ignoredUrls = ['/live', '/health', '/ready'];
+
             if (
                 configManager.enableAccessLogsMiddleware &&
                 !ignoredUrls.some(url => reqPath.startsWith(url))
