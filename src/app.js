@@ -102,6 +102,9 @@ function createApp ({ fnGetContainer }) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+    // Urls to be ignored for which access logs are to be created in db.
+    const ignoredUrls = ['/live', '/health', '/ready'];
+
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
@@ -137,6 +140,18 @@ function createApp ({ fnGetContainer }) {
                         { authenticationToken: req.headers.authorization }
                     );
                 }
+            }
+
+            if (
+                configManager.enableAccessLogsMiddleware &&
+                !ignoredUrls.some(url => reqPath.startsWith(url))
+            ) {
+                container.accessLogger.logAccessLogAsync({
+                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                    req,
+                    statusCode: res.statusCode,
+                    startTime
+                });
             }
             logInfo('Request Completed', logData);
         });
@@ -364,22 +379,6 @@ function createApp ({ fnGetContainer }) {
         // If the resource is not found, send a 404 response
         res.status(404).send('Not Found');
     });
-
-    // middleware to create access logs
-    if (configManager.enableAccessLogsMiddleware) {
-        app.use((req, res, next) => {
-            const startTime = Date.now();
-            res.on('finish', () => {
-                container.accessLogger.logAccessLogAsync({
-                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
-                    req,
-                    statusCode: res.statusCode,
-                    startTime
-                });
-            });
-            next();
-        });
-    }
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
