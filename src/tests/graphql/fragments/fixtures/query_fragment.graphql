@@ -1,0 +1,22 @@
+fragment PractitionerName on Practitioner {
+  name {
+    family
+    given
+  }
+}
+query Claims {
+  explanationOfBenefit {
+    entry {
+      resource {
+        id
+        provider {
+          __typename
+          ... on Organization {
+            orgName: name
+          }
+          ...PractitionerName
+        }
+      }
+    }
+  }
+}
