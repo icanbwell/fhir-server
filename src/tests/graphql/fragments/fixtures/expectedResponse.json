@@ -1,0 +1,34 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "id": "2",
+        "provider": {
+          "__typename": "Practitioner",
+          "name": [
+            {
+              "family": "Azamar",
+              "given": ["Daniel"]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "id": "3",
+        "provider": null
+      }
+    },
+    {
+      "resource": {
+        "id": "1",
+        "provider": {
+          "__typename": "Organization",
+          "orgName": "Testing"
+        }
+      }
+    }
+  ],
+  "meta": null
+}
