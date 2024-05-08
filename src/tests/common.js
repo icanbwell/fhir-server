@@ -1,3 +1,4 @@
+const cron = require('node-cron');
 const env = require('var');
 const { jest } = require('@jest/globals');
 
@@ -87,6 +88,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
     jest.setTimeout(30000);
+    cron.schedule = jest.fn();
     env.VALIDATE_SCHEMA = true;
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
@@ -119,7 +121,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 40 });
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
         /**
          * @type {RequestSpecificCache}

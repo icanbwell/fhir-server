@@ -1,6 +1,5 @@
-![Node.js CI](https://github.com/imranq2/node-fhir-server-mongo/workflows/Node.js%20CI/badge.svg)
-
-![publish_docker](https://github.com/imranq2/node-fhir-server-mongo/workflows/publish_docker/badge.svg)
+![Testcase status](https://github.com/imranq2/node-fhir-server-mongo/workflows/Node.js%20CI/badge.svg)
+![Build Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/icanbwell/fhir-server/build_status.md)
 
 ## Intro
 
