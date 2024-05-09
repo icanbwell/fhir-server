@@ -107,7 +107,7 @@ const logSystemErrorAsync = async ({ event, message, args, error }) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: error ? 'Error' : 'Success',
-        message: message + (error ? (` : ${error.message} - ` + JSON.stringify(error.stack, getCircularReplacer())) : ''),
+        message: message + (error ? (' : ' + JSON.stringify(error.stack, getCircularReplacer())) : ''),
         entity: [
             {
                 name: 'system',
