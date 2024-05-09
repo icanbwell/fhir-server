@@ -311,8 +311,8 @@ class PatchOperation {
                 logInfo('Resource Validation Failed', {
                     operation: currentOperationName,
                     id: foundResource.id,
-                    uuid: foundResource._uuid,
-                    sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                    _uuid: foundResource._uuid,
+                    _sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
                     resourceType: foundResource.resourceType,
                     operationOutcome: validationOperationOutcome,
                     issue: validationOperationOutcome.issue[0],
@@ -399,8 +399,8 @@ class PatchOperation {
                 logInfo('Resource neither created or updated', {
                     operation: currentOperationName,
                     id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    _uuid: resource._uuid,
+                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
                     created: false,
                     updated: false

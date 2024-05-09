@@ -206,8 +206,8 @@ class MergeManager {
                 logInfo('Resource Validation Failed', {
                     operation: 'merge',
                     id: patched_resource_incoming.id,
-                    uuid: patched_resource_incoming._uuid,
-                    sourceAssigningAuthority: patched_resource_incoming._sourceAssigningAuthority,
+                    _uuid: patched_resource_incoming._uuid,
+                    _sourceAssigningAuthority: patched_resource_incoming._sourceAssigningAuthority,
                     resourceType: patched_resource_incoming.resourceType,
                     operationOutcome: validationOperationOutcome,
                     issue: validationOperationOutcome.issue[0],
@@ -276,8 +276,8 @@ class MergeManager {
             logInfo('Resource Validation Failed', {
                 operation: 'merge',
                 id: resourceToMerge.id,
-                uuid: resourceToMerge._uuid,
-                sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                _uuid: resourceToMerge._uuid,
+                _sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                 resourceType: resourceToMerge.resourceType,
                 operationOutcome: validationOperationOutcome,
                 issue: validationOperationOutcome.issue[0],
