@@ -1,10 +1,6 @@
 const env = require('var');
 const winston = require('winston');
-const { MongoDB } = require('winston-mongodb');
-const { isTrue } = require('./isTrue');
 const Transport = require('winston-transport');
-const { accessLogsMongoConfig } = require('../config');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -39,19 +35,7 @@ class FhirLogger {
      * Constructor
      */
     constructor () {
-        this._secureLogger = null;
         this._inSecureLogger = null;
-    }
-
-    /**
-     * Gets the secure logger (creates it if it does not exist yet)
-     * @return {Promise<Logger>}
-     */
-    static async getSecureLoggerAsync () {
-        if (!fhirLoggerInstance) {
-            fhirLoggerInstance = new FhirLogger();
-        }
-        return fhirLoggerInstance.getOrCreateSecureLoggerAsync();
     }
 
     /**
@@ -69,95 +53,19 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    async getOrCreateSecureLoggerAsync () {
-        if (!this._secureLogger) {
+    async getOrCreateInSecureLoggerAsync () {
+        if (!this._inSecureLogger) {
             const release = await mutex.acquire();
             try {
-                if (!this._secureLogger) {
-                    this._secureLogger = await this.createSecureLoggerAsync();
+                if (!this._inSecureLogger) {
+                    this._inSecureLogger = await this.createInSecureLoggerAsync();
                 }
             } finally {
                 release();
             }
         }
 
-        return this._secureLogger;
-    }
-
-    /**
-     * Gets or creates a secure logger
-     * @return {Logger}
-     */
-    async getOrCreateInSecureLoggerAsync () {
-        if (!this._inSecureLogger) {
-            const release = await mutex.acquire();
-            try {
-                 if (!this._inSecureLogger) {
-                     this._inSecureLogger = await this.createInSecureLoggerAsync();
-                 }
-            } finally {
-                release();
-            }
-        }
-
         return this._inSecureLogger;
-    }
-
-    /**
-     * Creates a secure logger
-     * @return {Logger}
-     */
-    async createSecureLoggerAsync () {
-        const logger = winston.createLogger({
-            level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
-            format: winston.format.json(),
-            transports: []
-        });
-
-        if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
-            /**
-             * @type {import('winston-mongodb').MongoDBTransportInstance}
-             */
-            const mongodbTransport = new MongoDB({
-                db: accessLogsMongoConfig.connection,
-                options: {
-                    ...accessLogsMongoConfig.options,
-                    useUnifiedTopology: true
-                },
-                dbName: accessLogsMongoConfig.db_name,
-                name: ACCESS_LOGS_COLLECTION_NAME,
-                expireAfterSeconds: env.ACCESS_LOGS_EXPIRE_TIME ? Number(env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60,
-                collection: ACCESS_LOGS_COLLECTION_NAME,
-                format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] })
-            });
-
-            logger.add(mongodbTransport);
-
-            mongodbTransport.on('error', (error) => {
-                console.error(JSON.stringify({ message: 'Error in mongodbTransport caught', error }));
-            });
-        } else {
-            /**
-             * @type {NullTransport}
-             */
-            const nullTransport = new NullTransport();
-            // noinspection JSCheckFunctionSignatures
-            logger.add(nullTransport);
-        }
-
-        if (env.LOGLEVEL === 'DEBUG') {
-            logger.add(
-                new winston.transports.Console({
-                    format: winston.format.json()
-                }));
-        }
-
-        // Compulsory error handling
-        logger.on('error', (error) => {
-            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
-        });
-
-        return logger;
     }
 
     /**

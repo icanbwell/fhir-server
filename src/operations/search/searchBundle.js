@@ -382,8 +382,7 @@ class SearchBundleOperation {
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
-                action: currentOperationName,
-                query: logQuery
+                action: currentOperationName
             });
             return bundle;
         } catch (e) {
@@ -413,15 +412,7 @@ class SearchBundleOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                error: e,
-                query: mongoQueryAndOptionsStringify({
-                    query: new QueryItem({
-                        query,
-                        resourceType,
-                        collectionName
-                    }),
-                    options
-                })
+                error: e
             });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         }
