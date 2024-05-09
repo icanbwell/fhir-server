@@ -1,3 +1,6 @@
+// This schema is temporary until we switch our Cosmo Graph to use federation.
+// See https://icanbwell.atlassian.net/browse/EFS-985
+
 module.exports = {
     Subscription_SubscriptionStatus: {
         /**
