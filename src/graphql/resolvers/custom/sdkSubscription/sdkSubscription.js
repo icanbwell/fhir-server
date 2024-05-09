@@ -6,6 +6,12 @@ module.exports = {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         subscription_subscription: async (parent, args, context, info) => {
+            if (args._id) {
+                // change into search by connection_id
+                const connection_id = args._id.value;
+                args.extension = `https://icanbwell.com/codes/connection_id|${connection_id}`;
+                delete args._id;
+            }
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
