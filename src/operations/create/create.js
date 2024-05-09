@@ -187,8 +187,8 @@ class CreateOperation {
                 logInfo('Resource Validation Failed', {
                     operation: currentOperationName,
                     id: resource.id,
-                    uuid: resource.id,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    _uuid: resource.id,
+                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
                     created: false,
                     updated: false,

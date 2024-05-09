@@ -185,8 +185,8 @@ class RemoveOperation {
 
                         resourcesToDelete[resource._uuid] = {
                             id: resource.id,
-                            uuid: resource._uuid,
-                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            _uuid: resource._uuid,
+                            _sourceAssigningAuthority: resource._sourceAssigningAuthority,
                             resourceType: resource.resourceType,
                             created: false,
                             deleted: true
