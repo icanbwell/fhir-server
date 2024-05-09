@@ -1,0 +1,34 @@
+query subscriptionQuery {
+    subscription_subscription(_debug: true, _id:{value: "1234"}) {
+        entry {
+            resource {
+                id
+                subscriptionStatus {
+                    id
+                    subscriptionTopic {
+                        id
+                        url
+                        version
+                        resourceTrigger {
+                            resource
+                        }
+                    }
+                    status
+                    type
+                    error {
+                        text
+                        coding {
+                            system
+                            code
+                            display
+                        }
+                    }
+                    notificationEvent {
+                        eventNumber
+                        timestamp
+                    }
+                }
+            }
+        }
+    }
+}
