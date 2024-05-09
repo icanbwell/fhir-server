@@ -14,7 +14,7 @@ module.exports = {
     },
     ImmunizationRecommendationRecommendation: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         supportingImmunization: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.supportingImmunization);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         supportingPatientInformationV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -34,7 +34,7 @@ module.exports = {
                 parent.supportingPatientInformation);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         supportingPatientInformation: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

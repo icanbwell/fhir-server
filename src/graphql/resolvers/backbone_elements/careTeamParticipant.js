@@ -9,7 +9,7 @@ module.exports = {
     },
     CareTeamParticipant: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         member: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.member);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         onBehalfOf: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

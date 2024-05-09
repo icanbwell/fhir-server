@@ -1,5 +1,5 @@
-/* eslint-disable no-useless-computed-key */
-/* eslint-disable comma-dangle */
+
+
 const { ObjectId } = require('mongodb');
 const deepEqual = require('fast-deep-equal');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
@@ -447,8 +447,8 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 
         // only those without provision.class considered
-        // eslint-disable-next-line no-useless-computed-key
-        // eslint-disable-next-line comma-dangle
+
+
         query.$and.push({
             ['provision.class']: {
                 $exists: false

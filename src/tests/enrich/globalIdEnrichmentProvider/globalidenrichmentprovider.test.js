@@ -23,7 +23,7 @@ describe('Observation Tests', () => {
 
     describe('Observation globalIdEnrichmentProvider Tests', () => {
         test('globalIdEnrichmentProvider works with id', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             /**
              * @type {SimpleContainer}

@@ -19,7 +19,7 @@ module.exports = {
     },
     CoverageEligibilityRequestItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         provider: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -29,7 +29,7 @@ module.exports = {
                 parent.provider);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         facility: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -39,7 +39,7 @@ module.exports = {
                 parent.facility);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         detailV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -49,7 +49,7 @@ module.exports = {
                 parent.detail);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         detail: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

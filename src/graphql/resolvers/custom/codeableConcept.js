@@ -7,7 +7,7 @@ module.exports = {
          * @param {Object} info
          * @return {Promise<Resource>}
          */
-        // eslint-disable-next-line no-unused-vars
+
         coding: async (parent, args, context, info) => {
             // noinspection JSValidateTypes
             /**

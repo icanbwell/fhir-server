@@ -15,7 +15,7 @@ const searchLimitForIds = 1000;
 
 function getSearchParams (req) {
     const bodyEntries = Object.entries(req.body);
-    // eslint-disable-next-line no-unused-vars
+
     const nonEmptyOrNull = bodyEntries.filter(([, val]) => val !== '' && val !== null);
     return Object.fromEntries(nonEmptyOrNull);
 }
@@ -81,7 +81,7 @@ function emailField (params) {
  * @param params
  * @return {FieldInfo}
  */
-// eslint-disable-next-line no-unused-vars
+
 function identifierField (params) {
     return {
         label: 'Identifier',
@@ -97,7 +97,7 @@ function identifierField (params) {
  * @param {string} tagName
  * @return {FieldInfo}
  */
-// eslint-disable-next-line no-unused-vars
+
 function securityTagField (params, tagName) {
     return {
         label: 'Security',

@@ -41,7 +41,7 @@ describe('Organization Merge Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
             assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 

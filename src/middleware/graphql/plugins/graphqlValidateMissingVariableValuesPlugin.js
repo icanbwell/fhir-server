@@ -7,7 +7,7 @@ class ValidateMissingVariableValuesPlugin /* extends ApolloServerPlugin */ {
     /**
      * This plugin validates that all the GraphQL Variables have corresponding values provided
      */
-    // eslint-disable-next-line no-unused-vars
+
     async requestDidStart (requestContext1) {
         return {
             didResolveOperation ({ request, document }) {

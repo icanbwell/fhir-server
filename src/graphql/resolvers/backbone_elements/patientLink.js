@@ -9,7 +9,7 @@ module.exports = {
     },
     PatientLink: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         other: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

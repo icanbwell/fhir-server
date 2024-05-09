@@ -42,7 +42,7 @@ function getProjection (properties) {
  * @param {string[]} properties
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
-// eslint-disable-next-line no-unused-vars
+
 function getFilter (properties) {
     if (!properties || properties.length === 0) {
         return {};

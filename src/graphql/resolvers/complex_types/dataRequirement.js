@@ -4,7 +4,7 @@
 module.exports = {
     DataRequirement: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         subjectReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

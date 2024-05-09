@@ -106,7 +106,7 @@ class DatabaseBulkLoader {
      * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

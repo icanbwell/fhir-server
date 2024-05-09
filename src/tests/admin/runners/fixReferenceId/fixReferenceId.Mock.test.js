@@ -38,7 +38,7 @@ describe('Person Tests', () => {
 
     describe('Person MockFixReferenceId Tests', () => {
         test('fixReferenceId doesnot work with error', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

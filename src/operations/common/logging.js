@@ -15,7 +15,7 @@ const logger = getLogger();
 const setRequestIdInLog = (args) => {
     const reqId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
     const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
-    // eslint-disable-next-line no-prototype-builtins
+
     if (reqId && args) {
         args.request = {
             ...args.request,

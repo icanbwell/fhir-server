@@ -312,7 +312,7 @@ class KafkaClient {
         try {
             await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
-                // eslint-disable-next-line no-unused-vars
+
                 eachMessage: async ({ topic1, partition, message, heartbeat, pause }) => {
                     await onMessageAsync({
                         key: message.key.toString(),

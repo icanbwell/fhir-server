@@ -1,5 +1,5 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
+
+
 // noinspection JSUnresolvedFunction
 $(document).ready(function () {
     const parameters = getUrlVars();

@@ -42,7 +42,7 @@ describe('Person Tests', () => {
 
     describe('Client Person to Proa Patient Tests', () => {
         test('Both client persons are linked', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -166,7 +166,7 @@ describe('Person Tests', () => {
         });
 
         test('Only client person 1 is linked, no change in client person 2', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -287,7 +287,7 @@ describe('Person Tests', () => {
         });
 
         test('Multiple Rows work', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

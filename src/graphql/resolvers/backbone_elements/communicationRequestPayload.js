@@ -4,7 +4,7 @@
 module.exports = {
     CommunicationRequestPayload: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         contentReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

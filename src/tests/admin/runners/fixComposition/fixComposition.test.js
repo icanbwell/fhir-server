@@ -40,7 +40,7 @@ describe('FixCodeableConcepts Tests', () => {
 
     describe('Proa and Hapi Tests', () => {
         test('CodeableConcepts are updated in proa observation', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

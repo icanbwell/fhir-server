@@ -9,7 +9,7 @@ module.exports = {
     },
     ChargeItemPerformer: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         actor: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

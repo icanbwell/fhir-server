@@ -59,7 +59,7 @@ describe('Person Tests', () => {
 
     describe('duplicate uuid Person Tests', () => {
         test('duplicate uuid with same resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -119,7 +119,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with different versionId and conflicts in max version id resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -181,7 +181,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with different versionId resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -237,7 +237,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid not present in resources', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -288,7 +288,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with same value in multiple collections', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records

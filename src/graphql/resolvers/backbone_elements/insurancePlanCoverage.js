@@ -4,7 +4,7 @@
 module.exports = {
     InsurancePlanCoverage: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         network: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

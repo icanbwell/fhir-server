@@ -14,7 +14,7 @@ module.exports = {
     },
     ContractValuedItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         entityReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.entityReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         responsible: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -34,7 +34,7 @@ module.exports = {
                 parent.responsible);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         recipient: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

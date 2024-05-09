@@ -14,7 +14,7 @@ module.exports = {
     },
     DocumentReferenceContext: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         encounter: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.encounter);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         sourcePatientInfo: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -34,7 +34,7 @@ module.exports = {
                 parent.sourcePatientInfo);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         relatedV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -44,7 +44,7 @@ module.exports = {
                 parent.related);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         related: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

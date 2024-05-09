@@ -37,7 +37,7 @@ describe('Person Tests', () => {
 
     describe('Person fixReferenceId graph Tests', () => {
         test('fixReferenceId works for person with forward reference', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -190,7 +190,7 @@ describe('Person Tests', () => {
         });
 
         test('fixReferenceId works for patient with backward reference', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

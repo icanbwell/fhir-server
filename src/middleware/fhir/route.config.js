@@ -48,7 +48,7 @@ const routes = [
         path: '/:base_version/:resource/:id',
         interaction: INTERACTIONS.DELETE
     },
-    /* eslint-disable no-useless-escape */
+
     {
         type: 'get',
         path: '/:base_version/:resource/:id/([$])expand',

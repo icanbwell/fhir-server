@@ -300,7 +300,7 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('adminStrategy', strategy);
 
-    // eslint-disable-next-line new-cap
+
     const adminRouter = express.Router({ mergeParams: true });
     // Add authentication
     adminRouter.use(passport.initialize());
@@ -326,7 +326,7 @@ function createApp ({ fnGetContainer }) {
 
         graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
-                // eslint-disable-next-line new-cap
+
                 const router = express.Router();
                 router.use(passport.initialize());
                 router.use(passport.authenticate('graphqlStrategy', { session: false }, null));

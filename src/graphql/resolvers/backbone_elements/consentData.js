@@ -9,7 +9,7 @@ module.exports = {
     },
     ConsentData: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         referenceV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.reference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

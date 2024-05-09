@@ -42,7 +42,7 @@ describe('Person Tests', () => {
 
     describe('Person fixReferenceId Tests', () => {
         test('fixReferenceId works for patient with history', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -191,7 +191,7 @@ describe('Person Tests', () => {
         });
 
         test('fixReferenceId works for patient with sanitization of sourceAssigningAuthority', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -259,7 +259,7 @@ describe('Person Tests', () => {
         });
 
         test('fixReferenceId works in batches', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

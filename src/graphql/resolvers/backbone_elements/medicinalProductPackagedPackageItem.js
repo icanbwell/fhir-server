@@ -4,7 +4,7 @@
 module.exports = {
     MedicinalProductPackagedPackageItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         device: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -14,7 +14,7 @@ module.exports = {
                 parent.device);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         manufacturedItem: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.manufacturedItem);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         manufacturer: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

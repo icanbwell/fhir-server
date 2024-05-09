@@ -1,18 +1,18 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const { NotAllowedError } = require('../../utils/httpErrors');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { AuditLogger } = require('../../utils/auditLogger');
-const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ScopesValidator } = require('../security/scopesValidator');
-const { ConfigManager } = require('../../utils/configManager');
-const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
-const { ParsedArgs } = require('../query/parsedArgs');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { SearchManager } = require('../search/searchManager');
-const { OPERATIONS: { DELETE } } = require('../../constants');
-const { logInfo } = require('../common/logging');
+const {NotAllowedError} = require('../../utils/httpErrors');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {ConfigManager} = require('../../utils/configManager');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
+const {ParsedArgs} = require('../query/parsedArgs');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {SearchManager} = require('../search/searchManager');
+const {OPERATIONS: {DELETE}} = require('../../constants');
+const {logInfo} = require('../common/logging');
 
 class RemoveOperation {
     /**
@@ -25,7 +25,7 @@ class RemoveOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {SearchManager} searchManager
      */
-    constructor (
+    constructor(
         {
             databaseQueryFactory,
             auditLogger,
@@ -90,7 +90,7 @@ class RemoveOperation {
      * @param {string} resourceType
      * @returns {Promise<{deleted: number}>}
      */
-    async removeAsync ({ requestInfo, parsedArgs, resourceType }) {
+    async removeAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -142,7 +142,7 @@ class RemoveOperation {
         });
 
         try {
-            const { base_version } = parsedArgs;
+            const {base_version} = parsedArgs;
             const {
                 /** @type {import('mongodb').Document}**/
                 query
@@ -162,43 +162,42 @@ class RemoveOperation {
 
             if (Object.keys(query).length === 0) {
                 // don't delete everything
-                return { deleted: 0 };
+                return {deleted: 0};
             }
             // Delete our resource record
             let res;
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType, base_version }
+                {resourceType, base_version}
             );
 
             try {
-                res = await databaseQueryManager.findAsync({ query });
+                res = await databaseQueryManager.findAsync({query});
                 const resourcesToDelete = {};
 
                 while (await res.hasNext()) {
                     const resource = await res.next();
 
-                    // eslint-disable-next-line no-useless-catch
-                    try {
-                        await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                            requestInfo, resource, base_version
-                        });
 
-                        resourcesToDelete[resource._uuid] = {
-                            id: resource.id,
-                            _uuid: resource._uuid,
-                            _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                            resourceType: resource.resourceType,
-                            created: false,
-                            deleted: true
-                        };
-                    } catch (e) {}
+                    await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                        requestInfo, resource, base_version
+                    });
+
+                    resourcesToDelete[resource._uuid] = {
+                        id: resource.id,
+                        _uuid: resource._uuid,
+                        _sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        deleted: true
+                    };
+
                 }
                 /**
                  * @type {DeleteManyResult}
                  */
                 res = await databaseQueryManager.deleteManyAsync({
                     requestId,
-                    query: { _uuid: { $in: Object.keys(resourcesToDelete) } }
+                    query: {_uuid: {$in: Object.keys(resourcesToDelete)}}
                 });
 
                 Object.values(resourcesToDelete).forEach(data => {
@@ -237,7 +236,7 @@ class RemoveOperation {
                 startTime,
                 action: currentOperationName
             });
-            return { deleted: res.deletedCount };
+            return {deleted: res.deletedCount};
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

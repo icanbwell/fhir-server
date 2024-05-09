@@ -9,7 +9,7 @@ module.exports = {
     },
     ClaimResponseAddItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         provider: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.provider);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         locationReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

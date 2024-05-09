@@ -1,6 +1,6 @@
 module.exports = {
     Practitioner: {
-        // eslint-disable-next-line no-unused-vars
+
         /**
          * @param {Resource|null} parent
          * @param {Object} args
@@ -20,7 +20,7 @@ module.exports = {
                 'PractitionerRole'
             );
         },
-        // eslint-disable-next-line no-unused-vars
+
         /**
          * @param {Resource|null} parent
          * @param {Object} args
@@ -40,7 +40,7 @@ module.exports = {
                 'Group'
             );
         },
-        // eslint-disable-next-line no-unused-vars
+
         /**
          * @param {Resource|null} parent
          * @param {Object} args

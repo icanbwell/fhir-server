@@ -342,7 +342,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
                          }
                          for (let j = 0; j < subf.length; j++) {
                              const subObj = subf[j];
-                             // eslint-disable-next-line dot-notation
+
                              const ref = subObj[fields[1]];
                              if (this.dupUuids.includes(ref._uuid)) {
                                  const newRef = this.substituteOneReference({ ref });

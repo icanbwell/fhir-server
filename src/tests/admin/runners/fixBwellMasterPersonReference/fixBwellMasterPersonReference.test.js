@@ -92,7 +92,7 @@ describe('Person Tests', () => {
 
     describe('Bwell Master Person Tests', () => {
         test('fixBwellMasterPerson works for person with history', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -273,7 +273,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson to remove duplicate links', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             const container = getTestContainer();
@@ -371,7 +371,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson doesnot work for references with conflicting resources and works for non conflicting resources', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -508,7 +508,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson doesnot work for references that do not need change', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -598,7 +598,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson works for references with sourceAssigningAuthority as slug', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

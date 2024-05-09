@@ -9,7 +9,7 @@ module.exports = {
     },
     VerificationResultPrimarySource: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         who: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -14,7 +14,7 @@ module.exports = {
     },
     CarePlanActivity: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         outcomeReferenceV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.outcomeReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         outcomeReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -34,7 +34,7 @@ module.exports = {
                 parent.outcomeReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -23,7 +23,7 @@ const conformanceSearchParamsFilter = base_version => route_arg => {
  * @return {function} map function for array.map
  */
 
-/* eslint-disable no-unused-vars */
+
 
 const conformanceSearchParamsMap = version => route_arg => {
     // The router adds extra arguments and those need to be discarded

@@ -47,7 +47,7 @@ describe('Person Tests', () => {
 
     describe('Proa Persons Tests', () => {
         test('Proa Person is not deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -140,7 +140,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person is deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -241,7 +241,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person is not deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -340,7 +340,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person with multiple master persons', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

@@ -9,7 +9,7 @@ module.exports = {
     },
     TaskRestriction: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         recipient: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

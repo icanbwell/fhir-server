@@ -14,7 +14,7 @@ const { logInfo } = require('../operations/common/logging');
  * @param {import('express').Response} res
  * @return {Promise<void>}
  */
-// eslint-disable-next-line no-unused-vars
+
 module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
     logInfo('Running stats', {});
 

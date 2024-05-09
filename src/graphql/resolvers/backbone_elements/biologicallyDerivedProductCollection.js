@@ -14,7 +14,7 @@ module.exports = {
     },
     BiologicallyDerivedProductCollection: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         collector: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.collector);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         source: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

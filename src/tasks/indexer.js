@@ -8,7 +8,7 @@
 const { IndexManager } = require('../indexes/indexManager');
 const { logInfo, logError } = require('../operations/common/logging');
 
-// eslint-disable-next-line no-unused-vars
+
 process.on('message', async (params) => {
     // send status update to the main app
     logInfo(params);
