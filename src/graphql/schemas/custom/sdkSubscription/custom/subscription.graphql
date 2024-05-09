@@ -1,0 +1,7 @@
+# This schema is temporary until we switch our Cosmo Graph to use federation.
+# See https://icanbwell.atlassian.net/browse/EFS-985
+# import SubscriptionStatus from 'SubscriptionStatus.graphql'
+
+extend type Subscription_Subscription {
+    subscriptionStatus: [Subscription_SubscriptionStatus]
+}
