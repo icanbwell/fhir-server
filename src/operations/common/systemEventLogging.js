@@ -62,8 +62,6 @@ const logSystemEventAsync = async ({ event, message, args }) => {
         // represents the server unique requestId and that is used in operations.
         systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
     };
-    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    fhirSecureLogger.info(logEntry);
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
     fhirInSecureLogger.info(logEntry);
 };
@@ -109,7 +107,7 @@ const logSystemErrorAsync = async ({ event, message, args, error }) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: error ? 'Error' : 'Success',
-        message: message + (error ? (' : ' + JSON.stringify(error, getCircularReplacer())) : ''),
+        message: message + (error ? (' : ' + JSON.stringify(error.stack, getCircularReplacer())) : ''),
         entity: [
             {
                 name: 'system',
@@ -124,12 +122,6 @@ const logSystemErrorAsync = async ({ event, message, args, error }) => {
         systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
     };
 
-    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    if (error) {
-        fhirSecureLogger.error(logEntry);
-    } else {
-        fhirSecureLogger.info(logEntry);
-    }
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
     if (error) {
         fhirInSecureLogger.error(logEntry);

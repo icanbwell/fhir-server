@@ -449,16 +449,7 @@ class SearchStreamingOperation {
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
-                action: currentOperationName,
-                query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem({
-                            query,
-                            resourceType,
-                            collectionName
-                        }),
-                        options
-                    }
-                )
+                action: currentOperationName
             });
         } catch (e) {
             /**
@@ -485,15 +476,6 @@ class SearchStreamingOperation {
                 startTime,
                 action: currentOperationName,
                 error: e,
-                query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem({
-                            query,
-                            resourceType,
-                            collectionName
-                        }),
-                        options
-                    }
-                ),
                 message: `Error in streaming resources: ${e.message}`
             });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);

@@ -64,8 +64,6 @@ class FhirLoggingManager {
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      */
     async logOperationSuccessAsync (
         {
@@ -74,9 +72,7 @@ class FhirLoggingManager {
             resourceType,
             startTime,
             stopTime = Date.now(),
-            action,
-            query,
-            result
+            action
         }
     ) {
         await this.internalLogOperationAsync(
@@ -88,9 +84,7 @@ class FhirLoggingManager {
                 stopTime,
                 message: 'operationCompleted',
                 action,
-                error: null,
-                query,
-                result
+                error: null
             }
         );
     }
@@ -104,8 +98,6 @@ class FhirLoggingManager {
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
      * @param {Error} error
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      * @param {string|undefined} [message]
      */
     async logOperationFailureAsync (
@@ -117,8 +109,6 @@ class FhirLoggingManager {
             stopTime = Date.now(),
             action,
             error,
-            query,
-            result,
             message = 'operationFailed'
         }
     ) {
@@ -131,9 +121,7 @@ class FhirLoggingManager {
                 stopTime,
                 message,
                 action,
-                error,
-                query,
-                result
+                error
             }
         );
     }
@@ -148,8 +136,6 @@ class FhirLoggingManager {
      * @param {string} message
      * @param {string} action
      * @param {Error|undefined} error
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      * @private
      */
     async internalLogOperationAsync (
@@ -161,9 +147,7 @@ class FhirLoggingManager {
             stopTime = Date.now(),
             message,
             action,
-            error,
-            query,
-            result
+            error
         }
     ) {
         /**
@@ -278,56 +262,6 @@ class FhirLoggingManager {
             fhirInSecureLogger.error(logEntry);
         } else {
             fhirInSecureLogger.info(logEntry);
-        }
-        // Now write out the secure logs
-        detail.push({
-            type: 'method',
-            valueString: requestInfo.method
-        });
-        if (requestInfo.contentTypeFromHeader) {
-            detail.push({
-                type: 'content-type',
-                valueString: requestInfo.contentTypeFromHeader.type
-            });
-        }
-        logEntry.message = error
-            ? `${error.message}: ${error.stack || ''}`
-            : message;
-
-        if (requestInfo.body) {
-            detail.push({
-                type: 'body',
-                valueString: (!requestInfo.body || typeof requestInfo.body === 'string')
-                    ? requestInfo.body
-                    : JSON.stringify(requestInfo.body, getCircularReplacer())
-            });
-        }
-        if (query) {
-            detail.push({
-                type: 'query',
-                valueString: query
-            });
-        }
-        if (result) {
-            detail.push({
-                type: 'result',
-                valueString: result
-            });
-        }
-
-        logEntry.entity[0].detail = detail;
-
-        try {
-            // It will be moved to middelware without winston-mongodb
-            const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-            // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-            if (error) {
-                fhirSecureLogger.error(logEntry);
-            } else {
-                fhirSecureLogger.info(logEntry);
-            }
-        } catch (err) {
-            console.error(JSON.stringify({ message: 'Error in Access Logs caught', err }));
         }
     }
 }

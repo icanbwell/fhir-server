@@ -442,8 +442,7 @@ class UpdateOperation {
                     args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
+                    action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     result: JSON.stringify(result, getCircularReplacer())
@@ -484,8 +483,7 @@ class UpdateOperation {
                     args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
+                    action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     result: JSON.stringify(result, getCircularReplacer())
