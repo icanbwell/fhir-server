@@ -167,7 +167,6 @@
     "validator": "^13.11.0",
     "var": "^0.4.0",
     "winston": "^3.11.0",
-    "winston-mongodb": "^5.1.1",
     "winston-transport": "^4.7.0",
     "xss": "^1.0.14",
     "yargs": "^17.7.2",
