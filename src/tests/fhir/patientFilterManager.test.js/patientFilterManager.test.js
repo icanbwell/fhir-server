@@ -26,13 +26,6 @@ describe('PatientFilterManager Tests', () => {
         });
       });
 
-      test('should return true for resources without patient data', () => {
-        patientFilterManager.resourcesWithoutPatientData.forEach(resourceType => {
-          const result = patientFilterManager.canAccessResourceWithPatientScope({ resourceType });
-          expect(result).toBeTrue();
-        });
-      });
-
       test('should return false for other resourceTypes', () => {
         const result = patientFilterManager.canAccessResourceWithPatientScope({ resourceType: 'Unknown' });
         expect(result).toBeFalse();

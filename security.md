@@ -323,6 +323,4 @@ The path to the patient reference is specified for each resource type. Access wi
 
 #### 6.2 Resources without patient data
 
-For resources that are not associated with a Patient, see `resourcesWithoutPatientData` (in `src/fhir/patientFilterManager.js`).
-
-Each resource listed in this collection has no patient data, but it may be useful information that patient data might reference. So it can be accessed by callers with the patient scope, without regard to specific patient IDs.
+For resources that are not associated with a Patient, access will be granted or denied based on the user and access scopes.
