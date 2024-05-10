@@ -299,7 +299,10 @@ class ResourceValidator {
 
         if (profile) {
             // save profile in remote server
-            await this.upsertProfileInRemoteServer({profile});
+            await this.upsertProfileInRemoteServer({
+                profile: profile,
+                resourceType: resourceToValidateJson.resourceType
+            });
         }
 
         // upsert profiles contained in metaProfiles
@@ -362,7 +365,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({profile}) {
+    async upsertProfileInRemoteServer({profile, resourceType}) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
