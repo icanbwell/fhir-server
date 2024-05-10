@@ -177,20 +177,23 @@ class RemoveOperation {
                 while (await res.hasNext()) {
                     const resource = await res.next();
 
+                    // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
+                    try {
+                        await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                            requestInfo, resource, base_version
+                        });
 
-                    await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        requestInfo, resource, base_version
-                    });
-
-                    resourcesToDelete[resource._uuid] = {
-                        id: resource.id,
-                        _uuid: resource._uuid,
-                        _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                        resourceType: resource.resourceType,
-                        created: false,
-                        deleted: true
-                    };
-
+                        resourcesToDelete[resource._uuid] = {
+                            id: resource.id,
+                            _uuid: resource._uuid,
+                            _sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            resourceType: resource.resourceType,
+                            created: false,
+                            deleted: true
+                        };
+                    } catch (err) {
+                        logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
+                    }
                 }
                 /**
                  * @type {DeleteManyResult}

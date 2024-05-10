@@ -118,7 +118,7 @@ class ResourceMerger {
                 return security;
             }, []);
         }
-    };
+    }
 
     /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated

@@ -166,7 +166,7 @@ class MergeResourceValidator extends BaseValidator {
             } else {
                 validResources.push(resource);
             }
-        };
+        }
         return {
             preCheckErrors: mergePreCheckErrors, validatedObjects: validResources, wasAList: wasIncomingAList
         };
