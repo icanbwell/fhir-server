@@ -202,9 +202,12 @@ describe('Condition Tests', () => {
              */
             const patientFilterManager = container.patientFilterManager;
             for (const resourceType of Object.values(COLLECTION)) {
-                if (!Object.keys(patientFilterManager.patientFilterMapping).includes(resourceType)) {
+                if (
+                    !Object.keys(patientFilterManager.patientFilterMapping).includes(resourceType) &&
+                    !Object.keys(patientFilterManager.patientFilterWithQueryMapping).includes(resourceType)
+                ) {
                     const resp = await request
-                        .post(`/4_0_0/${resourceType}/`)
+                        .delete(`/4_0_0/${resourceType}/1`)
                         .send({ ...resourceStructure, resourceType })
                         .set(getHeaders('patient/*.*'));
 
