@@ -5,7 +5,7 @@
     "issue": {
       "code": "invalid",
       "details": {
-        "text": "/4_0_0/MedicationStatement/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"inactive\",\"entered-in-error\"]}: at position .status"
+        "text": "/4_0_0/MedicationStatement/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"completed\",\"entered-in-error\",\"intended\",\"stopped\",\"on-hold\",\"unknown\",\"not-taken\"]}: at position .status"
       },
       "severity": "error"
     },
@@ -14,7 +14,7 @@
         {
           "code": "invalid",
           "details": {
-            "text": "/4_0_0/MedicationStatement/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"inactive\",\"entered-in-error\"]}: at position .status"
+            "text": "/4_0_0/MedicationStatement/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"completed\",\"entered-in-error\",\"intended\",\"stopped\",\"on-hold\",\"unknown\",\"not-taken\"]}: at position .status"
           },
           "severity": "error"
         },
