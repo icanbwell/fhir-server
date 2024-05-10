@@ -305,7 +305,12 @@ class ResourceValidator {
 
         if (profile) {
             // save profile in remote server
-            await this.upsertProfileInRemoteServer({ base_version, requestInfo, profile });
+            await this.upsertProfileInRemoteServer({
+                base_version,
+                requestInfo,
+                profile: profile,
+                resourceType: resourceToValidateJson.resourceType
+            });
         }
 
         // upsert profiles contained in metaProfiles
@@ -314,7 +319,21 @@ class ResourceValidator {
              * @type {string[]}
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
-            await this.upsertProfileInRemoteServer({ base_version, requestInfo, profile: metaProfiles, resourceType: resourceToValidateJson.resourceType });
+            await this.upsertProfileInRemoteServer({
+                base_version,
+                requestInfo,
+                profile: metaProfiles,
+                resourceType: resourceToValidateJson.resourceType
+            });
+        }
+        if (!resourceToValidateJson.meta) {
+            resourceToValidateJson.meta = {};
+        }
+        if (!resourceToValidateJson.meta.profile) {
+            resourceToValidateJson.meta.profile = [];
+        }
+        if (profile && !resourceToValidateJson.meta.profile.includes(profile)) {
+            resourceToValidateJson.meta.profile.push(profile);
         }
 
         /**
@@ -335,11 +354,11 @@ class ResourceValidator {
         }
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
             operationOutcome.issue = new OperationOutcomeIssue({
-                code: 'informational',
-                details: {
-                    text: 'OK'
-                },
-                expression: [
+                'code': 'informational',
+                'details': new CodeableConcept({
+                    'text': 'OK'
+                }),
+                'expression': [
                     'Practitioner'
                 ],
                 severity: 'information'
@@ -356,7 +375,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer ({ base_version, requestInfo, profile, resourceType }) {
+    async upsertProfileInRemoteServer({base_version, requestInfo, profile, resourceType}) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -366,9 +385,9 @@ class ResourceValidator {
         /**
          * Upsert profile in HAPI Fhir
          */
-        const updateRemoteFhirProfileTask = async ({ profileJson }) => {
+        const updateRemoteFhirProfileTask = async ({profileJson}) => {
             try {
-                await this.remoteFhirValidator.updateProfileAsync({ profileJson });
+                await this.remoteFhirValidator.updateProfileAsync({profileJson});
             } catch (error) {
                 logError(
                     `Error occurred while updating profile in hapi server with id: '${profileJson.id}'`,
@@ -400,13 +419,13 @@ class ResourceValidator {
         /**
          * @type {{ location: string, profile: string }[]}
          */
-        const invalidProfileUrls = [];
-        const fetchProfileFromUrl = async ({ profileUrl, index }) => {
+        let invalidProfileUrls = [];
+        const fetchProfileFromUrl = async ({profileUrl, index}) => {
             /**
              * @type {{[k: string]: any} | null}
              */
             const profileJson = await this.remoteFhirValidator
-                .fetchProfileAsync({ url: profileUrl })
+                .fetchProfileAsync({url: profileUrl})
                 .catch((error) => {
                     if (error.response && error.response.status === 404) {
                         // push error if 404
@@ -429,14 +448,14 @@ class ResourceValidator {
                 });
 
             if (profileJson) {
-                const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
+                const profileResourceNew = this.createProfileResourceFromJson({profileJson});
                 await databaseUpdateManager.replaceOneAsync({
                     base_version,
                     requestInfo,
                     doc: profileResourceNew
                 });
 
-                profileJsonToUpdate.push({ profileJson: profileResourceNew.toJSON(), profileUrl });
+                profileJsonToUpdate.push({profileJson: profileResourceNew.toJSON(), profileUrl});
             }
         };
 
@@ -459,7 +478,7 @@ class ResourceValidator {
              */
             const profileJson = await cursor.next();
             const profileUrl = profileJson.url;
-            profileJsonToUpdate.push({ profileJson: profileJson.toJSON(), profileUrl });
+            profileJsonToUpdate.push({profileJson: profileJson.toJSON(), profileUrl});
             profilesToFetchFromRemote.delete(profileUrl);
         }
 
@@ -468,7 +487,7 @@ class ResourceValidator {
 
         // concurrently load the profiles form their url
         await async.eachLimit(
-            Array.from(profilesToFetchFromRemote).map((p, index) => ({ profileUrl: p, index })),
+            Array.from(profilesToFetchFromRemote).map((p, index) => ({profileUrl: p, index})),
             concurrencyLimit,
             fetchProfileFromUrl
         );

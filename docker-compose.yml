@@ -136,6 +136,11 @@ services:
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1
+    container_name: hapi-fhir-server
+    environment:
+      - hapi.fhir.enable_repository_validating_interceptor=true
+      - hapi.fhir.ig_runtime_upload_enabled=true
+      - hapi.fhir.local_base_urls=https://hapi.fhir.org/baseR4,https://fhir.simplifier.net/bwellFHIRProfiles
     ports:
       - "3001:8080"
 
