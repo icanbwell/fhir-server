@@ -39,11 +39,12 @@ USER node
 COPY --chown=node:node package.json /srv/src/package.json
 COPY --chown=node:node yarn.lock /srv/src/yarn.lock
 
+# Copy code from multi-stage build above
+COPY --from=build /srv/src/node_modules /srv/src/node_modules
+
 # Copy the remaining application code.
 COPY --chown=node:node . /srv/src
 
-# Copy code from multi-stage build above
-COPY --from=build /srv/src/node_modules /srv/src/node_modules
 #COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
 
 # this gets replaced by the command in docker-compose
