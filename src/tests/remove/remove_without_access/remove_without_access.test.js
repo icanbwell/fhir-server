@@ -83,5 +83,39 @@ describe('Patient Tests', () => {
                 .set(getHeaders())
                 .expect(200);
         });
+
+        test('remove without access scopes', async () => {
+            const request = await createTestRequest();
+
+            const resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await request
+                .delete('/4_0_0/Patient/1')
+                .set(getHeaders('user/*.*'))
+                .expect(403);
+        });
+
+        test('remove without scopes', async () => {
+            const request = await createTestRequest();
+
+            const resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await request
+                .delete('/4_0_0/Patient/1')
+                .set(getHeaders(''))
+                .expect(403);
+        });
     });
 });

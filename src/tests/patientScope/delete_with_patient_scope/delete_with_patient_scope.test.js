@@ -1,6 +1,7 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
+const resourceStructure = require('./fixtures/Resource/resource.json');
 
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
@@ -8,7 +9,9 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
+const { COLLECTION } = require('../../../constants');
 const deepcopy = require('deepcopy');
+const env = require('var');
 
 const person_payload = {
     scope: 'patient/Condition.*',
@@ -187,6 +190,30 @@ describe('Condition Tests', () => {
                 .get('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
                 .set(getHeaders())
                 .expect(200);
+        });
+        test('Non patient resources can not be accessed with patient scopes', async () => {
+            const envValue = env.VALIDATE_SCHEMA;
+            env.VALIDATE_SCHEMA = '0';
+
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
+             */
+            const patientFilterManager = container.patientFilterManager;
+            for (const resourceType of Object.values(COLLECTION)) {
+                if (!Object.keys(patientFilterManager.patientFilterMapping).includes(resourceType)) {
+                    const resp = await request
+                        .post(`/4_0_0/${resourceType}/`)
+                        .send({ ...resourceStructure, resourceType })
+                        .set(getHeaders('patient/*.*'));
+
+                    if (resp.statusCode !== 404) {
+                        expect(resp).toHaveStatusCode(403);
+                    }
+                }
+            }
+            env.VALIDATE_SCHEMA = envValue;
         });
     });
 });
