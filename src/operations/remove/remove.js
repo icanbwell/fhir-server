@@ -12,7 +12,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {SearchManager} = require('../search/searchManager');
 const {OPERATIONS: {DELETE}} = require('../../constants');
-const {logInfo} = require('../common/logging');
+const {logInfo, logWarn} = require('../common/logging');
 
 class RemoveOperation {
     /**
