@@ -2589,6 +2589,19 @@
         "option"
       ]
     },
+    "MedicationStatementStatusCodes": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "entered-in-error",
+        "intended",
+        "stopped",
+        "on-hold",
+        "unknown",
+        "not-taken"
+      ]
+    },
     "MessageSignificanceCategory": {
       "type": "string",
       "enum": [
@@ -27175,7 +27188,7 @@
           "type": "array"
         },
         "status": {
-          "$ref": "#/definitions/MedicationStatusCodes"
+          "$ref": "#/definitions/MedicationStatementStatusCodes"
         },
         "statusReason": {
           "items": {
