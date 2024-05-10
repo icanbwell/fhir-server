@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         specimen: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -22,7 +22,7 @@ module.exports = {
     },
     Specimen: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         subject: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -32,7 +32,7 @@ module.exports = {
                 parent.subject);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         parent: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -42,7 +42,7 @@ module.exports = {
                 parent.parent);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         request: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

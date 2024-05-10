@@ -32,7 +32,7 @@ module.exports = {
          * @param {Object} info
          * @return {Promise<Resource>}
          */
-        // eslint-disable-next-line no-unused-vars
+
         name: async (parent, args, context, info) => {
             // noinspection JSValidateTypes
             /**
@@ -1342,7 +1342,7 @@ module.exports = {
     },
     Mutation: {
         updateGeneralPractitioner:
-            // eslint-disable-next-line no-unused-vars
+
             /**
              * @param {Resource|null} parent
              * @param {Object} args

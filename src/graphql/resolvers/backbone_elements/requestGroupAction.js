@@ -14,7 +14,7 @@ module.exports = {
     },
     RequestGroupAction: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         participant: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.participant);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         resourceV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -34,7 +34,7 @@ module.exports = {
                 parent.resource);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

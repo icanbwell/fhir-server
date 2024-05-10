@@ -37,7 +37,7 @@ describe('Person Tests', () => {
 
     describe('Person Tests', () => {
         test('changeSourceAssigningAuthority works for person with history', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -153,7 +153,7 @@ describe('Person Tests', () => {
         });
 
         test('changeSourceAssigningAuthority with multiple persons work', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

@@ -4,7 +4,7 @@
 module.exports = {
     SubstanceSpecificationCode: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         source: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

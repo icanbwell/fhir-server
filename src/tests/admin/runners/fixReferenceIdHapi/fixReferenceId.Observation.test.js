@@ -39,7 +39,7 @@ describe('Observation Tests', () => {
 
     describe('Observation fixReferenceId Tests', () => {
         test('fixReferenceId works for normal observation', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -137,7 +137,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with code.text as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -204,7 +204,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with code.coding.code as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -271,7 +271,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with hash as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

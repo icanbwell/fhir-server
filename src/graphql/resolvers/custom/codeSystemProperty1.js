@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
+
 const { Binary } = require('../../../fhir/classes/4_0_0/resources/binary');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
          * @param {Object} info
          * @return {Promise<string|null>}
          */
-        // eslint-disable-next-line no-unused-vars
+
         valueString: async (parent, args, context, info) => {
             /**
              * @type {CodeSystemProperty1|null}

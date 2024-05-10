@@ -9,7 +9,7 @@ module.exports = {
     },
     MedicationDispenseSubstitution: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         responsibleParty: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

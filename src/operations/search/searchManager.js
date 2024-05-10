@@ -225,7 +225,7 @@ class SearchManager {
              * @type {boolean}
              */
             let shouldUpdateColumns = false;
-            // eslint-disable-next-line no-useless-catch
+
             ({ query, columns } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
                 base_version,
                 parsedArgs,
@@ -603,7 +603,7 @@ class SearchManager {
     handleElementsQuery (
         {
             parsedArgs, columns, resourceType, options,
-            // eslint-disable-next-line no-unused-vars
+
             useAccessIndex
         }
     ) {
@@ -968,7 +968,7 @@ class SearchManager {
             parsedArgs,
             resourceType,
             accepts,
-            // eslint-disable-next-line no-unused-vars
+
             batchObjectCount = 1,
             defaultSortId
         }

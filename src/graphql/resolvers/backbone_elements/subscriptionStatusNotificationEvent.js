@@ -4,7 +4,7 @@
 module.exports = {
     SubscriptionStatusNotificationEvent: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         focus: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -14,7 +14,7 @@ module.exports = {
                 parent.focus);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         additionalContext: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         nutritionOrder: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -22,7 +22,7 @@ module.exports = {
     },
     NutritionOrder: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         patient: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -32,7 +32,7 @@ module.exports = {
                 parent.patient);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         encounter: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -42,7 +42,7 @@ module.exports = {
                 parent.encounter);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         orderer: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -52,7 +52,7 @@ module.exports = {
                 parent.orderer);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         allergyIntolerance: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

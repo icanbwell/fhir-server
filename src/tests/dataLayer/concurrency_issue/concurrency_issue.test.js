@@ -189,7 +189,7 @@ describe('CodeSystem Tests', () => {
             const requestInfo = getTestRequestInfo({ requestId });
             let i = 0;
             for (const codeSystem of codesystem1Resource) {
-                // eslint-disable-next-line no-unused-vars
+
                 i += 1;
                 await databaseUpdateManager.replaceOneAsync({
                     base_version,

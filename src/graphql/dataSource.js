@@ -195,7 +195,7 @@ class FhirDataSource {
      * @return {null|string}
      */
     // noinspection JSUnusedLocalSymbols
-    // eslint-disable-next-line no-unused-vars
+
     resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
             // noinspection JSUnresolvedReference

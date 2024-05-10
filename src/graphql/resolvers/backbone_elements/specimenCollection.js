@@ -9,7 +9,7 @@ module.exports = {
     },
     SpecimenCollection: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         collector: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -10,7 +10,7 @@ const deepmerge = require('deepmerge');
 const options = {
     customMerge: (/* key */) => {
         // this requires a forward declaration since it uses recursion
-        // eslint-disable-next-line no-use-before-define
+
         return mergeObjectOrArray;
     }
 };

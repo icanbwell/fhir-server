@@ -28,7 +28,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async enrichAsync ({ resources, parsedArgs }) {
         /**
          * @type {string}

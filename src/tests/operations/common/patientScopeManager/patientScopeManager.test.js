@@ -4,7 +4,7 @@ const condition1Resource = require('./fixtures/Condition/condition1.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 
 // expected
-// eslint-disable-next-line no-unused-vars
+
 const expectedConditionResources = require('./fixtures/expected/expected_condition.json');
 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');

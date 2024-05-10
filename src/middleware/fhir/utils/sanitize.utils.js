@@ -146,7 +146,7 @@ const findMatchWithName = (name = '', params = {}) => {
  * @param {string} config.type - Argument type. Acceptable types are (boolean, string, number)
  * @param {boolean} [required] - Should we throw if this argument is present and invalid, default is false
  */
-// eslint-disable-next-line no-unused-vars
+
 const sanitizeMiddleware = function (config, required) {
     return function (req, res, next) {
         const currentArgs = parseParams(req);

@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         endpoint: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -17,7 +17,7 @@ module.exports = {
     },
     Endpoint: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         managingOrganization: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

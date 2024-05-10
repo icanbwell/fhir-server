@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         observationDefinition: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -17,7 +17,7 @@ module.exports = {
     },
     ObservationDefinition: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         validCodedValueSet: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -27,7 +27,7 @@ module.exports = {
                 parent.validCodedValueSet);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         normalCodedValueSet: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -37,7 +37,7 @@ module.exports = {
                 parent.normalCodedValueSet);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         abnormalCodedValueSet: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -47,7 +47,7 @@ module.exports = {
                 parent.abnormalCodedValueSet);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         criticalCodedValueSet: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

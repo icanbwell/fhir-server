@@ -131,7 +131,7 @@ class AdminPersonPatientLinkManager {
                     })];
                 logInfo('link after (empty)', { link: bwellPerson.link });
             }
-            // eslint-disable-next-line no-unused-vars
+
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 base_version,
                 requestInfo,
@@ -222,7 +222,7 @@ class AdminPersonPatientLinkManager {
                 resourceType: 'Person',
                 base_version
             });
-            // eslint-disable-next-line no-unused-vars
+
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 base_version,
                 requestInfo,
@@ -381,7 +381,7 @@ class AdminPersonPatientLinkManager {
                         })];
                 logInfo('link after', { link: sourcePerson.link });
             }
-            // eslint-disable-next-line no-unused-vars
+
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 base_version,
                 requestInfo,

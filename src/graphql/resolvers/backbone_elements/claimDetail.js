@@ -4,7 +4,7 @@
 module.exports = {
     ClaimDetail: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         udi: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

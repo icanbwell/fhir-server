@@ -40,7 +40,7 @@ class BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async writeBundleEntryAsync ({ bundleEntry }) {
         throw new Error('Method not implemented.');
     }
@@ -50,7 +50,7 @@ class BaseResponseStreamer {
      * @param {*} content
      * @returns {Promise<void>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async writeAsync ({ content }) {
         // ok to not specify
     }
@@ -59,7 +59,7 @@ class BaseResponseStreamer {
      * sets the bundle to use
      * @param {Bundle} bundle
      */
-    // eslint-disable-next-line no-unused-vars
+
     setBundle ({ bundle }) {
         // ok to not specify
     }

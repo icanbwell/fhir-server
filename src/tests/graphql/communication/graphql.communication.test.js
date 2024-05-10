@@ -54,7 +54,7 @@ describe('Communication Tests', () => {
 
     describe('Graphql communication Tests', () => {
         test('Invalid reference doesn\'t throw error', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const graphqlQueryText = communicationQuery.replace(/\\n/g, '');
             const container = getTestContainer();

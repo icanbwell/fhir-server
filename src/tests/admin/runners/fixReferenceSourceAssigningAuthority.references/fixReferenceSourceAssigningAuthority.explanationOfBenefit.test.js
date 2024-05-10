@@ -57,7 +57,7 @@ describe('ExplanationOfBenefit Tests', () => {
 
     describe('ExplanationOfBenefit fixReferenceSourceAssigningAuthority Tests', () => {
         test('fixReferenceSourceAssigningAuthority works for patient 1', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;

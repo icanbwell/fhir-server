@@ -445,7 +445,7 @@ async function handleAdminDelete (
                         const scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
-                        // eslint-disable-next-line no-unused-vars
+
                         const { success } = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             const errorMessage = 'user with scopes [' + scopes +
@@ -514,7 +514,7 @@ async function handleAdminDelete (
                         const scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
-                        // eslint-disable-next-line no-unused-vars
+
                         const { success } = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             const errorMessage = 'user with scopes [' + scopes +

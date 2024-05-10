@@ -4,7 +4,7 @@
 module.exports = {
     ClaimResponseInsurance: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         coverage: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -14,7 +14,7 @@ module.exports = {
                 parent.coverage);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         claimResponse: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -54,19 +54,19 @@ const graphql = async (fnGetContainer) => {
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
         configManagerInstance.enableGraphQLPlayground
-            // eslint-disable-next-line new-cap
+
             ? ApolloServerPluginLandingPageLocalDefault({
                 embed: {
                     runTelemetry: false
                 }
             })
-            // eslint-disable-next-line new-cap
+
             : ApolloServerPluginLandingPageDisabled(),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
         getValidateMissingVariableValuesPlugin(),
-        // eslint-disable-next-line new-cap
+
         ApolloServerPluginInlineTraceDisabled()
     ];
 

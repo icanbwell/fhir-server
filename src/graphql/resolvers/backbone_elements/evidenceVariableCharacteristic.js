@@ -4,7 +4,7 @@
 module.exports = {
     EvidenceVariableCharacteristic: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         definitionReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

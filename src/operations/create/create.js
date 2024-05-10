@@ -113,7 +113,7 @@ class CreateOperation {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async createAsync ({ requestInfo, parsedArgs, path, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
