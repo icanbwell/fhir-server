@@ -167,6 +167,8 @@ class ResourceValidator {
         let validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
             ? await this.validateResourceFromServerAsync(
                 {
+                    base_version,
+                    requestInfo,
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
@@ -280,6 +282,8 @@ class ResourceValidator {
     /**
      * @function validateResourceFromServerAsync
      * @description - validates name is correct for resource body and resource body conforms to FHIR specification
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceBody - payload of req.body
      * @param {string} resourceName - name of resource in url
      * @param {string} path - req.path from express
@@ -289,6 +293,8 @@ class ResourceValidator {
      */
     async validateResourceFromServerAsync (
         {
+            base_version,
+            requestInfo,
             resourceBody,
             resourceName,
             path,
@@ -300,6 +306,8 @@ class ResourceValidator {
         if (profile) {
             // save profile in remote server
             await this.upsertProfileInRemoteServer({
+                base_version,
+                requestInfo,
                 profile: profile,
                 resourceType: resourceToValidateJson.resourceType
             });
@@ -312,6 +320,8 @@ class ResourceValidator {
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
             await this.upsertProfileInRemoteServer({
+                base_version,
+                requestInfo,
                 profile: metaProfiles,
                 resourceType: resourceToValidateJson.resourceType
             });
@@ -365,7 +375,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({profile, resourceType}) {
+    async upsertProfileInRemoteServer({base_version, requestInfo, profile, resourceType}) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
