@@ -310,7 +310,6 @@ class ResourceValidator {
             const metaProfiles = resourceToValidateJson.meta.profile;
             await this.upsertProfileInRemoteServer({
                 profile: metaProfiles,
-                resourceType: resourceToValidateJson.resourceType
             });
         }
         if (!resourceToValidateJson.meta) {
