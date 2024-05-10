@@ -1,5 +1,5 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const { KafkaClient } = require('../../../utils/kafkaClient');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -9,7 +9,7 @@ class MockKafkaClient extends KafkaClient {
      * returns config for kafka
      * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
      */
-    getConfigAsync() {
+    getConfigAsync () {
         return { clientId: 'clientId', brokers: ['broker1', 'broker12'], ssl: true, sasl: false };
     }
 }
@@ -40,7 +40,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -49,7 +49,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockResolvedValueOnce();
@@ -76,7 +76,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -85,7 +85,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -94,7 +94,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }));
 

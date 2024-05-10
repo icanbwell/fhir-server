@@ -1,6 +1,6 @@
 .PHONY:build
 build:
-	docker buildx build --platform=linux/amd64 -t imranq2/node-fhir-server-mongo:local .
+	docker buildx build -t imranq2/node-fhir-server-mongo:local .
 
 .PHONY:build_all
 build_all:
@@ -20,7 +20,7 @@ up:
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
-	echo FHIR server GraphQL: http://localhost:3000/graphql && \
+	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
@@ -36,7 +36,7 @@ up-offline:
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
-	echo FHIR server GraphQL: http://localhost:3000/graphql && \
+	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
@@ -163,7 +163,8 @@ run-pre-commit: setup-pre-commit
 graphql:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_graphql_classes.py" && \
-	graphql-schema-linter src/graphql/v2/**/*.graphql
+	graphql-schema-linter src/graphql/**/*.graphql && \
+	eslint --fix "src/graphql/**/*.js"
 
 .PHONY:classes
 classes:
@@ -185,3 +186,6 @@ audit_fix:
 qodana:
 	docker run --rm -it --name qodana --mount type=bind,source="${PWD}",target=/data/project -p 8080:8080 jetbrains/qodana-js:2022.3-eap --show-report
 
+.PHONY:schema
+schema:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_schema.py"

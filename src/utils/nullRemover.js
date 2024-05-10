@@ -19,13 +19,7 @@ const removeNull = (obj) => {
             if (type === 'object' && !(value instanceof Date)) {
                 // Recurse...
                 removeNull(value);
-                if (!Object.keys(value).length) {
-                    delete obj[`${key}`];
-                }
                 if (Array.isArray(value)) {
-                    if (value.length === 0) {
-                        delete obj[`${key}`];
-                    }
                     for (const arrayItem of value) {
                         removeNull(arrayItem);
                     }
@@ -38,6 +32,41 @@ const removeNull = (obj) => {
     return obj;
 };
 
+const removeNullFromArray = (obj) => {
+    if (!obj || (typeof obj !== 'object')) {
+        return obj;
+    }
+    Object.keys(obj).forEach(key => {
+        const value = obj[`${key}`];
+        if (value === null) {
+            return;
+        }
+        const type = typeof value;
+        // Date is also of type Object but has no properties
+        if (type === 'object' && !(value instanceof Date)) {
+            // Recurse...
+            removeNullFromArray(value);
+            if (Array.isArray(value)) {
+                for (const arrayItem of value) {
+                    removeNullFromArray(arrayItem);
+                }
+
+                for (let i = value.length; i >= 0; i--) {
+                    if (value[i] === null || (
+                        typeof value[i] === 'object' &&
+                        Object.keys(value[i]).length === 0
+                    )) {
+                        value.splice(i, 1);
+                    }
+                }
+            }
+        }
+    });
+
+    return obj;
+}
+
 module.exports = {
-    removeNull
+    removeNull,
+    removeNullFromArray
 };

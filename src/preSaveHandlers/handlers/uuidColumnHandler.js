@@ -1,10 +1,10 @@
-const {PreSaveHandler} = require('./preSaveHandler');
-const {isUuid, generateUUIDv5, generateUUID} = require('../../utils/uid.util');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
+const { PreSaveHandler } = require('./preSaveHandler');
+const { isUuid, generateUUIDv5, generateUUID } = require('../../utils/uid.util');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Adds the uuid to the resource if not present
@@ -14,7 +14,7 @@ class UuidColumnHandler extends PreSaveHandler {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({ configManager }) {
         super();
         /**
          * @type {ConfigManager}
@@ -23,7 +23,15 @@ class UuidColumnHandler extends PreSaveHandler {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    async preSaveAsync({resource}) {
+    /**
+     * fixes up any resources before they are saved
+     * @typedef {Object} PreSaveAsyncProps
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     *
+     * @param {PreSaveAsyncProps}
+     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     */
+    async preSaveAsync ({ resource }) {
         if (isUuid(resource.id)) {
             resource._uuid = resource.id;
         } else if (!resource.id) {
@@ -36,9 +44,9 @@ class UuidColumnHandler extends PreSaveHandler {
              */
             const sourceAssigningAuthorityCodes = resource.meta.security.filter(
                 s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-            const idToGenerateUuid = sourceAssigningAuthorityCodes ?
-                resource.id + '|' + sourceAssigningAuthorityCodes[0] :
-                resource.id;
+            const idToGenerateUuid = sourceAssigningAuthorityCodes
+                ? resource.id + '|' + sourceAssigningAuthorityCodes[0]
+                : resource.id;
             resource._uuid = `${generateUUIDv5(idToGenerateUuid)}`;
         }
 
@@ -49,9 +57,9 @@ class UuidColumnHandler extends PreSaveHandler {
             resource.identifier.push(
                 new Identifier(
                     {
-                        'id': 'uuid',
-                        'system': IdentifierSystem.uuid,
-                        'value': resource._uuid
+                        id: 'uuid',
+                        system: IdentifierSystem.uuid,
+                        value: resource._uuid
                     }
                 )
             );
@@ -65,9 +73,9 @@ class UuidColumnHandler extends PreSaveHandler {
             resource.identifier = [
                 new Identifier(
                     {
-                        'id': 'uuid',
-                        'system': IdentifierSystem.uuid,
-                        'value': resource._uuid
+                        id: 'uuid',
+                        system: IdentifierSystem.uuid,
+                        value: resource._uuid
                     }
                 )
             ];

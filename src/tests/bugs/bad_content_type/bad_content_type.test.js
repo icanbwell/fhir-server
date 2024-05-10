@@ -5,9 +5,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -27,7 +27,6 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-
             const headers = getHeaders();
             headers['Content-Type'] = 'application/json';
             resp = await request
@@ -39,7 +38,7 @@ describe('PatientReturnIdTests', () => {
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual(
                 {
-                    'message': 'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir,application/json-patch+json'
+                    message: 'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir,application/json-patch+json'
                 }
             );
 
@@ -56,7 +55,6 @@ describe('PatientReturnIdTests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
-
         });
     });
 });

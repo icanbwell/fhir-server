@@ -1,22 +1,21 @@
-const {ForbiddenError, NotFoundError, BadRequestError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {removeNull} = require('../../utils/nullRemover');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SearchManager} = require('../search/searchManager');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {SecurityTagManager} = require('../common/securityTagManager');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {isTrue} = require('../../utils/isTrue');
-const {ConfigManager} = require('../../utils/configManager');
-const {getFirstResourceOrNull} = require('../../utils/list.util');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { NotFoundError, BadRequestError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { removeNull } = require('../../utils/nullRemover');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SearchManager } = require('../search/searchManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { SecurityTagManager } = require('../common/securityTagManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { isTrue } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
+const { getFirstResourceOrNull } = require('../../utils/list.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchByIdOperation {
     /**
@@ -25,7 +24,6 @@ class SearchByIdOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
      * @param {SecurityTagManager} securityTagManager
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
@@ -33,13 +31,12 @@ class SearchByIdOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             searchManager,
             databaseQueryFactory,
             auditLogger,
             securityTagManager,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
@@ -68,11 +65,6 @@ class SearchByIdOperation {
          */
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -116,21 +108,19 @@ class SearchByIdOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async searchByIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         /**
          * @type {number}
          */
         const startTime = Date.now();
         const {
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -140,7 +130,7 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId,
+            requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -152,10 +142,14 @@ class SearchByIdOperation {
             accessRequested: 'read'
         });
 
-        try {
+        // check if required filters for AuditEvent are passed
+        if (resourceType === 'AuditEvent') {
+            this.searchManager.validateAuditEventQueryParameters(parsedArgs);
+        }
 
+        try {
             // Common search params
-            const {id, base_version} = parsedArgs;
+            const { id, base_version } = parsedArgs;
 
             /**
              * @type {Promise<Resource> | *}
@@ -165,35 +159,35 @@ class SearchByIdOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
                 user,
                 scope,
                 isUser,
-                patientIdsFromJwtToken,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                operation: READ
+                operation: READ,
+                requestId
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query, extraInfo});
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             // we can convert to array since we don't expect to be many resources that have same id
             /**
              * @type {Resource[]}
@@ -211,8 +205,8 @@ class SearchByIdOperation {
                  * @type {string[]}
                  */
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
                         : []
@@ -227,14 +221,6 @@ class SearchByIdOperation {
             resource = getFirstResourceOrNull(resources);
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: resource, user, scope
-                }))) {
-                    throw new ForbiddenError(
-                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                        resource.resourceType + ' with id ' + id);
-                }
-
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
@@ -254,21 +240,24 @@ class SearchByIdOperation {
                             // log access to audit logs
                             await this.auditLogger.logAuditEntryAsync(
                                 {
-                                    requestInfo, base_version, resourceType,
-                                    operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'read',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: [resource.id]
                                 }
                             );
                         }
                     });
                 }
-                await this.fhirLoggingManager.logOperationSuccessAsync(
-                    {
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
@@ -277,15 +266,14 @@ class SearchByIdOperation {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

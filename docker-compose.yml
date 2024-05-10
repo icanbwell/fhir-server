@@ -23,7 +23,6 @@ services:
       AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
       AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD
       AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
-      AUTH_ENABLED: 0
       REDIRECT_TO_LOGIN: 1
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
@@ -39,7 +38,6 @@ services:
       USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
       LOG_EXCLUDE_RESOURCES: 'Person,Patient'
       STREAM_RESPONSE: '1'
-      ENABLE_MONGODB_ACCESS_LOGS: '1'
       LOG_STREAM_STEPS: '0'
       ENABLE_EVENTS_KAFKA: '1'
       ENABLE_KAFKA_HEALTHCHECK: '1'
@@ -51,26 +49,19 @@ services:
       AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
-      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051"
+      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
-      DD_TRACE_ENABLED: 'False'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
-      OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
-      OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
-      OPENSEARCH_VECTORSTORE_USERNAME: 'admin'
-      OPENSEARCH_VECTORSTORE_PASSWORD: 'admin'
-      WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
+      FHIR_ADMIN_UI_URL: 'http://localhost:4000'
       REDIRECT_TO_NEW_UI: '1'
-#      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
-#      MONGO_VECTORSTORE_USERNAME: ''
-#      MONGO_VECTORSTORE_PASSWORD: ''
-#      MONGO_VECTORSTORE_DB: 'cl-dev-knowledge'
+      KAFKAJS_NO_PARTITIONER_WARNING: '1'
+      VALIDATE_WITH_GENERATED_SCHEMA: 'Account,ActivityDefinition,AdverseEvent,AllergyIntolerance,Appointment,AppointmentResponse,AuditEvent,Basic,Binary,BiologicallyDerivedProduct,BodyStructure,Bundle,CapabilityStatement,CarePlan,CareTeam,CatalogEntry,ChargeItem,ChargeItemDefinition,Claim,ClaimResponse,Client,ClinicalImpression,CodeSystem,Communication,CommunicationRequest,CompartmentDefinition,Composition,ConceptMap,Condition,Consent,Contract,Coverage,CoverageEligibilityRequest,CoverageEligibilityResponse,DetectedIssue,Device,DeviceDefinition,DeviceMetric,DeviceRequest,DeviceUseStatement,DiagnosticReport,DocumentManifest,DocumentReference,EffectEvidenceSynthesis,Encounter,Endpoint,EnrollmentRequest,EnrollmentResponse,EpisodeOfCare,EventDefinition,Evidence,EvidenceVariable,ExampleScenario,ExplanationOfBenefit,FamilyMemberHistory,Flag,Goal,Group,GuidanceResponse,HealthcareService,ImagingStudy,Immunization,ImmunizationEvaluation,ImmunizationRecommendation,ImplementationGuide,InsurancePlan,Invoice,Library,Linkage,List,Location,Measure,MeasureReport,Media,Medication,MedicationAdministration,MedicationDispense,MedicationKnowledge,MedicationRequest,MedicationStatement,MedicinalProduct,MedicinalProductAuthorization,MedicinalProductContraindication,MedicinalProductIndication,MedicinalProductIngredient,MedicinalProductInteraction,MedicinalProductManufactured,MedicinalProductPackaged,MedicinalProductPharmaceutical,MedicinalProductUndesirableEffect,MessageDefinition,MessageHeader,MolecularSequence,NamingSystem,NutritionOrder,Observation,ObservationDefinition,OperationDefinition,OperationOutcome,Organization,OrganizationAffiliation,Parameters,Patient,PaymentNotice,PaymentReconciliation,Person,PlanDefinition,Practitioner,PractitionerRole,Procedure,Provenance,Questionnaire,QuestionnaireResponse,RelatedPerson,RequestGroup,ResearchDefinition,ResearchElementDefinition,ResearchStudy,ResearchSubject,RiskAssessment,RiskEvidenceSynthesis,Schedule,SearchParameter,ServiceRequest,Slot,Specimen,SpecimenDefinition,StructureDefinition,StructureMap,Subscription,SubscriptionStatus,SubscriptionTopic,Substance,SubstanceNucleicAcid,SubstancePolymer,SubstanceProtein,SubstanceReferenceInformation,SubstanceSourceMaterial,SubstanceSpecification,SupplyDelivery,SupplyRequest,Task,TerminologyCapabilities,TestReport,TestScript,ValueSet,VerificationResult,VisionPrescription'
     ports:
       - '3000:3000'
     volumes:
@@ -82,7 +73,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.23
+    image: mongo:6.0.13
     ports:
       - '27017:27017'
     environment:
@@ -90,7 +81,7 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
 
   #  mongoclient:
   #    image: imranq2/mongoclient-aws:0.1.8
@@ -110,7 +101,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: bitnami/kafka:3.5.2
+    image: bitnami/kafka:3.6.1
     ports:
       - '9092:9092'
     environment:
@@ -157,7 +148,7 @@ services:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
     # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
     # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:2.11.1
+    image: opensearchproject/opensearch:2.12.0
     container_name: elasticsearch
     environment:
       - cluster.name=odfe-cluster
@@ -170,6 +161,7 @@ services:
       #      - opendistro_security.disabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
       - plugins.security.ssl.http.enabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=UujbDM76i6ZKjHZn88dN
     ulimits:
       memlock:
         soft: -1
@@ -189,6 +181,3 @@ services:
 volumes:
   mongo_data:
   es_data:
-  es_cert:
-  prometheus_data: { }
-  grafana_data: { }

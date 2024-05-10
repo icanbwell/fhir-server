@@ -1,52 +1,48 @@
+const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {MergeManager} = require('./mergeManager');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { MergeManager } = require('./mergeManager');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { BundleManager } = require('../common/bundleManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {MergeResultEntry} = require('../common/mergeResultEntry');
-const {QueryItem} = require('../graph/queryItem');
-const {ConfigManager} = require('../../utils/configManager');
-const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
-const {MergeValidator} = require('./mergeValidator');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { MergeResultEntry } = require('../common/mergeResultEntry');
+const { QueryItem } = require('../graph/queryItem');
+const { ConfigManager } = require('../../utils/configManager');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { MergeValidator } = require('./mergeValidator');
+const { logInfo } = require('../common/logging');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {PostSaveProcessor} postSaveProcessor
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
-     * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
      */
-    constructor(
+    constructor (
         {
             mergeManager,
             databaseBulkInserter,
-            postSaveProcessor,
             databaseBulkLoader,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator,
             bundleManager,
             configManager,
             bwellPersonFinder,
@@ -63,11 +59,6 @@ class MergeOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {DatabaseBulkLoader}
          */
@@ -90,11 +81,6 @@ class MergeOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
-        /**
-         * @type {ScopesValidator}
-         */
-        this.scopesValidator = scopesValidator;
-        assertTypeEquals(scopesValidator, ScopesValidator);
         /**
          * @type {BundleManager}
          */
@@ -126,7 +112,7 @@ class MergeOperation {
      * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
-    addSuccessfulMergesToMergeResult(resourcesIncomingArray, currentMergeResults) {
+    addSuccessfulMergesToMergeResult (resourcesIncomingArray, currentMergeResults) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -144,10 +130,14 @@ class MergeOperation {
                         sourceAssigningAuthority: resource._sourceAssigningAuthority,
                         resourceType: resource.resourceType,
                         created: false,
-                        updated: false,
+                        updated: false
                     }
                 );
                 mergeResults.push(mergeResultItem);
+                logInfo('Resource neither created or updated', {
+                    operation: 'merge',
+                    ...mergeResultItem
+                });
             }
         }
         return mergeResults;
@@ -160,13 +150,11 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async mergeAsync({requestInfo, parsedArgs, resourceType}) {
+    async mergeAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'merge';
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -174,8 +162,6 @@ class MergeOperation {
         const {
             /** @type {string | null} */
             user,
-            /** @type {string | null} */
-            scope,
             /** @type {string | null} */
             originalUrl: url,
             /** @type {string | null} */
@@ -188,25 +174,9 @@ class MergeOperation {
             userRequestId,
             /** @type {Object} */
             headers,
-            /** @type {string|null} */
-            path,
             /** @type {Object | Object[] | null} */
-            body,
-            /** @type {string} */
-            method
+            body
         } = requestInfo;
-
-
-        await this.scopesValidator.verifyHasValidScopesAsync(
-            {
-                requestInfo,
-                parsedArgs,
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                accessRequested: 'write'
-            }
-        );
 
         /**
          * @type {string}
@@ -215,85 +185,110 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            let {/** @type {string} */ base_version} = parsedArgs;
+            const { /** @type {string} */ base_version } = parsedArgs;
 
-            /**
-             * @type {string[]}
-             */
-            const scopes = this.scopesManager.parseScopes(scope);
             // read the incoming resource from request body
             /**
              * @type {Object|Object[]|undefined}
              */
-            let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
+            const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
                 /** @type {boolean} */ wasIncomingAList
-            } = await this.mergeValidator.validate({
+            } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentDate,
                 currentOperationName,
                 incomingObjects,
-                path,
-                requestId,
                 resourceType,
-                scope,
-                user
+                requestInfo
             });
 
+            mergePreCheckErrors.forEach(mergeResultEntry => {
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    ...mergeResultEntry
+                });
+            });
+
+            let validResources = resourcesIncomingArray;
+
             // merge the resources
-            await this.mergeManager.mergeResourceListAsync(
-                {
-                    resources_incoming: resourcesIncomingArray,
-                    user,
-                    resourceType,
-                    scopes,
-                    path,
-                    currentDate,
-                    requestId,
-                    base_version,
-                    scope
-                }
-            );
+            /**
+             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             */
+            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
+                resources_incoming: validResources,
+                resourceType,
+                currentDate,
+                base_version,
+                requestInfo
+            });
+            validResources = mergeResourceResults
+                .flatMap(m => m.resource)
+                .filter(r => r !== null);
             /**
              * mergeResults
              * @type {MergeResultEntry[]}
              */
-            let mergeResults = await this.databaseBulkInserter.executeAsync(
-                {
-                    requestId, currentDate,
-                    base_version,
-                    method,
-                    userRequestId,
-                });
+            let mergeResults = await this.databaseBulkInserter.executeAsync({
+                requestInfo,
+                currentDate,
+                base_version
+            });
 
+            mergeResults.forEach(mergeResult => {
+                if (mergeResult.created) {
+                    logInfo('Resource Created', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                } else if (mergeResult.updated) {
+                    logInfo('Resource Updated', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                } else {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        ...mergeResult
+                    });
+                }
+            });
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             mergeResults = mergeResults.concat(
-                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
+                mergeResourceResults
+                    .flatMap(m => m.mergeError)
+                    .filter(m => m !== null)
+            );
+
+            mergeResults = mergeResults.concat(
+                this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
             );
 
             mergeResults.sort((res1, res2) =>
-                res1.uuid ? res2.uuid ? res1.uuid.localeCompare(res2.uuid) : 1 : -1
+                res1._uuid ? res2._uuid ? res1._uuid.localeCompare(res2._uuid) : 1 : -1
             );
 
             await this.mergeManager.logAuditEntriesForMergeResults({
                 requestInfo, requestId, base_version, parsedArgs, mergeResults
             });
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(mergeResults, getCircularReplacer())
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(mergeResults, getCircularReplacer())
+            });
 
             /**
              * @type {number}
@@ -316,7 +311,7 @@ class MergeOperation {
                                     severity: 'information',
                                     code: 'informational',
                                     details: new CodeableConcept(
-                                        {text: 'OK'}
+                                        { text: 'OK' }
                                     )
                                 })]
                         }) : new OperationOutcome({
@@ -335,7 +330,7 @@ class MergeOperation {
                                                     // resource was created
                                                     system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
                                                     code: m.created ? '201' : m.updated ? '200' : '304',
-                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
                                                 })
                                             ]
                                         }),
@@ -359,7 +354,7 @@ class MergeOperation {
                         originalUrl: url,
                         host,
                         protocol,
-                        resources: resources,
+                        resources,
                         base_version,
                         total_count: operationOutcomes.length,
                         originalQuery: new QueryItem(
@@ -381,18 +376,15 @@ class MergeOperation {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
-        } finally {
-            timer({action: currentOperationName, resourceType});
         }
     }
 }

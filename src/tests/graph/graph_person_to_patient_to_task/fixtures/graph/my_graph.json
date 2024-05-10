@@ -1,6 +1,8 @@
 {
   "resourceType": "GraphDefinition",
   "start": "Person",
+  "status": "active",
+  "name": "test",
   "link": [
     {
       "description": "Associated Patient",

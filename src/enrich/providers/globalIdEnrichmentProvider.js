@@ -1,19 +1,18 @@
-const {EnrichmentProvider} = require('./enrichmentProvider');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {isUuid} = require('../../utils/uid.util');
-const {ReferenceParser} = require('../../utils/referenceParser');
+const { EnrichmentProvider } = require('./enrichmentProvider');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { isUuid } = require('../../utils/uid.util');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
  * @classdesc sets id to global id if the 'Prefer' header is set
  */
 class GlobalIdEnrichmentProvider extends EnrichmentProvider {
-
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor({databaseQueryFactory}) {
+    constructor ({ databaseQueryFactory }) {
         super();
 
         /**
@@ -29,13 +28,13 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+
+    async enrichAsync ({ resources, parsedArgs }) {
         /**
          * @type {string}
          */
         const preferHeader = parsedArgs.headers &&
-            (parsedArgs.headers['prefer'] || parsedArgs.headers['Prefer']);
+            (parsedArgs.headers.prefer || parsedArgs.headers.Prefer);
         if (preferHeader) {
             const parts = preferHeader.split('=');
             if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
@@ -66,7 +65,6 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                             }
                         );
                     }
-
                 }
             }
         }
@@ -79,9 +77,9 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {Reference} reference
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync({reference}) {
+    async updateReferenceAsync ({ reference }) {
         if (reference.reference) {
-            const {id} = ReferenceParser.parseReference(reference.reference);
+            const { id } = ReferenceParser.parseReference(reference.reference);
             if (!isUuid(id) && reference._uuid) {
                 reference.reference = reference._uuid;
             }
@@ -95,7 +93,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(

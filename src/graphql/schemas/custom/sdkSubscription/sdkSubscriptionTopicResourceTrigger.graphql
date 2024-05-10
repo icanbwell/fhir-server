@@ -1,0 +1,25 @@
+# This schema is temporary until we switch our Cosmo Graph to use federation.
+# See https://icanbwell.atlassian.net/browse/EFS-985
+# import uri from "../simple_types/uri.graphql"
+
+
+"""
+SubscriptionTopic.ResourceTrigger
+    Describes a stream of resource state changes or events and annotated with
+    labels useful to filter projections from this topic.
+"""
+type Subscription_SubscriptionTopicResourceTrigger {
+    """
+    None
+    """
+    id: String
+    """
+    URL of the Resource that is the type used in this resource trigger.  Relative
+    URLs are relative to the StructureDefinition root of the implemented FHIR
+    version (e.g., http://hl7.org/fhir/StructureDefinition). For example,
+    "Patient" maps to http://hl7.org/fhir/StructureDefinition/Patient.  For more
+    information, see <a href="elementdefinition-
+    definitions.html#ElementDefinition.type.code">ElementDefinition.type.code</a>.
+    """
+    resource: uri
+}

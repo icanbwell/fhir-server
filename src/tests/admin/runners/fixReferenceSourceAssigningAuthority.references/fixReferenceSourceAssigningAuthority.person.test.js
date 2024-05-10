@@ -15,28 +15,24 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
 const {
     FixReferenceSourceAssigningAuthorityRunner
 } = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
-const {IdentifierSystem} = require('../../../../utils/identifierSystem');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return false;
-    }
-
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, personResource, expectedPersonInDatabase,
+async function setupDatabaseAsync (mongoDatabaseManager, personResource, expectedPersonInDatabase,
                                   collectionName) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
@@ -48,7 +44,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, personResource, expected
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: personResource.id});
+    const resource = await collection.findOne({ id: personResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -70,7 +66,7 @@ describe('Person Tests', () => {
 
     describe('Person fixReferenceSourceAssigningAuthority Tests', () => {
         test('fixReferenceSourceAssigningAuthority works for patient 1', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -79,7 +75,7 @@ describe('Person Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -110,7 +106,7 @@ describe('Person Tests', () => {
                 (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,
@@ -136,7 +132,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({id: person1Resource.id});
+            const person1 = await collection.findOne({ id: person1Resource.id });
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();
@@ -151,7 +147,7 @@ describe('Person Tests', () => {
             expect(person1).toStrictEqual(expectedPerson1DatabaseAfterRun);
         });
         test('fixReferenceSourceAssigningAuthority works for patient 1 with specified properties', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -160,7 +156,7 @@ describe('Person Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -191,7 +187,7 @@ describe('Person Tests', () => {
                 (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,
@@ -220,7 +216,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({id: person1Resource.id});
+            const person1 = await collection.findOne({ id: person1Resource.id });
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();

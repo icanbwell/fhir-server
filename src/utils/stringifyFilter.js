@@ -1,4 +1,4 @@
-function stringifyFilter(key, value) {
+function stringifyFilter (key, value) {
     if (value instanceof RegExp) {
         return value.toString();
     }

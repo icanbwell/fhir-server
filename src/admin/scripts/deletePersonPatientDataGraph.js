@@ -3,7 +3,7 @@ if (process.argv.includes('--dotenv')) {
     const dotenv = require('dotenv');
     const pathToEnv = path.resolve(__dirname, '.env');
     dotenv.config({
-        path: pathToEnv,
+        path: pathToEnv
     });
     console.log(`Reading config from ${pathToEnv}`);
 }
@@ -13,24 +13,24 @@ const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 const {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 } = require('../runners/deletePersonPatientDataGraphRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
 
-    let properties = parameters.properties ?
-        parameters.properties.split(',').map((x) => x.trim()) :
-        [];
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map((x) => x.trim())
+        : [];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
@@ -65,7 +65,7 @@ async function main() {
                 patientUuids,
                 personUuids,
                 concurrencyBatchSize,
-                dryRun,
+                dryRun
             })
     );
 

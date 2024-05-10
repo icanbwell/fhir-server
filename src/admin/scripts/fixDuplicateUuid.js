@@ -8,27 +8,27 @@ if (process.argv.includes('--dotenv')) {
     console.log(`Reading config from ${pathToEnv}`);
 }
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixDuplicateUuidRunner} = require('../runners/fixDuplicateUuidRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixDuplicateUuidRunner } = require('../runners/fixDuplicateUuidRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
@@ -42,9 +42,9 @@ async function main() {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
-    let properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
     const adminLogger = new AdminLogger();
     adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
@@ -64,10 +64,10 @@ async function main() {
                 limit: parameters.limit,
                 skip: parameters.skip,
                 startFromId: parameters.startFromId,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 properties,
                 afterLastUpdatedDate,
-                beforeLastUpdatedDate,
+                beforeLastUpdatedDate
             }
         )
     );

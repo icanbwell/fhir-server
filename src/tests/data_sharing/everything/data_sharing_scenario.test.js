@@ -43,11 +43,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
-
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
@@ -82,7 +81,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
@@ -106,7 +105,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentDeniedResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything')
@@ -130,7 +129,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
@@ -154,7 +153,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
@@ -180,7 +179,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
@@ -204,7 +203,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6/$everything?_debug=true')
@@ -228,7 +227,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6/$everything?_debug=true')
@@ -254,7 +253,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce7/$everything?_debug=true')
@@ -279,7 +278,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce7/$everything?_debug=true')
@@ -303,7 +302,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8/$everything?_debug=true')
@@ -328,7 +327,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8/$everything')
@@ -352,7 +351,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
@@ -377,7 +376,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hieTreatmentPatientResource, hieTreatmentObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')

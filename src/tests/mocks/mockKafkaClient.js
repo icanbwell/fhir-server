@@ -5,12 +5,12 @@ class MockKafkaClient extends KafkaClient {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({ configManager }) {
+    constructor ({ configManager }) {
         super({ configManager });
         /**
          * @type {KafkaClientMessage[]}
          */
-        // eslint-disable-next-line no-this-before-super
+
         this.messages = [];
     }
 
@@ -24,12 +24,12 @@ class MockKafkaClient extends KafkaClient {
      *
      * @param {InitProps}
      */
-    // eslint-disable-next-line no-unused-vars
-    init({ clientId, brokers, ssl, sasl }) {
+
+    init ({ clientId, brokers, ssl, sasl }) {
         // do nothing
     }
 
-    clear() {
+    clear () {
         this.messages = [];
     }
 
@@ -39,8 +39,8 @@ class MockKafkaClient extends KafkaClient {
      * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async sendMessagesAsync(topic, messages) {
+
+    async sendMessagesAsync (topic, messages) {
         this.messages = this.messages.concat(messages);
     }
 
@@ -48,11 +48,11 @@ class MockKafkaClient extends KafkaClient {
      * Returns current messages
      * @return {KafkaClientMessage[]}
      */
-    getMessages() {
+    getMessages () {
         return this.messages;
     }
 }
 
 module.exports = {
-    MockKafkaClient,
+    MockKafkaClient
 };

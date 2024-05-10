@@ -49,7 +49,7 @@
     <xs:complexContent>
       <xs:extension base="DomainResource">
         <xs:sequence>
-          <xs:element name="status" minOccurs="1" maxOccurs="1" type="SubscriptionStatus">
+          <xs:element name="status" minOccurs="1" maxOccurs="1" type="SubscriptionStatusCodes">
             <xs:annotation>
               <xs:documentation xml:lang="en">The status of the subscription, which marks the server state for managing the subscription.</xs:documentation>
            </xs:annotation>
@@ -119,7 +119,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="SubscriptionStatus-list">
+  <xs:simpleType name="SubscriptionStatusCodes-list">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="requested">
         <xs:annotation>
@@ -143,14 +143,14 @@
       </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
-  <xs:complexType name="SubscriptionStatus">
+  <xs:complexType name="SubscriptionStatusCodes">
     <xs:annotation>
       <xs:documentation xml:lang="en">The status of a subscription.</xs:documentation>
       <xs:documentation xml:lang="en">If the element is present, it must have either a @value, an @id, or extensions</xs:documentation>
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="SubscriptionStatus-list" use="optional"/>
+        <xs:attribute name="value" type="SubscriptionStatusCodes-list" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

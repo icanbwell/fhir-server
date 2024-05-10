@@ -1,6 +1,8 @@
 {
   "resourceType": "GraphDefinition",
   "start": "Patient",
+  "name": "test",
+  "status": "active",
   "link": [
     {
       "description": "Associated Task",

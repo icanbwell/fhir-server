@@ -1,22 +1,20 @@
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {getFirstElementOrNull} = require('../../utils/list.util');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { getFirstElementOrNull } = require('../../utils/list.util');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const {ResourceValidator} = require('../common/resourceValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {isTrue} = require('../../utils/isTrue');
-const {SearchManager} = require('../search/searchManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { isTrue } = require('../../utils/isTrue');
+const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
-const {READ} = require('../../constants').OPERATIONS;
-
+const { READ } = require('../../constants').OPERATIONS;
 
 class ValidateOperation {
     /**
@@ -28,7 +26,7 @@ class ValidateOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             scopesManager,
             fhirLoggingManager,
@@ -80,20 +78,18 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validateAsync({requestInfo, parsedArgs, resourceType}) {
+    async validateAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
-        const {id, resource, base_version} = parsedArgs;
+        const { id, resource, base_version } = parsedArgs;
         /**
          * @type {number}
          */
         const startTime = Date.now();
         const {
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -103,7 +99,7 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path,
+            path
         } = requestInfo;
 
         /**
@@ -128,14 +124,14 @@ class ValidateOperation {
                 /**
                  * @type {boolean}
                  */
-                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
                 /**
                  * @type {{base_version, columns: Set, query: import('mongodb').Document}}
                  */
                 const {
                     /** @type {import('mongodb').Document}**/
-                    query,
+                    query
                     // /** @type {Set} **/
                     // columns
                 } = await this.searchManager.constructQueryAsync(
@@ -143,7 +139,6 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
-                        patientIdsFromJwtToken,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
@@ -153,17 +148,18 @@ class ValidateOperation {
                 );
 
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
+                    { resourceType, base_version }
                 );
                 /**
                  * @type {DatabasePartitionedCursor}
                  */
-                const cursor = await databaseQueryManager.findAsync({query});
+                const cursor = await databaseQueryManager.findAsync({ query });
                 let operationOutcome = null;
                 while (await cursor.hasNext()) {
                     resource_incoming = (await cursor.next()).toJSON();
                     const operationOutcomeForResource = await this.validateResourceAsync(
                         {
+                            base_version,
                             resource_incoming,
                             resourceType,
                             path,
@@ -194,6 +190,7 @@ class ValidateOperation {
             }
             return await this.validateResourceAsync(
                 {
+                    base_version,
                     resource_incoming,
                     resourceType,
                     path,
@@ -205,15 +202,14 @@ class ValidateOperation {
                 }
             );
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }
@@ -226,12 +222,14 @@ class ValidateOperation {
      * @param currentDate
      * @param parsedArgs
      * @param currentOperationName
-     * @param requestInfo
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param startTime
      * @returns {Promise<OperationOutcome>}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
+            base_version,
             resource_incoming,
             resourceType,
             path,
@@ -332,25 +330,25 @@ class ValidateOperation {
          */
         const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
             {
+                base_version,
+                requestInfo,
                 id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,
-                path: path,
-                currentDate: currentDate,
+                path,
+                currentDate,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile,
+                profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
@@ -373,14 +371,13 @@ class ValidateOperation {
             });
         }
 
-        await this.fhirLoggingManager.logOperationSuccessAsync(
-            {
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
+        await this.fhirLoggingManager.logOperationSuccessAsync({
+            requestInfo,
+            args: parsedArgs.getRawArgs(),
+            resourceType,
+            startTime,
+            action: currentOperationName
+        });
 
         // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
         // Note: as this is the only out parameter, it is a resource, and it has the name 'return',

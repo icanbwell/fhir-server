@@ -1,0 +1,78 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/DocumentReference/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"preliminary\",\"final\",\"amended\",\"entered-in-error\"]}: at position .docStatus"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/DocumentReference/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"preliminary\",\"final\",\"amended\",\"entered-in-error\"]}: at position .docStatus"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/DocumentReference/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "DocumentReference",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "27153f78-54c7-5029-889b-1026a9580ebf"
+  },
+  {
+    "created": false,
+    "id": "3",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/DocumentReference/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/DocumentReference/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/DocumentReference/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "DocumentReference",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "42247a4d-7507-57bb-b6c1-ee2815815c07"
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "DocumentReference",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+  }
+]

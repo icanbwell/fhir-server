@@ -8,9 +8,9 @@ const deepmerge = require('deepmerge');
  * @type {{customMerge: (function(*): *)}}
  */
 const options = {
-    customMerge: (/*key*/) => {
+    customMerge: (/* key */) => {
         // this requires a forward declaration since it uses recursion
-        // eslint-disable-next-line no-use-before-define
+
         return mergeObjectOrArray;
     }
 };
@@ -21,7 +21,7 @@ const options = {
  * @param {Object} newArrayItem
  * @returns {Object[]}
  */
-function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
+function mergeArraysWithSequenceNumbers (oldArray, newArrayItem) {
     /**
      * @type {Object[]}
      */
@@ -42,7 +42,7 @@ function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
          */
         const oldArrayItem = oldArray[`${index}`];
         // if item has not already been inserted then insert before the next sequence
-        if (!insertedItem && (oldArrayItem['sequence'] > newArrayItem['sequence'])) {
+        if (!insertedItem && (oldArrayItem.sequence > newArrayItem.sequence)) {
             resultArray.push(newArrayItem); // add the new item before
             resultArray.push(oldArrayItem); // then add the old item
             insertedItem = true;
@@ -65,12 +65,12 @@ function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
  * @param {Object[] | null} resultArray
  * @returns {{foundMatch: boolean, resultArray: Object[] | null}}
  */
-function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
+function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
     // find item in oldArray array that matches this one by id
     /**
      * @type {number}
      */
-    const matchingOldItemIndex = oldArray.findIndex(x => x['id'] === newArrayItem['id']);
+    const matchingOldItemIndex = oldArray.findIndex(x => x.id === newArrayItem.id);
     /**
      * @type {boolean}
      */
@@ -83,10 +83,13 @@ function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
         }
         // call deepmerge recursively to merge into items in this array
         resultArray[`${matchingOldItemIndex}`] = deepmerge(
-            oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
+            oldArray[`${matchingOldItemIndex}`],
+            newArrayItem,
+            options
+        );
         foundMatch = true;
     }
-    return {foundMatch, resultArray};
+    return { foundMatch, resultArray };
 }
 
 /**
@@ -95,7 +98,7 @@ function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
  * @param {Object[]}newArray
  * @returns {Object[]}
  */
-function mergeArrays(oldArray, newArray) {
+function mergeArrays (oldArray, newArray) {
     // if this is an array of primitive types then just replace with new array
     if (oldArray.length > 0 && typeof oldArray[0] !== 'object' && newArray.length > 0) {
         return newArray;
@@ -129,7 +132,7 @@ function mergeArrays(oldArray, newArray) {
                 /**
                  * @type {{foundMatch: boolean, resultArray: (Object[]|null)}}
                  */
-                const mergeArrayByIdResult = mergeArraysWithId(oldArray, newArrayItem, resultArray);
+                const mergeArrayByIdResult = mergeArraysWithId((resultArray || oldArray), newArrayItem, resultArray);
                 resultArray = mergeArrayByIdResult.resultArray;
                 if (mergeArrayByIdResult.foundMatch) {
                     continue;
@@ -137,7 +140,7 @@ function mergeArrays(oldArray, newArray) {
             }
             // if 'sequence' is present then use that to find matching elements
             if (typeof newArrayItem === 'object' && 'sequence' in newArrayItem) {
-                resultArray = mergeArraysWithSequenceNumbers(oldArray, newArrayItem);
+                resultArray = mergeArraysWithSequenceNumbers((resultArray || oldArray), newArrayItem);
             } else {
                 // no sequence property is set on this item so just insert at the end
                 if (resultArray === null) {
@@ -194,6 +197,5 @@ const mergeObject = (oldObject, newObject) => {
 };
 
 module.exports = {
-    mergeObject: mergeObject
+    mergeObject
 };
-

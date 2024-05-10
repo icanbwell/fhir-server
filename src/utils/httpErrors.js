@@ -2,24 +2,25 @@
  * This file implements custom HTTP errors for the FHIR server
  */
 
-const {ServerError} = require('../middleware/fhir/utils/server.error');
-const env = require('var');
+const { ServerError } = require('../middleware/fhir/utils/server.error');
 
 class BadRequestError extends ServerError {
-    constructor(error, options = {}) {
+    constructor (error, options = {}) {
+        const operationOutcomeIssue = {
+            severity: 'error',
+            code: 'invalid',
+            details: { text: error.message }
+        };
+        if (Object.hasOwn(error, 'stack')) {
+            operationOutcomeIssue.diagnostics = error.stack;
+        }
         super(error.message, {
             // Set this to make the HTTP status code 409
             statusCode: 400,
             // Add any normal operation outcome stuff here
             issue: [
-                {
-                    severity: 'error',
-                    code: 'invalid',
-                    details: {text: error.message},
-                    diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function') ?
-                        error.message : error.toString(),
-                },
-            ],
+                operationOutcomeIssue
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -30,14 +31,13 @@ class BadRequestError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 400;
     }
 }
 
-
 class NotFoundError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 409
             statusCode: 404,
@@ -46,9 +46,9 @@ class NotFoundError extends ServerError {
                 {
                     severity: 'error',
                     code: 'not-found',
-                    details: {text: message},
-                },
-            ],
+                    details: { text: message }
+                }
+            ]
         });
 
         this.name = 'NotFound';
@@ -61,13 +61,13 @@ class NotFoundError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 404;
     }
 }
 
 class NotAllowedError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 409
             statusCode: 409,
@@ -76,9 +76,9 @@ class NotAllowedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message},
-                },
-            ],
+                    details: { text: message }
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -89,7 +89,7 @@ class NotAllowedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 409;
     }
 }
@@ -100,7 +100,7 @@ class NotValidatedError extends ServerError {
      * @param {OperationOutcome} operationOutcome
      * @param {Object} options
      */
-    constructor(operationOutcome, options = {}) {
+    constructor (operationOutcome, options = {}) {
         super('Validation Failed', {
             // Set this to make the HTTP status code 400
             statusCode: 400,
@@ -116,13 +116,13 @@ class NotValidatedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 400;
     }
 }
 
 class UnauthorizedError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 401
             statusCode: 401,
@@ -131,9 +131,9 @@ class UnauthorizedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'security',
-                    details: {text: message},
-                },
-            ],
+                    details: { text: message }
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -144,13 +144,13 @@ class UnauthorizedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 401;
     }
 }
 
 class ForbiddenError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 401
             statusCode: 403,
@@ -160,9 +160,10 @@ class ForbiddenError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message},
-                },
-            ],
+                    details: { text: message },
+                    diagnostics: message
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -173,13 +174,13 @@ class ForbiddenError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 403;
     }
 }
 
 class ExternalTimeoutError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             statusCode: 504,
             // Add any normal operation outcome stuff here
@@ -190,7 +191,7 @@ class ExternalTimeoutError extends ServerError {
                     code: 'timeout',
                     details: { text: message }
                 }
-            ],
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -201,7 +202,7 @@ class ExternalTimeoutError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 504;
     }
 }
@@ -213,5 +214,5 @@ module.exports = {
     NotValidatedError,
     UnauthorizedError,
     ForbiddenError,
-    ExternalTimeoutError,
+    ExternalTimeoutError
 };

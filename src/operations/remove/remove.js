@@ -1,49 +1,40 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
-const env = require('var');
-const {buildStu3SearchQuery} = require('../query/stu3');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {R4SearchQueryCreator} = require('../query/r4');
+const {NotAllowedError} = require('../../utils/httpErrors');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
-const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ConfigManager} = require('../../utils/configManager');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {ParsedArgs} = require('../query/parsedArgs');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {SearchManager} = require('../search/searchManager');
+const {OPERATIONS: {DELETE}} = require('../../constants');
+const {logInfo, logWarn} = require('../common/logging');
 
 class RemoveOperation {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
-     * @param {R4SearchQueryCreator} r4SearchQueryCreator
-     * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
             databaseQueryFactory,
             auditLogger,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             configManager,
-            r4SearchQueryCreator,
-            r4ArgsParser,
             queryRewriterManager,
-            postRequestProcessor
+            postRequestProcessor,
+            searchManager
         }
     ) {
         /**
@@ -56,11 +47,6 @@ class RemoveOperation {
          */
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -79,18 +65,6 @@ class RemoveOperation {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {R4SearchQueryCreator}
-         */
-        this.r4SearchQueryCreator = r4SearchQueryCreator;
-        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
-
-        /**
-         * @type {R4ArgsParser}
-         */
-        this.r4ArgsParser = r4ArgsParser;
-        assertTypeEquals(r4ArgsParser, R4ArgsParser);
-
-        /**
          * @type {QueryRewriterManager}
          */
         this.queryRewriterManager = queryRewriterManager;
@@ -101,6 +75,12 @@ class RemoveOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -108,6 +88,7 @@ class RemoveOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
+     * @returns {Promise<{deleted: number}>}
      */
     async removeAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
@@ -119,7 +100,20 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
+        const {
+            /** @type {string|null} */
+            user,
+            /** @type {string|null} */
+            scope,
+            /** @type {string|null} */
+            requestId,
+            /** @type {boolean | null} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken,
+            /** @type {boolean} */
+            useAccessIndex
+        } = requestInfo;
 
         if (parsedArgs.get('id') &&
             (
@@ -137,25 +131,7 @@ class RemoveOperation {
         ) {
             parsedArgs.remove('_id');
         }
-        /**
-         * @type {string[]}
-         */
-        let securityTags = [];
-        // add any access codes from scopes
-        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
-        if (env.AUTH_ENABLED === '1') {
-            // fail if there are no access codes
-            if (accessCodes.length === 0) {
-                let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-                throw new ForbiddenError(errorMessage);
-            }
-            // see if we have the * access code
-            else if (accessCodes.includes('*')) {
-                // no security check since user has full access to everything
-            } else {
-                securityTags = accessCodes;
-            }
-        }
+
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
@@ -166,47 +142,23 @@ class RemoveOperation {
         });
 
         try {
-            let {base_version} = parsedArgs;
-            /**
-             * @type {import('mongodb').Document}
-             */
-            let query = {};
-            // eslint-disable-next-line no-useless-catch
-            try {
-                if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(parsedArgs);
-                } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(parsedArgs);
-                } else {
-                    ({query} = this.r4SearchQueryCreator.buildR4SearchQuery(
-                        {
-                            resourceType, parsedArgs
-                        }));
+            const {base_version} = parsedArgs;
+            const {
+                /** @type {import('mongodb').Document}**/
+                query
+            } = await this.searchManager.constructQueryAsync(
+                {
+                    user,
+                    scope,
+                    isUser,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs,
+                    operation: DELETE,
+                    accessRequested: 'write'
                 }
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
-
-            // add in $and statements for security tags
-            if (securityTags && securityTags.length > 0) {
-                // add as a separate $and statement
-                if (query.$and === undefined) {
-                    query.$and = [];
-                }
-                query.$and.push(
-                    {
-                        'meta.security': {
-                            '$elemMatch': {
-                                'system': SecurityTagSystem.access,
-                                'code': {
-                                    '$in': securityTags
-                                }
-                            }
-                        }
-                    }
-                );
-            }
+            );
 
             if (Object.keys(query).length === 0) {
                 // don't delete everything
@@ -214,16 +166,48 @@ class RemoveOperation {
             }
             // Delete our resource record
             let res;
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
+
             try {
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                );
+                res = await databaseQueryManager.findAsync({query});
+                const resourcesToDelete = {};
+
+                while (await res.hasNext()) {
+                    const resource = await res.next();
+
+                    // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
+                    try {
+                        await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                            requestInfo, resource, base_version
+                        });
+
+                        resourcesToDelete[resource._uuid] = {
+                            id: resource.id,
+                            _uuid: resource._uuid,
+                            _sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            resourceType: resource.resourceType,
+                            created: false,
+                            deleted: true
+                        };
+                    } catch (err) {
+                        logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
+                    }
+                }
                 /**
                  * @type {DeleteManyResult}
                  */
                 res = await databaseQueryManager.deleteManyAsync({
                     requestId,
-                    query
+                    query: {_uuid: {$in: Object.keys(resourcesToDelete)}}
+                });
+
+                Object.values(resourcesToDelete).forEach(data => {
+                    logInfo('Resource Deleted', {
+                        action: currentOperationName,
+                        ...data
+                    });
                 });
 
                 if (resourceType !== 'AuditEvent') {
@@ -233,8 +217,12 @@ class RemoveOperation {
                             // log access to audit logs
                             await this.auditLogger.logAuditEntryAsync(
                                 {
-                                    requestInfo, base_version, resourceType,
-                                    operation: 'delete', args: parsedArgs.getRawArgs(), ids: []
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'delete',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: Object.keys(resourcesToDelete)
                                 }
                             );
                         }
@@ -244,25 +232,23 @@ class RemoveOperation {
                 throw new NotAllowedError(e.message);
             }
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return {deleted: res.deletedCount};
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }
@@ -271,4 +257,3 @@ class RemoveOperation {
 module.exports = {
     RemoveOperation
 };
-

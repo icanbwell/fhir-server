@@ -7,7 +7,7 @@ module.exports = {
         '*': [
             {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     name: 'id_1'
@@ -15,7 +15,7 @@ module.exports = {
             },
             {
                 keys: {
-                    'uuid': 1
+                    uuid: 1
                 },
                 options: {
                     name: 'uuid'

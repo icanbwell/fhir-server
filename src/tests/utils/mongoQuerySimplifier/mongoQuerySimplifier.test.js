@@ -1,7 +1,7 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {MongoQuerySimplifier} = require('../../../utils/mongoQuerySimplifier');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('mongoQuerySimplifier Tests', () => {
     beforeEach(async () => {
@@ -15,11 +15,11 @@ describe('mongoQuerySimplifier Tests', () => {
     describe('Patient mongoQuerySimplifier Tests', () => {
         test('mongoQuerySimplifier works for single query 1', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                                     }
@@ -28,17 +28,17 @@ describe('mongoQuerySimplifier Tests', () => {
                         ]
                     },
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'birthDate': {
-                                            '$lt': '2021-09-22T00:00:00+00:00'
+                                        birthDate: {
+                                            $lt: '2021-09-22T00:00:00+00:00'
                                         }
                                     },
                                     {
-                                        'birthDate': {
-                                            '$gte': '2021-09-19T00:00:00+00:00'
+                                        birthDate: {
+                                            $gte: '2021-09-19T00:00:00+00:00'
                                         }
                                     }
                                 ]
@@ -48,21 +48,21 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$and': [
+                $and: [
                     {
                         'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
-                        'birthDate': {
-                            '$lt': '2021-09-22T00:00:00+00:00'
+                        birthDate: {
+                            $lt: '2021-09-22T00:00:00+00:00'
                         }
                     },
                     {
-                        'birthDate': {
-                            '$gte': '2021-09-19T00:00:00+00:00'
+                        birthDate: {
+                            $gte: '2021-09-19T00:00:00+00:00'
                         }
                     }
                 ]
@@ -70,20 +70,20 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier works for single query', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
                         'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
-                        '$and': [
+                        $and: [
                             {
-                                'birthDate': {
-                                    '$lt': '2021-09-22T00:00:00+00:00'
+                                birthDate: {
+                                    $lt: '2021-09-22T00:00:00+00:00'
                                 }
                             },
                             {
-                                'birthDate': {
-                                    '$gte': '2021-09-19T00:00:00+00:00'
+                                birthDate: {
+                                    $gte: '2021-09-19T00:00:00+00:00'
                                 }
                             }
                         ]
@@ -91,21 +91,21 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$and': [
+                $and: [
                     {
                         'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
-                        'birthDate': {
-                            '$lt': '2021-09-22T00:00:00+00:00'
+                        birthDate: {
+                            $lt: '2021-09-22T00:00:00+00:00'
                         }
                     },
                     {
-                        'birthDate': {
-                            '$gte': '2021-09-19T00:00:00+00:00'
+                        birthDate: {
+                            $gte: '2021-09-19T00:00:00+00:00'
                         }
                     }
                 ]
@@ -113,44 +113,44 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier converts $or to $in', () => {
             const query = {
-                '$or': [
-                    {'foo': '1'},
-                    {'foo': '2'},
+                $or: [
+                    { foo: '1' },
+                    { foo: '2' }
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                'foo': {
-                    '$in': ['1', '2']
+                foo: {
+                    $in: ['1', '2']
                 }
             });
         });
         test('mongoQuerySimplifier does not convert $or to $in if fields are different', () => {
             const query = {
-                '$or': [
-                    {'foo': '1'},
-                    {'bar': '2'},
+                $or: [
+                    { foo: '1' },
+                    { bar: '2' }
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$or': [
-                    {'foo': '1'},
-                    {'bar': '2'},
+                $or: [
+                    { foo: '1' },
+                    { bar: '2' }
                 ]
             });
         });
         test('mongoQuerySimplifier does not convert $or to $in if fields are not primitive', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'subject._sourceAssigningAuthority': 'C'
                                     },
@@ -160,7 +160,7 @@ describe('mongoQuerySimplifier Tests', () => {
                                 ]
                             },
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'subject._sourceAssigningAuthority': 'C'
                                     },
@@ -174,12 +174,12 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$or': [
+                $or: [
                     {
-                        '$and': [
+                        $and: [
                             {
                                 'subject._sourceAssigningAuthority': 'C'
                             },
@@ -189,7 +189,7 @@ describe('mongoQuerySimplifier Tests', () => {
                         ]
                     },
                     {
-                        '$and': [
+                        $and: [
                             {
                                 'subject._sourceAssigningAuthority': 'C'
                             },
@@ -203,31 +203,31 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier handles empty clauses', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$or': []
+                                $or: []
                             }
                         ]
                     },
                     {
-                        '$or': []
+                        $or: []
                     }
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({});
         });
         test('mongoQuerySimplifier handles date clauses', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'meta.security.code': 'https://www.icanbwell.com/access%7Cfoobar'
                                     }
@@ -236,17 +236,17 @@ describe('mongoQuerySimplifier Tests', () => {
                         ]
                     },
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'recorded': {
-                                            '$lt': new Date('2021-09-22T00:00:00.000Z')
+                                        recorded: {
+                                            $lt: new Date('2021-09-22T00:00:00.000Z')
                                         }
                                     },
                                     {
-                                        'recorded': {
-                                            '$gte': new Date('2021-09-19T00:00:00.000Z')
+                                        recorded: {
+                                            $gte: new Date('2021-09-19T00:00:00.000Z')
                                         }
                                     }
                                 ]
@@ -256,21 +256,21 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$and': [
+                $and: [
                     {
                         'meta.security.code': 'https://www.icanbwell.com/access%7Cfoobar'
                     },
                     {
-                        'recorded': {
-                            '$lt': new Date('2021-09-22T00:00:00.000Z')
+                        recorded: {
+                            $lt: new Date('2021-09-22T00:00:00.000Z')
                         }
                     },
                     {
-                        'recorded': {
-                            '$gte': new Date('2021-09-19T00:00:00.000Z')
+                        recorded: {
+                            $gte: new Date('2021-09-19T00:00:00.000Z')
                         }
                     }
                 ]
@@ -278,23 +278,23 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier handles regex clauses', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        '$or': [
+                                        $or: [
                                             {
                                                 'code.text': {
-                                                    '$regex': new RegExp(/prednisoLONE/),
-                                                    '$options': 'i'
+                                                    $regex: /prednisoLONE/,
+                                                    $options: 'i'
                                                 }
                                             },
                                             {
                                                 'code.coding.display': {
-                                                    '$regex': new RegExp(/prednisoLONE/),
-                                                    '$options': 'i'
+                                                    $regex: /prednisoLONE/,
+                                                    $options: 'i'
                                                 }
                                             }
                                         ]
@@ -306,20 +306,20 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$or': [
+                $or: [
                     {
                         'code.text': {
-                            '$regex': new RegExp(/prednisoLONE/),
-                            '$options': 'i'
+                            $regex: /prednisoLONE/,
+                            $options: 'i'
                         }
                     },
                     {
                         'code.coding.display': {
-                            '$regex': new RegExp(/prednisoLONE/),
-                            '$options': 'i'
+                            $regex: /prednisoLONE/,
+                            $options: 'i'
                         }
                     }
                 ]
@@ -327,10 +327,10 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier removes duplicate $in items', () => {
             const query = {
-                '$or': [
+                $or: [
                     {
                         'relatedArtifact.resource._sourceId': {
-                            '$in': [
+                            $in: [
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
@@ -481,7 +481,7 @@ describe('mongoQuerySimplifier Tests', () => {
                     },
                     {
                         'library._sourceId': {
-                            '$in': [
+                            $in: [
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
                                 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
@@ -633,10 +633,10 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$or': [
+                $or: [
                     {
                         'relatedArtifact.resource._sourceId': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
                     },
@@ -648,17 +648,17 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier handles nested $or and $and simple', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
                         'effectivePeriod.start': {
-                            '$lte': '2019-10-16T22:12:29+00:00'
+                            $lte: '2019-10-16T22:12:29+00:00'
                         }
                     },
                     {
-                        '$or': [
+                        $or: [
                             {
                                 'effectivePeriod.end': {
-                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                    $gte: '2019-10-16T22:12:29+00:00'
                                 }
                             },
                             {
@@ -669,20 +669,20 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$and': [
+                $and: [
                     {
                         'effectivePeriod.start': {
-                            '$lte': '2019-10-16T22:12:29+00:00'
+                            $lte: '2019-10-16T22:12:29+00:00'
                         }
                     },
                     {
-                        '$or': [
+                        $or: [
                             {
                                 'effectivePeriod.end': {
-                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                    $gte: '2019-10-16T22:12:29+00:00'
                                 }
                             },
                             {
@@ -695,31 +695,31 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier handles nested $or and $and', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'effectiveDateTime': {
-                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,),
-                                            '$options': 'i'
+                                        effectiveDateTime: {
+                                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,
+                                            $options: 'i'
                                         }
                                     }
                                 ]
                             },
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'effectivePeriod.start': {
-                                            '$lte': '2019-10-16T22:12:29+00:00'
+                                            $lte: '2019-10-16T22:12:29+00:00'
                                         }
                                     },
                                     {
-                                        '$or': [
+                                        $or: [
                                             {
                                                 'effectivePeriod.end': {
-                                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                                    $gte: '2019-10-16T22:12:29+00:00'
                                                 }
                                             },
                                             {
@@ -730,21 +730,21 @@ describe('mongoQuerySimplifier Tests', () => {
                                 ]
                             },
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'effectiveTiming': {
-                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/),
-                                            '$options': 'i'
+                                        effectiveTiming: {
+                                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,
+                                            $options: 'i'
                                         }
                                     }
                                 ]
                             },
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'effectiveInstant': {
-                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/),
-                                            '$options': 'i'
+                                        effectiveInstant: {
+                                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,
+                                            $options: 'i'
                                         }
                                     }
                                 ]
@@ -754,28 +754,28 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
-                '$or': [
+                $or: [
                     {
-                        'effectiveDateTime': {
-                            '$options': 'i',
-                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        effectiveDateTime: {
+                            $options: 'i',
+                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
                         }
                     },
                     {
-                        '$and': [
+                        $and: [
                             {
                                 'effectivePeriod.start': {
-                                    '$lte': '2019-10-16T22:12:29+00:00'
+                                    $lte: '2019-10-16T22:12:29+00:00'
                                 }
                             },
                             {
-                                '$or': [
+                                $or: [
                                     {
                                         'effectivePeriod.end': {
-                                            '$gte': '2019-10-16T22:12:29+00:00'
+                                            $gte: '2019-10-16T22:12:29+00:00'
                                         }
                                     },
                                     {
@@ -786,16 +786,99 @@ describe('mongoQuerySimplifier Tests', () => {
                         ]
                     },
                     {
-                        'effectiveTiming': {
-                            '$options': 'i',
-                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        effectiveTiming: {
+                            $options: 'i',
+                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
                         }
                     },
                     {
-                        'effectiveInstant': {
-                            '$options': 'i',
-                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        effectiveInstant: {
+                            $options: 'i',
+                            $regex: /\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/
                         }
+                    }
+                ]
+            });
+        });
+        test('mongoQuerySimplifier handles duplicate $and', () => {
+            const query = {
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                    code: 'hidden'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $or: [
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: 'person.79e59046-ffc7-4c41-9819-c8ef83275454'
+                                    }
+                                }
+                            },
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: '8ba1017f-0aad-1b91-ff9e-416a96e11f0b'
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                    code: 'hidden'
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
+            expect(result).toStrictEqual({
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $or: [
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: 'person.79e59046-ffc7-4c41-9819-c8ef83275454'
+                                    }
+                                }
+                            },
+                            {
+                                extension: {
+                                    $elemMatch: {
+                                        url: 'https://icanbwell.com/codes/source_patient_id',
+                                        valueString: '8ba1017f-0aad-1b91-ff9e-416a96e11f0b'
+                                    }
+                                }
+                            }
+                        ]
                     }
                 ]
             });

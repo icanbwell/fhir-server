@@ -1,25 +1,25 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {AccessIndexManager} = require('../../../../operations/common/accessIndexManager');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {IndexProvider} = require('../../../../indexes/indexProvider');
-const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AccessIndexManager } = require('../../../../operations/common/accessIndexManager');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { IndexProvider } = require('../../../../indexes/indexProvider');
+const { VERSIONS } = require('../../../../middleware/fhir/utils/constants');
 
 class MockAccessIndexManager extends AccessIndexManager {
-    resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
+    resourceHasAccessIndexForAccessCodes ({ resourceType, accessCodes }) {
         return ['AuditEvent', 'Task'].includes(resourceType) &&
             accessCodes.every(a => a === 'client');
     }
 }
 
 class MockConfigManager extends ConfigManager {
-    get useAccessIndex() {
+    get useAccessIndex () {
         return true;
     }
 }
 
 class MockIndexProvider extends IndexProvider {
-    hasIndexForAccessCodes({accessCodes}) {
+    hasIndexForAccessCodes ({ accessCodes }) {
         return accessCodes.every(ac => ac === 'client');
     }
 }
@@ -57,20 +57,34 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: '7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    '$in': [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single uuid reference with resourceType', async () => {
@@ -96,15 +110,29 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                $and: [
+                    {
+                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference without resourceType and sourceAssigningAuthority', async () => {
@@ -130,20 +158,34 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '1234'
+                base_version: VERSIONS['4_0_0'],
+                patient: '1234'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    '$in': [
-                        'Patient/1234',
-                        'Group/1234'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/1234',
+                                'Group/1234'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference with resourceType but no sourceAssigningAuthority', async () => {
@@ -169,15 +211,29 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/1234'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/1234'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': 'Patient/1234'
+                $and: [
+                    {
+                        'subject._sourceId': 'Patient/1234'
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('single id reference with resourceType and sourceAssigningAuthority', async () => {
@@ -203,15 +259,25 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/1234|abc'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/1234|abc'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$and': [
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
                     {
                         'subject._sourceAssigningAuthority': 'abc'
                     },
@@ -246,22 +312,36 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1,6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
+                base_version: VERSIONS['4_0_0'],
+                patient: '7708d86f-1d3e-4389-a8c6-3a88075934f1,6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    '$in': [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Patient/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1',
-                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Patient/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1',
+                                'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple uuid reference with resourceType', async () => {
@@ -287,20 +367,34 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1,Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1,Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._uuid': {
-                    '$in': [
-                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._uuid': {
+                            $in: [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference without resourceType and without sourceAssigningAuthority', async () => {
@@ -326,22 +420,36 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123,456'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123,456'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    '$in': [
-                        'Patient/123',
-                        'Group/123',
-                        'Patient/456',
-                        'Group/456'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/123',
+                                'Group/123',
+                                'Patient/456',
+                                'Group/456'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference with resourceType and without sourceAssigningAuthority', async () => {
@@ -367,20 +475,34 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123,Group/456'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123,Group/456'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceId': {
-                    '$in': [
-                        'Patient/123',
-                        'Group/456'
-                    ]
-                }
+                $and: [
+                    {
+                        'subject._sourceId': {
+                            $in: [
+                                'Patient/123',
+                                'Group/456'
+                            ]
+                        }
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
         test('multiple id reference without resourceType and with same sourceAssigningAuthority', async () => {
@@ -406,21 +528,31 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123|client,456|client'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123|client,456|client'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$and': [
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
                     {
                         'subject._sourceAssigningAuthority': 'client'
                     },
                     {
                         'subject._sourceId': {
-                            '$in': [
+                            $in: [
                                 'Patient/123',
                                 'Group/123',
                                 'Patient/456',
@@ -454,21 +586,31 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|client,Group/456|client'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123|client,Group/456|client'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$and': [
+                $and: [
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
+                    },
                     {
                         'subject._sourceAssigningAuthority': 'client'
                     },
                     {
                         'subject._sourceId': {
-                            '$in': [
+                            $in: [
                                 'Patient/123',
                                 'Group/456'
                             ]
@@ -500,44 +642,58 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123|healthsystem1,456|healthsystem2'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123|healthsystem1,456|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/123',
-                                        'Group/123',
-                                    ]
-                                }
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/456',
-                                        'Group/456',
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -565,34 +721,48 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123|healthsystem1,Group/456|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Group/456'
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': 'Group/456'
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -620,46 +790,60 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123|healthsystem1,456|healthsystem2,789|healthsystem2'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123|healthsystem1,456|healthsystem2,789|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/123',
-                                        'Group/123'
-                                    ]
-                                }
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456',
+                                                'Patient/789',
+                                                'Group/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/456',
-                                        'Group/456',
-                                        'Patient/789',
-                                        'Group/789',
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -687,39 +871,53 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Group/456',
+                                                'Patient/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });
@@ -749,29 +947,43 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': {
-                            '$in': [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
-                        }
+                        $or: [
+                            {
+                                'subject._uuid': {
+                                    $in: [
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                                    ]
+                                }
+                            },
+                            {
+                                'subject._sourceId': {
+                                    $in: [
+                                        'Patient/123',
+                                        'Group/123'
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     {
-                        'subject._sourceId': {
-                            '$in': [
-                                'Patient/123',
-                                'Group/123'
-                            ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
                     }
                 ]
@@ -800,20 +1012,34 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                        $or: [
+                            {
+                                'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            },
+                            {
+                                'subject._sourceId': 'Patient/123'
+                            }
+                        ]
                     },
                     {
-                        'subject._sourceId': 'Patient/123'
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -841,37 +1067,51 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123|client,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123|client,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': {
-                            '$in': [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
-                        }
-                    },
-                    {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'client'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/123',
-                                        'Group/123',
+                                'subject._uuid': {
+                                    $in: [
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                                     ]
                                 }
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'client'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -899,27 +1139,41 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|client,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123|client,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'client'
+                                'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'client'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
                             }
                         ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
+                        }
                     }
                 ]
             });
@@ -947,54 +1201,68 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '123|healthsystem1,456|healthsystem2,789|healthsystem2,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: '123|healthsystem1,456|healthsystem2,789|healthsystem2,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': {
-                            '$in': [
-                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                            ]
+                        $or: [
+                            {
+                                'subject._uuid': {
+                                    $in: [
+                                        'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                                    ]
+                                }
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/123',
+                                                'Group/123'
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Patient/456',
+                                                'Group/456',
+                                                'Patient/789',
+                                                'Group/789'
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
+                                }
+                            }
                         }
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/123',
-                                        'Group/123'
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Patient/456',
-                                        'Group/456',
-                                        'Patient/789',
-                                        'Group/789',
-                                    ]
-                                }
-                            }
-                        ]
                     }
                 ]
             });
@@ -1022,42 +1290,56 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const resourceType = 'Condition';
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2,Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2,Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType, parsedArgs: parsedArgs
+                resourceType, parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $and: [
                     {
-                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        '$and': [
+                        $or: [
                             {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                                'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                             },
                             {
-                                'subject._sourceId': 'Patient/123'
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem1'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/123'
+                                    }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'healthsystem2'
+                                    },
+                                    {
+                                        'subject._sourceId': {
+                                            $in: [
+                                                'Group/456',
+                                                'Patient/789'
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    code: 'hidden',
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
                                 }
                             }
-                        ]
+                        }
                     }
                 ]
             });

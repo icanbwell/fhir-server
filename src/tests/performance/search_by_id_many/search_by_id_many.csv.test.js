@@ -6,29 +6,24 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const env = require('var');
-let oldEnvLogLevel;
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('CSV Performance tests', () => {
     const numberOfResources = 1000;
 
     beforeEach(async () => {
         await commonBeforeEach();
-        oldEnvLogLevel = env.LOGLEVEL;
-        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
-        env.LOG_STREAM_STEPS = true;
         const initialId = practitionerResource.id;
         const bundle = {
             resourceType: 'Bundle',
-            entry: [],
+            entry: []
         };
         for (let i = 0; i < numberOfResources; i++) {
             practitionerResource.id = initialId + '-' + i;
             bundle.entry.push({
-                resource: deepcopy(practitionerResource),
+                resource: deepcopy(practitionerResource)
             });
         }
         const request = await createTestRequest();
@@ -46,12 +41,10 @@ describe('CSV Performance tests', () => {
         for (const result of resp.body) {
             expect(result.created).toStrictEqual(true);
         }
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner CSV Search By 10,0000 Tests', () => {
@@ -60,7 +53,7 @@ describe('CSV Performance tests', () => {
             async () => {
                 const request = await createTestRequest();
                 // now check that we get the right record back
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Practitioner/?_count=10')
                     .set(getHeaders())
                     .expect(200);
@@ -71,7 +64,7 @@ describe('CSV Performance tests', () => {
                  * @param {import('http').IncomingMessage} req
                  * @param callback
                  */
-                function chunkParser(req, callback) {
+                function chunkParser (req, callback) {
                     req.text = '';
                     let text = '';
                     req.setEncoding('utf8');

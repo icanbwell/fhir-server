@@ -8,28 +8,36 @@ const expectedPersonResources = require('./fixtures/expected/expected_person.jso
 const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
+const patch4 = require('./fixtures/patches/patch4.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch} = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getHeadersJsonPatch,
+    getTestContainer,
+    mockHttpContext
+} = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
+const expectedErrorWithoutRequiredFields = require('./fixtures/expected/expected_error_without_required_fields.json');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return true;
-    }
-
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
 describe('Person Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -77,15 +85,14 @@ describe('Person Tests', () => {
                 .send(patch1)
                 .set(getHeaders());
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
-                        },
-                        'diagnostics': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        }
                     }
                 ]
             });
@@ -107,18 +114,21 @@ describe('Person Tests', () => {
                 .send(patch2)
                 .set(getHeadersJsonPatch());
 
-            expect(resp.body).toStrictEqual({
-                'issue': [
+            const body = resp.body;
+            if (body.issue.length > 0) {
+                delete body.issue[0].diagnostics;
+            }
+            expect(body).toStrictEqual({
+                issue: [
                     {
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        code: 'invalid',
+                        details: {
+                            text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
-                        'severity': 'error',
-                    },
+                        severity: 'error'
+                    }
                 ],
-                'resourceType': 'OperationOutcome',
+                resourceType: 'OperationOutcome'
             });
         });
 
@@ -188,7 +198,11 @@ describe('Person Tests', () => {
                 .set(allAccessPatchHeaders)
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
 
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/sameid|client')
@@ -196,6 +210,76 @@ describe('Person Tests', () => {
                 .set(allAccessPatchHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
+        });
+
+        test('patch fails if required field is removed', async () => {
+            const request = await createTestRequest();
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
+            const allAccessPatchHeaders = getHeadersJsonPatch('user/*.read user/*.write access/bwell.* access/client.*');
+
+            let resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person1Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            resp = await request
+                .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .send(patch4)
+                .set(allAccessPatchHeaders)
+                .expect(400);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedErrorWithoutRequiredFields);
+        });
+        test('No invalid collections should be made through patch operation', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo fhirDb connection
+             * @type {import('mongodb').Db}
+             */
+            const db = await mongoDatabaseManager.getClientDbAsync();
+            let collections = await db.listCollections().toArray();
+            // Check that initially there are no collections in db.
+            expect(collections.length).toEqual(0);
+
+            // Create a valid resource
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Patch hit with valid resource
+            resp = await request
+                .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .send(patch1)
+                .set(getHeadersJsonPatch());
+
+            // Patch hit with invalid resource
+            resp = await request
+                .patch('/4_0_0/XYZ/1')
+                .send(patch1)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // Check that after the above requests, only valid collections are made in db.
+            collections = await db.listCollections().toArray();
+            const collectionNames = collections.map(collection => collection.name);
+            expect(collectionNames).toEqual(expect.arrayContaining([
+                'Person_4_0_0', 'Person_4_0_0_History'
+            ]));
         });
     });
 });

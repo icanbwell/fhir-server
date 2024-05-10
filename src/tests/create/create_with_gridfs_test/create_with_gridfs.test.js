@@ -1,7 +1,9 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const documentReference1Data = require('./fixtures/document_reference/document_reference1.json');
 const documentReference2Data = require('./fixtures/document_reference/document_reference2.json');
+
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFS create tests', () => {
     beforeEach(async () => {
@@ -51,7 +53,7 @@ describe('GridFS create tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: documentReferenceData.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: documentReferenceData.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -96,7 +98,7 @@ describe('GridFS create tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: documentReferenceData.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: documentReferenceData.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 

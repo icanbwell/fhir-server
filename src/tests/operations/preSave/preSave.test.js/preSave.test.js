@@ -1,9 +1,9 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
-const {SecurityTagSystem} = require('../../../../utils/securityTagSystem');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
+const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -15,6 +15,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient preSave.test.js Tests', () => {
+        const base_version = '4_0_0';
         test('preSave.test.js works', async () => {
             await createTestRequest();
             /**
@@ -30,23 +31,24 @@ describe('Patient Tests', () => {
              * @type {Resource}
              */
             const resource = new Resource({
-                'id': '123',
-                'meta': {
-                    'security': [
+                id: '123',
+                meta: {
+                    security: [
                         {
-                            'system': SecurityTagSystem.access,
-                            'code': 'myAccess'
+                            system: SecurityTagSystem.access,
+                            code: 'myAccess'
                         },
                         {
-                            'system': SecurityTagSystem.sourceAssigningAuthority,
-                            'code': 'myAssigningAuthority'
-                        },
+                            system: SecurityTagSystem.sourceAssigningAuthority,
+                            code: 'myAssigningAuthority'
+                        }
                     ]
                 }
             });
-            const result = await preSaveManager.preSaveAsync(resource);
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             expect(result._uuid).toBeDefined();
-            const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+            const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
             expect(result._uuid).toMatch(uuidRegex);
             expect(result._sourceId).toStrictEqual('123');
             expect(result._access).toBeDefined();

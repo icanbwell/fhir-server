@@ -17,6 +17,7 @@
         }
       ]
     },
+    "status": "active",
     "beneficiary": {
       "reference": "Patient/WPS-5458231534"
     },
@@ -44,6 +45,7 @@
         }
       ]
     },
+    "status": "active",
     "beneficiary": {
       "reference": "Patient/WPS-0559166162"
     },

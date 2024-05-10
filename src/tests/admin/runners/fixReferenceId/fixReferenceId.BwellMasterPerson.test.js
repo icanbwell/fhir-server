@@ -1,4 +1,3 @@
-
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -19,6 +18,7 @@ const { FixReferenceIdRunner } = require('../../../../admin/runners/fixReference
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
 const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -31,7 +31,7 @@ describe('Person Tests', () => {
 
     describe('Person FixReferenceId bwellMasterPerson Tests', () => {
         test('Fix client person and bwell master person reference', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -96,7 +96,8 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );

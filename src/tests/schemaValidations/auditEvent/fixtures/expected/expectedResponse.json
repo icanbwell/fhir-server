@@ -1,0 +1,44 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/AuditEvent/$merge should have required property 'recorded' :{\"missingProperty\":\"recorded\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/AuditEvent/$merge should have required property 'recorded' :{\"missingProperty\":\"recorded\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/AuditEvent/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "bwell",
+    "uuid": "27153f78-54c7-5029-889b-1026a9580ebf",
+    "updated": false
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+  }
+]

@@ -41,9 +41,10 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
-            "reference": "Patient/WPS-6678928210"
+            "reference": "Patient/WPS-0559166162"
         },
         "insurer": {
             "reference": "Organization/WPS-Health"
@@ -61,7 +62,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -149,8 +150,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {

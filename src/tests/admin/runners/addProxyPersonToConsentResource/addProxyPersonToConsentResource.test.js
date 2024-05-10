@@ -3,11 +3,11 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    AddProxyPatientToConsentResourceRunner,
+    AddProxyPatientToConsentResourceRunner
 } = require('../../../../admin/runners/addProxyPatientToConsentResource');
 
 // fixtures
@@ -33,6 +33,7 @@ const expConsentWithProxyPerson = require('./fixtures/expected/consent_with_prox
 const expConsentWithClientPersonAsActor = require('./fixtures/expected/consent_with_client_person_as_actor.json');
 const expConsent2WithClientPersonAsActor = require('./fixtures/expected/consent_2_with_client_person_as_actor.json');
 const expConsentWithCorrectClientPersonAsActor = require('./fixtures/expected/consent_with_correct_client_person_as_actor.json');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Add Proxy Person link to Consent Resources Test', () => {
     beforeEach(async () => {
@@ -61,7 +62,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 client1Patient,
                 clientPatient,
                 consent1,
-                consent2,
+                consent2
             ])
             .set(getHeaders())
             .expect(200);
@@ -82,14 +83,14 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -112,7 +113,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPerson,
                 client1Patient,
                 clientPatient,
-                consentWithActor,
+                consentWithActor
             ])
             .set(getHeaders())
             .expect(200);
@@ -133,14 +134,14 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -164,7 +165,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 client1Patient,
                 clientPatient,
                 consentWithActor,
-                consentWithProxyPerson,
+                consentWithProxyPerson
             ])
             .set(getHeaders())
             .expect(200);
@@ -185,14 +186,14 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -200,7 +201,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         resp = await request.get('/4_0_0/Consent').set(getHeaders()).expect(200);
         expect(resp).toHaveResourceCount(2);
         expect(resp).toHaveResponse([expConsentWithActor, expConsentWithProxyPerson]);
-
     });
 
     test('should update the consent resources only when proxy person reference is not present', async () => {
@@ -216,7 +216,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPerson,
                 client1Patient,
                 clientPatient,
-                consentWithClientPersonAsActor,
+                consentWithClientPersonAsActor
             ])
             .set(getHeaders())
             .expect(200);
@@ -237,14 +237,14 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -269,7 +269,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPatient,
                 consentWithActor,
                 consent2WithBwellPerson,
-                consentWithWrongClientPerson,
+                consentWithWrongClientPerson
             ])
             .set(getHeaders())
             .expect(200);
@@ -290,14 +290,14 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -307,7 +307,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         expect(resp).toHaveResponse([
             expConsent2WithClientPersonAsActor,
             expConsentWithCorrectClientPersonAsActor,
-            expConsentWithClientPersonAsActor,
+            expConsentWithClientPersonAsActor
         ]);
     });
 });

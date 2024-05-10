@@ -1,13 +1,20 @@
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 
 /**
  * This class provides helper functions for dealing with resources
  */
 class ResourceManager {
     /**
+     * constructor
+     * @param {SearchParametersManager} searchParametersManager
      */
-    constructor() {
-        // ok to not specify
+    constructor ({ searchParametersManager }) {
+        /**
+         * @type {SearchParametersManager}
+         */
+        this.searchParametersManager = searchParametersManager;
+        assertTypeEquals(searchParametersManager, SearchParametersManager);
     }
 
     /**
@@ -15,16 +22,16 @@ class ResourceManager {
      * @param {string} resourceType
      * @return {string|null}
      */
-    getPatientFieldNameFromResource(resourceType) {
+    getPatientFieldNameFromResource (resourceType) {
         if (resourceType === 'Patient') {
             return 'id';
         }
-        for (const [resourceType1, resourceObj] of Object.entries(searchParameterQueries)) {
+        for (const [resourceType1, resourceObj] of this.searchParametersManager.getAllSearchParameters()) {
             if (resourceType1 === resourceType) {
                 // see if there is a 'patient' property
                 for (const [
                     /** @type {string} **/ queryParameter,
-                    /** @type {SearchParameterDefinition} **/ propertyObj,
+                    /** @type {SearchParameterDefinition} **/ propertyObj
                 ] of Object.entries(resourceObj)) {
                     if (queryParameter === 'patient') {
                         return propertyObj.firstField;
@@ -41,7 +48,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {Promise<string|null>}
      */
-    async getPatientIdFromResourceAsync(resourceType, resource) {
+    async getPatientIdFromResourceAsync (resourceType, resource) {
         /**
          * @type {string|null}
          */
@@ -71,7 +78,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {string}
      */
-    getFullUrlForResource({protocol, host, base_version, resource}) {
+    getFullUrlForResource ({ protocol, host, base_version, resource }) {
         return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
     }
 }
@@ -79,4 +86,3 @@ class ResourceManager {
 module.exports = {
     ResourceManager
 };
-

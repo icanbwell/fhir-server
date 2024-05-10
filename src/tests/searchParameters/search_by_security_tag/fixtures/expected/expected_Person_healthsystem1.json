@@ -222,7 +222,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Person_4_0_0.find({'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'healthsystem1'}}}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Person_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'healthsystem1'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -230,11 +230,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['meta.security.system','meta.security.code','id']",
+        "display": "['meta.security.system','meta.security.code','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

@@ -3,13 +3,13 @@
  */
 
 const async = require('async');
-const {logInfo} = require('../operations/common/logging');
-const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/systemEventLogging');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {IndexProvider} = require('./indexProvider');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const { logInfo } = require('../operations/common/logging');
+const { logSystemEventAsync, logSystemErrorAsync } = require('../operations/common/systemEventLogging');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { IndexProvider } = require('./indexProvider');
+const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const deepEqual = require('fast-deep-equal');
-const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 /**
  * @typedef IndexConfig
@@ -28,7 +28,7 @@ class IndexManager {
      * @param {IndexProvider} indexProvider
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({
+    constructor ({
                     indexProvider,
                     mongoDatabaseManager
                 }) {
@@ -54,7 +54,7 @@ class IndexManager {
      * @param {string} collectionName
      * @return {Promise<boolean>}
      */
-    async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
+    async createIndexIfNotExistsAsync ({ db, indexConfig, collectionName }) {
         assertIsValid(collectionName);
         /**
          * @type {import('mongodb').IndexSpecification}
@@ -67,7 +67,7 @@ class IndexManager {
         /**
          * @type {string}
          */
-        let indexName = indexConfig.options.name;
+        const indexName = indexConfig.options.name;
         /**
          * @type {string}
          */
@@ -97,7 +97,9 @@ class IndexManager {
                 ': ' + JSON.stringify(e);
             await logSystemErrorAsync(
                 {
-                    event: 'createIndex', message: message1, args: {
+                    event: 'createIndex',
+message: message1,
+args: {
                         index: indexName,
                         columns: columnsText,
                         collection: collectionName
@@ -115,11 +117,11 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}>}
      */
-    async indexCollectionAsync({collectionName, db}) {
+    async indexCollectionAsync ({ collectionName, db }) {
         /**
          * @type {{collectionName: string, indexes: IndexConfig[]}}
          */
-        const createIndexResult = await this.getIndexesToCreateForCollectionAsync({collectionName});
+        const createIndexResult = await this.getIndexesToCreateForCollectionAsync({ collectionName });
 
         // check if index exists
         let indexesCreated = 0;
@@ -136,7 +138,7 @@ class IndexManager {
             }
         }
 
-        const currentIndexResult = await this.getIndexesInCollectionAsync({collectionName, db});
+        const currentIndexResult = await this.getIndexesInCollectionAsync({ collectionName, db });
         return {
             collectionName: currentIndexResult.collectionName,
             indexesCreated,
@@ -149,9 +151,9 @@ class IndexManager {
      * @param {string} collectionName
      * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
-    async getIndexesToCreateForCollectionAsync({collectionName}) {
-        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME ?
-            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+    async getIndexesToCreateForCollectionAsync ({ collectionName }) {
+        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME
+            ? collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         // if this is a history collection then we only create an index on id
         /**
@@ -198,7 +200,7 @@ class IndexManager {
         }
 
         return {
-            collectionName: collectionName,
+            collectionName,
             indexes: indexesToCreate
         };
     }
@@ -208,7 +210,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
-    async indexAllCollectionsAsync({collectionRegex} = {}) {
+    async indexAllCollectionsAsync ({ collectionRegex } = {}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -234,7 +236,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
-    async indexAllCollectionsInDatabaseAsync({db, collectionRegex}) {
+    async indexAllCollectionsInDatabaseAsync ({ db, collectionRegex }) {
         /**
          * @type {string[]}
          */
@@ -267,18 +269,17 @@ class IndexManager {
      * @param {boolean|undefined} filterToProblems
      * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}>}
      */
-    async compareCurrentIndexesWithConfigurationInCollectionAsync(
+    async compareCurrentIndexesWithConfigurationInCollectionAsync (
         {
             db,
             collectionName,
             filterToProblems
         }) {
-
         /**
          * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
          */
         const compareIndexesResult = {
-            collectionName: collectionName,
+            collectionName,
             indexes: []
         };
 
@@ -294,7 +295,7 @@ class IndexManager {
         /**
          * @type {{collectionName: string, indexes: IndexConfig[]}}
          */
-        const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({collectionName});
+        const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({ collectionName });
         // find indexes to create that are not present currently
         for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexes) {
             /**
@@ -306,7 +307,7 @@ class IndexManager {
             if (indexesMatchingByName.length === 0) {
                 compareIndexesResult.indexes.push(
                     {
-                        indexConfig: indexConfig,
+                        indexConfig,
                         missing: true
                     }
                 );
@@ -326,7 +327,7 @@ class IndexManager {
                 ) {
                     compareIndexesResult.indexes.push(
                         {
-                            indexConfig: indexConfig,
+                            indexConfig,
                             changed: true
                         }
                     );
@@ -345,19 +346,18 @@ class IndexManager {
                 if (!filterToProblems) {
                     compareIndexesResult.indexes.push(
                         {
-                            indexConfig: indexConfig,
+                            indexConfig
                         }
                     );
                 }
             } else {
                 compareIndexesResult.indexes.push(
                     {
-                        indexConfig: indexConfig,
-                        extra: true,
+                        indexConfig,
+                        extra: true
                     }
                 );
             }
-
         }
 
         return compareIndexesResult;
@@ -369,7 +369,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: IndexConfig[], collectionName: string}>}
      */
-    async getIndexesInCollectionAsync({collectionName, db}) {
+    async getIndexesInCollectionAsync ({ collectionName, db }) {
         // check if index exists
         const indexes = await db.collection(collectionName).indexes();
         return {
@@ -392,7 +392,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes:IndexConfig[], name}>}
      */
-    async deleteIndexesInCollectionAsync({collection_name, db}) {
+    async deleteIndexesInCollectionAsync ({ collection_name, db }) {
         await db.collection(collection_name).dropIndexes();
     }
 
@@ -403,7 +403,7 @@ class IndexManager {
      * @param {string} indexName
      * @return {Promise<{indexes:IndexConfig[], name}>}
      */
-    async deleteIndexInCollectionAsync({collectionName, db, indexName}) {
+    async deleteIndexInCollectionAsync ({ collectionName, db, indexName }) {
         const message = `Dropping index ${indexName} from ${collectionName} `;
         await logSystemEventAsync(
             {
@@ -412,7 +412,7 @@ class IndexManager {
                 args: {
                     index: indexName,
                     collection: collectionName,
-                    indexName: indexName
+                    indexName
                 }
             }
         );
@@ -423,7 +423,9 @@ class IndexManager {
                 ': ' + JSON.stringify(e);
             await logSystemErrorAsync(
                 {
-                    event: 'createIndex', message: message1, args: {
+                    event: 'createIndex',
+message: message1,
+args: {
                         index: indexName,
                         collection: collectionName
                     },
@@ -437,7 +439,7 @@ class IndexManager {
      * Gets indexes on all the collections
      * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
      */
-    async getIndexesInAllCollectionsAsync() {
+    async getIndexesInAllCollectionsAsync () {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -462,7 +464,7 @@ class IndexManager {
              */
             const collectionIndexes = await async.map(
                 collection_names,
-                async collectionName => await this.getIndexesInCollectionAsync({collectionName, db})
+                async collectionName => await this.getIndexesInCollectionAsync({ collectionName, db })
             );
             return collectionIndexes
                 .sort(
@@ -480,7 +482,7 @@ class IndexManager {
      * @param {boolean|undefined} filterToProblems
      * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}[]>}
      */
-    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
+    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync (
         {
             audit,
             accessLogs,
@@ -490,14 +492,14 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         const collection_names = [];
 
-        for await (const collection of db.listCollections({ type: {$ne: 'view'} })) {
+        for await (const collection of db.listCollections({ type: { $ne: 'view' } })) {
             if (this.isNotSystemCollection(collection.name)) {
                 collection_names.push(collection.name);
             }
@@ -520,7 +522,6 @@ class IndexManager {
             .sort(
                 (a, b) =>
                     a.collectionName.localeCompare(b.collectionName));
-
     }
 
     /**
@@ -528,7 +529,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @return {Promise<*>}
      */
-    async deleteIndexesInAllCollectionsAsync({collectionRegex}) {
+    async deleteIndexesInAllCollectionsAsync ({ collectionRegex }) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -539,7 +540,7 @@ class IndexManager {
          */
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
-            await this.deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex});
+            await this.deleteIndexesInAllCollectionsInDatabaseAsync({ db, collectionRegex });
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
@@ -551,7 +552,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<void>}
      */
-    async deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex}) {
+    async deleteIndexesInAllCollectionsInDatabaseAsync ({ db, collectionRegex }) {
         /**
          * @type {string[]}
          */
@@ -568,8 +569,8 @@ class IndexManager {
         }
 
         for await (const collectionName of collectionNames) {
-            logInfo('Deleting all indexes in collection', {collectionName});
-            await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
+            logInfo('Deleting all indexes in collection', { collectionName });
+            await this.deleteIndexesInCollectionAsync({ collection_name: collectionName, db });
         }
 
         logInfo('Finished deleteIndexesInAllCollections', {});
@@ -581,7 +582,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async createCollectionIndexAsync({indexProblem, db}) {
+    async createCollectionIndexAsync ({ indexProblem, db }) {
         /**
          * @type {IndexConfig[]}
          */
@@ -610,7 +611,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async dropCollectionIndexAsync({indexProblem, db}) {
+    async dropCollectionIndexAsync ({ indexProblem, db }) {
         /**
          * @type {IndexConfig[]}
          */
@@ -639,7 +640,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<{indexConfigsCreated: IndexConfig[], indexConfigsDropped: IndexConfig[]}>}
      */
-    async renameIndexes({indexProblem, db}) {
+    async renameIndexes ({ indexProblem, db }) {
         /**
          * @type {{string: string}}
          */
@@ -656,7 +657,7 @@ class IndexManager {
         const indexConfigsDropped = [];
 
         for (const index of indexProblem.indexes) {
-            const key = JSON.stringify({keys: index.indexConfig.keys, exclude: index.indexConfig.exclude});
+            const key = JSON.stringify({ keys: index.indexConfig.keys, exclude: index.indexConfig.exclude });
             if (configsPresent[String(key)]) {
                 // if this is missing index then we need to drop index present in configsPresent else current
                 const indexNameToDrop = index.missing ? configsPresent[String(key)] : index.indexConfig.options.name;
@@ -696,7 +697,7 @@ class IndexManager {
                 configsPresent[String(key)] = index.indexConfig.options.name;
             }
         }
-        return {indexConfigsCreated, indexConfigsDropped};
+        return { indexConfigsCreated, indexConfigsDropped };
     }
 
     /**
@@ -706,7 +707,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfigAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async synchronizeIndexesWithConfigAsync ({ audit = false, accessLogs = false, collections = ['all'] }) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -719,10 +720,10 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -742,10 +743,10 @@ class IndexManager {
             if ((collections.length > 0 && collections[0] === 'all') ||
                 collections.includes(indexProblem.collectionName)) {
                 // synchronize the name of the indexes first to avoid creating indexes with same config
-                let {indexConfigsCreated, indexConfigsDropped} = await this.renameIndexes({indexProblem, db});
+                let { indexConfigsCreated, indexConfigsDropped } = await this.renameIndexes({ indexProblem, db });
 
                 // missing indexes needs to be created
-                const createdIndexes = await this.addMissingIndexesAsync({audit, accessLogs, collections: [indexProblem.collectionName]});
+                const createdIndexes = await this.addMissingIndexesAsync({ audit, accessLogs, collections: [indexProblem.collectionName] });
                 if (createdIndexes.created.length > 0) {
                     indexConfigsCreated = [
                         ...indexConfigsCreated, ...(createdIndexes.created[0].indexes)
@@ -753,7 +754,7 @@ class IndexManager {
                 }
 
                 // extra indexes needs to be dropped
-                const droppedIndexes = await this.dropExtraIndexesAsync({audit, accessLogs, collections: [indexProblem.collectionName]});
+                const droppedIndexes = await this.dropExtraIndexesAsync({ audit, accessLogs, collections: [indexProblem.collectionName] });
                 if (droppedIndexes.dropped.length > 0) {
                     indexConfigsDropped = [
                         ...indexConfigsDropped, ...(droppedIndexes.dropped[0].indexes)
@@ -810,7 +811,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async addMissingIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async addMissingIndexesAsync ({ audit = false, accessLogs = false, collections = ['all'] }) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -819,10 +820,10 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -841,7 +842,7 @@ class IndexManager {
 
             if ((collections.length > 0 && collections[0] === 'all') ||
                 collections.includes(indexProblem.collectionName)) {
-                const indexConfigsCreated = await this.createCollectionIndexAsync({indexProblem, db});
+                const indexConfigsCreated = await this.createCollectionIndexAsync({ indexProblem, db });
 
                 if (indexConfigsCreated.length) {
                     collectionIndexesCreated.push({
@@ -864,7 +865,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async dropExtraIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async dropExtraIndexesAsync ({ audit = false, accessLogs = false, collections = ['all'] }) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -873,10 +874,10 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -895,7 +896,7 @@ class IndexManager {
 
             if ((collections.length > 0 && collections[0] === 'all') ||
                 collections.includes(indexProblem.collectionName)) {
-                const indexConfigsDropped = await this.dropCollectionIndexAsync({indexProblem, db});
+                const indexConfigsDropped = await this.dropCollectionIndexAsync({ indexProblem, db });
 
                 if (indexConfigsDropped.length) {
                     collectionIndexesDropped.push({
@@ -916,7 +917,7 @@ class IndexManager {
      * @param {String} collectionName
      * @returns {boolean}
      */
-    isNotSystemCollection(collectionName){
+    isNotSystemCollection (collectionName) {
         const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
         return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }

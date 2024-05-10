@@ -1,15 +1,13 @@
-/* eslint-disable no-unused-vars */
-
 const patient = require('./fixtures/patient.json');
 const bwellPerson = require('./fixtures/bwellPerson.json');
 const clientPerson = require('./fixtures/clientPerson.json');
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
-const {describe, expect, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {createTestContainer} = require('../../createTestContainer');
-const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
+const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
+const { createTestContainer } = require('../../createTestContainer');
+const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const env = require('var');
 const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
@@ -25,9 +23,9 @@ const BundleResponse = require('../../../fhir/classes/4_0_0/backbone_elements/bu
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {generateUUIDv5} = require('../../../utils/uid.util');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
-const {Collection} = require('mongodb');
+const { Collection } = require('mongodb');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -40,7 +38,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     kafkaClient,
                     resourceManager,
                     patientChangeTopic,
@@ -71,6 +69,7 @@ describe('databaseBulkInserter Tests', () => {
         await commonAfterEach();
     });
     describe('databaseBulkInserter Tests', () => {
+        const base_version = '4_0_0';
         test('execAsync works', async () => {
             /**
              * @type {string}
@@ -119,25 +118,31 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
-                resourceType: 'Patient', doc: new Patient(patient)
+                base_version,
+                requestInfo,
+                resourceType: 'Patient',
+                doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Observation',
-                doc: new Observation(observation),
+                doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -146,20 +151,18 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -224,31 +227,34 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
-                resourceType: 'Person', doc: new Person(bwellPerson)
+                base_version,
+                requestInfo,
+                resourceType: 'Person',
+                doc: new Person(bwellPerson)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
-                resourceType: 'Person', doc: new Person(clientPerson)
+                base_version,
+                requestInfo,
+                resourceType: 'Person',
+                doc: new Person(clientPerson)
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
             expect(onPatientChangeAsyncMock).toBeCalledTimes(0);
@@ -312,13 +318,17 @@ describe('databaseBulkInserter Tests', () => {
                 .spyOn(Collection.prototype, 'bulkWrite')
                 .mockImplementation(() => {
                     const result = {
-                        nMatched: 1, nUpserted: 1, hasWriteErrors: () => true,
+                        nMatched: 1,
+                        nUpserted: 1,
+                        hasWriteErrors: () => true,
                         getWriteErrors: () => [
                             {
-                                code: 1, index: 1, errMsg: 'Error msg test',
-                                toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}'),
-                            },
-                        ],
+                                code: 1,
+                                index: 1,
+                                errMsg: 'Error msg test',
+                                toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}')
+                            }
+                        ]
                     };
                     return result;
                 });
@@ -327,25 +337,31 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
-                resourceType: 'Patient', doc: new Patient(patient)
+                base_version,
+                requestInfo,
+                resourceType: 'Patient',
+                doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Observation',
-                doc: new Observation(observation),
+                doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -355,18 +371,17 @@ describe('databaseBulkInserter Tests', () => {
 
             // now execute the bulk inserts
             const result = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // Check the result has errors
             expect(result).not.toBeNull();
@@ -387,6 +402,7 @@ describe('databaseBulkInserter Tests', () => {
         });
     });
     describe('databaseBulkInserter CodeSystem concurrency Tests', () => {
+        const base_version = '4_0_0';
         test('execAsync works on CodeSystem without concurrency', async () => {
             /**
              * @type {string}
@@ -416,6 +432,7 @@ describe('databaseBulkInserter Tests', () => {
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -470,12 +487,12 @@ describe('databaseBulkInserter Tests', () => {
                     versionId: '2',
                     security: [
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/owner'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/owner'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -511,11 +528,11 @@ describe('databaseBulkInserter Tests', () => {
                     id: 'loinc-1'
                 },
                 codeSystem1.toJSONInternal(),
-                {includeResultMetadata: true}
+                { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
-                'n': 1,
-                'updatedExisting': true
+                n: 1,
+                updatedExisting: true
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
@@ -528,12 +545,12 @@ describe('databaseBulkInserter Tests', () => {
                     versionId: '2',
                     security: [
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/owner'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/owner'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -580,8 +597,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -620,11 +637,12 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -633,33 +651,30 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
-                userRequestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': true,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: false,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: true,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId, userRequestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId, userRequestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
@@ -673,25 +688,25 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
                 identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': 'b627381e-4838-46cf-b9b0-02ad7b179219'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: 'b627381e-4838-46cf-b9b0-02ad7b179219'
                     })
                 ],
                 concept: [
@@ -730,7 +745,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -746,11 +761,11 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': generateUUIDv5('loinc-1|client'),
-                    'request': new BundleRequest({
-                        'id': userRequestId,
-                        'method': 'POST',
-                        'url': '/4_0_0/CodeSystem/loinc-1'
+                    id: generateUUIDv5('loinc-1|client'),
+                    request: new BundleRequest({
+                        id: userRequestId,
+                        method: 'POST',
+                        url: '/4_0_0/CodeSystem/loinc-1'
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
@@ -762,25 +777,25 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    'system': 'https://www.icanbwell.com/owner',
-                                    'code': 'client'
+                                    system: 'https://www.icanbwell.com/owner',
+                                    code: 'client'
                                 }),
                                 new Coding({
-                                    'code': 'client',
-                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                    code: 'client',
+                                    system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
                         }),
-                        'identifier': [
+                        identifier: [
                             new Identifier({
-                                'id': 'sourceId',
-                                'system': 'https://www.icanbwell.com/sourceId',
-                                'value': 'loinc-1'
+                                id: 'sourceId',
+                                system: 'https://www.icanbwell.com/sourceId',
+                                value: 'loinc-1'
                             }),
                             new Identifier({
-                                'id': 'uuid',
-                                'system': 'https://www.icanbwell.com/uuid',
-                                'value': 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
+                                id: 'uuid',
+                                system: 'https://www.icanbwell.com/uuid',
+                                value: 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
                             })
                         ],
                         concept: [
@@ -819,30 +834,30 @@ describe('databaseBulkInserter Tests', () => {
                                         })
                                     ]
                                 }
-                            ),
+                            )
                         ]
                     }),
                     response: new BundleResponse({
-                        'outcome': new OperationOutcome({
-                            'issue': [
+                        outcome: new OperationOutcome({
+                            issue: [
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
+                                        severity: 'information'
                                     }
                                 )
                             ],
-                            'resourceType': 'OperationOutcome'
+                            resourceType: 'OperationOutcome'
                         }),
-                        'status': '200'
+                        status: '200'
                     })
                 }
             );
@@ -854,7 +869,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
 
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
-
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
             /**
@@ -885,6 +899,7 @@ describe('databaseBulkInserter Tests', () => {
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -898,8 +913,8 @@ describe('databaseBulkInserter Tests', () => {
                     security: [
                         new Coding(
                             {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': 'client'
+                                system: 'https://www.icanbwell.com/owner',
+                                code: 'client'
                             }
                         )
                     ]
@@ -949,8 +964,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -966,11 +981,12 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -990,8 +1006,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1023,13 +1039,13 @@ describe('databaseBulkInserter Tests', () => {
                 ]
             });
             const updateResult = await codeSystemCollection.findOneAndReplace(
-                {id: 'loinc-1'},
+                { id: 'loinc-1' },
                 codeSystem1.toJSONInternal(),
-                {includeResultMetadata: true}
+                { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
-                'n': 1,
-                'updatedExisting': true
+                n: 1,
+                updatedExisting: true
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
@@ -1044,8 +1060,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1083,33 +1099,30 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                userRequestId,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'id': 'loinc-1',
-                    'created': false,
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': true,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    id: 'loinc-1',
+                    created: false,
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: true,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId, userRequestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId, userRequestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
@@ -1124,25 +1137,25 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
-                'identifier': [
+                identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': '30567620-6073-44c1-b77a-83cb11fc971e'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: '30567620-6073-44c1-b77a-83cb11fc971e'
                     })
                 ],
                 concept: [
@@ -1181,7 +1194,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -1197,11 +1210,11 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': generateUUIDv5('loinc-1|client'),
-                    'request': new BundleRequest({
-                        'id': userRequestId,
-                        'method': 'POST',
-                        'url': '/4_0_0/CodeSystem/loinc-1'
+                    id: generateUUIDv5('loinc-1|client'),
+                    request: new BundleRequest({
+                        id: userRequestId,
+                        method: 'POST',
+                        url: '/4_0_0/CodeSystem/loinc-1'
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
@@ -1213,25 +1226,25 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    'system': 'https://www.icanbwell.com/owner',
-                                    'code': 'client'
+                                    system: 'https://www.icanbwell.com/owner',
+                                    code: 'client'
                                 }),
                                 new Coding({
-                                    'code': 'client',
-                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                    code: 'client',
+                                    system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
                         }),
-                        'identifier': [
+                        identifier: [
                             new Identifier({
-                                'id': 'sourceId',
-                                'system': 'https://www.icanbwell.com/sourceId',
-                                'value': 'loinc-1'
+                                id: 'sourceId',
+                                system: 'https://www.icanbwell.com/sourceId',
+                                value: 'loinc-1'
                             }),
                             new Identifier({
-                                'id': 'uuid',
-                                'system': 'https://www.icanbwell.com/uuid',
-                                'value': 'f67ac4cf-d135-46ac-b23d-a16289a61074'
+                                id: 'uuid',
+                                system: 'https://www.icanbwell.com/uuid',
+                                value: 'f67ac4cf-d135-46ac-b23d-a16289a61074'
                             })
                         ],
                         concept: [
@@ -1270,37 +1283,37 @@ describe('databaseBulkInserter Tests', () => {
                                         })
                                     ]
                                 }
-                            ),
+                            )
                         ]
                     }),
-                    'response': new BundleResponse({
-                        'outcome': new OperationOutcome({
-                            'issue': [
+                    response: new BundleResponse({
+                        outcome: new OperationOutcome({
+                            issue: [
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
+                                        severity: 'information'
                                     }
                                 )
                             ],
-                            'resourceType': 'OperationOutcome'
+                            resourceType: 'OperationOutcome'
                         }),
-                        'status': '200'
+                        status: '200'
                     })
                 }
             );
@@ -1312,7 +1325,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
 
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
-
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {
             /**
@@ -1353,8 +1365,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1385,8 +1397,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1416,8 +1428,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1433,23 +1445,28 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
+            const requestInfo = getTestRequestInfo({ requestId });
+
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystem1,
+                doc: codeSystem1
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: codeSystem2,
                 previousVersionId: null,
@@ -1457,32 +1474,30 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': true,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': false,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: true,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: false,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -1506,25 +1521,25 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
-                'identifier': [
+                identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
                     })
                 ],
                 concept: [
@@ -1563,7 +1578,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -1602,6 +1617,7 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -1613,8 +1629,8 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1635,19 +1651,22 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                base_version,
+                requestInfo,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal,
@@ -1656,32 +1675,30 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            const base_version = '4_0_0';
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestInfo,
                 currentDate,
-                base_version,
-                method: 'POST'
+                base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': true,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': false,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: true,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: false,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -1697,52 +1714,52 @@ describe('databaseBulkInserter Tests', () => {
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
-                'concept': [
+                concept: [
                     new CodeSystemConcept({
-                        'code': '3565-4',
-                        'id': '3565-4',
-                        'property': [
+                        code: '3565-4',
+                        id: '3565-4',
+                        property: [
                             new CodeSystemProperty1({
-                                'code': 'medline_plus',
-                                'valueString': '1'
+                                code: 'medline_plus',
+                                valueString: '1'
                             })
                         ]
                     })
                 ],
-                'content': 'complete',
-                'id': 'loinc-1',
-                'meta': new Meta({
-                    'versionId': '1',
+                content: 'complete',
+                id: 'loinc-1',
+                meta: new Meta({
+                    versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding(
                             {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': 'client'
+                                system: 'https://www.icanbwell.com/owner',
+                                code: 'client'
                             }
                         ),
                         new Coding(
                             {
-                                'code': 'client',
-                                'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                code: 'client',
+                                system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                             }
                         )
                     ]
                 }),
                 identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': 'd05fce76-7645-41f0-968a-9b42dd579a6d'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: 'd05fce76-7645-41f0-968a-9b42dd579a6d'
                     })
                 ],
-                'resourceType': 'CodeSystem',
-                'status': 'active'
+                resourceType: 'CodeSystem',
+                status: 'active'
             });
             // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);

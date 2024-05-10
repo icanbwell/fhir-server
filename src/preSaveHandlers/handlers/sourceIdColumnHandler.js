@@ -1,13 +1,21 @@
-const {PreSaveHandler} = require('./preSaveHandler');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
-const {getFirstElementOrNull} = require('../../utils/list.util');
+const { PreSaveHandler } = require('./preSaveHandler');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { getFirstElementOrNull } = require('../../utils/list.util');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 
 /**
  * @classdesc Adds the _sourceId internal column if not present
  */
 class SourceIdColumnHandler extends PreSaveHandler {
-    async preSaveAsync({resource}) {
+    /**
+     * fixes up any resources before they are saved
+     * @typedef {Object} PreSaveAsyncProps
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     *
+     * @param {PreSaveAsyncProps}
+     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     */
+    async preSaveAsync ({ resource }) {
         if (!resource._sourceId) {
             resource._sourceId = resource.id;
         }
@@ -26,9 +34,9 @@ class SourceIdColumnHandler extends PreSaveHandler {
                 resource.identifier.push(
                     new Identifier(
                         {
-                            'id': 'sourceId',
-                            'system': IdentifierSystem.sourceId,
-                            'value': resource._sourceId
+                            id: 'sourceId',
+                            system: IdentifierSystem.sourceId,
+                            value: resource._sourceId
                         }
                     )
                 );
@@ -42,9 +50,9 @@ class SourceIdColumnHandler extends PreSaveHandler {
                 resource.identifier = [
                     new Identifier(
                         {
-                            'id': 'sourceId',
-                            'system': IdentifierSystem.sourceId,
-                            'value': resource._sourceId
+                            id: 'sourceId',
+                            system: IdentifierSystem.sourceId,
+                            value: resource._sourceId
                         }
                     )
                 ];

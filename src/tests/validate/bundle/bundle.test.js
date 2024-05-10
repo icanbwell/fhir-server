@@ -5,8 +5,8 @@ const bundle1Resource = require('./fixtures/Bundle/bundle1.json');
 const expectedBundleValidation = require('./fixtures/expected/expected_bundle_validation.json');
 const expectedProcedure = require('./fixtures/expected/expected_procedure.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Bundle Tests', () => {
     beforeEach(async () => {
@@ -52,7 +52,7 @@ describe('Bundle Tests', () => {
                 .send(bundle1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Procedure?_bundle=1')

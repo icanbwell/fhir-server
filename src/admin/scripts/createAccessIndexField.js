@@ -5,16 +5,16 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {CreateAccessIndexRunner} = require('../runners/createAccessIndexFieldRunner');
-const {AdminLogger} = require('../adminLogger');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { CreateAccessIndexRunner } = require('../runners/createAccessIndexFieldRunner');
+const { AdminLogger } = require('../adminLogger');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -36,9 +36,9 @@ async function main() {
     container.register('createAccessIndexRunner', (c) => new CreateAccessIndexRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
-                useAuditDatabase: parameters.audit ? true : false,
+                useAuditDatabase: !!parameters.audit,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 configManager: c.configManager

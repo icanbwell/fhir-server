@@ -9,9 +9,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEventRecordedTests', () => {
     beforeEach(async () => {
@@ -30,15 +30,14 @@ describe('AuditEventRecordedTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': '2020-02-02 is not valid to query AuditEvent. [lt, gt] operation is required',
-                        },
-                        'diagnostics': '2020-02-02 is not valid to query AuditEvent. [lt, gt] operation is required',
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: '2020-02-02 is not valid to query AuditEvent. [lt, gt] operation is required'
+                        }
                     }
                 ]
             });
@@ -47,15 +46,14 @@ describe('AuditEventRecordedTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'gt2020-13-35 is not a valid query.'
-                        },
-                        'diagnostics': 'gt2020-13-35 is not a valid query.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'gt2020-13-35 is not a valid query.'
+                        }
                     }
                 ]
             });
@@ -64,15 +62,14 @@ describe('AuditEventRecordedTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'eq2020-02-02 is not a valid query.'
-                        },
-                        'diagnostics': 'eq2020-02-02 is not a valid query.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'eq2020-02-02 is not a valid query.'
+                        }
                     }
                 ]
             });
@@ -81,15 +78,14 @@ describe('AuditEventRecordedTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'The difference between dates to query AuditEvent should not be greater than 240',
-                        },
-                        'diagnostics': 'The difference between dates to query AuditEvent should not be greater than 240',
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'The difference between dates to query AuditEvent should not be greater than 240'
+                        }
                     }
                 ]
             });
@@ -103,7 +99,7 @@ describe('AuditEventRecordedTests', () => {
                 .send(auditEventResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // now check that we get the right record back
             resp = await request
@@ -113,11 +109,11 @@ describe('AuditEventRecordedTests', () => {
                 .set(getHeaders());
 
             expectedAuditEventResource.meta.tag.forEach((tag) => {
-                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
-                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
+                    tag.display = tag.display.replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
                 }
-                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
-                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code) {
+                    tag.code = 'AuditEvent_4_0_0_2021_09';
                 }
             });
             // noinspection JSUnresolvedFunction
@@ -131,11 +127,11 @@ describe('AuditEventRecordedTests', () => {
                 .set(getHeaders());
 
             expectedAuditEventResource2.meta.tag.forEach((tag) => {
-                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
-                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
+                    tag.display = tag.display.replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
                 }
-                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
-                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code) {
+                    tag.code = 'AuditEvent_4_0_0_2021_09';
                 }
             });
             // noinspection JSUnresolvedFunction

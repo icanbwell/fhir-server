@@ -2,9 +2,11 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, PROXY_PERSON_CONSENT_CODING, CONSENT_OF_LINKED_PERSON_INDEX } = require('../../constants');
+const { CONSENT_OF_LINKED_PERSON_INDEX, PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 class ProaConsentManager {
     /**
@@ -15,13 +17,13 @@ class ProaConsentManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {BwellPersonFinder} bwellPersonFinder
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager,
             patientFilterManager,
             searchQueryBuilder,
-            bwellPersonFinder,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -55,67 +57,47 @@ class ProaConsentManager {
     }
 
     /**
-     * @description Fetches all the consent resources linked to a person ids.
+     * @description Fetches all the consent resources for provided patients.
      * @typedef {Object} ConsentQueryOptions
      * @property {string[]} ownerTags
-     * @property {string[] | undefined} personIds
+     * @property {string[] | undefined} patientIds
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources({ownerTags, personIds}) {
-
-        // get all consents where provision.actor.reference is of proxy-patient with valid code
-        let proxyPersonReferences = personIds.map(
-            (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
-        );
-
+    async getConsentResources ({ ownerTags, patientIds }) {
         const query =
         {
             $and: [
-                {'status': 'active'},
+                { status: 'active' },
+                { 'patient._uuid': { $in: patientIds } },
+                { 'provision.class.code': { $in: this.configManager.getDataSharingConsentCodes } },
+                { 'provision.type': 'permit' },
                 {
-                    '$and': [
-                        {
-                            'provision.actor.reference._uuid': {
-                                '$in': proxyPersonReferences,
-                            },
-                        },
-                        {
-                            'provision.actor.role.coding': {
-                                '$elemMatch': {
-                                    'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                                    'code': PROXY_PERSON_CONSENT_CODING.CODE,
-                                },
-                            }
-                        },
-                    ]
-                },
-                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
-                {'provision.type': 'permit'},
-                {'meta.security': {
-                    '$elemMatch': {
-                        'system': 'https://www.icanbwell.com/owner',
-                        'code': {$in: ownerTags},
-                    },
-                }}
+'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ownerTags }
+                    }
+                }
+}
             ]
         };
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
-            base_version: '4_0_0',
+            base_version: '4_0_0'
         });
 
         const cursor = await consentDataBaseQueryManager.findAsync({
-            query: query,
+            query,
             projection: {}
         });
         const consentResources = await cursor
             // forcing to use this index
             .hint({
-                indexHint: CONSENT_OF_LINKED_PERSON_INDEX,
+                indexHint: CONSENT_OF_LINKED_PERSON_INDEX
             })
-            .sort({'meta.lastUpdated': -1})
+            .sort({ 'meta.lastUpdated': -1 })
             .toArrayRawAsync();
 
         return consentResources;
@@ -126,9 +108,10 @@ class ProaConsentManager {
      * @typedef {Object} PatientIdsWithConsent
      * @property {{[key: string]: string[]}} patientIdToImmediatePersonUuid patient id to immediate person map
      * @property {string[]} securityTags security Tags
+     * @property {{[key: string]: string[]}} personToLinkedPatientsMap person to linked patient map
      * @param {PatientIdsWithConsent} param
      */
-    async getPatientIdsWithConsent({patientIdToImmediatePersonUuid, securityTags,}) {
+    async getPatientIdsWithConsent ({ patientIdToImmediatePersonUuid, securityTags, personToLinkedPatientsMap }) {
         /**
         * @type {Set<string>}
         */
@@ -148,36 +131,64 @@ class ProaConsentManager {
             });
         });
 
-        // Get Consent for each person
+        const patientIds = await this.getAllPatientsForPersons(immediatePersonUuids, personToLinkedPatientsMap);
+
+        // Get Consent for each patient
         const consentResources = await this.getConsentResources({
             ownerTags: securityTags,
-            personIds: [...immediatePersonUuids],
+            patientIds
         });
 
         /**
          * (Proxy) Patient Refs which have provided consent to view data
          * @type {Set<string>}
          */
-        let allowedPatientIds = new Set();
+        const allowedPatientIds = new Set();
         consentResources.forEach((consent) => {
-            if (Array.isArray(consent?.provision?.actor)) {
-                const proxyPersonActor = consent.provision.actor.find((a) => {
-                    return a.role && Array.isArray(a.role.coding) && a.role.coding.find((c) => c.code === PROXY_PERSON_CONSENT_CODING.CODE);
-                });
-
-                if (proxyPersonActor?.reference?._uuid) {
-                    /**@type {string} */
-                    const uuidRef = proxyPersonActor.reference._uuid;
-                    const personUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
-                    if (immediatePersonToInputPatientId.has(personUuid)) {
-                        immediatePersonToInputPatientId.get(personUuid).forEach((patientId) => {
-                            allowedPatientIds.add(patientId);
-                        });
-                    }
+            const patientId = consent.patient?.extension?.find(extension => extension.url === IdentifierSystem.uuid)?.valueString || consent.patient?._sourceId;
+            if (!patientId) {
+                return;
+            }
+            const { id } = ReferenceParser.parseReference(patientId);
+            /** @type {Set<string>} */
+            const matchingPersons = new Set();
+            for (const [person, patients] of personToLinkedPatientsMap) {
+                // Check if the patients list contains the given patient ID
+                if (patients.includes(`${PATIENT_REFERENCE_PREFIX}${id}`)) {
+                    matchingPersons.add(person);
                 }
             }
+            matchingPersons.forEach((personUuid) => {
+                if (immediatePersonToInputPatientId.has(personUuid)) {
+                    immediatePersonToInputPatientId.get(personUuid).forEach((patientId) => {
+                        allowedPatientIds.add(patientId);
+                    });
+                }
+            });
         });
         return allowedPatientIds;
+    }
+
+    /**
+     * Function to retrieve patients for each person and concatenate them
+     * @param {Set<string>} personSet
+     * @param {Map<string, string[]>} personPatientMap
+     */
+    async getAllPatientsForPersons (personSet, personPatientMap) {
+        /**
+        * @type {Set<string>}
+        */
+        const allPatients = new Set();
+        for (const personId of personSet) {
+            if (personPatientMap.has(personId)) {
+                const patientsForPerson = personPatientMap.get(personId);
+                // Concatenate the list of patients to the array of all patients
+                patientsForPerson.forEach(patient => {
+                    allPatients.add(patient);
+                });
+            }
+        }
+        return [...allPatients];
     }
 }
 

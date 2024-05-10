@@ -29,7 +29,7 @@
       "reference": "MedicationRequest/e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3"
     }
   ],
-  "status": "stopped",
+  "status": "active",
   "medicationReference": {
     "reference": "Medication/e-Iox-Rzuv22NuqM-QLLxE7VyghEBbdy0fcuQudngT42xpnd",
     "display": "prenatal vitamin"

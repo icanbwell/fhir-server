@@ -3,37 +3,38 @@
  */
 const express = require('express');
 const httpContext = require('express-http-context');
-const {fhirServerConfig} = require('./config');
-const Prometheus = require('./utils/prometheus.utils');
+const { fhirServerConfig } = require('./config');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
+const path = require('path');
 const useragent = require('express-useragent');
-const {graphql} = require('./middleware/graphql/graphqlServer');
+const { graphql } = require('./middleware/graphql/graphqlServer');
 
 const passport = require('passport');
-const {strategy} = require('./strategies/jwt.bearer.strategy');
+const { strategy } = require('./strategies/jwt.bearer.strategy');
 
-const {handleAlert} = require('./routeHandlers/alert');
-const {MyFHIRServer} = require('./routeHandlers/fhirServer');
-const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
-const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
-const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
-const {handleVersion} = require('./routeHandlers/version');
-const {handleClean} = require('./routeHandlers/clean');
-const {handleStats} = require('./routeHandlers/stats');
-const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
-const {isTrue} = require('./utils/isTrue');
+const { handleAlert } = require('./routeHandlers/alert');
+const { MyFHIRServer } = require('./routeHandlers/fhirServer');
+const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHandlers/contentSecurityPolicy');
+const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
+const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
+const { handleVersion } = require('./routeHandlers/version');
+const { handleStats } = require('./routeHandlers/stats');
+const { handleLogout } = require('./routeHandlers/logout');
+const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
+const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
-const {handleAdmin} = require('./routeHandlers/admin');
-const {getImageVersion} = require('./utils/getImageVersion');
-const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
-const {generateUUID} = require('./utils/uid.util');
-const {logInfo} = require('./operations/common/logging');
+const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleAdminGet, handleAdminPost, handleAdminDelete } = require('./routeHandlers/admin');
+const { getImageVersion } = require('./utils/getImageVersion');
+const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
+const { generateUUID } = require('./utils/uid.util');
+const { logInfo, logDebug } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
+const { generateLogDetail } = require('./utils/requestCompletionLogData.js');
 
 /**
  * Creates the FHIR app
@@ -41,7 +42,7 @@ const { shouldReturnHtml } = require('./utils/requestHelpers.js');
  * @param {import('express').Express} app1
  * @returns {MyFHIRServer}
  */
-function createFhirApp(fnGetContainer, app1) {
+function createFhirApp (fnGetContainer, app1) {
     return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
@@ -79,12 +80,10 @@ function createFhirApp(fnGetContainer, app1) {
 /**
  * Creates the app
  * @param {function (): SimpleContainer} fnGetContainer
- * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnGetContainer, trackMetrics}) {
+function createApp ({ fnGetContainer }) {
     const swaggerUi = require('swagger-ui-express');
-    // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**
@@ -103,27 +102,58 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+    // Urls to be ignored for which access logs are to be created in db.
+    const ignoredUrls = ['/live', '/health', '/ready'];
+
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
         res.on('finish', () => {
             const finishTime = new Date().getTime();
-            const altId = req.authInfo?.context?.username ||
+            const username = req.authInfo?.context?.username ||
                 req.authInfo?.context?.subject ||
                 ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
-
-            logInfo('Request Completed', {
+            const logData = {
                 status: res.statusCode,
                 responseTime: `${(finishTime - startTime) / 1000}s`,
                 requestUrl: reqPath,
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
+                originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
-                altId,
-            });
+                altId: username
+            };
+            if (res.statusCode === 401 || res.statusCode === 403) {
+                logData.detail = generateLogDetail({
+                    authToken: req.headers.authorization,
+                    scope: req.authInfo?.scope,
+                    statusCode: res.statusCode,
+                    username
+                });
+                // Debug log added for logging authentication token
+                if (req.headers.authorization) {
+                    logDebug(
+                        'Request Completed',
+                        { authenticationToken: req.headers.authorization }
+                    );
+                }
+            }
+
+            if (
+                configManager.enableAccessLogsMiddleware &&
+                !ignoredUrls.some(url => reqPath.startsWith(url))
+            ) {
+                container.accessLogger.logAccessLogAsync({
+                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                    req,
+                    statusCode: res.statusCode,
+                    startTime
+                });
+            }
+            logInfo('Request Completed', logData);
         });
         next();
     });
@@ -139,12 +169,19 @@ function createApp({fnGetContainer, trackMetrics}) {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             // check if this is home page, resource page, or admin page
-            const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0') || reqPath.startsWith('/admin');
+            const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
+            const isAdminUrl = reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && isResourceUrl) {
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
-                res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
-                return;
+                if (isAdminUrl) {
+                    res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
+                    return;
+                }
+                if (isResourceUrl) {
+                    res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
+                    return;
+                }
             }
         }
         next();
@@ -155,16 +192,6 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
-
-    if (trackMetrics) {
-        // prometheus tracks the metrics
-        app.use(Prometheus.requestCounters);
-        // noinspection JSCheckFunctionSignatures
-        app.use(Prometheus.responseCounters);
-        app.use(Prometheus.httpRequestTimer);
-        Prometheus.injectMetricsRoute(app);
-        Prometheus.startCollection();
-    }
 
     // Used to initialize context for each request
     app.use(httpContext.middleware);
@@ -185,9 +212,9 @@ function createApp({fnGetContainer, trackMetrics}) {
             oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
             oauth: {
                 appName: 'Swagger Doc',
-                usePkceWithAuthorizationCodeGrant: true,
-            },
-        },
+                usePkceWithAuthorizationCodeGrant: true
+            }
+        }
     };
 
     /**
@@ -214,6 +241,21 @@ function createApp({fnGetContainer, trackMetrics}) {
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
+    app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
+
+    // handles when the user is redirected by the OpenIDConnect/OAuth provider
+    app.get('/authcallback', (req, res) => {
+        const state = req.query.state;
+        const resourceUrl = state
+            ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        res.redirect(
+            `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
+            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
+            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+        );
+    });
+
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
@@ -233,15 +275,16 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     app.get('/ready', (req, res) => handleMemoryCheck(req, res));
 
-    app.get('/version', handleVersion);
-
-    app.get('/clean/:collection?', (req, res) => handleClean(
-        {fnGetContainer, req, res}
-    ));
+    app.get('/logout', handleLogout);
+    app.get('/logout_action', (req, res) => {
+        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
+        res.redirect(logoutUrl);
+    });
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
-        {fnGetContainer, req, res}
+        { fnGetContainer, req, res }
         ));
     }
 
@@ -249,30 +292,33 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     app.get('/alert', handleAlert);
 
-    if (isTrue(env.AUTH_ENABLED)) {
-        // Set up admin routes
-        // noinspection JSCheckFunctionSignatures
-        passport.use('adminStrategy', strategy);
-        app.use(cors(fhirServerConfig.server.corsOptions));
-    }
+    // Need to use version endpoint in fhir app
+    app.use(cors(fhirServerConfig.server.corsOptions));
+    app.get('/version', handleVersion);
 
-    // eslint-disable-next-line new-cap
-    const adminRouter = express.Router({mergeParams: true});
-    if (isTrue(env.AUTH_ENABLED)) {
-        adminRouter.use(passport.initialize());
-        adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
-    }
-    const adminHandler = (req, res) => handleAdmin(
-        fnGetContainer, req, res
+    // Set up admin routes
+    // noinspection JSCheckFunctionSignatures
+    passport.use('adminStrategy', strategy);
+
+
+    const adminRouter = express.Router({ mergeParams: true });
+    // Add authentication
+    adminRouter.use(passport.initialize());
+    adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
+    // Add admin routes with json body parser
+    const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+    adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
+    adminRouter.post(
+        '/admin/:op?',
+        express.json({ type: allowedContentTypes }),
+        (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
-    adminRouter.get('/admin/:op?', adminHandler);
-    adminRouter.post('/admin/:op?', adminHandler);
+    adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+
     app.use(adminRouter);
 
-    if (isTrue(env.AUTH_ENABLED)) {
-        // noinspection JSCheckFunctionSignatures
-        passport.use('graphqlStrategy', strategy);
-    }
+    // noinspection JSCheckFunctionSignatures
+    passport.use('graphqlStrategy', strategy);
 
     // enable middleware for graphql
     if (isTrue(env.ENABLE_GRAPHQL)) {
@@ -280,12 +326,10 @@ function createApp({fnGetContainer, trackMetrics}) {
 
         graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
-                // eslint-disable-next-line new-cap
+
                 const router = express.Router();
-                if (isTrue(env.AUTH_ENABLED)) {
-                    router.use(passport.initialize());
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                }
+                router.use(passport.initialize());
+                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                 router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(express.json());
                 // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -308,8 +352,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                                  * @type {RequestSpecificCache}
                                  */
                                 const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({requestId});
-                                await requestSpecificCache.clearAsync({requestId});
+                                await postRequestProcessor.executeAsync({ requestId });
+                                await requestSpecificCache.clearAsync({ requestId });
                             }
                         }
                     });
@@ -317,15 +361,12 @@ function createApp({fnGetContainer, trackMetrics}) {
                 });
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
-                app.use('/graphqlv2', router);
-                app.use('/graphql', router);
                 app.use('/\\$graphql', router);
             })
             .then((_) => {
                 createFhirApp(fnGetContainer, app);
                 // getRoutes(app);
             });
-
     } else {
         createFhirApp(fnGetContainer, app);
     }
@@ -346,16 +387,4 @@ function createApp({fnGetContainer, trackMetrics}) {
     return app;
 }
 
-// /**
-//  *
-//  * @param {import('express').Express} app
-//  * @return {boolean}
-//  */
-// function unmountRoutes(app) {
-//     // eslint-disable-next-line new-cap
-//     app.use('/graphql', express.Router());
-//     // eslint-disable-next-line new-cap
-//     app.use('/graphqlv2', express.Router());
-// }
-
-module.exports = {createApp};
+module.exports = { createApp };

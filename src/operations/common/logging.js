@@ -1,7 +1,7 @@
 const env = require('var');
 const httpContext = require('express-http-context');
-const {getLogger} = require('../../winstonInit');
-const {REQUEST_ID_TYPE} = require('../../constants');
+const { getLogger } = require('../../winstonInit');
+const { REQUEST_ID_TYPE } = require('../../constants');
 
 /**
  * @type {import('winston').logger}
@@ -15,7 +15,7 @@ const logger = getLogger();
 const setRequestIdInLog = (args) => {
     const reqId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
     const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
-    // eslint-disable-next-line no-prototype-builtins
+
     if (reqId && args) {
         args.request = {
             ...args.request,
@@ -28,7 +28,7 @@ const setRequestIdInLog = (args) => {
 };
 
 /**
- * Always logs regardless of env.IS_PRODUCTION
+ * Logs information
  * @param {string} message
  * @param {Object} args
  */
@@ -38,12 +38,12 @@ const logInfo = (message, args) => {
 };
 
 /**
- * Logs as info if env.IS_PRODUCTION is not set
+ * Logs as debug if log level set
  * @param {string} message
  * @param {Object} args
  */
 const logDebug = (message, args) => {
-    if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
+    if (env.LOGLEVEL === 'DEBUG') {
         setRequestIdInLog(args);
         logger.debug(message, args);
     }
@@ -75,9 +75,9 @@ const logWarn = (message, args) => {
  * @param {Object} args
  * @return {Promise<void>}
  */
-const logVerboseAsync = async ({source, args: args}) => {
+const logVerboseAsync = async ({ source, args }) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        logInfo(`${source}`, {args});
+        logInfo(`${source}`, { args });
     }
 };
 
@@ -103,7 +103,7 @@ const getRemoteAddress = (req) => {
  * @param {Error} error
  * @param {import('http').IncomingMessage} req
  */
-const logErrorAndRequestAsync = async ({error, req}) => {
+const logErrorAndRequestAsync = async ({ error, req }) => {
     const request = {
         id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
         statusCode: error.statusCode,
@@ -121,7 +121,7 @@ const logErrorAndRequestAsync = async ({error, req}) => {
             systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
         }
     };
-    const logData = {request, error};
+    const logData = { request, error };
     if (error.elapsedTimeInSecs) {
         logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
     }

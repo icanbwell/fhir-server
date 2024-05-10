@@ -1,14 +1,16 @@
-const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ValueSetManager} = require('../../utils/valueSet.util');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const httpContext = require('express-http-context');
+const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ValueSetManager } = require('../../utils/valueSet.util');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { RETRIEVE } = require('../../constants').GRIDFS;
 
 class ExpandOperation {
     /**
@@ -21,7 +23,7 @@ class ExpandOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             valueSetManager,
@@ -79,7 +81,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expandAsync({requestInfo, parsedArgs, resourceType}) {
+    async expandAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -89,7 +91,7 @@ class ExpandOperation {
          */
         const startTime = Date.now();
 
-        const {user, scope} = requestInfo;
+        const { user, scope } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -101,10 +103,10 @@ class ExpandOperation {
         });
 
         // Common search params
-        const {id} = parsedArgs;
-        const {base_version} = parsedArgs;
+        const { id } = parsedArgs;
+        const { base_version } = parsedArgs;
 
-        let query = {};
+        const query = {};
         query.id = id;
         /**
          * @type {Resource}
@@ -112,8 +114,8 @@ class ExpandOperation {
         let resource;
         try {
             resource = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findOneAsync({query: {id: id.toString()}});
+                { resourceType, base_version }
+            ).findOneAsync({ query: { id: id.toString() } });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -128,7 +130,7 @@ class ExpandOperation {
 
         if (resource) {
             if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: resource, user, scope
+                resource, user, scope
             }))) {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
@@ -155,12 +157,16 @@ class ExpandOperation {
                 )
             )[0];
 
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo, args: parsedArgs.getRawArgs(), resourceType, startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(resource.toJSON())
-                });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(resource.toJSON())
+            });
 
             resource = this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
@@ -174,4 +180,3 @@ class ExpandOperation {
 module.exports = {
     ExpandOperation
 };
-

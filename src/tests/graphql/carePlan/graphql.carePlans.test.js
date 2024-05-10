@@ -1,14 +1,13 @@
 const carePlanBundleResource = require('./fixtures/carePlans.json');
+const carePlanResource = require('./fixtures/carePlan1.json');
 const expectedCarePlanBundleResource = require('./fixtures/expected_carePlans.json');
-
-const patientBundleResource = require('./fixtures/patients.json');
+const expectedCarePlan1 = require('./fixtures/expected_carePlan1.json');
 
 const observationResource = require('./fixtures/observation.json');
 
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const carePlanQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {
@@ -16,10 +15,10 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQL CarePlan Tests', () => {
     beforeEach(async () => {
@@ -37,25 +36,16 @@ describe('GraphQL CarePlan Tests', () => {
             let resp = await request.get('/4_0_0/CarePlan').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 1 ------------');
 
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge')
-                .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(400);
-
-            logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 2  ------------');
             resp = await request
                 .post('/4_0_0/CarePlan/1/$merge')
                 .send(carePlanBundleResource)
                 .set(getHeaders())
                 .expect(200);
             logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 2  ------------');
             resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
 
@@ -63,29 +53,57 @@ describe('GraphQL CarePlan Tests', () => {
             resp = await request.get('/4_0_0/Observation/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(1);
             logInfo('------- response observation ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
             logInfo('------- end response observation ------------');
 
             logInfo('------- response patient ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
             logInfo('------- end response patient  ------------');
             resp = await request.get('/4_0_0/CarePlan/').set(getHeaders()).expect(200);
             logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 2  ------------');
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCarePlanBundleResource);
+        });
+
+        test('Reference type doesn\'t match testcase works', async () => {
+            const request = await createTestRequest();
+            const graphqlQueryText = carePlanQuery.replace(/\\n/g, '');
+            let resp = await request.get('/4_0_0/CarePlan').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(0);
+
+            resp = await request
+                .post('/4_0_0/CarePlan/$merge')
+                .send(carePlanResource)
+                .set(getHeaders())
+                .expect(200);
+
+            resp = await request.get('/4_0_0/CarePlan/').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(1);
+
+            resp = await request
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResponse(expectedCarePlan1);
         });
     });
 });

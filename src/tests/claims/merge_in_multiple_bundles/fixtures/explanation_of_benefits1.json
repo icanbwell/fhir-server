@@ -41,7 +41,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-0559166162"
         },
@@ -61,7 +62,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -159,7 +160,6 @@
                         "text": "Procedure Modifier 1"
                     }
                 ],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {

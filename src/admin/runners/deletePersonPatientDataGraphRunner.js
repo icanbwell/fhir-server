@@ -21,7 +21,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {number} concurrencyBatchSize
      * @param {boolean} dryRun
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         batchSize,
         adminLogger,
@@ -31,13 +31,13 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         patientUuids,
         personUuids,
         concurrencyBatchSize,
-        dryRun,
+        dryRun
     }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {AdminPersonPatientDataManager}
@@ -94,7 +94,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -107,7 +107,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             'resourceType',
             '_uuid',
             '_sourceId',
-            '_sourceAssigningAuthority',
+            '_sourceAssigningAuthority'
         ];
         for (const property of neededProperties) {
             projection[`${property}`] = 1;
@@ -120,23 +120,23 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {string} uuid
      * @param {string} resource
      */
-    async processRecordAsync(uuid, resource) {
+    async processRecordAsync (uuid, resource) {
         const req = {
             requestId: generateUUID(),
             path: `4_0_0/${resource}`,
             authInfo: {
                 scope: 'access/*.* user/*.read user/*.write user/*.*',
                 context: {
-                    username: 'admin',
-                },
+                    username: 'admin'
+                }
             },
             header: () => null,
             socket: {
-                remoteAddress: '0.0.0.0',
+                remoteAddress: '0.0.0.0'
             },
             headers: {
-                accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            },
+                accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+            }
         };
 
         if (!this.dryRun) {
@@ -149,7 +149,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 personId: uuid,
-                method: this.dryRun ? 'READ' : 'DELETE',
+                method: this.dryRun ? 'READ' : 'DELETE'
             });
         }
 
@@ -158,7 +158,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 patientId: uuid,
-                method: this.dryRun ? 'READ' : 'DELETE',
+                method: this.dryRun ? 'READ' : 'DELETE'
             });
         }
 
@@ -167,9 +167,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 this.writeStream.write(`\t"/4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true",\n`);
             }
             this.adminLogger.logInfo(
-                this.dryRun ?
-                    `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true` :
-                    `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
+                this.dryRun
+                    ? `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true`
+                    : `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
             );
             bundleEntries.entry.forEach((entry) => {
                 const resourceType = entry.resource.resourceType;
@@ -201,7 +201,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             /**
              * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
@@ -212,9 +212,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                  */
                 const resource = collectionName.replace('_4_0_0', '');
                 this.adminLogger.logInfo(
-                    this.dryRun ?
-                    `Printing Everything url for ${resource} resource` :
-                    `Starting loop for ${resource} resource`
+                    this.dryRun
+                    ? `Printing Everything url for ${resource} resource`
+                    : `Starting loop for ${resource} resource`
                 );
 
                 const uuidsToDelete = resource === 'Person' ? this.personUuids : this.patientUuids;
@@ -254,5 +254,5 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 };

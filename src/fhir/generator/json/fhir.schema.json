@@ -1085,7 +1085,7 @@
       "description": "A rational number with implicit precision"
     },
     "id": {
-      "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+      "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
       "type": "string",
       "description": "Any combination of letters, numerals, \"-\" and \".\", with a length limit of 64 characters.  (This might be an integer, an unprefixed OID, UUID or any other identifier pattern that meets these constraints.)  Ids are case-insensitive."
     },
@@ -1251,7 +1251,7 @@
         },
         "valueId": {
           "description": "Value of extension - must be one of a constrained set of the data types (see [Extensibility](extensibility.html) for a list).",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {
@@ -4338,7 +4338,7 @@
         },
         "defaultValueId": {
           "description": "The value that should be used if there is no value stated in the instance (e.g. \u0027if not otherwise specified, the abstract is false\u0027).",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_defaultValueId": {
@@ -4649,7 +4649,7 @@
         },
         "fixedId": {
           "description": "Specifies a value that SHALL be exactly the value  for this element in the instance. For purposes of comparison, non-significant whitespace is ignored, and all values must be an exact match (case and accent sensitive). Missing elements/attributes must also be missing.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_fixedId": {
@@ -4944,7 +4944,7 @@
         },
         "patternId": {
           "description": "Specifies a value that the value in the instance SHALL follow - that is, any value in the pattern must be found in the instance. Other additional values may be found too. This is effectively constraint by example.  \n\nWhen pattern[x] is used to constrain a primitive, it means that the value provided in the pattern[x] must match the instance value exactly.\n\nWhen pattern[x] is used to constrain an array, it means that each element provided in the pattern[x] array must (recursively) match at least one element from the instance array.\n\nWhen pattern[x] is used to constrain a complex object, it means that each property in the pattern must be present in the complex object, and its value must recursively match -- i.e.,\n\n1. If primitive: it must match exactly the pattern value\n2. If a complex object: it must match (recursively) the pattern value\n3. If an array: it must match (recursively) the pattern value.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_patternId": {
@@ -5731,7 +5731,7 @@
         },
         "valueId": {
           "description": "The actual value for the element, which must be one of the types allowed for this element.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {
@@ -43214,7 +43214,7 @@
         },
         "valueId": {
           "description": "If the parameter is a data type.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {
@@ -52589,7 +52589,7 @@
         },
         "defaultValueId": {
           "description": "A value to use if there is no existing value in the source object.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_defaultValueId": {
@@ -53018,7 +53018,7 @@
         },
         "valueId": {
           "description": "Parameter value - variable or literal.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {
@@ -57245,7 +57245,7 @@
         },
         "valueId": {
           "description": "The value of the input parameter as a basic type.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {
@@ -57571,7 +57571,7 @@
         },
         "valueId": {
           "description": "The value of the Output parameter as a basic type.",
-          "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+          "pattern": "^[A-Za-z0-9\\-\\.]{1,}$",
           "type": "string"
         },
         "_valueId": {

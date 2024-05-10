@@ -62,9 +62,7 @@
                 }
             ]
         },
-        "careTeam": [
-            null
-        ]
+        "careTeam": []
     },
     {
         "activity": [
@@ -126,9 +124,7 @@
             ]
         },
         "author": null,
-        "careTeam": [
-            null
-        ]
+        "careTeam": []
     },
     {
         "activity": [
@@ -251,9 +247,7 @@
         },
         "encounter": null,
         "author": null,
-        "careTeam": [
-            null
-        ]
+        "careTeam": []
     },
     {
         "activity": [
@@ -300,8 +294,6 @@
         },
         "encounter": null,
         "author": null,
-        "careTeam": [
-            null
-        ]
+        "careTeam": []
     }
 ]

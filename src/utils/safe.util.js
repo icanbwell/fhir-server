@@ -3,7 +3,7 @@
  * @param obj
  * @returns {*}
  */
-function safeReference(obj) {
+function safeReference (obj) {
     return new Proxy(obj, {
         get: function (target, name) {
             const result = target[`${name}`];

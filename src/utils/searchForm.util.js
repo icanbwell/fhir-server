@@ -13,25 +13,24 @@ const searchLimitForIds = 1000;
  * @property {boolean|undefined} [useExactMatch]
  */
 
-
-function getSearchParams(req) {
+function getSearchParams (req) {
     const bodyEntries = Object.entries(req.body);
-    // eslint-disable-next-line no-unused-vars
+
     const nonEmptyOrNull = bodyEntries.filter(([, val]) => val !== '' && val !== null);
     return Object.fromEntries(nonEmptyOrNull);
 }
 
-function handleModifierKey(key) {
+function handleModifierKey (key) {
     const modifierIndex = key.indexOf(':');
     return modifierIndex > 0 ? key.substring(0, modifierIndex) : key;
 }
 
-function getModifierParams(req) {
+function getModifierParams (req) {
     const searchParams = getSearchParams(req);
     return Object.assign(
         {},
         ...Object.keys(searchParams).map((key) => ({
-            [handleModifierKey(key)]: searchParams[`${key}`],
+            [handleModifierKey(key)]: searchParams[`${key}`]
         }))
     );
 }
@@ -40,7 +39,7 @@ function getModifierParams(req) {
  * @param params
  * @return {FieldInfo}
  */
-function givenNameField(params) {
+function givenNameField (params) {
     return {
         label: 'Given (Name)',
         name: 'given',
@@ -54,7 +53,7 @@ function givenNameField(params) {
  * @param params
  * @return {FieldInfo}
  */
-function familyNameField(params) {
+function familyNameField (params) {
     return {
         label: 'Family (Name)',
         name: 'family',
@@ -68,7 +67,7 @@ function familyNameField(params) {
  * @param params
  * @return {FieldInfo}
  */
-function emailField(params) {
+function emailField (params) {
     return {
         label: 'Email',
         name: 'email',
@@ -82,8 +81,8 @@ function emailField(params) {
  * @param params
  * @return {FieldInfo}
  */
-// eslint-disable-next-line no-unused-vars
-function identifierField(params) {
+
+function identifierField (params) {
     return {
         label: 'Identifier',
         name: 'identifier',
@@ -98,8 +97,8 @@ function identifierField(params) {
  * @param {string} tagName
  * @return {FieldInfo}
  */
-// eslint-disable-next-line no-unused-vars
-function securityTagField(params, tagName) {
+
+function securityTagField (params, tagName) {
     return {
         label: 'Security',
         name: '_security',
@@ -113,11 +112,11 @@ function securityTagField(params, tagName) {
  * @param params
  * @return {FieldInfo[]}
  */
-function getPatientForm(params) {
+function getPatientForm (params) {
     /**
      * @type {FieldInfo[]}
      */
-    let patientArray = [];
+    const patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
     patientArray.push(emailField(params));
@@ -125,11 +124,11 @@ function getPatientForm(params) {
     return patientArray;
 }
 
-function getPersonForm(params) {
+function getPersonForm (params) {
     /**
      * @type {FieldInfo[]}
      */
-    let personArray = [];
+    const personArray = [];
     personArray.push(givenNameField(params));
     personArray.push(familyNameField(params));
     personArray.push(emailField(params));
@@ -140,17 +139,17 @@ function getPersonForm(params) {
 /**
  * @param params
  */
- function getNPIFieldValue(params) {
-    return params.npi ? params.npi :
-           (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '') :
-           '';
+ function getNPIFieldValue (params) {
+    return params.npi ? params.npi
+           : (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '')
+           : '';
 }
 
 /**
  * @param params
  * @return {FieldInfo[]}
  */
-function getPractitionerForm(params) {
+function getPractitionerForm (params) {
     /**
      * @type {FieldInfo[]}
      */
@@ -161,7 +160,7 @@ function getPractitionerForm(params) {
         label: 'NPI',
         name: 'npi',
         sortField: 'identifier',
-        value: getNPIFieldValue(params),
+        value: getNPIFieldValue(params)
     });
     practitionerArray.push(securityTagField(params, 'owner'));
     return practitionerArray;
@@ -171,7 +170,7 @@ function getPractitionerForm(params) {
  * @param params
  * @return {FieldInfo[]}
  */
-function getOrganizationForm(params) {
+function getOrganizationForm (params) {
     /**
      * @type {FieldInfo[]}
      */
@@ -180,7 +179,7 @@ function getOrganizationForm(params) {
         label: 'Name',
         name: 'name',
         sortField: 'name',
-        value: params.name ? params.name : '',
+        value: params.name ? params.name : ''
     });
     formElements.push(securityTagField(params, 'owner'));
     return formElements;
@@ -190,7 +189,7 @@ function getOrganizationForm(params) {
  * @param params
  * @return {FieldInfo[]}
  */
-function getEncounterForm(params) {
+function getEncounterForm (params) {
     /**
      * @type {FieldInfo[]}
      */
@@ -200,7 +199,7 @@ function getEncounterForm(params) {
         label: 'Date',
         name: 'date',
         sortField: 'period',
-        value: params.date ? params.date : '',
+        value: params.date ? params.date : ''
     });
     return formElements;
 }
@@ -249,7 +248,7 @@ const getFormData = (req, resourceName) => {
         label: 'Source',
         name: '_source',
         sortField: 'meta.source',
-        value: params._source ? params._source : '',
+        value: params._source ? params._source : ''
     });
 
     return formData;
@@ -270,7 +269,7 @@ const getAdvSearchFormData = (req, resourceName) => {
     /**
      * @type {FieldInfo[]}
      */
-    let advFormData = [];
+    const advFormData = [];
     const resourceFields = advSearchJson.entry.filter((entry) => {
         return entry.resource.base.includes(resourceName) && entry.resource.type === 'string';
     });
@@ -288,13 +287,13 @@ const getAdvSearchFormData = (req, resourceName) => {
                 .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                 .join(' '),
             name: advParam.resource.name,
-            value: params[advParam.resource.name] ? params[advParam.resource.name] : '',
+            value: params[advParam.resource.name] ? params[advParam.resource.name] : ''
         });
     });
     return advFormData;
 };
 
-function getCurrentPageIndex(pageIndex) {
+function getCurrentPageIndex (pageIndex) {
     pageIndex = pageIndex && pageIndex !== '' ? parseInt(pageIndex) : 0;
     return pageIndex;
 }
@@ -310,7 +309,7 @@ const getHasNext = (res) => {
 
 const getLastUpdate = function (req, index) {
     const searchParams = getSearchParams(req);
-    return searchParams['_lastUpdated'] ? searchParams['_lastUpdated'].at(index) : '';
+    return searchParams._lastUpdated ? searchParams._lastUpdated.at(index) : '';
 };
 
 const zeroPad = (number) => {
@@ -345,7 +344,7 @@ const givenNameValue = (nameObj) => {
  * @return {string}
  */
 const getNameValue = (name) => {
-    if (!name) {return '';}
+    if (!name) { return ''; }
     if (typeof name === 'object') {
         if (Array.isArray(name)) {
             return name.map(n => n.family).join(', ');
@@ -396,7 +395,7 @@ const getFieldValue = (res, name) => {
             }
             return '';
         case '_security':
-            return (res.meta && res.meta.security || [])
+            return ((res.meta && res.meta.security) || [])
                 .map(n => `${n.code}(${n.system.split('/').pop()})`)
                 .join(',<br>');
     }
@@ -444,12 +443,12 @@ const getSortIcon = (fieldName, sortField) => {
 const utils = {
     hasPrev: getHasPrev,
     hasNext: getHasNext,
-    formatDate: formatDate,
+    formatDate,
     fieldValue: getFieldValue,
     totalMessage: getTotalMessage,
     pageIndex: getCurrentPageIndex,
     validResource: isValidResource,
-    sortIcon: getSortIcon,
+    sortIcon: getSortIcon
 };
 
 module.exports = {
@@ -458,6 +457,6 @@ module.exports = {
     lastUpdateStart: getLastUpdate,
     lastUpdateEnd: getLastUpdate,
     limit: searchLimit,
-    searchLimitForIds: searchLimitForIds,
-    searchUtils: utils,
+    searchLimitForIds,
+    searchUtils: utils
 };

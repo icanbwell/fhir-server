@@ -10,11 +10,10 @@ const {
  * @summary Conformance statement
  */
 
-
 module.exports = {
     resource: (baseVersion, key) => {
-        let searchParams = getSearchParams(key, baseVersion);
-        let Resource = resolveSchema(baseVersion, key); // Return our conformance statement
+        const searchParams = getSearchParams(key, baseVersion);
+        const Resource = resolveSchema(baseVersion, key); // Return our conformance statement
 
         return {
             type: Resource.resourceType,

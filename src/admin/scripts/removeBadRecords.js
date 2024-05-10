@@ -5,16 +5,16 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {RemoveBadRecordsRunner} = require('../runners/removeBadRecordsRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { RemoveBadRecordsRunner } = require('../runners/removeBadRecordsRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -34,9 +34,9 @@ async function main() {
     container.register('removeBadRecordsRunner', (c) => new RemoveBadRecordsRunner(
         {
             indexManager: c.indexManager,
-            collections: collections,
-            useAuditDatabase: parameters.audit ? true : false,
-            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            collections,
+            useAuditDatabase: !!parameters.audit,
+            includeHistoryCollections: !!parameters.includeHistoryCollections,
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager

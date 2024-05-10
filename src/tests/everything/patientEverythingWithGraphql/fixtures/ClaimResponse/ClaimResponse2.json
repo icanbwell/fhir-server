@@ -1,0 +1,19 @@
+{
+  "id": "2",
+  "resourceType": "ClaimResponse",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "type": {},
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/2"
+  },
+  "created": "2023-11-11T10:30:00.000Z",
+  "insurer": {
+    "reference": "Organization/2"
+  },
+  "outcome": "queued"
+}

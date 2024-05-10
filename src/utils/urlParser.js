@@ -4,7 +4,7 @@ class UrlParser {
      * @param queryParameterValue
      * @return {boolean}
      */
-    static isUrl(queryParameterValue) {
+    static isUrl (queryParameterValue) {
         return typeof queryParameterValue === 'string' &&
             (
                 queryParameterValue.startsWith('http://') ||

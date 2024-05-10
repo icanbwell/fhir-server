@@ -1,5 +1,5 @@
-const {isTrue} = require('../../utils/isTrue');
-const {ReferenceParser} = require('../../utils/referenceParser');
+const { isTrue } = require('../../utils/isTrue');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
  * @classdesc This class replaces references with hashed references if the reference resource is also included
@@ -11,12 +11,12 @@ class HashReferencesEnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+
+    async enrichAsync ({ resources, parsedArgs }) {
         /**
          * @type {boolean}
          */
-        const hash_references = isTrue(parsedArgs['_hash_references']);
+        const hash_references = isTrue(parsedArgs._hash_references);
         if (hash_references) {
             for (const /** @type {Resource} */ resource of resources) {
                 // collect set of included resources
@@ -50,12 +50,12 @@ class HashReferencesEnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         /**
          * @type {boolean}
          */
-        const hash_references = isTrue(parsedArgs['_hash_references']);
+        const hash_references = isTrue(parsedArgs._hash_references);
         if (hash_references) {
             for (const /** @type {BundleEntry} */ entry of entries) {
                 // collect set of included resources
@@ -94,7 +94,7 @@ class HashReferencesEnrichmentProvider {
      * @param {Set} resourceTypeAndIdSet
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync({reference, resourceTypeAndIdSet}) {
+    async updateReferenceAsync ({ reference, resourceTypeAndIdSet }) {
         if (reference.reference) {
             const {
                 resourceType,

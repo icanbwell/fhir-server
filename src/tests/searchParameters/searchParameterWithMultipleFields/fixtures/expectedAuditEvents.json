@@ -513,7 +513,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$gt':ISODate('2021-08-10T00:00:00.000Z'),'$lt':ISODate('2021-11-02T00:00:00.000Z')}},{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z'),'$lt':ISODate('2031-10-26T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {}).sort({'id':1}).limit(10)",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$gt':ISODate('2021-08-10T00:00:00.000Z'),'$lt':ISODate('2021-11-02T00:00:00.000Z')}},{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z'),'$lt':ISODate('2031-10-26T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(10)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -521,11 +521,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'skip':0,'limit':10,'sort':{'id':1}}",
+        "display": "{'skip':0,'limit':10,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','meta.lastUpdated','meta.security.system','meta.security.code','id']",
+        "display": "['recorded','meta.lastUpdated','meta.security.system','meta.security.code','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

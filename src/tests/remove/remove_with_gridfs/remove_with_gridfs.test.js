@@ -4,6 +4,7 @@ const { createTestContainer } = require('../../createTestContainer');
 
 const documentReferenceData = require('./fixtures/document_reference/document_reference1.json');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFs remove Test', () => {
     beforeEach(async () => {
@@ -41,7 +42,7 @@ describe('GridFs remove Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             resp = await request
                 .delete(`/4_0_0/DocumentReference/${resp._body.id}`)

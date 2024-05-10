@@ -21,7 +21,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} afterLastUpdatedDate
      * @param {string|undefined} beforeLastUpdatedDate
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         collections,
         batchSize,
@@ -34,13 +34,13 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
         useTransaction,
         properties,
         afterLastUpdatedDate,
-        beforeLastUpdatedDate,
+        beforeLastUpdatedDate
     }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {string[]}
@@ -104,7 +104,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -119,7 +119,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
             'identifier',
             '_uuid',
             '_sourceId',
-            '_sourceAssigningAuthority',
+            '_sourceAssigningAuthority'
         ];
         for (const property of neededProperties) {
             projection[`${property}`] = 1;
@@ -132,7 +132,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string[]} duplicateUuidArray
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForDuplicateUuidResources({ duplicateUuidArray }) {
+    getQueryForDuplicateUuidResources ({ duplicateUuidArray }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -146,16 +146,16 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 $and: [
                     query,
                     { 'meta.lastUpdated': { $gt: this.afterLastUpdatedDate } },
-                    { 'meta.lastUpdated': { $lt: this.beforeLastUpdatedDate } },
-                ],
+                    { 'meta.lastUpdated': { $lt: this.beforeLastUpdatedDate } }
+                ]
             };
         } else if (this.afterLastUpdatedDate) {
             query = {
-                $and: [query, { 'meta.lastUpdated': { $gt: this.afterLastUpdatedDate } }],
+                $and: [query, { 'meta.lastUpdated': { $gt: this.afterLastUpdatedDate } }]
             };
         } else if (this.beforeLastUpdatedDate) {
             query = {
-                $and: [query, { 'meta.lastUpdated': { $lt: this.beforeLastUpdatedDate } }],
+                $and: [query, { 'meta.lastUpdated': { $lt: this.beforeLastUpdatedDate } }]
             };
         }
 
@@ -164,10 +164,10 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 
     /**
      * Gets duplicate uuids in and array from collection passed
-     * @param {require('mongodb').collection} collection
+     * @param {import('mongodb').collection} collection
      * @returns {Promise<string[]>}
      */
-    async getDuplicateUuidArrayAsync({ collection }) {
+    async getDuplicateUuidArrayAsync ({ collection }) {
         const result = (
             await collection
                 .aggregate(
@@ -176,17 +176,17 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                             $group: {
                                 _id: '$_uuid',
                                 count: { $count: {} },
-                                meta: { $push: '$meta'},
+                                meta: { $push: '$meta' },
                                 id: { $push: '$_id' }
-                            },
+                            }
                         },
                         {
                             $match: {
                                 count: {
-                                    $gte: 2,
-                                },
-                            },
-                        },
+                                    $gte: 2
+                                }
+                            }
+                        }
                     ],
                     { allowDiskUse: true }
                 )
@@ -208,7 +208,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processResourceAsync({ uuid, collectionName }) {
+    async processResourceAsync ({ uuid, collectionName }) {
         try {
             if (
                 this.processedUuids.has(collectionName) &&
@@ -244,7 +244,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
             /**
              * @type {Object}
              */
-            let resourcesWithMaxVersionId = resources.filter(
+            const resourcesWithMaxVersionId = resources.filter(
                 (res) => Number(res.meta.versionId) === versionIdToKeep
             );
 
@@ -268,10 +268,10 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 {
                     deleteMany: {
                         filter: {
-                            _id: { $in: resourcesToDelete },
-                        },
-                    },
-                },
+                            _id: { $in: resourcesToDelete }
+                        }
+                    }
+                }
             ];
         } catch (e) {
             throw new RethrownError({
@@ -279,9 +279,9 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 error: e,
                 args: {
                     uuid,
-                    collectionName,
+                    collectionName
                 },
-                source: 'FixDuplicateUuidRunner.processRecordAsync',
+                source: 'FixDuplicateUuidRunner.processRecordAsync'
             });
         }
     }
@@ -290,7 +290,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * Runs a loop on all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -299,7 +299,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                  */
                 this.collections = await this.getAllCollectionNamesAsync({
                     useAuditDatabase: false,
-                    includeHistoryCollections: false,
+                    includeHistoryCollections: false
                 });
                 this.collections = this.collections.sort();
                 if (this.startFromCollection) {
@@ -316,13 +316,13 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 
             const { db, client, session } = await this.createSingeConnectionAsync({ mongoConfig });
             try {
-                for (let collectionName of this.collections) {
+                for (const collectionName of this.collections) {
                     const collection = db.collection(collectionName);
                     /**
                      * @type {string[]}
                      */
                     const duplicateUuidArray = await this.getDuplicateUuidArrayAsync({
-                        collection,
+                        collection
                     });
 
                     const startFromIdContainer = this.createStartFromIdContainer();
@@ -331,7 +331,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
                     const query = this.getQueryForDuplicateUuidResources({
-                        duplicateUuidArray,
+                        duplicateUuidArray
                     });
 
                     if (duplicateUuidArray.length > 0) {
@@ -350,14 +350,14 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                                 fnCreateBulkOperationAsync: async (doc) =>
                                     await this.processResourceAsync({
                                         uuid: doc._uuid,
-                                        collectionName,
+                                        collectionName
                                     }),
                                 ordered: false,
                                 batchSize: this.batchSize,
                                 skipExistingIds: false,
                                 limit: this.limit,
                                 useTransaction: this.useTransaction,
-                                skip: this.skip,
+                                skip: this.skip
                             });
                         } catch (e) {
                             console.log(e.message);
@@ -368,9 +368,9 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                                 message: `Error processing references of collection ${collectionName} ${e.message}`,
                                 error: e,
                                 args: {
-                                    query,
+                                    query
                                 },
-                                source: 'FixDuplicateUuidRunner.processAsync',
+                                source: 'FixDuplicateUuidRunner.processAsync'
                             });
                         }
 
@@ -397,5 +397,5 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    FixDuplicateUuidRunner,
+    FixDuplicateUuidRunner
 };

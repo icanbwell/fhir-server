@@ -1,5 +1,5 @@
-const {assertIsValid} = require('./assertType');
-const {isTrue} = require('./isTrue');
+const { assertIsValid } = require('./assertType');
+const { isTrue } = require('./isTrue');
 
 /**
  * Store information about the HTTP request
@@ -19,13 +19,12 @@ class FhirRequestInfo {
      * @param {Object | Object[] | null} [body]
      * @param {string | null} [accept]
      * @param {boolean | null} [isUser]
-     * @param {string[] | null} [patientIdsFromJwtToken]
      * @param {string | null} [personIdFromJwtToken]
      * @param {Object} headers
      * @param {string} method
      * @param {import('content-type').ContentType|null} contentTypeFromHeader
      */
-    constructor(
+    constructor (
         {
             user,
             scope,
@@ -39,7 +38,6 @@ class FhirRequestInfo {
             body,
             accept,
             isUser,
-            patientIdsFromJwtToken,
             personIdFromJwtToken,
             headers,
             method,
@@ -96,10 +94,6 @@ class FhirRequestInfo {
          */
         this.isUser = isUser;
         /**
-         * @type {string[] | null}
-         */
-        this.patientIdsFromJwtToken = patientIdsFromJwtToken;
-        /**
          * @type {string | null}
          */
         this.personIdFromJwtToken = personIdFromJwtToken;
@@ -121,7 +115,7 @@ class FhirRequestInfo {
          * whether the client wants to use global ids
          * @type {boolean}
          */
-        this.preferGlobalId = headers['Prefer'] && isTrue(headers['Prefer'].replace('global_id=', ''));
+        this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
     }
 }
 

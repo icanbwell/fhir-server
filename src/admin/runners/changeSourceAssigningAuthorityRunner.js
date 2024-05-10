@@ -14,7 +14,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {string} oldSourceAssigningAuthority
      * @param {string} newSourceAssigningAuthority
      */
-    constructor({ oldSourceAssigningAuthority, newSourceAssigningAuthority, ...args }) {
+    constructor ({ oldSourceAssigningAuthority, newSourceAssigningAuthority, ...args }) {
         super(args);
 
         /**
@@ -35,7 +35,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async updateRecordAsync(resource) {
+    async updateRecordAsync (resource) {
         if (resource.meta?.security) {
             resource.meta.security = resource.meta.security.map(security => {
                 if (security.code && security.code === this.oldSourceAssigningAuthority) {
@@ -51,7 +51,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
             {
                 fnUpdateReferenceAsync: async (reference) => {
                     if (reference?.reference) {
-                        const {id, sourceAssigningAuthority, resourceType} = ReferenceParser.parseReference(reference.reference);
+                        const { id, sourceAssigningAuthority, resourceType } = ReferenceParser.parseReference(reference.reference);
                         if (sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
                             reference.reference = ReferenceParser.createReference({
                                 id, sourceAssigningAuthority: this.newSourceAssigningAuthority, resourceType
@@ -63,9 +63,10 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                 }
             }
         );
-
+        const base_version = '4_0_0';
+        const requestInfo = this.requestInfo;
         // run preSave to update all the fields according to new values
-        await this.preSaveManager.preSaveAsync(resource);
+        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
 
         return resource;
     }
@@ -76,7 +77,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async addIndexesToCollection({ collectionName, mongoConfig }) {
+    async addIndexesToCollection ({ collectionName, mongoConfig }) {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         const indexName = 'fixChangeSourceAssigningAuthorityRunner_meta.security_1';
@@ -89,7 +90,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                     {
                         'resource.meta.security.system': 1,
                         'resource.meta.security.code': 1,
-                        '_id': 1
+                        _id: 1
                     },
                     {
                         name: indexName
@@ -119,7 +120,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -153,7 +154,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                     const query = this.getQueryForResource(isHistoryCollection);
 
                     if (isHistoryCollection) {
-                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                        await this.addIndexesToCollection({ collectionName, mongoConfig });
                     }
 
                     const startFromIdContainer = this.createStartFromIdContainer();
@@ -176,7 +177,6 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                             useTransaction: this.useTransaction,
                             skip: this.skip
                         });
-
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(
@@ -209,7 +209,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -228,8 +228,8 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
         const filterQuery = {
             [`${queryPrefix}meta.security`]: {
                 $elemMatch: {
-                    'system': SecurityTagSystem.owner,
-                    'code': this.oldSourceAssigningAuthority
+                    system: SecurityTagSystem.owner,
+                    code: this.oldSourceAssigningAuthority
                 }
             }
         };

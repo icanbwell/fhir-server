@@ -20,6 +20,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { ChangeSourceAssigningAuthorityRunner } = require('../../../../admin/runners/changeSourceAssigningAuthorityRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -36,7 +37,7 @@ describe('Person Tests', () => {
 
     describe('Person Tests', () => {
         test('changeSourceAssigningAuthority works for person with history', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -93,7 +94,8 @@ describe('Person Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oldSourceAssigningAuthority: 'client-1',
-                    newSourceAssigningAuthority: 'client'
+                    newSourceAssigningAuthority: 'client',
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -151,7 +153,7 @@ describe('Person Tests', () => {
         });
 
         test('changeSourceAssigningAuthority with multiple persons work', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -208,7 +210,8 @@ describe('Person Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oldSourceAssigningAuthority: 'client-1',
-                    newSourceAssigningAuthority: 'client'
+                    newSourceAssigningAuthority: 'client',
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );

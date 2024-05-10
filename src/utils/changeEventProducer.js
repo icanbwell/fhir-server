@@ -1,9 +1,9 @@
 const env = require('var');
-const {generateUUID} = require('./uid.util');
+const { generateUUID } = require('./uid.util');
 const moment = require('moment-timezone');
-const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {ResourceManager} = require('../operations/common/resourceManager');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { ResourceManager } = require('../operations/common/resourceManager');
+const { logTraceSystemEventAsync, logSystemErrorAsync } = require('../operations/common/systemEventLogging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -11,11 +11,11 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
-const {BwellPersonFinder} = require('./bwellPersonFinder');
-const {KafkaClient} = require('./kafkaClient');
-const {BasePostSaveHandler} = require('./basePostSaveHandler');
-const {RethrownError} = require('./rethrownError');
-const {ConfigManager} = require('./configManager');
+const { BwellPersonFinder } = require('./bwellPersonFinder');
+const { KafkaClient } = require('./kafkaClient');
+const { BasePostSaveHandler } = require('./basePostSaveHandler');
+const { RethrownError } = require('./rethrownError');
+const { ConfigManager } = require('./configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -36,7 +36,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      *
      * @param {Params}
      */
-    constructor({
+    constructor ({
         kafkaClient,
         resourceManager,
         patientChangeTopic,
@@ -90,7 +90,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * This map stores an entry per message id
      * @return {Map<string, Object>} id, resource
      */
-    getPatientMessageMap() {
+    getPatientMessageMap () {
         return this.patientMessageMap;
     }
 
@@ -98,7 +98,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * This map stores an entry per consent id
      * @return {Map<string, Object>} id, resource
      */
-    getConsentMessageMap() {
+    getConsentMessageMap () {
         return this.consentMessageMap;
     }
 
@@ -114,7 +114,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @return {AuditEvent}
      * @private
      */
-    _createMessage({
+    _createMessage ({
                        requestId,
                        id,
                        timestamp,
@@ -125,27 +125,27 @@ class ChangeEventProducer extends BasePostSaveHandler {
                    }
     ) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        let auditEvent = new AuditEvent(
+        const auditEvent = new AuditEvent(
             {
-                'id': generateUUID(),
-                'action': isCreate ? 'C' : 'U',
+                id: generateUUID(),
+                action: isCreate ? 'C' : 'U',
                 type: new Coding({
                     code: '110100'
                 }),
                 recorded: currentDate,
-                'period':
+                period:
                     new Period({
-                        'start': timestamp,
-                        'end': timestamp
+                        start: timestamp,
+                        end: timestamp
                     }),
                 purposeOfEvent:
                     [
                         new CodeableConcept({
-                            'coding':
+                            coding:
                                 [
                                     new Coding({
-                                        'system': 'https://www.icanbwell.com/event-purpose',
-                                        'code': eventName
+                                        system: 'https://www.icanbwell.com/event-purpose',
+                                        code: eventName
                                     })
                                 ]
                         })
@@ -155,20 +155,20 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         new AuditEventAgent({
                             who: new Reference(
                                 {
-                                    'reference': `${resourceType}/${id}`
+                                    reference: `${resourceType}/${id}`
                                 }),
                             requestor: true
                         })
                     ],
                 source: new AuditEventSource({
-                    'site': requestId,
+                    site: requestId,
                     observer: new Reference(
-                        {reference: 'Organization/bwell'}
+                        { reference: 'Organization/bwell' }
                     )
                 })
             });
         if (sourceType) {
-            auditEvent.source.type = new Coding({system: 'https://www.icanbwell.com/sourceType', code: sourceType});
+            auditEvent.source.type = new Coding({ system: 'https://www.icanbwell.com/sourceType', code: sourceType });
         }
         return auditEvent;
     }
@@ -181,7 +181,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientCreateAsync({requestId, patientId, timestamp, sourceType}) {
+    async onPatientCreateAsync ({ requestId, patientId, timestamp, sourceType }) {
         const isCreate = true;
 
         const resourceType = 'Patient';
@@ -190,7 +190,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             id: patientId,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Patient Create',
             sourceType
         });
@@ -206,13 +206,16 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync({requestId, patientId, timestamp, sourceType}) {
+    async onPatientChangeAsync ({ requestId, patientId, timestamp, sourceType }) {
         const isCreate = false;
 
         const resourceType = 'Patient';
         const messageJson = this._createMessage({
-            requestId, id: patientId, timestamp, isCreate,
-            resourceType: resourceType,
+            requestId,
+id: patientId,
+timestamp,
+isCreate,
+            resourceType,
             eventName: 'Patient Change',
             sourceType
         });
@@ -235,7 +238,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentCreateAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -243,7 +246,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             id,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Consent Create',
             sourceType
         });
@@ -260,7 +263,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentChangeAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -268,7 +271,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             id,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Consent Change',
             sourceType
         });
@@ -290,7 +293,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
             /**
              * @type {string}
@@ -331,7 +334,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         }
                     );
 
-                    let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
+                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId });
                     if (personId) {
                         const proxyPatientId = `person.${personId}`;
                         await this.onPatientChangeAsync({
@@ -384,7 +387,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * flushes the change event buffer
      * @return {Promise<void>}
      */
-    async flushAsync() {
+    async flushAsync () {
         const patientMessageMap = this.getPatientMessageMap();
         if (!env.ENABLE_EVENTS_KAFKA) {
             patientMessageMap.clear();
@@ -400,51 +403,60 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 const consentMessageMap = this.getConsentMessageMap();
                 const numberOfMessagesBefore = patientMessageMap.size + consentMessageMap.size;
 
-                const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                const createKafkaClientMessageFn = ([id, /** @type {Object} */ messageJson]) => {
                     return {
                         key: id,
-                        fhirVersion: fhirVersion,
+                        fhirVersion,
                         requestId: messageJson?.source?.site,
-                        value: JSON.stringify(messageJson),
+                        value: JSON.stringify(messageJson)
                     };
                 };
-                // --- Process Patient events ---
-                /**
-                 * @type {KafkaClientMessage[]}
-                 */
-                const patientMessages = Array.from(
-                    patientMessageMap.entries(), createKafkaClientMessageFn
-                );
-
-                await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
-
-                patientMessageMap.clear();
-
-                // --- Process Consent events ---
-                /**
-                 * @type {KafkaClientMessage[]}
-                 */
-                const consentMessages = Array.from(
-                    consentMessageMap.entries(), createKafkaClientMessageFn
-                );
-
-                await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
-
-                consentMessageMap.clear();
-
-                if (numberOfMessagesBefore > 0) {
-                    await logTraceSystemEventAsync(
-                        {
-                            event: 'changeEventProducer',
-                            message: 'Finished',
-                            args: {
-                                numberOfMessagesBefore: numberOfMessagesBefore,
-                                numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
-                                patientTopic: this.patientChangeTopic,
-                                consentTopic: this.consentChangeTopic
-                            }
-                        }
+                try {
+                    // --- Process Patient events ---
+                    /**
+                     * @type {KafkaClientMessage[]}
+                     */
+                    const patientMessages = Array.from(
+                        patientMessageMap.entries(), createKafkaClientMessageFn
                     );
+
+                    await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
+
+                    patientMessageMap.clear();
+
+                    // --- Process Consent events ---
+                    /**
+                     * @type {KafkaClientMessage[]}
+                     */
+                    const consentMessages = Array.from(
+                        consentMessageMap.entries(), createKafkaClientMessageFn
+                    );
+
+                    await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
+
+                    consentMessageMap.clear();
+
+                    if (numberOfMessagesBefore > 0) {
+                        await logTraceSystemEventAsync(
+                            {
+                                event: 'changeEventProducer',
+                                message: 'Finished',
+                                args: {
+                                    numberOfMessagesBefore,
+                                    numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
+                                    patientTopic: this.patientChangeTopic,
+                                    consentTopic: this.consentChangeTopic
+                                }
+                            }
+                        );
+                    }
+                } catch (e) {
+                    await logSystemErrorAsync({
+                        event: 'KafkaClient',
+                        message: e.message,
+                        error: e,
+                        args: {}
+                    });
                 }
             }
         );

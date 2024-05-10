@@ -4,7 +4,7 @@
 
 const env = require('var');
 const { isTrue } = require('../utils/isTrue');
-const {KAFKA_CONNECTION_HEALTHCHECK_INTERVAL} = require('../constants');
+const { KAFKA_CONNECTION_HEALTHCHECK_INTERVAL } = require('../constants');
 
 let kafkaClient;
 let timeTillKafkaReconnection;

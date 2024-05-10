@@ -1,18 +1,18 @@
 /**
  * Class for assertion errors
  */
-const {RethrownError} = require('./rethrownError');
-const {getCircularReplacer} = require('./getCircularReplacer');
-
+const { RethrownError } = require('./rethrownError');
+const { getCircularReplacer } = require('./getCircularReplacer');
 
 class AssertionError extends Error {
     /**
      * Constructor
      * @param {string} message
      */
-    constructor(message) {
+    constructor (message) {
         super(message);
         this.name = this.constructor.name;
+        this.stack = (new Error()).stack; // Capture the stack trace
     }
 }
 
@@ -23,21 +23,17 @@ class AssertionError extends Error {
  * @param {string|undefined} [message]
  * @throws {AssertionError}
  */
-function assertTypeEquals(obj, type, message) {
+function assertTypeEquals (obj, type, message) {
     if (!obj) {
         /**
          * @type {string}
          */
-        const message1 = message ?
-            message :
-            `obj of type ${type.name} is null or undefined`;
+        const message1 = message || `obj of type ${type.name} is null or undefined`;
         throw new AssertionError(message1);
     }
     if (!(obj instanceof type)) {
         throw new AssertionError(
-            message ?
-                message :
-                `Type of obj ${typeof obj} is not the expected type ${type.name}`
+            message || `Type of obj ${typeof obj} is not the expected type ${type.name}`
         );
     }
 }
@@ -48,9 +44,9 @@ function assertTypeEquals(obj, type, message) {
  * @param {string|undefined} [message]
  * @throws {AssertionError}
  */
-function assertIsValid(obj, message) {
+function assertIsValid (obj, message) {
     if (!obj) {
-        throw new AssertionError(message ? message : 'obj is null or undefined');
+        throw new AssertionError(message || 'obj is null or undefined');
     }
 }
 
@@ -61,13 +57,13 @@ function assertIsValid(obj, message) {
  * @param {Object} args
  * @param {Error|undefined} [error]
  */
-function assertFail({source, message, args, error}) {
+function assertFail ({ source, message, args, error }) {
     /**
      * @type {string}
      */
     let text = `${source}: ${message}`;
     if (error) {
-        throw new RethrownError({message: text, error});
+        throw new RethrownError({ message: text, error });
     } else {
         if (args) {
             text += ' | ' + JSON.stringify(args, getCircularReplacer());

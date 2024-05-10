@@ -8,13 +8,13 @@ const {
     getHeaders,
     createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableStatsEndpoint() {
+    get enableStatsEndpoint () {
         return true;
     }
 }
@@ -30,11 +30,8 @@ describe('Stats Tests', () => {
         await commonAfterEach();
     });
 
-
-
     describe('Stats Tests', () => {
         test('stats works', async () => {
-
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
             });
@@ -49,7 +46,7 @@ describe('Stats Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}
@@ -64,7 +61,7 @@ describe('Stats Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync(
                 {
-                    requestId: requestId
+                    requestId
                 }
             );
 

@@ -1,14 +1,14 @@
 const moment = require('moment-timezone');
 const env = require('var');
-const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {logDebug} = require('./logging');
+const { mongoQueryAndOptionsStringify, mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { logDebug } = require('./logging');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ResourceManager} = require('./resourceManager');
-const {removeDuplicatesWithLambda} = require('../../utils/list.util');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {QueryItem} = require('../graph/queryItem');
+const { MongoExplainPlanHelper } = require('../../utils/mongoExplainPlanHelper');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ResourceManager } = require('./resourceManager');
+const { removeDuplicatesWithLambda } = require('../../utils/list.util');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { QueryItem } = require('../graph/queryItem');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleLink = require('../../fhir/classes/4_0_0/backbone_elements/bundleLink');
 
@@ -20,7 +20,7 @@ class BundleManager {
      * constructor
      * @param {ResourceManager} resourceManager
      */
-    constructor(
+    constructor (
         {
             resourceManager
         }
@@ -58,7 +58,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {Bundle}
      */
-    createBundle(
+    createBundle (
         {
             requestId,
             type,
@@ -90,9 +90,9 @@ class BundleManager {
             return new BundleEntry(
                 {
                     id: resource.id,
-                    resource: resource,
+                    resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
-                        {protocol, host, base_version, resource})
+                        { protocol, host, base_version, resource })
                 }
             );
         });
@@ -151,7 +151,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {Bundle}
      */
-    createBundleFromEntries(
+    createBundleFromEntries (
         {
             requestId,
             type,
@@ -204,19 +204,19 @@ class BundleManager {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
                     }),
                     new BundleLink({
                         relation: 'next',
-                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`),
-                    }),
+                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`)
+                    })
                 ];
             } else {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
-                    }),
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                    })
                 ];
             }
         }
@@ -225,10 +225,10 @@ class BundleManager {
          * @type {Bundle}
          */
         const bundle = new Bundle({
-            type: type,
+            type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries,
-            link: link,
+            link
         });
         if (total_count !== null) {
             bundle.total = total_count;
@@ -237,70 +237,70 @@ class BundleManager {
             bundle.id = requestId;
         }
 
-        if (((parsedArgs['_explain'] || parsedArgs['_debug'])) || env.LOGLEVEL === 'DEBUG') {
+        if (((parsedArgs._explain || parsedArgs._debug)) || env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
             const tag = [
                 {
                     system: 'https://www.icanbwell.com/query',
-                    display: mongoQueryAndOptionsStringify({query: originalQuery, options: originalOptions}),
+                    display: mongoQueryAndOptionsStringify({ query: originalQuery, options: originalOptions })
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
-                    code: Array.isArray(originalQuery) ?
-                        originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|') :
-                        this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName),
+                    code: Array.isArray(originalQuery)
+                        ? originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|')
+                        : this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',
-                    display: this.getQueryOptions(originalOptions),
+                    display: this.getQueryOptions(originalOptions)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryFields',
-                    display: this.getQueryFields(columns),
+                    display: this.getQueryFields(columns)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryTime',
-                    display: `${(stopTime - startTime) / 1000}`,
+                    display: `${(stopTime - startTime) / 1000}`
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptimization',
-                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`,
+                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
                 }
             ];
             if (databaseName) {
                 tag.push({
                         system: 'https://www.icanbwell.com/queryDatabase',
-                        code: databaseName,
-                    },
+                        code: databaseName
+                    }
                 );
             }
             if (indexHint) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryIndexHint',
-                    code: indexHint,
+                    code: indexHint
                 });
             }
             if (explanations && explanations.length > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplain',
-                    display: JSON.stringify(explanations, getCircularReplacer()),
+                    display: JSON.stringify(explanations, getCircularReplacer())
                 });
                 const explainer = new MongoExplainPlanHelper();
                 // noinspection JSCheckFunctionSignatures
-                const simpleExplanations = explanations ?
-                    explanations.map(
-                        ( /** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,
+                const simpleExplanations = explanations
+                    ? explanations.map(
+                        (/** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,
                           index) => explainer.quick_explain(
                             {
                                 explanation: e,
-                                query: (Array.isArray(originalQuery) && originalQuery.length > index) ?
-                                    mongoQueryAndOptionsStringify({
+                                query: (Array.isArray(originalQuery) && originalQuery.length > index)
+                                    ? mongoQueryAndOptionsStringify({
                                         query: originalQuery[`${index}`],
                                         options: originalOptions || {}
-                                    }) :
-                                    mongoQueryAndOptionsStringify({
+                                    })
+                                    : mongoQueryAndOptionsStringify({
                                         query: originalQuery,
                                         options: originalOptions || {}
                                     })
@@ -309,19 +309,19 @@ class BundleManager {
                     ) : [];
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplainSimple',
-                    display: JSON.stringify(simpleExplanations, getCircularReplacer()),
+                    display: JSON.stringify(simpleExplanations, getCircularReplacer())
                 });
             }
             if (cursorBatchSize && cursorBatchSize > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryCursorBatchSize',
-                    display: `${cursorBatchSize}`,
+                    display: `${cursorBatchSize}`
                 });
             }
-            bundle['meta'] = {
-                tag: tag,
+            bundle.meta = {
+                tag
             };
-            logDebug('', {user, args: bundle});
+            logDebug('', { user, args: bundle });
         }
         return bundle;
     }
@@ -331,7 +331,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {string|undefined}
      */
-    getQueryCollection(allCollectionsToSearch, collectionName) {
+    getQueryCollection (allCollectionsToSearch, collectionName) {
         return allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName;
     }
 
@@ -339,7 +339,7 @@ class BundleManager {
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @return {string|undefined}
      */
-    getQueryOptions(originalOptions) {
+    getQueryOptions (originalOptions) {
         return originalOptions ? mongoQueryStringify(originalOptions) : null;
     }
 
@@ -347,7 +347,7 @@ class BundleManager {
      * @param {Set|undefined} columns
      * @return {string|undefined}
      */
-    getQueryFields(columns) {
+    getQueryFields (columns) {
         return columns ? mongoQueryStringify(Array.from(columns)) : null;
     }
 
@@ -356,7 +356,7 @@ class BundleManager {
      * @param {BundleEntry[]} entries
      * @return {BundleEntry[]}
      */
-    removeDuplicateEntries({entries}) {
+    removeDuplicateEntries ({ entries }) {
         if (entries.length === 0) {
             return entries;
         }

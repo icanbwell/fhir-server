@@ -7,14 +7,15 @@ const expectedPersonResources = require('./fixtures/expected/expected_Person.jso
 const expectedMissingAccessScope = require('./fixtures/expected/expectedMissingAccessScope.json');
 const expectedWrongAccessScope = require('./fixtures/expected/expectedWrongAccessScope.json');
 const expectedWrongReferenceValues = require('./fixtures/expected/expectedWrongReferenceValues.json');
+const expectedWrongReferenceValuesCreate = require('./fixtures/expected/expectedWrongReferenceValuesCreate.json');
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, mockHttpContext,
+    createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 
 describe('Person Tests', () => {
@@ -46,7 +47,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -73,14 +74,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -93,7 +94,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -120,14 +121,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -154,7 +155,7 @@ describe('Person Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const personCollection = fhirDb.collection(mongoCollectionName);
-            const person = await personCollection.findOne({'id': 'aba5bcf41cf64435839cf0568c121843'});
+            const person = await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' });
             const initialPersonUuid = person._uuid;
 
             const person1ResourceWithChange = deepcopy(person1Resource);
@@ -164,10 +165,10 @@ describe('Person Tests', () => {
                 .send(person1ResourceWithChange)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: true});
+            expect(resp).toHaveMergeResponse({ created: false, updated: true });
 
             // check that the uuid has not changed
-            const finalPersonUuid = (await personCollection.findOne({'id': 'aba5bcf41cf64435839cf0568c121843'}))._uuid;
+            const finalPersonUuid = (await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' }))._uuid;
             expect(finalPersonUuid).toBe(initialPersonUuid);
         });
         test('mergeWith_id fails with missing permissions (create)', async () => {
@@ -188,11 +189,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
-            });
+            expect(resp.body[0].operationOutcome).toEqual(expectedMissingAccessScope);
         });
         test('mergeWith_id fails with missing permissions (update)', async () => {
             const request = await createTestRequest();
@@ -216,7 +215,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT & ASSERT
             // add the resources to FHIR server
@@ -225,7 +224,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // search by token system and code and make sure we get the right Person back
             resp = await request
@@ -239,12 +238,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
-            });
-
+            expect(resp.body[0].operationOutcome).toEqual(expectedMissingAccessScope);
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
             const request = await createTestRequest();
@@ -263,13 +259,9 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write access/foo.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                if (r.issue) {
-                    delete r.issue[0]['diagnostics'];
-                }
-            });
+            expect(resp).toHaveResponse(expectedWrongAccessScope);
         });
         test('mergeWith_id fails with wrong access scope (update)', async () => {
             const request = await createTestRequest();
@@ -288,25 +280,23 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write access/foo.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
-            });
+            expect(resp).toHaveResponse(expectedWrongAccessScope);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -320,14 +310,14 @@ describe('Person Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // ACT & ASSERT
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWrongReferenceValues, r => {
+            expect(resp).toHaveResponse(expectedWrongReferenceValuesCreate, r => {
                 delete r.id;
             });
         });
@@ -340,14 +330,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
@@ -359,6 +349,50 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedWrongReferenceValues, r => {
                 delete r.id;
             });
+        });
+        test('No invalid collections should be made through merge operation', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo fhirDb connection
+             * @type {import('mongodb').Db}
+             */
+            const db = await mongoDatabaseManager.getClientDbAsync();
+            let collections = await db.listCollections().toArray();
+            // Check that initially there are no collections in db.
+            expect(collections.length).toEqual(0);
+
+            // Create a valid resource with merge
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Create invalid resource with merge
+            resp = await request
+                .post('/4_0_0/XYZ/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // Check that after the above requests, only valid collections are made in db.
+            collections = await db.listCollections().toArray();
+            const collectionNames = collections.map(collection => collection.name);
+            expect(collectionNames).toEqual(expect.arrayContaining([
+                'Person_4_0_0', 'Person_4_0_0_History'
+            ]));
         });
     });
 });

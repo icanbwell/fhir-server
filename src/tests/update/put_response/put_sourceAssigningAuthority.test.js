@@ -5,24 +5,20 @@ const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activ
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition1.json');
-const expectedErrorWithoutOwner = require('./fixtures/expected/expected_error_without_owner.json');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../utils/configManager');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return true;
-    }
-
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -80,6 +76,7 @@ describe('ActivityDefinition Tests', () => {
                 .expect(200);
 
             activitydefinition1Resource.name = 'TEST1';
+            const security = activitydefinition1Resource.meta.security;
 
             activitydefinition1Resource.meta.security = activitydefinition1Resource.meta.security.filter(
                 s => s.system !== SecurityTagSystem.owner
@@ -89,9 +86,9 @@ describe('ActivityDefinition Tests', () => {
                 .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
                 .send(activitydefinition1Resource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithoutOwner);
+            expect(resp.body.meta.security).toEqual(expect.arrayContaining(security));
         });
 
         test('put_response works when multiple documents with same id are present when accessed from different scopes', async () => {
@@ -112,7 +109,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             const clientHeaders = getHeaders('user/*.read user/*.write access/client.*');
             const bwellHeaders = getHeaders('user/*.read user/*.write access/bwell.*');
@@ -155,7 +152,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid')
@@ -163,7 +160,11 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(400);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments, (resource) => {
+                if (resource.issue.length > 0) {
+                    delete resource.issue[0].diagnostics;
+                }
+            });
 
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid|client')

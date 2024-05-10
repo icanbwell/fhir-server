@@ -1,27 +1,25 @@
-const {NotFoundError} = require('../../utils/httpErrors');
+const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {isTrue} = require('../../utils/isTrue');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { isTrue } = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {ResourceManager} = require('../common/resourceManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ResourceManager } = require('../common/resourceManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class HistoryByIdOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
@@ -31,10 +29,9 @@ class HistoryByIdOperation {
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseHistoryFactory,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
@@ -50,12 +47,6 @@ class HistoryByIdOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -108,7 +99,7 @@ class HistoryByIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyByIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async historyByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -128,12 +119,10 @@ class HistoryByIdOperation {
             protocol,
             /** @type {string | null} */
             host,
-            /** @type {string[]} */
-            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -145,25 +134,24 @@ class HistoryByIdOperation {
             accessRequested: 'read'
         });
 
-        let {base_version, id} = parsedArgs;
+        const { base_version, id } = parsedArgs;
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
         /**
          * @type {{base_version, columns: Set, query: import('mongodb').Document}}
          */
         const {
             /** @type {import('mongodb').Document}**/
-            query,
+            query
             // /** @type {Set} **/
             // columns
         } = await this.searchManager.constructQueryAsync({
             user,
             scope,
             isUser,
-            patientIdsFromJwtToken,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
@@ -177,11 +165,9 @@ class HistoryByIdOperation {
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
          */
         const options = {
-            sort: [
-                {
-                    'resource.meta.versionId': -1
-                }
-            ]
+            sort: {
+                'resource.meta.versionId': -1
+            }
         };
         try {
             /**
@@ -197,15 +183,15 @@ class HistoryByIdOperation {
                         resourceType, base_version
                     }
                 );
-                cursor = await databaseHistoryManager.findAsync({query, options});
+                cursor = await databaseHistoryManager.findAsync({ query, options });
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
-            if (cursor && parsedArgs['_explain']) {
+            const explanations = (cursor && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
+            if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -232,9 +218,9 @@ class HistoryByIdOperation {
                         bundleEntry = new BundleEntry(
                             {
                                 id: resource.id,
-                                resource: resource,
+                                resource,
                                 fullUrl: this.resourceManager.getFullUrlForResource(
-                                    {protocol, host, base_version, resource})
+                                    { protocol, host, base_version, resource })
                             }
                         );
                     } else {
@@ -243,26 +229,19 @@ class HistoryByIdOperation {
                         );
                         bundleEntry = resource;
                     }
-                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                            resource: resource, user, scope
-                        }
-                    )) {
-                        entries.push(bundleEntry);
-                    }
+                    entries.push(bundleEntry);
                 }
             }
             if (entries.length === 0) {
                 throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                }
-            );
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             /**
              * @type {number}
              */
@@ -294,7 +273,7 @@ class HistoryByIdOperation {
                         {
                             query,
                             resourceType,
-                            collectionName: collectionName
+                            collectionName
                         }
                     ),
                     originalOptions: options,
@@ -305,15 +284,14 @@ class HistoryByIdOperation {
                 }
             );
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
     }

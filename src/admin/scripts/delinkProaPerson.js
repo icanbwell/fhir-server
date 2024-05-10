@@ -17,7 +17,7 @@ const { DelinkProaPersonRunner } = require('../runners/delinkProaPersonRunner');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     /**
@@ -64,7 +64,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientLinkCsvRunner script`);
 
     // set up all the standard services in the container
@@ -81,11 +81,14 @@ async function main() {
         clientUuidColumn,
         statusColumn,
         adminLogger,
+        deleteData: !!parameters.deleteData,
         databaseQueryFactory: c.databaseQueryFactory,
         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
             fhirOperationsManager: c.fhirOperationsManager,
+            postSaveProcessor: c.postSaveProcessor,
+            patientFilterManager: c.patientFilterManager
         })
     }));
 
@@ -105,6 +108,7 @@ async function main() {
  * node src/admin/scripts/delinkProaPerson.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --csvFileName client
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --deleteData
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPatientUuidColumn 0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonUuidColumn 3
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonSAAColumn 4

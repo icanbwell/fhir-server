@@ -2,6 +2,7 @@
   "resourceType": "ActivityDefinition",
   "id": "ab2d17e3-3996-487c-bf81-cbe31abde0be",
   "meta": {
+    "source": "client",
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
@@ -17,8 +18,6 @@
     "reference": "location"
   },
   "name": "TEST",
-  "approvalDate": "2022-09-12",
-  "library": [
-    "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
-  ]
+  "status": "draft",
+  "approvalDate": "2022-09-12"
 }

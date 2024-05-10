@@ -1,37 +1,31 @@
 const async = require('async');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {BadRequestError, ForbiddenError} = require('../../../utils/httpErrors');
-const {ConfigManager} = require('../../../utils/configManager');
-const {DatabaseBulkLoader} = require('../../../dataLayer/databaseBulkLoader');
-const {FhirResourceCreator} = require('../../../fhir/fhirResourceCreator');
-const {MergeManager} = require('../mergeManager');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
-const {ScopesManager} = require('../../security/scopesManager');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
-const {isUuid} = require('../../../utils/uid.util');
-const {BaseValidator} = require('./baseValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
+const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
+const { MergeManager } = require('../mergeManager');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const { ResourceValidator } = require('../../common/resourceValidator');
+const { isUuid } = require('../../../utils/uid.util');
+const { BaseValidator } = require('./baseValidator');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class MergeResourceValidator extends BaseValidator {
     /**
-     * @param {ScopesManager} scopesManager
      * @param {MergeManager} mergeManager
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
+     * @param {ResourceValidator} resourceValidator
      */
-    constructor({
-        scopesManager,
+    constructor ({
         mergeManager,
         databaseBulkLoader,
         preSaveManager,
-        configManager
+        configManager,
+        resourceValidator
     }) {
         super();
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
 
         /**
          * @type {MergeManager}
@@ -56,23 +50,23 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
-     * @param {string|null} scope
-     * @param {string|null} user
-     * @param {string|null} path
-     * @param {date} currentDate
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource|Resource[]} incomingResources
-     * @param {string} requestId
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
-        /**
-         * @type {string[]}
-         */
-        const scopes = this.scopesManager.parseScopes(scope);
+    async validate ({ requestInfo, incomingResources, base_version }) {
+        // Merge duplicate resources from the incomingObjects array
+        incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
         /**
          * @type {boolean}
          */
@@ -89,91 +83,92 @@ class MergeResourceValidator extends BaseValidator {
             return resource;
         });
 
-        const {
+        let {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
-            resourcesToMerge: resourcesIncomingArray,
-            scopes, user, path, currentDate
+            requestInfo,
+            resourcesToMerge: resourcesIncomingArray
         });
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;
 
-        resourcesIncomingArray = await async.map(
+        /**
+         * @type {({resource: Resource | null, mergePreCheckError: MergeResultEntry | null})[]}
+         */
+        const preSaveResults = await async.map(
             resourcesIncomingArray,
             async resource => {
                 if (isUuid(resource.id)) {
                     resource._uuid = resource.id;
                 } else {
-                    resource = await this.preSaveManager.preSaveAsync(resource);
+                    try {
+                        resource = await this.preSaveManager.preSaveAsync({ resource });
+                    } catch (error) {
+                        return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
+                    }
                 }
-                return resource;
+                return { resource, mergePreCheckError: null };
             }
         );
+
+        resourcesIncomingArray = preSaveResults
+            .filter(result => result.resource)
+            .map(result => result.resource);
+
+        for (const mergePreCheckError of preSaveResults.map(result => result.mergePreCheckError)) {
+            if (mergePreCheckError) {
+                mergePreCheckErrors.push(mergePreCheckError);
+            }
+        }
 
         // Load the resources from the database
         await this.databaseBulkLoader.loadResourcesAsync(
             {
-                requestId,
+                requestId: requestInfo.requestId,
                 base_version,
                 requestedResources: resourcesIncomingArray
             }
         );
 
-        // Apply owner tag validation based on whether to update or insert the resource
-        resourcesIncomingArray.forEach(resource => {
+        validResources = [];
+        for (const /** @type {Resource} */ resource of resourcesIncomingArray) {
             const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
-                requestId,
+                requestId: requestInfo.requestId,
                 resourceType: resource.resourceType,
                 uuid: resource._uuid
             });
-            if (foundResource) {
-                if (
-                    !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                        resource: foundResource, user, scope
-                    }) &&
-                    !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                        resource, user, scope
-                    })
-                ) {
-                    throw new ForbiddenError(
-                        `user ${user} with scopes [${scope}] has no access to resource ${resource.resourceType} with id ${resource.id}`
-                    );
+            if (!foundResource) {
+                const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                    resource
+                );
+                if (validationOperationOutcome) {
+                    const issue = (
+                        validationOperationOutcome.issue &&
+                        validationOperationOutcome.issue.length > 0
+                    ) ? validationOperationOutcome.issue[0] : null;
+                    mergePreCheckErrors.push(new MergeResultEntry(
+                        {
+                            id: resource.id,
+                            uuid: resource._uuid,
+                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            created: false,
+                            updated: false,
+                            issue,
+                            operationOutcome: validationOperationOutcome,
+                            resourceType: resource.resourceType
+                        }
+                    ));
+                } else {
+                    validResources.push(resource);
                 }
             } else {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource, user, scope
-                }))) {
-                    throw new ForbiddenError(
-                        `user ${user} with scopes [${scope}] has no access to resource ${resource.resourceType} with id ${resource.id}`
-                    );
-                }
-                // Check resource has a owner tag or access tag as owner can be generated from access tags
-                // in the preSave handlers before inserting the document.
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resource.resourceType}/${resource.id}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                        )
-                    );
-                }
-
-                // Check if meta & meta.source exists in resource
-                if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
-                    throw new BadRequestError(
-                        new Error(
-                            'Unable to create resource. Missing either metadata or metadata source.'
-                        )
-                    );
-                }
+                validResources.push(resource);
             }
-        });
-
+        }
         return {
-            preCheckErrors: mergePreCheckErrors, validatedObjects: resourcesIncomingArray, wasAList: wasIncomingAList
+            preCheckErrors: mergePreCheckErrors, validatedObjects: validResources, wasAList: wasIncomingAList
         };
     }
 }

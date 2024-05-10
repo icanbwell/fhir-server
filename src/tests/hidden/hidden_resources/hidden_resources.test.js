@@ -7,8 +7,8 @@ const observation3Resource = require('./fixtures/Observation/observation3.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationByIdResources = require('./fixtures/expected/expected_observation_by_id.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -29,29 +29,32 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/2/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/3/$merge?validate=true')
                 .send(observation3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1')
+                .get('/4_0_0/Observation/?_bundle=1&_total=accurate')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
+            // Number of resources returned in this case is 2 as 1 of them has hidden tag
+            expect(resp.body.entry.length).toEqual(2);
+            expect(resp.body.total).toEqual(2);
         });
         test('hidden resources are returned in query by id', async () => {
             const request = await createTestRequest();
@@ -62,12 +65,18 @@ describe('Observation Tests', () => {
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             resp = await request
                 .get('/4_0_0/Observation/2')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationByIdResources);
+
+            resp = await request
+                .get('/4_0_0/Observation?id=2')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByIdResources);

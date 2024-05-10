@@ -1,22 +1,19 @@
 /**
  * Implements the main function
  */
-// This line must come before importing any instrumented module.
-require('dd-trace').init({
-    logInjection: true
-});
-// Now load the rest of the modules
+// Load the rest of the modules
+const Sentry = require('@sentry/node');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { logError } = require('./operations/common/logging');
-const Sentry = require('@sentry/node');
 const { getImageVersion } = require('./utils/getImageVersion');
 
 Sentry.init({
     release: getImageVersion(),
     environment: process.env.ENVIRONMENT,
+    autoSessionTracking: false
 });
 
 const main = async function () {
@@ -31,5 +28,5 @@ const main = async function () {
 };
 
 main().catch((reason) => {
-    logError('Top level error', {reason: reason});
+    logError('Top level error', { reason });
 });

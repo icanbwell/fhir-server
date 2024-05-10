@@ -1,11 +1,9 @@
 {
-  "entry": [
-    
-  ],
+  "entry": [],
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'executionPeriod.start':{'$lte':'2023-05-10T00:00:00+00:00'}},{'$or':[{'executionPeriod.end':{'$gte':'2023-05-10T00:00:00+00:00'}},{'executionPeriod.end':null}]}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'executionPeriod.start':{'$lte':'2023-05-10T00:00:00+00:00'}},{'$or':[{'executionPeriod.end':{'$gte':'2023-05-10T00:00:00+00:00'}},{'executionPeriod.end':null}]}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -13,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['executionPeriod.start','executionPeriod.end','id']",
+        "display": "['meta.tag.system','meta.tag.code','executionPeriod.start','executionPeriod.end','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

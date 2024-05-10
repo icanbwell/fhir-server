@@ -1,14 +1,15 @@
 /**
  * This file implement calling the FHIR validator
  */
-
+const env = require('var');
 const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const {validateReferences} = require('./referenceValidator');
+const { validateReferences } = require('./referenceValidator');
 
 const schema = require('../fhir/generator/json/fhir.schema.json');
+const generatedSchema = require('../fhir/generator/json/fhir-generated.schema.json');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
@@ -17,16 +18,18 @@ const schema = require('../fhir/generator/json/fhir.schema.json');
 const validatorConfig = {
     allErrors: true,
     logger: {
-        log: function log() {
+        log: function log () {
             // ok to not specify
         },
-        warn: function warn() {
+        warn: function warn () {
             // ok to not specify
         },
-        error: console.error.bind(console),
-    },
+        error: console.error.bind(console)
+    }
 };
 const fhirValidator = new JSONValidator(schema, validatorConfig);
+const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfig);
+const validateUsingGeneratedSchema = env.VALIDATE_WITH_GENERATED_SCHEMA?.split(',') ?? [];
 
 /**
  * @function validateResource
@@ -37,7 +40,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource({resourceBody, resourceName, path, resourceObj = null}) {
+function validateResource ({ resourceBody, resourceName, path, resourceObj = null }) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -46,14 +49,16 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
                     code: 'invalid',
                     details: new CodeableConcept({
                         text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                            ' ResourceType does not match the endpoint you are posting to.',
-                    }),
-                }),
-            ],
+                            ' ResourceType does not match the endpoint you are posting to.'
+                    })
+                })
+            ]
         });
     }
 
-    const errors = fhirValidator.validate(resourceBody);
+    const errors = validateUsingGeneratedSchema.includes(resourceBody.resourceType)
+        ? fhirGeneratedValidator.validate(resourceBody)
+        : fhirValidator.validate(resourceBody);
     const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
     let issue;
     if (errors && errors.length) {
@@ -64,8 +69,8 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
                 details: new CodeableConcept({
                     text: `${path} ${elm.message} :${JSON.stringify(elm.params)}: at position ${
                         elm.dataPath ? elm.dataPath : 'root'
-                    }`,
-                }),
+                    }`
+                })
             });
         });
     }
@@ -74,16 +79,16 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
             severity: 'error',
             code: 'invalid',
-            details: new CodeableConcept({text: err}),
+            details: new CodeableConcept({ text: err })
         })));
     }
     if (issue && issue.length) {
         return new OperationOutcome({
-            issue: issue,
+            issue
         });
     }
 
     return null;
 }
 
-module.exports = {validateResource};
+module.exports = { validateResource };

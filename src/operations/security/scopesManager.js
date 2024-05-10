@@ -1,19 +1,30 @@
-const {ForbiddenError} = require('../../utils/httpErrors');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ConfigManager } = require('../../utils/configManager');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 
 class ScopesManager {
     /**
      * constructor
      * @param {ConfigManager} configManager
+     * @param {PatientFilterManager} patientFilterManager
      */
-    constructor({
-                    configManager
-                }) {
-
+    constructor ({
+        configManager,
+        patientFilterManager
+    }) {
+        /**
+         * @type {ConfigManager}
+         */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -21,7 +32,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {string[]}
      */
-    parseScopes(scope) {
+    parseScopes (scope) {
         if (!scope) {
             return [];
         }
@@ -35,53 +46,43 @@ class ScopesManager {
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
      */
-    getAccessCodesFromScopes(action, user, scope) {
-        if (this.configManager.authEnabled) {
-            assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
-            // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-            /**
-             * @type {string[]}
-             */
-            let scopes = this.parseScopes(scope);
-            /**
-             * @type {string[]}
-             */
-            const access_codes = [];
-            /**
-             * @type {string}
-             */
-            for (const scope1 of scopes) {
-                if (scope1.startsWith('access')) {
-                    // ex: access/client.*
-                    /**
-                     * @type {string}
-                     */
-                    const inner_scope = scope1.replace('access/', '');
-                    const [securityTag, accessType] = inner_scope.split('.');
-                    if (accessType === '*' || accessType === action) {
-                        access_codes.push(securityTag);
-                    }
+    getAccessCodesFromScopes (action, user, scope) {
+        assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
+        // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+        /**
+         * @type {string[]}
+         */
+        const scopes = this.parseScopes(scope);
+        /**
+         * @type {string[]}
+         */
+        const access_codes = [];
+        /**
+         * @type {string}
+         */
+        for (const scope1 of scopes) {
+            if (scope1.startsWith('access')) {
+                // ex: access/client.*
+                /**
+                 * @type {string}
+                 */
+                const inner_scope = scope1.replace('access/', '');
+                const [securityTag, accessType] = inner_scope.split('.');
+                if (accessType === '*' || accessType === action) {
+                    access_codes.push(securityTag);
                 }
             }
-            return access_codes;
-        } else {
-            return [];
         }
+        return access_codes;
     }
 
     /**
-     * Checks whether the resource has any access codes that are in the passed in accessCodes list
+     * Checks whether the resource has any access and owner codes that are in the passed in accessCodes list
      * @param {string[]} accessCodes
-     * @param {string} user
-     * @param {string} scope
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
-        if (!this.configManager.authEnabled) {
-            return true;
-        }
-
+    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, resource) {
         // fail if there are no access codes
         if (!accessCodes || accessCodes.length === 0) {
             return false;
@@ -100,18 +101,20 @@ class ScopesManager {
         /**
          * @type {string[]}
          */
-        const accessCodesForResource = resource.meta.security
-            .filter(s => s.system === SecurityTagSystem.access)
+        const accessCodesFromOwnerTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.owner)
             .map(s => s.code);
         /**
-         * @type {string}
+         * @type {string[]}
          */
-        for (const accessCode of accessCodes) {
-            if (accessCodesForResource.includes(accessCode)) {
-                return true;
-            }
-        }
-        return false;
+        const accessCodesFromAccessTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
+        const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
+        const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
+
+        return hasOwnerCode && hasAccessCode;
     }
 
     /**
@@ -119,26 +122,26 @@ class ScopesManager {
      * @param {Resource} resource
      * @param {string} user
      * @param {string} scope
+     * @param {string} accessRequested
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags({resource, user, scope}) {
-        if (!this.configManager.authEnabled) {
-            return true;
-        }
-        const hasPatientScope = this.hasPatientScope({scope});
-        if (hasPatientScope) {
-            return true; //TODO: should double check here that the resources belong to this patient
+    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
+        const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
+            scope, resourceType: resource.resourceType
+        });
+        if (accessViaPatientScopes) {
+            return true; // TODO: should double check here that the resources belong to this patient
         }
         // add any access codes from scopes
         /**
          * @type {string[]}
          */
-        const accessCodes = this.getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
-        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
+        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
     }
 
     /**
@@ -146,7 +149,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveAccessTags(resource) {
+    doesResourceHaveAccessTags (resource) {
         return (
             resource &&
             resource.meta &&
@@ -160,7 +163,7 @@ class ScopesManager {
      * @param {Resource|Object} resource
      * @return {boolean}
      */
-    doesResourceHaveOwnerTags(resource) {
+    doesResourceHaveOwnerTags (resource) {
         return (
             resource &&
             resource.meta &&
@@ -174,7 +177,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveMetaSource(resource) {
+    doesResourceHaveMetaSource (resource) {
         return (
             resource &&
             resource.meta &&
@@ -187,7 +190,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveSourceAssigningAuthority(resource) {
+    doesResourceHaveSourceAssigningAuthority (resource) {
         return (
             resource &&
             resource.meta &&
@@ -197,11 +200,37 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether the resource has multiple owner tag
+     * @param {Resource|Object} resource
+     * @return {boolean}
+     */
+    doesResourceHaveMultipleOwnerTags (resource) {
+        return (
+            resource.meta?.security &&
+            resource.meta.security.filter(s => s.system === SecurityTagSystem.owner).length > 1
+        );
+    }
+
+    /**
+     * Returns true if any system or code in the meta.security array is 'null' or empty string
+     * @param {Resource|Object} resource
+     * @return {boolean}
+     */
+    doesResourceHaveInvalidMetaSecurity (resource) {
+        return (
+            resource.meta?.security &&
+            resource.meta.security.some(
+                s => s.system?.toLowerCase() === 'null' || s.system === '' || s.code?.toLowerCase() === 'null'
+            )
+        );
+    }
+
+    /**
      * Gets admin scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}
      */
-    getAdminScopes({scope}) {
+    getAdminScopes ({ scope }) {
         if (!scope) {
             return [];
         }
@@ -213,12 +242,67 @@ class ScopesManager {
     }
 
     /**
+     * Gets patient scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getPatientScopes ({ scope }) {
+        if (!scope) {
+            return [];
+        }
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        return scopes.filter(s => s.startsWith('patient/'));
+    }
+
+    /**
+     * Gets user scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
+     */
+    getUserScopes ({ scope }) {
+        if (!scope) {
+            return [];
+        }
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        return scopes.filter(s => s.startsWith('user/'));
+    }
+
+    /**
      * Gets scope from request
      * @param {import('http').IncomingMessage} req
      * @return {string|undefined}
      */
-    getScopeFromRequest({req}) {
+    getScopeFromRequest ({ req }) {
         return req.authInfo && req.authInfo.scope;
+    }
+
+    /**
+     * returns whether the access to this resource with patient scope is allowed and patient scopes are present
+     * @typedef {Object} IsAccessAllowedByPatientScopesParams
+     * @property {string} scope
+     * @property {string} resourceType
+     *
+     * @param {IsAccessAllowedByPatientScopesParams}
+     * @return {boolean}
+     */
+    isAccessAllowedByPatientScopes ({ scope, resourceType }) {
+        assertIsValid(scope, 'Scope is required');
+        assertIsValid(resourceType, 'ResourceType is required');
+
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
+            return false;
+        }
+        const scopes = this.parseScopes(scope);
+        if (scopes.some(s => s.includes('patient/'))) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -226,12 +310,11 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    hasPatientScope({scope}) {
-        if (this.configManager.authEnabled) {
-            assertIsValid(scope);
-            if (scope.includes('patient/')) {
-                return true;
-            }
+    hasPatientScope ({ scope }) {
+        assertIsValid(scope);
+        const scopes = this.parseScopes(scope);
+        if (scopes.some(s => s.includes('patient/'))) {
+            return true;
         }
         return false;
     }
@@ -240,4 +323,3 @@ class ScopesManager {
 module.exports = {
     ScopesManager
 };
-

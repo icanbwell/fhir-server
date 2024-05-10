@@ -4,7 +4,7 @@ class MemoryManager {
      * @param {number} decimals
      * @returns {string}
      */
-    formatBytes(bytes, decimals = 2) {
+    formatBytes (bytes, decimals = 2) {
         if (!bytes) {
             return '0 Bytes';
         }
@@ -23,7 +23,7 @@ class MemoryManager {
      * returns memory used as a string
      * @return {string}
      */
-    get memoryUsed() {
+    get memoryUsed () {
         const memoryUsage = process.memoryUsage();
         return this.formatBytes(memoryUsage.rss);
     }

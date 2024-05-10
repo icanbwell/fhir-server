@@ -2,7 +2,7 @@ const {
     getLogger
 } = require('../../../winstonInit');
 
-let logger = getLogger();
+const logger = getLogger();
 
 const path = require('path');
 
@@ -11,24 +11,21 @@ const request = require('superagent');
 const errors = require('../utils/error.utils');
 
 const makeResultBundle = (results, res, baseVersion, type) => {
-    // eslint-disable-next-line security/detect-non-literal-require
-    let Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
+    const Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
 
-    // eslint-disable-next-line security/detect-non-literal-require
-    let BundleLink = require(`../resources/${baseVersion}/schemas/bundlelink`);
+    const BundleLink = require(`../resources/${baseVersion}/schemas/bundlelink`);
 
-    // eslint-disable-next-line security/detect-non-literal-require
-    let BundleEntry = require(`../resources/${baseVersion}/schemas/bundleentry`);
+    const BundleEntry = require(`../resources/${baseVersion}/schemas/bundleentry`);
 
-    let selfLink = new BundleLink({
+    const selfLink = new BundleLink({
         url: `${res.req.protocol}://${path.join(res.req.get('host'), res.req.baseUrl)}`,
         relation: 'self'
     });
-    let bundle = new Bundle({
+    const bundle = new Bundle({
         link: selfLink,
-        type: type
+        type
     });
-    let entries = [];
+    const entries = [];
     results.forEach(result => {
         entries.push(new BundleEntry({
             response: result,
@@ -41,22 +38,22 @@ const makeResultBundle = (results, res, baseVersion, type) => {
 };
 
 const createRequestPromises = (entries, req, baseVersion) => {
-    let {
+    const {
         protocol,
         baseUrl
     } = req;
-    let requestPromises = [];
-    let results = [];
+    const requestPromises = [];
+    const results = [];
 
     entries.forEach(entry => {
-        let {
+        const {
             url,
             method
         } = entry.request;
-        let resource = entry.resource;
-        let destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
+        const resource = entry.resource;
+        const destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
         results.push({
-            method: method,
+            method,
             url: destinationUrl
         });
         requestPromises.push(Promise.resolve(
@@ -65,19 +62,19 @@ const createRequestPromises = (entries, req, baseVersion) => {
             return err;
         }));
     });
-    return {requestPromises, results};
+    return { requestPromises, results };
 };
 
 const processRequest = requestType => {
     return (req, res) => new Promise((resolve, reject) => {
         logger.info(`Base >>> ${requestType}`);
-        let {
+        const {
             resourceType,
             type,
-            entry: entries,
+            entry: entries
         } = req.body;
-        let {
-            base_version: baseVersion,
+        const {
+            base_version: baseVersion
         } = req.params;
 
         if (resourceType !== 'Bundle') {
@@ -88,32 +85,31 @@ const processRequest = requestType => {
             return reject(errors.internal(`Expected 'type: ${requestType}'. Received 'type: ${type}'.`, baseVersion));
         }
 
-        const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
+        const { requestPromises, results } = createRequestPromises(entries, req, baseVersion);
         return Promise.all(requestPromises).then(responses => {
             for (let i = 0; i < responses.length; i++) {
                 results[`${i}`].status = responses[`${i}`].status;
             }
 
-
-            let resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
+            const resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
             resolve(resultsBundle);
         });
     });
 };
 
 const processQuestion = () => {
-// eslint-disable-next-line no-unused-vars
+
     return (req, res) => new Promise((resolve, reject) => {
         logger.info('Base >>> Question');
-        let {
-// eslint-disable-next-line no-unused-vars
+        const {
+
             resourceType,
-// eslint-disable-next-line no-unused-vars
-            type,
+
+            type
         } = req.body;
-        let {
-// eslint-disable-next-line no-unused-vars
-            base_version: baseVersion,
+        const {
+
+            base_version: baseVersion
         } = req.params;
 
         return resolve({});

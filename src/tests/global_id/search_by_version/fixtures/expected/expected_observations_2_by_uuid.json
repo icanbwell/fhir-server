@@ -93,7 +93,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0_History.find({'resource._uuid':'d3adcaf2-1161-5f9c-8fbd-3148b9eb2122'}, {}).sort([{'resource.meta.versionId':-1}])",
+        "display": "db.Observation_4_0_0_History.find({'resource._uuid':'d3adcaf2-1161-5f9c-8fbd-3148b9eb2122'}, {}).sort({'resource.meta.versionId':-1})",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -101,7 +101,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'sort':[{'resource.meta.versionId':-1}]}",
+        "display": "{'sort':{'resource.meta.versionId':-1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {

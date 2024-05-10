@@ -123,8 +123,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
@@ -252,7 +250,8 @@
                 }
             ]
         },
-        "outcome": "Complete",
+        "outcome": "complete",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-7446041751"
         },
@@ -354,7 +353,7 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim"
+        "use": "claim"
     },
     {
         "resourceType": "ExplanationOfBenefit",
@@ -385,7 +384,7 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
         "patient": {
             "reference": "Patient/WPS-7446041751"
         },
@@ -412,7 +411,8 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
+        "created": "2014-08-16",
         "careTeam": [
             {
                 "sequence": 1,

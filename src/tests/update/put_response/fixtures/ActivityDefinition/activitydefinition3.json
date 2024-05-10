@@ -15,6 +15,6 @@
         ]
     },
     "name": "TEST",
-    "approvalDate": "2022-09-12",
-    "library": ["http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"]
+    "status": "draft",
+    "approvalDate": "2022-09-12"
 }

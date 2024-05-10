@@ -1,0 +1,12 @@
+{
+  "id": "2",
+  "resourceType": "ClinicalImpression",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "subject": {
+    "reference": "Patient/2"
+  }
+}

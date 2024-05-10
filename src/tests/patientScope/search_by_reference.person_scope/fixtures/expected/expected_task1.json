@@ -1,0 +1,59 @@
+{
+  "for": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/person.bwellPerson1"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/97991b55-75fd-5b75-afb8-8bb26f22dbbe"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "mps-api"
+      }
+    ],
+    "reference": "Patient/person.bwellPerson1"
+  },
+  "id": "Task1",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "Task1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "553fd2a4-e82d-54ed-b52a-9b74d05d4f82"
+    }
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "mps",
+    "versionId": "1"
+  },
+  "resourceType": "Task",
+  "intent": "plan",
+  "status": "draft"
+}

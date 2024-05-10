@@ -16,9 +16,6 @@
             "value": "87dbd0cc-8278-5716-ab44-8cc08ccbe25a"
           }
         ],
-        "library": [
-          "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
-        ],
         "meta": {
           "security": [
             {
@@ -42,6 +39,7 @@
           "versionId": "2"
         },
         "name": "TEST3",
+        "status": "draft",
         "resourceType": "ActivityDefinition"
       }
     },
@@ -60,9 +58,6 @@
             "system": "https://www.icanbwell.com/uuid",
             "value": "68fc821f-d948-5342-945b-adb82516e7df"
           }
-        ],
-        "library": [
-          "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
         ],
         "meta": {
           "security": [
@@ -83,6 +78,7 @@
           "versionId": "1"
         },
         "name": "TEST1",
+        "status": "draft",
         "resourceType": "ActivityDefinition"
       }
     }

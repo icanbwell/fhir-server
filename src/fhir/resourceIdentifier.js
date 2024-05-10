@@ -1,4 +1,4 @@
-const {ResourceComparer} = require('./resourceComparer');
+const { ResourceComparer } = require('./resourceComparer');
 
 class ResourceIdentifier {
     /**
@@ -8,7 +8,7 @@ class ResourceIdentifier {
      * @param {string} _uuid
      * @param {string} _sourceAssigningAuthority
      */
-    constructor(
+    constructor (
         {
             id,
             resourceType,
@@ -34,7 +34,7 @@ class ResourceIdentifier {
         this._sourceAssigningAuthority = _sourceAssigningAuthority;
     }
 
-    equals(other) {
+    equals (other) {
         return ResourceComparer.isSameResourceByIdAndSecurityTag(
             {
                 first: this,

@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Patient_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {}).sort({'id':1}).limit(100)]",
+        "display": "[db.Patient_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'limit':100,'sort':{'id':1}}]",
+        "display": "[{'limit':100,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['meta.security.system','meta.security.code','id']]",
+        "display": "[['meta.tag.system','meta.tag.code','meta.security.system','meta.security.code','_uuid']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

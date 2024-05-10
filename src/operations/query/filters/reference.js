@@ -1,26 +1,25 @@
-const {BaseFilter} = require('./baseFilter');
-const {ReferenceParser} = require('../../../utils/referenceParser');
-const {groupByLambda} = require('../../../utils/list.util');
+const { BaseFilter } = require('./baseFilter');
+const { ReferenceParser } = require('../../../utils/referenceParser');
+const { groupByLambda } = require('../../../utils/list.util');
 
 /**
  * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
  */
 class FilterByReference extends BaseFilter {
-
     /**
      * Get references
      * @param {string[]} targets
      * @param {string} reference
      * @return {string[]}
      */
-    getReferences({targets, reference}) {
-        const {resourceType, id} = ReferenceParser.parseReference(reference);
+    getReferences ({ targets, reference }) {
+        const { resourceType, id } = ReferenceParser.parseReference(reference);
         if (resourceType) {
             return [
                 ReferenceParser.createReference(
                     {
-                        resourceType: resourceType, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                        resourceType, id // do not set sourceAssigningAuthority since we set that as a separate $and clause
                     }
                 )
             ];
@@ -28,7 +27,7 @@ class FilterByReference extends BaseFilter {
             return targets.map(
                 t => ReferenceParser.createReference(
                     {
-                        resourceType: t, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                        resourceType: t, id // do not set sourceAssigningAuthority since we set that as a separate $and clause
                     }
                 )
             );
@@ -39,7 +38,7 @@ class FilterByReference extends BaseFilter {
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {Object[]}
          */
@@ -61,7 +60,7 @@ class FilterByReference extends BaseFilter {
                 uuidFilters.push(
                     {
                         [`${field}._uuid`]: {
-                            '$in': uuidReferences.flatMap(
+                            $in: uuidReferences.flatMap(
                                 r => this.getReferences(
                                     {
                                         targets: this.propertyObj.target,
@@ -75,7 +74,7 @@ class FilterByReference extends BaseFilter {
 
                 if (uuidFilters.length > 0) {
                     filters.push({
-                        '$or': uuidFilters
+                        $or: uuidFilters
                     });
                 }
             }
@@ -99,13 +98,13 @@ class FilterByReference extends BaseFilter {
                         ) {
                         idFilters.push(
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
                                     },
                                     {
                                         [`${field}._sourceId`]: {
-                                            '$in': references.flatMap(
+                                            $in: references.flatMap(
                                                 r => this.getReferences({
                                                     targets: this.propertyObj.target,
                                                     reference: r
@@ -122,7 +121,7 @@ class FilterByReference extends BaseFilter {
                     idFilters.push(
                         {
                             [`${field}._sourceId`]: {
-                                '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
+                                $in: idReferencesWithoutSourceAssigningAuthority.flatMap(
                                     r => this.getReferences({
                                         targets: this.propertyObj.target,
                                         reference: r
@@ -135,18 +134,17 @@ class FilterByReference extends BaseFilter {
             }
             if (idFilters.length > 0) {
                 filters.push({
-                    '$or': idFilters
+                    $or: idFilters
                 });
             }
         }
         const filter = {
-            '$or': filters
+            $or: filters
         };
         and_segments.push(filter);
         return and_segments;
     }
 }
-
 
 module.exports = {
     FilterByReference

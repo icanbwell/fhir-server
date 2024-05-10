@@ -1,0 +1,12 @@
+{
+    "id": "2",
+    "resourceType": "Procedure",
+    "meta": {
+        "source": "test",
+        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "stopped",
+    "subject": {
+        "reference": "Patient/2"
+    }
+}

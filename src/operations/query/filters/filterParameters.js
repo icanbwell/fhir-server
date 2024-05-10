@@ -6,16 +6,14 @@ class FilterParameters {
      * @param {FieldMapper} fieldMapper
      * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
      * @param {string} resourceType
-     * @param {boolean|undefined} enableGlobalIdSupport
      */
-    constructor(
+    constructor (
         {
             propertyObj,
             parsedArg,
             fieldMapper,
             fnUseAccessIndex,
-            resourceType,
-            enableGlobalIdSupport
+            resourceType
         }
     ) {
         /**
@@ -40,11 +38,6 @@ class FilterParameters {
          * @type {string}
          */
         this.resourceType = resourceType;
-
-        /**
-         * @type {boolean|undefined}
-         */
-        this.enableGlobalIdSupport = enableGlobalIdSupport;
     }
 }
 

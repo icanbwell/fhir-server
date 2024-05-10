@@ -2,14 +2,18 @@ const CodeableConcept = require('../../../fhir/classes/4_0_0/complex_types/codea
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
-const {BaseValidator} = require('./baseValidator');
+const { BaseValidator } = require('./baseValidator');
 
-class ParametersResourceValidator extends BaseValidator{
+class ParametersResourceValidator extends BaseValidator {
     /**
+     * @param {FhirRequestInfo} requestInfo
+     * @param {date} currentDate
+     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
-     * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
+     * @param {string} base_version
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({ incomingResources }) {
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         // see if the resources were passed as parameters
         if (incomingResources.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
@@ -43,7 +47,7 @@ class ParametersResourceValidator extends BaseValidator{
                         ]
                     })
                 ];
-                return {validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true};
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             // find the actual resource in the parameter called resource
             /**
@@ -69,12 +73,12 @@ class ParametersResourceValidator extends BaseValidator{
                         ]
                     })
                 ];
-                return {validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true};
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             incomingResources = resourceParameters.map(r => r.resource);
         }
 
-        return {validatedObjects: incomingResources, preCheckErrors: [], wasAList: false};
+        return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };
     }
 }
 

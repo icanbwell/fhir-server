@@ -7,8 +7,7 @@
     "action": "C",
     "agent": [
       {
-        "altId": "user/*.read user/*.write access/*.*",
-        "name": "imran",
+        "altId": "imran",
         "network": {
           "type": "2"
         },
@@ -132,8 +131,7 @@
     "action": "C",
     "agent": [
       {
-        "altId": "user/*.read user/*.write access/*.*",
-        "name": "imran",
+        "altId": "imran",
         "network": {
           "type": "2"
         },
@@ -253,8 +251,7 @@
     "action": "R",
     "agent": [
       {
-        "altId": "user/*.read user/*.write access/*.*",
-        "name": "imran",
+        "altId": "imran",
         "network": {
           "type": "2"
         },

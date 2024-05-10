@@ -1,39 +1,40 @@
-const {isTrue} = require('../../utils/isTrue');
+const { isTrue } = require('../../utils/isTrue');
 const env = require('var');
-const {logDebug, logError} = require('../common/logging');
+const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
-const {pipeline} = require('stream/promises');
-const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
-const {Transform} = require('stream');
-const {IndexHinter} = require('../../indexes/indexHinter');
-const {HttpResponseWriter} = require('../streaming/responseWriter');
-const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SecurityTagManager} = require('../common/securityTagManager');
-const {ResourcePreparer} = require('../common/resourcePreparer');
-const {RethrownError} = require('../../utils/rethrownError');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {R4SearchQueryCreator} = require('../query/r4');
-const {ConfigManager} = require('../../utils/configManager');
-const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
-const {ScopesManager} = require('../security/scopesManager');
-const {GetCursorResult} = require('./getCursorResult');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
-const {MongoReadableStream} = require('../streaming/mongoStreamReader');
-const {ProaConsentManager} = require('./proaConsentManager');
-const {DataSharingManager} = require('./dataSharingManager');
-const {SearchQueryBuilder} = require('./searchQueryBuilder');
+const { searchLimitForIds, limit } = require('../../utils/searchForm.util');
+const { pipeline } = require('stream/promises');
+const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
+const { Transform } = require('stream');
+const { IndexHinter } = require('../../indexes/indexHinter');
+const { HttpResponseWriter } = require('../streaming/responseWriter');
+const { ResourceIdTracker } = require('../streaming/resourceIdTracker');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SecurityTagManager } = require('../common/securityTagManager');
+const { ResourcePreparer } = require('../common/resourcePreparer');
+const { RethrownError } = require('../../utils/rethrownError');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { R4SearchQueryCreator } = require('../query/r4');
+const { ConfigManager } = require('../../utils/configManager');
+const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
+const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
+const { ScopesManager } = require('../security/scopesManager');
+const { GetCursorResult } = require('./getCursorResult');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
+const { MongoReadableStream } = require('../streaming/mongoStreamReader');
+const { DataSharingManager } = require('./dataSharingManager');
+const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { PatientScopeManager } = require('../security/patientScopeManager');
+const { PatientQueryCreator } = require('../common/patientQueryCreator');
 
 class SearchManager {
     /**
@@ -50,11 +51,12 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ProaConsentManager} proaConsentManager
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {PatientScopeManager} patientScopeManager
+     * @param {PatientQueryCreator} patientQueryCreator
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             resourceLocatorFactory,
@@ -68,9 +70,10 @@ class SearchManager {
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
-            proaConsentManager,
             dataSharingManager,
             searchQueryBuilder,
+            patientScopeManager,
+            patientQueryCreator
         }
     ) {
         /**
@@ -140,12 +143,6 @@ class SearchManager {
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
 
         /**
-         * @type {ProaConsentManager}
-         */
-        this.proaConsentManager = proaConsentManager;
-        assertTypeEquals(proaConsentManager, ProaConsentManager);
-
-        /**
          * @type {DataSharingManager}
          */
         this.dataSharingManager = dataSharingManager;
@@ -157,6 +154,17 @@ class SearchManager {
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
 
+        /**
+         * @type {PatientScopeManager}
+         */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
+
+        /**
+         * @type {PatientQueryCreator}
+         */
+        this.patientQueryCreator = patientQueryCreator;
+        assertTypeEquals(patientQueryCreator, PatientQueryCreator);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -165,42 +173,45 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {boolean | null} isUser
-     * @param {string[] | null} patientIdsFromJwtToken
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {string|null} requestId
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
      * @param {'READ'|'WRITE'} operation
+     * @param {string} accessRequested
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
-    async constructQueryAsync(
+    async constructQueryAsync (
         {
             user,
             scope,
             isUser,
-            patientIdsFromJwtToken,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
             requestId,
             parsedArgs,
             useHistoryTable,
-            operation
+            operation,
+            accessRequested = 'read'
         }
     ) {
         try {
             /**
              * @type {string}
              */
-            const {base_version} = parsedArgs;
+            const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
-            const hasPatientScope = this.scopesManager.hasPatientScope({scope});
+            const accessViaPatientScopes = this.scopesManager.isAccessAllowedByPatientScopes({ scope, resourceType });
 
             /**
              * @type {string[]}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
+            const securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                accessRequested, user, scope, accessViaPatientScopes
+            });
             /**
              * @type {import('mongodb').Document}
              */
@@ -214,20 +225,42 @@ class SearchManager {
              * @type {boolean}
              */
             let shouldUpdateColumns = false;
-            // eslint-disable-next-line no-useless-catch
-            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+
+            ({ query, columns } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
                 base_version,
                 parsedArgs,
                 resourceType,
-                useHistoryTable
+                useHistoryTable,
+                operation
             }));
 
-            // JWT has access tag in scope i.e API call from a specific client
-            if (securityTags && securityTags.length > 0) {
+            if (accessViaPatientScopes) {
+                shouldUpdateColumns = true;
+                /**
+                 * @type {string[]}
+                 */
+                const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                    base_version, isUser, personIdFromJwtToken
+                });
+
+                if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
+                    allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
+                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
+                } else {
+                    query = this.patientQueryCreator.getQueryWithPatientFilter({
+                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
+                    });
+                }
+            } else if (securityTags && securityTags.length > 0) {
+                // JWT has access tag in scope i.e API call from a specific client
                 shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
-                    resourceType, securityTags, query, useAccessIndex
+                    resourceType,
+                    securityTags,
+                    query,
+                    useAccessIndex,
+                    useHistoryTable
                 });
 
                 if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
@@ -242,67 +275,35 @@ class SearchManager {
                     });
                 }
             }
-            if (hasPatientScope) {
-                shouldUpdateColumns = true;
-                /**
-                 * @type {string[]}
-                 */
-                const patientIdsLinkedToPersonId = personIdFromJwtToken ?
-                    await this.getLinkedPatientsAsync(
-                        {
-                            base_version, isUser, personIdFromJwtToken
-                        }) :
-                    [];
-                /**
-                 * @type {string[]|null}
-                 */
-                const allPatientIdsFromJwtToken = patientIdsFromJwtToken ?
-                    patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId) :
-                    patientIdsLinkedToPersonId;
-
-                if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
-                    (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
-                    query = {id: '__invalid__'}; // return nothing since no patient ids were passed
-                } else {
-                    if (personIdFromJwtToken) {
-                        // Add the person id to the list as a patient proxy
-                        allPatientIdsFromJwtToken.push(
-                            `person.${personIdFromJwtToken}`
-                        );
-                    }
-                    query = this.securityTagManager.getQueryWithPatientFilter(
-                        {
-                            patientIds: allPatientIdsFromJwtToken, query, resourceType
-                        }
-                    );
-                }
-            }
 
             if (shouldUpdateColumns) {
                 // update the columns set
                 columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
             }
 
-            ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
+            ({ query, columns } = await this.queryRewriterManager.rewriteQueryAsync({
                 base_version,
                 query,
                 columns,
                 resourceType,
                 operation
             }));
-            return {base_version, query, columns};
+            if (query) {
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
+            return { base_version, query, columns };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
                     error: e,
                     args: {
-                        user, scope,
+                        user,
+                        scope,
                         isUser,
-                        patientIdsFromJwtToken,
                         parsedArgs,
                         resourceType,
                         useAccessIndex,
-                        personIdFromJwtToken,
+                        personIdFromJwtToken
                     }
                 }
             );
@@ -325,7 +326,7 @@ class SearchManager {
      * @param {Object} extraInfo
      * @returns {Promise<GetCursorResult>}
      */
-    async getCursorForQueryAsync(
+    async getCursorForQueryAsync (
         {
             resourceType,
             base_version,
@@ -342,7 +343,7 @@ class SearchManager {
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
-        if (parsedArgs['_elements']) {
+        if (parsedArgs._elements) {
             const __ret = this.handleElementsQuery(
                 {
                     parsedArgs, columns, resourceType, options, useAccessIndex
@@ -351,18 +352,18 @@ class SearchManager {
             options = __ret.options;
         }
         // if _sort is specified then add sort criteria to mongo query
-        if (parsedArgs['_sort']) {
-            const __ret = this.handleSortQuery({parsedArgs, columns, options});
+        if (parsedArgs._sort) {
+            const __ret = this.handleSortQuery({ parsedArgs, columns, options });
             columns = __ret.columns;
             options = __ret.options;
         }
 
         // if _count is specified then limit mongo query to that
-        if (parsedArgs['_count']) {
-            const __ret = this.handleCountOption({parsedArgs, options, isStreaming});
+        if (parsedArgs._count) {
+            const __ret = this.handleCountOption({ parsedArgs, options, isStreaming });
             options = __ret.options;
         } else {
-            this.setDefaultLimit({parsedArgs, options});
+            this.setDefaultLimit({ parsedArgs, options });
         }
 
         // for consistency in results while paging, always sort by id
@@ -370,11 +371,11 @@ class SearchManager {
         const defaultSortId = this.configManager.defaultSortId;
         columns.add(defaultSortId);
         if (!('sort' in options)) {
-            options['sort'] = {};
+            options.sort = {};
         }
         // add id to end if not present in sort
-        if (!(`${defaultSortId}` in options['sort'])) {
-            options['sort'][`${defaultSortId}`] = 1;
+        if (!(`${defaultSortId}` in options.sort)) {
+            options.sort[`${defaultSortId}`] = 1;
         }
 
         /**
@@ -395,9 +396,9 @@ class SearchManager {
          * @type {boolean}
          */
         const useTwoStepSearchOptimization =
-            !parsedArgs['_elements'] &&
-            !parsedArgs['id'] &&
-            (this.configManager.enableTwoStepOptimization || parsedArgs['_useTwoStepOptimization']);
+            !parsedArgs._elements &&
+            !parsedArgs.id &&
+            (this.configManager.enableTwoStepOptimization || parsedArgs._useTwoStepOptimization);
         if (isTrue(useTwoStepSearchOptimization)) {
             const __ret = await this.handleTwoStepSearchOptimizationAsync(
                 {
@@ -421,7 +422,7 @@ class SearchManager {
                         originalQuery: new QueryItem({
                             query: originalQuery,
                             collectionName: null,
-                            resourceType: resourceType
+                            resourceType
                         }),
                         originalOptions,
                         useTwoStepSearchOptimization,
@@ -439,7 +440,7 @@ class SearchManager {
          * resources to return
          * @type {Resource[]}
          */
-        let resources = [];
+        const resources = [];
         /**
          * @type {number}
          */
@@ -456,7 +457,7 @@ class SearchManager {
         // run the query and get the results
         // Now run the query to get a cursor we will enumerate next
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
-            {resourceType, base_version}
+            { resourceType, base_version }
         );
         /**
          * @type {DatabasePartitionedCursor}
@@ -464,9 +465,9 @@ class SearchManager {
         let cursorQuery;
         if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
-            let projection = parsedArgs['projection'] || {};
-            if (options['projection']) {
-                projection = {...projection, ...options['projection']};
+            let projection = parsedArgs.projection || {};
+            if (options.projection) {
+                projection = { ...projection, ...options.projection };
             }
             cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
                 query,
@@ -475,28 +476,28 @@ class SearchManager {
                 extraInfo
             });
         } else {
-            cursorQuery = await databaseQueryManager.findAsync({query, options, extraInfo});
+            cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
         }
 
         if (isStreaming) {
-            cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: 60 * 60 * 1000 }); // if streaming then set time out to an hour
         } else {
-            cursorQuery = cursorQuery.maxTimeMS({milliSecs: maxMongoTimeMS});
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         }
 
         // avoid double sorting since Mongo gives you different results
-        if (useTwoStepSearchOptimization && !options['sort']) {
+        if (useTwoStepSearchOptimization && !options.sort) {
             const sortOption =
                 originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
             if (sortOption !== null) {
-                cursorQuery = cursorQuery.sort({sortOption});
+                cursorQuery = cursorQuery.sort({ sortOption });
             }
         }
 
         // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || parsedArgs['_cursorBatchSize']) {
+        if (env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
-            const __ret = this.setCursorBatchSize({parsedArgs, cursorQuery});
+            const __ret = this.setCursorBatchSize({ parsedArgs, cursorQuery });
             cursorBatchSize = __ret.cursorBatchSize;
             cursorQuery = __ret.cursorQuery;
         }
@@ -506,22 +507,23 @@ class SearchManager {
         let cursor = cursorQuery;
 
         // find columns being queried and match them to an index
-        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs['_setIndexHint']) {
+        // noinspection JSUnresolvedReference
+        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version});
+                { resourceType, base_version });
             const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
                 {
                     query, extraInfo
                 });
-            const indexName = parsedArgs['_setIndexHint'];
+            const indexName = parsedArgs._setIndexHint;
             const __ret = this.setIndexHint(
                 {
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
                     user,
-                    indexName,
+                    indexName
                 }
             );
             indexHint = __ret.indexHint;
@@ -530,11 +532,13 @@ class SearchManager {
 
         // if _total is specified then ask mongo for the total else set total to 0
         // Value 'estimate' is not supported now but kept it for backward compatibility.
-        if (parsedArgs['_total'] && ['accurate', 'estimate'].includes(parsedArgs['_total'])) {
+        if (parsedArgs._total && ['accurate', 'estimate'].includes(parsedArgs._total)) {
             total_count = await this.handleGetTotalsAsync(
                 {
-                    resourceType, base_version,
-                    query, maxMongoTimeMS
+                    resourceType,
+                    base_version,
+                    query,
+                    maxMongoTimeMS
                 });
         }
 
@@ -546,8 +550,8 @@ class SearchManager {
                 query,
                 originalQuery: new QueryItem({
                     query: originalQuery,
-                    collectionName: collectionName,
-                    resourceType: resourceType
+                    collectionName,
+                    resourceType
                 }),
                 originalOptions,
                 useTwoStepSearchOptimization,
@@ -561,63 +565,30 @@ class SearchManager {
     }
 
     /**
-     * Gets Patient id from identifiers
-     * @param {string} base_version
-     * @param {string} personIdFromJwtToken
-     * @return {Promise<string[]>}
-     */
-    async getPatientIdsByPersonIdAsync(
-        {
-            base_version,
-            personIdFromJwtToken
-        }
-    ) {
-        assertIsValid(base_version);
-        assertIsValid(personIdFromJwtToken);
-        try {
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Person',
-                base_version: base_version
-            });
-            return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
-                databaseQueryManager,
-                personIds: [personIdFromJwtToken],
-                totalProcessedPersonIds: new Set(),
-                level: 1
-            });
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error getting patient id for person id: ${personIdFromJwtToken}`,
-                error: e
-            });
-        }
-    }
-
-    /**
      * Handle count: https://www.hl7.org/fhir/search.html#count
      * @param {ParsedArgs} parsedArgs
      * @param {Object} options
      * @param {boolean} isStreaming
      * @return {{options: Object}} columns selected and changed options
      */
-    handleCountOption({parsedArgs, options, isStreaming}) {
+    handleCountOption ({ parsedArgs, options, isStreaming }) {
         /**
          * @type {number}
          */
-        const nPerPage = Number(parsedArgs['_count']);
+        const nPerPage = Number(parsedArgs._count);
 
         // if _getpagesoffset is specified then skip to the page starting with that offset
-        if (parsedArgs['_getpagesoffset']) {
+        if (parsedArgs._getpagesoffset) {
             /**
              * @type {number}
              */
-            const pageNumber = Number(parsedArgs['_getpagesoffset']);
-            options['skip'] = pageNumber > 0 ? pageNumber * nPerPage : 0;
+            const pageNumber = Number(parsedArgs._getpagesoffset);
+            options.skip = pageNumber > 0 ? pageNumber * nPerPage : 0;
         }
         // cap it at searchLimitForIds to avoid running out of memory
-        options['limit'] = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
+        options.limit = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
 
-        return {options: options};
+        return { options };
     }
 
     /**
@@ -629,10 +600,10 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleElementsQuery(
+    handleElementsQuery (
         {
             parsedArgs, columns, resourceType, options,
-            // eslint-disable-next-line no-unused-vars
+
             useAccessIndex
         }
     ) {
@@ -647,7 +618,7 @@ class SearchManager {
              */
             const projection = {};
             /**
-             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             * @type {Resource}
              */
             const Resource = getResource(VERSIONS['4_0_0'], resourceType);
             /**
@@ -663,11 +634,11 @@ class SearchManager {
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
             if (resourceType === 'Library') {
-                projection['id'] = 1;
-                projection['url'] = 1;
+                projection.id = 1;
+                projection.url = 1;
             }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection['_id'] = 0;
+            projection._id = 0;
             if (
                 (!useAccessIndex || properties_to_return_list.length > 1 || properties_to_return_list[0] !== 'id') &&
                 !properties_to_return_list.includes('meta')
@@ -677,10 +648,10 @@ class SearchManager {
                 projection['meta.security.system'] = 1;
                 projection['meta.security.code'] = 1;
             }
-            options['projection'] = projection;
+            options.projection = projection;
         }
 
-        return {columns: columns, options: options};
+        return { columns, options };
     }
 
     /**
@@ -691,7 +662,7 @@ class SearchManager {
      * @param {number} maxMongoTimeMS
      * @return {Promise<number>}
      */
-    async handleGetTotalsAsync(
+    async handleGetTotalsAsync (
         {
             resourceType, base_version,
             query, maxMongoTimeMS
@@ -702,11 +673,11 @@ class SearchManager {
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
-                options: {maxTimeMS: maxMongoTimeMS}
+                options: { maxTimeMS: maxMongoTimeMS }
             });
         } catch (e) {
             throw new RethrownError({
@@ -723,7 +694,7 @@ class SearchManager {
      * @param {Object} options
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleSortQuery(
+    handleSortQuery (
         {
             parsedArgs, columns, options
         }
@@ -756,9 +727,9 @@ class SearchManager {
                     columns.add(sortProperty);
                 }
             }
-            options['sort'] = sort;
+            options.sort = sort;
         }
-        return {columns: columns, options: options};
+        return { columns, options };
     }
 
     /**
@@ -770,7 +741,7 @@ class SearchManager {
      * @param {number} maxMongoTimeMS
      * @return {Promise<{query: Object, options: Object, actualQuery: (Object|Object[]), actualOptions: Object}>}
      */
-    async handleTwoStepSearchOptimizationAsync(
+    async handleTwoStepSearchOptimizationAsync (
         {
             resourceType,
             base_version,
@@ -782,40 +753,40 @@ class SearchManager {
         try {
             // first get just the ids
             const projection = {};
-            projection['_id'] = 0;
-            projection['id'] = 1;
-            options['projection'] = projection;
+            projection._id = 0;
+            projection.id = 1;
+            options.projection = projection;
             const originalQuery = [query];
             const originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query, options});
+            const cursor = await databaseQueryManager.findAsync({ query, options });
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
-            let idResults = await cursor
-                .sort({sortOption})
-                .maxTimeMS({milliSecs: maxMongoTimeMS})
+            const idResults = await cursor
+                .sort({ sortOption })
+                .maxTimeMS({ milliSecs: maxMongoTimeMS })
                 .toArrayRawAsync();
             if (idResults.length > 0) {
                 // now get the documents for those ids.  We can clear all the other query parameters
-                query = idResults.length === 1 ?
-                    {id: idResults.map((r) => r.id)[0]} :
-                    {id: {$in: idResults.map((r) => r.id)}};
+                query = idResults.length === 1
+                    ? { id: idResults.map((r) => r.id)[0] }
+                    : { id: { $in: idResults.map((r) => r.id) } };
                 options = {}; // reset options since we'll be looking by id
                 originalQuery.push(query);
                 originalOptions.push(options);
             } else {
                 // no results
-                query = null; //no need to query
+                query = null; // no need to query
             }
-            return {options, actualQuery: originalQuery, query, actualOptions: originalOptions};
+            return { options, actualQuery: originalQuery, query, actualOptions: originalOptions };
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -824,21 +795,18 @@ class SearchManager {
         }
     }
 
+    // noinspection FunctionWithInconsistentReturnsJS
     /**
      * Reads resources from Mongo cursor
      * @param {DatabasePartitionedCursor} cursor
      * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async readResourcesFromCursorAsync(
+    async readResourcesFromCursorAsync (
         {
-            cursor, user, scope,
-            parsedArgs, resourceType,
-            useAccessIndex
+            cursor, user, parsedArgs, resourceType
         }
     ) {
         /**
@@ -862,7 +830,7 @@ class SearchManager {
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager
             });
 
@@ -871,17 +839,19 @@ class SearchManager {
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
+                        parsedArgs,
+                        resourceType,
+                        signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
-                        highWaterMark: highWaterMark,
-                        configManager: this.configManager,
+                        highWaterMark,
+                        configManager: this.configManager
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
 
-                    transform(chunk, encoding, callback) {
+                    transform (chunk, encoding, callback) {
                         if (ac.signal.aborted) {
                             callback();
                             return;
@@ -889,10 +859,10 @@ class SearchManager {
                         resources.push(chunk);
                         callback();
                     }
-                }),
+                })
             );
         } catch (e) {
-            logError('', {user, error: e});
+            logError('', { user, error: e });
             ac.abort();
             throw new RethrownError({
                 message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
@@ -908,14 +878,14 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
-    setCursorBatchSize({parsedArgs, cursorQuery}) {
-        const cursorBatchSize = parsedArgs['_cursorBatchSize'] ?
-            parseInt(parsedArgs['_cursorBatchSize']) :
-            parseInt(env.MONGO_BATCH_SIZE);
+    setCursorBatchSize ({ parsedArgs, cursorQuery }) {
+        const cursorBatchSize = parsedArgs._cursorBatchSize
+            ? parseInt(parsedArgs._cursorBatchSize)
+            : parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
-            cursorQuery = cursorQuery.batchSize({size: cursorBatchSize});
+            cursorQuery = cursorQuery.batchSize({ size: cursorBatchSize });
         }
-        return {cursorBatchSize, cursorQuery};
+        return { cursorBatchSize, cursorQuery };
     }
 
     /**
@@ -923,17 +893,17 @@ class SearchManager {
      * @param {ParsedArgs} parsedArgs
      * @param {Object} options
      */
-    setDefaultLimit(
+    setDefaultLimit (
         {
             parsedArgs,
             options
         }
     ) {
         // set a limit so the server does not come down due to volume of data
-        if (!parsedArgs['id'] && !parsedArgs['_elements']) {
-            options['limit'] = limit;
+        if (!parsedArgs.id && !parsedArgs._elements) {
+            options.limit = limit;
         } else {
-            options['limit'] = searchLimitForIds;
+            options.limit = searchLimitForIds;
         }
     }
 
@@ -946,7 +916,7 @@ class SearchManager {
      * @param {string | undefined} indexName
      * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
      */
-    setIndexHint(
+    setIndexHint (
         {
             mongoCollectionName,
             columns,
@@ -956,20 +926,20 @@ class SearchManager {
         }
     ) {
         let _cursor = cursor;
-        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
+        const indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
         if (indexHint) {
-            _cursor = _cursor.hint({indexHint});
+            _cursor = _cursor.hint({ indexHint });
             logDebug(
                 'Using index hint',
                 {
                     user,
                     args: {
-                        indexHint: indexHint,
+                        indexHint,
                         columns: Array.from(columns)
                     }
                 });
         }
-        return {indexHint, cursor: _cursor};
+        return { indexHint, cursor: _cursor };
     }
 
     /**
@@ -980,16 +950,14 @@ class SearchManager {
      * @param {function (string | null, number): Bundle} fnBundle
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
-     * @param {string | null} scope
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @param {string[]|null} accepts
      * @param {number} batchObjectCount
      * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
-    async streamResourcesFromCursorAsync(
+    async streamResourcesFromCursorAsync (
         {
             requestId,
             cursor,
@@ -997,12 +965,10 @@ class SearchManager {
             fnBundle,
             res,
             user,
-            scope,
             parsedArgs,
             resourceType,
-            useAccessIndex,
             accepts,
-            // eslint-disable-next-line no-unused-vars
+
             batchObjectCount = 1,
             defaultSortId
         }
@@ -1027,7 +993,7 @@ class SearchManager {
          */
         const ac = new AbortController();
 
-        function onResponseClose() {
+        function onResponseClose () {
             ac.abort();
         }
 
@@ -1039,14 +1005,14 @@ class SearchManager {
          */
         const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
             {
-                accepts: accepts,
+                accepts,
                 signal: ac.signal,
-                format: parsedArgs['_format'],
+                format: parsedArgs._format,
                 url,
-                bundle: parsedArgs['_bundle'],
+                bundle: parsedArgs._bundle,
                 fnBundle,
                 defaultSortId,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager,
                 response: res
             }
@@ -1061,8 +1027,8 @@ class SearchManager {
                 response: res,
                 contentType: fhirWriter.getContentType(),
                 signal: ac.signal,
-                highWaterMark: highWaterMark,
-                configManager: this.configManager,
+                highWaterMark,
+                configManager: this.configManager
             }
         );
         /**
@@ -1070,11 +1036,13 @@ class SearchManager {
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
+                parsedArgs,
+                resourceType,
+                signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager,
-                response: res,
+                response: res
             }
         );
         /**
@@ -1084,7 +1052,7 @@ class SearchManager {
             {
                 tracker,
                 signal: ac.signal,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager
             }
         );
@@ -1097,11 +1065,10 @@ class SearchManager {
             signal:
             ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
-            highWaterMark: highWaterMark,
+            highWaterMark,
             configManager: this.configManager,
-            response: res,
+            response: res
         });
-
 
         try {
             // now setup and run the pipeline
@@ -1116,11 +1083,12 @@ class SearchManager {
                 resourcePreparerTransform,
                 resourceIdTracker,
                 fhirWriter,
-                responseWriter,
+                responseWriter
             );
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
-                user, error: new RethrownError(
+                user,
+                error: new RethrownError(
                     {
                         message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e
@@ -1137,48 +1105,20 @@ class SearchManager {
     }
 
     /**
-     * Gets linked patients
-     * @param {string} base_version
-     * @param {boolean | null} isUser
-     * @param {string} personIdFromJwtToken
-     * @return {Promise<string[]>}
-     */
-    async getLinkedPatientsAsync(
-        {
-            base_version, isUser, personIdFromJwtToken
-        }
-    ) {
-        try {
-            if (isUser && personIdFromJwtToken) {
-                return await this.getPatientIdsByPersonIdAsync(
-                    {
-                        base_version, personIdFromJwtToken
-                    });
-            }
-            return [];
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error get linked patients for person id: ${personIdFromJwtToken}`,
-                error: e
-            });
-        }
-    }
-
-    /**
      * @description Validates if the correct arguments are being sent that will query AuditEvents.
      * @param {ParsedArgs} parsedArgs
      */
-    validateAuditEventQueryParameters(parsedArgs) {
+    validateAuditEventQueryParameters (parsedArgs) {
         const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
         // Validate all the required parameters are passed for AuditEvent.
         this.auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent);
 
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.includes('date')) {
             // Fetching all the parsed arguments for date
-            const dateQueryParameterValues = parsedArgs['date'];
-            const queryParameters = Array.isArray(dateQueryParameterValues) ?
-                dateQueryParameterValues :
-                [dateQueryParameterValues];
+            const dateQueryParameterValues = parsedArgs.date;
+            const queryParameters = Array.isArray(dateQueryParameterValues)
+                ? dateQueryParameterValues
+                : [dateQueryParameterValues];
 
             const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getAuditEventValidDateOperationList(queryParameters);
 
@@ -1186,7 +1126,7 @@ class SearchManager {
                 const message = 'Atleast two operations lt/le and gt/ge need to be passed in params to query AuditEvent';
                 throw new BadRequestError(
                     {
-                        'message': message,
+                        message,
                         toString: function () {
                             return message;
                         }
@@ -1202,7 +1142,7 @@ class SearchManager {
                 const message = `The difference between dates to query AuditEvent should not be greater than ${this.configManager.auditEventMaxRangePeriod}`;
                 throw new BadRequestError(
                     {
-                        'message': message,
+                        message,
                         toString: function () {
                             return message;
                         }
@@ -1212,27 +1152,29 @@ class SearchManager {
         }
     }
 
-
     /**
      * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
      * @param {string[]|null} requiredFiltersForAuditEvent
      */
-    auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
-        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-            if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
-                const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
-                throw new BadRequestError(
-                    {
-                        'message': message,
-                        toString: function () {
-                            return message;
-                        }
-                    }
-                );
-            }
+    auditEventValidateRequiredFilters (parsedArgs, requiredFiltersForAuditEvent) {
+        const missingFilters = requiredFiltersForAuditEvent?.filter(filter => !parsedArgs[filter]);
+        if (missingFilters?.length > 0) {
+            const missingFilterExamples = missingFilters.map(filter => {
+                if (filter === 'date') {
+                    return '?date=ge2024-01-01&date=le2024-01-07';
+                }
+                return null;
+            }).filter(example => example !== null);
+            const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] is required to ` +
+                `query AuditEvent. Example: ${missingFilterExamples.join(', ')}`;
+            throw new BadRequestError({
+                message,
+                toString: function () {
+                    return message;
+                }
+            });
         }
-
     }
 
     /**
@@ -1240,18 +1182,19 @@ class SearchManager {
      * @param {Object} queryParams
      * @returns {Object}
      */
-    getAuditEventValidDateOperationList(queryParams) {
+    getAuditEventValidDateOperationList (queryParams) {
         const allowedOperations = ['gt', 'ge', 'lt', 'le'];
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
-        let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
+        let isLessThanConditionPresent = false;
+        let isGreaterThanConditionPresent = false;
         for (const /* @type {string} */ dateParam of queryParams) {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);
             if (!regexMatch) {
                 const message = `${dateParam} is not valid to query AuditEvent. [lt, gt] operation is required`;
                 throw new BadRequestError({
-                    'message': message,
+                    message,
                     toString: function () {
                         return message;
                     }
@@ -1261,7 +1204,7 @@ class SearchManager {
             if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
                 const message = `${regexMatch[0]} is not a valid query.`;
                 throw new BadRequestError({
-                    'message': message,
+                    message,
                     toString: function () {
                         return message;
                     }
@@ -1278,7 +1221,6 @@ class SearchManager {
         return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
     }
 }
-
 
 module.exports = {
     SearchManager

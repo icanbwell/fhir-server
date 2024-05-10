@@ -485,6 +485,7 @@
           "versionId": "1"
         },
         "resourceType": "Slot",
+        "status": "busy",
         "schedule": {
           "extension": [
             {

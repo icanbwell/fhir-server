@@ -16,10 +16,11 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const communicationQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
-async function setupDatabaseAsync(
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
+async function setupDatabaseAsync (
     mongoDatabaseManager,
     incomingResource,
     expectedResourceInDatabase
@@ -53,7 +54,7 @@ describe('Communication Tests', () => {
 
     describe('Graphql communication Tests', () => {
         test('Invalid reference doesn\'t throw error', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const graphqlQueryText = communicationQuery.replace(/\\n/g, '');
             const container = getTestContainer();
@@ -69,13 +70,13 @@ describe('Communication Tests', () => {
             );
 
             const resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
 

@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
-    path: pathToEnv,
+    path: pathToEnv
 });
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
@@ -17,12 +17,12 @@ const { FixPersonLinksRunner } = require('../runners/fixPersonLinksRunner');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
@@ -30,9 +30,9 @@ async function main() {
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
     console.log(`[${currentDateTime}] ` + 'Running script for Person_4_0_0');
 
-    let preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) :
-        [];
+    const preLoadCollections = parameters.preLoadCollections
+        ? parameters.preLoadCollections.split(',').map(x => x.trim())
+        : [];
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -51,9 +51,9 @@ async function main() {
             preloadCollections: preLoadCollections,
             limit: parameters.limit,
             skip: parameters.skip,
-            minLinks: parameters.minLinks,
-        },
-        ),
+            minLinks: parameters.minLinks
+        }
+        )
     );
 
     /**

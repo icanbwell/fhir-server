@@ -1,6 +1,6 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {IndexProvider} = require('../../indexes/indexProvider');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { IndexProvider } = require('../../indexes/indexProvider');
 
 class AccessIndexManager {
     /**
@@ -8,7 +8,7 @@ class AccessIndexManager {
      * @param {ConfigManager} configManager
      * @param {IndexProvider} indexProvider
      */
-    constructor({configManager, indexProvider}) {
+    constructor ({ configManager, indexProvider }) {
         /**
          * @type {ConfigManager}
          */
@@ -27,7 +27,7 @@ class AccessIndexManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    resourceHasAccessIndex({resourceType}) {
+    resourceHasAccessIndex ({ resourceType }) {
         return this.configManager.resourcesWithAccessIndex.includes(resourceType) ||
             this.configManager.resourcesWithAccessIndex.includes('all');
     }
@@ -38,11 +38,10 @@ class AccessIndexManager {
          * @param {string[]} accessCodes
          * @returns {boolean}
          */
-    resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
-        return this.resourceHasAccessIndex({resourceType}) &&
-            this.indexProvider.hasIndexForAccessCodes({accessCodes});
+    resourceHasAccessIndexForAccessCodes ({ resourceType, accessCodes }) {
+        return this.resourceHasAccessIndex({ resourceType }) &&
+            this.indexProvider.hasIndexForAccessCodes({ accessCodes });
     }
-
 }
 
 module.exports = {

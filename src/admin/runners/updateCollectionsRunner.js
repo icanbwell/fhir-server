@@ -16,10 +16,14 @@ class UpdateCollectionsRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} updatedBefore
      * @param {number} readBatchSize
+     * @param concurrentRunners
+     * @param _idAbove
      * @param {Object|string|undefined} collections
+     * @param startWithCollection
+     * @param skipHistoryCollections
      * @param {AdminLogger} adminLogger
      */
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         updatedBefore,
@@ -29,7 +33,7 @@ class UpdateCollectionsRunner {
         collections,
         startWithCollection,
         skipHistoryCollections,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {moment.Moment}
@@ -90,7 +94,7 @@ class UpdateCollectionsRunner {
      * @description Creates config for the target cluster using connection string
      * @returns {Object}
      */
-    getTargetClusterConfig() {
+    getTargetClusterConfig () {
         const mongoUrl = encodeURI(`mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`);
         const db_name = process.env.TARGET_DB_NAME;
         this.adminLogger.logInfo(
@@ -104,14 +108,14 @@ class UpdateCollectionsRunner {
             maxIdleTimeMS: 0,
             serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+        return { connection: mongoUrl, db_name, options };
     }
 
     /**
      * @description Creates config for the source cluster using connection string
      * @returns {Object}
      */
-    getSourceClusterConfig() {
+    getSourceClusterConfig () {
         const mongoUrl = encodeURI(`mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`);
         const db_name = process.env.SOURCE_DB_NAME;
         this.adminLogger.logInfo(
@@ -123,7 +127,7 @@ class UpdateCollectionsRunner {
             maxIdleTimeMS: 0,
             serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+        return { connection: mongoUrl, db_name, options };
     }
 
     /**
@@ -131,8 +135,8 @@ class UpdateCollectionsRunner {
      * @param {Array} collectionList
      * @return {Array}
      */
-    getListOfCollections(collectionList) {
-        let collectionNames = [];
+    getListOfCollections (collectionList) {
+        const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
             if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
@@ -154,7 +158,7 @@ class UpdateCollectionsRunner {
     /**
      * Runs a loop to process all the documents.
      */
-    async processAsync() {
+    async processAsync () {
         // If idabove is to be used and but collections is not provided or collections contains multiple values return
         if (this._idAbove && (!this.collections || this.collections.length > 1)) {
             this.adminLogger.logError(
@@ -181,7 +185,7 @@ class UpdateCollectionsRunner {
             const sourceDatabase = sourceClient.db(sourceClusterConfig.db_name);
 
             // Fetch all the collection names for the source database.
-            let sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
+            const sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
 
             let sourceCollections = this.getListOfCollections(sourceCollectionAndViews);
             sourceCollections.sort();
@@ -192,9 +196,9 @@ class UpdateCollectionsRunner {
             this.adminLogger.logInfo(`The list of collections are:  ${sourceCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
-            let collectionNameBatches = [];
+            const collectionNameBatches = [];
             // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
-            let minimumCollectionsToRunTogether = Math.max(
+            const minimumCollectionsToRunTogether = Math.max(
                 1,
                 Math.floor(sourceCollections.length / this.concurrentRunners)
             );
@@ -210,13 +214,13 @@ class UpdateCollectionsRunner {
 
             // Process each collection batch in parallel
             const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
-                let results = {};
+                const results = {};
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
                     let updatedCount = 0; // Keeps track of the total updated documents
                     let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
+                    const sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
                     let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
                     let totalProcessedDoc = 0; // Keep tracks of the total processed id.
                     let targetLastUpdatedGreaterThanUpdatedBefore = 0; // Keeps tracks of the documnet that is skipped and target last update is greater than updated before.
@@ -228,7 +232,7 @@ class UpdateCollectionsRunner {
 
                     const totalTargetDocuments = await targetDatabaseCollection.countDocuments();
                     const totalSourceDocuments = await sourceDatabaseCollection.countDocuments();
-                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).count();
+                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({ 'meta.lastUpdated': { $exists: false } }).count();
 
                     this.adminLogger.logInfo(
                         `For ${collection} the total documents in target collection: ${totalTargetDocuments} and source collection: ${totalSourceDocuments}`
@@ -237,12 +241,12 @@ class UpdateCollectionsRunner {
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
                         batchSize: this.readBatchSize,
-                        sort: { _id: 1 },
+                        sort: { _id: 1 }
                     };
 
                     // If _idAbove is provided fetch all documents having _id greater than this._idAbove or fetch all documents that have a value for lastUpdated.
                     const startId = isValidMongoObjectId(this._idAbove) ? new ObjectId(this._idAbove) : this._idAbove;
-                    const query = startId ? { _id: { $gt: startId } } : {'meta.lastUpdated': { $exists: true}};
+                    const query = startId ? { _id: { $gt: startId } } : { 'meta.lastUpdated': { $exists: true } };
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
@@ -254,7 +258,7 @@ class UpdateCollectionsRunner {
 
                         // Fetching document from active db having same id.
                         const targetDocument = await targetDatabaseCollection.findOne({
-                            _id: sourceDocument._id,
+                            _id: sourceDocument._id
                         });
                         // Skip target documents in which lastUpdated is not present.
                         if (targetDocument?.meta?.lastUpdated === undefined) {
@@ -278,7 +282,7 @@ class UpdateCollectionsRunner {
                         if (targetLastUpdated > this.updatedBefore) {
                             targetLastUpdatedGreaterThanUpdatedBefore += 1;
                             continue;
-                        } else if ( targetLastUpdated > sourceLastUpdated ) {
+                        } else if (targetLastUpdated > sourceLastUpdated) {
                             targetLastUpdatedGreaterThanSource += 1;
                             continue;
                         }
@@ -293,7 +297,7 @@ class UpdateCollectionsRunner {
                                 result = await targetDatabaseCollection.updateOne(
                                     { _id: sourceDocument._id },
                                     {
-                                        $set: sourceDocument,
+                                        $set: sourceDocument
                                     }
                                 );
                             } else {
@@ -314,18 +318,17 @@ class UpdateCollectionsRunner {
                     this.adminLogger.logInfo(
                         `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount}. The source documents that have a missing lastUpdated value: ${sourceMissingLastUpdated} and target documents that have missing lastUpdated value are: ${targetMissingLastUpdated} `
                     );
-                    // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
-                        totalSourceDocuments: totalSourceDocuments,
-                        totalTargetDocuments: totalTargetDocuments,
+                        totalSourceDocuments,
+                        totalTargetDocuments,
                         totalProcessedDocuments: totalProcessedDoc,
                         sourceMissingLastUpdated: sourceDocumentsMissingLastUpdated,
-                        targetMissingLastUpdated: targetMissingLastUpdated,
-                        targetLastUpdatedGreaterThanSource: targetLastUpdatedGreaterThanSource,
+                        targetMissingLastUpdated,
+                        targetLastUpdatedGreaterThanSource,
                         [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('YYYY-MM-DD')}`]: targetLastUpdatedGreaterThanUpdatedBefore,
-                        updatedCount: updatedCount,
-                        skippedCount: skippedCount,
-                        lastProcessedId: lastProcessedId
+                        updatedCount,
+                        skippedCount,
+                        lastProcessedId
                     };
                 }
                 return results;
@@ -347,5 +350,5 @@ class UpdateCollectionsRunner {
 }
 
 module.exports = {
-    UpdateCollectionsRunner,
+    UpdateCollectionsRunner
 };

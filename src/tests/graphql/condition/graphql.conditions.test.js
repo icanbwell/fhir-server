@@ -6,7 +6,6 @@ const patientBundleResource = require('./fixtures/patients.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const conditionQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {
@@ -14,9 +13,9 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
@@ -40,14 +39,14 @@ describe('GraphQL Condition Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Condition/1/$merge')
                 .send(conditionBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -58,41 +57,41 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResourceCount(10);
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
-                // .set(getHeaders())
-                .post('/graphql')
-                .send({
-                    operationName: null,
-                    variables: {},
-                    query: graphqlQueryText,
-                })
-                .set(getGraphQLHeaders());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedConditionBundleResource);
-
-            resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
-                // .set(getHeaders())
-                .post('/graphqlv2')
-                .send({
-                    operationName: null,
-                    variables: {},
-                    query: graphqlQueryText,
-                })
-                .set(getGraphQLHeaders());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedConditionBundleResource);
-
-            resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
+                // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedConditionBundleResource);
+
+            resp = await request
+                // .get('/$graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedConditionBundleResource);
+
+            resp = await request
+                // .get('/$graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
 

@@ -1,4 +1,4 @@
-const {BaseFilter} = require('./baseFilter');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * @classdesc filters by above FHIR search parameters
@@ -11,10 +11,10 @@ class FilterByAbove extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         return {
             [this.fieldMapper.getFieldName(field, value)]: {
-                $gt: value,
+                $gt: value
             }
         };
     }
@@ -30,10 +30,10 @@ class FilterByBelow extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         return {
             [this.fieldMapper.getFieldName(field, value)]: {
-                $lt: value,
+                $lt: value
             }
         };
     }

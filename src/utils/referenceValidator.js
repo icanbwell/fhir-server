@@ -8,14 +8,13 @@
  * @param {string} path
  * @returns {string | null}
  */
-function checkReferenceValue(referenceObj, path) {
+function checkReferenceValue (referenceObj, path) {
     const reference = referenceObj.reference;
     if (!reference) {
         return null;
     }
     const isContainedReference = referenceValue => referenceValue[0] === '#';
-    // eslint-disable-next-line security/detect-unsafe-regex
-    const absoluteUrlRegex = new RegExp('^(?:[a-z+]+:)?//', 'i');
+    const absoluteUrlRegex = /^(?:[a-z+]+:)?\/\//i;
     const isAbsoluteUrl = referenceValue => absoluteUrlRegex.test(referenceValue);
     const isRelativeUrl = referenceValue => referenceValue.split('/').length - 1 === 1;
     if (!(isContainedReference(reference) || isAbsoluteUrl(reference) || isRelativeUrl(reference))) {
@@ -29,11 +28,11 @@ function checkReferenceValue(referenceObj, path) {
  * @param {string} path
  * @returns {*[]}
  */
-function validateReferences(resourceObj, path) {
+function validateReferences (resourceObj, path) {
     if (!resourceObj) {
         return [];
     }
-    let errors = [];
+    const errors = [];
     if (resourceObj.constructor.name === 'Reference') {
         const err = checkReferenceValue(resourceObj, path);
         if (err) {
@@ -47,11 +46,10 @@ function validateReferences(resourceObj, path) {
                     const objErrors = validateReferences(arrObj, newPath);
                     errors.push(...objErrors);
                 }
-            },
+            }
         );
-
     } else {
-        for (let prop in resourceObj) {
+        for (const prop in resourceObj) {
             if (
                 Object.prototype.hasOwnProperty.call(resourceObj, prop) &&
                 resourceObj[`${prop}`] && typeof resourceObj[`${prop}`] === 'object'

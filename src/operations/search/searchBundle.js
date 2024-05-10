@@ -1,22 +1,22 @@
 const env = require('var');
-const {MongoError} = require('../../utils/mongoErrors');
-const {logDebug} = require('../common/logging');
-const {isTrue} = require('../../utils/isTrue');
-const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SearchManager} = require('./searchManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ConfigManager} = require('../../utils/configManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const httpContext = require('express-http-context');
+const { MongoError } = require('../../utils/mongoErrors');
+const { logDebug } = require('../common/logging');
+const { isTrue } = require('../../utils/isTrue');
+const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SearchManager } = require('./searchManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ConfigManager } = require('../../utils/configManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class SearchBundleOperation {
     /**
@@ -31,7 +31,7 @@ class SearchBundleOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             searchManager,
             resourceLocatorFactory,
@@ -106,18 +106,16 @@ class SearchBundleOperation {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
-    async searchBundleAsync(
-        {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
+    async searchBundleAsync (
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'search';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -129,8 +127,6 @@ class SearchBundleOperation {
             scope,
             /** @type {string | null} */
             originalUrl: url,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
@@ -142,7 +138,7 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId,
+            requestId
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -158,9 +154,9 @@ class SearchBundleOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
-        const {/** @type {string} **/base_version} = parsedArgs;
+        const { /** @type {string} **/base_version } = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -180,25 +176,30 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
-                    personIdFromJwtToken, parsedArgs, operation: READ
+                    user,
+                    scope,
+                    isUser,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs,
+                    operation: READ
                 }));
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw e;
         }
         /**
          * @type {import('mongodb').FindOneOptions}
          */
-        let options = {};
+        const options = {};
 
         // Query our collection for this observation
         /**
@@ -209,14 +210,20 @@ class SearchBundleOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
+            { resourceType, base_version });
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
-                    resourceType, base_version,
-                    columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex,
+                    resourceType,
+                    base_version,
+                    columns,
+                    options,
+                    query,
+                    maxMongoTimeMS,
+                    user,
+                    isStreaming: false,
+                    useAccessIndex,
                     parsedArgs,
                     useAggregationPipeline,
                     extraInfo
@@ -228,11 +235,11 @@ class SearchBundleOperation {
             /**
              * @type {QueryItem|QueryItem[]}
              */
-            let originalQuery = __ret.originalQuery;
+            const originalQuery = __ret.originalQuery;
             /**
              * @type {import('mongodb').FindOneOptions[]}
              */
-            let originalOptions = __ret.originalOptions;
+            const originalOptions = __ret.originalOptions;
             /**
              * @type {boolean}
              */
@@ -244,42 +251,44 @@ class SearchBundleOperation {
             /**
              * @type {number | null}
              */
-            let total_count = __ret.total_count;
+            const total_count = __ret.total_count;
             /**
              * @type {string | null}
              */
-            let indexHint = __ret.indexHint;
+            const indexHint = __ret.indexHint;
             /**
              * @type {Number}
              */
-            let cursorBatchSize = __ret.cursorBatchSize;
+            const cursorBatchSize = __ret.cursorBatchSize;
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = __ret.cursor;
+            const cursor = __ret.cursor;
 
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && !useAggregationPipeline && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
-            if (cursor && parsedArgs['_explain']) {
+            const explanations = (cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
             // process results
             if (cursor !== null) { // usually means the two-step optimization found no results
                 logDebug('', {
-                    user, args: {
+                    user,
+                    args: {
                         query:
                             mongoQueryAndOptionsStringify(
-                                {query: originalQuery, options: originalOptions})
+                                { query: originalQuery, options: originalOptions })
                     }
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
-                        cursor, user, scope, parsedArgs,
-                        resourceType,
-                        useAccessIndex
+                        cursor,
+                        user,
+                        parsedArgs,
+                        resourceType
                     }
                 );
 
@@ -295,7 +304,7 @@ class SearchBundleOperation {
                                     resourceType,
                                     operation: 'read',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: resources.map((r) => r['id'])
+                                    ids: resources.map((r) => r.id)
                                 }
                             );
                         }
@@ -321,7 +330,6 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const defaultSortId = this.configManager.defaultSortId;
-            // eslint-disable-next-line security/detect-object-injection
             const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
             /**
              * @type {string[]}
@@ -355,24 +363,28 @@ class SearchBundleOperation {
                     parsedArgs
                 }
             );
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
+            const logQuery = mongoQueryAndOptionsStringify({
+                query: new QueryItem({
+                    query,
                     resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify(
-                        {
-                            query: new QueryItem({
-                                query,
-                                collectionName,
-                                resourceType
-                            }), options
-                        })
-                });
+                    collectionName
+                }),
+                options
+            });
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
+            }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
             return bundle;
-
         } catch (e) {
             /**
              * @type {string}
@@ -380,27 +392,29 @@ class SearchBundleOperation {
             const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                 query
             });
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
+            const logQuery = mongoQueryAndOptionsStringify({
+                query: new QueryItem({
+                    query,
                     resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem(
-                            {
-                                query,
-                                resourceType,
-                                collectionName
-                            }
-                        ), options
-                    })
-                });
+                    collectionName
+                }),
+                options
+            });
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
+            }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
-        } finally {
-            timer({action: currentOperationName, resourceType});
         }
     }
 }
@@ -408,4 +422,3 @@ class SearchBundleOperation {
 module.exports = {
     SearchBundleOperation
 };
-

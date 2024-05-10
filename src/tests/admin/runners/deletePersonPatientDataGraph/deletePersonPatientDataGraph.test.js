@@ -14,12 +14,13 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 } = require('../../../../admin/runners/deletePersonPatientDataGraphRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -36,7 +37,7 @@ describe('Person Tests', () => {
 
     describe('Person/Patient data graph deletion test', () => {
         test('Only person deletion works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -96,7 +97,7 @@ describe('Person Tests', () => {
         });
 
         test('Only patient deletion works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -180,7 +181,7 @@ describe('Person Tests', () => {
         });
 
         test('Person and patient deletion works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -260,7 +261,7 @@ describe('Person Tests', () => {
         });
 
         test('Multiple person deletion works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -335,7 +336,7 @@ describe('Person Tests', () => {
         });
 
         test('No resource with provided uuid works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             const container = getTestContainer();
@@ -380,7 +381,7 @@ describe('Person Tests', () => {
         });
 
         test('dryRun works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             let resp = await request

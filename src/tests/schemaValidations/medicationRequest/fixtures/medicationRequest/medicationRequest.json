@@ -1,0 +1,351 @@
+[
+  {
+    "resourceType": "MedicationRequest",
+    "id": "1",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "type": {
+          "text": "Prescription Number",
+          "coding": [
+            {
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type",
+              "code": "RX"
+            }
+          ]
+        },
+        "value": "1"
+      }
+    ],
+    "status": "active",
+    "intent": "order",
+    "medicationCodeableConcept": {
+      "text": "Azithromycin 250 MG Oral Tablet",
+      "coding": [
+        {
+          "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+          "code": "308460",
+          "display": "Azithromycin 250 MG Oral Tablet"
+        },
+        {
+          "system": "http://hl7.org/fhir/sid/ndc",
+          "code": "68180-861-11",
+          "display": "Azithromycin (as azithromycin dihydrate) 250 mg oral tablet"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "authoredOn": "2020-07-09",
+    "requester": {
+      "reference": "Practitioner/2"
+    },
+    "reasonCode": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "11840006",
+            "display": "Traveler's diarrhea"
+          }
+        ]
+      }
+    ],
+    "dosageInstruction": [
+      {
+        "text": "One tablet at once",
+        "additionalInstruction": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "311504000",
+                "display": "With or after food"
+              }
+            ]
+          }
+        ],
+        "timing": {
+          "repeat": {
+            "frequency": 1,
+            "period": 1,
+            "periodUnit": "d"
+          }
+        },
+        "route": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "26643006",
+              "display": "Oral Route"
+            }
+          ]
+        },
+        "method": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "421521009",
+              "display": "Swallow"
+            }
+          ]
+        },
+        "doseAndRate": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                  "code": "ordered"
+                }
+              ]
+            },
+            "doseQuantity": {
+              "value": 250,
+              "unit": "mg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mg"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "MedicationRequest",
+    "id": "2",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "type": {
+          "text": "Prescription Number",
+          "coding": [
+            {
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type",
+              "code": "RX"
+            }
+          ]
+        },
+        "value": "1"
+      }
+    ],
+    "status": "active1",
+    "intent": "order1",
+    "medicationCodeableConcept": {
+      "text": "Azithromycin 250 MG Oral Tablet",
+      "coding": [
+        {
+          "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+          "code": "308460",
+          "display": "Azithromycin 250 MG Oral Tablet"
+        },
+        {
+          "system": "http://hl7.org/fhir/sid/ndc"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "authoredOn": "2020-07-09",
+    "requester": {
+      "reference": "Practitioner/2"
+    },
+    "reasonCode": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "11840006",
+            "display": "Traveler's diarrhea"
+          }
+        ]
+      }
+    ],
+    "dosageInstruction": [
+      {
+        "text": "One tablet at once",
+        "additionalInstruction": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "311504000",
+                "display": "With or after food"
+              }
+            ]
+          }
+        ],
+        "timing": {
+          "repeat": {
+            "frequency": 1,
+            "period": 1,
+            "periodUnit": "d"
+          }
+        },
+        "route": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "26643006",
+              "display": "Oral Route"
+            }
+          ]
+        },
+        "method": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "421521009",
+              "display": "Swallow"
+            }
+          ]
+        },
+        "doseAndRate": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                  "code": "ordered1"
+                }
+              ]
+            },
+            "doseQuantity": {
+              "value": 250,
+              "unit": "mg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mg"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "MedicationRequest",
+    "id": "3",
+    "meta": {
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/1"
+    },
+    "identifier": [
+      {
+        "type": {
+          "text": "Prescription Number",
+          "coding": [
+            {
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type",
+              "code": "RX"
+            }
+          ]
+        },
+        "value": "1"
+      }
+    ],
+    "medicationCodeableConcept": {
+      "text": "Azithromycin 250 MG Oral Tablet",
+      "coding": [
+        {
+          "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+          "code": "308460",
+          "display": "Azithromycin 250 MG Oral Tablet"
+        },
+        {
+          "system": "http://hl7.org/fhir/sid/ndc"
+        }
+      ]
+    },
+    "reasonCode": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "11840006",
+            "display": "Traveler's diarrhea"
+          }
+        ]
+      }
+    ],
+    "dosageInstruction": [
+      {
+        "text": "One tablet at once",
+        "additionalInstruction": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "311504000",
+                "display": "With or after food"
+              }
+            ]
+          }
+        ],
+        "timing": {
+          "repeat": {
+            "frequency": 1,
+            "period": 1,
+            "periodUnit": "d"
+          }
+        },
+        "route": {
+          "coding": [
+            {
+              "display": "Oral Route"
+            }
+          ]
+        },
+        "method": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "421521009",
+              "display": "Swallow"
+            }
+          ]
+        },
+        "doseAndRate": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type"
+                }
+              ]
+            },
+            "doseQuantity": {
+              "unit": "mg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mg"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,6 +1,8 @@
 {
   "resourceType": "GraphDefinition",
   "start": "Patient",
+  "name": "Test",
+  "status": "active",
   "link": [
     {
       "description": null,

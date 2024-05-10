@@ -1,0 +1,30 @@
+{
+  "id": "2",
+  "resourceType": "ExplanationOfBenefit",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "type": {},
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/2"
+  },
+  "created": "2023-10-10T10:10:10.000Z",
+  "insurer": {
+    "reference": "Organization/2"
+  },
+  "provider": {
+    "reference": "Practitioner/2"
+  },
+  "outcome": "complete",
+  "insurance": [
+    {
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/2"
+      }
+    }
+  ]
+}

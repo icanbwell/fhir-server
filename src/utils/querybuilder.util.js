@@ -2,24 +2,22 @@
  * This file implements helpers for building mongo queries
  */
 
-
 const moment = require('moment-timezone');
-const {escapeRegExp} = require('./regexEscaper');
-const {UrlParser} = require('./urlParser');
-const {ReferenceParser} = require('./referenceParser');
-const {BadRequestError} = require('./httpErrors');
-const {FhirTypesManager} = require('../fhir/fhirTypesManager');
+const { escapeRegExp } = require('./regexEscaper');
+const { UrlParser } = require('./urlParser');
+const { ReferenceParser } = require('./referenceParser');
+const { BadRequestError } = require('./httpErrors');
+const { FhirTypesManager } = require('../fhir/fhirTypesManager');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
  * @param {string} target what we are querying for
  * @return a mongo regex query
  */
-const stringQueryBuilder = function ({target}) {
+const stringQueryBuilder = function ({ target }) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
-    // eslint-disable-next-line security/detect-non-literal-regexp
-    return {$regex: new RegExp('^' + escapeRegExp(t2), 'i')};
+    return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
 
 /**
@@ -29,7 +27,7 @@ const stringQueryBuilder = function ({target}) {
  * @param {string} target
  * @return {array} ors
  */
-const addressQueryBuilder = function ({target}) {
+const addressQueryBuilder = function ({ target }) {
     // Tokenize the input as mush as possible
     const totalSplit = target.split(/[\s,]+/);
     const ors = [];
@@ -41,23 +39,16 @@ const addressQueryBuilder = function ({target}) {
         /**
          * @type {RegExp}
          */
-            // eslint-disable-next-line security/detect-non-literal-regexp
         const regExpObject = new RegExp(escapeRegExp(regExPattern), 'i');
         ors.push({
             $or: [
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.line': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.city': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.district': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.state': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.postalCode': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.country': {$regex: regExpObject}},
-            ],
+                { 'address.line': { $regex: regExpObject } },
+                { 'address.city': { $regex: regExpObject } },
+                { 'address.district': { $regex: regExpObject } },
+                { 'address.state': { $regex: regExpObject } },
+                { 'address.postalCode': { $regex: regExpObject } },
+                { 'address.country': { $regex: regExpObject } }
+            ]
         });
     }
     return ors;
@@ -70,7 +61,7 @@ const addressQueryBuilder = function ({target}) {
  * @param {string} target
  * @return {array} ors
  */
-const nameQueryBuilder = function ({target}) {
+const nameQueryBuilder = function ({ target }) {
     const split = target.split(/[\s.,]+/);
     const ors = [];
 
@@ -78,21 +69,15 @@ const nameQueryBuilder = function ({target}) {
         /**
          * @type {RegExp}
          */
-            // eslint-disable-next-line security/detect-non-literal-regexp
         const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
         ors.push({
             $or: [
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.text': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.family': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.given': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.suffix': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.prefix': {$regex: regExpObject, '$options': 'i'}},
-            ],
+                { 'name.text': { $regex: regExpObject, $options: 'i' } },
+                { 'name.family': { $regex: regExpObject, $options: 'i' } },
+                { 'name.given': { $regex: regExpObject, $options: 'i' } },
+                { 'name.suffix': { $regex: regExpObject, $options: 'i' } },
+                { 'name.prefix': { $regex: regExpObject, $options: 'i' } }
+            ]
         });
     }
     return ors;
@@ -113,28 +98,27 @@ const nameQueryBuilder = function ({target}) {
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryBuilder = function ({target, type, field, required, exists_flag, resourceType}) {
+const tokenQueryBuilder = function ({ target, type, field, required, exists_flag, resourceType }) {
     let queryBuilder = {};
     let system = '';
     let value;
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
     if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
-
     } else {
         value = target;
     }
@@ -146,7 +130,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
     const queryBuilderElementMatch = {};
     if (system) {
         queryBuilder[`${field}.system`] = system;
-        queryBuilderElementMatch['system'] = system;
+        queryBuilderElementMatch.system = system;
     }
 
     if (value) {
@@ -167,14 +151,14 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
     if (system && value) {
         // check if the field is an array field
         const fhirTypesManager = new FhirTypesManager();
-        const fieldData = fhirTypesManager.getDataForField({resourceType, field});
+        const fieldData = fhirTypesManager.getDataForField({ resourceType, field });
         if (fieldData?.max !== '1') {
             // $elemMatch so we match on BOTH system and value in the same array element
             queryBuilder = {};
-            queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+            queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
         } else {
             queryBuilder = {
-                $and: Object.entries(queryBuilder).map(([k, v]) => ({[k]: v}))
+                $and: Object.entries(queryBuilder).map(([k, v]) => ({ [k]: v }))
             };
         }
     }
@@ -192,28 +176,27 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryContainsBuilder = function ({target, type, field, required, exists_flag}) {
+const tokenQueryContainsBuilder = function ({ target, type, field, required, exists_flag }) {
     let queryBuilder = {};
     let system = '';
     let value;
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
     if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
-
     } else {
         value = target;
     }
@@ -226,11 +209,11 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     if (system) {
         queryBuilder[`${field}.system`] = {
             $regex: escapeRegExp(system),
-            $options: 'i',
+            $options: 'i'
         };
-        queryBuilderElementMatch['system'] = {
+        queryBuilderElementMatch.system = {
             $regex: escapeRegExp(system),
-            $options: 'i',
+            $options: 'i'
         };
     }
 
@@ -239,20 +222,20 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
-                $options: 'i',
+                $options: 'i'
             };
             queryBuilderElementMatch[`${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
-                $options: 'i',
+                $options: 'i'
             };
         } else {
             queryBuilder[`${field}.${type}`] = {
                 $regex: escapeRegExp(value),
-                $options: 'i',
+                $options: 'i'
             };
             queryBuilderElementMatch[`${type}`] = {
                 $regex: escapeRegExp(value),
-                $options: 'i',
+                $options: 'i'
             };
         }
     }
@@ -260,7 +243,7 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     if (system && value) {
         // $elemMatch so we match on BOTH system and value in the same array element
         queryBuilder = {};
-        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+        queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
     }
     return queryBuilder;
 };
@@ -273,25 +256,24 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
+const exactMatchQueryBuilder = function ({ target, field, exists_flag }) {
     const queryBuilder = {};
-    let value;
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
-    value = target;
+    const value = target;
 
     if (value !== undefined) {
         if (typeof value === 'string' && value.includes(',')) {
@@ -315,31 +297,29 @@ const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
  * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
+const referenceQueryBuilder = function ({ target_type, target, field, exists_flag }) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
     if (target_type && target) {
         queryBuilder[`${field}`] = `${target_type}/${target}`;
         return queryBuilder;
     }
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = typeof target === 'string' && target.match(regex);
 
     // Check if target is a url
     if (match) {
         queryBuilder[`${field}`] = match[2];
-    }
-    // target = type/id
-    else if (typeof target === 'string' && target.includes(',')) { // list was passed
+    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
+        // target = type/id
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
@@ -350,25 +330,22 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
-        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
     } else if (typeof target === 'string' && target.includes('/')) {
         const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
+            queryBuilder[`${field}`] = { $in: idList.map(i => `${type}/${i}`) };
         } else {
             queryBuilder[`${field}`] = `${type}/${id}`;
         }
-    }
-    // target = id The type may be there so we need to check the end of the field for the id
-    else {
-        // eslint-disable-next-line security/detect-non-literal-regexp
-        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
+    } else {
+        // target = id The type may be there so we need to check the end of the field for the id
+        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
     }
 
     return queryBuilder;
 };
-
 
 /**
  * @name referenceQueryBuilder
@@ -393,16 +370,16 @@ const referenceQueryBuilderOptimized = function (
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
     if (target_type && target) {
         if (sourceAssigningAuthority) {
-            queryBuilder['$and'] = [
+            queryBuilder.$and = [
                 {
                     [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
                 },
@@ -415,40 +392,36 @@ const referenceQueryBuilderOptimized = function (
         }
         return queryBuilder;
     }
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = typeof target === 'string' && target.match(regex);
 
     // Check if target is a url
     if (match) {
         queryBuilder[`${field}`] = match[2];
-    }
-    // target = type/id
-    else if (typeof target === 'string' && target.includes(',')) { // list was passed
+    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
+        // target = type/id
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
             if (searchItem.includes('/')) {
-                const {resourceType, id} = ReferenceParser.parseReference(searchItem);
+                const { resourceType, id } = ReferenceParser.parseReference(searchItem);
                 fullResourceTypeAndIdList.push(`${resourceType}/${id}`);
             } else {
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
-        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
     } else if (typeof target === 'string' && target.includes('/')) {
-        const {resourceType, id} = ReferenceParser.parseReference(target);
+        const { resourceType, id } = ReferenceParser.parseReference(target);
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${resourceType}/${i}`)};
+            queryBuilder[`${field}`] = { $in: idList.map(i => `${resourceType}/${i}`) };
         } else {
             queryBuilder[`${field}`] = `${resourceType}/${id}`;
         }
-    }
-    // target = id The type may be there so we need to check the end of the field for the id
-    else {
-        // eslint-disable-next-line security/detect-non-literal-regexp
-        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
+    } else {
+        // target = id The type may be there so we need to check the end of the field for the id
+        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
     }
 
     return queryBuilder;
@@ -461,7 +434,7 @@ const referenceQueryBuilderOptimized = function (
  * @param {string} target
  * @returns {Object} a mongo query
  */
-const numberQueryBuilder = function ({target}) {
+const numberQueryBuilder = function ({ target }) {
     let prefix = '';
     let number;
     let sigfigs;
@@ -480,15 +453,15 @@ const numberQueryBuilder = function ({target}) {
     // Missing eq(default), sa, eb, and ap prefixes
     switch (prefix) {
         case 'lt':
-            return {$lt: number};
+            return { $lt: number };
         case 'le':
-            return {$lte: number};
+            return { $lte: number };
         case 'gt':
-            return {$gt: number};
+            return { $gt: number };
         case 'ge':
-            return {$gte: number};
+            return { $gte: number };
         case 'ne':
-            return {$ne: number};
+            return { $ne: number };
     }
 
     // Return an approximation query
@@ -500,7 +473,7 @@ const numberQueryBuilder = function ({target}) {
     }
     const aprox = (1 / 10 ** decimals) * 5;
 
-    return {$gte: number - aprox, $lt: number + aprox};
+    return { $gte: number - aprox, $lt: number + aprox };
 };
 
 /**
@@ -509,9 +482,9 @@ const numberQueryBuilder = function ({target}) {
  * @param {string} target [prefix][number]|[system]|[code]
  * @param {string} field path to specific field in the resource
  */
-const quantityQueryBuilder = function ({target, field}) {
+const quantityQueryBuilder = function ({ target, field }) {
     const qB = {};
-    //split by the two pipes
+    // split by the two pipes
     let [num, system, code] = target.split('|');
 
     if (system) {
@@ -522,42 +495,42 @@ const quantityQueryBuilder = function ({target, field}) {
     }
 
     if (Number.isNaN(num)) {
-        //with prefixes
+        // with prefixes
         const prefix = num.substring(0, 2);
         num = Number(num.substring(2));
 
         // Missing eq(default), sa, eb, and ap prefixes
         switch (prefix) {
             case 'lt':
-                qB[`${field}.value`] = {$lt: num};
+                qB[`${field}.value`] = { $lt: num };
                 break;
             case 'le':
-                qB[`${field}.value`] = {$lte: num};
+                qB[`${field}.value`] = { $lte: num };
                 break;
             case 'gt':
-                qB[`${field}.value`] = {$gt: num};
+                qB[`${field}.value`] = { $gt: num };
                 break;
             case 'ge':
-                qB[`${field}.value`] = {$gte: num};
+                qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                qB[`${field}.value`] = {$ne: num};
+                qB[`${field}.value`] = { $ne: num };
                 break;
         }
     } else {
-        //no prefixes
+        // no prefixes
         qB[`${field}.value`] = Number(num);
     }
 
     return qB;
 };
 
-//for modular arithmetic because % is just for remainder -> JS is a cruel joke
-function mod(n, m) {
+// for modular arithmetic because % is just for remainder -> JS is a cruel joke
+function mod (n, m) {
     return ((n % m) + m) % m;
 }
 
-//gives the number of days from year 0, used for adding or subtracting days from a date
+// gives the number of days from year 0, used for adding or subtracting days from a date
 const getDayNum = function (year, month, day) {
     month = mod(month + 9, 12);
     year = year - Math.floor(month / 10);
@@ -571,7 +544,7 @@ const getDayNum = function (year, month, day) {
     );
 };
 
-//returns a date given the number of days from year 0;
+// returns a date given the number of days from year 0;
 const getDateFromNum = function (days) {
     let year = Math.floor((10000 * days + 14780) / 3652425);
     let day2 =
@@ -588,7 +561,6 @@ const getDateFromNum = function (days) {
     return year.toString() + '-' + ('0' + month).slice(-2) + '-' + ('0' + rDay).slice(-2);
 };
 
-
 /**
  * Builds a date query
  * deals with date, dateTime, instant, period, and timing
@@ -603,14 +575,16 @@ const getDateFromNum = function (days) {
  * @param {string|undefined} [path]
  * @return {Object}
  */
-const dateQueryBuilder = function ({date, type, path}) {
+const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
-    // eslint-disable-next-line security/detect-unsafe-regex
-    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
     const match = date.match(regex);
+    if (!match) {
+        throw new BadRequestError(new Error(`Invalid date parameter value: ${date}`));
+    }
     let str = '';
     let toReturn = [];
-    const pArr = []; //will have other possibilities such as just year, just year and month, etc
+    const pArr = []; // will have other possibilities such as just year, just year and month, etc
     let prefix = '$eq';
     if (match && match.length >= 1) {
         if (match[1]) {
@@ -619,10 +593,10 @@ const dateQueryBuilder = function ({date, type, path}) {
         }
 
         if (type === 'date' || type === 'dateTime' || type === 'instant' || type === 'period' || type === 'timing') {
-            //now we have to worry about hours, minutes, seconds, and TIMEZONES
+            // now we have to worry about hours, minutes, seconds, and TIMEZONES
             if (prefix === '$eq') {
                 if (match[5]) {
-                    //to see if time is included
+                    // to see if time is included
                     for (let i = 2; i < 6; i++) {
                         str = str + match[`${i}`];
                         if (i === 5) {
@@ -633,7 +607,7 @@ const dateQueryBuilder = function ({date, type, path}) {
                     }
                     if (type === 'instant') {
                         if (match[6]) {
-                            //to check if seconds were included or not
+                            // to check if seconds were included or not
                             str = str + match[6];
                         }
                     }
@@ -642,18 +616,18 @@ const dateQueryBuilder = function ({date, type, path}) {
                         let mins;
                         let hrs;
                         if (match[8] === '+') {
-                            //time is ahead of UTC so we must subtract
+                            // time is ahead of UTC so we must subtract
                             const hM = match[5].split(':');
                             hM[0] = hM[0].replace('T', '');
                             mins = Number(hM[1]) - Number(match[10]);
                             hrs = Number(hM[0]) - Number(match[9]);
                             if (mins < 0) {
-                                //when we subtract the minutes and go below zero, we need to remove an hour
+                                // when we subtract the minutes and go below zero, we need to remove an hour
                                 mins = mod(mins, 60);
                                 hrs = hrs - 1;
                             }
                             if (hrs < 0) {
-                                //when hours goes below zero, we have to adjust the date
+                                // when hours goes below zero, we have to adjust the date
                                 hrs = mod(hrs, 24);
                                 str = getDateFromNum(
                                     getDayNum(
@@ -672,18 +646,18 @@ const dateQueryBuilder = function ({date, type, path}) {
                                 );
                             }
                         } else {
-                            //time is behind UTC so we add
+                            // time is behind UTC so we add
                             const hM = match[5].split(':');
                             hM[0] = hM[0].replace('T', '');
                             mins = Number(hM[1]) + Number(match[10]);
                             hrs = Number(hM[0]) + Number(match[9]);
                             if (mins > 59) {
-                                //if we go above 59, we need to increase hours
+                                // if we go above 59, we need to increase hours
                                 mins = mod(mins, 60);
                                 hrs = hrs + 1;
                             }
                             if (hrs > 23) {
-                                //if we go above 23 hours, new day
+                                // if we go above 23 hours, new day
                                 hrs = mod(hrs, 24);
                                 str = getDateFromNum(
                                     getDayNum(
@@ -703,13 +677,12 @@ const dateQueryBuilder = function ({date, type, path}) {
                             }
                         }
                         pArr[5] = str + '$';
-                        str = str + 'T' + ('0' + hrs).slice(-2) + ':' + ('0' + mins).slice(-2); //proper formatting for leading 0's
-                        // eslint-disable-next-line security/detect-unsafe-regex
+                        str = str + 'T' + ('0' + hrs).slice(-2) + ':' + ('0' + mins).slice(-2); // proper formatting for leading 0's
                         const match2 = str.match(/^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/);
                         if (match2 && match2.length >= 1) {
-                            pArr[0] = match2[1] + '$'; //YYYY
-                            pArr[1] = match2[1] + match2[2] + '$'; //YYYY-MM
-                            pArr[2] = match2[1] + match2[2] + match2[3] + '$'; //YYYY-MM-DD
+                            pArr[0] = match2[1] + '$'; // YYYY
+                            pArr[1] = match2[1] + match2[2] + '$'; // YYYY-MM
+                            pArr[2] = match2[1] + match2[2] + match2[3] + '$'; // YYYY-MM-DD
                             pArr[3] =
                                 match2[1] +
                                 match2[2] +
@@ -721,18 +694,18 @@ const dateQueryBuilder = function ({date, type, path}) {
                                 'Z?$';
                         }
                         if (match[6]) {
-                            //to check if seconds were included or not
+                            // to check if seconds were included or not
                             pArr[4] = str + ':' + ('0' + match[6]).slice(-2) + 'Z?$';
                             str = str + match[6];
                         }
                         if (!pArr[4]) {
-                            //fill empty spots in pArr with ^$ to make sure it can't just match with nothing
+                            // fill empty spots in pArr with ^$ to make sure it can't just match with nothing
                             pArr[4] = '^$';
                         }
                     }
                 } else {
                     for (let i = 2; i < 5; i++) {
-                        //add up the date parts in a string, done to make sure to update anything if timezone changed anything
+                        // add up the date parts in a string, done to make sure to update anything if timezone changed anything
                         if (match[`${i}`]) {
                             str = str + match[`${i}`];
                             pArr[i - 2] = str + '$';
@@ -752,8 +725,7 @@ const dateQueryBuilder = function ({date, type, path}) {
                     pArr[4] +
                     ')';
                 const regPoss = {
-                    // eslint-disable-next-line security/detect-non-literal-regexp
-                    $regex: new RegExp(escapeRegExp(regexPattern)),
+                    $regex: new RegExp(regexPattern)
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -762,16 +734,16 @@ const dateQueryBuilder = function ({date, type, path}) {
                     toReturn = [
                         {
                             $and: [
-                                {[pS]: {$lte: str}},
-                                {$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]},
-                            ],
+                                { [pS]: { $lte: str } },
+                                { $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] }
+                            ]
                         },
-                        {$and: [{[pS]: {$lte: str}}, {[pE]: undefined}]},
-                        {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]},
+                        { $and: [{ [pS]: { $lte: str } }, { [pE]: undefined }] },
+                        { $and: [{ $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] }, { [pS]: undefined }] }
                     ];
                     return toReturn;
                 }
-                const tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; //turning the pArr to a string that can be used as a regex
+                const tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; // turning the pArr to a string that can be used as a regex
                 if (type === 'timing') {
                     const pDT = path + '.event';
                     const pBPS = path + '.repeat.boundsPeriod.start';
@@ -779,35 +751,29 @@ const dateQueryBuilder = function ({date, type, path}) {
                     toReturn = [
                         {
                             [pDT]: {
-                                // eslint-disable-next-line security/detect-non-literal-regexp
-                                $regex: new RegExp(
-                                    escapeRegExp(
-                                        '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                                ), '$options': 'i',
-                            },
+                                $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                                $options: 'i'
+                            }
                         },
                         {
                             $and: [
-                                {[pBPS]: {$lte: str}},
-                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]},
-                            ],
+                                { [pBPS]: { $lte: str } },
+                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] }
+                            ]
                         },
-                        {$and: [{[pBPS]: {$lte: str}}, {[pBPE]: undefined}]},
+                        { $and: [{ [pBPS]: { $lte: str } }, { [pBPE]: undefined }] },
                         {
                             $and: [
-                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]},
-                                {[pBPS]: undefined},
-                            ],
-                        },
+                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] },
+                                { [pBPS]: undefined }
+                            ]
+                        }
                     ];
                     return toReturn;
                 }
                 return {
-                    // eslint-disable-next-line security/detect-non-literal-regexp
-                    $regex: new RegExp(
-                        escapeRegExp(
-                            '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                    ), '$options': 'i'
+                    $regex: new RegExp('^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill),
+                    $options: 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
@@ -826,7 +792,6 @@ const dateQueryBuilder = function ({date, type, path}) {
     }
 };
 
-
 /**
  * Searches for date using the Date type
  * @param {string} dateSearchParameter
@@ -835,8 +800,8 @@ const dateQueryBuilder = function ({date, type, path}) {
  * @return {Object}
  */
 // noinspection JSUnusedLocalSymbols
-// eslint-disable-next-line no-unused-vars
-const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
+
+const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     if (!matches) {
@@ -848,33 +813,33 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
     // from http://hl7.org/fhir/r4/search.html#date
     switch (operation) {
         case 'eq':
-            query['$gte'] = moment(date).utc().startOf('day').toDate();
-            query['$lte'] = moment(date).utc().endOf('day').toDate();
+            query.$gte = moment(date).utc().startOf('day').toDate();
+            query.$lte = moment(date).utc().endOf('day').toDate();
             break;
         case 'ne':
-            query['$lt'] = moment(date).utc().startOf('day').toDate();
-            query['$gt'] = moment(date).utc().endOf('day').toDate();
+            query.$lt = moment(date).utc().startOf('day').toDate();
+            query.$gt = moment(date).utc().endOf('day').toDate();
             break;
         case 'lt':
-            query['$lt'] = date;
+            query.$lt = date;
             break;
         case 'gt':
-            query['$gt'] = date;
+            query.$gt = date;
             break;
         case 'ge':
-            query['$gte'] = date;
+            query.$gte = date;
             break;
         case 'le':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'sa':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'eb':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'ap':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         default:
             throw new Error(`${operation} is not supported.`);
@@ -890,14 +855,13 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
  * @param {string} fieldName
  * @returns {Object[]}
  */
-const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
-    // eslint-disable-next-line security/detect-unsafe-regex
+const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
 
-    const [prefix, date] = (match && match.length >= 1 && match[1]) ?
-        [match[1], dateQueryItem.slice(match[1].length)] :
-        ['eq', dateQueryItem];
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
 
     // Build query for period.start
     let startQuery = {};
@@ -924,7 +888,7 @@ const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
             };
             break;
     }
-    startQuery = {[`${fieldName}.start`]: startQuery};
+    startQuery = { [`${fieldName}.start`]: startQuery };
 
     // Build query for period.end
     let endQuery = {};
@@ -967,7 +931,7 @@ const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
  * @param {string} field2 contains the path and search type
  * @param {string} resourceType
  */
-const compositeQueryBuilder = function ({target, field1, field2, resourceType}) {
+const compositeQueryBuilder = function ({ target, field1, field2, resourceType }) {
     const composite = [];
     let temp = {};
     const [target1, target2] = target.split(/[$,]/);
@@ -978,30 +942,30 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     switch (type1) {
         case 'string':
             temp = {};
-            temp[`${path1}`] = stringQueryBuilder({target: target1});
+            temp[`${path1}`] = stringQueryBuilder({ target: target1 });
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1, resourceType})]},
-                ],
+                    { $and: [tokenQueryBuilder({ target: target1, type: 'code', field: path1, resourceType })] },
+                    { $and: [tokenQueryBuilder({ target: target1, type: 'value', field: path1, resourceType })] }
+                ]
             });
             break;
         case 'reference':
             composite.push(referenceQueryBuilder({
                 target_type: target,
                 target: target1,
-                field: path1,
+                field: path1
             }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder({target: target1, field: path1}));
+            composite.push(quantityQueryBuilder({ target: target1, field: path1 }));
             break;
         case 'number':
             temp = {};
-            temp[`${path1}`] = numberQueryBuilder({target: target1});
+            temp[`${path1}`] = numberQueryBuilder({ target: target1 });
             composite.push(temp);
             break;
         case 'date':
@@ -1031,8 +995,8 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
                         $or: dateQueryBuilder({
                             date: target1, type: 'timing', path: path1
                         })
-                    },
-                ],
+                    }
+                ]
             });
             break;
         default:
@@ -1043,15 +1007,15 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     switch (type2) {
         case 'string':
             temp = {};
-            temp[`${path2}`] = stringQueryBuilder({target: target2});
+            temp[`${path2}`] = stringQueryBuilder({ target: target2 });
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2, resourceType})]},
-                ],
+                    { $and: [tokenQueryBuilder({ target: target2, type: 'code', field: path2, resourceType })] },
+                    { $and: [tokenQueryBuilder({ target: target2, type: 'value', field: path2, resourceType })] }
+                ]
             });
             break;
         case 'reference':
@@ -1062,11 +1026,11 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
             }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder({target: target2, field: path2}));
+            composite.push(quantityQueryBuilder({ target: target2, field: path2 }));
             break;
         case 'number':
             temp = {};
-            temp[`${path2}`] = composite.push(numberQueryBuilder({target: target2}));
+            temp[`${path2}`] = composite.push(numberQueryBuilder({ target: target2 }));
             composite.push(temp);
             break;
         case 'date':
@@ -1096,8 +1060,8 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
                         $or: dateQueryBuilder({
                             date: target2, type: 'timing', path: path2
                         })
-                    },
-                ],
+                    }
+                ]
             });
             break;
         default:
@@ -1107,12 +1071,11 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     }
 
     if (target.includes('$')) {
-        return {$and: composite};
+        return { $and: composite };
     } else {
-        return {$or: composite};
+        return { $or: composite };
     }
 };
-
 
 /**
  * @name partialTextQueryBuilder
@@ -1121,22 +1084,102 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
  * @param {boolean} ignoreCase
  * @return {JSON} queryBuilder
  */
-const partialTextQueryBuilder = function ({field, partialText, ignoreCase}) {
+const partialTextQueryBuilder = function ({ field, partialText, ignoreCase }) {
     const queryBuilder = {};
     /**
      * @type {RegExp}
      */
-        // eslint-disable-next-line security/detect-non-literal-regexp
     const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
-        queryBuilder[`${field}`] = {$regex: regexObject, '$options': 'i'};
+        queryBuilder[`${field}`] = { $regex: regexObject, $options: 'i' };
     } else {
-        queryBuilder[`${field}`] = {$regex: regexObject};
+        queryBuilder[`${field}`] = { $regex: regexObject };
     }
 
     return queryBuilder;
 };
 
+/**
+ * @name extensionQueryBuilder
+ * @typedef {Object} TokenQueryBuilderProps
+ * @property {?string} target what we are searching for
+ * @property {string} type codeable concepts use a code field and identifiers use a value
+ * @property {string} field path to system and value from field
+ * @property {string|undefined} [required] the required system if specified
+ * @property {boolean|undefined} [exists_flag] whether to check for existence
+ * @property {string} resourceType whether to check for existence
+ *
+ * @param {TokenQueryBuilderProps}
+ * @return {JSON} queryBuilder
+ * Using to assign a single variable:
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
+ query[i] = queryBuilder[i];
+ }
+ * Use in an or query
+ *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
+ */
+const extensionQueryBuilder = function ({ target, type, field, required, exists_flag, resourceType }) {
+    let queryBuilder = {};
+    let url = '';
+    let value;
+
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = { $exists: false };
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = { $exists: true };
+        return queryBuilder;
+    }
+
+    if (typeof target === 'string' && target.includes('|')) {
+        [url, value] = target.split('|');
+    } else {
+        value = target;
+    }
+
+    if (required) {
+        url = required;
+    }
+
+    const queryBuilderElementMatch = {};
+    if (url) {
+        queryBuilder[`${field}.url`] = url;
+        queryBuilderElementMatch.url = url;
+    }
+
+    if (value) {
+        if (typeof value === 'string' && value.includes(',')) {
+            const values = value.split(',');
+            queryBuilder[`${field}.${type}`] = {
+                $in: values
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $in: values
+            };
+        } else {
+            queryBuilder[`${field}.${type}`] = value;
+            queryBuilderElementMatch[`${type}`] = value;
+        }
+    }
+
+    if (url && value) {
+        // check if the field is an array field
+        const fhirTypesManager = new FhirTypesManager();
+        const fieldData = fhirTypesManager.getDataForField({ resourceType, field });
+        if (fieldData?.max !== '1') {
+            // $elemMatch so we match on BOTH url and value in the same array element
+            queryBuilder = {};
+            queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
+        } else {
+            queryBuilder = {
+                $and: Object.entries(queryBuilder).map(([k, v]) => ({ [k]: v }))
+            };
+        }
+    }
+    return queryBuilder;
+};
 
 /**
  * @todo build out all prefix functionality for number and quantity and add date queries
@@ -1156,5 +1199,6 @@ module.exports = {
     datetimePeriodQueryBuilder,
     partialTextQueryBuilder,
     exactMatchQueryBuilder,
-    tokenQueryContainsBuilder
+    tokenQueryContainsBuilder,
+    extensionQueryBuilder
 };

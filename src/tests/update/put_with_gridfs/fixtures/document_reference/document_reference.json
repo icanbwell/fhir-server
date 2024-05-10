@@ -18,11 +18,12 @@
             }
         ]
     },
+    "status": "current",
     "content": [
         {
             "attachment": {
                 "contentType": "application/json",
-                "data": "YWFzZGZhc2RmYXNkZmlvamh5dmVyaWZ2YW",
+                "data": "c2RhYasdc2U=",
                 "title": "PhoneVerified",
                 "creation": "2022-12-17T09:44:58.033Z"
             }
@@ -30,7 +31,7 @@
         {
             "attachment": {
                 "contentType": "application/json",
-                "data": "YWFzZGZhc2RmYXNkZmlvamh5dmVyaWZ2YT",
+                "data": "c2RhY2asdfU=",
                 "title": "PhoneVerified",
                 "creation": "2022-12-17T09:44:58.033Z"
             }

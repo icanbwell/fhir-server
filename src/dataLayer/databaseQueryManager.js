@@ -1,17 +1,17 @@
-const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {ResourceLocator} = require('../operations/common/resourceLocator');
-const {assertTypeEquals} = require('../utils/assertType');
-const {RethrownError} = require('../utils/rethrownError');
+const { DatabasePartitionedCursor } = require('./databasePartitionedCursor');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { ResourceLocator } = require('../operations/common/resourceLocator');
+const { assertTypeEquals } = require('../utils/assertType');
+const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const moment = require('moment-timezone');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
-const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
-const {SecurityTagStructure} = require('../fhir/securityTagStructure');
-const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
-const {DatabaseAttachmentManager} = require('./databaseAttachmentManager');
-const {DELETE} = require('../constants').GRIDFS;
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
+const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
+const { SecurityTagStructure } = require('../fhir/securityTagStructure');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
+const { DELETE } = require('../constants').GRIDFS;
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -40,7 +40,7 @@ class DatabaseQueryManager {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({
+    constructor ({
                     resourceLocatorFactory,
                     resourceType,
                     base_version,
@@ -86,10 +86,10 @@ class DatabaseQueryManager {
      * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      *
-     * @param {FindOneOption} options
+     * @param {FindOneOption} params
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({query, options = null}) {
+    async findOneAsync ({ query, options = null }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -109,8 +109,9 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, options }
             });
         }
     }
@@ -122,7 +123,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
-    async deleteManyAsync({query, requestId, options = {}}) {
+    async deleteManyAsync ({ query, requestId, options = {} }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -143,7 +144,7 @@ class DatabaseQueryManager {
                     /**
                      * @type {Resource|null}
                      */
-                    let resource = await resourcesCursor.next();
+                    const resource = await resourcesCursor.next();
                     if (resource) {
                         await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
                         /**
@@ -173,13 +174,13 @@ class DatabaseQueryManager {
                  */
                 const result = await collection.deleteMany(query, options);
                 deletedCount += result.deletedCount;
-
             }
-            return {deletedCount: deletedCount, error: null};
+            return { deletedCount, error: null };
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, requestId, options}
+                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, requestId, options }
             });
         }
     }
@@ -191,7 +192,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabasePartitionedCursor>}
      */
-    async findAsync({query, options = null, extraInfo = {}}) {
+    async findAsync ({ query, options = null, extraInfo = {} }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -210,16 +211,19 @@ class DatabaseQueryManager {
                  * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
                  */
                 const cursor = collection.find(query, options);
-                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
+                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, options }
             });
         }
     }
@@ -232,12 +236,12 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findUsingAggregationAsync({query, projection, options = null, extraInfo = {}}) {
+    async findUsingAggregationAsync ({ query, projection, options = null, extraInfo = {} }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({ query, extraInfo });
             /**
              * @type {CursorInfo[]}
              */
@@ -253,26 +257,29 @@ class DatabaseQueryManager {
                     cursor = collection.aggregate(
                         [
                             {
-                                $match: query,
+                                $match: query
                             },
                             {
-                                $project: projection,
+                                $project: projection
 
                             }
                         ],
-                        options,
+                        options
                     );
                 }
-                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
+                message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, options }
             });
         }
     }
@@ -282,7 +289,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').EstimatedDocumentCountOptions} options
      * @return {Promise<*>}
      */
-    async estimatedDocumentCountAsync({options}) {
+    async estimatedDocumentCountAsync ({ options }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -302,8 +309,9 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e,
-                args: {options}
+                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`,
+error: e,
+                args: { options }
             });
         }
     }
@@ -314,7 +322,7 @@ class DatabaseQueryManager {
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    async exactDocumentCountAsync({query, options}) {
+    async exactDocumentCountAsync ({ query, options }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -333,8 +341,9 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
+                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, options }
             });
         }
     }
@@ -344,14 +353,14 @@ class DatabaseQueryManager {
      * @param {Resource[]} resources
      * @return {Promise<DatabasePartitionedCursor>}
      */
-    async findResourcesInDatabaseAsync({resources}) {
+    async findResourcesInDatabaseAsync ({ resources }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources});
+            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({ resources });
             const query = {
-                _uuid: {$in: resources.map(r => r._uuid)}
+                _uuid: { $in: resources.map(r => r._uuid) }
             };
             const options = {};
             /**
@@ -363,71 +372,21 @@ class DatabaseQueryManager {
                  * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
                  */
                 const cursor = collection.find(query, options);
-                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
                 error: e,
-                args: {resources}
+                args: { resources }
             });
         }
-    }
-
-    /**
-     * Gets UUID from database
-     * @param {string} id
-     * @param {SecurityTagStructure} securityTagStructure
-     * @return {Promise<string>}
-     */
-    async getUuidForReferenceAsync({id, securityTagStructure}) {
-        /**
-         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-         */
-        const query = this.mongoFilterGenerator.generateFilterForIdAndSecurityTags(
-            {
-                id,
-                securityTagStructure
-            }
-        );
-        /**
-         *
-         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-         */
-        const options = {
-            projection: {
-                '_uuid': 1,
-            }
-        };
-        try {
-            const cursor = this.findAsync(
-                {
-                    query,
-                    options
-                }
-            );
-            while (await cursor.hasNext()) {
-                /**
-                 * @type {Object|null}
-                 */
-                const doc = await cursor.nextRaw();
-                if (!doc) {
-                    return null;
-                }
-                return doc._uuid;
-            }
-            return null;
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
-            });
-        }
-
     }
 
     /**
@@ -435,7 +394,7 @@ class DatabaseQueryManager {
      * @param {string} uuid
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
-    async getIdAndSourceAssigningAuthorityForUuidAsync({uuid}) {
+    async getIdAndSourceAssigningAuthorityForUuidAsync ({ uuid }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
@@ -450,10 +409,10 @@ class DatabaseQueryManager {
          */
         const options = {
             projection: {
-                'id': 1,
-                '_uuid': 1,
-                '_sourceId': 1,
-                'meta': 1
+                id: 1,
+                _uuid: 1,
+                _sourceId: 1,
+                meta: 1
             }
         };
         try {
@@ -466,7 +425,7 @@ class DatabaseQueryManager {
                     options
                 }
             );
-            while (await cursor.hasNext()) {
+            if (await cursor.hasNext()) {
                 /**
                  * @type {Object|null}
                  */
@@ -474,16 +433,16 @@ class DatabaseQueryManager {
                 if (!doc) {
                     return null;
                 }
-                return {id: doc.id, securityTagStructure: SecurityTagStructure.fromDocument({doc})};
+                return { id: doc.id, securityTagStructure: SecurityTagStructure.fromDocument({ doc }) };
             }
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
-                args: {query, options}
+                message: 'Error in getIdAndSourceAssigningAuthorityForUuidAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
+                args: { query, options }
             });
         }
-
     }
 }
 

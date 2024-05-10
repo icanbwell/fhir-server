@@ -230,7 +230,7 @@
           "source": "https://www.wpshealth.com/medical_claims",
           "versionId": "1"
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "patient": {
           "id": "WPS-0559166162"
         },
@@ -299,7 +299,7 @@
           ],
           "text": "Claim Type"
         },
-        "use": "Claim"
+        "use": "claim"
       }
     },
     {
@@ -553,7 +553,7 @@
           "source": "https://www.wpshealth.com/medical_claims",
           "versionId": "1"
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "patient": {
           "id": "WPS-5458231534"
         },
@@ -622,7 +622,7 @@
           ],
           "text": "Claim Type"
         },
-        "use": "Claim"
+        "use": "claim"
       }
     }
   ],

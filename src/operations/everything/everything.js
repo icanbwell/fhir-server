@@ -5,12 +5,11 @@ const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
-const {GraphOperation} = require('../graph/graph');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
+const { GraphOperation } = require('../graph/graph');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ParsedArgs } = require('../query/parsedArgs');
 
 class EverythingOperation {
     /**
@@ -18,14 +17,12 @@ class EverythingOperation {
      * @param {GraphOperation} graphOperation
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
-     * @param {ChatGPTLangChainManager} chatgptManager
      */
-    constructor(
+    constructor (
         {
             graphOperation,
             fhirLoggingManager,
-            scopesValidator,
-            chatgptManager
+            scopesValidator
         }
     ) {
         /**
@@ -44,23 +41,18 @@ class EverythingOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-        /**
-         * @type {ChatGPTLangChainManager}
-         */
-        this.chatgptManager = chatgptManager;
-        assertTypeEquals(chatgptManager, ChatGPTLangChainManager);
     }
 
     /**
      * does a FHIR $everything
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('express').Response} res
+     * @param {import('http').ServerResponse} res
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async everythingAsync ({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -77,18 +69,17 @@ class EverythingOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer: responseStreamer // disable response streaming if we are answering a question
+                responseStreamer // disable response streaming if we are answering a question
             });
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: 'everything',
-                    error: err
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: 'everything',
+                error: err
+            });
             throw err;
         }
     }
@@ -102,7 +93,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync(
+    async everythingBundleAsync (
         {
             requestInfo,
             res,
@@ -130,10 +121,10 @@ class EverythingOperation {
         });
 
         try {
-            const {id} = parsedArgs;
+            const { id } = parsedArgs;
             const supportLegacyId = false;
 
-            let query = {};
+            const query = {};
             query.id = id;
             // Grab an instance of our DB and collection
             switch (resourceType) {
@@ -211,15 +202,14 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
         } catch (err) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: err
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: err
+            });
             throw err;
         }
     }

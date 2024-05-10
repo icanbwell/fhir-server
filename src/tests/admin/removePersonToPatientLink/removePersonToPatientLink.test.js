@@ -10,8 +10,8 @@ const expectedTest1Result = require('./fixtures/expected/test1Result.json');
 const expectedTest2Result = require('./fixtures/expected/test2Result.json');
 const expectedTest3Result = require('./fixtures/expected/test3Result.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('Person Tests', () => {
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(`/4_0_0/Person/${personResource.id}`)
@@ -44,7 +44,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/1')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
@@ -78,7 +82,7 @@ describe('Person Tests', () => {
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(`/4_0_0/Person/${personResource.id}`)
@@ -90,7 +94,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/1|test')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1|test'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
@@ -124,7 +132,7 @@ describe('Person Tests', () => {
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(`/4_0_0/Person/${personResource.id}`)
@@ -136,7 +144,11 @@ describe('Person Tests', () => {
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPatientLink?personId=Person/1&patientId=Patient/0bf61676-9672-50e0-ae12-347ecddca84f')
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/0bf61676-9672-50e0-ae12-347ecddca84f'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
 

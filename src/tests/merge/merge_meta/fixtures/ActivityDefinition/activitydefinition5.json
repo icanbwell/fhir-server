@@ -1,0 +1,20 @@
+{
+  "approvalDate": "2022-09-12",
+  "id": "d3a73c01-6cdc-5f21-8a98-73327acb6490",
+  "meta": {
+    "source": "client1",
+    "security": [
+      {
+        "code": "client1",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      },
+      {
+        "code": "client1",
+        "system": "https://www.icanbwell.com/owner"
+      }
+    ]
+  },
+  "status": "draft",
+  "name": "TEST1",
+  "resourceType": "ActivityDefinition"
+}

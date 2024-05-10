@@ -50,5 +50,5 @@ AgMBAAE=
 module.exports = {
     publicKey,
     privateKey,
-    randomPublicKey1,
+    randomPublicKey1
 };

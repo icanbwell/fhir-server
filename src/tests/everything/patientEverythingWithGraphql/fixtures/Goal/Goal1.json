@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "resourceType": "Goal",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "lifecycleStatus": "active",
+  "description": {},
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

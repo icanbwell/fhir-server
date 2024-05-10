@@ -1,5 +1,5 @@
 class PatientFilterManager {
-    constructor() {
+    constructor () {
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -79,37 +79,30 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
+
         /**
-         * defines resources that don't have patient data
-         * @type {string[]}
+         * defines the field in each resource that links to patient
+         * @type {Object}
          */
-        this.resourcesWithoutPatientData = [
-            'Practitioner',
-            'PractitionerRole',
-            'Organization',
-            'Medication',
-            'CodeSystem',
-            'Library',
-            'PlanDefinition',
-            'GuidanceResponse',
-            'Measure',
-            'Location',
-            'HealthcareService',
-            'InsurancePlan',
-            'Binary',
-            'ValueSet',
-            'ChargeItemDefinition',
-            'Questionnaire',
-            'Bundle'
-        ];
+        this.patientFilterWithQueryMapping = {
+            Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
+        };
     }
 
     /**
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getPatientPropertyForResource({resourceType}) {
+    getPatientPropertyForResource ({ resourceType }) {
         return this.patientFilterMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getFilterQueryForResource ({ resourceType }) {
+        return this.patientFilterWithQueryMapping[`${resourceType}`];
     }
 
     /**
@@ -117,23 +110,16 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    canAccessResourceWithPatientScope({resourceType}) {
+    canAccessResourceWithPatientScope ({ resourceType }) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
-            this.resourcesWithoutPatientData.includes(resourceType);
-    }
-
-    /**
-     * Returns the patient filter mapping
-     */
-    getAllResourcesLinkedWithPatient() {
-        return this.patientFilterMapping;
+            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType);
     }
 
     /**
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */
-    isPatientRelatedResource({ resourceType, }) {
+    isPatientRelatedResource ({ resourceType }) {
         return Object.keys(this.patientFilterMapping).includes(resourceType);
     }
 }

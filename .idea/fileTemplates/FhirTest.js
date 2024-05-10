@@ -8,7 +8,7 @@ const ${ResourceNameLower}1Resource = require('./fixtures/${ResourceName}/${Reso
 const expected${ResourceName}Resources = require('./fixtures/expected/expected_${ResourceNameLower}.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('${ResourceName} Tests', () => {
     beforeEach(async () => {

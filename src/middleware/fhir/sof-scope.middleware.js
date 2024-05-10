@@ -16,8 +16,7 @@ const errors = require('./utils/error.utils');
  * @return {String} action needed to access a route
  */
 
-
-function deriveActionFromInteraction(interaction) {
+function deriveActionFromInteraction (interaction) {
     switch (interaction) {
         case INTERACTIONS.SEARCH:
         case INTERACTIONS.HISTORY:
@@ -47,9 +46,8 @@ function deriveActionFromInteraction(interaction) {
  * @return {Array<String>} scopes assigned to a particular user
  */
 
-
-function parseScopes(user = {}, scopeKey = 'scope') {
-    let scopes = user[`${scopeKey}`];
+function parseScopes (user = {}, scopeKey = 'scope') {
+    const scopes = user[`${scopeKey}`];
 
     if (Array.isArray(scopes)) {
         return scopes;
@@ -63,9 +61,8 @@ function parseScopes(user = {}, scopeKey = 'scope') {
  * @summary SOF Scope Middleware function
  */
 
-
-module.exports = function sofScopeCheckMiddleware(options = {}) {
-    let {
+module.exports = function sofScopeCheckMiddleware (options = {}) {
+    const {
         route = {},
         name = '',
         auth = {}
@@ -77,19 +74,17 @@ module.exports = function sofScopeCheckMiddleware(options = {}) {
     // disable this middleware. If you are using some other system for scopes,
     // feel free to remove this and add your own checks
 
-
     if (auth.type !== 'smart' || auth.strategy === undefined) {
         return noOpMiddleware;
     } // At this point, we have determined we want Smart on FHIR authentication
 
-
-    return function sofScopeMiddleware(req, res, next) {
+    return function sofScopeMiddleware (req, res, next) {
         // name is lowercased, we want upper, foo -> Foo
-        let resource = name.slice(0, 1).toUpperCase() + name.slice(1);
-        let action = deriveActionFromInteraction(route.interaction);
-        let scopes = parseScopes(req && req.user, auth.customScopeKey); // Check if they have permission
+        const resource = name.slice(0, 1).toUpperCase() + name.slice(1);
+        const action = deriveActionFromInteraction(route.interaction);
+        const scopes = parseScopes(req && req.user, auth.customScopeKey); // Check if they have permission
 
-        let {
+        const {
             error
         } = scopeChecker(resource, action, scopes);
 

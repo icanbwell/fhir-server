@@ -1,8 +1,8 @@
-const {DatabaseQueryManager} = require('./databaseQueryManager');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
-const {DatabaseAttachmentManager} = require('./databaseAttachmentManager');
+const { DatabaseQueryManager } = require('./databaseQueryManager');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
+const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
 
 class DatabaseQueryFactory {
     /**
@@ -11,7 +11,7 @@ class DatabaseQueryFactory {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({resourceLocatorFactory, mongoFilterGenerator, databaseAttachmentManager}) {
+    constructor ({ resourceLocatorFactory, mongoFilterGenerator, databaseAttachmentManager }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
@@ -36,7 +36,7 @@ class DatabaseQueryFactory {
      * @param {string} base_version
      * @return {DatabaseQueryManager}
      */
-    createQuery({resourceType, base_version}) {
+    createQuery ({ resourceType, base_version }) {
         assertIsValid(resourceType, 'resourceType is null');
         return new DatabaseQueryManager(
             {

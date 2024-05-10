@@ -1,4 +1,4 @@
-var env = require('var');
+const env = require('var');
 
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
@@ -12,9 +12,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Next link Tests', () => {
     beforeEach(async () => {
@@ -40,7 +40,7 @@ describe('Next link Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/2/$merge')
@@ -48,7 +48,7 @@ describe('Next link Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // response should have person2 as the only resource and nextLink should be present
             resp = await request
@@ -114,7 +114,7 @@ describe('Next link Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/2/$merge')
@@ -122,7 +122,7 @@ describe('Next link Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // response should have person2 as the only resource and nextLink should be present
             resp = await request
@@ -132,7 +132,7 @@ describe('Next link Tests', () => {
             expect(resp.body.entry).toBeDefined();
             expect(resp.body.entry.length).toEqual(1);
             const person2 = resp.body.entry[0].resource;
-            expect(person2).toEqual({id: '2', resourceType: 'Person'});
+            expect(person2).toEqual({ id: '2', resourceType: 'Person' });
 
             expect(resp.body.link).toBeDefined();
             expect(resp.body.link.length).toEqual(2);
@@ -149,7 +149,7 @@ describe('Next link Tests', () => {
             expect(resp.body.entry).toBeDefined();
             expect(resp.body.entry.length).toEqual(1);
             const person1 = resp.body.entry[0].resource;
-            expect(person1).toEqual({id: '1', resourceType: 'Person'});
+            expect(person1).toEqual({ id: '1', resourceType: 'Person' });
 
             expect(resp.body.link).toBeDefined();
             expect(resp.body.link.length).toEqual(2);

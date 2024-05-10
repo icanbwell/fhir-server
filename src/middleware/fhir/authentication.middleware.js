@@ -7,16 +7,14 @@ const passport = require('passport');
  * @return {function} valid express middleware
  */
 
-
-module.exports = function authenticationMiddleware(config) {
+module.exports = function authenticationMiddleware (config) {
   // Don't do any validation for testing
   if (process.env.NODE_ENV === 'test') {
     return noOpMiddleware;
   } // if strategy is configured
 
-
   if (config.auth && config.auth.strategy) {
-    let {
+    const {
       name,
       useSession = false
     } = config.auth.strategy;

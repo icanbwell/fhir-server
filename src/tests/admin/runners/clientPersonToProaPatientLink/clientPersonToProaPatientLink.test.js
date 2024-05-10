@@ -17,14 +17,15 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
-    ClientPersonToProaPatientLinkRunner,
+    ClientPersonToProaPatientLinkRunner
 } = require('../../../../admin/runners/clientPersonToProaPatientLinkRunner');
 const { AdminPersonPatientLinkManager } = require('../../../../admin/adminPersonPatientLinkManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -41,7 +42,7 @@ describe('Person Tests', () => {
 
     describe('Client Person to Proa Patient Tests', () => {
         test('Both client persons are linked', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -54,7 +55,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -91,7 +92,9 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -139,11 +142,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -155,15 +158,15 @@ describe('Person Tests', () => {
             expect(person2History.entry).toBeDefined();
             expect(person2History.entry.length).toEqual(2);
 
-            delete person2History.entry[1].resource.meta.lastUpdated;
-            expect(person2History.entry[1].resource).toEqual(expectedPerson2AfterRun);
-
             delete person2History.entry[0].resource.meta.lastUpdated;
-            expect(person2History.entry[0].resource).toEqual(expectedPerson2BeforeRun);
+            expect(person2History.entry[0].resource).toEqual(expectedPerson2AfterRun);
+
+            delete person2History.entry[1].resource.meta.lastUpdated;
+            expect(person2History.entry[1].resource).toEqual(expectedPerson2BeforeRun);
         });
 
         test('Only client person 1 is linked, no change in client person 2', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -176,7 +179,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -213,7 +216,9 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -261,11 +266,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -282,7 +287,7 @@ describe('Person Tests', () => {
         });
 
         test('Multiple Rows work', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -295,7 +300,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -332,7 +337,9 @@ describe('Person Tests', () => {
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -380,11 +387,11 @@ describe('Person Tests', () => {
             expect(person1History.entry).toBeDefined();
             expect(person1History.entry.length).toEqual(2);
 
-            delete person1History.entry[1].resource.meta.lastUpdated;
-            expect(person1History.entry[1].resource).toEqual(expectedPerson1AfterRun);
-
             delete person1History.entry[0].resource.meta.lastUpdated;
-            expect(person1History.entry[0].resource).toEqual(expectedPerson1BeforeRun);
+            expect(person1History.entry[0].resource).toEqual(expectedPerson1AfterRun);
+
+            delete person1History.entry[1].resource.meta.lastUpdated;
+            expect(person1History.entry[1].resource).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
                 .get(`/4_0_0/Person/_history?id=${person2.id}`)
@@ -396,11 +403,11 @@ describe('Person Tests', () => {
             expect(person2History.entry).toBeDefined();
             expect(person2History.entry.length).toEqual(2);
 
-            delete person2History.entry[1].resource.meta.lastUpdated;
-            expect(person2History.entry[1].resource).toEqual(expectedPerson2AfterRun);
-
             delete person2History.entry[0].resource.meta.lastUpdated;
-            expect(person2History.entry[0].resource).toEqual(expectedPerson2BeforeRun);
+            expect(person2History.entry[0].resource).toEqual(expectedPerson2AfterRun);
+
+            delete person2History.entry[1].resource.meta.lastUpdated;
+            expect(person2History.entry[1].resource).toEqual(expectedPerson2BeforeRun);
         });
     });
 });

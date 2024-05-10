@@ -321,7 +321,6 @@
       <xs:pattern value="[A-Za-z0-9\-\.]{1,64}"/>
       <xs:minLength value="1"/>
       <xs:maxLength value="64"/>
-      <xs:maxLength value="64"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="id">

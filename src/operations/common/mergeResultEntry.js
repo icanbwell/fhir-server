@@ -1,4 +1,7 @@
-const {removeNull} = require('../../utils/nullRemover');
+const { removeNull } = require('../../utils/nullRemover');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 
 class MergeResultEntry {
     /**
@@ -12,7 +15,7 @@ class MergeResultEntry {
      * @param {boolean} updated
      * @param {string} sourceAssigningAuthority
      */
-    constructor(
+    constructor (
         {
             operationOutcome,
             issue,
@@ -58,7 +61,7 @@ class MergeResultEntry {
         this._sourceAssigningAuthority = sourceAssigningAuthority;
     }
 
-    toJSON() {
+    toJSON () {
         return removeNull(
             {
                 operationOutcome: this.operationOutcome,
@@ -71,6 +74,48 @@ class MergeResultEntry {
                 sourceAssigningAuthority: this._sourceAssigningAuthority
             }
         );
+    }
+
+    /**
+     * Creates a MergeResultEntry from an error
+     * @param {Error} error
+     * @param {Resource} resource
+     * @return {MergeResultEntry}
+     */
+    static createFromError ({ error, resource }) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = new OperationOutcome({
+            resourceType: 'OperationOutcome',
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    details: new CodeableConcept({
+                        text: error.message
+                    }),
+                    diagnostics: error.message,
+                    expression: [
+                        resource.resourceType
+                    ]
+                })
+            ]
+        });
+        const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
+        const mergeResultEntry = new MergeResultEntry(
+            {
+                id: resource.id,
+                uuid: resource._uuid,
+                sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                created: false,
+                updated: false,
+                issue,
+                operationOutcome,
+                resourceType: resource.resourceType
+            }
+        );
+        return mergeResultEntry;
     }
 }
 

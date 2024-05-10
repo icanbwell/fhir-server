@@ -8,41 +8,41 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixReferenceSourceAssigningAuthorityRunner} = require('../runners/fixReferenceSourceAssigningAuthorityRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixReferenceSourceAssigningAuthorityRunner } = require('../runners/fixReferenceSourceAssigningAuthorityRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        [];
+    let collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : [];
     if (parameters.collections === 'all') {
         collections = ['all'];
     }
-    let preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) :
-        [];
+    const preLoadCollections = parameters.preLoadCollections
+        ? parameters.preLoadCollections.split(',').map(x => x.trim())
+        : [];
 
-    let properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
-    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
-        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
-        undefined;
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields
+        ? parameters.filterToRecordsWithFields.split(',').map(x => x.trim())
+        : undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
@@ -60,7 +60,7 @@ async function main() {
     container.register('fixReferenceSourceAssigningAuthorityRunner', (c) => new FixReferenceSourceAssigningAuthorityRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 afterLastUpdatedDate,
                 adminLogger: new AdminLogger(),
@@ -71,11 +71,11 @@ async function main() {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 preloadCollections: preLoadCollections,
                 limit: parameters.limit,
-                properties: properties,
+                properties,
                 resourceMerger: c.resourceMerger,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
-                filterToRecordsWithFields: filterToRecordsWithFields,
+                filterToRecordsWithFields,
                 startFromId: parameters.startFromId
             }
         )

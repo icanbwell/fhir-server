@@ -5,8 +5,8 @@ const personResource = require('./fixtures/person.json');
 const expectedPersonResources = require('./fixtures/expected/expectedPerson.json');
 const expectedResult = require('./fixtures/expected/expectedResult.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -27,11 +27,15 @@ describe('Person Tests', () => {
                 .send(personResource)
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Remove person to person link using admin panel
             resp = await request
-                .get('/admin/removePersonToPersonLink?bwellPersonId=Person/aba5bcf41cf64435839cf0568c121843&externalPersonId=Person/a58e50292d79469691d3048e787434cc')
+                .post('/admin/removePersonToPersonLink')
+                .send({
+                    bwellPersonId: 'Person/aba5bcf41cf64435839cf0568c121843',
+                    externalPersonId: 'Person/a58e50292d79469691d3048e787434cc'
+                })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
 
             // Expect removed meesage to be returned

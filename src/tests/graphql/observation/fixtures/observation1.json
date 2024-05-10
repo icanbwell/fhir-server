@@ -127,9 +127,9 @@
     }
   ],
   "valueQuantity": {
-        "value": 75,
-        "unit": "mm[Hg]",
-        "system": "http://unitsofmeasure.org",
-        "code": "mm[Hg]"
-      }
+    "value": 75,
+    "unit": "mm[Hg]",
+    "system": "http://unitsofmeasure.org",
+    "code": "mm[Hg]"
+  }
 }

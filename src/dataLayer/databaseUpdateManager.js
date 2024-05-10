@@ -1,18 +1,20 @@
 /**
  * This class manages inserts and updates to the database
  */
-const {assertTypeEquals} = require('../utils/assertType');
+const { assertTypeEquals } = require('../utils/assertType');
+const { ConfigManager } = require('../utils/configManager');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { ReadPreference } = require('mongodb');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {RethrownError} = require('../utils/rethrownError');
-const {ResourceMerger} = require('../operations/common/resourceMerger');
-const {PreSaveManager} = require('../preSaveHandlers/preSave');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
-const {DatabaseQueryFactory} = require('./databaseQueryFactory');
-const {ConfigManager} = require('../utils/configManager');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
-const {ReadPreference} = require('mongodb');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 class DatabaseUpdateManager {
     /**
@@ -25,7 +27,7 @@ class DatabaseUpdateManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     resourceLocatorFactory,
                     resourceMerger,
                     preSaveManager,
@@ -84,9 +86,9 @@ class DatabaseUpdateManager {
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAsync({doc}) {
+    async insertOneAsync ({ doc }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -101,15 +103,52 @@ class DatabaseUpdateManager {
     }
 
     /**
+     * Updates the resource present in db
+     * @typedef {Object} UpdateOneAsyncParams
+     * @property {Resource} doc
+     * @property {FhirRequestInfo} requestInfo
+     *
+     * @param {UpdateOneAsyncParams}
+     */
+    async updateOneAsync ({ doc, requestInfo }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
+
+        try {
+            await this.preSaveManager.preSaveAsync({ resource: doc });
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+             */
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+
+            await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
+
+            // create history for the resource
+            await this.postSaveAsync({ requestInfo, doc });
+        } catch (err) {
+            throw new RethrownError({
+                error: err,
+                args: {
+                    doc
+                }
+            });
+        }
+    }
+
+    /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync({doc, smartMerge = true}) {
+    async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
         const originalDoc = doc.clone();
-        doc = await this.preSaveManager.preSaveAsync(doc);
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
         /**
          * @type {Resource[]}
          */
@@ -136,7 +175,7 @@ class DatabaseUpdateManager {
              * @type {Resource|null}
              */
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
-                query: {_uuid: doc._uuid}, options: findQueryOptions
+                query: { _uuid: doc._uuid }, options: findQueryOptions
             });
             await logTraceSystemEventAsync(
                 {
@@ -152,20 +191,22 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
-                return {savedResource: await this.insertOneAsync({doc}), patches: null};
+                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
             }
             /**
              * @type {Resource|null}
              */
-            let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+            let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     currentResource: resourceInDatabase,
                     resourceToMerge: doc,
-                    smartMerge: smartMerge
+                    smartMerge
                 }
             );
             if (!updatedResource) {
-                return {savedResource: null, patches: null}; // nothing to do
+                return { savedResource: null, patches: null }; // nothing to do
             }
             doc = updatedResource;
             /**
@@ -174,11 +215,11 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const updatedDoc = await this.preSaveManager.preSaveAsync(doc.clone());
+                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: doc.clone() });
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
-                const filter = previousVersionId > 0 ?
-                    {$and: [{_uuid: updatedDoc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
-                    {_uuid: updatedDoc._uuid};
+                const filter = previousVersionId > 0
+                    ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
+                    : { _uuid: updatedDoc._uuid };
                 docVersionsTested.push(updatedDoc);
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 await logTraceSystemEventAsync(
@@ -204,28 +245,30 @@ class DatabaseUpdateManager {
                      * @type {Resource|null}
                      */
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
-                        query: {_uuid: doc._uuid}, options: findQueryOptions
+                        query: { _uuid: doc._uuid }, options: findQueryOptions
                     });
 
-                    if (resourceInDatabase !== null) {
+                    if (resourceInDatabase === null) {
+                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
+                    } else {
                         // merge with our resource
-                        ({updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+                        ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
+                                    base_version,
+                                    requestInfo,
                                     currentResource: resourceInDatabase,
                                     resourceToMerge: doc
                                 }
                             )
                         );
-                        if (!updatedResource) {
-                            return {savedResource: null, patches: null};
-                        } else {
+                        if (updatedResource) {
                             doc = updatedResource;
+                        } else {
+                            return { savedResource: null, patches: null };
                         }
-                    } else {
-                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     }
-                    runsLeft = runsLeft - 1;
-                    logTraceSystemEventAsync({
+                    runsLeft -= 1;
+                    await logTraceSystemEventAsync({
                         event: 'replaceOneAsync',
                         message: 'retry',
                         args: {
@@ -251,7 +294,7 @@ class DatabaseUpdateManager {
                             }
                         }
                     );
-                    return {savedResource: doc, patches};
+                    return { savedResource: doc, patches };
                 }
             }
             if (runsLeft <= 0) {
@@ -278,18 +321,19 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a history collection for a resource
-     * @param {string} requestId
-     * @param {string} method
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
+     * @return {Promise<void>}
      */
-    async postSaveAsync(
-        {
-            requestId,
-            method,
-            doc,
-        }
-    ) {
-        doc = await this.preSaveManager.preSaveAsync(doc);
+    async postSaveAsync ({
+        requestInfo,
+        doc
+    }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
+        const requestId = requestInfo.requestId;
+        const method = requestInfo.method;
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
         const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({
@@ -298,11 +342,30 @@ class DatabaseUpdateManager {
             request: new BundleRequest(
                 {
                     id: requestId,
-                    method: method,
+                    method,
                     url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
                 }
             )
         }).toJSONInternal());
+    }
+
+    /**
+     * Insert a resource into the Access logs database
+     * @param {Resource} doc
+     * @return {Promise<Resource>}
+     */
+    async insertOneAccessLogAsync ({ doc }) {
+        try {
+            const collection =
+                await this.resourceLocator.getOrCreateAccessLogCollectionAsync();
+            await collection.insertOne(doc);
+            return doc;
+        } catch (e) {
+            throw new RethrownError({
+                error: e,
+                message: 'Error while inserting access log'
+            });
+        }
     }
 }
 

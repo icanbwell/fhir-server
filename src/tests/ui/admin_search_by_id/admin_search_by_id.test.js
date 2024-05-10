@@ -3,9 +3,9 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHtmlHeadersWithAdminToken,
+    getHtmlHeadersWithAdminToken
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -19,13 +19,13 @@ describe('Patient UI Tests', () => {
     describe('Patient Search By Id Tests', () => {
         test('admin search fails without scope', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/admin?id=1').set(getHeaders());
+            const resp = await request.get('/admin?id=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(403);
         });
         test('admin search passes with scope', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/admin?id=1').set(getHtmlHeadersWithAdminToken());
+            const resp = await request.get('/admin?id=1').set(getHtmlHeadersWithAdminToken());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
         });

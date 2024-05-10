@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 const versionValidationMiddleware = require('./version-validation.middleware');
 
 const authenticationMiddleware = require('./authentication.middleware');
@@ -28,13 +27,13 @@ const {
     getSearchParameters
 } = require('./utils/params.utils');
 
-const {VERSIONS, INTERACTIONS} = require('./utils/constants');
+const { VERSIONS, INTERACTIONS } = require('./utils/constants');
 
-const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
+const { CustomOperationsController } = require('./4_0_0/controllers/operations.controller');
 
 const cors = require('cors');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {NotFoundError} = require('../../utils/httpErrors');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { NotFoundError } = require('../../utils/httpErrors');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -44,7 +43,7 @@ class FhirRouter {
      * @param {ControllerUtils} controllerUtils
      * @param {CustomOperationsController} customOperationsController
      */
-    constructor({controllerUtils, customOperationsController}) {
+    constructor ({ controllerUtils, customOperationsController }) {
         assertTypeEquals(controllerUtils, ControllerUtils);
         /**
          * @type {ControllerUtils}
@@ -64,10 +63,10 @@ class FhirRouter {
      * @return {Array<String>} Array of versions we need to support
      */
 
-    getAllConfiguredVersions(profiles = {}) {
-        let supportedVersions = Object.values(VERSIONS);
-        let providedVersions = Object.getOwnPropertyNames(profiles).reduce((set, profile_key) => {
-            let {
+    getAllConfiguredVersions (profiles = {}) {
+        const supportedVersions = Object.values(VERSIONS);
+        const providedVersions = Object.getOwnPropertyNames(profiles).reduce((set, profile_key) => {
+            const {
                 versions = []
             } = profiles[profile_key];
             versions.forEach(version => set.add(version));
@@ -99,7 +98,7 @@ class FhirRouter {
      * @param {string} resourceType
      * @return {Function} express middleware
      */
-    loadController(lowercaseKey, interaction, service, resourceType) {
+    loadController (lowercaseKey, interaction, service, resourceType) {
         return async (req, res, next) => {
             const {
                 base_version
@@ -127,20 +126,20 @@ class FhirRouter {
      * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableOperationRoutesForProfile(app, config, profile, key, parameters, corsDefaults) {
+    enableOperationRoutesForProfile (app, config, profile, key, parameters, corsDefaults) {
         // Error message we will use for invalid configurations
-        let errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the wiki on how to use operations. ' + 'https://github.com/icanbwell/fhir-server#cheat-sheet';
+        const errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the wiki on how to use operations. ' + 'https://github.com/icanbwell/fhir-server#cheat-sheet';
 
-        for (let op of profile.operation) {
-            let functionName = hyphenToCamelcase(op.name || '');
+        for (const op of profile.operation) {
+            const functionName = hyphenToCamelcase(op.name || '');
             // let hasController = profile.serviceModule ? true : false; // Check for required configurations, must have name, route, method, and
             // a matching controller
 
-            if (!op.name || !op.route || !op.method /*|| !hasController*/) {
+            if (!op.name || !op.route || !op.method /* || !hasController */) {
                 throw new Error(errorMessage);
             }
 
-            let lowercaseMethod = op.method.toLowerCase();
+            const lowercaseMethod = op.method.toLowerCase();
             let interaction;
             switch (lowercaseMethod) {
                 case 'post':
@@ -155,8 +154,8 @@ class FhirRouter {
                     interaction = INTERACTIONS.OPERATIONS_GET;
             }
 
-            let route = routes.find(rt => rt.interaction === interaction);
-            let corsOptions = Object.assign({}, corsDefaults, {
+            const route = routes.find(rt => rt.interaction === interaction);
+            const corsOptions = Object.assign({}, corsDefaults, {
                 methods: [route.type.toUpperCase()]
             });
             /**
@@ -228,7 +227,7 @@ class FhirRouter {
         }
     }
 
-    enableMetadataRoute(app, config, corsDefaults) {
+    enableMetadataRoute (app, config, corsDefaults) {
         const {
             profiles,
             security,
@@ -240,6 +239,7 @@ class FhirRouter {
             if (profile.baseUrls && profile.baseUrls.length) {
                 return profile;
             }
+            return null;
         }).filter(profile => profile !== null && profile !== undefined);
         const inferredProfiles = Object.keys(profiles).map(profileName => {
             const profile = profiles[profileName];
@@ -247,6 +247,7 @@ class FhirRouter {
             if (!profile.baseUrls || !profile.baseUrls.length) {
                 return profile;
             }
+            return null;
         }).filter(profile => profile !== null && profile !== undefined); // Determine which versions need a metadata endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
 
@@ -293,28 +294,28 @@ class FhirRouter {
      * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults) {
+    enableProfileRoutes (app, config, profile, profileName, parameters, corsDefaults) {
         if (profile.operation && profile.operation.length) {
             this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
         } // Start iterating over potential routes to enable for this profile
     }
 
-    enableResourceRoutes(app, config, corsDefaults) {
+    enableResourceRoutes (app, config, corsDefaults) {
         // Iterate over all of our provided profiles
-        for (let profileName in config.profiles) {
+        for (const profileName in config.profiles) {
             /**
              * @type {string}
              */
-            let lowercaseKey = profileName.toLowerCase();
-            let profile = config.profiles[profileName];
+            const lowercaseKey = profileName.toLowerCase();
+            const profile = config.profiles[profileName];
             /**
              * @type {string}
              */
             const resourceType = profileName;
-            let versions = profile.versions; // User's can override arguments by providing their own metadata
+            const versions = profile.versions; // User's can override arguments by providing their own metadata
             // function, may have more use in other areas in the future
 
-            let overrideArguments = profile.metadata; // We need to check if the provided key is one this server supports
+            const overrideArguments = profile.metadata; // We need to check if the provided key is one this server supports
             // so load anything related to the key here and handle with one simple error
 
             let parameters;
@@ -327,14 +328,14 @@ class FhirRouter {
 
             this.enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults);
 
-            for (let route of routes) {
+            for (const route of routes) {
                 // If we do not have a matching service function for this route, skip it
                 // if (!this.hasValidService(route, profile)) {
                 //     continue;
                 // }
 
                 // Calculate the cors setting we want for this route
-                let corsOptions = Object.assign({}, corsDefaults, profile.corsOptions, {
+                const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions, {
                     methods: [route.type.toUpperCase()]
                 }); // Define the arguments based on the interactions
 
@@ -366,7 +367,7 @@ class FhirRouter {
                 }
 
                 if (profile.baseUrls && profile.baseUrls.includes('/')) {
-                    let profileRoute = route.path.replace(':resource', profileName).replace(':base_version/', ''); // Enable cors with preflight
+                    const profileRoute = route.path.replace(':resource', profileName).replace(':base_version/', ''); // Enable cors with preflight
 
                     app.options(profileRoute, cors(corsOptions)); // Enable this operation route
 
@@ -376,7 +377,7 @@ class FhirRouter {
                         name: profileName
                     }), this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType));
                 } else {
-                    let profileRoute = route.path.replace(':resource', profileName); // Enable cors with preflight
+                    const profileRoute = route.path.replace(':resource', profileName); // Enable cors with preflight
 
                     app.options(profileRoute, cors(corsOptions)); // Enable this operation route
 
@@ -398,16 +399,16 @@ class FhirRouter {
         }
     }
 
-    enableBaseRoute(app, config, corsDefaults) {
+    enableBaseRoute (app, config, corsDefaults) {
         // Determine which versions need a base endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
-        let routes1 = require('./base/base.config');
+        const routes1 = require('./base/base.config');
 
-        for (let currentRoute of routes1.routes) {
-            let versionValidationConfiguration = {
+        for (const currentRoute of routes1.routes) {
+            const versionValidationConfiguration = {
                 versions: this.getAllConfiguredVersions(config.profiles)
             };
-            let corsOptions = Object.assign({}, corsDefaults, {
+            const corsOptions = Object.assign({}, corsDefaults, {
                 methods: [currentRoute.type.toUpperCase()]
             }); // Enable cors with preflight
 
@@ -439,16 +440,16 @@ class FhirRouter {
      * Sets up the routes for FHIR resources
      * @param options
      */
-    setRoutes(options = {}) {
-        let {
+    setRoutes (options = {}) {
+        const {
             app,
             config
         } = options;
-        let {
+        const {
             server
         } = config; // Setup default cors options
 
-        let corsDefaults = Object.assign({}, server.corsOptions); // Enable all routes, operations are enabled inside enableResourceRoutes
+        const corsDefaults = Object.assign({}, server.corsOptions); // Enable all routes, operations are enabled inside enableResourceRoutes
 
         this.enableMetadataRoute(app, config, corsDefaults);
         this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions

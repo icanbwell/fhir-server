@@ -28,6 +28,7 @@ module.exports = {
         CHARGEITEMDEFINITION: 'ChargeItemDefinition',
         CLAIM: 'Claim',
         CLAIMRESPONSE: 'ClaimResponse',
+        CLIENT: 'Client',
         CLINICALIMPRESSION: 'ClinicalImpression',
         CODESYSTEM: 'CodeSystem',
         COMMUNICATION: 'Communication',
@@ -138,6 +139,8 @@ module.exports = {
         STRUCTUREDEFINITION: 'StructureDefinition',
         STRUCTUREMAP: 'StructureMap',
         SUBSCRIPTION: 'Subscription',
+        SUBSCRIPTIONSTATUS: 'SubscriptionStatus',
+        SUBSCRIPTIONTOPIC: 'SubscriptionTopic',
         SUBSTANCE: 'Substance',
         SUBSTANCENUCLEICACID: 'SubstanceNucleicAcid',
         SUBSTANCEPOLYMER: 'SubstancePolymer',
@@ -153,8 +156,7 @@ module.exports = {
         TESTSCRIPT: 'TestScript',
         VALUESET: 'ValueSet',
         VERIFICATIONRESULT: 'VerificationResult',
-        VISIONPRESCRIPTION: 'VisionPrescription',
-        CLIENT: 'Client',
+        VISIONPRESCRIPTION: 'VisionPrescription'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -170,31 +172,32 @@ module.exports = {
     REQUEST_ID_HEADER: 'x-request-id',
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
     REFERENCE_EXTENSION_DATA_MAP: {
-        'display': {
+        display: {
             id: 'referenceDisplay',
             url: 'https://www.icanbwell.com/referenceDisplay',
-            valueKey: 'valueString',
+            valueKey: 'valueString'
         },
-        'type': {
+        type: {
             id: 'referenceType',
             url: 'https://www.icanbwell.com/referenceType',
-            valueKey: 'valueUri',
-        },
+            valueKey: 'valueUri'
+        }
     },
     GRIDFS: {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
-        DELETE: 'DELETE',
+        DELETE: 'DELETE'
     },
     PATIENT_INITIATED_CONNECTION: [
         'proa'
     ],
     REQUEST_ID_TYPE: {
         USER_REQUEST_ID: 'userRequestId',
-        SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
+        SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId'
     },
     RESPONSE_NONCE: 'responseNonce',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
+    ACCESS_LOGS_ENTRY_DATA: 'access-logs-entry-data',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',
@@ -209,5 +212,6 @@ module.exports = {
     OPERATIONS: {
         READ: 'READ',
         WRITE: 'WRITE',
+        DELETE: 'DELETE'
     }
 };

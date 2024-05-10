@@ -1,12 +1,12 @@
-const {removeDuplicatesWithLambda} = require('./list.util');
+const { removeDuplicatesWithLambda } = require('./list.util');
 
 class MongoQuerySimplifier {
     /**
      * simplifies the filter by removing duplicate segments and $or statements with just one child
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>|null} filter
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|null}
      */
-    static simplifyFilter({filter}) {
+    static simplifyFilter ({ filter }) {
         if (filter === null || filter === undefined) {
             return filter;
         }
@@ -18,12 +18,12 @@ class MongoQuerySimplifier {
         }
         // remove nested $or if there is a parent $or
         if (filter.$or && filter.$or.length > 0) {
-            filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
+            filter.$or = filter.$or.map(f => this.simplifyFilter({ filter: f }));
             const indexesToSplice = [];
             for (const [subFilterIndex, subFilter] of filter.$or.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$or) {
                     const orFilters = subFilter.$or;
-                    // eslint-disable-next-line no-loop-func
+
                     orFilters.forEach(af => filter.$or.push(af));
                     indexesToSplice.push(subFilterIndex);
                 }
@@ -63,7 +63,6 @@ class MongoQuerySimplifier {
             }
         }
 
-
         if (filter.$or && filter.$or.length === 1) {
             filter = filter.$or[0];
         }
@@ -74,7 +73,7 @@ class MongoQuerySimplifier {
             );
         }
         if (filter.$nor && filter.$nor.length > 0) {
-            filter.$nor = filter.$nor.map(f => this.simplifyFilter({filter: f}));
+            filter.$nor = filter.$nor.map(f => this.simplifyFilter({ filter: f }));
         }
         // simplify $and
         if (filter.$and && filter.$and.length > 1) {
@@ -83,12 +82,12 @@ class MongoQuerySimplifier {
             );
         }
         if (filter.$and && filter.$and.length > 0) {
-            filter.$and = filter.$and.map(f => this.simplifyFilter({filter: f}));
+            filter.$and = filter.$and.map(f => this.simplifyFilter({ filter: f }));
             const indexesToSplice = [];
             for (const [subFilterIndex, subFilter] of filter.$and.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$and) {
                     const andFilters = subFilter.$and;
-                    // eslint-disable-next-line no-loop-func
+
                     andFilters.forEach(af => filter.$and.push(af));
                     indexesToSplice.push(subFilterIndex);
                 }
@@ -118,20 +117,20 @@ class MongoQuerySimplifier {
             for (const [key, value] of Object.entries(filter)) {
                 if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
                     if (this.isFilter(value)) {
-                        filter[`${key}`] = this.simplifyFilter({filter: value});
+                        filter[`${key}`] = this.simplifyFilter({ filter: value });
                     }
                 }
             }
 
-            for (let [key, value] of Object.entries(filter)) {
+            for (const [key, value] of Object.entries(filter)) {
                 if (Array.isArray(value)) {
-                    filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
+                    filter[`${key}`] = value.map(v => this.simplifyFilter({ filter: v }))
                         .filter(v => !this.isEmpty(v));
                     if (filter[`${key}`].length === 0) {
                         delete filter[`${key}`]; // remove empty clauses
                     }
                 } else if (this.isFilter(value)) {
-                    filter[`${key}`] = this.simplifyFilter({filter: value});
+                    filter[`${key}`] = this.simplifyFilter({ filter: value });
                     if (this.isEmpty(filter[`${key}`])) {
                         delete filter[`${key}`]; // remove empty clauses
                     }
@@ -147,17 +146,14 @@ class MongoQuerySimplifier {
      * @param {*} value
      * @return {boolean}
      */
-    static isEmpty(value) {
+    static isEmpty (value) {
         if (!value) {
             return true;
         }
         if (Array.isArray(value) && value.length === 0) {
             return true;
         }
-        if (this.isFilter(value) && Object.keys(value).length === 0) {
-            return true;
-        }
-        return false;
+        return this.isFilter(value) && Object.keys(value).length === 0;
     }
 
     /**
@@ -165,7 +161,7 @@ class MongoQuerySimplifier {
      * @param {*} value
      * @return {boolean}
      */
-    static isFilter(value) {
+    static isFilter (value) {
         return !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp) && (value instanceof Object);
     }
 
@@ -175,7 +171,7 @@ class MongoQuerySimplifier {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {Set<string>}
      */
-    static findColumnsInFilter({parentKey, filter}) {
+    static findColumnsInFilter ({ parentKey, filter }) {
         const columns = new Set();
         if (!this.isFilter(filter)) {
             return columns;
@@ -195,7 +191,7 @@ class MongoQuerySimplifier {
             }
             if (Array.isArray(subFilter)) {
                 const newColumns = subFilter.flatMap(
-                    // eslint-disable-next-line no-loop-func
+
                     sf => Array.from(
                         this.findColumnsInFilter(
                             {

@@ -1,8 +1,8 @@
 /**
  * class that represents a resource and its contained entities
  */
-const {EntityAndContainedBase} = require('./entityAndContainedBase');
-const {assertIsValid} = require('../../utils/assertType');
+const { EntityAndContainedBase } = require('./entityAndContainedBase');
+const { assertIsValid } = require('../../utils/assertType');
 
 class ResourceEntityAndContained extends EntityAndContainedBase {
     /**
@@ -14,7 +14,7 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
      * @param {Resource} resource
      * @param {EntityAndContainedBase[]} containedEntries
      */
-    constructor(
+    constructor (
         {
             entityId,
             entityUuid,
@@ -23,7 +23,7 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
             resource,
             containedEntries
         }) {
-        super({includeInOutput});
+        super({ includeInOutput });
         /**
          * @type {string}
          */

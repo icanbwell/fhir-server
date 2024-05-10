@@ -6,39 +6,37 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest, getTestContainer,
+    createTestRequest, getTestContainer, getTestRequestInfo
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const env = require('var');
-const {ConfigManager} = require('../../../utils/configManager');
-const {ResponseChunkParser} = require('../responseChunkParser');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
+const { ResponseChunkParser } = require('../responseChunkParser');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
-let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return 100;
     }
 
-    get logStreamSteps() {
+    get logStreamSteps () {
         return false;
     }
 
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return false;
     }
 }
@@ -46,16 +44,14 @@ class MockConfigManagerStreaming extends ConfigManager {
 describe('seach by id many performance', () => {
     beforeEach(async () => {
         await commonBeforeEach();
-        oldEnvLogLevel = env.LOGLEVEL;
-        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
+        const base_version = '4_0_0';
         // noinspection FunctionWithMultipleLoopsJS
         test(
             'search by 2,000 id works',
@@ -72,14 +68,14 @@ describe('seach by id many performance', () => {
                 const initialId = practitionerResource.id;
                 const bundle = {
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 };
                 const numberOfResources = 20000;
                 for (let i = 0; i < numberOfResources; i++) {
                     const newId = initialId + '-' + i;
                     practitionerResource.id = newId;
                     bundle.entry.push({
-                        resource: Object.assign({}, practitionerResource, {id: newId}),
+                        resource: Object.assign({}, practitionerResource, { id: newId })
                     });
                 }
                 /**
@@ -92,9 +88,13 @@ describe('seach by id many performance', () => {
                  */
                 const preSaveManager = container.preSaveManager;
                 assertTypeEquals(preSaveManager, PreSaveManager);
-
+                const requestInfo = getTestRequestInfo({ requestId: '1234' });
                 for (const entry of bundle.entry) {
-                    entry.resource = await preSaveManager.preSaveAsync(new Practitioner(entry.resource));
+                    entry.resource = await preSaveManager.preSaveAsync({
+                        base_version,
+                        requestInfo,
+                        resource: new Practitioner(entry.resource)
+                    });
                 }
 
                 console.log(`Saving ${numberOfResources} resources...`);
@@ -102,9 +102,8 @@ describe('seach by id many performance', () => {
                  * @type {MongoDatabaseManager}
                  */
                 const mongoDatabaseManager = container.mongoDatabaseManager;
-                let db = await mongoDatabaseManager.getClientDbAsync();
+                const db = await mongoDatabaseManager.getClientDbAsync();
                 const resourceType = 'Practitioner';
-                const base_version = '4_0_0';
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').Document>}
                  */

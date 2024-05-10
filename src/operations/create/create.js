@@ -1,32 +1,29 @@
-const {logDebug} = require('../common/logging');
-const {generateUUID} = require('../../utils/uid.util');
+const httpContext = require('express-http-context');
+const { logDebug, logInfo } = require('../common/logging');
+const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const sendToS3 = require('../../utils/aws-s3');
-const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ResourceValidator} = require('../common/resourceValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
     /**
      * constructor
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
@@ -36,11 +33,10 @@ class CreateOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
      */
-    constructor(
+    constructor (
         {
             auditLogger,
             postRequestProcessor,
-            scopesManager,
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
@@ -61,11 +57,6 @@ class CreateOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -122,8 +113,8 @@ class CreateOperation {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    // eslint-disable-next-line no-unused-vars
-    async createAsync({requestInfo, parsedArgs, path, resourceType}) {
+
+    async createAsync ({ requestInfo, parsedArgs, path, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -132,7 +123,13 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method, /**@type {string} */ userRequestId } = requestInfo;
+        const {
+            /** @type {string|null} */
+            user,
+            /* @type {Object|Object[]|null} */
+            body,
+            /** @type {string} */ requestId
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -145,7 +142,7 @@ class CreateOperation {
             }
         );
 
-        let resource_incoming = body;
+        const resource_incoming = body;
 
         if (resource_incoming && Array.isArray(resource_incoming)) {
             throw new BadRequestError(
@@ -155,7 +152,7 @@ class CreateOperation {
             );
         }
 
-        let {base_version} = parsedArgs;
+        const { base_version } = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
@@ -165,26 +162,19 @@ class CreateOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        if (this.configManager.logAllSaves) {
-            await sendToS3('logs',
-                resourceType,
-                resource_incoming,
-                currentDate,
-                resource_incoming.id,
-                currentOperationName
-            );
-        }
         /**
          * @type {Resource}
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs['_validate']) {
-            /**
-             * @type {OperationOutcome|null}
-             */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
-                {
+        if (this.configManager.validateSchema || parsedArgs._validate) {
+            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+                resource_incoming
+            );
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    base_version,
+                    requestInfo,
                     id: resource_incoming.id,
                     resourceType,
                     resourceToValidate: resource_incoming,
@@ -192,8 +182,19 @@ class CreateOperation {
                     currentDate,
                     resourceObj: resource
                 });
+            }
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                logInfo('Resource Validation Failed', {
+                    operation: currentOperationName,
+                    id: resource.id,
+                    _uuid: resource.id,
+                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType,
+                    created: false,
+                    updated: false,
+                    OperationOutcome: validationOperationOutcome,
+                    issue: validationOperationOutcome.issue[0]
+                });
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -214,31 +215,17 @@ class CreateOperation {
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
         try {
-            // Check owner tag is present inside the resource.
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resourceType}` +
-                        ' is missing a security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-            // Check if meta & meta.source exists in resource
-            if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
-                throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
-            } else {
-                resource.meta['versionId'] = '1';
-                // noinspection JSValidateTypes,SpellCheckingInspection
-                resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            }
-
+            resource.meta.versionId = '1';
+            // noinspection JSValidateTypes,SpellCheckingInspection
+            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                requestInfo, resource, base_version
+            });
             /**
              * @type {Resource}
              */
-            let doc = resource;
-            Object.assign(doc, {id: resource_incoming.id});
+            const doc = resource;
+            Object.assign(doc, { id: resource_incoming.id });
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -247,8 +234,12 @@ class CreateOperation {
                     fnTask: async () => {
                         await this.auditLogger.logAuditEntryAsync(
                             {
-                                requestInfo, base_version, resourceType,
-                                operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: currentOperationName,
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resource.id]
                             }
                         );
                     }
@@ -257,40 +248,52 @@ class CreateOperation {
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
-            logDebug('Inserting', {user, args: {doc: doc}});
+            logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+            await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version,
-                    method,
-                    userRequestId,
+                    requestInfo,
+                    currentDate,
+                    base_version
                 }
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                logInfo('Resource neither created or updated', {
+                    operation: currentOperationName,
+                    ...mergeResults[0]
+                });
                 throw new BadRequestError(
-                    new Error(mergeResults.length > 0 ?
-                        JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
-                        'No merge result'
+                    new Error(mergeResults.length > 0
+                        ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
+                        : 'No merge result'
                     )
                 );
             }
 
-            // log operation
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(doc, getCircularReplacer())
+            if (mergeResults[0].created) {
+                logInfo('Resource Created', {
+                    operation: currentOperationName,
+                    ...mergeResults[0]
                 });
+            }
+
+            // log operation
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                result: JSON.stringify(doc, getCircularReplacer())
+            });
 
             this.postRequestProcessor.add({
                 requestId,
@@ -303,14 +306,6 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('errors',
-                    resourceType,
-                    resource_incoming,
-                    currentDate,
-                    resource_incoming.id,
-                    currentOperationName);
-            }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

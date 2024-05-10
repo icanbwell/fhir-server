@@ -7,36 +7,34 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const env = require('var');
-const {ConfigManager} = require('../../../utils/configManager');
-const {ResponseChunkParser} = require('../responseChunkParser');
-let oldEnvLogLevel;
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
+const { ResponseChunkParser } = require('../responseChunkParser');
 
 class MockConfigManagerStreaming extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return 1;
     }
 
-    get logStreamSteps() {
+    get logStreamSteps () {
         return true;
     }
 
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return false;
     }
 }
@@ -44,13 +42,10 @@ class MockConfigManagerStreaming extends ConfigManager {
 describe('seach by id many performance', () => {
     beforeEach(async () => {
         await commonBeforeEach();
-        oldEnvLogLevel = env.LOGLEVEL;
-        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner Merge & Search By 10,0000 Tests', () => {
@@ -70,13 +65,13 @@ describe('seach by id many performance', () => {
                 const initialId = practitionerResource.id;
                 const bundle = {
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 };
                 const numberOfResources = 2000;
                 for (let i = 0; i < numberOfResources; i++) {
                     practitionerResource.id = initialId + '-' + i;
                     bundle.entry.push({
-                        resource: deepcopy(practitionerResource),
+                        resource: deepcopy(practitionerResource)
                     });
                 }
 

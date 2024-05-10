@@ -5,15 +5,8 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
-
-class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return true;
-    }
-}
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -26,10 +19,7 @@ describe('Observation Tests', () => {
 
     describe('Observation search_by_duplicate_id Tests', () => {
         test('search_by_duplicate_id works', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
 
             // ARRANGE
             // add the resources to FHIR server
@@ -38,14 +28,14 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back

@@ -35,8 +35,9 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixBwellMasterPersonReferenceRunner } = require('../../../../admin/runners/fixBwellMasterPersonReferenceRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0`);
@@ -47,7 +48,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -57,18 +58,18 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     return collection;
 }
 
-async function setupHistoryDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupHistoryDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0_History`);
-    await collection.insertOne({ resource: incomingResource});
+    await collection.insertOne({ resource: incomingResource });
 
     // ACT & ASSERT
     // check that two entries were stored in the database
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({'resource.id': incomingResource.id});
+    const resource = await collection.findOne({ 'resource.id': incomingResource.id });
 
     delete resource.resource._id;
 
@@ -91,7 +92,7 @@ describe('Person Tests', () => {
 
     describe('Bwell Master Person Tests', () => {
         test('fixBwellMasterPerson works for person with history', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -183,6 +184,7 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -271,7 +273,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson to remove duplicate links', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             const container = getTestContainer();
@@ -324,6 +326,7 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -368,7 +371,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson doesnot work for references with conflicting resources and works for non conflicting resources', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -451,6 +454,7 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -504,7 +508,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson doesnot work for references that do not need change', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -562,6 +566,7 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );
@@ -593,7 +598,7 @@ describe('Person Tests', () => {
         });
 
         test('fixBwellMasterPerson works for references with sourceAssigningAuthority as slug', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -651,6 +656,7 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );

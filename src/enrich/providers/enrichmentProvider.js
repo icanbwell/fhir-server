@@ -8,8 +8,8 @@ class EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+
+    async enrichAsync ({ resources, parsedArgs }) {
         throw Error('Not Implemented');
     }
 
@@ -19,8 +19,8 @@ class EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         throw Error('Not Implemented');
     }
 }

@@ -1,11 +1,11 @@
 const os = require('os');
 const moment = require('moment-timezone');
-const {FhirLogger: fhirLogger} = require('../../utils/fhirLogger');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const { FhirLogger: fhirLogger } = require('../../utils/fhirLogger');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../../constants');
+const { REQUEST_ID_TYPE } = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -13,7 +13,7 @@ class FhirLoggingManager {
      * @param {ScopesManager} scopesManager
      * @param {string|null} imageVersion
      */
-    constructor({scopesManager, imageVersion}) {
+    constructor ({ scopesManager, imageVersion }) {
         /**
          * @type {ScopesManager}
          */
@@ -33,10 +33,8 @@ class FhirLoggingManager {
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      */
-    async logOperationStartAsync(
+    async logOperationStartAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -66,19 +64,15 @@ class FhirLoggingManager {
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      */
-    async logOperationSuccessAsync(
+    async logOperationSuccessAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
-            action,
-            query,
-            result
+            action
         }
     ) {
         await this.internalLogOperationAsync(
@@ -90,9 +84,7 @@ class FhirLoggingManager {
                 stopTime,
                 message: 'operationCompleted',
                 action,
-                error: null,
-                query,
-                result
+                error: null
             }
         );
     }
@@ -106,11 +98,9 @@ class FhirLoggingManager {
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
      * @param {Error} error
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      * @param {string|undefined} [message]
      */
-    async logOperationFailureAsync(
+    async logOperationFailureAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -119,8 +109,6 @@ class FhirLoggingManager {
             stopTime = Date.now(),
             action,
             error,
-            query,
-            result,
             message = 'operationFailed'
         }
     ) {
@@ -133,9 +121,7 @@ class FhirLoggingManager {
                 stopTime,
                 message,
                 action,
-                error,
-                query,
-                result
+                error
             }
         );
     }
@@ -150,11 +136,9 @@ class FhirLoggingManager {
      * @param {string} message
      * @param {string} action
      * @param {Error|undefined} error
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      * @private
      */
-    async internalLogOperationAsync(
+    async internalLogOperationAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -163,12 +147,9 @@ class FhirLoggingManager {
             stopTime = Date.now(),
             message,
             action,
-            error,
-            query,
-            result
+            error
         }
     ) {
-
         /**
          * resource can have PHI, so we strip it out for insecure logger
          * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
@@ -205,8 +186,8 @@ class FhirLoggingManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = requestInfo.scope ?
-            this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
+        const accessCodes = requestInfo.scope
+            ? this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
             : [];
         /**
          * @type {string|null}
@@ -227,7 +208,7 @@ class FhirLoggingManager {
             errorMessage += `: ${error.constructor.name}`;
         }
         if (error) {
-            errorMessage += ': ' + JSON.stringify(error, getCircularReplacer());
+            errorMessage += ': ' + JSON.stringify(error.stack, getCircularReplacer());
         }
 
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
@@ -236,10 +217,10 @@ class FhirLoggingManager {
             type: {
                 code: 'operation'
             },
-            action: action,
+            action,
             period: {
                 start: new Date(startTime).toISOString(),
-                end: new Date(stopTime).toISOString(),
+                end: new Date(stopTime).toISOString()
             },
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
             outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
@@ -249,9 +230,9 @@ class FhirLoggingManager {
                     type: {
                         text: firstAccessCode
                     },
-                    altId: (!requestInfo.user || typeof requestInfo.user === 'string') ?
-                        requestInfo.user :
-                        requestInfo.user.name || requestInfo.user.id,
+                    altId: (!requestInfo.user || typeof requestInfo.user === 'string')
+                        ? requestInfo.user
+                        : requestInfo.user.name || requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress
                     },
@@ -264,7 +245,7 @@ class FhirLoggingManager {
             entity: [
                 {
                     name: resourceType,
-                    detail: detail
+                    detail
                 }
             ],
             message: errorMessage,
@@ -282,53 +263,7 @@ class FhirLoggingManager {
         } else {
             fhirInSecureLogger.info(logEntry);
         }
-        // Now write out the secure logs
-        detail.push({
-            type: 'method',
-            valueString: requestInfo.method
-        });
-        if (requestInfo.contentTypeFromHeader) {
-            detail.push({
-                type: 'content-type',
-                valueString: requestInfo.contentTypeFromHeader.type
-            });
-        }
-        logEntry.message = error ?
-            `${error.message}: ${error.stack || ''}` :
-            message;
-
-        if (requestInfo.body) {
-            detail.push({
-                type: 'body',
-                valueString: (!requestInfo.body || typeof requestInfo.body === 'string') ?
-                    requestInfo.body :
-                    JSON.stringify(requestInfo.body, getCircularReplacer())
-            });
-        }
-        if (query) {
-            detail.push({
-                type: 'query',
-                valueString: query
-            });
-        }
-        if (result) {
-            detail.push({
-                type: 'result',
-                valueString: result
-            });
-        }
-
-        logEntry.entity[0].detail = detail;
-
-        const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-        // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-        if (error) {
-            fhirSecureLogger.error(logEntry);
-        } else {
-            fhirSecureLogger.info(logEntry);
-        }
     }
-
 }
 
 module.exports = {

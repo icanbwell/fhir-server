@@ -16,7 +16,7 @@ const { ChangeSourceAssigningAuthorityRunner } = require('../runners/changeSourc
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -35,13 +35,13 @@ async function main() {
     if (!newSourceAssigningAuthority) {
         throw Error('newSourceAssigningAuthority is a required parameter');
     }
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
@@ -77,11 +77,12 @@ async function main() {
             adminLogger,
             startFromCollection: parameters.startFromCollection,
             limit: parameters.limit,
-            useTransaction: parameters.useTransaction ? true : false,
+            useTransaction: !!parameters.useTransaction,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
             oldSourceAssigningAuthority,
-            newSourceAssigningAuthority
+            newSourceAssigningAuthority,
+            searchParametersManager: c.searchParametersManager
         }
     )
     );

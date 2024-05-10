@@ -26,6 +26,8 @@ const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
 describe('Observation Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -37,7 +39,7 @@ describe('Observation Tests', () => {
 
     describe('Observation fixReferenceId Tests', () => {
         test('fixReferenceId works for normal observation', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -93,7 +95,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -134,7 +137,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with code.text as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -173,7 +176,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -200,7 +204,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with code.coding.code as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -239,7 +243,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 
@@ -266,7 +271,7 @@ describe('Observation Tests', () => {
         });
 
         test('fixReferenceId works for observation with hash as suffix', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -305,7 +310,8 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             ));
 

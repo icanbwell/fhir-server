@@ -1,22 +1,22 @@
 const env = require('var');
-const {MongoError} = require('../../utils/mongoErrors');
-const {isTrue} = require('../../utils/isTrue');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {SearchManager} = require('./searchManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ConfigManager} = require('../../utils/configManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
+const httpContext = require('express-http-context');
+const { MongoError } = require('../../utils/mongoErrors');
+const { isTrue } = require('../../utils/isTrue');
+const { fhirContentTypes } = require('../../utils/contentTypes');
+const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { SearchManager } = require('./searchManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ConfigManager } = require('../../utils/configManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {READ} = require('../../constants').OPERATIONS;
-
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { READ } = require('../../constants').OPERATIONS;
 
 class SearchStreamingOperation {
     /**
@@ -30,7 +30,7 @@ class SearchStreamingOperation {
      * @param {ConfigManager} configManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             searchManager,
             resourceLocatorFactory,
@@ -98,15 +98,13 @@ class SearchStreamingOperation {
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    async searchStreamingAsync(
-        {requestInfo, res, parsedArgs, resourceType}) {
+    async searchStreamingAsync (
+        { requestInfo, res, parsedArgs, resourceType }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
-        // Start the FHIR request timer, saving a reference to the returned method
-        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
@@ -123,8 +121,6 @@ class SearchStreamingOperation {
             protocol,
             /** @type {string | null} */
             host,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
@@ -132,7 +128,7 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            userRequestId,
+            userRequestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -149,9 +145,9 @@ class SearchStreamingOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
-        const {/** @type {string} **/base_version} = parsedArgs;
+        const { /** @type {string} **/base_version } = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -171,26 +167,31 @@ class SearchStreamingOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
-                    personIdFromJwtToken, parsedArgs, operation: READ
+                    user,
+                    scope,
+                    isUser,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs,
+                    operation: READ
                 }));
         } catch (e) {
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    message: `Error in constructing query: ${e.message}`
-                });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                message: `Error in constructing query: ${e.message}`
+            });
             throw e;
         }
         /**
          * @type {import('mongodb').FindOneOptions}
          */
-        let options = {};
+        const options = {};
 
         // Query our collection for this observation
         /**
@@ -201,7 +202,7 @@ class SearchStreamingOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
+            { resourceType, base_version });
 
         /**
          * @type {string}
@@ -216,9 +217,16 @@ class SearchStreamingOperation {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
-                    resourceType, base_version,
-                    parsedArgs, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex,
+                    resourceType,
+                    base_version,
+                    parsedArgs,
+                    columns,
+                    options,
+                    query,
+                    maxMongoTimeMS,
+                    user,
+                    isStreaming: true,
+                    useAccessIndex,
                     extraInfo
                 }
             );
@@ -229,11 +237,11 @@ class SearchStreamingOperation {
             /**
              * @type {QueryItem|QueryItem[]}
              */
-            let originalQuery = __ret.originalQuery;
+            const originalQuery = __ret.originalQuery;
             /**
              * @type {import('mongodb').FindOneOptions[]}
              */
-            let originalOptions = __ret.originalOptions;
+            const originalOptions = __ret.originalOptions;
             /**
              * @type {boolean}
              */
@@ -241,23 +249,23 @@ class SearchStreamingOperation {
             /**
              * @type {Resource[]}
              */
-            let resources = __ret.resources;
+            const resources = __ret.resources;
             /**
              * @type {number | null}
              */
-            let total_count = __ret.total_count;
+            const total_count = __ret.total_count;
             /**
              * @type {string | null}
              */
-            let indexHint = __ret.indexHint;
+            const indexHint = __ret.indexHint;
             /**
              * @type {number}
              */
-            let cursorBatchSize = __ret.cursorBatchSize;
+            const cursorBatchSize = __ret.cursorBatchSize;
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = __ret.cursor;
+            const cursor = __ret.cursor;
 
             /**
              * @type {number}
@@ -281,9 +289,9 @@ class SearchStreamingOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
-                (await cursor.explainAsync()) : [];
-            if (cursor && parsedArgs['_explain']) {
+            const explanations = (cursor && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG'))
+                ? (await cursor.explainAsync()) : [];
+            if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -347,13 +355,11 @@ class SearchStreamingOperation {
                         fnBundle,
                         res,
                         user,
-                        scope,
                         parsedArgs,
                         resourceType,
-                        useAccessIndex,
                         batchObjectCount,
                         defaultSortId,
-                        accepts: requestInfo.accept,
+                        accepts: requestInfo.accept
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {
@@ -384,7 +390,7 @@ class SearchStreamingOperation {
                     res.status(200).end();
                 } else {
                     // return empty bundle
-                    if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
+                    if (this.configManager.enableReturnBundle || parsedArgs._bundle) {
                         /**
                          * @type {Bundle}
                          */
@@ -427,22 +433,24 @@ class SearchStreamingOperation {
                     }
                 }
             }
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify({
-                            query: new QueryItem({
-                                query,
-                                resourceType,
-                                collectionName
-                            }), options
-                        }
-                    )
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
         } catch (e) {
             /**
              * @type {string}
@@ -450,28 +458,27 @@ class SearchStreamingOperation {
             collectionName = collectionName || (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                 query
             }));
-            await this.fhirLoggingManager.logOperationFailureAsync(
-                {
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: e,
-                    query: mongoQueryAndOptionsStringify({
-                            query: new QueryItem({
-                                query,
-                                resourceType,
-                                collectionName
-                            }),
-                            options
-                        }
-                    ),
-                    message: `Error in streaming resources: ${e.message}`
-                });
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName
+                        }),
+                        options
+                    }
+                )
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e,
+                message: `Error in streaming resources: ${e.message}`
+            });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
-        } finally {
-            timer({action: currentOperationName, resourceType});
         }
     }
 }

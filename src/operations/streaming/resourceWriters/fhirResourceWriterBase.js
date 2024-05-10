@@ -1,4 +1,4 @@
-const {Transform} = require('stream');
+const { Transform } = require('stream');
 
 class FhirResourceWriterBase extends Transform {
     /**
@@ -8,15 +8,15 @@ class FhirResourceWriterBase extends Transform {
      * @param {number} highWaterMark
      * @param {import('http').ServerResponse} response
      */
-    constructor(
+    constructor (
         {
             objectMode,
             contentType,
             highWaterMark,
-            response,
+            response
         }
     ) {
-        super({objectMode: objectMode, highWaterMark: highWaterMark});
+        super({ objectMode, highWaterMark });
 
         /**
          * @type {string}
@@ -32,7 +32,7 @@ class FhirResourceWriterBase extends Transform {
     /**
      * @returns {string}
      */
-    getContentType() {
+    getContentType () {
         return this._contentType;
     }
 }

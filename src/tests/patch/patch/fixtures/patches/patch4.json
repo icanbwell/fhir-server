@@ -1,0 +1,6 @@
+[
+  {
+    "op": "remove",
+    "path": "/link/0/target"
+  }
+]

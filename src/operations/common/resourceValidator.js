@@ -1,24 +1,27 @@
 const async = require('async');
-const {validateResource} = require('../../utils/validator.util');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const sendToS3 = require('../../utils/aws-s3');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RemoteFhirValidator} = require('../../utils/remoteFhirValidator');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
-const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {logError} = require('./logging');
-const {RethrownError} = require('../../utils/rethrownError');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
+const { RethrownError } = require('../../utils/rethrownError');
+const { ScopesManager } = require('../security/scopesManager');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { isColumnDateType } = require('./isColumnDateType');
+const { logError } = require('./logging');
+const { validateResource } = require('../../utils/validator.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 
 class ResourceValidator {
     /**
@@ -27,13 +30,17 @@ class ResourceValidator {
      * @param {RemoteFhirValidator} remoteFhirValidator
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {ScopesManager} scopesManager
+     * @param {PatientFilterManager} patientFilterManager
      */
-    constructor(
+    constructor (
         {
             configManager,
             remoteFhirValidator,
             databaseQueryFactory,
-            databaseUpdateFactory
+            databaseUpdateFactory,
+            scopesManager,
+            patientFilterManager
         }
     ) {
         /**
@@ -59,39 +66,109 @@ class ResourceValidator {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
+    }
+
+    /**
+     * Patient reference should be same in current and new resource
+     * @typedef {Object} ValidatePatientReferenceParams
+     * @property {Resource} currentResource
+     * @property {Object} resourceToValidateJson
+     *
+     * @param {ValidatePatientReferenceParams}
+     * @returns {OperationOutcome | null}
+     */
+    validatePatientReference ({ currentResource, resourceToValidateJson }) {
+        // Get Patient field
+        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType: currentResource.resourceType
+        });
+
+        if (patientField) {
+            const currentValue = NestedPropertyReader.getNestedProperty({
+                obj: currentResource, path: patientField
+            });
+            const newValue = NestedPropertyReader.getNestedProperty({
+                obj: resourceToValidateJson, path: patientField
+            });
+
+            // Return operationOutcome is patientReference are not same to avoid patientReference change
+            if (currentValue !== newValue) {
+                return new OperationOutcome({
+                    issue: new OperationOutcomeIssue({
+                        code: 'invalid',
+                        severity: 'error',
+                        details: new CodeableConcept({
+                            text: `Patient Reference ${newValue} did not match with patient reference ${currentValue} reference present in database`
+                        })
+                    })
+                });
+            }
+        }
+        return null;
     }
 
     /**
      * validates a resource
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {Object|Resource} resourceToValidate
-     * @param {string} path
-     * @param {string} currentDate
-     * @param {Object} resourceObj
-     * @param {boolean|undefined} useRemoteFhirValidatorIfAvailable
-     * @param {string|undefined} profile
-     * @returns {OperationOutcome | null}
+     * @typedef {Object} ValidateResourceAsyncParams
+     * @property {string} base_version
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} id
+     * @property {string} resourceType
+     * @property {Object|Resource} resourceToValidate
+     * @property {string} path
+     * @property {Object} resourceObj
+     * @property {boolean|undefined} useRemoteFhirValidatorIfAvailable
+     * @property {string|undefined} profile
+     * @property {Resource|undefined} currentResource
+     *
+     * @param {ValidateResourceAsyncParams}
+     * @returns {Promise<OperationOutcome | null>}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
+            base_version,
+            requestInfo,
             id,
             resourceType,
             resourceToValidate,
             path,
-            currentDate,
             resourceObj = null,
             useRemoteFhirValidatorIfAvailable = false,
-            profile
+            profile,
+            currentResource
         }
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
+        delete resourceToValidateJson?.meta?.lastUpdated;
+
+        // Convert date fields to string for validation
+        for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
+            if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
+                if (field instanceof Date && field) {
+                    resourceToValidateJson[`${fieldName}`] = field.toISOString();
+                }
+            }
+        }
         /**
          * @type {OperationOutcome | null}
          */
-        const validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable ?
-            await this.validateResourceFromServerAsync(
+        let validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
+            ? await this.validateResourceFromServerAsync(
                 {
+                    base_version,
+                    requestInfo,
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
@@ -106,42 +183,107 @@ class ResourceValidator {
                     resourceObj
                 }
             );
+
+        if (!validationOperationOutcome && currentResource) {
+            validationOperationOutcome = this.validatePatientReference({
+                currentResource,
+                resourceToValidateJson
+            });
+        }
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({action: 'validate', resourceType: resourceType}, 1);
-            validationOperationOutcome['expression'] = [
+            validationOperationOutcome.expression = [
                 resourceType + '/' + id
             ];
-            if (!(validationOperationOutcome['details']) || !(validationOperationOutcome['details']['text'])) {
-                validationOperationOutcome['details'] = {
+            if (!(validationOperationOutcome.details) || !(validationOperationOutcome.details.text)) {
+                validationOperationOutcome.details = {
                     text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
                 };
             } else {
-                validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
+                validationOperationOutcome.details.text = validationOperationOutcome.details.text +
                     ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
             }
 
-            if (this.configManager.logValidationFailures) {
-                await sendToS3('validation_failures',
-                    resourceType,
-                    resourceToValidateJson,
-                    currentDate,
-                    id,
-                    'merge');
-                await sendToS3('validation_failures',
-                    resourceType,
-                    validationOperationOutcome,
-                    currentDate,
-                    id,
-                    'merge_failure');
-            }
             return validationOperationOutcome;
         }
         return null;
     }
 
     /**
+     * Validate meta of a resource
+     * @param {Object|Resource} resource
+     * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
+     */
+    validateResourceMetaSync (resource) {
+        // Check if meta & meta.source exists in resource
+        if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check owner tag is present inside the resource.
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+
+        // Check if multiple owner tags are present inside the resource.
+        if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' is having multiple security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                        })
+                    })
+                ]
+            });
+        }
+        // Check if any system or code in the meta.security array is null
+        if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resource.resourceType}/${resource.id}` +
+                                ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                        })
+                    })
+                ]
+            });
+        }
+    }
+
+    /**
      * @function validateResourceFromServerAsync
      * @description - validates name is correct for resource body and resource body conforms to FHIR specification
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceBody - payload of req.body
      * @param {string} resourceName - name of resource in url
      * @param {string} path - req.path from express
@@ -149,8 +291,10 @@ class ResourceValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
-    async validateResourceFromServerAsync(
+    async validateResourceFromServerAsync (
         {
+            base_version,
+            requestInfo,
             resourceBody,
             resourceName,
             path,
@@ -210,7 +354,7 @@ class ResourceValidator {
                 'expression': [
                     'Practitioner'
                 ],
-                'severity': 'information'
+                severity: 'information'
             });
         }
         return operationOutcome;
@@ -219,6 +363,8 @@ class ResourceValidator {
     /**
      * Fetch profiles from database. If not exists, fetch it from fhirRemoveValidator and
      * then save it to Database.
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
@@ -243,8 +389,8 @@ class ResourceValidator {
                         args: {
                             error,
                             message: error.message,
-                            profileId: profileJson.id,
-                        },
+                            profileId: profileJson.id
+                        }
                     }
                 );
 
@@ -252,15 +398,15 @@ class ResourceValidator {
                     error,
                     source: 'ResourceValidator.updateRemoteFhirProfileTask',
                     args: {
-                        profileJson,
-                    },
+                        profileJson
+                    }
                 });
             }
         };
 
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         /**
@@ -279,12 +425,12 @@ class ResourceValidator {
                         if (resourceType) {
                             invalidProfileUrls.push({
                                 location: `${resourceType}.meta.profile[${index}]`,
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         } else {
                             invalidProfileUrls.push({
                                 location: 'profile',
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         }
 
@@ -297,7 +443,9 @@ class ResourceValidator {
             if (profileJson) {
                 const profileResourceNew = this.createProfileResourceFromJson({profileJson});
                 await databaseUpdateManager.replaceOneAsync({
-                    doc: profileResourceNew,
+                    base_version,
+                    requestInfo,
+                    doc: profileResourceNew
                 });
 
                 profileJsonToUpdate.push({profileJson: profileResourceNew.toJSON(), profileUrl});
@@ -309,12 +457,12 @@ class ResourceValidator {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         // check if profile already exist in database
         const cursor = await databaseQueryManager.findAsync({
-            query: {url: {$in: profiles}},
+            query: { url: { $in: profiles } }
         });
 
         while (await cursor.hasNext()) {
@@ -328,7 +476,7 @@ class ResourceValidator {
         }
 
         // resourceType is present, means profiles are present in resource
-        let defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
+        const defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
 
         // concurrently load the profiles form their url
         await async.eachLimit(
@@ -354,7 +502,7 @@ class ResourceValidator {
      * @param {{ profileJson: Record<string, any>}} params
      * @returns {StructureDefinition}
      */
-    createProfileResourceFromJson({profileJson}) {
+    createProfileResourceFromJson ({ profileJson }) {
         const profileResourceNew = new StructureDefinition(profileJson);
         if (!profileResourceNew.meta) {
             profileResourceNew.meta = new Meta({});
@@ -363,15 +511,15 @@ class ResourceValidator {
             profileResourceNew.meta.security.push(
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
+                    code: profileResourceNew.publisher || 'profile'
                 })
             );
         } else {
             profileResourceNew.meta.security = [
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
-                }),
+                    code: profileResourceNew.publisher || 'profile'
+                })
             ];
         }
         if (!profileResourceNew.meta.source) {

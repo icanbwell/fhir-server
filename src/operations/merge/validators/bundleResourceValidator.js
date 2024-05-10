@@ -1,13 +1,12 @@
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {ResourceValidator} = require('../../common/resourceValidator');
-const {validationsFailedCounter} = require('../../../utils/prometheus.utils');
-const {BaseValidator} = require('./baseValidator');
+const { BaseValidator } = require('./baseValidator');
+const { ResourceValidator } = require('../../common/resourceValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
 
 class BundleResourceValidator extends BaseValidator {
     /**
      * @param {ResourceValidator} resourceValidator
      */
-    constructor({resourceValidator}) {
+    constructor ({ resourceValidator }) {
         super();
         /**
          * @type {ResourceValidator}
@@ -17,14 +16,14 @@ class BundleResourceValidator extends BaseValidator {
     }
 
     /**
-     * @param {Resource|Resource[]} incomingResources
-     * @param {string|null} path
+     * @param {FhirRequestInfo} requestInfo
      * @param {date} currentDate
      * @param {string} currentOperationName
-     * @param {string} resourceType
-     * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
+     * @param {Resource|Resource[]} incomingResources
+     * @param {string} base_version
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({incomingResources, path, currentDate, currentOperationName, resourceType}) {
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         // if the incoming request is a bundle then unwrap the bundle
         if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
             /**
@@ -37,22 +36,23 @@ class BundleResourceValidator extends BaseValidator {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: bundle1.id,
                     resourceType: 'Bundle',
                     resourceToValidate: bundle1,
-                    path,
+                    path: requestInfo.path,
                     currentDate
                 }
             );
             if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                return {validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true};
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             // unwrap the resources
             incomingResources = incomingResources.entry ? incomingResources.entry.map(e => e.resource) : [];
         }
 
-        return {validatedObjects: incomingResources, preCheckErrors: [], wasAList: false};
+        return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };
     }
 }
 

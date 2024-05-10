@@ -23,7 +23,7 @@ module.exports.handleSmartConfiguration = async (req, res, next) => {
             const response = await superagent
                 .get(env.AUTH_CONFIGURATION_URI)
                 .set({
-                    Accept: 'application/json',
+                    Accept: 'application/json'
                 })
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(requestTimeout);

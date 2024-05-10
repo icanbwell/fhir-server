@@ -43,7 +43,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-5458231534"
         },
@@ -63,7 +64,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -183,8 +184,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
@@ -316,8 +315,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {
@@ -466,7 +463,8 @@
             ],
             "text": "Claim Type"
         },
-        "use": "Claim",
+        "use": "claim",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-5458231534"
         },
@@ -486,7 +484,7 @@
                 ]
             }
         },
-        "outcome": "Complete",
+        "outcome": "complete",
         "careTeam": [],
         "supportingInfo": [
             {
@@ -606,8 +604,6 @@
                         }
                     ]
                 },
-                "modifier": [],
-                "servicedPeriod": {},
                 "locationCodeableConcept": {
                     "coding": [
                         {

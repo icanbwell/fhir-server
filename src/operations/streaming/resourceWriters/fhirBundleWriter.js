@@ -1,12 +1,12 @@
-const {removeNull} = require('../../../utils/nullRemover');
-const {assertIsValid, assertTypeEquals} = require('../../../utils/assertType');
-const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
-const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
-const {fhirContentTypes} = require('../../../utils/contentTypes');
-const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo, logError} = require('../../common/logging');
-const {RethrownError} = require('../../../utils/rethrownError');
-const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const { removeNull } = require('../../../utils/nullRemover');
+const { assertIsValid, assertTypeEquals } = require('../../../utils/assertType');
+const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
+const { FhirResourceWriterBase } = require('./fhirResourceWriterBase');
+const { fhirContentTypes } = require('../../../utils/contentTypes');
+const { ConfigManager } = require('../../../utils/configManager');
+const { logInfo, logError } = require('../../common/logging');
+const { RethrownError } = require('../../../utils/rethrownError');
+const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../../common/sentry');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
@@ -20,8 +20,8 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response}) {
-        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark, response});
+    constructor ({ fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response }) {
+        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark, response });
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -70,12 +70,12 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
         }
-        const chunkId = chunk['id'];
+        const chunkId = chunk.id;
         let chunkJson = {};
         try {
             if (chunk !== null && chunk !== undefined) {
@@ -86,7 +86,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }, getCircularReplacer()
                 );
                 if (this.configManager.logStreamSteps) {
-                    logInfo(`FhirBundleWriter _transform ${chunk['id']}`, {});
+                    logInfo(`FhirBundleWriter _transform ${chunk.id}`, {});
                 }
                 if (this._first) {
                     // write the beginning json
@@ -120,13 +120,13 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     stack: e.stack,
                     message: e.message,
                     chunkId,
-                    encoding,
+                    encoding
                 }
             });
             // as we are not propagating this error, send this to sentry
             captureException(error);
 
-            this.writeErrorAsOperationOutcome({error: {...error, message: `Error occurred while streaming response for chunk: ${chunkId}`}});
+            this.writeErrorAsOperationOutcome({ error: { ...error, message: `Error occurred while streaming response for chunk: ${chunkId}` } });
             callback();
         }
     }
@@ -136,12 +136,12 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {Error} error
      * @param {import('stream').BufferEncoding} encoding
      */
-    writeErrorAsOperationOutcome({error}) {
+    writeErrorAsOperationOutcome ({ error }) {
         /**
          * @type {OperationOutcome}
          */
         const operationOutcome = convertErrorToOperationOutcome({
-            error: error,
+            error
         });
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
@@ -160,7 +160,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         try {
             /**
              * @type {number}
@@ -185,7 +185,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             // write ending json
             const output = '],' + bundleJson.substring(1);
             if (this.configManager.logStreamSteps) {
-                logInfo('FhirBundleWriter _flush', {output});
+                logInfo('FhirBundleWriter _flush', { output });
             }
             if (this._first) {
                 this._first = false;
@@ -206,12 +206,12 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 source: 'FhirBundleWriter._flush',
                 args: {
                     stack: e.stack,
-                    message: e.message,
+                    message: e.message
                 }
             });
             // as we are not propagating this error, send this to sentry
             captureException(error);
-            this.writeErrorAsOperationOutcome({error: {...error, message: 'Error occurred while streaming response'}});
+            this.writeErrorAsOperationOutcome({ error: { ...error, message: 'Error occurred while streaming response' } });
             this.push(']}');
         }
         this.push(null);
@@ -223,7 +223,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
-    writeOperationOutcome({operationOutcome, encoding}) {
+    writeOperationOutcome ({ operationOutcome, encoding }) {
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
             // write the beginning json

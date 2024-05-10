@@ -47,13 +47,13 @@
         "assurance": "level4",
         "extension": null,
         "id": null,
-        "target": {}
+        "target": null
       },
       {
         "assurance": "level4",
         "extension": null,
         "id": null,
-        "target": {}
+        "target": null
       }
     ],
     "meta": {

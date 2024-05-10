@@ -1,7 +1,6 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {IndexManager} = require('../../indexes/indexManager');
-const {BaseScriptRunner} = require('./baseScriptRunner');
-
+const { assertTypeEquals } = require('../../utils/assertType');
+const { IndexManager } = require('../../indexes/indexManager');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 
 /**
  * @classdesc Adds and removes indexes
@@ -22,7 +21,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      */
-    constructor(
+    constructor (
         {
             indexManager,
             collections,
@@ -91,15 +90,15 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             await this.init();
             /**
              * @type {import('mongodb').Db}
              */
-            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-                    await this.mongoDatabaseManager.getClientDbAsync();
+            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync()
+                : this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+                    : await this.mongoDatabaseManager.getClientDbAsync();
 
             const collections = this.collections.length > 0 ? this.collections : ['all'];
             if (this.addMissingIndexesOnly) {
@@ -150,7 +149,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 }
             }
         } catch (e) {
-            this.adminLogger.logError('ERROR', {error: 'e'});
+            this.adminLogger.logError('ERROR', { error: 'e' });
         } finally {
             await this.shutdown();
         }

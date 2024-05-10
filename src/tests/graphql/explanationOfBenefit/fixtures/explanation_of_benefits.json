@@ -31,6 +31,7 @@
         "value": "230916613369"
       }
     ],
+    "created": "2023-11-11",
     "status": "active",
     "type": {
       "coding": [
@@ -41,7 +42,7 @@
       ],
       "text": "Claim Type"
     },
-    "use": "Claim",
+    "use": "claim",
     "patient": {
       "reference": "Patient/WPS-0559166162"
     },
@@ -61,7 +62,7 @@
         ]
       }
     },
-    "outcome": "Complete",
+    "outcome": "complete",
     "careTeam": [],
     "supportingInfo": [
       {
@@ -159,7 +160,6 @@
             "text": "Procedure Modifier 1"
           }
         ],
-        "servicedPeriod": {},
         "locationCodeableConcept": {
           "coding": [
             {
@@ -307,6 +307,7 @@
       }
     ],
     "status": "active",
+    "created": "2023-11-11",
     "type": {
       "coding": [
         {
@@ -316,7 +317,7 @@
       ],
       "text": "Claim Type"
     },
-    "use": "Claim",
+    "use": "claim",
     "patient": {
       "reference": "Patient/WPS-5458231534"
     },
@@ -336,7 +337,7 @@
         ]
       }
     },
-    "outcome": "Complete",
+    "outcome": "complete",
     "careTeam": [],
     "supportingInfo": [
       {
@@ -455,8 +456,6 @@
             }
           ]
         },
-        "modifier": [],
-        "servicedPeriod": {},
         "locationCodeableConcept": {
           "coding": [
             {

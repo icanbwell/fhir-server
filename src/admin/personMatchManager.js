@@ -1,10 +1,10 @@
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const superagent = require('superagent');
-const {ConfigManager} = require('../utils/configManager');
+const { ConfigManager } = require('../utils/configManager');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {logInfo} = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid } = require('../utils/uid.util');
 
@@ -14,7 +14,7 @@ class PersonMatchManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager
@@ -41,7 +41,7 @@ class PersonMatchManager {
      * @param {string|undefined} targetType
      * @return {Promise<Object>}
      */
-    async personMatchAsync(
+    async personMatchAsync (
         {
             sourceId,
             sourceType,
@@ -79,18 +79,18 @@ class PersonMatchManager {
         const sourceIdQuery = isUuid(sourceId) ? { _uuid: sourceId } : { id: sourceId };
         const targetIdQuery = isUuid(targetId) ? { _uuid: targetId } : { id: targetId };
 
-        const sourceCursor = sourceType === 'Patient' ?
-            await patientDatabaseQueryManager.findAsync({
+        const sourceCursor = sourceType === 'Patient'
+            ? await patientDatabaseQueryManager.findAsync({
                 query: sourceIdQuery
-            }) :
-            await personDatabaseQueryManager.findAsync({
+            })
+            : await personDatabaseQueryManager.findAsync({
                 query: sourceIdQuery
             });
-        const targetCursor = targetType === 'Patient' ?
-            await patientDatabaseQueryManager.findAsync({
+        const targetCursor = targetType === 'Patient'
+            ? await patientDatabaseQueryManager.findAsync({
                 query: targetIdQuery
-            }) :
-            await personDatabaseQueryManager.findAsync({
+            })
+            : await personDatabaseQueryManager.findAsync({
                 query: targetIdQuery
             });
 
@@ -167,15 +167,15 @@ class PersonMatchManager {
         }
 
         const parameters = {
-            'resourceType': 'Parameters',
-            'parameter': [
+            resourceType: 'Parameters',
+            parameter: [
                 {
-                    'name': 'resource',
-                    'resource': source[0].toJSON(),
+                    name: 'resource',
+                    resource: source[0].toJSON()
                 },
                 {
-                    'name': 'match',
-                    'resource': target[0].toJSON()
+                    name: 'match',
+                    resource: target[0].toJSON()
                 }
             ]
         };
@@ -185,9 +185,9 @@ class PersonMatchManager {
         // post to $match service
         const header = {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
+            Accept: 'application/json'
         };
-        logInfo(`Calling ${url} with body`, {'body': parameters});
+        logInfo(`Calling ${url} with body`, { body: parameters });
         try {
             /**
              * @type {request.Response}
@@ -199,7 +199,7 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
-            logInfo('', {json});
+            logInfo('', { json });
             return json;
         } catch (error) {
             if (error.timeout) {
@@ -208,7 +208,7 @@ class PersonMatchManager {
                         new OperationOutcomeIssue({
                                 severity: 'error',
                                 code: 'timeout',
-                                diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`,
+                                diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`
                             }
                         )
                     ]

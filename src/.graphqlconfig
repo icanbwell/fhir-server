@@ -1,8 +1,8 @@
 {
   "name": "GraphQL Schemas with Shared Types",
-  "schemaPath": "./graphql/v2/schemas/schema.graphql",
+  "schemaPath": "./graphql/schemas/schema.graphql",
   "includes": [
-    "./graphql/v2/**",
+    "./graphql/**",
     "./tests/**"
   ]
 }

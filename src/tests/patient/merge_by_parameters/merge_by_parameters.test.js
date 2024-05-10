@@ -8,9 +8,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Merge By Parameters Tests', () => {
     beforeEach(async () => {
@@ -36,7 +36,7 @@ describe('Merge By Parameters Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: patient1Resource}],
+                parameter: [{ name: 'resource', resource: patient1Resource }]
             };
 
             resp = await request
@@ -44,7 +44,7 @@ describe('Merge By Parameters Tests', () => {
                 .send(parametersResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient')

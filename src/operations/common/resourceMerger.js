@@ -1,15 +1,16 @@
 const deepEqual = require('fast-deep-equal');
-const {mergeObject} = require('../../utils/mergeHelper');
-const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
-const {getFirstElementOrNull} = require('../../utils/list.util');
-const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {isUuid} = require('../../utils/uid.util');
+const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { getFirstElementOrNull } = require('../../utils/list.util');
+const { isUuid } = require('../../utils/uid.util');
+const { mergeObject } = require('../../utils/mergeHelper');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
  * @typedef {object} MergePatchEntry
@@ -26,6 +27,15 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
  * @property {boolean|undefined} incrementVersion
  * @property {string[]|undefined} limitToPaths
  * @property {import('../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager|null} databaseAttachmentManager
+ * @property {string} base_version
+ * @property {import('../../fhir/classes/4_0_0/requestInfo').FhirRequestInfo} requestInfo
+ */
+
+/**
+ * @typedef {Object} UpdateSecurityTagProps
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {string} system
  */
 
 /**
@@ -53,8 +63,6 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
  * @typedef {Object} ApplyPatchProp
  * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
  * @property {import('fast-json-patch').Operation[]} patchContent
- * @property {string} original_source
- * @property {boolean|undefined} incrementVersion
  */
 
 /**
@@ -63,9 +71,12 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 class ResourceMerger {
     /**
      * constructor
-     * @param {PreSaveManager} preSaveManager
+     * @typedef {Object} Params
+     * @property {PreSaveManager} preSaveManager
+     *
+     * @param {Params}
      */
-    constructor({preSaveManager}) {
+    constructor ({ preSaveManager }) {
         /**
          * @type {PreSaveManager}
          */
@@ -74,32 +85,67 @@ class ResourceMerger {
     }
 
     /**
+     * Updates security tag with provided system to system present in current resource
+     * @param {UpdateSecurityTagProps}
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     */
+    updateSecurityTag ({ system, resourceToMerge, currentResource }) {
+        const currentValue = currentResource.meta.security.find(
+            s => s.system === system
+        );
+        if (!currentValue) {
+            return;
+        }
+        if (system === SecurityTagSystem.sourceAssigningAuthority) {
+            resourceToMerge._sourceAssigningAuthority = currentValue.code;
+        }
+        if (!resourceToMerge.meta.security) {
+            resourceToMerge.meta.security = [currentValue];
+        } else if (!resourceToMerge.meta.security.some(s => s.system === system)) {
+            resourceToMerge.meta.security.push(currentValue);
+        } else {
+            let currentValueInserted = false;
+            resourceToMerge.meta.security = resourceToMerge.meta.security.reduce((security, s) => {
+                if (s.system === system) {
+                    // Added check to make sure duplicate security elements are not inserted in resource.
+                    if (!currentValueInserted) {
+                        security.push(currentValue);
+                        currentValueInserted = true;
+                    }
+                } else {
+                    security.push(s);
+                }
+                return security;
+            }, []);
+        }
+    }
+
+    /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    overWriteNonWritableFields({currentResource, resourceToMerge}) {
+    overWriteNonWritableFields ({ currentResource, resourceToMerge }) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
         }
-        // compare without checking source, so we don't create a new version just because of a difference in source
+        resourceToMerge.id = currentResource.id;
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
-        // copy sourceAssigningAuthority to be used in GlobalId handler while running preSave
-        // Will only be required when _uuid is passed in id field and there are references to update in the resource
-        const currentSourceAssigningAuthority = currentResource.meta.security.find(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority
-        );
-        if (!resourceToMerge._sourceAssigningAuthority && currentSourceAssigningAuthority) {
-            if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [currentSourceAssigningAuthority];
-            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
-                resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
-            }
-        }
+        // Override sourceAssigningAuthority and owner in meta security
+        this.updateSecurityTag({
+            system: SecurityTagSystem.sourceAssigningAuthority,
+            currentResource,
+            resourceToMerge
+        });
+        this.updateSecurityTag({
+            system: SecurityTagSystem.owner,
+            currentResource,
+            resourceToMerge
+        });
 
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
@@ -109,7 +155,23 @@ class ResourceMerger {
         ) {
             if (resourceToMerge.id === resourceToMerge._uuid) {
                 if (resourceToMerge.identifier) {
-                    resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    /** @type {Identifier} */
+                    const currentResourceSourceIdIdentifier = getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    /** @type {Identifier} */
+                    const resourceToMergeSourceIdIdentifier = getFirstElementOrNull(
+                        resourceToMerge.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    if (currentResourceSourceIdIdentifier &&
+                        resourceToMergeSourceIdIdentifier &&
+                        currentResourceSourceIdIdentifier.value !== resourceToMergeSourceIdIdentifier.value
+                    ) {
+                        const indexInResourceToMerge = resourceToMerge.identifier.findIndex(
+                            s => s.system === IdentifierSystem.sourceId
+                        );
+                        resourceToMerge.identifier[indexInResourceToMerge].value = currentResourceSourceIdIdentifier.value;
+                    }
                 }
                 resourceToMerge.id = currentResource.id;
             }
@@ -155,7 +217,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects({currentObject, mergedObject, limitToPaths}) {
+    compareObjects ({ currentObject, mergedObject, limitToPaths }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -195,15 +257,15 @@ class ResourceMerger {
      * @param {UpdateMetaProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion}) {
+    updateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
         // update the metadata to increment versionId
         /**
          * @type {Meta}
          */
-        let meta = new Meta(currentResource.meta);
-        meta.versionId = incrementVersion ?
-            `${parseInt(currentResource.meta.versionId) + 1}` :
-            currentResource.meta.versionId;
+        const meta = new Meta(currentResource.meta);
+        meta.versionId = incrementVersion
+            ? `${parseInt(currentResource.meta.versionId) + 1}`
+            : currentResource.meta.versionId;
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
@@ -227,7 +289,7 @@ class ResourceMerger {
      * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    applyPatch({currentResource, patchContent, original_source, incrementVersion}) {
+    applyPatch ({ currentResource, patchContent }) {
         /**
          * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
          */
@@ -235,27 +297,29 @@ class ResourceMerger {
         /**
          * @type {import('../../fhir/classes/4_0_0/resources/resource')}
          */
-        let patched_incoming_data = patchResult.newDocument;
+        const patched_incoming_data = patchResult.newDocument;
 
         // Create a new resource to store the merged data
-        /**
-         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
-         */
-        let patched_resource_incoming = currentResource.create(patched_incoming_data);
-
-        patched_resource_incoming = this.updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion});
-
-        return patched_resource_incoming;
+        return currentResource.create(patched_incoming_data);
     }
 
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
-     * @param {MergeResourceAsyncProp}
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} currentResource
+     * @param {Resource} resourceToMerge
+     * @param {boolean|undefined} [smartMerge]
+     * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
-    async mergeResourceAsync(
+    async mergeResourceAsync (
         {
+            base_version,
+            requestInfo,
             currentResource,
             resourceToMerge,
             smartMerge = true,
@@ -264,23 +328,28 @@ class ResourceMerger {
             databaseAttachmentManager = null
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        // confirm the resource has been run through preSave
+        if (!resourceToMerge._uuid) {
+            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+        }
+        assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
          * @type {string}
          */
         const original_source = resourceToMerge?.meta?.source;
 
         // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields({currentResource, resourceToMerge});
+        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
-        // fix up any data that we normally fix up before saving so the comparison is correct
-        await this.preSaveManager.preSaveAsync(resourceToMerge);
+        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
-            return {updatedResource: null, patches: null};
+            return { updatedResource: null, patches: null };
         }
 
-        let currentResourceWithAttachmentData = currentResource.clone();
+        const currentResourceWithAttachmentData = currentResource.clone();
         if (databaseAttachmentManager) {
             await databaseAttachmentManager.transformAttachments(
                 currentResourceWithAttachmentData, RETRIEVE
@@ -290,9 +359,9 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let mergedObject = smartMerge ?
-            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
-            resourceToMerge.toJSON();
+        const mergedObject = smartMerge
+            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
+            : resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
@@ -307,7 +376,7 @@ class ResourceMerger {
 
         // see if there are any changes
         if (patchContent.length === 0) {
-            return {updatedResource: null, patches: null};
+            return { updatedResource: null, patches: null };
         }
 
         // now apply the patches to the found resource
@@ -323,15 +392,14 @@ class ResourceMerger {
         /**
          * @type {import('../../fhir/classes/4_0_0/resources/resource')}
          */
-        let patched_resource_incoming = this.applyPatch({
-            currentResource, patchContent, original_source, incrementVersion
-        });
+        let patched_resource_incoming = this.applyPatch({ currentResource, patchContent });
 
-        if (databaseAttachmentManager) {
-            patched_resource_incoming = await databaseAttachmentManager.transformAttachments(
-                patched_resource_incoming
-            );
-        }
+        patched_resource_incoming = this.updateMeta({
+            patched_resource_incoming,
+            currentResource,
+            original_source,
+            incrementVersion
+        });
 
         return {
             updatedResource: patched_resource_incoming,

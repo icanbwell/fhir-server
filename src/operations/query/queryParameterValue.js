@@ -4,9 +4,8 @@
  * @desc or = do an OR operation between the array items
  * @typedef {('$and'|'$or')} QueryParameterType
  **/
-const {assertIsValid} = require('../../utils/assertType');
-const {removeNull} = require('../../utils/nullRemover');
-
+const { assertIsValid } = require('../../utils/assertType');
+const { removeNull } = require('../../utils/nullRemover');
 
 class QueryParameterValue {
     /**
@@ -14,7 +13,7 @@ class QueryParameterValue {
      * @param {string|string[]} value
      * @param {QueryParameterType|undefined} operator
      */
-    constructor(
+    constructor (
         {
             value,
             operator = '$and'
@@ -38,7 +37,7 @@ class QueryParameterValue {
      * @param {string|string[]|undefined|null} queryParameterValue
      * @return {string[]|null}
      */
-    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue}) {
+    parseQueryParameterValueIntoArrayIfNeeded ({ queryParameterValue }) {
         if (!queryParameterValue) {
             return null;
         }
@@ -61,7 +60,7 @@ class QueryParameterValue {
      * Build value from array of values
      * @param {string[]} newValues
      */
-    regenerateValueFromValues(newValues) {
+    regenerateValueFromValues (newValues) {
         if (!newValues || !Array.isArray(newValues)) {
             return newValues;
         }
@@ -72,7 +71,7 @@ class QueryParameterValue {
      * returns values for this arg as an array
      * @return {string[]|null}
      */
-    get values() {
+    get values () {
         return this.parseQueryParameterValueIntoArrayIfNeeded(
             {
                 queryParameterValue: this.value
@@ -80,7 +79,7 @@ class QueryParameterValue {
         );
     }
 
-    clone() {
+    clone () {
         return new QueryParameterValue({
             value: this.value,
             operator: this.operator
@@ -91,7 +90,7 @@ class QueryParameterValue {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             value: this.value,
             values: this.values,
@@ -103,4 +102,3 @@ class QueryParameterValue {
 module.exports = {
     QueryParameterValue
 };
-

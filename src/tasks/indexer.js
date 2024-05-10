@@ -5,16 +5,16 @@
 // This runs in a separate process to index so the main thread is not blocked
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
-const {IndexManager} = require('../indexes/indexManager');
-const {logInfo, logError} = require('../operations/common/logging');
+const { IndexManager } = require('../indexes/indexManager');
+const { logInfo, logError } = require('../operations/common/logging');
 
-// eslint-disable-next-line no-unused-vars
+
 process.on('message', async (params) => {
-    //send status update to the main app
+    // send status update to the main app
     logInfo(params);
     const message = params.message;
     const tableName = params.tableName;
-    process.send({status: 'We have started processing your data.'});
+    process.send({ status: 'We have started processing your data.' });
 
     try {
         const indexManager = new IndexManager();
@@ -47,11 +47,11 @@ process.on('message', async (params) => {
     } catch (e) {
         logError('ERROR Indexing in separate process', { source: 'indexerTask', error: e });
     }
-    //notify node, that we are done with this task
+    // notify node, that we are done with this task
     process.disconnect();
 });
 
 process.on('uncaughtException', function (err) {
-    logError(err.message, {'error stack': err.stack});
+    logError(err.message, { 'error stack': err.stack });
     logInfo('Gracefully finish the routine.');
 });

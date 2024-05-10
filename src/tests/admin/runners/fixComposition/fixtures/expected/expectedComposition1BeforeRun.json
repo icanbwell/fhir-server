@@ -1,0 +1,222 @@
+{
+  "author": [
+    {
+      "display": "bwell Connected Health",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+      "type": "Organization"
+    }
+  ],
+  "date": "2024-03-14T16:52:11Z",
+  "id": "1",
+  "identifier": {
+    "system": "https://www.icanbwell.com/intelligence-layer-pipeline/version",
+    "value": "1.0"
+  },
+  "meta": {
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "https://www.icanbwell.com/intelligence-layer-pipeline",
+    "versionId": "1"
+  },
+  "resourceType": "Composition",
+  "section": [
+    {
+      "code": {
+        "coding": [
+          {
+            "code": "4",
+            "display": "HOV",
+            "system": "1.2.840.114350.1.72.1.7.7.10.696784.13260"
+          },
+          {
+            "code": "102",
+            "display": "Outpatient",
+            "system": "1.2.840.114350.1.13.300.2.7.10.698084.10110"
+          }
+        ]
+      },
+      "entry": [
+        {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
+          "id": "cfc6ef87-c267-5d61-9d3f-8f55366dfe63",
+          "reference": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec",
+          "type": "Encounter"
+        }
+      ],
+      "id": "770500bd-1eb1-55a9-874c-b96abb5dd97c",
+      "mode": "working",
+      "orderedBy": {
+        "coding": [
+          {
+            "code": "event-date",
+            "display": "Sorted by Event Date",
+            "system": "http://terminology.hl7.org/CodeSystem/list-order"
+          }
+        ],
+        "text": "Sorted by period.start DESC"
+      },
+      "section": [
+        {
+          "id": "f69bf24e-c309-5bef-b1db-91731b0bd74d",
+          "text": {
+            "div": "Hov - outpatient",
+            "status": "generated"
+          },
+          "title": "Visit Name"
+        }
+      ],
+      "title": "Hov - outpatient"
+    },
+    {
+      "code": {
+        "coding": [
+          {
+            "code": "5",
+            "display": "Appointment",
+            "system": "1.2.840.114350.1.72.1.7.7.10.696784.13260"
+          },
+          {
+            "code": "101",
+            "display": "Office Visit",
+            "system": "1.2.840.114350.1.13.300.2.7.10.698084.30"
+          }
+        ]
+      },
+      "entry": [
+        {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
+          "id": "6809677f-79aa-55f3-8faa-4601958c7c7b",
+          "reference": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961",
+          "type": "Encounter"
+        }
+      ],
+      "id": "377beddd-028f-529e-922d-9c797efe4f06",
+      "mode": "working",
+      "orderedBy": {
+        "coding": [
+          {
+            "code": "event-date",
+            "display": "Sorted by Event Date",
+            "system": "http://terminology.hl7.org/CodeSystem/list-order"
+          }
+        ],
+        "text": "Sorted by period.start DESC"
+      },
+      "section": [
+        {
+          "id": "5247d36c-1450-5d0e-9c5c-222d36e43f4b",
+          "text": {
+            "div": "Appointment - office visit",
+            "status": "generated"
+          },
+          "title": "Visit Name"
+        }
+      ],
+      "title": "Appointment - office visit"
+    }
+  ],
+  "status": "preliminary",
+  "subject": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0",
+    "type": "Patient"
+  },
+  "text": {
+    "div": "Encounter Summary Grouped by Encounter Class and Type",
+    "status": "generated"
+  },
+  "title": "Encounter Summary Grouped by Encounter Class and Type",
+  "type": {
+    "coding": [
+      {
+        "code": "encounter_summary_document",
+        "display": "b.Well Encounter Summary Composition Document",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/"
+      },
+      {
+        "code": "encounter_group_class_and_type",
+        "display": "Encounter Summary Composition Grouped by Encounter Class and Type",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type"
+      },
+      {
+        "code": "Encounter",
+        "display": "FHIR resource type",
+        "system": "https://hl7.org/fhir/allergyintolerance"
+      }
+    ],
+    "text": "Encounter Summary Composition Document"
+  }
+}

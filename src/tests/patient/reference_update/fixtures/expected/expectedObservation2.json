@@ -1,0 +1,143 @@
+{
+  "code": {
+    "coding": [
+      {
+        "code": "11557-6",
+        "display": "Carbon dioxide in blood",
+        "system": "URN:OID:2.16.840.1.113883.6.96"
+      }
+    ]
+  },
+  "effectiveDateTime": "2013-04-02T10:30:10+01:00",
+  "encounter": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Encounter/1"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Encounter/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Encounter/1"
+  },
+  "id": "1",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+    }
+  ],
+  "interpretation": [
+    {
+      "coding": [
+        {
+          "code": "H",
+          "display": "High",
+          "system": "urn:oid:2.16.840.1.113883.6.96"
+        }
+      ]
+    }
+  ],
+  "issued": "2013-04-03T15:30:10+01:00",
+  "meta": {
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "https://www.icanbwell.com",
+    "versionId": "2"
+  },
+  "performer": [
+    {
+      "display": "A. Langeveld",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Practitioner/f005"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Practitioner/11809d4e-2f15-566e-bb7e-64af2a9cfb74"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "Practitioner/f005"
+    }
+  ],
+  "referenceRange": [
+    {
+      "high": {
+        "code": "kPa",
+        "system": "http://unitsofmeasure.org",
+        "unit": "kPa",
+        "value": 6
+      },
+      "low": {
+        "code": "kPa",
+        "system": "http://unitsofmeasure.org",
+        "unit": "kPa",
+        "value": 4.8
+      }
+    }
+  ],
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "display": "P. van de Heuvel",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/1"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Patient/1"
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div>Hello World</div>"
+  },
+  "valueQuantity": {
+    "code": "kPa",
+    "system": "http://unitsofmeasure.org",
+    "unit": "kPa",
+    "value": 6.2
+  }
+}

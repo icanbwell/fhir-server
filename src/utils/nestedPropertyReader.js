@@ -5,7 +5,7 @@ class NestedPropertyReader {
      * @param {string} path
      * @returns {undefined|*}
      */
-    static getNestedProperty({obj, path}) {
+    static getNestedProperty ({ obj, path }) {
         if (!path) {
             return undefined;
         }

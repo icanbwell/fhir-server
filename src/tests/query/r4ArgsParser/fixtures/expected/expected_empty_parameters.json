@@ -2,6 +2,8 @@
   "base_version": "4_0_0",
   "parsedArgItems": [
     {
+      "modifiers": [],
+      "references": [],
       "queryParameter": "base_version",
       "queryParameterValue": {
         "operator": "$and",
@@ -12,6 +14,8 @@
       }
     },
     {
+      "modifiers": [],
+      "references": [],
       "propertyObj": {
         "description": "Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person",
         "field": "name.given",
@@ -27,6 +31,8 @@
       }
     },
     {
+      "modifiers": [],
+      "references": [],
       "propertyObj": {
         "description": "Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person",
         "field": "name.family",
@@ -42,6 +48,8 @@
       }
     },
     {
+      "modifiers": [],
+      "references": [],
       "queryParameter": "_count",
       "queryParameterValue": {
         "operator": "$and",

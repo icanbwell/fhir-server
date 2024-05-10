@@ -19,6 +19,12 @@ query {
                     whenHandedOver
                 }
                 authoredOn
+                requester {
+                    __typename
+                    ... on Practitioner {
+                        id
+                    }
+                }
             }
         }
     }

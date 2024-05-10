@@ -32,7 +32,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {Object} oidToStandardSystemUrlMap
      * @param {boolean} updateResources
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         batchSize,
         adminLogger,
@@ -48,13 +48,13 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         filterToRecordsWithFields,
         startFromId,
         oidToStandardSystemUrlMap,
-        updateResources,
+        updateResources
     }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {string[]}
@@ -134,30 +134,30 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string[]} properties
      * @return {import('mongodb').Filter<import('mongodb').Document>}
      */
-    // eslint-disable-next-line no-unused-vars
-    getFilter(properties) {
+
+    getFilter (properties) {
         if (!properties || properties.length === 0) {
             return {};
         }
         if (properties.length === 1) {
             return {
                 [properties[0]]: {
-                    $exists: true,
-                },
+                    $exists: true
+                }
             };
         }
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filter = {
-            $and: [],
+            $and: []
         };
 
         for (const property of properties) {
             filter.$and.push({
                 [`${property}`]: {
-                    $exists: true,
-                },
+                    $exists: true
+                }
             });
         }
         return filter;
@@ -167,7 +167,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -182,7 +182,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             'identifier',
             '_uuid',
             '_sourceId',
-            '_sourceAssigningAuthority',
+            '_sourceAssigningAuthority'
         ];
         for (const property of neededProperties) {
             projection[`${property}`] = 1;
@@ -195,7 +195,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             /**
              * @type {boolean}
@@ -224,7 +224,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             if (isHistoryDoc && doc.request) {
                 currentResourceJsonInternal = {
                     resource: currentResourceJsonInternal,
-                    request: { ...doc.request },
+                    request: { ...doc.request }
                 };
 
                 // if it is history doc then replace the id present in the url
@@ -232,7 +232,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 
                 updatedResourceJsonInternal = {
                     resource: updatedResourceJsonInternal,
-                    request: doc.request,
+                    request: doc.request
                 };
             }
 
@@ -247,17 +247,17 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
 
             const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({
-                patches,
+                patches
             });
 
             if (Object.keys(updateOperation).length > 0) {
                 operations.push({
                     updateOne: {
                         filter: {
-                            _id: doc._id,
+                            _id: doc._id
                         },
-                        update: updateOperation,
-                    },
+                        update: updateOperation
+                    }
                 });
             }
 
@@ -267,9 +267,9 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 message: `Error processing record ${e.message}`,
                 error: e,
                 args: {
-                    resource: doc,
+                    resource: doc
                 },
-                source: 'FixCodeableConceptsRunner.processRecordAsync',
+                source: 'FixCodeableConceptsRunner.processRecordAsync'
             });
         }
     }
@@ -279,17 +279,14 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('../../fhir/classes/4_0_0/resources/resource')} resource
      * @returns {boolean}
      */
-    isUpdateNeeded(resource) {
+    isUpdateNeeded (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
-                if (coding.system) {
-                    // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u') ?
-                        coding.system.split(':')[2] : coding.system;
-
-                    if (this.availableOidValues.has(system)) {
-                        return true;
-                    }
+                if (
+                    coding?.system?.toLowerCase().startsWith('urn:oid:') ||
+                    this.availableOidValues.has(coding?.system)
+                ) {
+                    return true;
                 }
             }
             return false;
@@ -312,9 +309,6 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 }
             }
         }
-        if (isUpdateNeeded && resource._uuid) {
-            return resource._uuid;
-        }
         return isUpdateNeeded;
     }
 
@@ -323,16 +317,21 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('../../fhir/classes/4_0_0/resources/resource')} resource
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateResource(resource) {
+    updateResource (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
-                if (coding.system) {
+                if (
+                    coding?.system?.toLowerCase().startsWith('urn:oid:') ||
+                    this.availableOidValues.has(coding?.system)
+                ) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u') ?
-                        coding.system.split(':')[2] : coding.system;
+                    const system = coding.system.toLowerCase().startsWith('urn:oid:')
+                        ? coding.system.split(':')[2] : coding.system;
 
                     if (this.availableOidValues.has(system)) {
                         coding.system = this.oidToStandardSystemUrlMap[`${system}`];
+                    } else {
+                        coding.system = system;
                     }
                 }
             }
@@ -360,7 +359,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string} queryPrefix
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryFromParameters({queryPrefix = ''}) {
+    getQueryFromParameters ({ queryPrefix = '' }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -371,7 +370,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 $and: [
                     {
                         [`${queryPrefix}meta.lastUpdated`]: {
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     },
                     {
@@ -381,25 +380,22 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                     }
                 ]
             };
-        }
-        else if (this.afterLastUpdatedDate) {
+        } else if (this.afterLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $gt: this.afterLastUpdatedDate,
+                    $gt: this.afterLastUpdatedDate
                 }
             };
-        }
-        else if (this.beforeLastUpdatedDate) {
+        } else if (this.beforeLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $lt: this.beforeLastUpdatedDate,
+                    $lt: this.beforeLastUpdatedDate
                 }
             };
-        }
-        else {
-            query = this.properties && this.properties.length > 0 ?
-                this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                this.getFilter(this.filterToRecordsWithFields);
+        } else {
+            query = this.properties && this.properties.length > 0
+                ? this.getFilter(this.properties.concat(this.filterToRecordsWithFields || []))
+                : this.getFilter(this.filterToRecordsWithFields);
         }
 
         if (this.startFromId) {
@@ -434,37 +430,18 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string[]} uuidChunk
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource({ queryPrefix = '', uuidChunk }) {
+    getQueryForResource ({ queryPrefix = '', uuidChunk }) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
-        let query = this.getQueryFromParameters({queryPrefix});
+        let query = this.getQueryFromParameters({ queryPrefix });
 
         // query to get resources that needs to be changes
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
-        const filterQuery = {
-            $and: [
-                { _uuid: { $in: uuidChunk } },
-                {
-                    $or: [
-                        {
-                            'meta.security': {
-                                $elemMatch: {
-                                    'system': 'https://www.icanbwell.com/connectionType',
-                                    'code': 'proa'
-                                }
-                            }
-                        },
-                        {
-                            '_sourceAssigningAuthority': 'humanapi'
-                        }
-                    ]
-                }
-            ]
-        };
+        const filterQuery = { _uuid: { $in: uuidChunk } };
 
         // merge query and filterQuery
         if (Object.keys(query).length) {
@@ -482,7 +459,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.startFromCollection) {
@@ -503,7 +480,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                      */
                     const { collection, session, client } = await this.createSingeConnectionAsync({
                         mongoConfig,
-                        collectionName,
+                        collectionName
                     });
 
                     try {
@@ -515,30 +492,15 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                         /**
                          * @type {import('mongodb').FindCursor}
                          */
-                        const cursor = collection.find({
-                            $or: [
-                                {
-                                    'meta.security': {
-                                        $elemMatch: {
-                                            code: 'proa',
-                                            system: 'https://www.icanbwell.com/connectionType'
-                                        }
-                                    }
-                                },
-                                {
-                                    '_sourceAssigningAuthority': 'humanapi'
-                                }
-                            ]
-                        });
+                        const cursor = collection.find({});
 
                         while (await cursor.hasNext()) {
                             const doc = await cursor.next();
 
                             const resource = FhirResourceCreator.create(doc);
 
-                            const value = this.isUpdateNeeded(resource);
-                            if (value) {
-                                uuidsToUpdate.push(value);
+                            if (this.isUpdateNeeded(resource)) {
+                                uuidsToUpdate.push(resource._uuid);
                             }
                         }
 
@@ -567,7 +529,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                                     skipExistingIds: false,
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
-                                    skip: this.skip,
+                                    skip: this.skip
                                 });
                             } catch (e) {
                                 this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
@@ -626,5 +588,5 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    FixCodeableConceptsRunner,
+    FixCodeableConceptsRunner
 };

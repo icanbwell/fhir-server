@@ -19,7 +19,7 @@ class SearchParameterDefinition {
      * @param {string[]|undefined} [target]
      * @param {string|undefined} [fieldType]
      */
-    constructor(
+    constructor (
         {
             description,
             type,
@@ -64,7 +64,7 @@ class SearchParameterDefinition {
      * Return the fields for this search parameter
      * @return {string[]}
      */
-    get fields() {
+    get fields () {
         return this._fields ? this._fields : this._field ? [this._field] : [];
     }
 
@@ -72,11 +72,11 @@ class SearchParameterDefinition {
      * returns the first field for this search parameter or null if there are no fields
      * @return {string|null}
      */
-    get firstField() {
+    get firstField () {
         return this.fields.length > 0 ? this.fields[0] : null;
     }
 
-    clone() {
+    clone () {
         return new SearchParameterDefinition(
             {
                 description: this.description,
@@ -94,7 +94,7 @@ class SearchParameterDefinition {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return {
             description: this.description,
             type: this.type,

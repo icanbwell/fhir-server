@@ -1,5 +1,5 @@
-const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/querybuilder.util');
-const {BaseFilter} = require('./baseFilter');
+const { tokenQueryBuilder, exactMatchQueryBuilder, extensionQueryBuilder } = require('../../../utils/querybuilder.util');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * Filters by token
@@ -11,7 +11,8 @@ class FilterByToken extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
+        // noinspection IfStatementWithTooManyBranchesJS
         if (this.propertyObj.fieldFilter === '[system/@value=\'email\']') {
             return tokenQueryBuilder(
                 {
@@ -38,6 +39,16 @@ class FilterByToken extends BaseFilter {
                 {
                     target: value,
                     type: 'value',
+                    field: this.fieldMapper.getFieldName(field),
+                    resourceType: this.resourceType
+                }
+            );
+        } else if (field === 'extension') {
+            // http://www.hl7.org/fhir/search.html#token
+            return extensionQueryBuilder(
+                {
+                    target: value,
+                    type: 'valueString',
                     field: this.fieldMapper.getFieldName(field),
                     resourceType: this.resourceType
                 }
@@ -99,7 +110,7 @@ class FilterByToken extends BaseFilter {
                 case 'boolean':
                     return exactMatchQueryBuilder(
                         {
-                            target: value === 'true' ? true : false,
+                            target: value === 'true',
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );
@@ -139,8 +150,8 @@ class FilterByToken extends BaseFilter {
                                     field: this.fieldMapper.getFieldName(`${field}.coding`),
                                     resourceType: this.resourceType
                                 }
-                            ),
-                        ],
+                            )
+                        ]
                     };
             }
         }

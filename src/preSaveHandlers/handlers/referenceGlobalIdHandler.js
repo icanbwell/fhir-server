@@ -1,10 +1,10 @@
-const {PreSaveHandler} = require('./preSaveHandler');
-const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
+const { PreSaveHandler } = require('./preSaveHandler');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
-const {ConfigManager} = require('../../utils/configManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Adds global id fields to every reference
@@ -14,7 +14,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({ configManager }) {
         super();
         /**
          * @type {ConfigManager}
@@ -25,10 +25,13 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
 
     /**
      * fixes up any resources before they are saved
-     * @param {Resource} resource
-     * @returns {Promise<Resource>}
+     * @typedef {Object} PreSaveAsyncProps
+     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     *
+     * @param {PreSaveAsyncProps}
+     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    async preSaveAsync({resource}) {
+    async preSaveAsync ({ resource }) {
         // get sourceAssigningAuthority of resource
         /**
          * @type {string[]}
@@ -63,7 +66,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @param {Reference} reference
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync({sourceAssigningAuthority, reference}) {
+    async updateReferenceAsync ({ sourceAssigningAuthority, reference }) {
         assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority is null');
         /**
          * @type {string}
@@ -98,7 +101,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
             const parts = referenceId.split('|');
             referenceId = parts[0];
             sourceAssigningAuthority = parts[1];
-        } else if (reference._sourceAssigningAuthority){
+        } else if (reference._sourceAssigningAuthority) {
             sourceAssigningAuthority = reference._sourceAssigningAuthority;
         }
 

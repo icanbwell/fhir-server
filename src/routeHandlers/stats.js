@@ -4,8 +4,8 @@
 
 const async = require('async');
 const env = require('var');
-const {RethrownError} = require('../utils/rethrownError');
-const {logInfo} = require('../operations/common/logging');
+const { RethrownError } = require('../utils/rethrownError');
+const { logInfo } = require('../operations/common/logging');
 
 /**
  * Handles stats
@@ -14,8 +14,8 @@ const {logInfo} = require('../operations/common/logging');
  * @param {import('express').Response} res
  * @return {Promise<void>}
  */
-// eslint-disable-next-line no-unused-vars
-module.exports.handleStats = async ({fnGetContainer, req, res}) => {
+
+module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
     logInfo('Running stats', {});
 
     /**
@@ -24,7 +24,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
      * @param {import('mongodb').Db} db
      * @return {Promise<{name, count: number, indexes: Omit<IndexInfo, 'v'>[]}>}
      */
-    async function getStatsForCollectionAsync(collection_name, db) {
+    async function getStatsForCollectionAsync (collection_name, db) {
         logInfo(collection_name, {});
         const count = await db.collection(collection_name).estimatedDocumentCount();
         /**
@@ -34,7 +34,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
         const indexes = await db.collection(collection_name).indexes();
         logInfo(['Fetched index for collection: ', collection_name].join(''), { indexes });
         logInfo(['Found: ', count, ' documents in ', collection_name].join(''), {});
-        return {name: collection_name, count: count, indexes: indexes.map((i) => ({ key: i.key, name: i.name }))};
+        return { name: collection_name, count, indexes: indexes.map((i) => ({ key: i.key, name: i.name })) };
     }
 
     const container = fnGetContainer();
@@ -50,7 +50,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
         let collection_names = [];
 
         for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
-            {}, {nameOnly: true})) {
+            {}, { nameOnly: true })) {
             if (collection.name.indexOf('system.') === -1) {
                 collection_names.push(collection.name);
             }
@@ -67,7 +67,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
             success: true,
             image: env.DOCKER_IMAGE || '',
             database: mongoConfig.db_name,
-            collections: collection_stats,
+            collections: collection_stats
         });
     } catch (error) {
         throw new RethrownError({

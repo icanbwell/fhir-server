@@ -1,0 +1,318 @@
+{
+  "authoredOn": "2016-10-31T08:25:05+10:00",
+  "basedOn": [
+    {
+      "display": "General Wellness Careplan"
+    }
+  ],
+  "businessStatus": {
+    "text": "waiting for specimen"
+  },
+  "code": {
+    "text": "Lipid Panel"
+  },
+  "contained": [
+    {
+      "agent": [
+        {
+          "role": [
+            {
+              "coding": [
+                {
+                  "code": "AUT",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+                }
+              ]
+            }
+          ],
+          "who": {
+            "display": "Luigi Maas",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/f202"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/15bfc2e9-89ea-5bde-9efd-9fdc9a87a371"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Practitioner/f202"
+          }
+        }
+      ],
+      "id": "signature",
+      "recorded": "2016-10-31T08:25:05+10:00",
+      "resourceType": "Provenance",
+      "signature": [
+        {
+          "data": "dGhpcyBibG9iIGlzIHNuaXBwZWQ=",
+          "sigFormat": "application/signature+xml",
+          "targetFormat": "application/fhir+xml",
+          "type": [
+            {
+              "code": "1.2.840.10065.1.12.1.1",
+              "display": "Author's Signature",
+              "system": "urn:iso-astm:E1762-95:2013"
+            }
+          ],
+          "when": "2016-10-31T08:25:05+10:00",
+          "who": {
+            "display": "Dr Adam Careful",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/example"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/0edf0234-7de6-5c86-ac23-3136e9f131e2"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Practitioner/example"
+          }
+        }
+      ],
+      "target": [
+        {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "ServiceRequest/1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "ServiceRequest/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
+          "reference": "ServiceRequest/1"
+        }
+      ]
+    }
+  ],
+  "description": "Create order for getting specimen, Set up inhouse testing,  generate order for any sendouts and submit with specimen",
+  "encounter": {
+    "display": "Example In-Patient Encounter",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Encounter/example"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Encounter/0edf0234-7de6-5c86-ac23-3136e9f131e2"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Encounter/example"
+  },
+  "executionPeriod": {
+    "start": "2016-10-31T08:25:05+10:00"
+  },
+  "focus": {
+    "display": "Lipid Panel Request",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "ServiceRequest/lipid"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "ServiceRequest/2cde00db-e7b5-50d7-8d76-5f934a561d5c"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "ServiceRequest/lipid"
+  },
+  "for": {
+    "display": "Peter James Chalmers",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/1"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Patient/1"
+  },
+  "groupIdentifier": {
+    "system": "http:/goodhealth.org/accession/identifiers",
+    "use": "official",
+    "value": "G20170201-001"
+  },
+  "id": "1",
+  "identifier": [
+    {
+      "system": "http:/goodhealth.org/identifiers",
+      "use": "official",
+      "value": "20170201-001"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+    }
+  ],
+  "intent": "order",
+  "lastModified": "2016-10-31T09:45:05+10:00",
+  "meta": {
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "https://www.icanbwell.com",
+    "versionId": "1"
+  },
+  "note": [
+    {
+      "text": "This is an example to demonstrate using task for actioning a servicerequest and to illustrate how to populate many of the task elements - this is the parent task that will be broken into subtask to grab the specimen and a sendout lab test"
+    }
+  ],
+  "owner": {
+    "display": "Clinical Laboratory @ Acme Hospital",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Organization/1832473e-2fe0-452d-abe9-3cdb9879522f"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Organization/1832473e-2fe0-452d-abe9-3cdb9879522f"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Organization/1832473e-2fe0-452d-abe9-3cdb9879522f"
+  },
+  "performerType": [
+    {
+      "coding": [
+        {
+          "code": "performer",
+          "display": "Performer",
+          "system": "http://terminology.hl7.org/CodeSystem/task-performer-type"
+        }
+      ],
+      "text": "Performer"
+    }
+  ],
+  "priority": "routine",
+  "reasonCode": {
+    "text": "The Task.reason should only be included if there is no Task.focus or if it differs from the reason indicated on the focus"
+  },
+  "relevantHistory": [
+    {
+      "display": "Author's Signature",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "#signature"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "4f752e7a-8d64-515b-b147-895c1e652140"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "#signature"
+    }
+  ],
+  "requester": {
+    "display": "Dr Adam Careful",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Practitioner/example"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Practitioner/0edf0234-7de6-5c86-ac23-3136e9f131e2"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Practitioner/example"
+  },
+  "resourceType": "Task",
+  "restriction": {
+    "period": {
+      "end": "2016-11-02T09:45:05+10:00"
+    },
+    "repetitions": 1
+  },
+  "status": "in-progress",
+  "text": {
+    "div": "<div>Hello</div>",
+    "status": "generated"
+  }
+}

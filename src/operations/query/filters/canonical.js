@@ -1,4 +1,4 @@
-const {BaseFilter} = require('./baseFilter');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * filters by canonical uri
@@ -10,9 +10,9 @@ class FilterByCanonical extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         return {
-            [this.fieldMapper.getFieldName(field)]: value,
+            [this.fieldMapper.getFieldName(field)]: value
         };
     }
 }

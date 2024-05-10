@@ -42,6 +42,7 @@
     "value": "ecce3022-1662-4ce7-b819-3c4b66e29947"
   }],
   "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/545110b2-d9af-4f15-b978-417ceb27db36",
+  "intent": "plan",
   "status": "completed",
   "code": {
     "coding": [{

@@ -5,7 +5,7 @@
  * @class ServerError
  */
 class ServerError extends Error {
-    constructor(message, options) {
+    constructor (message, options) {
         super(message);
         Object.setPrototypeOf(this, ServerError.prototype); // Make message enumerable
 
@@ -17,10 +17,10 @@ class ServerError extends Error {
             Error.captureStackTrace(this, ServerError);
         } // Mixin any additional options
         Object.assign(this, options);
+        this.stack = (new Error()).stack; // Capture the stack trace
     }
 }
 
 module.exports = {
     ServerError
 };
-

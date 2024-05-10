@@ -1,6 +1,6 @@
-![Node.js CI](https://github.com/imranq2/node-fhir-server-mongo/workflows/Node.js%20CI/badge.svg)
+![Testcase status](https://github.com/imranq2/node-fhir-server-mongo/workflows/Node.js%20CI/badge.svg)
 
-![publish_docker](https://github.com/imranq2/node-fhir-server-mongo/workflows/publish_docker/badge.svg)
+![Build Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/icanbwell/fhir-server/build_status.md)
 
 ## Intro
 
@@ -84,15 +84,6 @@ Go to `/version` to see what version you're running.
 ## Health check
 
 Use `/health` as the url for health check in Kubernetes or other systems
-
-## OAuth
-
-The FHIR server implements OAuth. You can set these environment variables:
-
-1. AUTH_JWKS_URL: Where to get the public keys of the OAuth provider (e.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json)
-2. AUTH_CODE_FLOW_URL:
-3. AUTH_CODE_FLOW_CLIENT_ID:
-4. REDIRECT_TO_LOGIN: whether to redirect a GET call from a web browser to the OAuth Provider login page
 
 ## Change Events
 

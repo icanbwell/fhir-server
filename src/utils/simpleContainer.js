@@ -3,7 +3,7 @@
  * inspired by https://medium.com/@magnusjt/ioc-container-in-nodejs-e7aea8a89600
  */
 class SimpleContainer {
-    constructor() {
+    constructor () {
         this.services = {};
     }
 
@@ -13,7 +13,7 @@ class SimpleContainer {
      * @param {(SimpleContainer) => Object} cb
      * @return {SimpleContainer}
      */
-    register(name, cb) {
+    register (name, cb) {
         // https://www.w3schools.com/js/js_object_es5.asp
         Object.defineProperty(this, name, {
             get: () => {

@@ -1,0 +1,51 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Consent/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Consent/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Consent/$merge should have required property 'verified' :{\"missingProperty\":\"verified\"}: at position .verification[0]"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Consent/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Consent",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "941f082a-39a9-5f55-9630-5839a010e1bc"
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "Consent",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  }
+]

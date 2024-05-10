@@ -1,5 +1,5 @@
-const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
-const {QueryItem} = require('../operations/graph/queryItem');
+const { mongoQueryAndOptionsStringify } = require('./mongoQueryStringify');
+const { QueryItem } = require('../operations/graph/queryItem');
 
 /**
  * This file implements a custom error for Mongo errors
@@ -16,7 +16,7 @@ class MongoError extends AggregateError {
      * @param {*} options
      * @param {number} elapsedTime
      */
-    constructor(requestId, message, error, collection, query, elapsedTime, options = {},) {
+    constructor (requestId, message, error, collection, query, elapsedTime, options = {}) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
@@ -68,7 +68,7 @@ class MongoMergeError extends AggregateError {
      * @param {*} options
      * @param {number} elapsedTime
      */
-    constructor(requestId, message, error, resourceType, query, elapsedTime, options = {},) {
+    constructor (requestId, message, error, resourceType, query, elapsedTime, options = {}) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],

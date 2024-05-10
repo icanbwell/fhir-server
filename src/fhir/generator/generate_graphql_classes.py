@@ -52,7 +52,7 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
 
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
-    parent_schema_dir = Path(__file__).parent.joinpath("../../graphql/v2")
+    parent_schema_dir = Path(__file__).parent.joinpath("../../graphql")
     graphql_schema_dir: Path = parent_schema_dir.joinpath("schemas")
     graphql_resolvers_dir: Path = parent_schema_dir.joinpath("resolvers")
 
@@ -115,7 +115,7 @@ def main() -> int:
         template_contents = file.read()
         from jinja2 import Template
 
-        file_path = graphql_schema_dir.joinpath(f"schema.graphql")
+        file_path = graphql_schema_dir.joinpath("schema.graphql")
         template = Template(
             template_contents, trim_blocks=True, lstrip_blocks=True
         )

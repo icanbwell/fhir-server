@@ -40,6 +40,7 @@ const xyzPatientResource = require('./fixtures/patient/xyz_patient.json');
 const expectedClintObservation = require('./fixtures/expected/client_observation.json');
 const expectedProaObservation = require('./fixtures/expected/proa_observation.json');
 const expectedProaObservation2 = require('./fixtures/expected/proa_observation2.json');
+const expectedProaObservation3 = require('./fixtures/expected/proa_observation3.json');
 const expectedClient1Observation = require('./fixtures/expected/client_1_observation.json');
 const expectedXyzObservationJson = require('./fixtures/expected/xyz_observation.json');
 const expectedHighMarkObservationJson = require('./fixtures/expected/highmark_observation.json');
@@ -51,14 +52,14 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
-
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
+const { jest } = require('@jest/globals');
 
 describe('Consent Based Data Access Test', () => {
     const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
@@ -72,7 +73,7 @@ describe('Consent Based Data Access Test', () => {
         await commonAfterEach();
     });
 
-    describe('Observation Resource data read by Client Credentails', () => {
+    describe('Observation Resource data read by Client Credentials', () => {
         test('consent object not created yet', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -85,10 +86,10 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedClintObservationCopy = deepcopy(expectedClintObservation);
+            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
             // Get Observation for a specific person
             resp = await request
@@ -109,12 +110,12 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-            let expectedProaObservationCopy = deepcopy(expectedProaObservation);
-            expectedProaObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedClintObservationCopy = deepcopy(expectedClintObservation);
+            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedProaObservationCopy = deepcopy(expectedProaObservation);
+            expectedProaObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
             // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
@@ -136,12 +137,12 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, nonProaObservationResource, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-            let expectedProaObservationCopy = deepcopy(expectedProaObservation);
-            expectedProaObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedClintObservationCopy = deepcopy(expectedClintObservation);
+            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedProaObservationCopy = deepcopy(expectedProaObservation);
+            expectedProaObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
             // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
@@ -165,10 +166,10 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource, consentDeniedResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            const expectedClintObservationCopy = deepcopy(expectedClintObservation);
+            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
             // Get Observation for a specific person
             resp = await request
@@ -190,7 +191,7 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for proa patient only
             resp = await request
@@ -222,14 +223,14 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for proa patient and proa patient2
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation2]);
+            expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation3]);
         });
 
         test('Check Consented data fetching for two different patient but only has consented', async () => {
@@ -247,14 +248,14 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for proa patient and proa patient2
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation2]);
+            expect(resp).toHaveResponse(expectedProaObservation3);
         });
 
         test('Consent has provided, it should return all consented data when searching with proxy-patient with master person id', async () => {
@@ -263,7 +264,7 @@ describe('Consent Based Data Access Test', () => {
             });
 
             // Update proa resouce to use proxy patient as reference
-            let proaObservationResourceCopy = deepcopy(proaObservationResource);
+            const proaObservationResourceCopy = deepcopy(proaObservationResource);
 
             // Add the resources to FHIR server
             let resp = await request
@@ -274,7 +275,7 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -289,7 +290,6 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
-
         });
 
         test('Only one client Consent has provided, it should return only consented data when searching with proxy-patient with master person id', async () => {
@@ -298,7 +298,7 @@ describe('Consent Based Data Access Test', () => {
             });
 
             // Update proa resouce to use proxy patient as reference
-            let proaObservationResourceCopy = deepcopy(proaObservationResource);
+            const proaObservationResourceCopy = deepcopy(proaObservationResource);
 
             // Add the resources to FHIR server
             let resp = await request
@@ -309,7 +309,7 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -324,7 +324,6 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
-
         });
 
         test('Should not be able to access resource if proxy-patient references is not present', async () => {
@@ -344,14 +343,14 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for proa patient and proa patient2
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation2]);
+            expect(resp).toHaveResponse(expectedProaObservation2);
         });
 
         test('Should be able to access observation of xyz and highmark if client-1 has consent', async () => {
@@ -370,7 +369,7 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for xyz and client-1 patient
             resp = await request
@@ -397,7 +396,7 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient?_id=69e5e0ca-27dd-4560-9963-590e6ca4abd3,0afee0eb-4984-46ea-8052-63fad42e4817,44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid&_debug=1&_bundle=1')
@@ -425,7 +424,7 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/?id=69e5e0ca-27dd-4560-9963-590e6ca4abd3,0afee0eb-4984-46ea-8052-63fad42e4817,44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid&_bundle=1&_debug=1')
@@ -453,7 +452,7 @@ describe('Consent Based Data Access Test', () => {
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Patient/?id=person.bdc02b42-ad3a-4e8b-a607-6210316cf58e&_sort=_uuid&_rewritePatientReference=0')
@@ -475,7 +474,7 @@ describe('Consent Based Data Access Test', () => {
             });
 
             // Update proa resource to use proxy patient as reference
-            let proaObservationResourceCopy = deepcopy(proaObservationResource);
+            const proaObservationResourceCopy = deepcopy(proaObservationResource);
 
             // Add the resources to FHIR server
             let resp = await request
@@ -485,7 +484,7 @@ describe('Consent Based Data Access Test', () => {
                     proaPatientResource, clientObservationResource, proaObservationResourceCopy, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -507,7 +506,7 @@ describe('Consent Based Data Access Test', () => {
                     clientPatientResource, clientObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -532,7 +531,7 @@ describe('Consent Based Data Access Test', () => {
                     clientObservation1Resource, clientObservation2Resource, clientObservation3Resource, clientObservation4Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -557,7 +556,7 @@ describe('Consent Based Data Access Test', () => {
                     clientObservation1Resource, clientObservation2Resource, clientObservation3Resource, clientObservation4Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -582,7 +581,7 @@ describe('Consent Based Data Access Test', () => {
                     clientObservation1Resource, clientObservation2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request
@@ -607,7 +606,7 @@ describe('Consent Based Data Access Test', () => {
                     clientObservation1Resource, clientObservation2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Get Observation for a specific person
             resp = await request

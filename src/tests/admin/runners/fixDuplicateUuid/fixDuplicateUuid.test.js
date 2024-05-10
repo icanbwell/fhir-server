@@ -14,13 +14,14 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixDuplicateUuidRunner } = require('../../../../admin/runners/fixDuplicateUuidRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-async function setupDatabaseAsync(
+async function setupDatabaseAsync (
     mongoDatabaseManager,
     incomingResource,
     expectedResourceInDatabase
@@ -58,7 +59,7 @@ describe('Person Tests', () => {
 
     describe('duplicate uuid Person Tests', () => {
         test('duplicate uuid with same resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -101,7 +102,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -118,7 +119,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with different versionId and conflicts in max version id resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -161,7 +162,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -180,7 +181,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with different versionId resource', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -217,7 +218,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -236,7 +237,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid not present in resources', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -268,7 +269,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -287,7 +288,7 @@ describe('Person Tests', () => {
         });
 
         test('duplicate uuid with same value in multiple collections', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
             const container = getTestContainer();
             // insert directly into database instead of going through merge() so we simulate old records
@@ -345,7 +346,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 

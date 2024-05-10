@@ -15,7 +15,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
      * @param {RewriteArgsAsyncOpt} opt
      * @return {Promise<import('../../operations/query/parsedArgs').ParsedArgs>}
      */
-    async rewriteArgsAsync({ parsedArgs }) {
+    async rewriteArgsAsync ({ parsedArgs }) {
         parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.map((parsedArg) => {
             if (
                 (
@@ -33,7 +33,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
                     } else if (sourceAssigningAuthority) {
                         return ReferenceParser.createReference({
                             resourceType,
-                            id: generateUUIDv5(`${id}|${sourceAssigningAuthority}`),
+                            id: generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
                         });
                     } else {
                         return value;
@@ -42,7 +42,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
                     value: newValues.join(),
-                    operator: parsedArg.queryParameterValue.operator,
+                    operator: parsedArg.queryParameterValue.operator
                 });
             }
 
@@ -54,5 +54,5 @@ class ReferenceQueryRewriter extends QueryRewriter {
 }
 
 module.exports = {
-    ReferenceQueryRewriter,
+    ReferenceQueryRewriter
 };

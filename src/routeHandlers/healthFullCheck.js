@@ -2,20 +2,20 @@
  * This route handler implements the /full-healthcheck endpoint which returns the health of the system
  */
 
-const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
-const {handleLogHealthCheck} = require('../utils/logHealthCheck');
-const {handleHealthCheckQuery} = require('../utils/mongoDBHealthCheck');
+const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
+const { handleLogHealthCheck } = require('../utils/logHealthCheck');
+const { handleHealthCheckQuery } = require('../utils/mongoDBHealthCheck');
 
 let container;
 
 // Does a health check for the app
 module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
-    let status = {};
+    const status = {};
     container = container || fnGetContainer();
 
     // check kafka connection
     try {
-        let results = await Promise.allSettled([
+        const results = await Promise.allSettled([
             handleKafkaHealthCheck(container),
             handleLogHealthCheck(),
             handleHealthCheckQuery(container)
@@ -46,5 +46,5 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
         status.logStatus = 'Failed';
         status.mongoDBStatus = 'Failed';
     }
-    return res.json({status});
+    return res.json({ status });
 };

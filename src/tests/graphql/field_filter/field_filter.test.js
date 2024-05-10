@@ -13,24 +13,20 @@ const binary1Resource = require('./fixtures/binary/binary1.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const codeSystemQueryWithoutFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_codesystem_without_filter.graphql'),
     'utf8'
 );
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const codeSystemQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_codesystem_with_filter.graphql'),
     'utf8'
 );
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const getCodeSystemCodesQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter.graphql'),
     'utf8'
 );
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const getCodeSystemCodesQueryWithFilterWithDefaultValue = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter_with_default_value.graphql'),
     'utf8'
@@ -41,11 +37,11 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest, getTestContainer, getCustomGraphQLHeaders,
+    createTestRequest, getTestContainer, getCustomGraphQLHeaders
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {cleanMeta} = require('../../customMatchers');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { cleanMeta } = require('../../customMatchers');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQL CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -66,7 +62,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             /**
              * @type {SimpleContainer}
@@ -77,7 +73,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -85,15 +81,15 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
 
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithoutFilterResponse, r => {
@@ -118,7 +114,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             /**
              * @type {SimpleContainer}
@@ -129,7 +125,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -137,15 +133,15 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
-                .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
+                .set({ 'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders() });
 
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -171,7 +167,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             // add persons
             resp = await request
@@ -179,13 +175,13 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(rootPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person123aResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
             /**
              * @type {SimpleContainer}
              */
@@ -195,7 +191,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -203,26 +199,25 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
          };
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -247,14 +242,14 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1WithBinaryResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Binary/1/$merge')
                 .send(binary1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             // add persons
             resp = await request
@@ -262,14 +257,14 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(rootPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person123aResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
             /**
              * @type {SimpleContainer}
              */
@@ -279,7 +274,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -287,26 +282,25 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
            };
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            logInfo('', {'resp': resp.body});
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterBinaryResponse, r => {
@@ -332,7 +326,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             /**
              * @type {SimpleContainer}
@@ -343,7 +337,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -351,13 +345,13 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
-                    variables: {'code': ['3584-4', 'random'], 'id': ['loinc-consumer']},
-                    query: graphqlQueryText,
+                    variables: { code: ['3584-4', 'random'], id: ['loinc-consumer'] },
+                    query: graphqlQueryText
                 })
-                .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
+                .set({ 'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders() });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -383,7 +377,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             /**
              * @type {SimpleContainer}
@@ -394,7 +388,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -402,26 +396,26 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
-                    variables: {'id': ['loinc-consumer']},
-                    query: graphqlQueryText,
+                    variables: { id: ['loinc-consumer'] },
+                    query: graphqlQueryText
                 })
-                .set({'handling': 'strict', ...getGraphQLHeaders()});
+                .set({ handling: 'strict', ...getGraphQLHeaders() });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
 
             graphqlQueryText = getCodeSystemCodesQueryWithFilterWithDefaultValue.replace(/\\n/g, '');
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
-                .set({'handling': 'strict', ...getGraphQLHeaders()});
+                .set({ handling: 'strict', ...getGraphQLHeaders() });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
@@ -435,14 +429,14 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(codeSystem1WithBinaryResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Binary/1/$merge')
                 .send(binary1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             // add persons
             resp = await request
@@ -450,14 +444,14 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send(rootPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person123aResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
             /**
              * @type {SimpleContainer}
              */
@@ -467,7 +461,7 @@ describe('GraphQL CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -475,22 +469,21 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             const only_fhir_person_payload = {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                'custom:clientFhirPersonId': 'clientFhirPerson',
-                'custom:clientFhirPatientId': 'clientFhirPatient',
-                'custom:bwellFhirPersonId': 'root-person',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'root-person',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
             };
 
             resp = await request
-                .post('/graphql')
+                .post('/$graphql')
                 .send({
                     operationName: null,
-                    variables: {'id': ['loinc-consumer'], 'code': ['3584-4', 'random']},
-                    query: graphqlQueryText,
+                    variables: { id: ['loinc-consumer'], code: ['3584-4', 'random'] },
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 

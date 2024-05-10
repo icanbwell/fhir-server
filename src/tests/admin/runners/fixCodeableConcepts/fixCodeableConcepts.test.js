@@ -11,6 +11,7 @@ const expectedObservation1AfterRun = require('./fixtures/expected/expectedObserv
 const expectedObservation2BeforeRun = require('./fixtures/expected/expectedObservation2BeforeRun.json');
 const expectedObservation2AfterRun = require('./fixtures/expected/expectedObservation2AfterRun.json');
 const expectedObservation3BeforeRun = require('./fixtures/expected/expectedObservation3BeforeRun.json');
+const expectedObservation3AfterRun = require('./fixtures/expected/expectedObservation3AfterRun.json');
 
 const expectedCareplan1BeforeRun = require('./fixtures/expected/expectedCarePlan1BeforeRun.json');
 const expectedCareplan1AfterRun = require('./fixtures/expected/expectedCarePlan1AfterRun.json');
@@ -21,14 +22,15 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    FixCodeableConceptsRunner,
+    FixCodeableConceptsRunner
 } = require('../../../../admin/runners/fixCodeableConceptsRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const oidToStandardSystemUrlMap = require('../../../../admin/utils/oidToStandardSystemUrlMapping.json');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('FixCodeableConcepts Tests', () => {
     beforeEach(async () => {
@@ -45,7 +47,7 @@ describe('FixCodeableConcepts Tests', () => {
 
     describe('Proa and Hapi Tests', () => {
         test('CodeableConcepts are updated in proa observation', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -153,7 +155,7 @@ describe('FixCodeableConcepts Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oidToStandardSystemUrlMap,
-                    updateResources: true,
+                    updateResources: true
                 })
             );
 
@@ -189,7 +191,7 @@ describe('FixCodeableConcepts Tests', () => {
 
             const observation3AfterRun = resp.body;
             delete observation3AfterRun.meta.lastUpdated;
-            expect(observation3AfterRun).toEqual(expectedObservation3BeforeRun);
+            expect(observation3AfterRun).toEqual(expectedObservation3AfterRun);
 
             resp = await request
                 .get(`/4_0_0/CarePlan/${careplan1Resource.id}`)

@@ -12,19 +12,19 @@ const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 const {
-    AddProxyPatientToConsentResourceRunner,
+    AddProxyPatientToConsentResourceRunner
 } = require('../runners/addProxyPatientToConsentResource');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
 
     /**
      * @type {Date|undefined}
@@ -39,7 +39,7 @@ async function main() {
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ? parameters.collections.split(',').map((x) => x.trim())
+    const collections = parameters.collections ? parameters.collections.split(',').map((x) => x.trim())
         // fallback to Consent Resource only
         : ['Consent_4_0_0'];
 
@@ -64,7 +64,7 @@ async function main() {
                 limit: parameters.limit,
                 skip: parameters.skip,
                 startFromId: parameters.startFromId,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 bwellPersonFinder: c.bwellPersonFinder,
                 preSaveManager: c.preSaveManager,
                 beforeLastUpdatedDate,

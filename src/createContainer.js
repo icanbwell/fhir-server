@@ -1,113 +1,107 @@
 // noinspection JSUnresolvedReference
 
-const {SimpleContainer} = require('./utils/simpleContainer');
+const { SimpleContainer } = require('./utils/simpleContainer');
 const env = require('var');
-const {ChangeEventProducer} = require('./utils/changeEventProducer');
-const {ResourceManager} = require('./operations/common/resourceManager');
-const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
-const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
-const {PostRequestProcessor} = require('./utils/postRequestProcessor');
-const {AuditLogger} = require('./utils/auditLogger');
-const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
-const {IndexManager} = require('./indexes/indexManager');
-const {ValueSetManager} = require('./utils/valueSet.util');
-const {DatabaseQueryFactory} = require('./dataLayer/databaseQueryFactory');
-const {ResourceLocatorFactory} = require('./operations/common/resourceLocatorFactory');
-const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
-const {MergeManager} = require('./operations/merge/mergeManager');
-const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
-const {SearchManager} = require('./operations/search/searchManager');
-const {GraphHelper} = require('./operations/graph/graphHelpers');
-const {FhirRouter} = require('./middleware/fhir/router');
-const {ControllerUtils} = require('./middleware/fhir/controller.utils');
-const {CustomOperationsController} = require('./middleware/fhir/4_0_0/controllers/operations.controller');
-const {GenericController} = require('./middleware/fhir/4_0_0/controllers/generic.controller');
-const {FhirOperationsManager} = require('./operations/fhirOperationsManager');
-const {SearchBundleOperation} = require('./operations/search/searchBundle');
-const {SearchStreamingOperation} = require('./operations/search/searchStreaming');
-const {CreateOperation} = require('./operations/create/create');
-const {UpdateOperation} = require('./operations/update/update');
-const {MergeOperation} = require('./operations/merge/merge');
-const {EverythingOperation} = require('./operations/everything/everything');
-const {RemoveOperation} = require('./operations/remove/remove');
-const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/searchByVersionId');
-const {HistoryByIdOperation} = require('./operations/historyById/historyById');
-const {HistoryOperation} = require('./operations/history/history');
-const {PatchOperation} = require('./operations/patch/patch');
-const {ValidateOperation} = require('./operations/validate/validate');
-const {GraphOperation} = require('./operations/graph/graph');
-const {ExpandOperation} = require('./operations/expand/expand');
-const {SearchByIdOperation} = require('./operations/searchById/searchById');
-const {SecurityTagManager} = require('./operations/common/securityTagManager');
-const {FhirLoggingManager} = require('./operations/common/fhirLoggingManager');
-const {ScopesManager} = require('./operations/security/scopesManager');
-const {ScopesValidator} = require('./operations/security/scopesValidator');
-const {ResourcePreparer} = require('./operations/common/resourcePreparer');
-const {BundleManager} = require('./operations/common/bundleManager');
-const {getImageVersion} = require('./utils/getImageVersion');
-const {ResourceMerger} = require('./operations/common/resourceMerger');
-const {ResourceValidator} = require('./operations/common/resourceValidator');
-const {PartitioningManager} = require('./partitioners/partitioningManager');
-const {ConfigManager} = require('./utils/configManager');
-const {AccessIndexManager} = require('./operations/common/accessIndexManager');
-const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
-const {IndexHinter} = require('./indexes/indexHinter');
-const {IndexProvider} = require('./indexes/indexProvider');
-const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
-const {R4SearchQueryCreator} = require('./operations/query/r4');
-const {FhirTypesManager} = require('./fhir/fhirTypesManager');
-const {PreSaveManager} = require('./preSaveHandlers/preSave');
-const {EnrichmentManager} = require('./enrich/enrich');
-const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
-const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
-const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
-const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
-const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
-const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
-const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
-const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
-const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
-const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
-const {RequestSpecificCache} = require('./utils/requestSpecificCache');
-const {PatientFilterManager} = require('./fhir/patientFilterManager');
-const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
-const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
-const {KafkaClient} = require('./utils/kafkaClient');
-const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
-const {PersonMatchManager} = require('./admin/personMatchManager');
-const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
-const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
-const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
-const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
-const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
-const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
-const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const {ChatGPTLangChainManager} = require('./chatgpt/managers/chatgptLangChainManager');
-const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
-const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
-const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
-const {ProaConsentManager} = require('./operations/search/proaConsentManager');
-const {DataSharingManager} = require('./operations/search/dataSharingManager');
-const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
-const {MergeValidator} = require('./operations/merge/mergeValidator');
-const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
-const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
-const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
-const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
-const {OpenSearchVectorStoreManager} = require('./chatgpt/vectorStores/openSearchVectorStoreManager');
-const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
-const {FhirSummaryWriter} = require('./chatgpt/summaryWriters/fhirSummaryWriter');
-const {VectorStoreFactory} = require('./chatgpt/vectorStores/vectorStoreFactory');
-const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorStoreManager');
-const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
-const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
-const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
-const {ProfileUrlMapper} = require('./utils/profileMapper');
-const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
-const {HiddenMetaTagEnrichmentProvider} = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
-const {READ} = require('./constants').OPERATIONS;
+const { AccessLogger } = require('./utils/accessLogger');
+const { ChangeEventProducer } = require('./utils/changeEventProducer');
+const { ResourceManager } = require('./operations/common/resourceManager');
+const { DatabaseBulkInserter } = require('./dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('./dataLayer/databaseBulkLoader');
+const { DatabaseAttachmentManager } = require('./dataLayer/databaseAttachmentManager');
+const { PostRequestProcessor } = require('./utils/postRequestProcessor');
+const { AuditLogger } = require('./utils/auditLogger');
+const { MongoCollectionManager } = require('./utils/mongoCollectionManager');
+const { IndexManager } = require('./indexes/indexManager');
+const { ValueSetManager } = require('./utils/valueSet.util');
+const { DatabaseQueryFactory } = require('./dataLayer/databaseQueryFactory');
+const { ResourceLocatorFactory } = require('./operations/common/resourceLocatorFactory');
+const { DatabaseHistoryFactory } = require('./dataLayer/databaseHistoryFactory');
+const { MergeManager } = require('./operations/merge/mergeManager');
+const { DatabaseUpdateFactory } = require('./dataLayer/databaseUpdateFactory');
+const { SearchManager } = require('./operations/search/searchManager');
+const { GraphHelper } = require('./operations/graph/graphHelpers');
+const { FhirRouter } = require('./middleware/fhir/router');
+const { ControllerUtils } = require('./middleware/fhir/controller.utils');
+const { CustomOperationsController } = require('./middleware/fhir/4_0_0/controllers/operations.controller');
+const { GenericController } = require('./middleware/fhir/4_0_0/controllers/generic.controller');
+const { FhirOperationsManager } = require('./operations/fhirOperationsManager');
+const { SearchBundleOperation } = require('./operations/search/searchBundle');
+const { SearchStreamingOperation } = require('./operations/search/searchStreaming');
+const { CreateOperation } = require('./operations/create/create');
+const { UpdateOperation } = require('./operations/update/update');
+const { MergeOperation } = require('./operations/merge/merge');
+const { EverythingOperation } = require('./operations/everything/everything');
+const { RemoveOperation } = require('./operations/remove/remove');
+const { SearchByVersionIdOperation } = require('./operations/searchByVersionId/searchByVersionId');
+const { HistoryByIdOperation } = require('./operations/historyById/historyById');
+const { HistoryOperation } = require('./operations/history/history');
+const { PatchOperation } = require('./operations/patch/patch');
+const { ValidateOperation } = require('./operations/validate/validate');
+const { GraphOperation } = require('./operations/graph/graph');
+const { ExpandOperation } = require('./operations/expand/expand');
+const { SearchByIdOperation } = require('./operations/searchById/searchById');
+const { SecurityTagManager } = require('./operations/common/securityTagManager');
+const { FhirLoggingManager } = require('./operations/common/fhirLoggingManager');
+const { ScopesManager } = require('./operations/security/scopesManager');
+const { ScopesValidator } = require('./operations/security/scopesValidator');
+const { ResourcePreparer } = require('./operations/common/resourcePreparer');
+const { BundleManager } = require('./operations/common/bundleManager');
+const { getImageVersion } = require('./utils/getImageVersion');
+const { ResourceMerger } = require('./operations/common/resourceMerger');
+const { ResourceValidator } = require('./operations/common/resourceValidator');
+const { PartitioningManager } = require('./partitioners/partitioningManager');
+const { ConfigManager } = require('./utils/configManager');
+const { AccessIndexManager } = require('./operations/common/accessIndexManager');
+const { FhirResponseWriter } = require('./middleware/fhir/fhirResponseWriter');
+const { IndexHinter } = require('./indexes/indexHinter');
+const { IndexProvider } = require('./indexes/indexProvider');
+const { MongoDatabaseManager } = require('./utils/mongoDatabaseManager');
+const { R4SearchQueryCreator } = require('./operations/query/r4');
+const { FhirTypesManager } = require('./fhir/fhirTypesManager');
+const { PreSaveManager } = require('./preSaveHandlers/preSave');
+const { EnrichmentManager } = require('./enrich/enrich');
+const { QueryRewriterManager } = require('./queryRewriters/queryRewriterManager');
+const { IdEnrichmentProvider } = require('./enrich/providers/idEnrichmentProvider');
+const { PatientProxyQueryRewriter } = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
+const { DateColumnHandler } = require('./preSaveHandlers/handlers/dateColumnHandler');
+const { SourceIdColumnHandler } = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const { UuidColumnHandler } = require('./preSaveHandlers/handlers/uuidColumnHandler');
+const { AccessColumnHandler } = require('./preSaveHandlers/handlers/accessColumnHandler');
+const { SourceAssigningAuthorityColumnHandler } = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { PersonToPatientIdsExpander } = require('./utils/personToPatientIdsExpander');
+const { AdminPersonPatientLinkManager } = require('./admin/adminPersonPatientLinkManager');
+const { BwellPersonFinder } = require('./utils/bwellPersonFinder');
+const { RequestSpecificCache } = require('./utils/requestSpecificCache');
+const { PatientFilterManager } = require('./fhir/patientFilterManager');
+const { AdminPersonPatientDataManager } = require('./admin/adminPersonPatientDataManager');
+const { ProxyPatientReferenceEnrichmentProvider } = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
+const { KafkaClient } = require('./utils/kafkaClient');
+const { DummyKafkaClient } = require('./utils/dummyKafkaClient');
+const { PersonMatchManager } = require('./admin/personMatchManager');
+const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
+const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
+const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
+const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
+const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
+const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
+const { HashReferencesEnrichmentProvider } = require('./enrich/providers/hashedReferencesEnrichmentProvider');
+const { FhirResourceWriterFactory } = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
+const { ProaConsentManager } = require('./operations/search/proaConsentManager');
+const { DataSharingManager } = require('./operations/search/dataSharingManager');
+const { SearchQueryBuilder } = require('./operations/search/searchQueryBuilder');
+const { MergeValidator } = require('./operations/merge/mergeValidator');
+const { ParametersResourceValidator } = require('./operations/merge/validators/parameterResourceValidator');
+const { BundleResourceValidator } = require('./operations/merge/validators/bundleResourceValidator');
+const { MergeResourceValidator } = require('./operations/merge/validators/mergeResourceValidator');
+const { RemoteFhirValidator } = require('./utils/remoteFhirValidator');
+const { PostSaveProcessor } = require('./dataLayer/postSaveProcessor');
+const { ProfileUrlMapper } = require('./utils/profileMapper');
+const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const { PatientScopeManager } = require('./operations/security/patientScopeManager');
+const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
+const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
+const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
+const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -118,39 +112,30 @@ const createContainer = function () {
 
     container.register('configManager', () => new ConfigManager());
 
-    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents ?
-        new KafkaClient({ configManager: c.configManager }) :
-        new DummyKafkaClient({ configManager: c.configManager })
+    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents
+        ? new KafkaClient({ configManager: c.configManager })
+        : new DummyKafkaClient({ configManager: c.configManager })
     );
 
-    container.register('scopesManager', (c) => new ScopesManager(
-        {
-            configManager: c.configManager
-        }
-    ));
+    container.register('scopesManager', (c) => new ScopesManager({
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager
+    }));
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
     container.register('patientFilterManager', () => new PatientFilterManager());
 
-
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
-            new HiddenMetaTagEnrichmentProvider(),
             new IdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
-                configManager: c.configManager,
+                configManager: c.configManager
             }),
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
-            new HashReferencesEnrichmentProvider(),
-            new ChatGptEnrichmentProvider(
-                {
-                    chatgptManager: c.chatgptManager,
-                    configManager: c.configManager
-                }
-            )
+            new HashReferencesEnrichmentProvider()
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -176,24 +161,25 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            }),
+            })
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager,
-        databaseAttachmentManager: c.databaseAttachmentManager
+        preSaveManager: c.preSaveManager
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        patientScopeManager: c.patientScopeManager,
+        preSaveManager: c.preSaveManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 
     container.register('remoteFhirValidator', (c) => new RemoteFhirValidator(
         {
             configManager: c.configManager,
-            profileUrlMapper: c.profileUrlMapper,
+            profileUrlMapper: c.profileUrlMapper
         }
     ));
     container.register('resourceValidator', (c) => new ResourceValidator(
@@ -202,6 +188,8 @@ const createContainer = function () {
             remoteFhirValidator: c.remoteFhirValidator,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
+            scopesManager: c.scopesManager,
+            patientFilterManager: c.patientFilterManager
         }
     ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
@@ -219,14 +207,14 @@ const createContainer = function () {
         }
     ));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
-        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        r4SearchQueryCreator: c.r4SearchQueryCreator
     }));
     container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
         searchQueryBuilder: c.searchQueryBuilder,
-        bwellPersonFinder: c.bwellPersonFinder,
+        bwellPersonFinder: c.bwellPersonFinder
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
@@ -235,7 +223,7 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
-        requestSpecificCache: c.requestSpecificCache,
+        requestSpecificCache: c.requestSpecificCache
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
@@ -246,7 +234,7 @@ const createContainer = function () {
         configManager: c.configManager
     }));
     container.register('mongoDatabaseManager', (c) => new MongoDatabaseManager({
-        configManager: c.configManager,
+        configManager: c.configManager
     }));
     container.register('indexManager', (c) => new IndexManager(
         {
@@ -290,7 +278,10 @@ const createContainer = function () {
             configManager: c.configManager
         }));
 
-    container.register('resourceManager', () => new ResourceManager());
+    container.register('resourceManager', (c) => new ResourceManager(
+        {
+            searchParametersManager: c.searchParametersManager
+        }));
     container.register('indexHinter', (c) => new IndexHinter({
         indexProvider: c.indexProvider
     }));
@@ -300,17 +291,26 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new ReferenceQueryRewriter(),
+            new ReferenceQueryRewriter()
         ],
         operationSpecificQueryRewriters: {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager,
+                    configManager: c.configManager
                 })
             ]
         }
     }));
+
+    container.register('patientScopeManager', (c) => new PatientScopeManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            personToPatientIdsExpander: c.personToPatientIdsExpander,
+            scopesManager: c.scopesManager,
+            patientFilterManager: c.patientFilterManager
+        }
+    ));
 
     container.register('searchManager', (c) => new SearchManager(
             {
@@ -329,6 +329,8 @@ const createContainer = function () {
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
+                patientScopeManager: c.patientScopeManager,
+                patientQueryCreator: c.patientQueryCreator
             }
         )
     );
@@ -337,7 +339,8 @@ const createContainer = function () {
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            patientFilterManager: c.patientFilterManager
+            patientFilterManager: c.patientFilterManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator
         }));
 
     container.register('mergeManager', (c) => new MergeManager(
@@ -347,6 +350,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
+                scopesValidator: c.scopesValidator,
                 resourceMerger: c.resourceMerger,
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
@@ -366,11 +370,15 @@ const createContainer = function () {
                     resourceValidator: c.resourceValidator
                 }),
                 new MergeResourceValidator({
-                    scopesManager: c.scopesManager,
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    resourceValidator: c.resourceValidator
+                }),
+                new WriteAllowedByScopesValidator({
+                    scopesValidator: c.scopesValidator,
+                    databaseBulkLoader: c.databaseBulkLoader
                 })
             ]
         }
@@ -412,6 +420,15 @@ const createContainer = function () {
             }
         )
     );
+    container.register('accessLogger', (c) => new AccessLogger(
+            {
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                scopesManager: c.scopesManager,
+                fhirOperationsManager: c.fhirOperationsManager,
+                imageVersion: getImageVersion()
+            }
+        )
+    );
     container.register('graphHelper', (c) => new GraphHelper(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -425,7 +442,8 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                searchParametersManager: c.searchParametersManager
             }
         )
     );
@@ -481,7 +499,6 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
                 postSaveProcessor: c.postSaveProcessor,
-                scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -498,7 +515,6 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
-                scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -517,12 +533,10 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            postSaveProcessor: c.postSaveProcessor,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,
@@ -532,22 +546,19 @@ const createContainer = function () {
     container.register('everythingOperation', (c) => new EverythingOperation({
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
-        scopesValidator: c.scopesValidator,
-        chatgptManager: c.chatgptManager
+        scopesValidator: c.scopesValidator
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
             auditLogger: c.auditLogger,
-            scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
-            r4SearchQueryCreator: c.r4SearchQueryCreator,
-            r4ArgsParser: c.r4ArgsParser,
             queryRewriterManager: c.queryRewriterManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            searchManager: c.searchManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -601,7 +612,9 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            resourceMerger: c.resourceMerger,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -611,7 +624,7 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             configManager: c.configManager,
             databaseQueryFactory: c.databaseQueryFactory,
-            searchManager: c.searchManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('graphOperation', (c) => new GraphOperation(
@@ -716,7 +729,9 @@ const createContainer = function () {
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
-        fhirOperationsManager: c.fhirOperationsManager
+        fhirOperationsManager: c.fhirOperationsManager,
+        postSaveProcessor: c.postSaveProcessor,
+        patientFilterManager: c.patientFilterManager
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
@@ -729,7 +744,8 @@ const createContainer = function () {
             everythingOperation: c.everythingOperation,
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
-            r4ArgsParser: c.r4ArgsParser
+            r4ArgsParser: c.r4ArgsParser,
+            postSaveProcessor: c.postSaveProcessor
         }));
 
     container.register('personMatchManager', (c) => new PersonMatchManager(
@@ -747,76 +763,34 @@ const createContainer = function () {
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        searchParametersManager: c.searchParametersManager
     }));
 
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
-    container.register('fhirToDocumentConverter', () => new FhirToSummaryDocumentConverter(
-        {
-            resourceConverterFactory: new ResourceConverterFactory()
-        }
-    ));
-
-    container.register('openSearchVectorStoreManager', (c) => new OpenSearchVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('memoryVectorStoreManager', (c) => new MemoryVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('mongoAtlasVectorStoreManager', (c) => new MongoAtlasVectorStoreManager({
-        configManager: c.configManager
-    }));
-
-    container.register('vectorStoreFactory', (c) => new VectorStoreFactory(
-        {
-            vectorStoreManagers: [
-                c.mongoAtlasVectorStoreManager,
-                c.openSearchVectorStoreManager,
-                c.memoryVectorStoreManager
-            ]
-        }
-    ));
-
-    container.register('llmFactory', (c) => new OpenAILLMFactory(
-        {
-            configManager: c.configManager
-        }
-    ));
-
-    container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
-        fhirToDocumentConverter: c.fhirToDocumentConverter,
-        vectorStoreFactory: c.vectorStoreFactory,
-        configManager: c.configManager,
-        llmFactory: c.llmFactory
-    }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
         }
     ));
 
-    container.register('fhirSummaryWriter', (c) => new FhirSummaryWriter(
-            {
-                fhirToDocumentConverter: c.fhirToDocumentConverter,
-                vectorStoreFactory: c.vectorStoreFactory,
-                configManager: c.configManager,
-                patientFilterManager: c.patientFilterManager
-            }
-        )
-    );
-
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
-            c.changeEventProducer,
-            c.fhirSummaryWriter
+            c.changeEventProducer
         ],
         configManager: c.configManager
     }));
+
+    container.register('patientQueryCreator', (c) => new PatientQueryCreator({
+        patientFilterManager: c.patientFilterManager,
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        r4ArgsParser: c.r4ArgsParser
+    }));
+
+    container.register('searchParametersManager', () => new SearchParametersManager());
 
     return container;
 };

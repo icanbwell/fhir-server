@@ -4,23 +4,23 @@
 
 const compression = require('compression');
 const env = require('var');
-const {isTrue} = require('../utils/isTrue');
+const { isTrue } = require('../utils/isTrue');
 const {
     resolveSchema,
-    isValidVersion,
+    isValidVersion
 } = require('../middleware/fhir/utils/schema.utils');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const helmet = require('helmet');
 const express = require('express');
-const {FhirRouter} = require('../middleware/fhir/router');
-const {assertTypeEquals} = require('../utils/assertType');
+const { FhirRouter } = require('../middleware/fhir/router');
+const { assertTypeEquals } = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../constants');
-const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-const {ConfigManager} = require('../utils/configManager');
+const { REQUEST_ID_TYPE } = require('../constants');
+const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const { ConfigManager } = require('../utils/configManager');
 
 class MyFHIRServer {
     /**
@@ -29,13 +29,13 @@ class MyFHIRServer {
      * @param {Object} config
      * @param {import('express').Express} app
      */
-    constructor(fnGetContainer, config = {}, app = null) {
+    constructor (fnGetContainer, config = {}, app = null) {
         this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
         /**
          * @type {import('express').Express}
          */
-        this.app = app ? app : express(); // Setup some environment variables handy for setup
+        this.app = app || express(); // Setup some environment variables handy for setup
 
         /**
          * @type {SimpleContainer}
@@ -54,10 +54,9 @@ class MyFHIRServer {
         this.configManager = this.container.configManager;
         assertTypeEquals(this.configManager, ConfigManager);
 
-        let {server = {}} = this.config;
+        const { server = {} } = this.config;
         this.env = {
-            IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
-            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined,
+            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
         };
 
         // return self for chaining
@@ -68,14 +67,11 @@ class MyFHIRServer {
      * Configures middleware
      * @return {MyFHIRServer}
      */
-    configureMiddleware() {
-        //Enable error tracking request handler if supplied in config
+    configureMiddleware () {
+        // Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
             this.app.use(this.config.errorTracking.requestHandler());
         }
-
-        // Enable stack traces
-        this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
         this.app.use(
             compression({
@@ -88,7 +84,7 @@ class MyFHIRServer {
                     }
                     // compress everything
                     return !isTrue(env.DISABLE_COMPRESSION);
-                },
+                }
             })
         );
 
@@ -134,13 +130,13 @@ class MyFHIRServer {
             express.urlencoded({
                 extended: true,
                 limit: this.configManager.payloadLimit,
-                parameterLimit: 50000,
+                parameterLimit: 50000
             })
         );
         this.app.use(
             express.json({
                 type: allowedContentTypes,
-                limit: this.configManager.payloadLimit,
+                limit: this.configManager.payloadLimit
             })
         );
 
@@ -157,7 +153,7 @@ class MyFHIRServer {
      * @param [helmetConfig]
      * @return {MyFHIRServer}
      */
-    configureHelmet(helmetConfig) {
+    configureHelmet (helmetConfig) {
         /**
          * The following headers are turned on by default:
          * - dnsPrefetchControl (Control browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
@@ -172,7 +168,7 @@ class MyFHIRServer {
             helmet(
                 helmetConfig || {
                     // Needs https running first
-                    hsts: this.env.USE_HTTPS,
+                    hsts: this.env.USE_HTTPS
                     // crossOriginResourcePolicy: false,
                 }
             )
@@ -187,9 +183,9 @@ class MyFHIRServer {
      * @param {Object|undefined} [session]
      * @return {MyFHIRServer}
      */
-    configureSession(session) {
+    configureSession (session) {
         // Session config can come from the core config as well, let's handle both cases
-        let {server = {}} = this.config; // If a session was passed in the config, let's use it
+        const { server = {} } = this.config; // If a session was passed in the config, let's use it
 
         if (session || server.sessionStore) {
             this.app.use(session || server.sessionStore);
@@ -207,17 +203,15 @@ class MyFHIRServer {
     //     return super.configurePassport();
     // }
 
-    configurePassport() {
+    configurePassport () {
         if (this.config.auth && this.config.auth.strategy) {
-            let {
+            const {
                 strategy
-                // eslint-disable-next-line security/detect-non-literal-require
             } = require(path.resolve(this.config.auth.strategy.service));
 
             // noinspection JSCheckFunctionSignatures
             passport.use('jwt', strategy);
         } // return self for chaining
-
 
         return this;
     }
@@ -227,9 +221,9 @@ class MyFHIRServer {
      * @param {string} publicDirectory
      * @return {MyFHIRServer}
      */
-    setPublicDirectory(publicDirectory = '') {
+    setPublicDirectory (publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
-        let {server = {}} = this.config;
+        const { server = {} } = this.config;
 
         if (publicDirectory || server.publicDirectory) {
             this.app.use(express.static(publicDirectory || server.publicDirectory));
@@ -248,11 +242,11 @@ class MyFHIRServer {
      * Sets up routes to catch and show errors
      * @return {MyFHIRServer}
      */
-    setErrorRoutes() {
+    setErrorRoutes () {
         /**
          * @type {import('winston').logger}
          */
-        //Enable error tracking error handler if supplied in config
+        // Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
             this.app.use(this.config.errorTracking.errorHandler());
         }
@@ -283,7 +277,7 @@ class MyFHIRServer {
                 }
                 try {
                     // Get an operation outcome for this instance
-                    let OperationOutcome = resolveSchema(
+                    const OperationOutcome = resolveSchema(
                         isValidBaseVersion ? base : VERSIONS['4_0_0'],
                         'operationoutcome'
                     );
@@ -304,7 +298,7 @@ class MyFHIRServer {
                             /**
                              * @type {OperationOutcome}
                              */
-                            const operationOutcome = convertErrorToOperationOutcome({error: err});
+                            const operationOutcome = convertErrorToOperationOutcome({ error: err });
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();
@@ -350,10 +344,10 @@ class MyFHIRServer {
                         severity: 'error',
                         code: 'not-found',
                         details: {
-                            text: `Invalid url: ${req.path}`,
-                        },
-                    },
-                ],
+                            text: `Invalid url: ${req.path}`
+                        }
+                    }
+                ]
             });
             if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
@@ -369,12 +363,12 @@ class MyFHIRServer {
      * Sets routes for all the operations
      * @return {MyFHIRServer}
      */
-    setProfileRoutes() {
+    setProfileRoutes () {
         this.fhirRouter.setRoutes(this); // return self for chaining
         return this;
     } // Setup custom logging
 }
 
 module.exports = {
-    MyFHIRServer,
+    MyFHIRServer
 };

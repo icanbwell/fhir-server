@@ -19,9 +19,10 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockFixReferenceIdHapiRunner extends FixReferenceIdHapiRunner {
-    async updateRecordReferencesAsync(doc) {
+    async updateRecordReferencesAsync (doc) {
         throw new Error(`To test if the script fails while updating the references ${JSON.stringify(doc)}`);
     }
 }
@@ -37,7 +38,7 @@ describe('Person Tests', () => {
 
     describe('Person MockFixReferenceId Tests', () => {
         test('fixReferenceId doesnot work with error', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -93,7 +94,8 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    searchParametersManager: c.searchParametersManager
                 }
             )
             );

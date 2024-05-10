@@ -11,17 +11,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
-const {ConfigManager} = require('../../../utils/configManager');
-
-class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return true;
-    }
-}
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -34,10 +27,7 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner search by uuid Tests', () => {
         test('search by uuid works for single resource', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -45,7 +35,7 @@ describe('Practitioner Tests', () => {
                 .send(practitioner1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
@@ -65,10 +55,7 @@ describe('Practitioner Tests', () => {
             expect(resp).toHaveResponse(expectedPractitionerByUuidResources);
         });
         test('search by uuid works for multiple resources', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -76,14 +63,14 @@ describe('Practitioner Tests', () => {
                 .send(practitioner1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Practitioner/1/$merge?validate=true')
                 .send(practitioner2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back

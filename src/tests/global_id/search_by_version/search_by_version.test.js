@@ -19,26 +19,22 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
-        return true;
-    }
-
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
 describe('Observation Tests', () => {
-    let userRequestId = '5e4b85cd-9fc8-4277-aa4e-2f5a283a31f5';
+    const userRequestId = '5e4b85cd-9fc8-4277-aa4e-2f5a283a31f5';
     let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext({
-            userRequestId,
+            userRequestId
         });
     });
 
@@ -59,7 +55,7 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}
@@ -70,7 +66,7 @@ describe('Observation Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {MongoDatabaseManager}
              */
@@ -124,7 +120,7 @@ describe('Observation Tests', () => {
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}
@@ -135,7 +131,7 @@ describe('Observation Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {MongoDatabaseManager}
              */

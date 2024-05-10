@@ -5,6 +5,8 @@ const {
     createTestRequest
 } = require('../../common');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
 describe('Person Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -27,11 +29,11 @@ describe('Person Tests', () => {
 
         test('should return empty array when bundle entry is empty array', async () => {
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send({
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 })
                 .set(getHeaders());
 
@@ -40,7 +42,7 @@ describe('Person Tests', () => {
 
         test('should return empty array when body is an empty array', async () => {
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([])
                 .set(getHeaders());

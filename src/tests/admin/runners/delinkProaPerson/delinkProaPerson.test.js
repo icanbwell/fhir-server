@@ -22,14 +22,15 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { DelinkProaPersonRunner } = require('../../../../admin/runners/delinkProaPersonRunner');
 const {
-    AdminPersonPatientLinkManager,
+    AdminPersonPatientLinkManager
 } = require('../../../../admin/adminPersonPatientLinkManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -45,8 +46,8 @@ describe('Person Tests', () => {
     });
 
     describe('Proa Persons Tests', () => {
-        test('Proa Person is deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+        test('Proa Person is not deleted', async () => {
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -58,7 +59,7 @@ describe('Person Tests', () => {
 
             expect(resp).toHaveMergeResponse([
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request
@@ -91,13 +92,109 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: false,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
+                    })
+            );
+
+            /**
+             * @type {DelinkProaPersonRunner}
+             */
+            const delinkProaPerson = container.delinkProaPerson;
+            assertTypeEquals(delinkProaPerson, DelinkProaPersonRunner);
+            await delinkProaPerson.processAsync();
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const masterPersonAfterRun = resp.body;
+            delete masterPersonAfterRun.meta.lastUpdated;
+            expect(masterPersonAfterRun).toEqual(expectedMasterPersonBeforeRun);
+
+            resp = await request
+                .get(`/4_0_0/Person/${person1.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResponse(expectedPerson1BeforeRun);
+
+            resp = await request
+                .get(`/4_0_0/Person/${person1.id}/_history/2`)
+                .set(getHeaders())
+                .expect(404);
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
+                .set(getHeaders())
+                .expect(404);
+        });
+
+        test('Proa Person is deleted', async () => {
+
+            const request = await createTestRequest();
+
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send([person1, masterPerson])
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse([
+                { created: true },
+                { created: true }
+            ]);
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const masterPersonBeforeRun = resp.body;
+            delete masterPersonBeforeRun.meta.lastUpdated;
+            expect(masterPersonBeforeRun).toEqual(expectedMasterPersonBeforeRun);
+
+            resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
+
+            const person1BeforeRun = resp.body;
+            delete person1BeforeRun.meta.lastUpdated;
+            expect(person1BeforeRun).toEqual(expectedPerson1BeforeRun);
+
+            const container = getTestContainer();
+
+            container.register(
+                'delinkProaPerson',
+                (c) =>
+                    new DelinkProaPersonRunner({
+                        csvFileName:
+                            '/src/tests/admin/runners/delinkProaPerson/fixtures/csv/test1.csv',
+                        proaPatientUuidColumn: 0,
+                        proaPersonUuidColumn: 1,
+                        proaPersonSAAColumn: 2,
+                        proaPersonLastUpdatedColumn: 3,
+                        masterUuidColumn: 4,
+                        clientUuidColumn: 5,
+                        statusColumn: 6,
+                        deleteData: true,
+                        adminLogger: new AdminLogger(),
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
+                            databaseQueryFactory: c.databaseQueryFactory,
+                            databaseUpdateFactory: c.databaseUpdateFactory,
+                            fhirOperationsManager: c.fhirOperationsManager,
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -133,7 +230,7 @@ describe('Person Tests', () => {
 
             const person1History = resp.body;
             expect(person1History.entry).toHaveLength(3);
-            expect(person1History?.entry[2]?.request?.method).toEqual('DELETE');
+            expect(person1History?.entry[1]?.request?.method).toEqual('DELETE');
 
             resp = await request
                 .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
@@ -144,7 +241,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person is not deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -156,7 +253,7 @@ describe('Person Tests', () => {
 
             expect(resp).toHaveMergeResponse([
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request
@@ -189,13 +286,16 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: true,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -240,7 +340,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person with multiple master persons', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -253,7 +353,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request
@@ -295,13 +395,16 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: true,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
                             fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            postSaveProcessor: c.postSaveProcessor,
+                            patientFilterManager: c.patientFilterManager
+                        })
                     })
             );
 
@@ -346,7 +449,7 @@ describe('Person Tests', () => {
 
             const person1History = resp.body;
             expect(person1History.entry).toHaveLength(3);
-            expect(person1History?.entry[2]?.request?.method).toEqual('DELETE');
+            expect(person1History?.entry[1]?.request?.method).toEqual('DELETE');
 
             resp = await request
                 .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
