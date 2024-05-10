@@ -1,0 +1,28 @@
+{
+  "details": {
+    "text": "{\"resourceType\":\"Practitioner\",\"id\":\"4657\",\"meta\":{\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"client\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"client\"}]},\"active\":true,\"name\":[{\"use\":\"usual\",\"family\":\"AL-ANI MBBS\",\"given\":[\"AWSSE\"]}],\"telecom\":[],\"address\":[{\"use\":\"work\",\"type\":\"physical\",\"text\":\"Client Adult Medicine at MUMH\",\"line\":[\"33RD STREET PROFESSIONAL BLDG,G\",\"200 EAST 33RD STREET\"],\"city\":\"BALTIMORE\",\"state\":\"MD\",\"postalCode\":\"21218\",\"country\":\"USA\"}],\"gender\":\"unknown\"}"
+  },
+  "expression": [
+    "Practitioner/4657"
+  ],
+  "issue": [
+    {
+      "code": "processing",
+      "details": {
+        "coding": [
+          {
+            "code": "VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY",
+            "system": "http://hl7.org/fhir/java-core-messageId"
+          }
+        ]
+      },
+      "diagnostics": "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+      "location": [
+        "Patient.meta.profile[0]",
+        "Line 1, Col 2"
+      ],
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
+}
