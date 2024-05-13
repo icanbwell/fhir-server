@@ -126,7 +126,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -226,7 +226,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -311,7 +311,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -404,7 +404,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -499,7 +499,7 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 // .get('/subscription/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {

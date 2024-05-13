@@ -64,7 +64,7 @@ describe('GraphQL CarePlan Tests', () => {
             logInfo('', { resp: resp.body });
             logInfo('------- end response 2  ------------');
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -92,7 +92,7 @@ describe('GraphQL CarePlan Tests', () => {
             expect(resp.body.length).toBe(1);
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},

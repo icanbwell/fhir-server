@@ -81,7 +81,7 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -133,7 +133,7 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -209,7 +209,7 @@ describe('GraphQL CodeSystem Tests', () => {
          };
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -292,7 +292,7 @@ describe('GraphQL CodeSystem Tests', () => {
            };
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -345,7 +345,7 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: { code: ['3584-4', 'random'], id: ['loinc-consumer'] },
@@ -396,7 +396,7 @@ describe('GraphQL CodeSystem Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: { id: ['loinc-consumer'] },
@@ -409,7 +409,7 @@ describe('GraphQL CodeSystem Tests', () => {
 
             graphqlQueryText = getCodeSystemCodesQueryWithFilterWithDefaultValue.replace(/\\n/g, '');
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -479,7 +479,7 @@ describe('GraphQL CodeSystem Tests', () => {
             };
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: { id: ['loinc-consumer'], code: ['3584-4', 'random'] },

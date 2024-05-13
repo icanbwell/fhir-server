@@ -68,7 +68,7 @@ describe('GraphQL AllergyIntolerance Tests', () => {
             logInfo('------- end response 2  ------------');
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},

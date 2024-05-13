@@ -64,7 +64,7 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -105,7 +105,7 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationSubjectQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -146,7 +146,7 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationNotSubjectQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {
@@ -188,7 +188,7 @@ describe('GraphQL Observation Tests', () => {
             const graphqlQueryText = observationQuantityQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {

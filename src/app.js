@@ -374,7 +374,7 @@ function createApp ({ fnGetContainer }) {
             .then((graphqlV2Middleware) => {
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlV2Middleware);
-                app.use('/\\$graphqlv2', router);
+                app.use('/4_0_0/\\$graphqlv2', router);
             })
             .then((_) => {
                 createFhirApp(fnGetContainer, app);

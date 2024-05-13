@@ -57,7 +57,7 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResourceCount(10);
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -69,7 +69,7 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResponse(expectedConditionBundleResource);
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -81,7 +81,7 @@ describe('GraphQL Condition Tests', () => {
             expect(resp).toHaveResponse(expectedConditionBundleResource);
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},

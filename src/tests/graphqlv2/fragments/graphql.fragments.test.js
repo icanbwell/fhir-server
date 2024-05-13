@@ -68,7 +68,7 @@ describe('GraphQL Fragment Tests', () => {
             expect(resp).toHaveResourceCount(3);
 
             resp = await request
-                .post('/$graphqlv2')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},

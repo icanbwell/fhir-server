@@ -403,7 +403,7 @@ class ConfigManager {
      */
     get enableGraphQLV2Playground () {
         if (env.ENABLE_GRAPHQLV2_PLAYGROUND === null || env.ENABLE_GRAPHQLV2_PLAYGROUND === undefined) {
-            return true;
+            return false;
         }
         return isTrue(env.ENABLE_GRAPHQLV2_PLAYGROUND);
     }
