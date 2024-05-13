@@ -1,0 +1,12 @@
+{
+  "id": "2",
+  "resourceType": "Invoice",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "issued",
+  "subject": {
+    "reference": "Patient/2"
+  }
+}

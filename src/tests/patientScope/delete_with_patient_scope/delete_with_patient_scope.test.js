@@ -202,10 +202,7 @@ describe('Condition Tests', () => {
              */
             const patientFilterManager = container.patientFilterManager;
             for (const resourceType of Object.values(COLLECTION)) {
-                if (
-                    !Object.keys(patientFilterManager.patientFilterMapping).includes(resourceType) &&
-                    !Object.keys(patientFilterManager.patientFilterWithQueryMapping).includes(resourceType)
-                ) {
+                if (!patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
                     const resp = await request
                         .delete(`/4_0_0/${resourceType}/1`)
                         .send({ ...resourceStructure, resourceType })

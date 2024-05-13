@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "resourceType": "Flag",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "code": {},
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "1",
+  "resourceType": "Claim",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "type": {},
+  "priority": {},
+  "use": "claim",
+  "created": "2023-11-11T10:30:00.000Z",
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "provider": {
+    "reference": "Practitioner/1"
+  },
+  "insurance": [
+    {
+      "sequence": 1,
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/1"
+      }
+    }
+  ]
+}
