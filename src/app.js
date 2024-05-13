@@ -324,94 +324,60 @@ function createApp ({ fnGetContainer }) {
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
+        const router = express.Router();
+        router.use(passport.initialize());
+        router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        router.use(cors(fhirServerConfig.server.corsOptions));
+        router.use(express.json());
+        // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+        router.use(handleSecurityPolicyGraphql);
+        router.use(function (req, res, next) {
+            res.once('finish', async () => {
+                const req1 = req;
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container1 = req1.container;router
+                if (container1) {
+                    /**
+                     * @type {PostRequestProcessor}
+                     */
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                        /**
+                         * @type {RequestSpecificCache}
+                         */
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({ requestId });
+                        await requestSpecificCache.clearAsync({ requestId });
+                    }
+                }
+            });
+            next();
+        });
+
         if (isTrue(env.ENABLE_GRAPHQL)) {
             graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
-
-                const router = express.Router();
-                router.use(passport.initialize());
-                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
-                router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(express.json());
-                // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
-                router.use(handleSecurityPolicyGraphql);
-                router.use(function (req, res, next) {
-                    res.once('finish', async () => {
-                        const req1 = req;
-                        /**
-                         * @type {SimpleContainer}
-                         */
-                        const container1 = req1.container;
-                        if (container1) {
-                            /**
-                             * @type {PostRequestProcessor}
-                             */
-                            const postRequestProcessor = container1.postRequestProcessor;
-                            if (postRequestProcessor) {
-                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                                /**
-                                 * @type {RequestSpecificCache}
-                                 */
-                                const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({ requestId });
-                                await requestSpecificCache.clearAsync({ requestId });
-                            }
-                        }
-                    });
-                    next();
-                });
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
                 app.use('/\\$graphql', router);
             })
             .then((_) => {
                 createFhirApp(fnGetContainer, app);
-                // getRoutes(app);
             });
         }
+
         if (configManager.enableGraphQLV2) {
             graphqlV2(fnGetContainer)
-            .then((graphqlMiddleware) => {
-
-                const router = express.Router();
-                router.use(passport.initialize());
-                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
-                router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(express.json());
-                // enableUnsafeInline because graphqlV2 requires it to be true for loading graphql-ui
-                router.use(handleSecurityPolicyGraphql);
-                router.use(function (req, res, next) {
-                    res.once('finish', async () => {
-                        const req1 = req;
-                        /**
-                         * @type {SimpleContainer}
-                         */
-                        const container1 = req1.container;
-                        if (container1) {
-                            /**
-                             * @type {PostRequestProcessor}
-                             */
-                            const postRequestProcessor = container1.postRequestProcessor;
-                            if (postRequestProcessor) {
-                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                                /**
-                                 * @type {RequestSpecificCache}
-                                 */
-                                const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({ requestId });
-                                await requestSpecificCache.clearAsync({ requestId });
-                            }
-                        }
-                    });
-                    next();
-                });
+            .then((graphqlV2Middleware) => {
                 // noinspection JSCheckFunctionSignatures
-                router.use(graphqlMiddleware);
+                router.use(graphqlV2Middleware);
                 app.use('/\\$graphqlv2', router);
             })
             .then((_) => {
                 createFhirApp(fnGetContainer, app);
-                // getRoutes(app);
             });
         }
     } else {
