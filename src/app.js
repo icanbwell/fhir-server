@@ -324,6 +324,7 @@ function createApp ({ fnGetContainer }) {
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
+
         const router = express.Router();
         router.use(passport.initialize());
         router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
@@ -337,7 +338,7 @@ function createApp ({ fnGetContainer }) {
                 /**
                  * @type {SimpleContainer}
                  */
-                const container1 = req1.container;router
+                const container1 = req1.container;
                 if (container1) {
                     /**
                      * @type {PostRequestProcessor}
@@ -357,29 +358,20 @@ function createApp ({ fnGetContainer }) {
             next();
         });
 
-        if (isTrue(env.ENABLE_GRAPHQL)) {
-            graphql(fnGetContainer)
-            .then((graphqlMiddleware) => {
-                // noinspection JSCheckFunctionSignatures
+        Promise.all([
+            isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
+            configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
+        ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
+            if(graphqlMiddleware) {
                 router.use(graphqlMiddleware);
                 app.use('/\\$graphql', router);
-            })
-            .then((_) => {
-                createFhirApp(fnGetContainer, app);
-            });
-        }
-
-        if (configManager.enableGraphQLV2) {
-            graphqlV2(fnGetContainer)
-            .then((graphqlV2Middleware) => {
-                // noinspection JSCheckFunctionSignatures
+            }
+            if(graphqlV2Middleware) {
                 router.use(graphqlV2Middleware);
                 app.use('/4_0_0/\\$graphqlv2', router);
-            })
-            .then((_) => {
-                createFhirApp(fnGetContainer, app);
-            });
-        }
+            }
+            createFhirApp(fnGetContainer, app);
+        });
     } else {
         createFhirApp(fnGetContainer, app);
     }
