@@ -69,7 +69,8 @@
       "<rootDir>/src/middleware/fhir/resources",
       "<rootDir>/src/views",
       "<rootDir>/src/services",
-      "<rootDir>/src/graphql/resolvers"
+      "<rootDir>/src/graphql/resolvers",
+      "<rootDir>/src/graphqlv2/resolvers"
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/"
@@ -89,10 +90,12 @@
       "enum-values-sorted-alphabetically"
     ],
     "schemaPaths": [
-      "src/graphql/schemas/**.graphql"
+      "src/graphql/schemas/**.graphql",
+      "src/graphqlv2/schemas/**.graphql"
     ],
     "customRulePaths": [
-      "src/graphql/resolvers/*.js"
+      "src/graphql/resolvers/*.js",
+      "src/graphqlv2/resolvers/*.js"
     ],
     "rulesOptions": {
       "enum-values-sorted-alphabetically": {

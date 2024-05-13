@@ -1,0 +1,13 @@
+input SearchStringValue {
+    value: String
+    values: [String]
+}
+input SearchString {
+    searchType: String = "string"
+    value: String
+    values: [String]
+    missing: Boolean
+    above: Boolean
+    below: Boolean
+    notEquals: SearchStringValue
+}

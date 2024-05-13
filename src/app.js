@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
 const { graphql } = require('./middleware/graphql/graphqlServer');
+const { graphqlV2 } = require('./middleware/graphql/graphqlServerV2.js');
 
 const passport = require('passport');
 const { strategy } = require('./strategies/jwt.bearer.strategy');
@@ -320,11 +321,11 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);
 
-    // enable middleware for graphql
-    if (isTrue(env.ENABLE_GRAPHQL)) {
+    // enable middleware for graphql & graphqlv2
+    if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
-
-        graphql(fnGetContainer)
+        if (isTrue(env.ENABLE_GRAPHQL)) {
+            graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
 
                 const router = express.Router();
@@ -367,6 +368,52 @@ function createApp ({ fnGetContainer }) {
                 createFhirApp(fnGetContainer, app);
                 // getRoutes(app);
             });
+        }
+        if (configManager.enableGraphQLV2) {
+            graphqlV2(fnGetContainer)
+            .then((graphqlMiddleware) => {
+
+                const router = express.Router();
+                router.use(passport.initialize());
+                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+                router.use(cors(fhirServerConfig.server.corsOptions));
+                router.use(express.json());
+                // enableUnsafeInline because graphqlV2 requires it to be true for loading graphql-ui
+                router.use(handleSecurityPolicyGraphql);
+                router.use(function (req, res, next) {
+                    res.once('finish', async () => {
+                        const req1 = req;
+                        /**
+                         * @type {SimpleContainer}
+                         */
+                        const container1 = req1.container;
+                        if (container1) {
+                            /**
+                             * @type {PostRequestProcessor}
+                             */
+                            const postRequestProcessor = container1.postRequestProcessor;
+                            if (postRequestProcessor) {
+                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                                /**
+                                 * @type {RequestSpecificCache}
+                                 */
+                                const requestSpecificCache = container1.requestSpecificCache;
+                                await postRequestProcessor.executeAsync({ requestId });
+                                await requestSpecificCache.clearAsync({ requestId });
+                            }
+                        }
+                    });
+                    next();
+                });
+                // noinspection JSCheckFunctionSignatures
+                router.use(graphqlMiddleware);
+                app.use('/\\$graphqlv2', router);
+            })
+            .then((_) => {
+                createFhirApp(fnGetContainer, app);
+                // getRoutes(app);
+            });
+        }
     } else {
         createFhirApp(fnGetContainer, app);
     }
