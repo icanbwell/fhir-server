@@ -169,11 +169,12 @@ function createApp ({ fnGetContainer }) {
     app.use((req, res, next) => {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
+            const isGraphQLUrl = reqPath.startsWith('/$graphql') || reqPath.startsWith('/4_0_0/$graphqlv2');
             // check if this is home page, resource page, or admin page
             const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
             const isAdminUrl = reqPath.startsWith('/admin');
-            // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
+            // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
+            if (!isGraphQLUrl && isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
                 if (isAdminUrl) {
                     res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
