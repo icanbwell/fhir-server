@@ -383,8 +383,29 @@ class ConfigManager {
         if (env.ENABLE_GRAPHQL_PLAYGROUND === null || env.ENABLE_GRAPHQL_PLAYGROUND === undefined) {
             return true;
         }
-
         return isTrue(env.ENABLE_GRAPHQL_PLAYGROUND);
+    }
+
+    /**
+     * whether to enable graphqlv2
+     * @returns {boolean}
+     */
+    get enableGraphQLV2 () {
+        if (env.ENABLE_GRAPHQLV2 === null || env.ENABLE_GRAPHQLV2 === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_GRAPHQLV2);
+    }
+
+    /**
+     * whether to enable graphqlv2 playground
+     * @returns {boolean}
+     */
+    get enableGraphQLV2Playground () {
+        if (env.ENABLE_GRAPHQLV2_PLAYGROUND === null || env.ENABLE_GRAPHQLV2_PLAYGROUND === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_GRAPHQLV2_PLAYGROUND);
     }
 
     /**

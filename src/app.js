@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
 const { graphql } = require('./middleware/graphql/graphqlServer');
+const { graphqlV2 } = require('./middleware/graphql/graphqlServerV2.js');
 
 const passport = require('passport');
 const { strategy } = require('./strategies/jwt.bearer.strategy');
@@ -320,53 +321,57 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);
 
-    // enable middleware for graphql
-    if (isTrue(env.ENABLE_GRAPHQL)) {
+    // enable middleware for graphql & graphqlv2
+    if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        graphql(fnGetContainer)
-            .then((graphqlMiddleware) => {
-
-                const router = express.Router();
-                router.use(passport.initialize());
-                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
-                router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(express.json());
-                // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
-                router.use(handleSecurityPolicyGraphql);
-                router.use(function (req, res, next) {
-                    res.once('finish', async () => {
-                        const req1 = req;
+        const router = express.Router();
+        router.use(passport.initialize());
+        router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        router.use(cors(fhirServerConfig.server.corsOptions));
+        router.use(express.json());
+        // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+        router.use(handleSecurityPolicyGraphql);
+        router.use(function (req, res, next) {
+            res.once('finish', async () => {
+                const req1 = req;
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container1 = req1.container;
+                if (container1) {
+                    /**
+                     * @type {PostRequestProcessor}
+                     */
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                         /**
-                         * @type {SimpleContainer}
+                         * @type {RequestSpecificCache}
                          */
-                        const container1 = req1.container;
-                        if (container1) {
-                            /**
-                             * @type {PostRequestProcessor}
-                             */
-                            const postRequestProcessor = container1.postRequestProcessor;
-                            if (postRequestProcessor) {
-                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                                /**
-                                 * @type {RequestSpecificCache}
-                                 */
-                                const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({ requestId });
-                                await requestSpecificCache.clearAsync({ requestId });
-                            }
-                        }
-                    });
-                    next();
-                });
-                // noinspection JSCheckFunctionSignatures
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({ requestId });
+                        await requestSpecificCache.clearAsync({ requestId });
+                    }
+                }
+            });
+            next();
+        });
+
+        Promise.all([
+            isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
+            configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
+        ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
+            if(graphqlMiddleware) {
                 router.use(graphqlMiddleware);
                 app.use('/\\$graphql', router);
-            })
-            .then((_) => {
-                createFhirApp(fnGetContainer, app);
-                // getRoutes(app);
-            });
+            }
+            if(graphqlV2Middleware) {
+                router.use(graphqlV2Middleware);
+                app.use('/4_0_0/\\$graphqlv2', router);
+            }
+            createFhirApp(fnGetContainer, app);
+        });
     } else {
         createFhirApp(fnGetContainer, app);
     }

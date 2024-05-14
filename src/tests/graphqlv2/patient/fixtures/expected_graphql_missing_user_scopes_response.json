@@ -1,0 +1,22 @@
+{
+  "data": {
+    "patient": null
+  },
+  "errors": [
+    {
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR"
+      },
+      "locations": [
+        {
+          "column": 5,
+          "line": 2
+        }
+      ],
+      "message": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Practitioner.read] failed access check to [Patient.read]",
+      "path": [
+        "patient"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+    "resourceType": "CarePlan",
+    "id": "8dea4e52-5e76-35a7-0bf9-0f07b83a7e7f",
+    "meta": {
+        "versionId": "1",
+        "source": "mps",
+        "lastUpdated": "2021-11-02T22:07:56+00:00",
+        "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"],
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "mps-api"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "mps-api"
+            }
+        ]
+    },
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Infectious disease care plan (record artifact).<br/>Activities: <ul><li>Infectious disease care plan (record artifact)</li><li>Infectious disease care plan (record artifact)</li></ul><br/>Care plan is meant to treat Suspected COVID-19.</div>"
+    },
+    "status": "completed",
+    "intent": "order",
+    "category": [
+        {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+                    "code": "assess-plan"
+                }
+            ]
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "736376001",
+                    "display": "Infectious disease care plan (record artifact)"
+                }
+            ],
+            "text": "Infectious disease care plan (record artifact)"
+        }
+    ],
+    "subject": {
+        "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+    },
+    "encounter": {
+        "display": "Visit with another Dr. Who",
+        "type": "Encounter"
+    },
+    "period": {
+        "start": "2020-02-29T20:33:52-05:00",
+        "end": "2020-02-29T21:35:29-05:00"
+    },
+    "careTeam": [
+        {
+            "reference": "CareTeam/cd288a66-25f7-96f3-1300-73e158934c81"
+        }
+    ],
+    "addresses": [
+        {
+            "reference": "Condition/30c68866-9981-bf69-d56f-13fd8bbf9710"
+        }
+    ],
+    "activity": [
+        {
+            "detail": {
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "409524006",
+                            "display": "Airborne precautions (procedure)"
+                        }
+                    ],
+                    "text": "Airborne precautions (procedure)"
+                },
+                "status": "completed",
+                "location": {
+                    "display": "CLIENT HARBOR HOSPITAL"
+                }
+            },
+            "outcomeReference": [
+                {
+                    "display": "Test observation",
+                    "type": "Patient"
+                }
+            ]
+        },
+        {
+            "detail": {
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "409526008",
+                            "display": "Personal protective equipment (physical object)"
+                        }
+                    ],
+                    "text": "Personal protective equipment (physical object)"
+                },
+                "status": "completed",
+                "location": {
+                    "display": "CLIENT HARBOR HOSPITAL"
+                }
+            }
+        }
+    ]
+}

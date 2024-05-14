@@ -1,8 +1,20 @@
 {
-  "name": "GraphQL Schemas with Shared Types",
-  "schemaPath": "./graphql/schemas/schema.graphql",
-  "includes": [
-    "./graphql/**",
-    "./tests/**"
-  ]
+  "projects": {
+    "graphql": {
+      "name": "GraphQL Schemas with Shared Types",
+      "schemaPath": "./graphql/schemas/schema.graphql",
+      "includes": [
+        "./graphql/**",
+        "./tests/**"
+      ]
+    },
+    "graphqlv2": {
+      "name": "GraphQLV2 Schemas with Shared Types",
+      "schemaPath": "./graphqlv2/schemas/schema.graphql",
+      "includes": [
+        "./graphqlv2/**",
+        "./tests/**"
+      ]
+    }
+  }
 }
