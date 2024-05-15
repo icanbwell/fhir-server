@@ -607,6 +607,16 @@ module.exports = {
         Location_4_0_0: [
             {
                 keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'identifier.system_1_value_1_uuid_1'
+                }
+            },
+            {
+                keys: {
                     'managingOrganization._sourceId': 1,
                     _sourceId: 1
                 },
