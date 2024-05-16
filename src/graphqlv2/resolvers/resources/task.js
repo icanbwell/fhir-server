@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         task: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,17 +14,17 @@ module.exports = {
             );
         }
     },
-    TaskBasedOnV2: {
+    TaskBasedOn: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    TaskFocusV2: {
+    TaskFocus: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    TaskForV2: {
+    TaskFor: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -40,7 +39,7 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    TaskReasonReferenceV2: {
+    TaskReasonReference: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -50,156 +49,136 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Task: {
+    TaskBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-
-        basedOnV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        basedOn: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        partOf: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.partOf);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        focusV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.focus);
-        },
+                parent
+            );
+        }
+    },
+    TaskPartOfReference: {
         // noinspection JSUnusedLocalSymbols
-
-        focus: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.focus);
-        },
+                parent
+            );
+        }
+    },
+    TaskFocusReference: {
         // noinspection JSUnusedLocalSymbols
-
-        forV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.for);
-        },
+                parent
+            );
+        }
+    },
+    TaskForReference: {
         // noinspection JSUnusedLocalSymbols
-
-        for: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.for);
-        },
+                parent
+            );
+        }
+    },
+    TaskEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    TaskRequesterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        requester: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.requester);
-        },
+                parent
+            );
+        }
+    },
+    TaskOwnerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        owner: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.owner);
-        },
+                parent
+            );
+        }
+    },
+    TaskLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    TaskReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reasonReferenceV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reasonReference);
-        },
+                parent
+            );
+        }
+    },
+    TaskInsuranceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reasonReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reasonReference);
-        },
+                parent
+            );
+        }
+    },
+    TaskRelevantHistoryReference: {
         // noinspection JSUnusedLocalSymbols
-
-        insurance: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.insurance);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        relevantHistory: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.relevantHistory);
+                parent
+            );
         }
     }
 };

@@ -20,6 +20,17 @@
 # import PlanDefinitionGoal from "../backbone_elements/planDefinitionGoal.graphql"
 # import PlanDefinitionAction from "../backbone_elements/planDefinitionAction.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type PlanDefinitionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -160,7 +171,7 @@ type PlanDefinition {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: PlanDefinitionSubjectReferenceReference
     """
     The date  (and optionally time) when the plan definition was published. The
     date must change when the business version changes and it must change if the

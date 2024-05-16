@@ -12,6 +12,77 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 
+"""
+Reference type for Organization
+"""
+type OrganizationAffiliationOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ParticipatingOrganization
+"""
+type OrganizationAffiliationParticipatingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Network
+"""
+type OrganizationAffiliationNetworkReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type OrganizationAffiliationLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for HealthcareService
+"""
+type OrganizationAffiliationHealthcareServiceReference {
+    id: String
+    extension: [Extension]
+    reference: HealthcareService
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type OrganizationAffiliationEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -99,18 +170,18 @@ type OrganizationAffiliation {
     """
     Organization where the role is available (primary organization/has members).
     """
-    organization: Organization
+    organization: OrganizationAffiliationOrganizationReference
     """
     The Participating Organization provides/performs the role(s) defined by the
     code to the Primary Organization (e.g. providing services or is a member of).
     """
-    participatingOrganization: Organization
+    participatingOrganization: OrganizationAffiliationParticipatingOrganizationReference
     """
     Health insurance provider network in which the participatingOrganization
     provides the role's services (if defined) at the indicated locations (if
     defined).
     """
-    network: [Organization]
+    network: [OrganizationAffiliationNetworkReference]
     """
     Definition of the role the participatingOrganization plays in the association.
     """
@@ -123,11 +194,11 @@ type OrganizationAffiliation {
     """
     The location(s) at which the role occurs.
     """
-    location: [Location]
+    location: [OrganizationAffiliationLocationReference]
     """
     Healthcare services provided through the role.
     """
-    healthcareService: [HealthcareService]
+    healthcareService: [OrganizationAffiliationHealthcareServiceReference]
     """
     Contact details at the participatingOrganization relevant to this Affiliation.
     """
@@ -135,7 +206,7 @@ type OrganizationAffiliation {
     """
     Technical endpoints providing access to services operated for this role.
     """
-    endpoint: [Endpoint]
+    endpoint: [OrganizationAffiliationEndpointReference]
 }
 
 type OrganizationAffiliationBundleEntry {

@@ -13,9 +13,120 @@
 # import AdverseEventSuspectEntity from "../backbone_elements/adverseEventSuspectEntity.graphql"
 
 union AdverseEventSubject = Patient | Group | Practitioner | RelatedPerson
+
+"""
+Reference type for Subject
+"""
+type AdverseEventSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type AdverseEventEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ResultingCondition
+"""
+type AdverseEventResultingConditionReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type AdverseEventLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AdverseEventRecorder = Patient | Practitioner | PractitionerRole | RelatedPerson
+
+"""
+Reference type for Recorder
+"""
+type AdverseEventRecorderReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventRecorder
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AdverseEventContributor = Practitioner | PractitionerRole | Device
+
+"""
+Reference type for Contributor
+"""
+type AdverseEventContributorReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventContributor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AdverseEventSubjectMedicalHistory = Condition | Observation | AllergyIntolerance | FamilyMemberHistory | Immunization | Procedure | Media | DocumentReference
+
+"""
+Reference type for SubjectMedicalHistory
+"""
+type AdverseEventSubjectMedicalHistoryReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventSubjectMedicalHistory
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ReferenceDocument
+"""
+type AdverseEventReferenceDocumentReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Study
+"""
+type AdverseEventStudyReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchStudy
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -112,12 +223,12 @@ type AdverseEvent {
     """
     This subject or group impacted by the event.
     """
-    subject: AdverseEventSubject
+    subject: AdverseEventSubjectReference
     """
     The Encounter during which AdverseEvent was created or to which the creation
     of this record is tightly associated.
     """
-    encounter: Encounter
+    encounter: AdverseEventEncounterReference
     """
     The date (and perhaps time) when the adverse event occurred.
     """
@@ -135,11 +246,11 @@ type AdverseEvent {
     Includes information about the reaction that occurred as a result of exposure
     to a substance (for example, a drug or a chemical).
     """
-    resultingCondition: [Condition]
+    resultingCondition: [AdverseEventResultingConditionReference]
     """
     The information about where the adverse event occurred.
     """
-    location: Location
+    location: AdverseEventLocationReference
     """
     Assessment whether this event was of real importance.
     """
@@ -158,7 +269,7 @@ type AdverseEvent {
     Information on who recorded the adverse event.  May be the patient or a
     practitioner.
     """
-    recorder: AdverseEventRecorder
+    recorder: AdverseEventRecorderReference
     """
     Parties that may or should contribute or have contributed information to the
     adverse event, which can consist of one or more activities.  Such information
@@ -167,7 +278,7 @@ type AdverseEvent {
     itself seeks to reveal (e.g. informant of clinical history), or information
     about what activity was performed (e.g. informant witness).
     """
-    contributor: [AdverseEventContributor]
+    contributor: [AdverseEventContributorReference]
     """
     Describes the entity that is suspected to have caused the adverse event.
     """
@@ -175,15 +286,15 @@ type AdverseEvent {
     """
     AdverseEvent.subjectMedicalHistory.
     """
-    subjectMedicalHistory: [AdverseEventSubjectMedicalHistory]
+    subjectMedicalHistory: [AdverseEventSubjectMedicalHistoryReference]
     """
     AdverseEvent.referenceDocument.
     """
-    referenceDocument: [DocumentReference]
+    referenceDocument: [AdverseEventReferenceDocumentReference]
     """
     AdverseEvent.study.
     """
-    study: [ResearchStudy]
+    study: [AdverseEventStudyReference]
 }
 
 type AdverseEventBundleEntry {

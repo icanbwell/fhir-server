@@ -15,8 +15,70 @@
 # import CoverageCostToBeneficiary from "../backbone_elements/coverageCostToBeneficiary.graphql"
 
 union CoveragePolicyHolder = Patient | RelatedPerson | Organization
+
+"""
+Reference type for PolicyHolder
+"""
+type CoveragePolicyHolderReference {
+    id: String
+    extension: [Extension]
+    reference: CoveragePolicyHolder
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CoverageSubscriber = Patient | RelatedPerson
+
+"""
+Reference type for Subscriber
+"""
+type CoverageSubscriberReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageSubscriber
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Beneficiary
+"""
+type CoverageBeneficiaryReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CoveragePayor = Organization | Patient | RelatedPerson
+
+"""
+Reference type for Payor
+"""
+type CoveragePayorReference {
+    id: String
+    extension: [Extension]
+    reference: CoveragePayor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Contract
+"""
+type CoverageContractReference {
+    id: String
+    extension: [Extension]
+    reference: Contract
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -104,13 +166,13 @@ type Coverage {
     """
     The party who 'owns' the insurance policy.
     """
-    policyHolder: CoveragePolicyHolder
+    policyHolder: CoveragePolicyHolderReference
     """
     The party who has signed-up for or 'owns' the contractual relationship to the
     policy or to whom the benefit of the policy for services rendered to them or
     their family is due.
     """
-    subscriber: CoverageSubscriber
+    subscriber: CoverageSubscriberReference
     """
     The insurer assigned ID for the Subscriber.
     """
@@ -119,7 +181,7 @@ type Coverage {
     The party who benefits from the insurance coverage; the patient when products
     and/or services are provided.
     """
-    beneficiary: Patient
+    beneficiary: CoverageBeneficiaryReference
     """
     A unique identifier for a dependent under the coverage.
     """
@@ -138,7 +200,7 @@ type Coverage {
     The program or plan underwriter or payor including both insurance and non-
     insurance agreements, such as patient-pay agreements.
     """
-    payor: [CoveragePayor]
+    payor: [CoveragePayorReference]
     """
     A suite of underwriter specific classifiers.
     """
@@ -169,7 +231,7 @@ type Coverage {
     """
     The policy(s) which constitute this insurance coverage.
     """
-    contract: [Contract]
+    contract: [CoverageContractReference]
 }
 
 type CoverageBundleEntry {

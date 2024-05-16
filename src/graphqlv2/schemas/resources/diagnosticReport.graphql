@@ -16,9 +16,108 @@
 # import Attachment from "../complex_types/attachment.graphql"
 
 union DiagnosticReportBasedOn = CarePlan | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest
+
+"""
+Reference type for BasedOn
+"""
+type DiagnosticReportBasedOnReference {
+    id: String
+    extension: [Extension]
+    reference: DiagnosticReportBasedOn
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union DiagnosticReportSubject = Patient | Group | Device | Location
+
+"""
+Reference type for Subject
+"""
+type DiagnosticReportSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: DiagnosticReportSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type DiagnosticReportEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union DiagnosticReportPerformer = Practitioner | PractitionerRole | Organization | CareTeam
+
+"""
+Reference type for Performer
+"""
+type DiagnosticReportPerformerReference {
+    id: String
+    extension: [Extension]
+    reference: DiagnosticReportPerformer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union DiagnosticReportResultsInterpreter = Practitioner | PractitionerRole | Organization | CareTeam
+
+"""
+Reference type for ResultsInterpreter
+"""
+type DiagnosticReportResultsInterpreterReference {
+    id: String
+    extension: [Extension]
+    reference: DiagnosticReportResultsInterpreter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Specimen
+"""
+type DiagnosticReportSpecimenReference {
+    id: String
+    extension: [Extension]
+    reference: Specimen
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Result
+"""
+type DiagnosticReportResultReference {
+    id: String
+    extension: [Extension]
+    reference: Observation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ImagingStudy
+"""
+type DiagnosticReportImagingStudyReference {
+    id: String
+    extension: [Extension]
+    reference: ImagingStudy
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -100,7 +199,7 @@ type DiagnosticReport {
     """
     Details concerning a service requested.
     """
-    basedOn: [DiagnosticReportBasedOn]
+    basedOn: [DiagnosticReportBasedOnReference]
     """
     The status of the diagnostic report.
     """
@@ -120,12 +219,12 @@ type DiagnosticReport {
     However, diagnostic services also perform analyses on specimens collected from
     a variety of other sources.
     """
-    subject: DiagnosticReportSubject
+    subject: DiagnosticReportSubjectReference
     """
     The healthcare event  (e.g. a patient and healthcare provider interaction)
     which this DiagnosticReport is about.
     """
-    encounter: Encounter
+    encounter: DiagnosticReportEncounterReference
     """
     None
     """
@@ -142,27 +241,27 @@ type DiagnosticReport {
     """
     The diagnostic service that is responsible for issuing the report.
     """
-    performer: [DiagnosticReportPerformer]
+    performer: [DiagnosticReportPerformerReference]
     """
     The practitioner or organization that is responsible for the report's
     conclusions and interpretations.
     """
-    resultsInterpreter: [DiagnosticReportResultsInterpreter]
+    resultsInterpreter: [DiagnosticReportResultsInterpreterReference]
     """
     Details about the specimens on which this diagnostic report is based.
     """
-    specimen: [Specimen]
+    specimen: [DiagnosticReportSpecimenReference]
     """
     [Observations](observation.html)  that are part of this diagnostic report.
     """
-    result: [Observation]
+    result: [DiagnosticReportResultReference]
     """
     One or more links to full details of any imaging performed during the
     diagnostic investigation. Typically, this is imaging performed by DICOM
     enabled modalities, but this is not required. A fully enabled PACS viewer can
     use this information to provide views of the source images.
     """
-    imagingStudy: [ImagingStudy]
+    imagingStudy: [DiagnosticReportImagingStudyReference]
     """
     A list of key images associated with this report. The images are generally
     created during the diagnostic process, and may be directly of the patient, or

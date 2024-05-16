@@ -21,6 +21,41 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import DeviceDefinitionMaterial from "../backbone_elements/deviceDefinitionMaterial.graphql"
 
+"""
+Reference type for ManufacturerReference
+"""
+type DeviceDefinitionManufacturerReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Owner
+"""
+type DeviceDefinitionOwnerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ParentDevice
+"""
+type DeviceDefinitionParentDeviceReference {
+    id: String
+    extension: [Extension]
+    reference: DeviceDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -111,7 +146,7 @@ type DeviceDefinition {
     """
     None
     """
-    manufacturerReference: Organization
+    manufacturerReference: DeviceDefinitionManufacturerReferenceReference
     """
     A name given to the device to identify it.
     """
@@ -163,7 +198,7 @@ type DeviceDefinition {
     An organization that is responsible for the provision and ongoing maintenance
     of the device.
     """
-    owner: Organization
+    owner: DeviceDefinitionOwnerReference
     """
     Contact details for an organization or a particular human that is responsible
     for the device.
@@ -191,7 +226,7 @@ type DeviceDefinition {
     """
     The parent device it can be part of.
     """
-    parentDevice: DeviceDefinition
+    parentDevice: DeviceDefinitionParentDeviceReference
     """
     A substance used to create the material(s) of which the device is made.
     """

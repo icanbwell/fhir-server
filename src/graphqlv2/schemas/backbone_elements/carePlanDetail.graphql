@@ -10,8 +10,71 @@
 # import Quantity from "../complex_types/quantity.graphql"
 
 union CarePlanDetailReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
+
+"""
+Reference type for ReasonReference
+"""
+type CarePlanDetailReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: CarePlanDetailReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Goal
+"""
+type CarePlanDetailGoalReference {
+    id: String
+    extension: [Extension]
+    reference: Goal
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type CarePlanDetailLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CarePlanDetailPerformer = Practitioner | PractitionerRole | Organization | RelatedPerson | Patient | CareTeam | HealthcareService | Device
+
+"""
+Reference type for Performer
+"""
+type CarePlanDetailPerformerReference {
+    id: String
+    extension: [Extension]
+    reference: CarePlanDetailPerformer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CarePlanDetailProductReference = Medication | Substance
+
+"""
+Reference type for ProductReference
+"""
+type CarePlanDetailProductReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: CarePlanDetailProductReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CarePlan.Detail
@@ -82,12 +145,12 @@ type CarePlanDetail {
     justifies this request and drove the inclusion of this particular activity as
     part of the plan.
     """
-    reasonReference: [CarePlanDetailReasonReference]
+    reasonReference: [CarePlanDetailReasonReferenceReference]
     """
     Internal reference that identifies the goals that this activity is intended to
     contribute towards meeting.
     """
-    goal: [Goal]
+    goal: [CarePlanDetailGoalReference]
     """
     Identifies what progress is being made for the specific activity.
     """
@@ -119,11 +182,11 @@ type CarePlanDetail {
     Identifies the facility where the activity will occur; e.g. home, hospital,
     specific clinic, etc.
     """
-    location: Location
+    location: CarePlanDetailLocationReference
     """
     Identifies who's expected to be involved in the activity.
     """
-    performer: [CarePlanDetailPerformer]
+    performer: [CarePlanDetailPerformerReference]
     """
     None
     """
@@ -131,7 +194,7 @@ type CarePlanDetail {
     """
     None
     """
-    productReference: CarePlanDetailProductReference
+    productReference: CarePlanDetailProductReferenceReference
     """
     Identifies the quantity expected to be consumed in a given day.
     """

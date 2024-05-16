@@ -14,6 +14,17 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import url from "../simple_types/url.graphql"
 
+"""
+Reference type for ManagingOrganization
+"""
+type EndpointManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -110,7 +121,7 @@ type Endpoint {
     organization is hosting this in the cloud, it is the organization associated
     with the data).
     """
-    managingOrganization: Organization
+    managingOrganization: EndpointManagingOrganizationReference
     """
     Contact details for a human to contact about the subscription. The primary use
     of this for system administrator troubleshooting.

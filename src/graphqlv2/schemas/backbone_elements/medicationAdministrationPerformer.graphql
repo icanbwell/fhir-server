@@ -6,6 +6,19 @@
 union MedicationAdministrationPerformerActor = Practitioner | PractitionerRole | Patient | RelatedPerson | Device
 
 """
+Reference type for Actor
+"""
+type MedicationAdministrationPerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationAdministrationPerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicationAdministration.Performer
     Describes the event of a patient consuming or otherwise being administered a
     medication.  This may be as simple as swallowing a tablet or it may be a long
@@ -50,5 +63,5 @@ type MedicationAdministrationPerformer {
     """
     Indicates who or what performed the medication administration.
     """
-    actor: MedicationAdministrationPerformerActor
+    actor: MedicationAdministrationPerformerActorReference
 }

@@ -16,7 +16,43 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import PaymentReconciliationProcessNote from "../backbone_elements/paymentReconciliationProcessNote.graphql"
 
+"""
+Reference type for PaymentIssuer
+"""
+type PaymentReconciliationPaymentIssuerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Request
+"""
+type PaymentReconciliationRequestReference {
+    id: String
+    extension: [Extension]
+    reference: Task
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union PaymentReconciliationRequestor = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Requestor
+"""
+type PaymentReconciliationRequestorReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentReconciliationRequestor
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -108,15 +144,15 @@ type PaymentReconciliation {
     """
     The party who generated the payment.
     """
-    paymentIssuer: Organization
+    paymentIssuer: PaymentReconciliationPaymentIssuerReference
     """
     Original request resource reference.
     """
-    request: Task
+    request: PaymentReconciliationRequestReference
     """
     The practitioner who is responsible for the services rendered to the patient.
     """
-    requestor: PaymentReconciliationRequestor
+    requestor: PaymentReconciliationRequestorReference
     """
     The outcome of a request for a reconciliation.
     """

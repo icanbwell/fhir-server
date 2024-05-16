@@ -18,6 +18,65 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 
+"""
+Reference type for Definition
+"""
+type DeviceDefinitionReference {
+    id: String
+    extension: [Extension]
+    reference: DeviceDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Patient
+"""
+type DevicePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Owner
+"""
+type DeviceOwnerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type DeviceLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Parent
+"""
+type DeviceParentReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -98,7 +157,7 @@ type Device {
     """
     The reference to the definition for the device.
     """
-    definition: DeviceDefinition
+    definition: DeviceDefinitionReference
     """
     Unique device identifier (UDI) assigned to device label or package.  Note that
     the Device may include multiple udiCarriers as it either may include just the
@@ -177,12 +236,12 @@ type Device {
     """
     Patient information, If the device is affixed to a person.
     """
-    patient: Patient
+    patient: DevicePatientReference
     """
     An organization that is responsible for the provision and ongoing maintenance
     of the device.
     """
-    owner: Organization
+    owner: DeviceOwnerReference
     """
     Contact details for an organization or a particular human that is responsible
     for the device.
@@ -191,7 +250,7 @@ type Device {
     """
     The place where the device can be found.
     """
-    location: Location
+    location: DeviceLocationReference
     """
     A network address on which the device may be contacted directly.
     """
@@ -209,7 +268,7 @@ type Device {
     """
     The parent device.
     """
-    parent: Device
+    parent: DeviceParentReference
 }
 
 type DeviceBundleEntry {

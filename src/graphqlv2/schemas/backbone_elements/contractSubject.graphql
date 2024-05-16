@@ -6,6 +6,19 @@
 union ContractSubjectReference = Patient | RelatedPerson | Practitioner | PractitionerRole | Device | Group | Organization
 
 """
+Reference type for Reference
+"""
+type ContractSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ContractSubjectReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.Subject
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -42,7 +55,7 @@ type ContractSubject {
     """
     The entity the action is performed or not performed on or for.
     """
-    reference: [ContractSubjectReference]
+    reference: [ContractSubjectReferenceReference]
     """
     Role type of agent assigned roles in this Contract.
     """

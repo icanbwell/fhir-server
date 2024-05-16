@@ -8,6 +8,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import ClaimSubDetail from "../backbone_elements/claimSubDetail.graphql"
 
+"""
+Reference type for Udi
+"""
+type ClaimDetailUdiReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Claim.Detail
@@ -96,7 +108,7 @@ type ClaimDetail {
     """
     Unique Device Identifiers associated with this line item.
     """
-    udi: [Device]
+    udi: [ClaimDetailUdiReference]
     """
     A claim detail line. Either a simple (a product or service) or a 'group' of
     sub-details which are simple items.

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         immunizationEvaluation: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,36 +14,40 @@ module.exports = {
             );
         }
     },
-    ImmunizationEvaluation: {
+    ImmunizationEvaluationPatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    ImmunizationEvaluationAuthorityReference: {
         // noinspection JSUnusedLocalSymbols
-
-        authority: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.authority);
-        },
+                parent
+            );
+        }
+    },
+    ImmunizationEvaluationImmunizationEventReference: {
         // noinspection JSUnusedLocalSymbols
-
-        immunizationEvent: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.immunizationEvent);
+                parent
+            );
         }
     }
 };

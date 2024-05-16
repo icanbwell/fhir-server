@@ -6,6 +6,30 @@
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 
+"""
+Reference type for SubstanceReference
+"""
+type SubstanceSpecificationRelationshipSubstanceReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceSpecification
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Source
+"""
+type SubstanceSpecificationRelationshipSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceSpecification.Relationship
@@ -44,7 +68,7 @@ type SubstanceSpecificationRelationship {
     """
     None
     """
-    substanceReference: SubstanceSpecification
+    substanceReference: SubstanceSpecificationRelationshipSubstanceReferenceReference
     """
     None
     """
@@ -87,5 +111,5 @@ type SubstanceSpecificationRelationship {
     """
     Supporting literature.
     """
-    source: [DocumentReference]
+    source: [SubstanceSpecificationRelationshipSourceReference]
 }

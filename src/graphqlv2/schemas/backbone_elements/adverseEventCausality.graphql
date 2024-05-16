@@ -6,6 +6,19 @@
 union AdverseEventCausalityAuthor = Practitioner | PractitionerRole
 
 """
+Reference type for Author
+"""
+type AdverseEventCausalityAuthorReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventCausalityAuthor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 AdverseEvent.Causality
     Actual or  potential/avoided event causing unintended physical injury
     resulting from or contributed to by medical care, a research study or other
@@ -52,7 +65,7 @@ type AdverseEventCausality {
     """
     AdverseEvent.suspectEntity.causalityAuthor.
     """
-    author: AdverseEventCausalityAuthor
+    author: AdverseEventCausalityAuthorReference
     """
     ProbabilityScale | Bayesian | Checklist.
     """

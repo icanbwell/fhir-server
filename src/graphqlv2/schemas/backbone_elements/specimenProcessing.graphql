@@ -5,6 +5,18 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 
+"""
+Reference type for Additive
+"""
+type SpecimenProcessingAdditiveReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Specimen.Processing
@@ -50,7 +62,7 @@ type SpecimenProcessing {
     """
     Material used in the processing step.
     """
-    additive: [Substance]
+    additive: [SpecimenProcessingAdditiveReference]
     """
     None
     """

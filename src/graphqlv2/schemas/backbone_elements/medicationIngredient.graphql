@@ -8,6 +8,19 @@
 union MedicationIngredientItemReference = Substance | Medication
 
 """
+Reference type for ItemReference
+"""
+type MedicationIngredientItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationIngredientItemReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Medication.Ingredient
     This resource is primarily used for the identification and definition of a
     medication for the purposes of prescribing, dispensing, and administering a
@@ -49,7 +62,7 @@ type MedicationIngredient {
     """
     None
     """
-    itemReference: MedicationIngredientItemReference
+    itemReference: MedicationIngredientItemReferenceReference
     """
     Indication of whether this ingredient affects the therapeutic action of the
     drug.

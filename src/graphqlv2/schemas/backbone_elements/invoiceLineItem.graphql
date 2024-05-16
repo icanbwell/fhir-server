@@ -5,6 +5,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import InvoicePriceComponent from "../backbone_elements/invoicePriceComponent.graphql"
 
+"""
+Reference type for ChargeItemReference
+"""
+type InvoiceLineItemChargeItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ChargeItem
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Invoice.LineItem
@@ -47,7 +59,7 @@ type InvoiceLineItem {
     """
     None
     """
-    chargeItemReference: ChargeItem
+    chargeItemReference: InvoiceLineItemChargeItemReferenceReference
     """
     None
     """

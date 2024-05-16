@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         coverage: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -30,56 +29,64 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Coverage: {
+    CoveragePolicyHolderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        policyHolder: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.policyHolder);
-        },
+                parent
+            );
+        }
+    },
+    CoverageSubscriberReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subscriber: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subscriber);
-        },
+                parent
+            );
+        }
+    },
+    CoverageBeneficiaryReference: {
         // noinspection JSUnusedLocalSymbols
-
-        beneficiary: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.beneficiary);
-        },
+                parent
+            );
+        }
+    },
+    CoveragePayorReference: {
         // noinspection JSUnusedLocalSymbols
-
-        payor: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.payor);
-        },
+                parent
+            );
+        }
+    },
+    CoverageContractReference: {
         // noinspection JSUnusedLocalSymbols
-
-        contract: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.contract);
+                parent
+            );
         }
     }
 };

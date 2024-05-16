@@ -13,6 +13,41 @@
 # import MedicinalProductPackagedBatchIdentifier from "../backbone_elements/medicinalProductPackagedBatchIdentifier.graphql"
 # import MedicinalProductPackagedPackageItem from "../backbone_elements/medicinalProductPackagedPackageItem.graphql"
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductPackagedSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProduct
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for MarketingAuthorization
+"""
+type MedicinalProductPackagedMarketingAuthorizationReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductAuthorization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Manufacturer
+"""
+type MedicinalProductPackagedManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -90,7 +125,7 @@ type MedicinalProductPackaged {
     """
     The product with this is a pack for.
     """
-    subject: [MedicinalProduct]
+    subject: [MedicinalProductPackagedSubjectReference]
     """
     Textual description.
     """
@@ -107,11 +142,11 @@ type MedicinalProductPackaged {
     """
     Manufacturer of this Package Item.
     """
-    marketingAuthorization: MedicinalProductAuthorization
+    marketingAuthorization: MedicinalProductPackagedMarketingAuthorizationReference
     """
     Manufacturer of this Package Item.
     """
-    manufacturer: [Organization]
+    manufacturer: [MedicinalProductPackagedManufacturerReference]
     """
     Batch numbering.
     """

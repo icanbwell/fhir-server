@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         deviceMetric: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,26 +14,28 @@ module.exports = {
             );
         }
     },
-    DeviceMetric: {
+    DeviceMetricSourceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        source: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.source);
-        },
+                parent
+            );
+        }
+    },
+    DeviceMetricParentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parent: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parent);
+                parent
+            );
         }
     }
 };

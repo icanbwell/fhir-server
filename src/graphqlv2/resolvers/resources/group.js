@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         group: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,16 +19,16 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Group: {
+    GroupManagingEntityReference: {
         // noinspection JSUnusedLocalSymbols
-
-        managingEntity: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.managingEntity);
+                parent
+            );
         }
     }
 };

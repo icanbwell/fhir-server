@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         enrollmentRequest: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,46 +19,52 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    EnrollmentRequest: {
+    EnrollmentRequestInsurerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        insurer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.insurer);
-        },
+                parent
+            );
+        }
+    },
+    EnrollmentRequestProviderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        provider: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.provider);
-        },
+                parent
+            );
+        }
+    },
+    EnrollmentRequestCandidateReference: {
         // noinspection JSUnusedLocalSymbols
-
-        candidate: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.candidate);
-        },
+                parent
+            );
+        }
+    },
+    EnrollmentRequestCoverageReference: {
         // noinspection JSUnusedLocalSymbols
-
-        coverage: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.coverage);
+                parent
+            );
         }
     }
 };

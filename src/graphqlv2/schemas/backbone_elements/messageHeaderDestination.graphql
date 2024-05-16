@@ -3,7 +3,32 @@
 # import Reference from "../complex_types/reference.graphql"
 # import url from "../simple_types/url.graphql"
 
+"""
+Reference type for Target
+"""
+type MessageHeaderDestinationTargetReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union MessageHeaderDestinationReceiver = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Receiver
+"""
+type MessageHeaderDestinationReceiverReference {
+    id: String
+    extension: [Extension]
+    reference: MessageHeaderDestinationReceiver
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MessageHeader.Destination
@@ -50,7 +75,7 @@ type MessageHeaderDestination {
     Identifies the target end system in situations where the initial message
     transmission is to an intermediary system.
     """
-    target: Device
+    target: MessageHeaderDestinationTargetReference
     """
     Indicates where the message should be routed to.
     """
@@ -59,5 +84,5 @@ type MessageHeaderDestination {
     Allows data conveyed by a message to be addressed to a particular person or
     department when routing to a specific application isn't sufficient.
     """
-    receiver: MessageHeaderDestinationReceiver
+    receiver: MessageHeaderDestinationReceiverReference
 }

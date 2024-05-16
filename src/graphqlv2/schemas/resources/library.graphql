@@ -20,6 +20,17 @@
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type LibrarySubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -159,7 +170,7 @@ type Library {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: LibrarySubjectReferenceReference
     """
     The date  (and optionally time) when the library was published. The date must
     change when the business version changes and it must change if the status code

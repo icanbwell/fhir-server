@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         organizationAffiliation: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,66 +14,76 @@ module.exports = {
             );
         }
     },
-    OrganizationAffiliation: {
+    OrganizationAffiliationOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        organization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.organization);
-        },
+                parent
+            );
+        }
+    },
+    OrganizationAffiliationParticipatingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        participatingOrganization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.participatingOrganization);
-        },
+                parent
+            );
+        }
+    },
+    OrganizationAffiliationNetworkReference: {
         // noinspection JSUnusedLocalSymbols
-
-        network: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.network);
-        },
+                parent
+            );
+        }
+    },
+    OrganizationAffiliationLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    OrganizationAffiliationHealthcareServiceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        healthcareService: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.healthcareService);
-        },
+                parent
+            );
+        }
+    },
+    OrganizationAffiliationEndpointReference: {
         // noinspection JSUnusedLocalSymbols
-
-        endpoint: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.endpoint);
+                parent
+            );
         }
     }
 };

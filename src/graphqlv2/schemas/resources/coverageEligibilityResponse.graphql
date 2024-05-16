@@ -15,7 +15,55 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import CoverageEligibilityResponseError from "../backbone_elements/coverageEligibilityResponseError.graphql"
 
+"""
+Reference type for Patient
+"""
+type CoverageEligibilityResponsePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CoverageEligibilityResponseRequestor = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Requestor
+"""
+type CoverageEligibilityResponseRequestorReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageEligibilityResponseRequestor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Request
+"""
+type CoverageEligibilityResponseRequestReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageEligibilityRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Insurer
+"""
+type CoverageEligibilityResponseInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -107,7 +155,7 @@ type CoverageEligibilityResponse {
     The party who is the beneficiary of the supplied coverage and for whom
     eligibility is sought.
     """
-    patient: Patient
+    patient: CoverageEligibilityResponsePatientReference
     """
     None
     """
@@ -123,11 +171,11 @@ type CoverageEligibilityResponse {
     """
     The provider which is responsible for the request.
     """
-    requestor: CoverageEligibilityResponseRequestor
+    requestor: CoverageEligibilityResponseRequestorReference
     """
     Reference to the original request resource.
     """
-    request: CoverageEligibilityRequest
+    request: CoverageEligibilityResponseRequestReference
     """
     The outcome of the request processing.
     """
@@ -140,7 +188,7 @@ type CoverageEligibilityResponse {
     The Insurer who issued the coverage in question and is the author of the
     response.
     """
-    insurer: Organization
+    insurer: CoverageEligibilityResponseInsurerReference
     """
     Financial instruments for reimbursement for the health care products and
     services.

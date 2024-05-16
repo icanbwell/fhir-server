@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         substanceSpecification: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,66 +14,76 @@ module.exports = {
             );
         }
     },
-    SubstanceSpecification: {
+    SubstanceSpecificationSourceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        source: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.source);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        referenceInformation: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.referenceInformation);
-        },
+                parent
+            );
+        }
+    },
+    SubstanceSpecificationReferenceInformationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        nucleicAcid: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.nucleicAcid);
-        },
+                parent
+            );
+        }
+    },
+    SubstanceSpecificationNucleicAcidReference: {
         // noinspection JSUnusedLocalSymbols
-
-        polymer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.polymer);
-        },
+                parent
+            );
+        }
+    },
+    SubstanceSpecificationPolymerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        protein: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.protein);
-        },
+                parent
+            );
+        }
+    },
+    SubstanceSpecificationProteinReference: {
         // noinspection JSUnusedLocalSymbols
-
-        sourceMaterial: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.sourceMaterial);
+                parent
+            );
+        }
+    },
+    SubstanceSpecificationSourceMaterialReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

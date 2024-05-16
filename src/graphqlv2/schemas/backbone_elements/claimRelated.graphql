@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 
+"""
+Reference type for Claim
+"""
+type ClaimRelatedClaimReference {
+    id: String
+    extension: [Extension]
+    reference: Claim
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Claim.Related
@@ -43,7 +55,7 @@ type ClaimRelated {
     """
     Reference to a related claim.
     """
-    claim: Claim
+    claim: ClaimRelatedClaimReference
     """
     A code to convey how the claims are related.
     """

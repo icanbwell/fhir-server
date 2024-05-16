@@ -18,7 +18,56 @@
 # import Annotation from "../complex_types/annotation.graphql"
 
 union InvoiceSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type InvoiceSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: InvoiceSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union InvoiceRecipient = Organization | Patient | RelatedPerson
+
+"""
+Reference type for Recipient
+"""
+type InvoiceRecipientReference {
+    id: String
+    extension: [Extension]
+    reference: InvoiceRecipient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Issuer
+"""
+type InvoiceIssuerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Account
+"""
+type InvoiceAccountReference {
+    id: String
+    extension: [Extension]
+    reference: Account
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -113,11 +162,11 @@ type Invoice {
     The individual or set of individuals receiving the goods and services billed
     in this invoice.
     """
-    subject: InvoiceSubject
+    subject: InvoiceSubjectReference
     """
     The individual or Organization responsible for balancing of this invoice.
     """
-    recipient: InvoiceRecipient
+    recipient: InvoiceRecipientReference
     """
     Date/time(s) of when this Invoice was posted.
     """
@@ -129,11 +178,11 @@ type Invoice {
     """
     The organizationissuing the Invoice.
     """
-    issuer: Organization
+    issuer: InvoiceIssuerReference
     """
     Account which is supposed to be balanced with this Invoice.
     """
-    account: Account
+    account: InvoiceAccountReference
     """
     Each line item represents one charge for goods and services rendered. Details
     such as date, code and amount are found in the referenced ChargeItem resource.

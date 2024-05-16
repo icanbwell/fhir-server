@@ -15,6 +15,17 @@
 # import TestReportTest from "../backbone_elements/testReportTest.graphql"
 # import TestReportTeardown from "../backbone_elements/testReportTeardown.graphql"
 
+"""
+Reference type for TestScript
+"""
+type TestReportTestScriptReference {
+    id: String
+    extension: [Extension]
+    reference: TestScript
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -102,7 +113,7 @@ type TestReport {
     Ideally this is an absolute URL that is used to identify the version-specific
     TestScript that was executed, matching the `TestScript.url`.
     """
-    testScript: TestScript
+    testScript: TestReportTestScriptReference
     """
     The overall result from the execution of the TestScript.
     """

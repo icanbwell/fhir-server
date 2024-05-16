@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         testScript: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,31 +14,21 @@ module.exports = {
             );
         }
     },
-    TestScriptProfileV2: {
+    TestScriptProfile: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    TestScript: {
+    TestScriptProfileReference: {
         // noinspection JSUnusedLocalSymbols
-
-        profileV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.profile);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        profile: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.profile);
+                parent
+            );
         }
     }
 };

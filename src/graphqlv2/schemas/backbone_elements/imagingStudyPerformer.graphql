@@ -6,6 +6,19 @@
 union ImagingStudyPerformerActor = Practitioner | PractitionerRole | Organization | CareTeam | Patient | Device | RelatedPerson
 
 """
+Reference type for Actor
+"""
+type ImagingStudyPerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: ImagingStudyPerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 ImagingStudy.Performer
     Representation of the content produced in a DICOM imaging study. A study
     comprises a set of series, each of which includes a set of Service-Object Pair
@@ -49,5 +62,5 @@ type ImagingStudyPerformer {
     """
     Indicates who or what performed the series.
     """
-    actor: ImagingStudyPerformerActor
+    actor: ImagingStudyPerformerActorReference
 }

@@ -5,6 +5,30 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Manufacturer
+"""
+type MedicinalProductManufacturingBusinessOperationManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Regulator
+"""
+type MedicinalProductManufacturingBusinessOperationRegulatorReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProduct.ManufacturingBusinessOperation
@@ -59,9 +83,9 @@ type MedicinalProductManufacturingBusinessOperation {
     """
     The manufacturer or establishment associated with the process.
     """
-    manufacturer: [Organization]
+    manufacturer: [MedicinalProductManufacturingBusinessOperationManufacturerReference]
     """
     A regulator which oversees the operation.
     """
-    regulator: Organization
+    regulator: MedicinalProductManufacturingBusinessOperationRegulatorReference
 }

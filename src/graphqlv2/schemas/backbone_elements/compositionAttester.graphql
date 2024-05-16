@@ -7,6 +7,19 @@
 union CompositionAttesterParty = Patient | RelatedPerson | Practitioner | PractitionerRole | Organization
 
 """
+Reference type for Party
+"""
+type CompositionAttesterPartyReference {
+    id: String
+    extension: [Extension]
+    reference: CompositionAttesterParty
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Composition.Attester
     A set of healthcare-related information that is assembled together into a
     single logical package that provides a single coherent statement of meaning,
@@ -58,5 +71,5 @@ type CompositionAttester {
     """
     Who attested the composition in the specified way.
     """
-    party: CompositionAttesterParty
+    party: CompositionAttesterPartyReference
 }

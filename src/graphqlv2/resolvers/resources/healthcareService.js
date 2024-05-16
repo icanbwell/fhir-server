@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         healthcareService: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,46 +14,52 @@ module.exports = {
             );
         }
     },
-    HealthcareService: {
+    HealthcareServiceProvidedByReference: {
         // noinspection JSUnusedLocalSymbols
-
-        providedBy: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.providedBy);
-        },
+                parent
+            );
+        }
+    },
+    HealthcareServiceLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    HealthcareServiceCoverageAreaReference: {
         // noinspection JSUnusedLocalSymbols
-
-        coverageArea: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.coverageArea);
-        },
+                parent
+            );
+        }
+    },
+    HealthcareServiceEndpointReference: {
         // noinspection JSUnusedLocalSymbols
-
-        endpoint: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.endpoint);
+                parent
+            );
         }
     }
 };

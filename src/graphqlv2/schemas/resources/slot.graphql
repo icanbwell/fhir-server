@@ -11,6 +11,17 @@
 # import Reference from "../complex_types/reference.graphql"
 # import instant from "../simple_types/instant.graphql"
 
+"""
+Reference type for Schedule
+"""
+type SlotScheduleReference {
+    id: String
+    extension: [Extension]
+    reference: Schedule
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -111,7 +122,7 @@ type Slot {
     The schedule resource that this slot defines an interval of status
     information.
     """
-    schedule: Schedule
+    schedule: SlotScheduleReference
     """
     busy | free | busy-unavailable | busy-tentative | entered-in-error.
     """

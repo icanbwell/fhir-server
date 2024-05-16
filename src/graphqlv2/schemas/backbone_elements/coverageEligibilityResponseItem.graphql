@@ -8,6 +8,19 @@
 union CoverageEligibilityResponseItemProvider = Practitioner | PractitionerRole
 
 """
+Reference type for Provider
+"""
+type CoverageEligibilityResponseItemProviderReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageEligibilityResponseItemProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 CoverageEligibilityResponse.Item
     This resource provides eligibility and plan details from the processing of an
     CoverageEligibilityRequest resource.
@@ -58,7 +71,7 @@ type CoverageEligibilityResponseItem {
     """
     The practitioner who is eligible for the provision of the product or service.
     """
-    provider: CoverageEligibilityResponseItemProvider
+    provider: CoverageEligibilityResponseItemProviderReference
     """
     True if the indicated class of service is excluded from the plan, missing or
     False indicates the product or service is included in the coverage.

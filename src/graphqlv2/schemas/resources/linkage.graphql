@@ -11,6 +11,18 @@
 
 union LinkageAuthor = Practitioner | PractitionerRole | Organization
 
+"""
+Reference type for Author
+"""
+type LinkageAuthorReference {
+    id: String
+    extension: [Extension]
+    reference: LinkageAuthor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Linkage
@@ -91,7 +103,7 @@ type Linkage {
     well as the user or organization who establishes the context in which the
     nature of each linkage is evaluated.
     """
-    author: LinkageAuthor
+    author: LinkageAuthorReference
     """
     Identifies which record considered as the reference to the same real-world
     occurrence as well as how the items should be evaluated within the collection

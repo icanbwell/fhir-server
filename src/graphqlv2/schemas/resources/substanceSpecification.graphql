@@ -17,6 +17,77 @@
 # import SubstanceSpecificationMolecularWeight from "../backbone_elements/substanceSpecificationMolecularWeight.graphql"
 # import SubstanceSpecificationRelationship from "../backbone_elements/substanceSpecificationRelationship.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceSpecificationSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ReferenceInformation
+"""
+type SubstanceSpecificationReferenceInformationReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceReferenceInformation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for NucleicAcid
+"""
+type SubstanceSpecificationNucleicAcidReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceNucleicAcid
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Polymer
+"""
+type SubstanceSpecificationPolymerReference {
+    id: String
+    extension: [Extension]
+    reference: SubstancePolymer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Protein
+"""
+type SubstanceSpecificationProteinReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceProtein
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for SourceMaterial
+"""
+type SubstanceSpecificationSourceMaterialReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceSourceMaterial
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -111,7 +182,7 @@ type SubstanceSpecification {
     """
     Supporting literature.
     """
-    source: [DocumentReference]
+    source: [SubstanceSpecificationSourceReference]
     """
     Textual comment about this record of a substance.
     """
@@ -128,7 +199,7 @@ type SubstanceSpecification {
     """
     General information detailing this substance.
     """
-    referenceInformation: SubstanceReferenceInformation
+    referenceInformation: SubstanceSpecificationReferenceInformationReference
     """
     Structural information.
     """
@@ -153,19 +224,19 @@ type SubstanceSpecification {
     """
     Data items specific to nucleic acids.
     """
-    nucleicAcid: SubstanceNucleicAcid
+    nucleicAcid: SubstanceSpecificationNucleicAcidReference
     """
     Data items specific to polymers.
     """
-    polymer: SubstancePolymer
+    polymer: SubstanceSpecificationPolymerReference
     """
     Data items specific to proteins.
     """
-    protein: SubstanceProtein
+    protein: SubstanceSpecificationProteinReference
     """
     Material or taxonomic/anatomical source for the substance.
     """
-    sourceMaterial: SubstanceSourceMaterial
+    sourceMaterial: SubstanceSpecificationSourceMaterialReference
 }
 
 type SubstanceSpecificationBundleEntry {

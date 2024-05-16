@@ -6,6 +6,19 @@
 union ConditionStageAssessment = ClinicalImpression | DiagnosticReport | Observation
 
 """
+Reference type for Assessment
+"""
+type ConditionStageAssessmentReference {
+    id: String
+    extension: [Extension]
+    reference: ConditionStageAssessment
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Condition.Stage
     A clinical condition, problem, diagnosis, or other event, situation, issue, or
     clinical concept that has risen to a level of concern.
@@ -48,7 +61,7 @@ type ConditionStage {
     Reference to a formal record of the evidence on which the staging assessment
     is based.
     """
-    assessment: [ConditionStageAssessment]
+    assessment: [ConditionStageAssessmentReference]
     """
     The kind of staging, such as pathological or clinical staging.
     """

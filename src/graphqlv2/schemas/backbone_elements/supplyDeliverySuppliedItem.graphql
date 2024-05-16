@@ -9,6 +9,19 @@
 union SupplyDeliverySuppliedItemItemReference = Medication | Substance | Device
 
 """
+Reference type for ItemReference
+"""
+type SupplyDeliverySuppliedItemItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyDeliverySuppliedItemItemReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 SupplyDelivery.SuppliedItem
     Record of delivery of what is supplied.
 """
@@ -52,5 +65,5 @@ type SupplyDeliverySuppliedItem {
     """
     None
     """
-    itemReference: SupplyDeliverySuppliedItemItemReference
+    itemReference: SupplyDeliverySuppliedItemItemReferenceReference
 }

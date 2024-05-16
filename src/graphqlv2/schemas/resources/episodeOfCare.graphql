@@ -13,7 +13,79 @@
 # import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
+"""
+Reference type for Patient
+"""
+type EpisodeOfCarePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ManagingOrganization
+"""
+type EpisodeOfCareManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ReferralRequest
+"""
+type EpisodeOfCareReferralRequestReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union EpisodeOfCareCareManager = Practitioner | PractitionerRole
+
+"""
+Reference type for CareManager
+"""
+type EpisodeOfCareCareManagerReference {
+    id: String
+    extension: [Extension]
+    reference: EpisodeOfCareCareManager
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Team
+"""
+type EpisodeOfCareTeamReference {
+    id: String
+    extension: [Extension]
+    reference: CareTeam
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Account
+"""
+type EpisodeOfCareAccountReference {
+    id: String
+    extension: [Extension]
+    reference: Account
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -113,12 +185,12 @@ type EpisodeOfCare {
     """
     The patient who is the focus of this episode of care.
     """
-    patient: Patient
+    patient: EpisodeOfCarePatientReference
     """
     The organization that has assumed the specific responsibilities for the
     specified duration.
     """
-    managingOrganization: Organization
+    managingOrganization: EpisodeOfCareManagingOrganizationReference
     """
     The interval during which the managing organization assumes the defined
     responsibility.
@@ -128,20 +200,20 @@ type EpisodeOfCare {
     Referral Request(s) that are fulfilled by this EpisodeOfCare, incoming
     referrals.
     """
-    referralRequest: [ServiceRequest]
+    referralRequest: [EpisodeOfCareReferralRequestReference]
     """
     The practitioner that is the care manager/care coordinator for this patient.
     """
-    careManager: EpisodeOfCareCareManager
+    careManager: EpisodeOfCareCareManagerReference
     """
     The list of practitioners that may be facilitating this episode of care for
     specific purposes.
     """
-    team: [CareTeam]
+    team: [EpisodeOfCareTeamReference]
     """
     The set of accounts that may be used for billing for this EpisodeOfCare.
     """
-    account: [Account]
+    account: [EpisodeOfCareAccountReference]
 }
 
 type EpisodeOfCareBundleEntry {

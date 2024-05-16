@@ -16,8 +16,69 @@
 # import CoverageEligibilityRequestInsurance from "../backbone_elements/coverageEligibilityRequestInsurance.graphql"
 # import CoverageEligibilityRequestItem from "../backbone_elements/coverageEligibilityRequestItem.graphql"
 
+"""
+Reference type for Patient
+"""
+type CoverageEligibilityRequestPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CoverageEligibilityRequestEnterer = Practitioner | PractitionerRole
+
+"""
+Reference type for Enterer
+"""
+type CoverageEligibilityRequestEntererReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageEligibilityRequestEnterer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union CoverageEligibilityRequestProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Provider
+"""
+type CoverageEligibilityRequestProviderReference {
+    id: String
+    extension: [Extension]
+    reference: CoverageEligibilityRequestProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Insurer
+"""
+type CoverageEligibilityRequestInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Facility
+"""
+type CoverageEligibilityRequestFacilityReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -116,7 +177,7 @@ type CoverageEligibilityRequest {
     The party who is the beneficiary of the supplied coverage and for whom
     eligibility is sought.
     """
-    patient: Patient
+    patient: CoverageEligibilityRequestPatientReference
     """
     None
     """
@@ -132,20 +193,20 @@ type CoverageEligibilityRequest {
     """
     Person who created the request.
     """
-    enterer: CoverageEligibilityRequestEnterer
+    enterer: CoverageEligibilityRequestEntererReference
     """
     The provider which is responsible for the request.
     """
-    provider: CoverageEligibilityRequestProvider
+    provider: CoverageEligibilityRequestProviderReference
     """
     The Insurer who issued the coverage in question and is the recipient of the
     request.
     """
-    insurer: Organization
+    insurer: CoverageEligibilityRequestInsurerReference
     """
     Facility where the services are intended to be provided.
     """
-    facility: Location
+    facility: CoverageEligibilityRequestFacilityReference
     """
     Additional information codes regarding exceptions, special considerations, the
     condition, situation, prior or concurrent issues.

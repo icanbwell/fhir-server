@@ -29,9 +29,131 @@
 # import ExplanationOfBenefitProcessNote from "../backbone_elements/explanationOfBenefitProcessNote.graphql"
 # import ExplanationOfBenefitBenefitBalance from "../backbone_elements/explanationOfBenefitBenefitBalance.graphql"
 
+"""
+Reference type for Patient
+"""
+type ExplanationOfBenefitPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ExplanationOfBenefitEnterer = Practitioner | PractitionerRole
+
+"""
+Reference type for Enterer
+"""
+type ExplanationOfBenefitEntererReference {
+    id: String
+    extension: [Extension]
+    reference: ExplanationOfBenefitEnterer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Insurer
+"""
+type ExplanationOfBenefitInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ExplanationOfBenefitProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Provider
+"""
+type ExplanationOfBenefitProviderReference {
+    id: String
+    extension: [Extension]
+    reference: ExplanationOfBenefitProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ExplanationOfBenefitPrescription = MedicationRequest | VisionPrescription
+
+"""
+Reference type for Prescription
+"""
+type ExplanationOfBenefitPrescriptionReference {
+    id: String
+    extension: [Extension]
+    reference: ExplanationOfBenefitPrescription
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for OriginalPrescription
+"""
+type ExplanationOfBenefitOriginalPrescriptionReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Referral
+"""
+type ExplanationOfBenefitReferralReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Facility
+"""
+type ExplanationOfBenefitFacilityReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Claim
+"""
+type ExplanationOfBenefitClaimReference {
+    id: String
+    extension: [Extension]
+    reference: Claim
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ClaimResponse
+"""
+type ExplanationOfBenefitClaimResponseReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimResponse
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -135,7 +257,7 @@ type ExplanationOfBenefit {
     or are being considered and for whom actual for forecast reimbursement is
     sought.
     """
-    patient: Patient
+    patient: ExplanationOfBenefitPatientReference
     """
     The period for which charges are being submitted.
     """
@@ -147,16 +269,16 @@ type ExplanationOfBenefit {
     """
     Individual who created the claim, predetermination or preauthorization.
     """
-    enterer: ExplanationOfBenefitEnterer
+    enterer: ExplanationOfBenefitEntererReference
     """
     The party responsible for authorization, adjudication and reimbursement.
     """
-    insurer: Organization
+    insurer: ExplanationOfBenefitInsurerReference
     """
     The provider which is responsible for the claim, predetermination or
     preauthorization.
     """
-    provider: ExplanationOfBenefitProvider
+    provider: ExplanationOfBenefitProviderReference
     """
     The provider-required urgency of processing the request. Typical values
     include: stat, routine deferred.
@@ -180,12 +302,12 @@ type ExplanationOfBenefit {
     """
     Prescription to support the dispensing of pharmacy, device or vision products.
     """
-    prescription: ExplanationOfBenefitPrescription
+    prescription: ExplanationOfBenefitPrescriptionReference
     """
     Original prescription which has been superseded by this prescription to
     support the dispensing of pharmacy services, medications or products.
     """
-    originalPrescription: MedicationRequest
+    originalPrescription: ExplanationOfBenefitOriginalPrescriptionReference
     """
     The party to be reimbursed for cost of the products and services according to
     the terms of the policy.
@@ -194,21 +316,21 @@ type ExplanationOfBenefit {
     """
     A reference to a referral resource.
     """
-    referral: ServiceRequest
+    referral: ExplanationOfBenefitReferralReference
     """
     Facility where the services were provided.
     """
-    facility: Location
+    facility: ExplanationOfBenefitFacilityReference
     """
     The business identifier for the instance of the adjudication request: claim
     predetermination or preauthorization.
     """
-    claim: Claim
+    claim: ExplanationOfBenefitClaimReference
     """
     The business identifier for the instance of the adjudication response: claim,
     predetermination or preauthorization response.
     """
-    claimResponse: ClaimResponse
+    claimResponse: ExplanationOfBenefitClaimResponseReference
     """
     The outcome of the claim, predetermination, or preauthorization processing.
     """

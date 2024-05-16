@@ -14,8 +14,58 @@
 # import Annotation from "../complex_types/annotation.graphql"
 
 union GoalSubject = Patient | Group | Organization
+
+"""
+Reference type for Subject
+"""
+type GoalSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: GoalSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union GoalExpressedBy = Patient | Practitioner | PractitionerRole | RelatedPerson
+
+"""
+Reference type for ExpressedBy
+"""
+type GoalExpressedByReference {
+    id: String
+    extension: [Extension]
+    reference: GoalExpressedBy
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union GoalAddresses = Condition | Observation | MedicationStatement | NutritionOrder | ServiceRequest | RiskAssessment
+
+"""
+Reference type for Addresses
+"""
+type GoalAddressesReference {
+    id: String
+    extension: [Extension]
+    reference: GoalAddresses
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for OutcomeReference
+"""
+type GoalOutcomeReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Observation
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -122,7 +172,7 @@ type Goal {
     Identifies the patient, group or organization for whom the goal is being
     established.
     """
-    subject: GoalSubject
+    subject: GoalSubjectReference
     """
     None
     """
@@ -147,12 +197,12 @@ type Goal {
     """
     Indicates whose goal this is - patient goal, practitioner goal, etc.
     """
-    expressedBy: GoalExpressedBy
+    expressedBy: GoalExpressedByReference
     """
     The identified conditions and other health record elements that are intended
     to be addressed by the goal.
     """
-    addresses: [GoalAddresses]
+    addresses: [GoalAddressesReference]
     """
     Any comments related to the goal.
     """
@@ -165,7 +215,7 @@ type Goal {
     """
     Details of what's changed (or not changed).
     """
-    outcomeReference: [Observation]
+    outcomeReference: [GoalOutcomeReferenceReference]
 }
 
 type GoalBundleEntry {

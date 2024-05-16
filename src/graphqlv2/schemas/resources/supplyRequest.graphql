@@ -18,11 +18,88 @@
 # import Timing from "../backbone_elements/timing.graphql"
 
 union SupplyRequestItemReference = Medication | Substance | Device
+
+"""
+Reference type for ItemReference
+"""
+type SupplyRequestItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestItemReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device
+
+"""
+Reference type for Requester
+"""
+type SupplyRequestRequesterReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestRequester
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyRequestSupplier = Organization | HealthcareService
+
+"""
+Reference type for Supplier
+"""
+type SupplyRequestSupplierReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestSupplier
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyRequestReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
+
+"""
+Reference type for ReasonReference
+"""
+type SupplyRequestReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyRequestDeliverFrom = Organization | Location
+
+"""
+Reference type for DeliverFrom
+"""
+type SupplyRequestDeliverFromReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestDeliverFrom
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyRequestDeliverTo = Organization | Location | Patient
+
+"""
+Reference type for DeliverTo
+"""
+type SupplyRequestDeliverToReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequestDeliverTo
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -121,7 +198,7 @@ type SupplyRequest {
     """
     None
     """
-    itemReference: SupplyRequestItemReference
+    itemReference: SupplyRequestItemReferenceReference
     """
     The amount that is being ordered of the indicated item.
     """
@@ -150,11 +227,11 @@ type SupplyRequest {
     """
     The device, practitioner, etc. who initiated the request.
     """
-    requester: SupplyRequestRequester
+    requester: SupplyRequestRequesterReference
     """
     Who is intended to fulfill the request.
     """
-    supplier: [SupplyRequestSupplier]
+    supplier: [SupplyRequestSupplierReference]
     """
     The reason why the supply item was requested.
     """
@@ -162,15 +239,15 @@ type SupplyRequest {
     """
     The reason why the supply item was requested.
     """
-    reasonReference: [SupplyRequestReasonReference]
+    reasonReference: [SupplyRequestReasonReferenceReference]
     """
     Where the supply is expected to come from.
     """
-    deliverFrom: SupplyRequestDeliverFrom
+    deliverFrom: SupplyRequestDeliverFromReference
     """
     Where the supply is destined to go.
     """
-    deliverTo: SupplyRequestDeliverTo
+    deliverTo: SupplyRequestDeliverToReference
 }
 
 type SupplyRequestBundleEntry {

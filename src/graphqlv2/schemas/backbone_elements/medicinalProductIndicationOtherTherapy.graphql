@@ -9,6 +9,19 @@
 union MedicinalProductIndicationOtherTherapyMedicationReference = MedicinalProduct | Medication | Substance | SubstanceSpecification
 
 """
+Reference type for MedicationReference
+"""
+type MedicinalProductIndicationOtherTherapyMedicationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIndicationOtherTherapyMedicationReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicinalProductIndication.OtherTherapy
     Indication for the Medicinal Product.
 """
@@ -53,5 +66,5 @@ type MedicinalProductIndicationOtherTherapy {
     """
     None
     """
-    medicationReference: MedicinalProductIndicationOtherTherapyMedicationReference
+    medicationReference: MedicinalProductIndicationOtherTherapyMedicationReferenceReference
 }

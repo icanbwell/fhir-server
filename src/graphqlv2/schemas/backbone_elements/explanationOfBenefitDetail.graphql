@@ -9,6 +9,18 @@
 # import ExplanationOfBenefitAdjudication from "../backbone_elements/explanationOfBenefitAdjudication.graphql"
 # import ExplanationOfBenefitSubDetail from "../backbone_elements/explanationOfBenefitSubDetail.graphql"
 
+"""
+Reference type for Udi
+"""
+type ExplanationOfBenefitDetailUdiReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ExplanationOfBenefit.Detail
@@ -98,7 +110,7 @@ type ExplanationOfBenefitDetail {
     """
     Unique Device Identifiers associated with this line item.
     """
-    udi: [Device]
+    udi: [ExplanationOfBenefitDetailUdiReference]
     """
     The numbers associated with notes below which apply to the adjudication of
     this item.

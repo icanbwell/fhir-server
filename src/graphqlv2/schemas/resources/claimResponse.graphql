@@ -21,7 +21,67 @@
 # import ClaimResponseInsurance from "../backbone_elements/claimResponseInsurance.graphql"
 # import ClaimResponseError from "../backbone_elements/claimResponseError.graphql"
 
+"""
+Reference type for Patient
+"""
+type ClaimResponsePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Insurer
+"""
+type ClaimResponseInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ClaimResponseRequestor = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Requestor
+"""
+type ClaimResponseRequestorReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimResponseRequestor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Request
+"""
+type ClaimResponseRequestReference {
+    id: String
+    extension: [Extension]
+    reference: Claim
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for CommunicationRequest
+"""
+type ClaimResponseCommunicationRequestReference {
+    id: String
+    extension: [Extension]
+    reference: CommunicationRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -124,7 +184,7 @@ type ClaimResponse {
     or are being considered and for whom actual for facast reimbursement is
     sought.
     """
-    patient: Patient
+    patient: ClaimResponsePatientReference
     """
     The date this resource was created.
     """
@@ -132,16 +192,16 @@ type ClaimResponse {
     """
     The party responsible for authorization, adjudication and reimbursement.
     """
-    insurer: Organization
+    insurer: ClaimResponseInsurerReference
     """
     The provider which is responsible for the claim, predetermination or
     preauthorization.
     """
-    requestor: ClaimResponseRequestor
+    requestor: ClaimResponseRequestorReference
     """
     Original request resource reference.
     """
-    request: Claim
+    request: ClaimResponseRequestReference
     """
     The outcome of the claim, predetermination, or preauthorization processing.
     """
@@ -207,7 +267,7 @@ type ClaimResponse {
     """
     Request for additional supporting or authorizing information.
     """
-    communicationRequest: [CommunicationRequest]
+    communicationRequest: [ClaimResponseCommunicationRequestReference]
     """
     Financial instruments for reimbursement for the health care products and
     services specified on the claim.

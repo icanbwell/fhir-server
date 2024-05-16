@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         messageHeader: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -35,71 +34,69 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MessageHeaderFocusV2: {
+    MessageHeaderFocus: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MessageHeader: {
+    MessageHeaderSenderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        sender: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.sender);
-        },
+                parent
+            );
+        }
+    },
+    MessageHeaderEntererReference: {
         // noinspection JSUnusedLocalSymbols
-
-        enterer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.enterer);
-        },
+                parent
+            );
+        }
+    },
+    MessageHeaderAuthorReference: {
         // noinspection JSUnusedLocalSymbols
-
-        author: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.author);
-        },
+                parent
+            );
+        }
+    },
+    MessageHeaderResponsibleReference: {
         // noinspection JSUnusedLocalSymbols
-
-        responsible: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.responsible);
-        },
+                parent
+            );
+        }
+    },
+    MessageHeaderFocusReference: {
         // noinspection JSUnusedLocalSymbols
-
-        focusV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.focus);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        focus: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.focus);
+                parent
+            );
         }
     }
 };

@@ -9,6 +9,19 @@
 union MedicinalProductContraindicationOtherTherapyMedicationReference = MedicinalProduct | Medication | Substance | SubstanceSpecification
 
 """
+Reference type for MedicationReference
+"""
+type MedicinalProductContraindicationOtherTherapyMedicationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductContraindicationOtherTherapyMedicationReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicinalProductContraindication.OtherTherapy
     The clinical particulars - indications, contraindications etc. of a medicinal
     product, including for regulatory purposes.
@@ -54,5 +67,5 @@ type MedicinalProductContraindicationOtherTherapy {
     """
     None
     """
-    medicationReference: MedicinalProductContraindicationOtherTherapyMedicationReference
+    medicationReference: MedicinalProductContraindicationOtherTherapyMedicationReferenceReference
 }

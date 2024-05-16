@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         paymentNotice: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,12 +14,12 @@ module.exports = {
             );
         }
     },
-    PaymentNoticeRequestV2: {
+    PaymentNoticeRequest: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    PaymentNoticeResponseV2: {
+    PaymentNoticeResponse: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -35,86 +34,76 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    PaymentNotice: {
+    PaymentNoticeRequestReference: {
         // noinspection JSUnusedLocalSymbols
-
-        requestV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.request);
-        },
+                parent
+            );
+        }
+    },
+    PaymentNoticeResponseReference: {
         // noinspection JSUnusedLocalSymbols
-
-        request: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.request);
-        },
+                parent
+            );
+        }
+    },
+    PaymentNoticeProviderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        responseV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.response);
-        },
+                parent
+            );
+        }
+    },
+    PaymentNoticePaymentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        response: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.response);
-        },
+                parent
+            );
+        }
+    },
+    PaymentNoticePayeeReference: {
         // noinspection JSUnusedLocalSymbols
-
-        provider: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.provider);
-        },
+                parent
+            );
+        }
+    },
+    PaymentNoticeRecipientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        payment: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.payment);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        payee: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.payee);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        recipient: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.recipient);
+                parent
+            );
         }
     }
 };

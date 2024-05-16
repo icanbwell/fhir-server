@@ -3,6 +3,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import Signature from "../complex_types/signature.graphql"
 
+"""
+Reference type for Organization
+"""
+type VerificationResultValidatorOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 VerificationResult.Validator
@@ -41,7 +53,7 @@ type VerificationResultValidator {
     """
     Reference to the organization validating information.
     """
-    organization: Organization
+    organization: VerificationResultValidatorOrganizationReference
     """
     A digital identity certificate associated with the validator.
     """

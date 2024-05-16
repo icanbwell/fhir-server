@@ -15,6 +15,31 @@
 union ClaimResponseAddItemProvider = Practitioner | PractitionerRole | Organization
 
 """
+Reference type for Provider
+"""
+type ClaimResponseAddItemProviderReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimResponseAddItemProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for LocationReference
+"""
+type ClaimResponseAddItemLocationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 ClaimResponse.AddItem
     This resource provides the adjudication details from the processing of a Claim
     resource.
@@ -65,7 +90,7 @@ type ClaimResponseAddItem {
     """
     The providers who are authorized for the services rendered to the patient.
     """
-    provider: [ClaimResponseAddItemProvider]
+    provider: [ClaimResponseAddItemProviderReference]
     """
     When the value is a group code then this item collects a set of related claim
     details, otherwise this contains the product, service, drug or other billing
@@ -100,7 +125,7 @@ type ClaimResponseAddItem {
     """
     None
     """
-    locationReference: Location
+    locationReference: ClaimResponseAddItemLocationReferenceReference
     """
     The number of repetitions of a service or product.
     """

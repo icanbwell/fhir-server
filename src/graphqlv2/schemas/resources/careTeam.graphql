@@ -16,6 +16,54 @@
 
 union CareTeamSubject = Patient | Group
 
+"""
+Reference type for Subject
+"""
+type CareTeamSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: CareTeamSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type CareTeamEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ReasonReference
+"""
+type CareTeamReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ManagingOrganization
+"""
+type CareTeamManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CareTeam
@@ -110,12 +158,12 @@ type CareTeam {
     """
     Identifies the patient or group whose intended care is handled by the team.
     """
-    subject: CareTeamSubject
+    subject: CareTeamSubjectReference
     """
     The Encounter during which this CareTeam was created or to which the creation
     of this record is tightly associated.
     """
-    encounter: Encounter
+    encounter: CareTeamEncounterReference
     """
     Indicates when the team did (or is intended to) come into effect and end.
     """
@@ -132,11 +180,11 @@ type CareTeam {
     """
     Condition(s) that this care team addresses.
     """
-    reasonReference: [Condition]
+    reasonReference: [CareTeamReasonReferenceReference]
     """
     The organization responsible for the care team.
     """
-    managingOrganization: [Organization]
+    managingOrganization: [CareTeamManagingOrganizationReference]
     """
     A central contact detail for the care team (that applies to all members).
     """

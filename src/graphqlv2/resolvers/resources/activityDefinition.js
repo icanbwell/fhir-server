@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         activityDefinition: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,66 +19,76 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ActivityDefinition: {
+    ActivityDefinitionSubjectReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subjectReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subjectReference);
-        },
+                parent
+            );
+        }
+    },
+    ActivityDefinitionLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    ActivityDefinitionProductReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        productReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.productReference);
-        },
+                parent
+            );
+        }
+    },
+    ActivityDefinitionSpecimenRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-
-        specimenRequirement: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.specimenRequirement);
-        },
+                parent
+            );
+        }
+    },
+    ActivityDefinitionObservationRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-
-        observationRequirement: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.observationRequirement);
-        },
+                parent
+            );
+        }
+    },
+    ActivityDefinitionObservationResultRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-
-        observationResultRequirement: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.observationResultRequirement);
+                parent
+            );
         }
     }
 };

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         goal: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -30,46 +29,52 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Goal: {
+    GoalSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    GoalExpressedByReference: {
         // noinspection JSUnusedLocalSymbols
-
-        expressedBy: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.expressedBy);
-        },
+                parent
+            );
+        }
+    },
+    GoalAddressesReference: {
         // noinspection JSUnusedLocalSymbols
-
-        addresses: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.addresses);
-        },
+                parent
+            );
+        }
+    },
+    GoalOutcomeReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        outcomeReference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.outcomeReference);
+                parent
+            );
         }
     }
 };

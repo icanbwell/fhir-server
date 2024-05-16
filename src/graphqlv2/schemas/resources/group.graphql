@@ -15,6 +15,18 @@
 
 union GroupManagingEntity = Organization | RelatedPerson | Practitioner | PractitionerRole
 
+"""
+Reference type for ManagingEntity
+"""
+type GroupManagingEntityReference {
+    id: String
+    extension: [Extension]
+    reference: GroupManagingEntity
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Group
@@ -123,7 +135,7 @@ type Group {
     Entity responsible for defining and maintaining Group characteristics and/or
     registered members.
     """
-    managingEntity: GroupManagingEntity
+    managingEntity: GroupManagingEntityReference
     """
     Identifies traits whose presence r absence is shared by members of the group.
     """

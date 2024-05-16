@@ -14,6 +14,30 @@
 
 union MedicinalProductIndicationSubject = MedicinalProduct | Medication
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductIndicationSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIndicationSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for UndesirableEffect
+"""
+type MedicinalProductIndicationUndesirableEffectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductUndesirableEffect
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductIndication
@@ -86,7 +110,7 @@ type MedicinalProductIndication {
     """
     The medication for which this is an indication.
     """
-    subject: [MedicinalProductIndicationSubject]
+    subject: [MedicinalProductIndicationSubjectReference]
     """
     The disease, symptom or procedure that is the indication for treatment.
     """
@@ -115,7 +139,7 @@ type MedicinalProductIndication {
     """
     Describe the undesirable effects of the medicinal product.
     """
-    undesirableEffect: [MedicinalProductUndesirableEffect]
+    undesirableEffect: [MedicinalProductIndicationUndesirableEffectReference]
     """
     The population group to which this applies.
     """

@@ -4,6 +4,18 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceSpecificationCodeSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceSpecification.Code
@@ -59,5 +71,5 @@ type SubstanceSpecificationCode {
     """
     Supporting literature.
     """
-    source: [DocumentReference]
+    source: [SubstanceSpecificationCodeSourceReference]
 }

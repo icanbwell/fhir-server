@@ -13,7 +13,6 @@
 # import CompartmentDefinitionResource from "../backbone_elements/compartmentDefinitionResource.graphql"
 
 
-
 """
 CompartmentDefinition
     A compartment definition that defines how resources are accessed on a server.

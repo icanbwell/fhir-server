@@ -12,6 +12,18 @@
 
 union MedicinalProductUndesirableEffectSubject = MedicinalProduct | Medication
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductUndesirableEffectSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductUndesirableEffectSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductUndesirableEffect
@@ -84,7 +96,7 @@ type MedicinalProductUndesirableEffect {
     """
     The medication for which this is an indication.
     """
-    subject: [MedicinalProductUndesirableEffectSubject]
+    subject: [MedicinalProductUndesirableEffectSubjectReference]
     """
     The symptom, condition or undesirable effect.
     """

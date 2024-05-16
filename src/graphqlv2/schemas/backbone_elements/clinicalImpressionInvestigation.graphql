@@ -6,6 +6,19 @@
 union ClinicalImpressionInvestigationItem = Observation | QuestionnaireResponse | FamilyMemberHistory | DiagnosticReport | RiskAssessment | ImagingStudy | Media
 
 """
+Reference type for Item
+"""
+type ClinicalImpressionInvestigationItemReference {
+    id: String
+    extension: [Extension]
+    reference: ClinicalImpressionInvestigationItem
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 ClinicalImpression.Investigation
     A record of a clinical assessment performed to determine what problem(s) may
     affect the patient and before planning the treatments or management strategies
@@ -54,5 +67,5 @@ type ClinicalImpressionInvestigation {
     """
     A record of a specific investigation that was undertaken.
     """
-    item: [ClinicalImpressionInvestigationItem]
+    item: [ClinicalImpressionInvestigationItemReference]
 }

@@ -9,6 +9,18 @@
 # import positiveInt from "../simple_types/int.graphql"
 # import DataRequirementSort from "../complex_types/dataRequirementSort.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type DataRequirementSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 DataRequirement
@@ -47,7 +59,7 @@ type DataRequirement {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: DataRequirementSubjectReferenceReference
     """
     Indicates that specific elements of the type are referenced by the knowledge
     module and must be supported by the consumer in order to obtain an effective

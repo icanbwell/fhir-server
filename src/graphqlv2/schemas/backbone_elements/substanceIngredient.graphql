@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Substance from "../resources/substance.graphql"
 
+"""
+Reference type for SubstanceReference
+"""
+type SubstanceIngredientSubstanceReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Substance.Ingredient
@@ -49,5 +61,5 @@ type SubstanceIngredient {
     """
     None
     """
-    substanceReference: Substance
+    substanceReference: SubstanceIngredientSubstanceReferenceReference
 }

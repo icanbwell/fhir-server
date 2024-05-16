@@ -5,6 +5,30 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Procedure from "../resources/procedure.graphql"
 
+"""
+Reference type for ProcedureReference
+"""
+type ExplanationOfBenefitProcedureProcedureReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Procedure
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Udi
+"""
+type ExplanationOfBenefitProcedureUdiReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ExplanationOfBenefit.Procedure
@@ -60,9 +84,9 @@ type ExplanationOfBenefitProcedure {
     """
     None
     """
-    procedureReference: Procedure
+    procedureReference: ExplanationOfBenefitProcedureProcedureReferenceReference
     """
     Unique Device Identifiers associated with this line item.
     """
-    udi: [Device]
+    udi: [ExplanationOfBenefitProcedureUdiReference]
 }

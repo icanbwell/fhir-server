@@ -8,6 +8,18 @@
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
 # import Expression from "../complex_types/expression.graphql"
 
+"""
+Reference type for TimingReference
+"""
+type TriggerDefinitionTimingReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Schedule
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 TriggerDefinition
@@ -46,7 +58,7 @@ type TriggerDefinition {
     """
     None
     """
-    timingReference: Schedule
+    timingReference: TriggerDefinitionTimingReferenceReference
     """
     None
     """

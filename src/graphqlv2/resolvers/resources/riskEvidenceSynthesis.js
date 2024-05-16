@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         riskEvidenceSynthesis: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,36 +14,40 @@ module.exports = {
             );
         }
     },
-    RiskEvidenceSynthesis: {
+    RiskEvidenceSynthesisPopulationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        population: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.population);
-        },
+                parent
+            );
+        }
+    },
+    RiskEvidenceSynthesisExposureReference: {
         // noinspection JSUnusedLocalSymbols
-
-        exposure: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.exposure);
-        },
+                parent
+            );
+        }
+    },
+    RiskEvidenceSynthesisOutcomeReference: {
         // noinspection JSUnusedLocalSymbols
-
-        outcome: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.outcome);
+                parent
+            );
         }
     }
 };

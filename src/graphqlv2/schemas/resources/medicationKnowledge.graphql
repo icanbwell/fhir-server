@@ -22,6 +22,41 @@
 # import MedicationKnowledgeRegulatory from "../backbone_elements/medicationKnowledgeRegulatory.graphql"
 # import MedicationKnowledgeKinetics from "../backbone_elements/medicationKnowledgeKinetics.graphql"
 
+"""
+Reference type for Manufacturer
+"""
+type MedicationKnowledgeManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for AssociatedMedication
+"""
+type MedicationKnowledgeAssociatedMedicationReference {
+    id: String
+    extension: [Extension]
+    reference: Medication
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Contraindication
+"""
+type MedicationKnowledgeContraindicationReference {
+    id: String
+    extension: [Extension]
+    reference: DetectedIssue
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -109,7 +144,7 @@ type MedicationKnowledge {
     Describes the details of the manufacturer of the medication product.  This is
     not intended to represent the distributor of a medication product.
     """
-    manufacturer: Organization
+    manufacturer: MedicationKnowledgeManufacturerReference
     """
     Describes the form of the item.  Powder; tablets; capsule.
     """
@@ -137,7 +172,7 @@ type MedicationKnowledge {
     Rosuvastatin) or if this is a generic medication (e.g. Rosuvastatin), this
     would link to a branded product (e.g. Crestor).
     """
-    associatedMedication: [Medication]
+    associatedMedication: [MedicationKnowledgeAssociatedMedicationReference]
     """
     Category of the medication or product (e.g. branded product, therapeutic
     moeity, generic product, innovator product, etc.).
@@ -188,7 +223,7 @@ type MedicationKnowledge {
     Potential clinical issue with or between medication(s) (for example, drug-drug
     interaction, drug-disease contraindication, drug-allergy interaction, etc.).
     """
-    contraindication: [DetectedIssue]
+    contraindication: [MedicationKnowledgeContraindicationReference]
     """
     Regulatory information about a medication.
     """

@@ -15,6 +15,17 @@
 # import Reference from "../complex_types/reference.graphql"
 # import PersonLink from "../backbone_elements/personLink.graphql"
 
+"""
+Reference type for ManagingOrganization
+"""
+type PersonManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -118,7 +129,7 @@ type Person {
     """
     The organization that is the custodian of the person record.
     """
-    managingOrganization: Organization
+    managingOrganization: PersonManagingOrganizationReference
     """
     Whether this person's record is in active use.
     """

@@ -15,7 +15,79 @@
 # import MedicinalProductManufacturingBusinessOperation from "../backbone_elements/medicinalProductManufacturingBusinessOperation.graphql"
 # import MedicinalProductSpecialDesignation from "../backbone_elements/medicinalProductSpecialDesignation.graphql"
 
+"""
+Reference type for PharmaceuticalProduct
+"""
+type MedicinalProductPharmaceuticalProductReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductPharmaceutical
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for PackagedMedicinalProduct
+"""
+type MedicinalProductPackagedMedicinalProductReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductPackaged
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for AttachedDocument
+"""
+type MedicinalProductAttachedDocumentReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for MasterFile
+"""
+type MedicinalProductMasterFileReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union MedicinalProductContact = Organization | PractitionerRole
+
+"""
+Reference type for Contact
+"""
+type MedicinalProductContactReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductContact
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ClinicalTrial
+"""
+type MedicinalProductClinicalTrialReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchStudy
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -135,28 +207,28 @@ type MedicinalProduct {
     """
     Pharmaceutical aspects of product.
     """
-    pharmaceuticalProduct: [MedicinalProductPharmaceutical]
+    pharmaceuticalProduct: [MedicinalProductPharmaceuticalProductReference]
     """
     Package representation for the product.
     """
-    packagedMedicinalProduct: [MedicinalProductPackaged]
+    packagedMedicinalProduct: [MedicinalProductPackagedMedicinalProductReference]
     """
     Supporting documentation, typically for regulatory submission.
     """
-    attachedDocument: [DocumentReference]
+    attachedDocument: [MedicinalProductAttachedDocumentReference]
     """
     A master file for to the medicinal product (e.g. Pharmacovigilance System
     Master File).
     """
-    masterFile: [DocumentReference]
+    masterFile: [MedicinalProductMasterFileReference]
     """
     A product specific contact, person (in a role), or an organization.
     """
-    contact: [MedicinalProductContact]
+    contact: [MedicinalProductContactReference]
     """
     Clinical trials or studies that this product is involved in.
     """
-    clinicalTrial: [ResearchStudy]
+    clinicalTrial: [MedicinalProductClinicalTrialReference]
     """
     The product's name, including full name and possibly coded parts.
     """

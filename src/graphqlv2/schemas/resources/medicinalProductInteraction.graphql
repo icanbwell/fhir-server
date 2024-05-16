@@ -12,6 +12,18 @@
 
 union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Substance
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductInteractionSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductInteractionSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductInteraction
@@ -85,7 +97,7 @@ type MedicinalProductInteraction {
     """
     The medication for which this is a described interaction.
     """
-    subject: [MedicinalProductInteractionSubject]
+    subject: [MedicinalProductInteractionSubjectReference]
     """
     The interaction described.
     """

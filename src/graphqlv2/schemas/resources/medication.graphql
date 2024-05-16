@@ -13,6 +13,17 @@
 # import MedicationIngredient from "../backbone_elements/medicationIngredient.graphql"
 # import MedicationBatch from "../backbone_elements/medicationBatch.graphql"
 
+"""
+Reference type for Manufacturer
+"""
+type MedicationManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -105,7 +116,7 @@ type Medication {
     Describes the details of the manufacturer of the medication product.  This is
     not intended to represent the distributor of a medication product.
     """
-    manufacturer: Organization
+    manufacturer: MedicationManufacturerReference
     """
     Describes the form of the item.  Powder; tablets; capsule.
     """

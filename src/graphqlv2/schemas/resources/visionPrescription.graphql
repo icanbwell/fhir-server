@@ -11,7 +11,43 @@
 # import Reference from "../complex_types/reference.graphql"
 # import VisionPrescriptionLensSpecification from "../backbone_elements/visionPrescriptionLensSpecification.graphql"
 
+"""
+Reference type for Patient
+"""
+type VisionPrescriptionPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type VisionPrescriptionEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union VisionPrescriptionPrescriber = Practitioner | PractitionerRole
+
+"""
+Reference type for Prescriber
+"""
+type VisionPrescriptionPrescriberReference {
+    id: String
+    extension: [Extension]
+    reference: VisionPrescriptionPrescriber
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -98,13 +134,13 @@ type VisionPrescription {
     """
     A resource reference to the person to whom the vision prescription applies.
     """
-    patient: Patient
+    patient: VisionPrescriptionPatientReference
     """
     A reference to a resource that identifies the particular occurrence of contact
     between patient and health care provider during which the prescription was
     issued.
     """
-    encounter: Encounter
+    encounter: VisionPrescriptionEncounterReference
     """
     The date (and perhaps time) when the prescription was written.
     """
@@ -112,7 +148,7 @@ type VisionPrescription {
     """
     The healthcare professional responsible for authorizing the prescription.
     """
-    prescriber: VisionPrescriptionPrescriber
+    prescriber: VisionPrescriptionPrescriberReference
     """
     Contain the details of  the individual lens specifications and serves as the
     authorization for the fullfillment by certified professionals.

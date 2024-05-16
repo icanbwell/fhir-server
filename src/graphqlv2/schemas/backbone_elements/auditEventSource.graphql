@@ -6,6 +6,19 @@
 union AuditEventSourceObserver = PractitionerRole | Practitioner | Organization | Device | Patient | RelatedPerson
 
 """
+Reference type for Observer
+"""
+type AuditEventSourceObserverReference {
+    id: String
+    extension: [Extension]
+    reference: AuditEventSourceObserver
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 AuditEvent.Source
     A record of an event made for purposes of maintaining a security log. Typical
     uses include detection of intrusion attempts and monitoring for inappropriate
@@ -49,7 +62,7 @@ type AuditEventSource {
     """
     Identifier of the source where the event was detected.
     """
-    observer: AuditEventSourceObserver
+    observer: AuditEventSourceObserverReference
     """
     Code specifying the type of source where event originated.
     """

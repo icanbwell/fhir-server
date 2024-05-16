@@ -16,7 +16,6 @@
 # import ConceptMapGroup from "../backbone_elements/conceptMapGroup.graphql"
 
 
-
 """
 ConceptMap
     A statement of relationships from one set of concepts to one or more other

@@ -15,8 +15,58 @@
 # import DocumentReferenceContext from "../backbone_elements/documentReferenceContext.graphql"
 
 union DocumentReferenceSubject = Patient | Practitioner | Group | Device
+
+"""
+Reference type for Subject
+"""
+type DocumentReferenceSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReferenceSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union DocumentReferenceAuthor = Practitioner | PractitionerRole | Organization | Device | Patient | RelatedPerson
+
+"""
+Reference type for Author
+"""
+type DocumentReferenceAuthorReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReferenceAuthor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union DocumentReferenceAuthenticator = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Authenticator
+"""
+type DocumentReferenceAuthenticatorReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReferenceAuthenticator
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Custodian
+"""
+type DocumentReferenceCustodianReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -128,7 +178,7 @@ type DocumentReference {
     group of subjects (such as a document about a herd of farm animals, or a set
     of patients that share a common exposure).
     """
-    subject: DocumentReferenceSubject
+    subject: DocumentReferenceSubjectReference
     """
     When the document reference was created.
     """
@@ -136,16 +186,16 @@ type DocumentReference {
     """
     Identifies who is responsible for adding the information to the document.
     """
-    author: [DocumentReferenceAuthor]
+    author: [DocumentReferenceAuthorReference]
     """
     Which person or organization authenticates that this document is valid.
     """
-    authenticator: DocumentReferenceAuthenticator
+    authenticator: DocumentReferenceAuthenticatorReference
     """
     Identifies the organization or group who is responsible for ongoing
     maintenance of and access to the document.
     """
-    custodian: Organization
+    custodian: DocumentReferenceCustodianReference
     """
     Relationships that this document has with other document references that
     already exist.

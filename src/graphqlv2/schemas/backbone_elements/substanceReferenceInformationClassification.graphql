@@ -3,6 +3,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceReferenceInformationClassificationSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceReferenceInformation.Classification
@@ -52,5 +64,5 @@ type SubstanceReferenceInformationClassification {
     """
     Todo.
     """
-    source: [DocumentReference]
+    source: [SubstanceReferenceInformationClassificationSourceReference]
 }

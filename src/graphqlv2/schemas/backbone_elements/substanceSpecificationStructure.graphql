@@ -6,6 +6,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import SubstanceSpecificationRepresentation from "../backbone_elements/substanceSpecificationRepresentation.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceSpecificationStructureSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceSpecification.Structure
@@ -71,7 +83,7 @@ type SubstanceSpecificationStructure {
     """
     Supporting literature.
     """
-    source: [DocumentReference]
+    source: [SubstanceSpecificationStructureSourceReference]
     """
     Molecular structural representation.
     """

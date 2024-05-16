@@ -3,6 +3,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Substance from "../resources/substance.graphql"
 
+"""
+Reference type for AdditiveReference
+"""
+type SpecimenDefinitionAdditiveAdditiveReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SpecimenDefinition.Additive
@@ -44,5 +56,5 @@ type SpecimenDefinitionAdditive {
     """
     None
     """
-    additiveReference: Substance
+    additiveReference: SpecimenDefinitionAdditiveAdditiveReferenceReference
 }

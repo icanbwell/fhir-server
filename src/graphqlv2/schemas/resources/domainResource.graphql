@@ -8,7 +8,6 @@
 # import Extension from "../extensions/extension.graphql"
 
 
-
 """
 DomainResource
     A resource that includes narrative, extensions, and contained resources.

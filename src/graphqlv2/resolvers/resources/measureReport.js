@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         measureReport: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -25,51 +24,45 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MeasureReportEvaluatedResourceV2: {
+    MeasureReportEvaluatedResource: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MeasureReport: {
+    MeasureReportSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    MeasureReportReporterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reporter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reporter);
-        },
+                parent
+            );
+        }
+    },
+    MeasureReportEvaluatedResourceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        evaluatedResourceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.evaluatedResource);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        evaluatedResource: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.evaluatedResource);
+                parent
+            );
         }
     }
 };

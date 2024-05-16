@@ -11,6 +11,29 @@
 # import Reference from "../complex_types/reference.graphql"
 # import ProdCharacteristic from "../backbone_elements/prodCharacteristic.graphql"
 
+"""
+Reference type for Manufacturer
+"""
+type MedicinalProductManufacturedManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Ingredient
+"""
+type MedicinalProductManufacturedIngredientReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIngredient
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -99,11 +122,11 @@ type MedicinalProductManufactured {
     Manufacturer of the item (Note that this should be named "manufacturer" but it
     currently causes technical issues).
     """
-    manufacturer: [Organization]
+    manufacturer: [MedicinalProductManufacturedManufacturerReference]
     """
     Ingredient.
     """
-    ingredient: [MedicinalProductIngredient]
+    ingredient: [MedicinalProductManufacturedIngredientReference]
     """
     Dimensions, color etc.
     """

@@ -4,6 +4,18 @@
 # import Period from "../complex_types/period.graphql"
 # import CoverageEligibilityResponseItem from "../backbone_elements/coverageEligibilityResponseItem.graphql"
 
+"""
+Reference type for Coverage
+"""
+type CoverageEligibilityResponseInsuranceCoverageReference {
+    id: String
+    extension: [Extension]
+    reference: Coverage
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CoverageEligibilityResponse.Insurance
@@ -44,7 +56,7 @@ type CoverageEligibilityResponseInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage
+    coverage: CoverageEligibilityResponseInsuranceCoverageReference
     """
     Flag indicating if the coverage provided is inforce currently if no service
     date(s) specified or for the whole duration of the service dates.

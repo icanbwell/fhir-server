@@ -6,6 +6,19 @@
 union ContractPartyReference = Patient | RelatedPerson | Practitioner | PractitionerRole | Device | Group | Organization
 
 """
+Reference type for Reference
+"""
+type ContractPartyReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ContractPartyReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.Party
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -42,7 +55,7 @@ type ContractParty {
     """
     Participant in the offer.
     """
-    reference: [ContractPartyReference]
+    reference: [ContractPartyReferenceReference]
     """
     How the party participates in the offer.
     """

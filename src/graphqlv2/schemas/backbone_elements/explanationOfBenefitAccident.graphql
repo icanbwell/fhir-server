@@ -5,6 +5,18 @@
 # import Address from "../complex_types/address.graphql"
 # import Location from "../resources/location.graphql"
 
+"""
+Reference type for LocationReference
+"""
+type ExplanationOfBenefitAccidentLocationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ExplanationOfBenefit.Accident
@@ -59,5 +71,5 @@ type ExplanationOfBenefitAccident {
     """
     None
     """
-    locationReference: Location
+    locationReference: ExplanationOfBenefitAccidentLocationReferenceReference
 }

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         riskAssessment: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,12 +14,12 @@ module.exports = {
             );
         }
     },
-    RiskAssessmentBasedOnV2: {
+    RiskAssessmentBasedOn: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    RiskAssessmentParentV2: {
+    RiskAssessmentParent: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -40,121 +39,105 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    RiskAssessmentBasisV2: {
+    RiskAssessmentBasis: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    RiskAssessment: {
+    RiskAssessmentBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-
-        basedOnV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.basedOn);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentParentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        basedOn: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.basedOn);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parentV2: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parent);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parent: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parent);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentConditionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentPerformerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        condition: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.condition);
-        },
+                parent
+            );
+        }
+    },
+    RiskAssessmentBasisReference: {
         // noinspection JSUnusedLocalSymbols
-
-        performer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.performer);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        reasonReference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.reasonReference);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        basisV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basis);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        basis: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basis);
+                parent
+            );
         }
     }
 };

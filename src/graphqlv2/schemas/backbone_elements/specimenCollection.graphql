@@ -10,6 +10,19 @@
 union SpecimenCollectionCollector = Practitioner | PractitionerRole
 
 """
+Reference type for Collector
+"""
+type SpecimenCollectionCollectorReference {
+    id: String
+    extension: [Extension]
+    reference: SpecimenCollectionCollector
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Specimen.Collection
     A sample to be used for analysis.
 """
@@ -45,7 +58,7 @@ type SpecimenCollection {
     """
     Person who collected the specimen.
     """
-    collector: SpecimenCollectionCollector
+    collector: SpecimenCollectionCollectorReference
     """
     None
     """

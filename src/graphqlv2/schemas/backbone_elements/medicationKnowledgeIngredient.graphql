@@ -4,6 +4,18 @@
 # import Substance from "../resources/substance.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 
+"""
+Reference type for ItemReference
+"""
+type MedicationKnowledgeIngredientItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicationKnowledge.Ingredient
@@ -45,7 +57,7 @@ type MedicationKnowledgeIngredient {
     """
     None
     """
-    itemReference: Substance
+    itemReference: MedicationKnowledgeIngredientItemReferenceReference
     """
     Indication of whether this ingredient affects the therapeutic action of the
     drug.

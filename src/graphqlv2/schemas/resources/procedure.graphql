@@ -19,13 +19,152 @@
 # import ProcedureFocalDevice from "../backbone_elements/procedureFocalDevice.graphql"
 
 union ProcedureBasedOn = CarePlan | ServiceRequest
+
+"""
+Reference type for BasedOn
+"""
+type ProcedureBasedOnReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureBasedOn
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedurePartOf = Procedure | Observation | MedicationAdministration
+
+"""
+Reference type for PartOf
+"""
+type ProcedurePartOfReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedurePartOf
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type ProcedureSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type ProcedureEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureRecorder = Patient | RelatedPerson | Practitioner | PractitionerRole
+
+"""
+Reference type for Recorder
+"""
+type ProcedureRecorderReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureRecorder
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureAsserter = Patient | RelatedPerson | Practitioner | PractitionerRole
+
+"""
+Reference type for Asserter
+"""
+type ProcedureAsserterReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureAsserter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type ProcedureLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureReasonReference = Condition | Observation | Procedure | DiagnosticReport | DocumentReference
+
+"""
+Reference type for ReasonReference
+"""
+type ProcedureReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureReport = DiagnosticReport | DocumentReference | Composition
+
+"""
+Reference type for Report
+"""
+type ProcedureReportReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureReport
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ComplicationDetail
+"""
+type ProcedureComplicationDetailReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProcedureUsedReference = Device | Medication | Substance
+
+"""
+Reference type for UsedReference
+"""
+type ProcedureUsedReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedureUsedReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -118,11 +257,11 @@ type Procedure {
     A reference to a resource that contains details of the request for this
     procedure.
     """
-    basedOn: [ProcedureBasedOn]
+    basedOn: [ProcedureBasedOnReference]
     """
     A larger event of which this particular procedure is a component or step.
     """
-    partOf: [ProcedurePartOf]
+    partOf: [ProcedurePartOfReference]
     """
     A code specifying the state of the procedure. Generally, this will be the in-
     progress or completed state.
@@ -145,12 +284,12 @@ type Procedure {
     """
     The person, animal or group on which the procedure was performed.
     """
-    subject: ProcedureSubject
+    subject: ProcedureSubjectReference
     """
     The Encounter during which this Procedure was created or performed or to which
     the creation of this record is tightly associated.
     """
-    encounter: Encounter
+    encounter: ProcedureEncounterReference
     """
     None
     """
@@ -174,11 +313,11 @@ type Procedure {
     """
     Individual who recorded the record and takes responsibility for its content.
     """
-    recorder: ProcedureRecorder
+    recorder: ProcedureRecorderReference
     """
     Individual who is making the procedure statement.
     """
-    asserter: ProcedureAsserter
+    asserter: ProcedureAsserterReference
     """
     Limited to "real" people rather than equipment.
     """
@@ -187,7 +326,7 @@ type Procedure {
     The location where the procedure actually happened.  E.g. a newborn at home, a
     tracheostomy at a restaurant.
     """
-    location: Location
+    location: ProcedureLocationReference
     """
     The coded reason why the procedure was performed. This may be a coded entity
     of some type, or may simply be present as text.
@@ -196,7 +335,7 @@ type Procedure {
     """
     The justification of why the procedure was performed.
     """
-    reasonReference: [ProcedureReasonReference]
+    reasonReference: [ProcedureReasonReferenceReference]
     """
     Detailed and structured anatomical location information. Multiple locations
     are allowed - e.g. multiple punch biopsies of a lesion.
@@ -210,7 +349,7 @@ type Procedure {
     """
     This could be a histology result, pathology report, surgical report, etc.
     """
-    report: [ProcedureReport]
+    report: [ProcedureReportReference]
     """
     Any complications that occurred during the procedure, or in the immediate
     post-performance period. These are generally tracked separately from the
@@ -222,7 +361,7 @@ type Procedure {
     Any complications that occurred during the procedure, or in the immediate
     post-performance period.
     """
-    complicationDetail: [Condition]
+    complicationDetail: [ProcedureComplicationDetailReference]
     """
     If the procedure required specific follow up - e.g. removal of sutures. The
     follow up may be represented as a simple note or could potentially be more
@@ -243,7 +382,7 @@ type Procedure {
     Identifies medications, devices and any other substance used as part of the
     procedure.
     """
-    usedReference: [ProcedureUsedReference]
+    usedReference: [ProcedureUsedReferenceReference]
     """
     Identifies coded items that were used as part of the procedure.
     """

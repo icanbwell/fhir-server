@@ -12,7 +12,6 @@
 # import SubstanceIngredient from "../backbone_elements/substanceIngredient.graphql"
 
 
-
 """
 Substance
     A homogeneous material with a definite composition.

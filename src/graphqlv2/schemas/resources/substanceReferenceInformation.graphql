@@ -12,7 +12,6 @@
 # import SubstanceReferenceInformationTarget from "../backbone_elements/substanceReferenceInformationTarget.graphql"
 
 
-
 """
 SubstanceReferenceInformation
     Todo.

@@ -13,7 +13,6 @@
 # import SubstanceSourceMaterialPartDescription from "../backbone_elements/substanceSourceMaterialPartDescription.graphql"
 
 
-
 """
 SubstanceSourceMaterial
     Source material shall capture information on the taxonomic and anatomical

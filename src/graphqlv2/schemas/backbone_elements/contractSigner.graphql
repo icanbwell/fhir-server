@@ -7,6 +7,19 @@
 union ContractSignerParty = Organization | Patient | Practitioner | PractitionerRole | RelatedPerson
 
 """
+Reference type for Party
+"""
+type ContractSignerPartyReference {
+    id: String
+    extension: [Extension]
+    reference: ContractSignerParty
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.Signer
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -47,7 +60,7 @@ type ContractSigner {
     """
     Party which is a signator to this Contract.
     """
-    party: ContractSignerParty
+    party: ContractSignerPartyReference
     """
     Legally binding Contract DSIG signature contents in Base64.
     """

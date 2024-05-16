@@ -6,6 +6,19 @@
 union MedicationDispenseSubstitutionResponsibleParty = Practitioner | PractitionerRole
 
 """
+Reference type for ResponsibleParty
+"""
+type MedicationDispenseSubstitutionResponsiblePartyReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispenseSubstitutionResponsibleParty
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicationDispense.Substitution
     Indicates that a medication product is to be or has been dispensed for a named
     person/patient.  This includes a description of the medication product
@@ -61,5 +74,5 @@ type MedicationDispenseSubstitution {
     The person or organization that has primary responsibility for the
     substitution.
     """
-    responsibleParty: [MedicationDispenseSubstitutionResponsibleParty]
+    responsibleParty: [MedicationDispenseSubstitutionResponsiblePartyReference]
 }

@@ -16,6 +16,42 @@
 
 union MedicinalProductAuthorizationSubject = MedicinalProduct | MedicinalProductPackaged
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductAuthorizationSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductAuthorizationSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Holder
+"""
+type MedicinalProductAuthorizationHolderReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Regulator
+"""
+type MedicinalProductAuthorizationRegulatorReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductAuthorization
@@ -93,7 +129,7 @@ type MedicinalProductAuthorization {
     """
     The medicinal product that is being authorized.
     """
-    subject: MedicinalProductAuthorizationSubject
+    subject: MedicinalProductAuthorizationSubjectReference
     """
     The country in which the marketing authorization has been granted.
     """
@@ -147,11 +183,11 @@ type MedicinalProductAuthorization {
     """
     Marketing Authorization Holder.
     """
-    holder: Organization
+    holder: MedicinalProductAuthorizationHolderReference
     """
     Medicines Regulatory Agency.
     """
-    regulator: Organization
+    regulator: MedicinalProductAuthorizationRegulatorReference
     """
     The regulatory procedure for granting or amending a marketing authorization.
     """

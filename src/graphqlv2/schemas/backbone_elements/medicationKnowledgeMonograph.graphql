@@ -6,6 +6,19 @@
 union MedicationKnowledgeMonographSource = DocumentReference | Media
 
 """
+Reference type for Source
+"""
+type MedicationKnowledgeMonographSourceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationKnowledgeMonographSource
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicationKnowledge.Monograph
     Information about a medication that is used to support knowledge.
 """
@@ -46,5 +59,5 @@ type MedicationKnowledgeMonograph {
     """
     Associated documentation about the medication.
     """
-    source: MedicationKnowledgeMonographSource
+    source: MedicationKnowledgeMonographSourceReference
 }

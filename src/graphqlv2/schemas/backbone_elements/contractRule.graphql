@@ -3,6 +3,18 @@
 # import Attachment from "../complex_types/attachment.graphql"
 # import DocumentReference from "../resources/documentReference.graphql"
 
+"""
+Reference type for ContentReference
+"""
+type ContractRuleContentReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Contract.Rule
@@ -45,5 +57,5 @@ type ContractRule {
     """
     None
     """
-    contentReference: DocumentReference
+    contentReference: ContractRuleContentReferenceReference
 }

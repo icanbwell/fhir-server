@@ -6,7 +6,33 @@
 # import Signature from "../complex_types/signature.graphql"
 
 union VerificationResultAttestationWho = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Who
+"""
+type VerificationResultAttestationWhoReference {
+    id: String
+    extension: [Extension]
+    reference: VerificationResultAttestationWho
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union VerificationResultAttestationOnBehalfOf = Organization | Practitioner | PractitionerRole
+
+"""
+Reference type for OnBehalfOf
+"""
+type VerificationResultAttestationOnBehalfOfReference {
+    id: String
+    extension: [Extension]
+    reference: VerificationResultAttestationOnBehalfOf
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 VerificationResult.Attestation
@@ -45,11 +71,11 @@ type VerificationResultAttestation {
     """
     The individual or organization attesting to information.
     """
-    who: VerificationResultAttestationWho
+    who: VerificationResultAttestationWhoReference
     """
     When the who is asserting on behalf of another (organization or individual).
     """
-    onBehalfOf: VerificationResultAttestationOnBehalfOf
+    onBehalfOf: VerificationResultAttestationOnBehalfOfReference
     """
     The method by which attested information was submitted/retrieved (manual; API;
     Push).

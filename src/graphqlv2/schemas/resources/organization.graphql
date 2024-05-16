@@ -13,6 +13,29 @@
 # import Reference from "../complex_types/reference.graphql"
 # import OrganizationContact from "../backbone_elements/organizationContact.graphql"
 
+"""
+Reference type for PartOf
+"""
+type OrganizationPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type OrganizationEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -119,7 +142,7 @@ type Organization {
     """
     The organization of which this organization forms a part.
     """
-    partOf: Organization
+    partOf: OrganizationPartOfReference
     """
     Contact for the organization for a certain purpose.
     """
@@ -128,7 +151,7 @@ type Organization {
     Technical endpoints providing access to services operated for the
     organization.
     """
-    endpoint: [Endpoint]
+    endpoint: [OrganizationEndpointReference]
 }
 
 type OrganizationBundleEntry {

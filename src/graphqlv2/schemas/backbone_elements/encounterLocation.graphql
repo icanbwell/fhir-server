@@ -5,6 +5,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Period from "../complex_types/period.graphql"
 
+"""
+Reference type for Location
+"""
+type EncounterLocationLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Encounter.Location
@@ -43,7 +55,7 @@ type EncounterLocation {
     """
     The location where the encounter takes place.
     """
-    location: Location
+    location: EncounterLocationLocationReference
     """
     The status of the participants' presence at the specified location during the
     period specified. If the participant is no longer at the location, then the

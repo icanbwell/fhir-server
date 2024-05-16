@@ -22,6 +22,30 @@
 
 union PatientGeneralPractitioner = Organization | Practitioner | PractitionerRole
 
+"""
+Reference type for GeneralPractitioner
+"""
+type PatientGeneralPractitionerReference {
+    id: String
+    extension: [Extension]
+    reference: PatientGeneralPractitioner
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ManagingOrganization
+"""
+type PatientManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Patient
@@ -166,11 +190,11 @@ type Patient {
     """
     Patient's nominated care provider.
     """
-    generalPractitioner: [PatientGeneralPractitioner]
+    generalPractitioner: [PatientGeneralPractitionerReference]
     """
     Organization that is the custodian of the patient record.
     """
-    managingOrganization: Organization
+    managingOrganization: PatientManagingOrganizationReference
     """
     Link to another patient resource that concerns the same actual patient.
     """

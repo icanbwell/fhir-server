@@ -20,7 +20,6 @@
 # import TerminologyCapabilitiesClosure from "../backbone_elements/terminologyCapabilitiesClosure.graphql"
 
 
-
 """
 TerminologyCapabilities
     A TerminologyCapabilities resource documents a set of capabilities (behaviors)

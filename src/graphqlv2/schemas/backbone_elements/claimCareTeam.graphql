@@ -7,6 +7,19 @@
 union ClaimCareTeamProvider = Practitioner | PractitionerRole | Organization
 
 """
+Reference type for Provider
+"""
+type ClaimCareTeamProviderReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimCareTeamProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Claim.CareTeam
     A provider issued list of professional services and products which have been
     provided, or are to be provided, to a patient which is sent to an insurer for
@@ -48,7 +61,7 @@ type ClaimCareTeam {
     """
     Member of the team who provided the product or service.
     """
-    provider: ClaimCareTeamProvider
+    provider: ClaimCareTeamProviderReference
     """
     The party who is billing and/or responsible for the claimed products or
     services.

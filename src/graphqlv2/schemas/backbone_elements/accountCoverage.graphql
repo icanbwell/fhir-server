@@ -3,6 +3,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 
+"""
+Reference type for Coverage
+"""
+type AccountCoverageCoverageReference {
+    id: String
+    extension: [Extension]
+    reference: Coverage
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Account.Coverage
@@ -46,7 +58,7 @@ type AccountCoverage {
     sequence of the coverages in the account could be important when processing
     billing.
     """
-    coverage: Coverage
+    coverage: AccountCoverageCoverageReference
     """
     The priority of the coverage in the context of this account.
     """

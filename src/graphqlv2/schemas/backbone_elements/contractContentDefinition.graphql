@@ -9,6 +9,19 @@
 union ContractContentDefinitionPublisher = Practitioner | PractitionerRole | Organization
 
 """
+Reference type for Publisher
+"""
+type ContractContentDefinitionPublisherReference {
+    id: String
+    extension: [Extension]
+    reference: ContractContentDefinitionPublisher
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.ContentDefinition
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -55,7 +68,7 @@ type ContractContentDefinition {
     """
     The  individual or organization that published the Contract precursor content.
     """
-    publisher: ContractContentDefinitionPublisher
+    publisher: ContractContentDefinitionPublisherReference
     """
     The date (and optionally time) when the contract was published. The date must
     change when the business version changes and it must change if the status code

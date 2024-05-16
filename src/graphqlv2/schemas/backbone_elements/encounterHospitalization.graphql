@@ -5,7 +5,33 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
 union EncounterHospitalizationOrigin = Location | Organization
+
+"""
+Reference type for Origin
+"""
+type EncounterHospitalizationOriginReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterHospitalizationOrigin
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union EncounterHospitalizationDestination = Location | Organization
+
+"""
+Reference type for Destination
+"""
+type EncounterHospitalizationDestinationReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterHospitalizationDestination
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Encounter.Hospitalization
@@ -48,7 +74,7 @@ type EncounterHospitalization {
     """
     The location/organization from which the patient came before admission.
     """
-    origin: EncounterHospitalizationOrigin
+    origin: EncounterHospitalizationOriginReference
     """
     From where patient was admitted (physician referral, transfer).
     """
@@ -73,7 +99,7 @@ type EncounterHospitalization {
     """
     Location/organization to which the patient is discharged.
     """
-    destination: EncounterHospitalizationDestination
+    destination: EncounterHospitalizationDestinationReference
     """
     Category or kind of location after discharge.
     """

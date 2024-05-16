@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         biologicallyDerivedProduct: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,26 +14,28 @@ module.exports = {
             );
         }
     },
-    BiologicallyDerivedProduct: {
+    BiologicallyDerivedProductRequestReference: {
         // noinspection JSUnusedLocalSymbols
-
-        request: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.request);
-        },
+                parent
+            );
+        }
+    },
+    BiologicallyDerivedProductParentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parent: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parent);
+                parent
+            );
         }
     }
 };

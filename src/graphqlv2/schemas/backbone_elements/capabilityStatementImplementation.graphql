@@ -3,6 +3,18 @@
 # import url from "../simple_types/url.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Custodian
+"""
+type CapabilityStatementImplementationCustodianReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CapabilityStatement.Implementation
@@ -54,5 +66,5 @@ type CapabilityStatementImplementation {
     The organization responsible for the management of the instance and oversight
     of the data on the server at the specified URL.
     """
-    custodian: Organization
+    custodian: CapabilityStatementImplementationCustodianReference
 }

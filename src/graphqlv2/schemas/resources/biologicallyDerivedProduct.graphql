@@ -15,6 +15,29 @@
 # import BiologicallyDerivedProductManipulation from "../backbone_elements/biologicallyDerivedProductManipulation.graphql"
 # import BiologicallyDerivedProductStorage from "../backbone_elements/biologicallyDerivedProductStorage.graphql"
 
+"""
+Reference type for Request
+"""
+type BiologicallyDerivedProductRequestReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Parent
+"""
+type BiologicallyDerivedProductParentReference {
+    id: String
+    extension: [Extension]
+    reference: BiologicallyDerivedProduct
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -110,7 +133,7 @@ type BiologicallyDerivedProduct {
     """
     Procedure request to obtain this biologically derived product.
     """
-    request: [ServiceRequest]
+    request: [BiologicallyDerivedProductRequestReference]
     """
     Number of discrete units within this product.
     """
@@ -118,7 +141,7 @@ type BiologicallyDerivedProduct {
     """
     Parent product (if any).
     """
-    parent: [BiologicallyDerivedProduct]
+    parent: [BiologicallyDerivedProductParentReference]
     """
     How this product was collected.
     """

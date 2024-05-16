@@ -14,9 +14,83 @@
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 
+"""
+Reference type for BasedOn
+"""
+type SupplyDeliveryBasedOnReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyDeliveryPartOf = SupplyDelivery | Contract
+
+"""
+Reference type for PartOf
+"""
+type SupplyDeliveryPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyDeliveryPartOf
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Patient
+"""
+type SupplyDeliveryPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyDeliverySupplier = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Supplier
+"""
+type SupplyDeliverySupplierReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyDeliverySupplier
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Destination
+"""
+type SupplyDeliveryDestinationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SupplyDeliveryReceiver = Practitioner | PractitionerRole
+
+"""
+Reference type for Receiver
+"""
+type SupplyDeliveryReceiverReference {
+    id: String
+    extension: [Extension]
+    reference: SupplyDeliveryReceiver
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -95,11 +169,11 @@ type SupplyDelivery {
     """
     A plan, proposal or order that is fulfilled in whole or in part by this event.
     """
-    basedOn: [SupplyRequest]
+    basedOn: [SupplyDeliveryBasedOnReference]
     """
     A larger event of which this particular event is a component or step.
     """
-    partOf: [SupplyDeliveryPartOf]
+    partOf: [SupplyDeliveryPartOfReference]
     """
     A code specifying the state of the dispense event.
     """
@@ -107,7 +181,7 @@ type SupplyDelivery {
     """
     A link to a resource representing the person whom the delivered item is for.
     """
-    patient: Patient
+    patient: SupplyDeliveryPatientReference
     """
     Indicates the type of dispensing event that is performed. Examples include:
     Trial Fill, Completion of Trial, Partial Fill, Emergency Fill, Samples, etc.
@@ -132,16 +206,16 @@ type SupplyDelivery {
     """
     The individual responsible for dispensing the medication, supplier or device.
     """
-    supplier: SupplyDeliverySupplier
+    supplier: SupplyDeliverySupplierReference
     """
     Identification of the facility/location where the Supply was shipped to, as
     part of the dispense event.
     """
-    destination: Location
+    destination: SupplyDeliveryDestinationReference
     """
     Identifies the person who picked up the Supply.
     """
-    receiver: [SupplyDeliveryReceiver]
+    receiver: [SupplyDeliveryReceiverReference]
 }
 
 type SupplyDeliveryBundleEntry {

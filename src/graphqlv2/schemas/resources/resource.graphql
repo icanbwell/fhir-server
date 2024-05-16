@@ -5,7 +5,6 @@
 # import code from "../simple_types/code.graphql"
 
 
-
 """
 Resource
     This is the base resource type for everything.

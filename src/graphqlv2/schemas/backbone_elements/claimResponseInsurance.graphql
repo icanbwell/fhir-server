@@ -3,6 +3,30 @@
 # import positiveInt from "../simple_types/int.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Coverage
+"""
+type ClaimResponseInsuranceCoverageReference {
+    id: String
+    extension: [Extension]
+    reference: Coverage
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ClaimResponse
+"""
+type ClaimResponseInsuranceClaimResponseReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimResponse
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ClaimResponse.Insurance
@@ -53,7 +77,7 @@ type ClaimResponseInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage
+    coverage: ClaimResponseInsuranceCoverageReference
     """
     A business agreement number established between the provider and the insurer
     for special business processing purposes.
@@ -63,5 +87,5 @@ type ClaimResponseInsurance {
     The result of the adjudication of the line items for the Coverage specified in
     this insurance.
     """
-    claimResponse: ClaimResponse
+    claimResponse: ClaimResponseInsuranceClaimResponseReference
 }

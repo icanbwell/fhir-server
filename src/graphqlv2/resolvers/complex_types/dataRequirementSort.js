@@ -2,6 +2,4 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    DataRequirementSort: {
-    }
 };

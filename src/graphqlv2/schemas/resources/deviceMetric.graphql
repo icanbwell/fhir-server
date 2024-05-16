@@ -12,6 +12,29 @@
 # import Timing from "../backbone_elements/timing.graphql"
 # import DeviceMetricCalibration from "../backbone_elements/deviceMetricCalibration.graphql"
 
+"""
+Reference type for Source
+"""
+type DeviceMetricSourceReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Parent
+"""
+type DeviceMetricParentReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -103,7 +126,7 @@ type DeviceMetric {
     contains administrative device information such as manufacturer, serial
     number, etc.
     """
-    source: Device
+    source: DeviceMetricSourceReference
     """
     Describes the link to the  Device that this DeviceMetric belongs to and that
     provide information about the location of this DeviceMetric in the containment
@@ -112,7 +135,7 @@ type DeviceMetric {
     DeviceMetrics that have the same type, but should be interpreted based on
     their containment location.
     """
-    parent: Device
+    parent: DeviceMetricParentReference
     """
     Indicates current operational state of the device. For example: On, Off,
     Standby, etc.

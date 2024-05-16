@@ -26,7 +26,7 @@ module.exports = {
 {% if property.reference_target_resources -%}
     {% if property.reference_target_resources | length > 1  %}
     {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
@@ -65,5 +65,4 @@ module.exports = {
     {% endfor %}
     }
 };
-
 

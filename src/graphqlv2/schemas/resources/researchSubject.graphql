@@ -10,6 +10,41 @@
 # import Period from "../complex_types/period.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Study
+"""
+type ResearchSubjectStudyReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchStudy
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Individual
+"""
+type ResearchSubjectIndividualReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Consent
+"""
+type ResearchSubjectConsentReference {
+    id: String
+    extension: [Extension]
+    reference: Consent
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -96,11 +131,11 @@ type ResearchSubject {
     """
     Reference to the study the subject is participating in.
     """
-    study: ResearchStudy
+    study: ResearchSubjectStudyReference
     """
     The record of the person or animal who is involved in the study.
     """
-    individual: Patient
+    individual: ResearchSubjectIndividualReference
     """
     The name of the arm in the study the subject is expected to follow as part of
     this study.
@@ -114,7 +149,7 @@ type ResearchSubject {
     """
     A record of the patient's informed agreement to participate in the study.
     """
-    consent: Consent
+    consent: ResearchSubjectConsentReference
 }
 
 type ResearchSubjectBundleEntry {

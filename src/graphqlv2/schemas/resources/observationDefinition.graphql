@@ -12,6 +12,53 @@
 # import ObservationDefinitionQualifiedInterval from "../backbone_elements/observationDefinitionQualifiedInterval.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for ValidCodedValueSet
+"""
+type ObservationDefinitionValidCodedValueSetReference {
+    id: String
+    extension: [Extension]
+    reference: ValueSet
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for NormalCodedValueSet
+"""
+type ObservationDefinitionNormalCodedValueSetReference {
+    id: String
+    extension: [Extension]
+    reference: ValueSet
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for AbnormalCodedValueSet
+"""
+type ObservationDefinitionAbnormalCodedValueSetReference {
+    id: String
+    extension: [Extension]
+    reference: ValueSet
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for CriticalCodedValueSet
+"""
+type ObservationDefinitionCriticalCodedValueSetReference {
+    id: String
+    extension: [Extension]
+    reference: ValueSet
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -128,22 +175,22 @@ type ObservationDefinition {
     The set of valid coded results for the observations  conforming to this
     ObservationDefinition.
     """
-    validCodedValueSet: ValueSet
+    validCodedValueSet: ObservationDefinitionValidCodedValueSetReference
     """
     The set of normal coded results for the observations conforming to this
     ObservationDefinition.
     """
-    normalCodedValueSet: ValueSet
+    normalCodedValueSet: ObservationDefinitionNormalCodedValueSetReference
     """
     The set of abnormal coded results for the observation conforming to this
     ObservationDefinition.
     """
-    abnormalCodedValueSet: ValueSet
+    abnormalCodedValueSet: ObservationDefinitionAbnormalCodedValueSetReference
     """
     The set of critical coded results for the observation conforming to this
     ObservationDefinition.
     """
-    criticalCodedValueSet: ValueSet
+    criticalCodedValueSet: ObservationDefinitionCriticalCodedValueSetReference
 }
 
 type ObservationDefinitionBundleEntry {

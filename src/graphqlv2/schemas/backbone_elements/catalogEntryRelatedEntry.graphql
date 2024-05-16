@@ -3,6 +3,18 @@
 # import code from "../simple_types/code.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Item
+"""
+type CatalogEntryRelatedEntryItemReference {
+    id: String
+    extension: [Extension]
+    reference: CatalogEntry
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CatalogEntry.RelatedEntry
@@ -45,5 +57,5 @@ type CatalogEntryRelatedEntry {
     """
     The reference to the related item.
     """
-    item: CatalogEntry
+    item: CatalogEntryRelatedEntryItemReference
 }

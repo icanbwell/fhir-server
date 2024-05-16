@@ -6,6 +6,19 @@
 union PatientLinkOther = Patient | RelatedPerson
 
 """
+Reference type for Other
+"""
+type PatientLinkOtherReference {
+    id: String
+    extension: [Extension]
+    reference: PatientLinkOther
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Patient.Link
     Demographics and other administrative information about an individual or
     animal receiving care or other health-related services.
@@ -42,7 +55,7 @@ type PatientLink {
     """
     The other patient resource that the link refers to.
     """
-    other: PatientLinkOther
+    other: PatientLinkOtherReference
     """
     The type of link between this patient resource and another patient resource.
     """
