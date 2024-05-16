@@ -16,7 +16,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
 
-
 """
 Practitioner
     A person who is directly or indirectly involved in the provisioning of

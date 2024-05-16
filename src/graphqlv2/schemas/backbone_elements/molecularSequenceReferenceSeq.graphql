@@ -5,6 +5,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import integer from "../simple_types/int.graphql"
 
+"""
+Reference type for ReferenceSeqPointer
+"""
+type MolecularSequenceReferenceSeqReferenceSeqPointerReference {
+    id: String
+    extension: [Extension]
+    reference: MolecularSequence
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MolecularSequence.ReferenceSeq
@@ -68,7 +80,7 @@ type MolecularSequenceReferenceSeq {
     """
     A pointer to another MolecularSequence entity as reference sequence.
     """
-    referenceSeqPointer: MolecularSequence
+    referenceSeqPointer: MolecularSequenceReferenceSeqReferenceSeqPointerReference
     """
     A string like "ACGT".
     """

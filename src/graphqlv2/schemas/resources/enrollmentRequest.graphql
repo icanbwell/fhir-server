@@ -10,7 +10,55 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Insurer
+"""
+type EnrollmentRequestInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union EnrollmentRequestProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Provider
+"""
+type EnrollmentRequestProviderReference {
+    id: String
+    extension: [Extension]
+    reference: EnrollmentRequestProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Candidate
+"""
+type EnrollmentRequestCandidateReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Coverage
+"""
+type EnrollmentRequestCoverageReference {
+    id: String
+    extension: [Extension]
+    reference: Coverage
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -97,19 +145,19 @@ type EnrollmentRequest {
     """
     The Insurer who is target  of the request.
     """
-    insurer: Organization
+    insurer: EnrollmentRequestInsurerReference
     """
     The practitioner who is responsible for the services rendered to the patient.
     """
-    provider: EnrollmentRequestProvider
+    provider: EnrollmentRequestProviderReference
     """
     Patient Resource.
     """
-    candidate: Patient
+    candidate: EnrollmentRequestCandidateReference
     """
     Reference to the program or plan identification, underwriter or payor.
     """
-    coverage: Coverage
+    coverage: EnrollmentRequestCoverageReference
 }
 
 type EnrollmentRequestBundleEntry {

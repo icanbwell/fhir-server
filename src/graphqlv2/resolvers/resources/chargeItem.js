@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         chargeItem: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -40,131 +39,141 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ChargeItemSupportingInformationV2: {
+    ChargeItemSupportingInformation: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ChargeItem: {
+    ChargeItemPartOfReference: {
         // noinspection JSUnusedLocalSymbols
-
-        partOf: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.partOf);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        context: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.context);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemContextReference: {
         // noinspection JSUnusedLocalSymbols
-
-        performingOrganization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.performingOrganization);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemPerformingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        requestingOrganization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.requestingOrganization);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemRequestingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        costCenter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.costCenter);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemCostCenterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        enterer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.enterer);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemEntererReference: {
         // noinspection JSUnusedLocalSymbols
-
-        service: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.service);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        productReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.productReference);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemServiceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        account: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.account);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemProductReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInformationV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInformation);
-        },
+                parent
+            );
+        }
+    },
+    ChargeItemAccountReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInformation: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInformation);
+                parent
+            );
+        }
+    },
+    ChargeItemSupportingInformationReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

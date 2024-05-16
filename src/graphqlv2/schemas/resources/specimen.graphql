@@ -17,6 +17,42 @@
 
 union SpecimenSubject = Patient | Group | Device | Substance | Location
 
+"""
+Reference type for Subject
+"""
+type SpecimenSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: SpecimenSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Parent
+"""
+type SpecimenParentReference {
+    id: String
+    extension: [Extension]
+    reference: Specimen
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Request
+"""
+type SpecimenRequestReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Specimen
@@ -109,7 +145,7 @@ type Specimen {
     (e.g., the source of an environmental sample), or a sampling of a substance or
     a device.
     """
-    subject: SpecimenSubject
+    subject: SpecimenSubjectReference
     """
     Time when specimen was received for processing or testing.
     """
@@ -118,11 +154,11 @@ type Specimen {
     Reference to the parent (source) specimen which is used when the specimen was
     either derived from or a component of another specimen.
     """
-    parent: [Specimen]
+    parent: [SpecimenParentReference]
     """
     Details concerning a service request that required a specimen to be collected.
     """
-    request: [ServiceRequest]
+    request: [SpecimenRequestReference]
     """
     Details concerning the specimen collection.
     """

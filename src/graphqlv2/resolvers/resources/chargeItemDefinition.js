@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         chargeItemDefinition: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,16 +19,16 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ChargeItemDefinition: {
+    ChargeItemDefinitionInstanceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        instance: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.instance);
+                parent
+            );
         }
     }
 };

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         observationDefinition: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,46 +14,52 @@ module.exports = {
             );
         }
     },
-    ObservationDefinition: {
+    ObservationDefinitionValidCodedValueSetReference: {
         // noinspection JSUnusedLocalSymbols
-
-        validCodedValueSet: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.validCodedValueSet);
-        },
+                parent
+            );
+        }
+    },
+    ObservationDefinitionNormalCodedValueSetReference: {
         // noinspection JSUnusedLocalSymbols
-
-        normalCodedValueSet: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.normalCodedValueSet);
-        },
+                parent
+            );
+        }
+    },
+    ObservationDefinitionAbnormalCodedValueSetReference: {
         // noinspection JSUnusedLocalSymbols
-
-        abnormalCodedValueSet: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.abnormalCodedValueSet);
-        },
+                parent
+            );
+        }
+    },
+    ObservationDefinitionCriticalCodedValueSetReference: {
         // noinspection JSUnusedLocalSymbols
-
-        criticalCodedValueSet: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.criticalCodedValueSet);
+                parent
+            );
         }
     }
 };

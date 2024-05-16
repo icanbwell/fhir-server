@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         careTeam: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,46 +19,52 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    CareTeam: {
+    CareTeamSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    CareTeamEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    CareTeamReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reasonReference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reasonReference);
-        },
+                parent
+            );
+        }
+    },
+    CareTeamManagingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        managingOrganization: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.managingOrganization);
+                parent
+            );
         }
     }
 };

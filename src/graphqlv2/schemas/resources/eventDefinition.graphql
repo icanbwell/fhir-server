@@ -18,6 +18,17 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import TriggerDefinition from "../complex_types/triggerDefinition.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type EventDefinitionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -147,7 +158,7 @@ type EventDefinition {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: EventDefinitionSubjectReferenceReference
     """
     The date  (and optionally time) when the event definition was published. The
     date must change when the business version changes and it must change if the

@@ -1,7 +1,6 @@
 // eslint.config.js
 const js = require("@eslint/js");
 
-
 module.exports = [
     js.configs.recommended,
     {
@@ -15,7 +14,9 @@ module.exports = [
             "camelcase": "off",
             "multiline-ternary": "off",
             "no-undef": "off",
-            "no-unused-vars": "off"
+            "no-unused-vars": "off",
+            "comma-dangle": "error",
+            "no-trailing-spaces": "error"
         },
         ignores: [
             "src/dist/*",

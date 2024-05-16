@@ -161,10 +161,85 @@
 # import Money from "../complex_types/money.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-union PaymentNoticeRequestV2 = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
-union PaymentNoticeResponseV2 = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+union PaymentNoticeRequest = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+
+"""
+Reference type for Request
+"""
+type PaymentNoticeRequestReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentNoticeRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+union PaymentNoticeResponse = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+
+"""
+Reference type for Response
+"""
+type PaymentNoticeResponseReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentNoticeResponse
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union PaymentNoticeProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Provider
+"""
+type PaymentNoticeProviderReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentNoticeProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Payment
+"""
+type PaymentNoticePaymentReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentReconciliation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union PaymentNoticePayee = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Payee
+"""
+type PaymentNoticePayeeReference {
+    id: String
+    extension: [Extension]
+    reference: PaymentNoticePayee
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Recipient
+"""
+type PaymentNoticeRecipientReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -247,19 +322,11 @@ type PaymentNotice {
     """
     Reference of resource for which payment is being made.
     """
-    requestV2: PaymentNoticeRequestV2
-    """
-    Reference of resource for which payment is being made.
-    """
-    request: Resource
+    request: PaymentNoticeRequestReference
     """
     Reference of response to resource for which payment is being made.
     """
-    responseV2: PaymentNoticeResponseV2
-    """
-    Reference of response to resource for which payment is being made.
-    """
-    response: Resource
+    response: PaymentNoticeResponseReference
     """
     The date when this resource was created.
     """
@@ -267,11 +334,11 @@ type PaymentNotice {
     """
     The practitioner who is responsible for the services rendered to the patient.
     """
-    provider: PaymentNoticeProvider
+    provider: PaymentNoticeProviderReference
     """
     A reference to the payment which is the subject of this notice.
     """
-    payment: PaymentReconciliation
+    payment: PaymentNoticePaymentReference
     """
     The date when the above payment action occurred.
     """
@@ -280,11 +347,11 @@ type PaymentNotice {
     The party who will receive or has received payment that is the subject of this
     notification.
     """
-    payee: PaymentNoticePayee
+    payee: PaymentNoticePayeeReference
     """
     The party who is notified of the payment status.
     """
-    recipient: Organization
+    recipient: PaymentNoticeRecipientReference
     """
     The amount sent to the payee.
     """

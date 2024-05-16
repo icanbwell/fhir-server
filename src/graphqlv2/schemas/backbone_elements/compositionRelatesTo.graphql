@@ -4,6 +4,18 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Composition from "../resources/composition.graphql"
 
+"""
+Reference type for TargetReference
+"""
+type CompositionRelatesToTargetReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Composition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Composition.RelatesTo
@@ -58,5 +70,5 @@ type CompositionRelatesTo {
     """
     None
     """
-    targetReference: Composition
+    targetReference: CompositionRelatesToTargetReferenceReference
 }

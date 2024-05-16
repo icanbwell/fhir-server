@@ -452,33 +452,33 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         query.$and.push({
             ['provision.class']: {
                 $exists: false
-            },
+            }
         });
         // must have sourceReference
         query.$and.push({
             ['sourceReference']: {
                 $exists: true
-            },
+            }
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                    $lt: this.beforeLastUpdatedDate
+                }
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         }
 

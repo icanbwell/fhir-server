@@ -11,7 +11,31 @@
 # import instant from "../simple_types/instant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
+"""
+Reference type for Appointment
+"""
+type AppointmentResponseAppointmentReference {
+    id: String
+    extension: [Extension]
+    reference: Appointment
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AppointmentResponseActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
+
+"""
+Reference type for Actor
+"""
+type AppointmentResponseActorReference {
+    id: String
+    extension: [Extension]
+    reference: AppointmentResponseActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -92,7 +116,7 @@ type AppointmentResponse {
     """
     Appointment that this response is replying to.
     """
-    appointment: Appointment
+    appointment: AppointmentResponseAppointmentReference
     """
     Date/Time that the appointment is to take place, or requested new start time.
     """
@@ -111,7 +135,7 @@ type AppointmentResponse {
     A Person, Location, HealthcareService, or Device that is participating in the
     appointment.
     """
-    actor: AppointmentResponseActor
+    actor: AppointmentResponseActorReference
     """
     Participation status of the participant. When the status is declined or
     tentative if the start/end times are different to the appointment, then these

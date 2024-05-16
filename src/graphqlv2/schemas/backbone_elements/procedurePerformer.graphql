@@ -6,6 +6,31 @@
 union ProcedurePerformerActor = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device
 
 """
+Reference type for Actor
+"""
+type ProcedurePerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: ProcedurePerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for OnBehalfOf
+"""
+type ProcedurePerformerOnBehalfOfReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Procedure.Performer
     An action that is or was performed on or for a patient. This can be a physical
     intervention like an operation, or less invasive like long term services,
@@ -48,9 +73,9 @@ type ProcedurePerformer {
     """
     The practitioner who was involved in the procedure.
     """
-    actor: ProcedurePerformerActor
+    actor: ProcedurePerformerActorReference
     """
     The organization the device or practitioner was acting on behalf of.
     """
-    onBehalfOf: Organization
+    onBehalfOf: ProcedurePerformerOnBehalfOfReference
 }

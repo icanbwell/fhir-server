@@ -13,6 +13,30 @@
 
 union MedicinalProductContraindicationSubject = MedicinalProduct | Medication
 
+"""
+Reference type for Subject
+"""
+type MedicinalProductContraindicationSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductContraindicationSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for TherapeuticIndication
+"""
+type MedicinalProductContraindicationTherapeuticIndicationReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIndication
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductContraindication
@@ -86,7 +110,7 @@ type MedicinalProductContraindication {
     """
     The medication for which this is an indication.
     """
-    subject: [MedicinalProductContraindicationSubject]
+    subject: [MedicinalProductContraindicationSubjectReference]
     """
     The disease, symptom or procedure for the contraindication.
     """
@@ -103,7 +127,7 @@ type MedicinalProductContraindication {
     Information about the use of the medicinal product in relation to other
     therapies as part of the indication.
     """
-    therapeuticIndication: [MedicinalProductIndication]
+    therapeuticIndication: [MedicinalProductContraindicationTherapeuticIndicationReference]
     """
     Information about the use of the medicinal product in relation to other
     therapies described as part of the indication.

@@ -19,7 +19,6 @@
 # import CodeSystemConcept from "../backbone_elements/codeSystemConcept.graphql"
 
 
-
 """
 CodeSystem
     The CodeSystem resource is used to declare the existence of and describe a

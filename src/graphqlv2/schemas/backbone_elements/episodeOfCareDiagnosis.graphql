@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 
+"""
+Reference type for Condition
+"""
+type EpisodeOfCareDiagnosisConditionReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 EpisodeOfCare.Diagnosis
@@ -44,7 +56,7 @@ type EpisodeOfCareDiagnosis {
     A list of conditions/problems/diagnoses that this episode of care is intended
     to be providing care for.
     """
-    condition: Condition
+    condition: EpisodeOfCareDiagnosisConditionReference
     """
     Role that this diagnosis has within the episode of care (e.g. admission,
     billing, discharge …).

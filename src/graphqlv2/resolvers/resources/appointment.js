@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         appointment: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,61 +19,57 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    AppointmentSupportingInformationV2: {
+    AppointmentSupportingInformation: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Appointment: {
+    AppointmentReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reasonReference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reasonReference);
-        },
+                parent
+            );
+        }
+    },
+    AppointmentSupportingInformationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInformationV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInformation);
-        },
+                parent
+            );
+        }
+    },
+    AppointmentSlotReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInformation: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInformation);
-        },
+                parent
+            );
+        }
+    },
+    AppointmentBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-
-        slot: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.slot);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        basedOn: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
+                parent
+            );
         }
     }
 };

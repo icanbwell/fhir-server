@@ -17,7 +17,6 @@
 # import ImplementationGuideManifest from "../backbone_elements/implementationGuideManifest.graphql"
 
 
-
 """
 ImplementationGuide
     A set of rules of how a particular interoperability or standards problem is

@@ -5,6 +5,18 @@
 # import ObservationDefinition from "../resources/observationDefinition.graphql"
 # import MedicationKnowledgePatientCharacteristics from "../backbone_elements/medicationKnowledgePatientCharacteristics.graphql"
 
+"""
+Reference type for IndicationReference
+"""
+type MedicationKnowledgeAdministrationGuidelinesIndicationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ObservationDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicationKnowledge.AdministrationGuidelines
@@ -50,7 +62,7 @@ type MedicationKnowledgeAdministrationGuidelines {
     """
     None
     """
-    indicationReference: ObservationDefinition
+    indicationReference: MedicationKnowledgeAdministrationGuidelinesIndicationReferenceReference
     """
     Characteristics of the patient that are relevant to the administration
     guidelines (for example, height, weight, gender, etc.).

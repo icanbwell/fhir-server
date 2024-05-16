@@ -6,6 +6,19 @@
 union PersonLinkTarget = Patient | Practitioner | RelatedPerson | Person
 
 """
+Reference type for Target
+"""
+type PersonLinkTargetReference {
+    id: String
+    extension: [Extension]
+    reference: PersonLinkTarget
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Person.Link
     Demographics and administrative information about a person independent of a
     specific health-related context.
@@ -42,7 +55,7 @@ type PersonLink {
     """
     The resource to which this actual person is associated.
     """
-    target: PersonLinkTarget
+    target: PersonLinkTargetReference
     """
     Level of assurance that this link is associated with the target resource.
     """

@@ -7,6 +7,31 @@
 union CareTeamParticipantMember = Practitioner | PractitionerRole | RelatedPerson | Patient | Organization | CareTeam
 
 """
+Reference type for Member
+"""
+type CareTeamParticipantMemberReference {
+    id: String
+    extension: [Extension]
+    reference: CareTeamParticipantMember
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for OnBehalfOf
+"""
+type CareTeamParticipantOnBehalfOfReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 CareTeam.Participant
     The Care Team includes all the people and organizations who plan to
     participate in the coordination and delivery of care for a patient.
@@ -50,11 +75,11 @@ type CareTeamParticipant {
     The specific person or organization who is participating/expected to
     participate in the care team.
     """
-    member: CareTeamParticipantMember
+    member: CareTeamParticipantMemberReference
     """
     The organization of the practitioner.
     """
-    onBehalfOf: Organization
+    onBehalfOf: CareTeamParticipantOnBehalfOfReference
     """
     Indicates when the specific member or organization did (or is intended to)
     come into effect and end.

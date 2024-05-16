@@ -4,6 +4,18 @@
 # import Binary from "../resources/binary.graphql"
 # import code from "../simple_types/code.graphql"
 
+"""
+Reference type for NameReference
+"""
+type ImplementationGuidePageNameReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Binary
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ImplementationGuide.Page
@@ -48,7 +60,7 @@ type ImplementationGuidePage {
     """
     None
     """
-    nameReference: Binary
+    nameReference: ImplementationGuidePageNameReferenceReference
     """
     A short title used to represent this page in navigational structures such as
     table of contents, bread crumbs, etc.

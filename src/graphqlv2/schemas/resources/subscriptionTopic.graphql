@@ -21,7 +21,6 @@
 # import SubscriptionTopicNotificationShape from "../backbone_elements/subscriptionTopicNotificationShape.graphql"
 
 
-
 """
 SubscriptionTopic
     Describes a stream of resource state changes or events and annotated with

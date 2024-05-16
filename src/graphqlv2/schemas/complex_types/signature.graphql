@@ -7,7 +7,33 @@
 # import base64Binary from "../simple_types/base64Binary.graphql"
 
 union SignatureWho = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+
+"""
+Reference type for Who
+"""
+type SignatureWhoReference {
+    id: String
+    extension: [Extension]
+    reference: SignatureWho
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union SignatureOnBehalfOf = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+
+"""
+Reference type for OnBehalfOf
+"""
+type SignatureOnBehalfOfReference {
+    id: String
+    extension: [Extension]
+    reference: SignatureOnBehalfOf
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Signature
@@ -46,12 +72,12 @@ type Signature {
     A reference to an application-usable description of the identity that signed
     (e.g. the signature used their private key).
     """
-    who: SignatureWho
+    who: SignatureWhoReference
     """
     A reference to an application-usable description of the identity that is
     represented by the signature.
     """
-    onBehalfOf: SignatureOnBehalfOf
+    onBehalfOf: SignatureOnBehalfOfReference
     """
     A mime type that indicates the technical format of the target resources signed
     by the signature.

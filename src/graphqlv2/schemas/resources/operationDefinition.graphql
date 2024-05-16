@@ -16,7 +16,6 @@
 # import OperationDefinitionOverload from "../backbone_elements/operationDefinitionOverload.graphql"
 
 
-
 """
 OperationDefinition
     A formal computable definition of an operation (on the RESTful interface) or a

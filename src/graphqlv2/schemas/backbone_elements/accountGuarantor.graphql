@@ -6,6 +6,19 @@
 union AccountGuarantorParty = Patient | RelatedPerson | Organization
 
 """
+Reference type for Party
+"""
+type AccountGuarantorPartyReference {
+    id: String
+    extension: [Extension]
+    reference: AccountGuarantorParty
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Account.Guarantor
     A financial tool for tracking value accrued for a particular purpose.  In the
     healthcare field, used to track charges for a patient, cost centers, etc.
@@ -42,7 +55,7 @@ type AccountGuarantor {
     """
     The entity who is responsible.
     """
-    party: AccountGuarantorParty
+    party: AccountGuarantorPartyReference
     """
     A guarantor may be placed on credit hold or otherwise have their role
     temporarily suspended.

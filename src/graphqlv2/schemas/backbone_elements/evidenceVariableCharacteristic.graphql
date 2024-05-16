@@ -13,6 +13,18 @@
 # import Timing from "../backbone_elements/timing.graphql"
 # import code from "../simple_types/code.graphql"
 
+"""
+Reference type for DefinitionReference
+"""
+type EvidenceVariableCharacteristicDefinitionReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 EvidenceVariable.Characteristic
@@ -56,7 +68,7 @@ type EvidenceVariableCharacteristic {
     """
     None
     """
-    definitionReference: Group
+    definitionReference: EvidenceVariableCharacteristicDefinitionReferenceReference
     """
     None
     """

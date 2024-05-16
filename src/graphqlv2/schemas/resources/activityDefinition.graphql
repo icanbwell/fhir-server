@@ -26,7 +26,79 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import ActivityDefinitionDynamicValue from "../backbone_elements/activityDefinitionDynamicValue.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type ActivityDefinitionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type ActivityDefinitionLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ActivityDefinitionProductReference = Medication | Substance
+
+"""
+Reference type for ProductReference
+"""
+type ActivityDefinitionProductReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ActivityDefinitionProductReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for SpecimenRequirement
+"""
+type ActivityDefinitionSpecimenRequirementReference {
+    id: String
+    extension: [Extension]
+    reference: SpecimenDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ObservationRequirement
+"""
+type ActivityDefinitionObservationRequirementReference {
+    id: String
+    extension: [Extension]
+    reference: ObservationDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ObservationResultRequirement
+"""
+type ActivityDefinitionObservationResultRequirementReference {
+    id: String
+    extension: [Extension]
+    reference: ObservationDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -162,7 +234,7 @@ type ActivityDefinition {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: ActivityDefinitionSubjectReferenceReference
     """
     The date  (and optionally time) when the activity definition was published.
     The date must change when the business version changes and it must change if
@@ -326,7 +398,7 @@ type ActivityDefinition {
     Identifies the facility where the activity will occur; e.g. home, hospital,
     specific clinic, etc.
     """
-    location: Location
+    location: ActivityDefinitionLocationReference
     """
     Indicates who should participate in performing the action described.
     """
@@ -334,7 +406,7 @@ type ActivityDefinition {
     """
     None
     """
-    productReference: ActivityDefinitionProductReference
+    productReference: ActivityDefinitionProductReferenceReference
     """
     None
     """
@@ -358,16 +430,16 @@ type ActivityDefinition {
     Defines specimen requirements for the action to be performed, such as required
     specimens for a lab test.
     """
-    specimenRequirement: [SpecimenDefinition]
+    specimenRequirement: [ActivityDefinitionSpecimenRequirementReference]
     """
     Defines observation requirements for the action to be performed, such as body
     weight or surface area.
     """
-    observationRequirement: [ObservationDefinition]
+    observationRequirement: [ActivityDefinitionObservationRequirementReference]
     """
     Defines the observations that are expected to be produced by the action.
     """
-    observationResultRequirement: [ObservationDefinition]
+    observationResultRequirement: [ActivityDefinitionObservationResultRequirementReference]
     """
     A reference to a StructureMap resource that defines a transform that can be
     executed to produce the intent resource using the ActivityDefinition instance

@@ -19,7 +19,6 @@
 # import CapabilityStatementDocument from "../backbone_elements/capabilityStatementDocument.graphql"
 
 
-
 """
 CapabilityStatement
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR

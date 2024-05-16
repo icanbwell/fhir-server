@@ -19,7 +19,6 @@
 # import QuestionnaireItem from "../backbone_elements/questionnaireItem.graphql"
 
 
-
 """
 Questionnaire
     A structured set of questions intended to guide the collection of answers from

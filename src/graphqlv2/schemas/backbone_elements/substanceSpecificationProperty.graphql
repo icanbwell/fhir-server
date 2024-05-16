@@ -8,6 +8,19 @@
 union SubstanceSpecificationPropertyDefiningSubstanceReference = SubstanceSpecification | Substance
 
 """
+Reference type for DefiningSubstanceReference
+"""
+type SubstanceSpecificationPropertyDefiningSubstanceReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: SubstanceSpecificationPropertyDefiningSubstanceReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 SubstanceSpecification.Property
     The detailed description of a substance, typically at a level beyond what is
     used for prescribing.
@@ -57,7 +70,7 @@ type SubstanceSpecificationProperty {
     """
     None
     """
-    definingSubstanceReference: SubstanceSpecificationPropertyDefiningSubstanceReference
+    definingSubstanceReference: SubstanceSpecificationPropertyDefiningSubstanceReferenceReference
     """
     None
     """

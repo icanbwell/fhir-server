@@ -12,6 +12,29 @@
 # import MedicinalProductPharmaceuticalCharacteristics from "../backbone_elements/medicinalProductPharmaceuticalCharacteristics.graphql"
 # import MedicinalProductPharmaceuticalRouteOfAdministration from "../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.graphql"
 
+"""
+Reference type for Ingredient
+"""
+type MedicinalProductPharmaceuticalIngredientReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIngredient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Device
+"""
+type MedicinalProductPharmaceuticalDeviceReference {
+    id: String
+    extension: [Extension]
+    reference: DeviceDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -97,11 +120,11 @@ type MedicinalProductPharmaceutical {
     """
     Ingredient.
     """
-    ingredient: [MedicinalProductIngredient]
+    ingredient: [MedicinalProductPharmaceuticalIngredientReference]
     """
     Accompanying device.
     """
-    device: [DeviceDefinition]
+    device: [MedicinalProductPharmaceuticalDeviceReference]
     """
     Characteristics e.g. a products onset of action.
     """

@@ -20,7 +20,6 @@
 # import StructureDefinitionDifferential from "../backbone_elements/structureDefinitionDifferential.graphql"
 
 
-
 """
 StructureDefinition
     A definition of a FHIR structure. This resource is used to describe the

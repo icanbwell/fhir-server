@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         allergyIntolerance: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -25,46 +24,52 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    AllergyIntolerance: {
+    AllergyIntolerancePatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    AllergyIntoleranceEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    AllergyIntoleranceRecorderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        recorder: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.recorder);
-        },
+                parent
+            );
+        }
+    },
+    AllergyIntoleranceAsserterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        asserter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.asserter);
+                parent
+            );
         }
     }
 };

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         practitionerRole: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,56 +14,64 @@ module.exports = {
             );
         }
     },
-    PractitionerRole: {
+    PractitionerRolePractitionerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        practitioner: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.practitioner);
-        },
+                parent
+            );
+        }
+    },
+    PractitionerRoleOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        organization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.organization);
-        },
+                parent
+            );
+        }
+    },
+    PractitionerRoleLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    PractitionerRoleHealthcareServiceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        healthcareService: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.healthcareService);
-        },
+                parent
+            );
+        }
+    },
+    PractitionerRoleEndpointReference: {
         // noinspection JSUnusedLocalSymbols
-
-        endpoint: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.endpoint);
+                parent
+            );
         }
     }
 };

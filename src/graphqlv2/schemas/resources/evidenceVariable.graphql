@@ -19,7 +19,6 @@
 # import EvidenceVariableCharacteristic from "../backbone_elements/evidenceVariableCharacteristic.graphql"
 
 
-
 """
 EvidenceVariable
     The EvidenceVariable resource describes a "PICO" element that knowledge

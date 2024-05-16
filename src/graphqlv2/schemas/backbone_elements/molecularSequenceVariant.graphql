@@ -3,6 +3,18 @@
 # import integer from "../simple_types/int.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for VariantPointer
+"""
+type MolecularSequenceVariantVariantPointerReference {
+    id: String
+    extension: [Extension]
+    reference: Observation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MolecularSequence.Variant
@@ -77,5 +89,5 @@ type MolecularSequenceVariant {
     """
     A pointer to an Observation containing variant information.
     """
-    variantPointer: Observation
+    variantPointer: MolecularSequenceVariantVariantPointerReference
 }

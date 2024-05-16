@@ -14,7 +14,44 @@
 # import ListEntry from "../backbone_elements/listEntry.graphql"
 
 union ListSubject = Patient | Group | Device | Location
+
+"""
+Reference type for Subject
+"""
+type ListSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: ListSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type ListEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ListSource = Practitioner | PractitionerRole | Patient | Device
+
+"""
+Reference type for Source
+"""
+type ListSourceReference {
+    id: String
+    extension: [Extension]
+    reference: ListSource
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -113,11 +150,11 @@ type List {
     The common subject (or patient) of the resources that are in the list if there
     is one.
     """
-    subject: ListSubject
+    subject: ListSubjectReference
     """
     The encounter that is the context in which this list was created.
     """
-    encounter: Encounter
+    encounter: ListEncounterReference
     """
     The date that the list was prepared.
     """
@@ -126,7 +163,7 @@ type List {
     The entity responsible for deciding what the contents of the list were. Where
     the list was created by a human, this is the same as the author of the list.
     """
-    source: ListSource
+    source: ListSourceReference
     """
     What order applies to the items in the list.
     """

@@ -10,9 +10,61 @@
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 
 union ContractActionContext = Encounter | EpisodeOfCare
+
+"""
+Reference type for Context
+"""
+type ContractActionContextReference {
+    id: String
+    extension: [Extension]
+    reference: ContractActionContext
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ContractActionRequester = Patient | RelatedPerson | Practitioner | PractitionerRole | Device | Group | Organization
+
+"""
+Reference type for Requester
+"""
+type ContractActionRequesterReference {
+    id: String
+    extension: [Extension]
+    reference: ContractActionRequester
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ContractActionPerformer = RelatedPerson | Patient | Practitioner | PractitionerRole | CareTeam | Device | Substance | Organization | Location
+
+"""
+Reference type for Performer
+"""
+type ContractActionPerformerReference {
+    id: String
+    extension: [Extension]
+    reference: ContractActionPerformer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ContractActionReasonReference = Condition | Observation | DiagnosticReport | DocumentReference | Questionnaire | QuestionnaireResponse
+
+"""
+Reference type for ReasonReference
+"""
+type ContractActionReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ContractActionReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Contract.Action
@@ -77,7 +129,7 @@ type ContractAction {
     """
     Encounter or Episode with primary association to specified term activity.
     """
-    context: ContractActionContext
+    context: ContractActionContextReference
     """
     Id [identifier??] of the clause or question text related to the requester of
     this action in the referenced form or QuestionnaireResponse.
@@ -98,7 +150,7 @@ type ContractAction {
     """
     Who or what initiated the action and has responsibility for its activation.
     """
-    requester: [ContractActionRequester]
+    requester: [ContractActionRequesterReference]
     """
     Id [identifier??] of the clause or question text related to the requester of
     this action in the referenced form or QuestionnaireResponse.
@@ -117,7 +169,7 @@ type ContractAction {
     """
     Indicates who or what is being asked to perform (or not perform) the ction.
     """
-    performer: ContractActionPerformer
+    performer: ContractActionPerformerReference
     """
     Id [identifier??] of the clause or question text related to the reason type or
     reference of this  action in the referenced form or QuestionnaireResponse.
@@ -132,7 +184,7 @@ type ContractAction {
     Indicates another resource whose existence justifies permitting or not
     permitting this action.
     """
-    reasonReference: [ContractActionReasonReference]
+    reasonReference: [ContractActionReasonReferenceReference]
     """
     Describes why the action is to be performed or not performed in textual form.
     """

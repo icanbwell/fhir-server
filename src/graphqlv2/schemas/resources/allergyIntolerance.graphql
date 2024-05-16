@@ -16,8 +16,57 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import AllergyIntoleranceReaction from "../backbone_elements/allergyIntoleranceReaction.graphql"
 
+"""
+Reference type for Patient
+"""
+type AllergyIntolerancePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type AllergyIntoleranceEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AllergyIntoleranceRecorder = Practitioner | PractitionerRole | Patient | RelatedPerson
+
+"""
+Reference type for Recorder
+"""
+type AllergyIntoleranceRecorderReference {
+    id: String
+    extension: [Extension]
+    reference: AllergyIntoleranceRecorder
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union AllergyIntoleranceAsserter = Patient | RelatedPerson | Practitioner | PractitionerRole
+
+"""
+Reference type for Asserter
+"""
+type AllergyIntoleranceAsserterReference {
+    id: String
+    extension: [Extension]
+    reference: AllergyIntoleranceAsserter
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -139,11 +188,11 @@ type AllergyIntolerance {
     """
     The patient who has the allergy or intolerance.
     """
-    patient: Patient
+    patient: AllergyIntolerancePatientReference
     """
     The encounter when the allergy or intolerance was asserted.
     """
-    encounter: Encounter
+    encounter: AllergyIntoleranceEncounterReference
     """
     None
     """
@@ -172,11 +221,11 @@ type AllergyIntolerance {
     """
     Individual who recorded the record and takes responsibility for its content.
     """
-    recorder: AllergyIntoleranceRecorder
+    recorder: AllergyIntoleranceRecorderReference
     """
     The source of the information about the allergy that is recorded.
     """
-    asserter: AllergyIntoleranceAsserter
+    asserter: AllergyIntoleranceAsserterReference
     """
     Represents the date and/or time of the last known occurrence of a reaction
     event.

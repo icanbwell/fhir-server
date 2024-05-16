@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         deviceRequest: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,12 +14,12 @@ module.exports = {
             );
         }
     },
-    DeviceRequestBasedOnV2: {
+    DeviceRequestBasedOn: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DeviceRequestPriorRequestV2: {
+    DeviceRequestPriorRequest: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -50,151 +49,141 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DeviceRequestSupportingInfoV2: {
+    DeviceRequestSupportingInfo: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DeviceRequest: {
+    DeviceRequestBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-
-        basedOnV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        basedOn: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        priorRequestV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.priorRequest);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        priorRequest: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.priorRequest);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        codeReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.codeReference);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestPriorRequestReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestCodeReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        requester: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.requester);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        performer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.performer);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestRequesterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        reasonReference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.reasonReference);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestPerformerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        insurance: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.insurance);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInfoV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInfo);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestInsuranceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInfo: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.supportingInfo);
-        },
+                parent
+            );
+        }
+    },
+    DeviceRequestSupportingInfoReference: {
         // noinspection JSUnusedLocalSymbols
-
-        relevantHistory: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.relevantHistory);
+                parent
+            );
+        }
+    },
+    DeviceRequestRelevantHistoryReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

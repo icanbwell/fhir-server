@@ -2,6 +2,18 @@
 # import Extension from "../extensions/extension.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Coverage
+"""
+type CoverageEligibilityRequestInsuranceCoverageReference {
+    id: String
+    extension: [Extension]
+    reference: Coverage
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CoverageEligibilityRequest.Insurance
@@ -50,7 +62,7 @@ type CoverageEligibilityRequestInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage
+    coverage: CoverageEligibilityRequestInsuranceCoverageReference
     """
     A business agreement number established between the provider and the insurer
     for special business processing purposes.

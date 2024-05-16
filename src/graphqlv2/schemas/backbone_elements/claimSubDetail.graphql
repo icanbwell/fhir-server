@@ -7,6 +7,18 @@
 # import decimal from "../simple_types/decimal.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Udi
+"""
+type ClaimSubDetailUdiReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Claim.SubDetail
@@ -95,5 +107,5 @@ type ClaimSubDetail {
     """
     Unique Device Identifiers associated with this line item.
     """
-    udi: [Device]
+    udi: [ClaimSubDetailUdiReference]
 }

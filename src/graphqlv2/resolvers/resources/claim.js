@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         claim: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -35,86 +34,100 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Claim: {
+    ClaimPatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    ClaimEntererReference: {
         // noinspection JSUnusedLocalSymbols
-
-        enterer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.enterer);
-        },
+                parent
+            );
+        }
+    },
+    ClaimInsurerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        insurer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.insurer);
-        },
+                parent
+            );
+        }
+    },
+    ClaimProviderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        provider: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.provider);
-        },
+                parent
+            );
+        }
+    },
+    ClaimPrescriptionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        prescription: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.prescription);
-        },
+                parent
+            );
+        }
+    },
+    ClaimOriginalPrescriptionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        originalPrescription: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.originalPrescription);
-        },
+                parent
+            );
+        }
+    },
+    ClaimReferralReference: {
         // noinspection JSUnusedLocalSymbols
-
-        referral: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.referral);
-        },
+                parent
+            );
+        }
+    },
+    ClaimFacilityReference: {
         // noinspection JSUnusedLocalSymbols
-
-        facility: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.facility);
+                parent
+            );
         }
     }
 };

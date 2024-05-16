@@ -21,6 +21,18 @@
 
 union ChargeItemDefinitionInstance = Medication | Substance | Device
 
+"""
+Reference type for Instance
+"""
+type ChargeItemDefinitionInstanceReference {
+    id: String
+    extension: [Extension]
+    reference: ChargeItemDefinitionInstance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ChargeItemDefinition
@@ -217,7 +229,7 @@ type ChargeItemDefinition {
     The defined billing details in this resource pertain to the given product
     instance(s).
     """
-    instance: [ChargeItemDefinitionInstance]
+    instance: [ChargeItemDefinitionInstanceReference]
     """
     Expressions that describe applicability criteria for the billing code.
     """

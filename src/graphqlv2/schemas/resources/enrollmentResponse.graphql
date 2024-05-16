@@ -10,7 +10,43 @@
 # import Reference from "../complex_types/reference.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 
+"""
+Reference type for Request
+"""
+type EnrollmentResponseRequestReference {
+    id: String
+    extension: [Extension]
+    reference: EnrollmentRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Organization
+"""
+type EnrollmentResponseOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union EnrollmentResponseRequestProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for RequestProvider
+"""
+type EnrollmentResponseRequestProviderReference {
+    id: String
+    extension: [Extension]
+    reference: EnrollmentResponseRequestProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -93,7 +129,7 @@ type EnrollmentResponse {
     """
     Original request resource reference.
     """
-    request: EnrollmentRequest
+    request: EnrollmentResponseRequestReference
     """
     Processing status: error, complete.
     """
@@ -109,11 +145,11 @@ type EnrollmentResponse {
     """
     The Insurer who produced this adjudicated response.
     """
-    organization: Organization
+    organization: EnrollmentResponseOrganizationReference
     """
     The practitioner who is responsible for the services rendered to the patient.
     """
-    requestProvider: EnrollmentResponseRequestProvider
+    requestProvider: EnrollmentResponseRequestProviderReference
 }
 
 type EnrollmentResponseBundleEntry {

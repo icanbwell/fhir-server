@@ -17,6 +17,17 @@
 # import Period from "../complex_types/period.graphql"
 # import RelatedPersonCommunication from "../backbone_elements/relatedPersonCommunication.graphql"
 
+"""
+Reference type for Patient
+"""
+type RelatedPersonPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -100,7 +111,7 @@ type RelatedPerson {
     """
     The patient this person is related to.
     """
-    patient: Patient
+    patient: RelatedPersonPatientReference
     """
     The nature of the relationship between a patient and the related person.
     """

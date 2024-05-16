@@ -6,6 +6,19 @@
 union MedicationDispensePerformerActor = Practitioner | PractitionerRole | Organization | Patient | Device | RelatedPerson
 
 """
+Reference type for Actor
+"""
+type MedicationDispensePerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispensePerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicationDispense.Performer
     Indicates that a medication product is to be or has been dispensed for a named
     person/patient.  This includes a description of the medication product
@@ -51,5 +64,5 @@ type MedicationDispensePerformer {
     The device, practitioner, etc. who performed the action.  It should be assumed
     that the actor is the dispenser of the medication.
     """
-    actor: MedicationDispensePerformerActor
+    actor: MedicationDispensePerformerActorReference
 }

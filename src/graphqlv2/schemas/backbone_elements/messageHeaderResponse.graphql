@@ -4,6 +4,18 @@
 # import code from "../simple_types/code.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Details
+"""
+type MessageHeaderResponseDetailsReference {
+    id: String
+    extension: [Extension]
+    reference: OperationOutcome
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MessageHeader.Response
@@ -54,5 +66,5 @@ type MessageHeaderResponse {
     """
     Full details of any issues found in the message.
     """
-    details: OperationOutcome
+    details: MessageHeaderResponseDetailsReference
 }

@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 
+"""
+Reference type for Authority
+"""
+type ImmunizationProtocolAppliedAuthorityReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Immunization.ProtocolApplied
@@ -48,7 +60,7 @@ type ImmunizationProtocolApplied {
     Indicates the authority who published the protocol (e.g. ACIP) that is being
     followed.
     """
-    authority: Organization
+    authority: ImmunizationProtocolAppliedAuthorityReference
     """
     The vaccine preventable disease the dose is being administered against.
     """

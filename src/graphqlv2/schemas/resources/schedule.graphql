@@ -13,6 +13,18 @@
 
 union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 
+"""
+Reference type for Actor
+"""
+type ScheduleActorReference {
+    id: String
+    extension: [Extension]
+    reference: ScheduleActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Schedule
@@ -109,7 +121,7 @@ type Schedule {
     Slots that reference this schedule resource provide the availability details
     to these referenced resource(s).
     """
-    actor: [ScheduleActor]
+    actor: [ScheduleActorReference]
     """
     The period of time that the slots that reference this Schedule resource cover
     (even if none exist). These  cover the amount of time that an organization's

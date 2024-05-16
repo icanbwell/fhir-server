@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         documentManifest: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -30,61 +29,57 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DocumentManifestContentV2: {
+    DocumentManifestContent: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DocumentManifest: {
+    DocumentManifestSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    DocumentManifestAuthorReference: {
         // noinspection JSUnusedLocalSymbols
-
-        author: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.author);
-        },
+                parent
+            );
+        }
+    },
+    DocumentManifestRecipientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        recipient: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.recipient);
-        },
+                parent
+            );
+        }
+    },
+    DocumentManifestContentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        contentV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.content);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        content: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.content);
+                parent
+            );
         }
     }
 };

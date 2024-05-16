@@ -3,6 +3,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Condition from "../resources/condition.graphql"
 
+"""
+Reference type for DiagnosisReference
+"""
+type CoverageEligibilityRequestDiagnosisDiagnosisReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CoverageEligibilityRequest.Diagnosis
@@ -48,5 +60,5 @@ type CoverageEligibilityRequestDiagnosis {
     """
     None
     """
-    diagnosisReference: Condition
+    diagnosisReference: CoverageEligibilityRequestDiagnosisDiagnosisReferenceReference
 }

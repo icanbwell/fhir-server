@@ -8,6 +8,19 @@
 union ContractFriendlyContentReference = Composition | DocumentReference | QuestionnaireResponse
 
 """
+Reference type for ContentReference
+"""
+type ContractFriendlyContentReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ContractFriendlyContentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.Friendly
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -48,5 +61,5 @@ type ContractFriendly {
     """
     None
     """
-    contentReference: ContractFriendlyContentReference
+    contentReference: ContractFriendlyContentReferenceReference
 }

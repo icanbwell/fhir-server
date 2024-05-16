@@ -7,6 +7,18 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Performer
+"""
+type MedicationRequestDispenseRequestPerformerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicationRequest.DispenseRequest
@@ -81,5 +93,5 @@ type MedicationRequestDispenseRequest {
     """
     Indicates the intended dispensing Organization specified by the prescriber.
     """
-    performer: Organization
+    performer: MedicationRequestDispenseRequestPerformerReference
 }

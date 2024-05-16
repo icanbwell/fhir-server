@@ -19,6 +19,17 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import ResearchElementDefinitionCharacteristic from "../backbone_elements/researchElementDefinitionCharacteristic.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type ResearchElementDefinitionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -158,7 +169,7 @@ type ResearchElementDefinition {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: ResearchElementDefinitionSubjectReferenceReference
     """
     The date  (and optionally time) when the research element definition was
     published. The date must change when the business version changes and it must

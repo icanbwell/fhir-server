@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         molecularSequence: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,56 +14,64 @@ module.exports = {
             );
         }
     },
-    MolecularSequence: {
+    MolecularSequencePatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    MolecularSequenceSpecimenReference: {
         // noinspection JSUnusedLocalSymbols
-
-        specimen: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.specimen);
-        },
+                parent
+            );
+        }
+    },
+    MolecularSequenceDeviceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        device: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.device);
-        },
+                parent
+            );
+        }
+    },
+    MolecularSequencePerformerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        performer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.performer);
-        },
+                parent
+            );
+        }
+    },
+    MolecularSequencePointerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        pointer: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.pointer);
+                parent
+            );
         }
     }
 };

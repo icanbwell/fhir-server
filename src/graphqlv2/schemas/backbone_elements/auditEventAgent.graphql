@@ -9,6 +9,31 @@
 union AuditEventAgentWho = PractitionerRole | Practitioner | Organization | Device | Patient | RelatedPerson
 
 """
+Reference type for Who
+"""
+type AuditEventAgentWhoReference {
+    id: String
+    extension: [Extension]
+    reference: AuditEventAgentWho
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type AuditEventAgentLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 AuditEvent.Agent
     A record of an event made for purposes of maintaining a security log. Typical
     uses include detection of intrusion attempts and monitoring for inappropriate
@@ -57,7 +82,7 @@ type AuditEventAgent {
     """
     Reference to who this agent is that was involved in the event.
     """
-    who: AuditEventAgentWho
+    who: AuditEventAgentWhoReference
     """
     Alternative agent Identifier. For a human, this should be a user identifier
     text string from authentication system. This identifier would be one known to
@@ -76,7 +101,7 @@ type AuditEventAgent {
     """
     Where the event occurred.
     """
-    location: Location
+    location: AuditEventAgentLocationReference
     """
     The policy or plan that authorized the activity being recorded. Typically, a
     single activity may have multiple applicable policies, such as patient

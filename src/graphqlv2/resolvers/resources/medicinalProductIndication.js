@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         medicinalProductIndication: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,26 +19,28 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MedicinalProductIndication: {
+    MedicinalProductIndicationSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductIndicationUndesirableEffectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        undesirableEffect: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.undesirableEffect);
+                parent
+            );
         }
     }
 };

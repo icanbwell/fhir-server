@@ -9,6 +9,19 @@
 union MedicinalProductInteractionInteractantItemReference = MedicinalProduct | Medication | Substance | ObservationDefinition
 
 """
+Reference type for ItemReference
+"""
+type MedicinalProductInteractionInteractantItemReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductInteractionInteractantItemReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 MedicinalProductInteraction.Interactant
     The interactions of the medicinal product with other medicinal products, or
     other forms of interactions.
@@ -45,7 +58,7 @@ type MedicinalProductInteractionInteractant {
     """
     None
     """
-    itemReference: MedicinalProductInteractionInteractantItemReference
+    itemReference: MedicinalProductInteractionInteractantItemReferenceReference
     """
     None
     """

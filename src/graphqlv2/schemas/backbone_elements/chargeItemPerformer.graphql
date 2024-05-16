@@ -6,6 +6,19 @@
 union ChargeItemPerformerActor = Practitioner | PractitionerRole | Organization | CareTeam | Patient | Device | RelatedPerson
 
 """
+Reference type for Actor
+"""
+type ChargeItemPerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: ChargeItemPerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 ChargeItem.Performer
     The resource ChargeItem describes the provision of healthcare provider
     products for a certain patient, therefore referring not only to the product,
@@ -50,5 +63,5 @@ type ChargeItemPerformer {
     """
     The device, practitioner, etc. who performed or participated in the service.
     """
-    actor: ChargeItemPerformerActor
+    actor: ChargeItemPerformerActorReference
 }

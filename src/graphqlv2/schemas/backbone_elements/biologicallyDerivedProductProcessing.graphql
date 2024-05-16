@@ -5,6 +5,18 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 
+"""
+Reference type for Additive
+"""
+type BiologicallyDerivedProductProcessingAdditiveReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 BiologicallyDerivedProduct.Processing
@@ -52,7 +64,7 @@ type BiologicallyDerivedProductProcessing {
     """
     Substance added during processing.
     """
-    additive: Substance
+    additive: BiologicallyDerivedProductProcessingAdditiveReference
     """
     None
     """

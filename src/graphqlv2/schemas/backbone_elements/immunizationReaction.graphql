@@ -3,6 +3,18 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Detail
+"""
+type ImmunizationReactionDetailReference {
+    id: String
+    extension: [Extension]
+    reference: Observation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Immunization.Reaction
@@ -45,7 +57,7 @@ type ImmunizationReaction {
     """
     Details of the reaction.
     """
-    detail: Observation
+    detail: ImmunizationReactionDetailReference
     """
     Self-reported indicator.
     """

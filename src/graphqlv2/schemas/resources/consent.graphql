@@ -15,8 +15,57 @@
 # import ConsentVerification from "../backbone_elements/consentVerification.graphql"
 # import ConsentProvision from "../backbone_elements/consentProvision.graphql"
 
+"""
+Reference type for Patient
+"""
+type ConsentPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole
+
+"""
+Reference type for Performer
+"""
+type ConsentPerformerReference {
+    id: String
+    extension: [Extension]
+    reference: ConsentPerformer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Organization
+"""
+type ConsentOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse
+
+"""
+Reference type for SourceReference
+"""
+type ConsentSourceReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ConsentSourceReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -110,7 +159,7 @@ type Consent {
     """
     The patient/healthcare consumer to whom this consent applies.
     """
-    patient: Patient
+    patient: ConsentPatientReference
     """
     When this  Consent was issued / created / indexed.
     """
@@ -121,12 +170,12 @@ type Consent {
     for complying with the Consent Directive, including any obligations or
     limitations on authorizations and enforcement of prohibitions.
     """
-    performer: [ConsentPerformer]
+    performer: [ConsentPerformerReference]
     """
     The organization that manages the consent, and the framework within which it
     is executed.
     """
-    organization: [Organization]
+    organization: [ConsentOrganizationReference]
     """
     None
     """
@@ -134,7 +183,7 @@ type Consent {
     """
     None
     """
-    sourceReference: ConsentSourceReference
+    sourceReference: ConsentSourceReferenceReference
     """
     The references to the policies that are included in this consent scope.
     Policies may be organizational, but are often defined jurisdictionally, or in

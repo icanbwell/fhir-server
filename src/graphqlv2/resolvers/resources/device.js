@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         device: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,56 +14,64 @@ module.exports = {
             );
         }
     },
-    Device: {
+    DeviceDefinitionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        definition: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.definition);
-        },
+                parent
+            );
+        }
+    },
+    DevicePatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    DeviceOwnerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        owner: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.owner);
-        },
+                parent
+            );
+        }
+    },
+    DeviceLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    DeviceParentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parent: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parent);
+                parent
+            );
         }
     }
 };

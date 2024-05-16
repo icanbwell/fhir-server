@@ -4,6 +4,18 @@
 # import integer from "../simple_types/int.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for SubjectResults
+"""
+type MeasureReportPopulationSubjectResultsReference {
+    id: String
+    extension: [Extension]
+    reference: List
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MeasureReport.Population
@@ -52,5 +64,5 @@ type MeasureReportPopulation {
     This element refers to a List of subject level MeasureReport resources, one
     for each subject in this population.
     """
-    subjectResults: List
+    subjectResults: MeasureReportPopulationSubjectResultsReference
 }

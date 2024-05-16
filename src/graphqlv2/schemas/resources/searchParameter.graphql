@@ -15,7 +15,6 @@
 # import SearchParameterComponent from "../backbone_elements/searchParameterComponent.graphql"
 
 
-
 """
 SearchParameter
     A search parameter that defines a named search item that can be used to

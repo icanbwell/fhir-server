@@ -11,6 +11,29 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import ImmunizationRecommendationRecommendation from "../backbone_elements/immunizationRecommendationRecommendation.graphql"
 
+"""
+Reference type for Patient
+"""
+type ImmunizationRecommendationPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Authority
+"""
+type ImmunizationRecommendationAuthorityReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -89,7 +112,7 @@ type ImmunizationRecommendation {
     """
     The patient the recommendation(s) are for.
     """
-    patient: Patient
+    patient: ImmunizationRecommendationPatientReference
     """
     The date the immunization recommendation(s) were created.
     """
@@ -97,7 +120,7 @@ type ImmunizationRecommendation {
     """
     Indicates the authority who published the protocol (e.g. ACIP).
     """
-    authority: Organization
+    authority: ImmunizationRecommendationAuthorityReference
     """
     Vaccine administration recommendations.
     """

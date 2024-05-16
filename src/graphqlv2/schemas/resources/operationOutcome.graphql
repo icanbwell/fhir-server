@@ -9,7 +9,6 @@
 # import OperationOutcomeIssue from "../backbone_elements/operationOutcomeIssue.graphql"
 
 
-
 """
 OperationOutcome
     A collection of error, warning, or information messages that result from a

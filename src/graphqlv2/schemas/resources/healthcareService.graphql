@@ -16,6 +16,53 @@
 # import HealthcareServiceAvailableTime from "../backbone_elements/healthcareServiceAvailableTime.graphql"
 # import HealthcareServiceNotAvailable from "../backbone_elements/healthcareServiceNotAvailable.graphql"
 
+"""
+Reference type for ProvidedBy
+"""
+type HealthcareServiceProvidedByReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type HealthcareServiceLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for CoverageArea
+"""
+type HealthcareServiceCoverageAreaReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type HealthcareServiceEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -99,7 +146,7 @@ type HealthcareService {
     """
     The organization that provides this healthcare service.
     """
-    providedBy: Organization
+    providedBy: HealthcareServiceProvidedByReference
     """
     Identifies the broad category of service being performed or delivered.
     """
@@ -116,7 +163,7 @@ type HealthcareService {
     """
     The location(s) where this healthcare service may be provided.
     """
-    location: [Location]
+    location: [HealthcareServiceLocationReference]
     """
     Further description of the service as it would be presented to a consumer
     while searching.
@@ -145,7 +192,7 @@ type HealthcareService {
     The location(s) that this service is available to (not where the service is
     provided).
     """
-    coverageArea: [Location]
+    coverageArea: [HealthcareServiceCoverageAreaReference]
     """
     The code(s) that detail the conditions under which the healthcare service is
     available/offered.
@@ -201,7 +248,7 @@ type HealthcareService {
     Technical endpoints providing access to services operated for the specific
     healthcare services defined at this resource.
     """
-    endpoint: [Endpoint]
+    endpoint: [HealthcareServiceEndpointReference]
 }
 
 type HealthcareServiceBundleEntry {

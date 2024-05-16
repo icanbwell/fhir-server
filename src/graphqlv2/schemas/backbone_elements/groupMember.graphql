@@ -6,6 +6,19 @@
 union GroupMemberEntity = Patient | Practitioner | PractitionerRole | Device | Medication | Substance | Group
 
 """
+Reference type for Entity
+"""
+type GroupMemberEntityReference {
+    id: String
+    extension: [Extension]
+    reference: GroupMemberEntity
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Group.Member
     Represents a defined collection of entities that may be discussed or acted
     upon collectively but which are not expected to act collectively, and are not
@@ -46,7 +59,7 @@ type GroupMember {
     with Group.type. If the entity is another group, then the type must be the
     same.
     """
-    entity: GroupMemberEntity
+    entity: GroupMemberEntityReference
     """
     The period that the member was in the group, if known.
     """

@@ -17,7 +17,79 @@
 # import ResearchStudyArm from "../backbone_elements/researchStudyArm.graphql"
 # import ResearchStudyObjective from "../backbone_elements/researchStudyObjective.graphql"
 
+"""
+Reference type for Protocol
+"""
+type ResearchStudyProtocolReference {
+    id: String
+    extension: [Extension]
+    reference: PlanDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for PartOf
+"""
+type ResearchStudyPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchStudy
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Enrollment
+"""
+type ResearchStudyEnrollmentReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Sponsor
+"""
+type ResearchStudySponsorReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ResearchStudyPrincipalInvestigator = Practitioner | PractitionerRole
+
+"""
+Reference type for PrincipalInvestigator
+"""
+type ResearchStudyPrincipalInvestigatorReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchStudyPrincipalInvestigator
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Site
+"""
+type ResearchStudySiteReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -105,11 +177,11 @@ type ResearchStudy {
     The set of steps expected to be performed as part of the execution of the
     study.
     """
-    protocol: [PlanDefinition]
+    protocol: [ResearchStudyProtocolReference]
     """
     A larger research study of which this particular study is a component or step.
     """
-    partOf: [ResearchStudy]
+    partOf: [ResearchStudyPartOfReference]
     """
     The current state of the study.
     """
@@ -167,7 +239,7 @@ type ResearchStudy {
     participating in the study.  E.g. " 200 female Europeans between the ages of
     20 and 45 with early onset diabetes".
     """
-    enrollment: [Group]
+    enrollment: [ResearchStudyEnrollmentReference]
     """
     Identifies the start date and the expected (or actual, depending on status)
     end date for the study.
@@ -177,18 +249,18 @@ type ResearchStudy {
     An organization that initiates the investigation and is legally responsible
     for the study.
     """
-    sponsor: Organization
+    sponsor: ResearchStudySponsorReference
     """
     A researcher in a study who oversees multiple aspects of the study, such as
     concept development, protocol writing, protocol submission for IRB approval,
     participant recruitment, informed consent, data collection, analysis,
     interpretation and presentation.
     """
-    principalInvestigator: ResearchStudyPrincipalInvestigator
+    principalInvestigator: ResearchStudyPrincipalInvestigatorReference
     """
     A facility in which study activities are conducted.
     """
-    site: [Location]
+    site: [ResearchStudySiteReference]
     """
     A description and/or code explaining the premature termination of the study.
     """

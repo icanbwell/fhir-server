@@ -4,7 +4,33 @@
 # import Reference from "../complex_types/reference.graphql"
 
 union ProvenanceAgentWho = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+
+"""
+Reference type for Who
+"""
+type ProvenanceAgentWhoReference {
+    id: String
+    extension: [Extension]
+    reference: ProvenanceAgentWho
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ProvenanceAgentOnBehalfOf = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+
+"""
+Reference type for OnBehalfOf
+"""
+type ProvenanceAgentOnBehalfOfReference {
+    id: String
+    extension: [Extension]
+    reference: ProvenanceAgentOnBehalfOf
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Provenance.Agent
@@ -59,9 +85,9 @@ type ProvenanceAgent {
     """
     The individual, device or organization that participated in the event.
     """
-    who: ProvenanceAgentWho
+    who: ProvenanceAgentWhoReference
     """
     The individual, device, or organization for whom the change was made.
     """
-    onBehalfOf: ProvenanceAgentOnBehalfOf
+    onBehalfOf: ProvenanceAgentOnBehalfOfReference
 }

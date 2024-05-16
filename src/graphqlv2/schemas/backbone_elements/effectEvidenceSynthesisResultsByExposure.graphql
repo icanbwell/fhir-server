@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for RiskEvidenceSynthesis
+"""
+type EffectEvidenceSynthesisResultsByExposureRiskEvidenceSynthesisReference {
+    id: String
+    extension: [Extension]
+    reference: RiskEvidenceSynthesis
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 EffectEvidenceSynthesis.ResultsByExposure
@@ -56,5 +68,5 @@ type EffectEvidenceSynthesisResultsByExposure {
     """
     Reference to a RiskEvidenceSynthesis resource.
     """
-    riskEvidenceSynthesis: RiskEvidenceSynthesis
+    riskEvidenceSynthesis: EffectEvidenceSynthesisResultsByExposureRiskEvidenceSynthesisReference
 }

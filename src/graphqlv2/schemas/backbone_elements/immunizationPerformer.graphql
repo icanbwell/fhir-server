@@ -6,6 +6,19 @@
 union ImmunizationPerformerActor = Practitioner | PractitionerRole | Organization
 
 """
+Reference type for Actor
+"""
+type ImmunizationPerformerActorReference {
+    id: String
+    extension: [Extension]
+    reference: ImmunizationPerformerActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Immunization.Performer
     Describes the event of a patient being administered a vaccine or a record of
     an immunization as reported by a patient, a clinician or another party.
@@ -47,5 +60,5 @@ type ImmunizationPerformer {
     """
     The practitioner or organization who performed the action.
     """
-    actor: ImmunizationPerformerActor
+    actor: ImmunizationPerformerActorReference
 }

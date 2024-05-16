@@ -4,6 +4,18 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceReferenceInformationGeneElementSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceReferenceInformation.GeneElement
@@ -49,5 +61,5 @@ type SubstanceReferenceInformationGeneElement {
     """
     Todo.
     """
-    source: [DocumentReference]
+    source: [SubstanceReferenceInformationGeneElementSourceReference]
 }

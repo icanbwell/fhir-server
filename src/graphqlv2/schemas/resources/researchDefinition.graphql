@@ -18,6 +18,65 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import canonical from "../simple_types/canonical.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type ResearchDefinitionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Population
+"""
+type ResearchDefinitionPopulationReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchElementDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Exposure
+"""
+type ResearchDefinitionExposureReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchElementDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ExposureAlternative
+"""
+type ResearchDefinitionExposureAlternativeReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchElementDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Outcome
+"""
+type ResearchDefinitionOutcomeReference {
+    id: String
+    extension: [Extension]
+    reference: ResearchElementDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -158,7 +217,7 @@ type ResearchDefinition {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: ResearchDefinitionSubjectReferenceReference
     """
     The date  (and optionally time) when the research definition was published.
     The date must change when the business version changes and it must change if
@@ -269,22 +328,22 @@ type ResearchDefinition {
     A reference to a ResearchElementDefinition resource that defines the
     population for the research.
     """
-    population: ResearchElementDefinition
+    population: ResearchDefinitionPopulationReference
     """
     A reference to a ResearchElementDefinition resource that defines the exposure
     for the research.
     """
-    exposure: ResearchElementDefinition
+    exposure: ResearchDefinitionExposureReference
     """
     A reference to a ResearchElementDefinition resource that defines the
     exposureAlternative for the research.
     """
-    exposureAlternative: ResearchElementDefinition
+    exposureAlternative: ResearchDefinitionExposureAlternativeReference
     """
     A reference to a ResearchElementDefinition resomece that defines the outcome
     for the research.
     """
-    outcome: ResearchElementDefinition
+    outcome: ResearchDefinitionOutcomeReference
 }
 
 type ResearchDefinitionBundleEntry {

@@ -20,6 +20,18 @@
 # import uri from "../simple_types/uri.graphql"
 # import PlanDefinitionDynamicValue from "../backbone_elements/planDefinitionDynamicValue.graphql"
 
+"""
+Reference type for SubjectReference
+"""
+type PlanDefinitionActionSubjectReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Group
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 PlanDefinition.Action
@@ -108,7 +120,7 @@ type PlanDefinitionAction {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: PlanDefinitionActionSubjectReferenceReference
     """
     A description of when the action should be triggered.
     """

@@ -15,7 +15,6 @@
 # import GraphDefinitionLink from "../backbone_elements/graphDefinitionLink.graphql"
 
 
-
 """
 GraphDefinition
     A formal computable definition of a graph of resources - that is, a coherent

@@ -7,6 +7,19 @@
 union DetectedIssueMitigationAuthor = Practitioner | PractitionerRole
 
 """
+Reference type for Author
+"""
+type DetectedIssueMitigationAuthorReference {
+    id: String
+    extension: [Extension]
+    reference: DetectedIssueMitigationAuthor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 DetectedIssue.Mitigation
     Indicates an actual or potential clinical issue with or between one or more
     active or proposed clinical actions for a patient; e.g. Drug-drug interaction,
@@ -54,5 +67,5 @@ type DetectedIssueMitigation {
     Identifies the practitioner who determined the mitigation and takes
     responsibility for the mitigation step occurring.
     """
-    author: DetectedIssueMitigationAuthor
+    author: DetectedIssueMitigationAuthorReference
 }

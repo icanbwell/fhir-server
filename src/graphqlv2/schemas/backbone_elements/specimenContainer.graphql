@@ -5,6 +5,18 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Substance from "../resources/substance.graphql"
 
+"""
+Reference type for AdditiveReference
+"""
+type SpecimenContainerAdditiveReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Substance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Specimen.Container
@@ -70,5 +82,5 @@ type SpecimenContainer {
     """
     None
     """
-    additiveReference: Substance
+    additiveReference: SpecimenContainerAdditiveReferenceReference
 }

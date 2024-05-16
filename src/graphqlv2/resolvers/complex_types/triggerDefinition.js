@@ -2,16 +2,16 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    TriggerDefinition: {
+    TriggerDefinitionTimingReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        timingReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.timingReference);
+                parent
+            );
         }
     }
 };

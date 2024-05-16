@@ -22,10 +22,109 @@
 # import ClaimItem from "../backbone_elements/claimItem.graphql"
 # import Money from "../complex_types/money.graphql"
 
+"""
+Reference type for Patient
+"""
+type ClaimPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ClaimEnterer = Practitioner | PractitionerRole
+
+"""
+Reference type for Enterer
+"""
+type ClaimEntererReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimEnterer
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Insurer
+"""
+type ClaimInsurerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ClaimProvider = Practitioner | PractitionerRole | Organization
+
+"""
+Reference type for Provider
+"""
+type ClaimProviderReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimProvider
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ClaimPrescription = DeviceRequest | MedicationRequest | VisionPrescription
+
+"""
+Reference type for Prescription
+"""
+type ClaimPrescriptionReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimPrescription
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ClaimOriginalPrescription = DeviceRequest | MedicationRequest | VisionPrescription
+
+"""
+Reference type for OriginalPrescription
+"""
+type ClaimOriginalPrescriptionReference {
+    id: String
+    extension: [Extension]
+    reference: ClaimOriginalPrescription
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Referral
+"""
+type ClaimReferralReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Facility
+"""
+type ClaimFacilityReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -129,7 +228,7 @@ type Claim {
     or are being considered and for whom actual or forecast reimbursement is
     sought.
     """
-    patient: Patient
+    patient: ClaimPatientReference
     """
     The period for which charges are being submitted.
     """
@@ -141,16 +240,16 @@ type Claim {
     """
     Individual who created the claim, predetermination or preauthorization.
     """
-    enterer: ClaimEnterer
+    enterer: ClaimEntererReference
     """
     The Insurer who is target of the request.
     """
-    insurer: Organization
+    insurer: ClaimInsurerReference
     """
     The provider which is responsible for the claim, predetermination or
     preauthorization.
     """
-    provider: ClaimProvider
+    provider: ClaimProviderReference
     """
     The provider-required urgency of processing the request. Typical values
     include: stat, routine deferred.
@@ -169,12 +268,12 @@ type Claim {
     """
     Prescription to support the dispensing of pharmacy, device or vision products.
     """
-    prescription: ClaimPrescription
+    prescription: ClaimPrescriptionReference
     """
     Original prescription which has been superseded by this prescription to
     support the dispensing of pharmacy services, medications or products.
     """
-    originalPrescription: ClaimOriginalPrescription
+    originalPrescription: ClaimOriginalPrescriptionReference
     """
     The party to be reimbursed for cost of the products and services according to
     the terms of the policy.
@@ -183,11 +282,11 @@ type Claim {
     """
     A reference to a referral resource.
     """
-    referral: ServiceRequest
+    referral: ClaimReferralReference
     """
     Facility where the services were provided.
     """
-    facility: Location
+    facility: ClaimFacilityReference
     """
     The members of the team who provided the products and services.
     """

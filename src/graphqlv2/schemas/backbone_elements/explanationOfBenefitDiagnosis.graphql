@@ -4,6 +4,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Condition from "../resources/condition.graphql"
 
+"""
+Reference type for DiagnosisReference
+"""
+type ExplanationOfBenefitDiagnosisDiagnosisReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Condition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 ExplanationOfBenefit.Diagnosis
@@ -51,7 +63,7 @@ type ExplanationOfBenefitDiagnosis {
     """
     None
     """
-    diagnosisReference: Condition
+    diagnosisReference: ExplanationOfBenefitDiagnosisDiagnosisReferenceReference
     """
     When the condition was observed or the relative ranking.
     """

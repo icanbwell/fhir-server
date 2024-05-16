@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         invoice: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -25,46 +24,52 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Invoice: {
+    InvoiceSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    InvoiceRecipientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        recipient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.recipient);
-        },
+                parent
+            );
+        }
+    },
+    InvoiceIssuerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        issuer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.issuer);
-        },
+                parent
+            );
+        }
+    },
+    InvoiceAccountReference: {
         // noinspection JSUnusedLocalSymbols
-
-        account: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.account);
+                parent
+            );
         }
     }
 };

@@ -18,7 +18,67 @@
 # import ImmunizationReaction from "../backbone_elements/immunizationReaction.graphql"
 # import ImmunizationProtocolApplied from "../backbone_elements/immunizationProtocolApplied.graphql"
 
+"""
+Reference type for Patient
+"""
+type ImmunizationPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type ImmunizationEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type ImmunizationLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Manufacturer
+"""
+type ImmunizationManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ImmunizationReasonReference = Condition | Observation | DiagnosticReport
+
+"""
+Reference type for ReasonReference
+"""
+type ImmunizationReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ImmunizationReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -109,12 +169,12 @@ type Immunization {
     """
     The patient who either received or did not receive the immunization.
     """
-    patient: Patient
+    patient: ImmunizationPatientReference
     """
     The visit or admission or other contact between patient and health care
     provider the immunization was performed as part of.
     """
-    encounter: Encounter
+    encounter: ImmunizationEncounterReference
     """
     None
     """
@@ -142,11 +202,11 @@ type Immunization {
     """
     The service delivery location where the vaccine administration occurred.
     """
-    location: Location
+    location: ImmunizationLocationReference
     """
     Name of vaccine manufacturer.
     """
-    manufacturer: Organization
+    manufacturer: ImmunizationManufacturerReference
     """
     Lot number of the  vaccine product.
     """
@@ -184,7 +244,7 @@ type Immunization {
     Condition, Observation or DiagnosticReport that supports why the immunization
     was administered.
     """
-    reasonReference: [ImmunizationReasonReference]
+    reasonReference: [ImmunizationReasonReferenceReference]
     """
     Indication if a dose is considered to be subpotent. By default, a dose should
     be considered to be potent.

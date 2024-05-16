@@ -8,6 +8,19 @@
 union ContractLegalContentReference = Composition | DocumentReference | QuestionnaireResponse
 
 """
+Reference type for ContentReference
+"""
+type ContractLegalContentReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: ContractLegalContentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Contract.Legal
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
     a policy or agreement.
@@ -48,5 +61,5 @@ type ContractLegal {
     """
     None
     """
-    contentReference: ContractLegalContentReference
+    contentReference: ContractLegalContentReferenceReference
 }

@@ -301,7 +301,6 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('adminStrategy', strategy);
 
-
     const adminRouter = express.Router({ mergeParams: true });
     // Add authentication
     adminRouter.use(passport.initialize());
@@ -358,6 +357,39 @@ function createApp ({ fnGetContainer }) {
             next();
         });
 
+        const routerv2 = express.Router();
+        routerv2.use(passport.initialize());
+        routerv2.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        routerv2.use(cors(fhirServerConfig.server.corsOptions));
+        routerv2.use(express.json());
+        // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+        routerv2.use(handleSecurityPolicyGraphql);
+        routerv2.use(function (req, res, next) {
+            res.once('finish', async () => {
+                const req1 = req;
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container1 = req1.container;
+                if (container1) {
+                    /**
+                     * @type {PostRequestProcessor}
+                     */
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                        /**
+                         * @type {RequestSpecificCache}
+                         */
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({ requestId });
+                        await requestSpecificCache.clearAsync({ requestId });
+                    }
+                }
+            });
+            next();
+        });
+
         Promise.all([
             isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
             configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
@@ -367,8 +399,8 @@ function createApp ({ fnGetContainer }) {
                 app.use('/\\$graphql', router);
             }
             if(graphqlV2Middleware) {
-                router.use(graphqlV2Middleware);
-                app.use('/4_0_0/\\$graphqlv2', router);
+                routerv2.use(graphqlV2Middleware);
+                app.use('/4_0_0/\\$graphqlv2', routerv2);
             }
             createFhirApp(fnGetContainer, app);
         });

@@ -6,7 +6,6 @@
 # import ParametersParameter from "../backbone_elements/parametersParameter.graphql"
 
 
-
 """
 Parameters
     This resource is a non-persisted resource used to pass information into and

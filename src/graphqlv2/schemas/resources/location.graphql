@@ -15,6 +15,41 @@
 # import Reference from "../complex_types/reference.graphql"
 # import LocationHoursOfOperation from "../backbone_elements/locationHoursOfOperation.graphql"
 
+"""
+Reference type for ManagingOrganization
+"""
+type LocationManagingOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for PartOf
+"""
+type LocationPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type LocationEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -148,11 +183,11 @@ type Location {
     """
     The organization responsible for the provisioning and upkeep of the location.
     """
-    managingOrganization: Organization
+    managingOrganization: LocationManagingOrganizationReference
     """
     Another Location of which this Location is physically a part of.
     """
-    partOf: Location
+    partOf: LocationPartOfReference
     """
     What days/times during a week is this location usually open.
     """
@@ -166,7 +201,7 @@ type Location {
     """
     Technical endpoints providing access to services operated for the location.
     """
-    endpoint: [Endpoint]
+    endpoint: [LocationEndpointReference]
 }
 
 type LocationBundleEntry {

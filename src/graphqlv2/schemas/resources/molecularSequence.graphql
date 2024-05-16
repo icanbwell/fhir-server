@@ -16,6 +16,65 @@
 # import MolecularSequenceRepository from "../backbone_elements/molecularSequenceRepository.graphql"
 # import MolecularSequenceStructureVariant from "../backbone_elements/molecularSequenceStructureVariant.graphql"
 
+"""
+Reference type for Patient
+"""
+type MolecularSequencePatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Specimen
+"""
+type MolecularSequenceSpecimenReference {
+    id: String
+    extension: [Extension]
+    reference: Specimen
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Device
+"""
+type MolecularSequenceDeviceReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Performer
+"""
+type MolecularSequencePerformerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Pointer
+"""
+type MolecularSequencePointerReference {
+    id: String
+    extension: [Extension]
+    reference: MolecularSequence
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -104,19 +163,19 @@ type MolecularSequence {
     """
     The patient whose sequencing results are described by this resource.
     """
-    patient: Patient
+    patient: MolecularSequencePatientReference
     """
     Specimen used for sequencing.
     """
-    specimen: Specimen
+    specimen: MolecularSequenceSpecimenReference
     """
     The method for sequencing, for example, chip information.
     """
-    device: Device
+    device: MolecularSequenceDeviceReference
     """
     The organization or lab that should be responsible for this result.
     """
-    performer: Organization
+    performer: MolecularSequencePerformerReference
     """
     The number of copies of the sequence of interest. (RNASeq).
     """
@@ -159,7 +218,7 @@ type MolecularSequence {
     """
     Pointer to next atomic sequence which at most contains one variant.
     """
-    pointer: [MolecularSequence]
+    pointer: [MolecularSequencePointerReference]
     """
     Information about chromosome structure variation.
     """

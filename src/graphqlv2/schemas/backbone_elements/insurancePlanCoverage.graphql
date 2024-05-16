@@ -4,6 +4,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import InsurancePlanBenefit from "../backbone_elements/insurancePlanBenefit.graphql"
 
+"""
+Reference type for Network
+"""
+type InsurancePlanCoverageNetworkReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 InsurancePlan.Coverage
@@ -46,7 +58,7 @@ type InsurancePlanCoverage {
     """
     Reference to the network that providing the type of coverage.
     """
-    network: [Organization]
+    network: [InsurancePlanCoverageNetworkReference]
     """
     Specific benefits under this type of coverage.
     """

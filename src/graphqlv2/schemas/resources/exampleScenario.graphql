@@ -18,7 +18,6 @@
 # import canonical from "../simple_types/canonical.graphql"
 
 
-
 """
 ExampleScenario
     Example of workflow instance.

@@ -15,6 +15,19 @@
 union UsageContextValueReference = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 
 """
+Reference type for ValueReference
+"""
+type UsageContextValueReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: UsageContextValueReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 UsageContext
     Specifies clinical/business/etc. metadata that can be used to retrieve, index
     and/or categorize an artifact. This metadata can either be specific to the
@@ -56,5 +69,5 @@ type UsageContext {
     """
     None
     """
-    valueReference: UsageContextValueReference
+    valueReference: UsageContextValueReferenceReference
 }

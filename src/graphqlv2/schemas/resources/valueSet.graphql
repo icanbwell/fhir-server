@@ -16,7 +16,6 @@
 # import ValueSetExpansion from "../backbone_elements/valueSetExpansion.graphql"
 
 
-
 """
 ValueSet
     A ValueSet resource instance specifies a set of codes drawn from one or more

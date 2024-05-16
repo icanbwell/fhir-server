@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         adverseEvent: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -35,96 +34,112 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    AdverseEvent: {
+    AdverseEventSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventResultingConditionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        resultingCondition: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.resultingCondition);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        recorder: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.recorder);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventRecorderReference: {
         // noinspection JSUnusedLocalSymbols
-
-        contributor: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.contributor);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventContributorReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subjectMedicalHistory: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subjectMedicalHistory);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventSubjectMedicalHistoryReference: {
         // noinspection JSUnusedLocalSymbols
-
-        referenceDocument: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.referenceDocument);
-        },
+                parent
+            );
+        }
+    },
+    AdverseEventReferenceDocumentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        study: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.study);
+                parent
+            );
+        }
+    },
+    AdverseEventStudyReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

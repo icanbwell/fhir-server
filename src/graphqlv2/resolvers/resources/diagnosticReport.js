@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         diagnosticReport: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -35,86 +34,100 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DiagnosticReport: {
+    DiagnosticReportBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-
-        basedOn: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        encounter: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.encounter);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        performer: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.performer);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportPerformerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        resultsInterpreter: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.resultsInterpreter);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportResultsInterpreterReference: {
         // noinspection JSUnusedLocalSymbols
-
-        specimen: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.specimen);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportSpecimenReference: {
         // noinspection JSUnusedLocalSymbols
-
-        result: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.result);
-        },
+                parent
+            );
+        }
+    },
+    DiagnosticReportResultReference: {
         // noinspection JSUnusedLocalSymbols
-
-        imagingStudy: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.imagingStudy);
+                parent
+            );
+        }
+    },
+    DiagnosticReportImagingStudyReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

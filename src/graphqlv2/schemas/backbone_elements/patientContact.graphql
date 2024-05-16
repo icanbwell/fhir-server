@@ -8,6 +8,18 @@
 # import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
+"""
+Reference type for Organization
+"""
+type PatientContactOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Patient.Contact
@@ -68,7 +80,7 @@ type PatientContact {
     Organization on behalf of which the contact is acting or for which the contact
     is working.
     """
-    organization: Organization
+    organization: PatientContactOrganizationReference
     """
     The period during which this contact person or organization is valid to be
     contacted relating to this patient.

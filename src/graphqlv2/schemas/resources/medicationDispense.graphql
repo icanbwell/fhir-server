@@ -16,10 +16,157 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import MedicationDispenseSubstitution from "../backbone_elements/medicationDispenseSubstitution.graphql"
 
+"""
+Reference type for PartOf
+"""
+type MedicationDispensePartOfReference {
+    id: String
+    extension: [Extension]
+    reference: Procedure
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for StatusReasonReference
+"""
+type MedicationDispenseStatusReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: DetectedIssue
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for MedicationReference
+"""
+type MedicationDispenseMedicationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: Medication
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union MedicationDispenseSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type MedicationDispenseSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispenseSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union MedicationDispenseContext = Encounter | EpisodeOfCare
-union MedicationDispenseSupportingInformationV2 = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+
+"""
+Reference type for Context
+"""
+type MedicationDispenseContextReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispenseContext
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+union MedicationDispenseSupportingInformation = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+
+"""
+Reference type for SupportingInformation
+"""
+type MedicationDispenseSupportingInformationReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispenseSupportingInformation
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type MedicationDispenseLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for AuthorizingPrescription
+"""
+type MedicationDispenseAuthorizingPrescriptionReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Destination
+"""
+type MedicationDispenseDestinationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union MedicationDispenseReceiver = Patient | Practitioner
+
+"""
+Reference type for Receiver
+"""
+type MedicationDispenseReceiverReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationDispenseReceiver
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for DetectedIssue
+"""
+type MedicationDispenseDetectedIssueReference {
+    id: String
+    extension: [Extension]
+    reference: DetectedIssue
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for EventHistory
+"""
+type MedicationDispenseEventHistoryReference {
+    id: String
+    extension: [Extension]
+    reference: Provenance
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -105,7 +252,7 @@ type MedicationDispense {
     """
     The procedure that trigger the dispense.
     """
-    partOf: [Procedure]
+    partOf: [MedicationDispensePartOfReference]
     """
     A code specifying the state of the set of dispense events.
     """
@@ -117,7 +264,7 @@ type MedicationDispense {
     """
     None
     """
-    statusReasonReference: DetectedIssue
+    statusReasonReference: MedicationDispenseStatusReasonReferenceReference
     """
     Indicates the type of medication dispense (for example, where the medication
     is expected to be consumed or administered (i.e. inpatient or outpatient)).
@@ -130,24 +277,20 @@ type MedicationDispense {
     """
     None
     """
-    medicationReference: Medication
+    medicationReference: MedicationDispenseMedicationReferenceReference
     """
     A link to a resource representing the person or the group to whom the
     medication will be given.
     """
-    subject: MedicationDispenseSubject
+    subject: MedicationDispenseSubjectReference
     """
     The encounter or episode of care that establishes the context for this event.
     """
-    context: MedicationDispenseContext
+    context: MedicationDispenseContextReference
     """
     Additional information that supports the medication being dispensed.
     """
-    supportingInformationV2: [MedicationDispenseSupportingInformationV2]
-    """
-    Additional information that supports the medication being dispensed.
-    """
-    supportingInformation: [Resource]
+    supportingInformation: [MedicationDispenseSupportingInformationReference]
     """
     Indicates who or what performed the event.
     """
@@ -155,11 +298,11 @@ type MedicationDispense {
     """
     The principal physical location where the dispense was performed.
     """
-    location: Location
+    location: MedicationDispenseLocationReference
     """
     Indicates the medication order that is being dispensed against.
     """
-    authorizingPrescription: [MedicationRequest]
+    authorizingPrescription: [MedicationDispenseAuthorizingPrescriptionReference]
     """
     Indicates the type of dispensing event that is performed. For example, Trial
     Fill, Completion of Trial, Partial Fill, Emergency Fill, Samples, etc.
@@ -186,13 +329,13 @@ type MedicationDispense {
     Identification of the facility/location where the medication was shipped to,
     as part of the dispense event.
     """
-    destination: Location
+    destination: MedicationDispenseDestinationReference
     """
     Identifies the person who picked up the medication.  This will usually be a
     patient or their caregiver, but some cases exist where it can be a healthcare
     professional.
     """
-    receiver: [MedicationDispenseReceiver]
+    receiver: [MedicationDispenseReceiverReference]
     """
     Extra information about the dispense that could not be conveyed in the other
     attributes.
@@ -215,12 +358,12 @@ type MedicationDispense {
     active or proposed clinical actions for a patient; e.g. drug-drug interaction,
     duplicate therapy, dosage alert etc.
     """
-    detectedIssue: [DetectedIssue]
+    detectedIssue: [MedicationDispenseDetectedIssueReference]
     """
     A summary of the events of interest that have occurred, such as when the
     dispense was verified.
     """
-    eventHistory: [Provenance]
+    eventHistory: [MedicationDispenseEventHistoryReference]
 }
 
 type MedicationDispenseBundleEntry {

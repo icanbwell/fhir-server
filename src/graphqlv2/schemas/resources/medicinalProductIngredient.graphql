@@ -12,6 +12,17 @@
 # import MedicinalProductIngredientSpecifiedSubstance from "../backbone_elements/medicinalProductIngredientSpecifiedSubstance.graphql"
 # import MedicinalProductIngredientSubstance from "../backbone_elements/medicinalProductIngredientSubstance.graphql"
 
+"""
+Reference type for Manufacturer
+"""
+type MedicinalProductIngredientManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -99,7 +110,7 @@ type MedicinalProductIngredient {
     """
     Manufacturer of this Ingredient.
     """
-    manufacturer: [Organization]
+    manufacturer: [MedicinalProductIngredientManufacturerReference]
     """
     A specified substance that comprises this ingredient.
     """

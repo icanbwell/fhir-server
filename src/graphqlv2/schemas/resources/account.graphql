@@ -15,6 +15,42 @@
 
 union AccountSubject = Patient | Device | Practitioner | PractitionerRole | Location | HealthcareService | Organization
 
+"""
+Reference type for Subject
+"""
+type AccountSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: AccountSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Owner
+"""
+type AccountOwnerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for PartOf
+"""
+type AccountPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: Account
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Account
@@ -107,7 +143,7 @@ type Account {
     recipients of services or goods might be entities related to the subject, the
     expenses were ultimately incurred by the subject of the Account.
     """
-    subject: [AccountSubject]
+    subject: [AccountSubjectReference]
     """
     The date range of services associated with this account.
     """
@@ -121,7 +157,7 @@ type Account {
     Indicates the service area, hospital, department, etc. with responsibility for
     managing the Account.
     """
-    owner: Organization
+    owner: AccountOwnerReference
     """
     Provides additional information about what the account tracks and how it is
     used.
@@ -135,7 +171,7 @@ type Account {
     """
     Reference to a parent Account.
     """
-    partOf: Account
+    partOf: AccountPartOfReference
 }
 
 type AccountBundleEntry {

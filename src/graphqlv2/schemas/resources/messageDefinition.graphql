@@ -18,7 +18,6 @@
 # import MessageDefinitionAllowedResponse from "../backbone_elements/messageDefinitionAllowedResponse.graphql"
 
 
-
 """
 MessageDefinition
     Defines the characteristics of a message that can be shared between systems,

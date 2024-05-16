@@ -2,6 +2,18 @@
 # import Extension from "../extensions/extension.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Link
+"""
+type DiagnosticReportMediaLinkReference {
+    id: String
+    extension: [Extension]
+    reference: Media
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 DiagnosticReport.Media
@@ -49,5 +61,5 @@ type DiagnosticReportMedia {
     """
     Reference to the image source.
     """
-    link: Media
+    link: DiagnosticReportMediaLinkReference
 }

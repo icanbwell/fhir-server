@@ -18,6 +18,41 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for ExposureBackground
+"""
+type EvidenceExposureBackgroundReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ExposureVariant
+"""
+type EvidenceExposureVariantReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Outcome
+"""
+type EvidenceOutcomeReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -235,17 +270,17 @@ type Evidence {
     A reference to a EvidenceVariable resource that defines the population for the
     research.
     """
-    exposureBackground: EvidenceVariable
+    exposureBackground: EvidenceExposureBackgroundReference
     """
     A reference to a EvidenceVariable resource that defines the exposure for the
     research.
     """
-    exposureVariant: [EvidenceVariable]
+    exposureVariant: [EvidenceExposureVariantReference]
     """
     A reference to a EvidenceVariable resomece that defines the outcome for the
     research.
     """
-    outcome: [EvidenceVariable]
+    outcome: [EvidenceOutcomeReference]
 }
 
 type EvidenceBundleEntry {

@@ -12,26 +12,28 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Signature: {
+    SignatureWhoReference: {
         // noinspection JSUnusedLocalSymbols
-
-        who: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.who);
-        },
+                parent
+            );
+        }
+    },
+    SignatureOnBehalfOfReference: {
         // noinspection JSUnusedLocalSymbols
-
-        onBehalfOf: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.onBehalfOf);
+                parent
+            );
         }
     }
 };

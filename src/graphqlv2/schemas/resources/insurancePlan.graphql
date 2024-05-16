@@ -14,6 +14,65 @@
 # import InsurancePlanCoverage from "../backbone_elements/insurancePlanCoverage.graphql"
 # import InsurancePlanPlan from "../backbone_elements/insurancePlanPlan.graphql"
 
+"""
+Reference type for OwnedBy
+"""
+type InsurancePlanOwnedByReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for AdministeredBy
+"""
+type InsurancePlanAdministeredByReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for CoverageArea
+"""
+type InsurancePlanCoverageAreaReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type InsurancePlanEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Network
+"""
+type InsurancePlanNetworkReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -115,17 +174,17 @@ type InsurancePlan {
     the risk.  This is typically an insurance carriers, other third-party payers,
     or health plan sponsors comonly referred to as 'payers'.
     """
-    ownedBy: Organization
+    ownedBy: InsurancePlanOwnedByReference
     """
     An organization which administer other services such as underwriting, customer
     service and/or claims processing on behalf of the health insurance product
     owner.
     """
-    administeredBy: Organization
+    administeredBy: InsurancePlanAdministeredByReference
     """
     The geographic region in which a health insurance product's benefits apply.
     """
-    coverageArea: [Location]
+    coverageArea: [InsurancePlanCoverageAreaReference]
     """
     The contact for the health insurance product for a certain purpose.
     """
@@ -134,11 +193,11 @@ type InsurancePlan {
     The technical endpoints providing access to services operated for the health
     insurance product.
     """
-    endpoint: [Endpoint]
+    endpoint: [InsurancePlanEndpointReference]
     """
     Reference to the network included in the health insurance product.
     """
-    network: [Organization]
+    network: [InsurancePlanNetworkReference]
     """
     Details about the coverage offered by the insurance product.
     """

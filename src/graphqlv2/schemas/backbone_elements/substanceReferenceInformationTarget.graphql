@@ -6,6 +6,18 @@
 # import Range from "../complex_types/range.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Source
+"""
+type SubstanceReferenceInformationTargetSourceReference {
+    id: String
+    extension: [Extension]
+    reference: DocumentReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 SubstanceReferenceInformation.Target
@@ -79,5 +91,5 @@ type SubstanceReferenceInformationTarget {
     """
     Todo.
     """
-    source: [DocumentReference]
+    source: [SubstanceReferenceInformationTargetSourceReference]
 }

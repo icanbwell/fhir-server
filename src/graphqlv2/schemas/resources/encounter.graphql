@@ -20,7 +20,104 @@
 # import EncounterLocation from "../backbone_elements/encounterLocation.graphql"
 
 union EncounterSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type EncounterSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for EpisodeOfCare
+"""
+type EncounterEpisodeOfCareReference {
+    id: String
+    extension: [Extension]
+    reference: EpisodeOfCare
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for BasedOn
+"""
+type EncounterBasedOnReference {
+    id: String
+    extension: [Extension]
+    reference: ServiceRequest
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Appointment
+"""
+type EncounterAppointmentReference {
+    id: String
+    extension: [Extension]
+    reference: Appointment
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union EncounterReasonReference = Condition | Procedure | Observation | ImmunizationRecommendation
+
+"""
+Reference type for ReasonReference
+"""
+type EncounterReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Account
+"""
+type EncounterAccountReference {
+    id: String
+    extension: [Extension]
+    reference: Account
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ServiceProvider
+"""
+type EncounterServiceProviderReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for PartOf
+"""
+type EncounterPartOfReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -138,7 +235,7 @@ type Encounter {
     """
     The patient or group present at the encounter.
     """
-    subject: EncounterSubject
+    subject: EncounterSubjectReference
     """
     Where a specific encounter should be classified as a part of a specific
     episode(s) of care this field should be used. This association can facilitate
@@ -148,12 +245,12 @@ type Encounter {
     the episode of care and grouped on entry rather than editing the episode of
     care to append another encounter to it (the episode of care could span years).
     """
-    episodeOfCare: [EpisodeOfCare]
+    episodeOfCare: [EncounterEpisodeOfCareReference]
     """
     The request this encounter satisfies (e.g. incoming referral or procedure
     request).
     """
-    basedOn: [ServiceRequest]
+    basedOn: [EncounterBasedOnReference]
     """
     The list of people responsible for providing the service.
     """
@@ -161,7 +258,7 @@ type Encounter {
     """
     The appointment that scheduled this encounter.
     """
-    appointment: [Appointment]
+    appointment: [EncounterAppointmentReference]
     """
     The start and end time of the encounter.
     """
@@ -180,7 +277,7 @@ type Encounter {
     Reason the encounter takes place, expressed as a code. For admissions, this
     can be used for a coded admission diagnosis.
     """
-    reasonReference: [EncounterReasonReference]
+    reasonReference: [EncounterReasonReferenceReference]
     """
     The list of diagnosis relevant to this encounter.
     """
@@ -188,7 +285,7 @@ type Encounter {
     """
     The set of accounts that may be used for billing for this Encounter.
     """
-    account: [Account]
+    account: [EncounterAccountReference]
     """
     Details about the admission to a healthcare service.
     """
@@ -205,12 +302,12 @@ type Encounter {
     consultation.  Refer to the example bundle showing an abbreviated set of
     Encounters for a colonoscopy.
     """
-    serviceProvider: Organization
+    serviceProvider: EncounterServiceProviderReference
     """
     Another Encounter of which this encounter is a part of (administratively or in
     time).
     """
-    partOf: Encounter
+    partOf: EncounterPartOfReference
 }
 
 type EncounterBundleEntry {

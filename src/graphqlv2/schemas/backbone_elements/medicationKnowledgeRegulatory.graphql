@@ -5,6 +5,18 @@
 # import MedicationKnowledgeSchedule from "../backbone_elements/medicationKnowledgeSchedule.graphql"
 # import MedicationKnowledgeMaxDispense from "../backbone_elements/medicationKnowledgeMaxDispense.graphql"
 
+"""
+Reference type for RegulatoryAuthority
+"""
+type MedicationKnowledgeRegulatoryRegulatoryAuthorityReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicationKnowledge.Regulatory
@@ -42,7 +54,7 @@ type MedicationKnowledgeRegulatory {
     """
     The authority that is specifying the regulations.
     """
-    regulatoryAuthority: Organization
+    regulatoryAuthority: MedicationKnowledgeRegulatoryRegulatoryAuthorityReference
     """
     Specifies if changes are allowed when dispensing a medication from a
     regulatory perspective.

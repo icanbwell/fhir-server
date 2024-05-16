@@ -7,6 +7,19 @@
 union EncounterParticipantIndividual = Practitioner | PractitionerRole | RelatedPerson
 
 """
+Reference type for Individual
+"""
+type EncounterParticipantIndividualReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterParticipantIndividual
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Encounter.Participant
     An interaction between a patient and healthcare provider(s) for the purpose of
     providing healthcare service(s) or assessing the health status of a patient.
@@ -52,5 +65,5 @@ type EncounterParticipant {
     """
     Persons involved in the encounter other than the patient.
     """
-    individual: EncounterParticipantIndividual
+    individual: EncounterParticipantIndividualReference
 }

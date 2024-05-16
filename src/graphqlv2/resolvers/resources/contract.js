@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         contract: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,7 +14,7 @@ module.exports = {
             );
         }
     },
-    ContractSubjectV2: {
+    ContractSubjectType: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -25,7 +24,12 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ContractSupportingInfoV2: {
+    ContractTopicReference: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
+    ContractSupportingInfo: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -35,126 +39,124 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Contract: {
+    ContractInstantiatesCanonicalReference: {
         // noinspection JSUnusedLocalSymbols
-
-        instantiatesCanonical: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.instantiatesCanonical);
-        },
+                parent
+            );
+        }
+    },
+    ContractSubjectTypeReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subjectV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.subject);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.subject);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        authority: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.authority);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        domain: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.domain);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        site: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.site);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        author: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.author);
-        },
+                parent
+            );
+        }
+    },
+    ContractAuthorityReference: {
         // noinspection JSUnusedLocalSymbols
-
-        topicReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.topicReference);
-        },
+                parent
+            );
+        }
+    },
+    ContractDomainReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInfoV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.supportingInfo);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        supportingInfo: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.supportingInfo);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        relevantHistory: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.relevantHistory);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        legallyBindingReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.legallyBindingReference);
+                parent
+            );
+        }
+    },
+    ContractSiteReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    ContractAuthorReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    ContractTopicReferenceReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    ContractSupportingInfoReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    ContractRelevantHistoryReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    ContractLegallyBindingReferenceReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

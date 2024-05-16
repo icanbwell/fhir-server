@@ -10,6 +10,19 @@
 union AnnotationAuthorReference = Practitioner | Patient | RelatedPerson | Organization
 
 """
+Reference type for AuthorReference
+"""
+type AnnotationAuthorReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: AnnotationAuthorReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Annotation
     A  text note which also  contains information about who made the statement and
     when.
@@ -32,7 +45,7 @@ type Annotation {
     """
     None
     """
-    authorReference: AnnotationAuthorReference
+    authorReference: AnnotationAuthorReferenceReference
     """
     None
     """

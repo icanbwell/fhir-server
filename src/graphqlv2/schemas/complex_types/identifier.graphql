@@ -6,6 +6,18 @@
 # import Period from "../complex_types/period.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Assigner
+"""
+type IdentifierAssignerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Identifier
@@ -53,5 +65,5 @@ type Identifier {
     """
     Organization that issued/manages the identifier.
     """
-    assigner: Organization
+    assigner: IdentifierAssignerReference
 }

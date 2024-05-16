@@ -5,6 +5,18 @@
 # import MedicinalProductIndication from "../resources/medicinalProductIndication.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 
+"""
+Reference type for IndicationReference
+"""
+type MedicinalProductSpecialDesignationIndicationReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductIndication
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProduct.SpecialDesignation
@@ -59,7 +71,7 @@ type MedicinalProductSpecialDesignation {
     """
     None
     """
-    indicationReference: MedicinalProductIndication
+    indicationReference: MedicinalProductSpecialDesignationIndicationReferenceReference
     """
     For example granted, pending, expired or withdrawn.
     """

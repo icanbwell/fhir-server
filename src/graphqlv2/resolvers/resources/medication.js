@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         medication: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,16 +14,16 @@ module.exports = {
             );
         }
     },
-    Medication: {
+    MedicationManufacturerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        manufacturer: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.manufacturer);
+                parent
+            );
         }
     }
 };

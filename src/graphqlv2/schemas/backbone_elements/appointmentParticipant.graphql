@@ -8,6 +8,19 @@
 union AppointmentParticipantActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 
 """
+Reference type for Actor
+"""
+type AppointmentParticipantActorReference {
+    id: String
+    extension: [Extension]
+    reference: AppointmentParticipantActor
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Appointment.Participant
     A booking of a healthcare event among patient(s), practitioner(s), related
     person(s) and/or device(s) for a specific date/time. This may result in one or
@@ -50,7 +63,7 @@ type AppointmentParticipant {
     A Person, Location/HealthcareService or Device that is participating in the
     appointment.
     """
-    actor: AppointmentParticipantActor
+    actor: AppointmentParticipantActorReference
     """
     Whether this participant is required to be present at the meeting. This covers
     a use-case where two doctors need to meet to discuss the results for a

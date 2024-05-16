@@ -14,6 +14,65 @@
 # import PractitionerRoleAvailableTime from "../backbone_elements/practitionerRoleAvailableTime.graphql"
 # import PractitionerRoleNotAvailable from "../backbone_elements/practitionerRoleNotAvailable.graphql"
 
+"""
+Reference type for Practitioner
+"""
+type PractitionerRolePractitionerReference {
+    id: String
+    extension: [Extension]
+    reference: Practitioner
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Organization
+"""
+type PractitionerRoleOrganizationReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Location
+"""
+type PractitionerRoleLocationReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for HealthcareService
+"""
+type PractitionerRoleHealthcareServiceReference {
+    id: String
+    extension: [Extension]
+    reference: HealthcareService
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Endpoint
+"""
+type PractitionerRoleEndpointReference {
+    id: String
+    extension: [Extension]
+    reference: Endpoint
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -102,11 +161,11 @@ type PractitionerRole {
     Practitioner that is able to provide the defined services for the
     organization.
     """
-    practitioner: Practitioner
+    practitioner: PractitionerRolePractitionerReference
     """
     The organization where the Practitioner performs the roles associated.
     """
-    organization: Organization
+    organization: PractitionerRoleOrganizationReference
     """
     Roles which this practitioner is authorized to perform for the organization.
     """
@@ -118,12 +177,12 @@ type PractitionerRole {
     """
     The location(s) at which this practitioner provides care.
     """
-    location: [Location]
+    location: [PractitionerRoleLocationReference]
     """
     The list of healthcare services that this worker provides for this role's
     Organization/Location(s).
     """
-    healthcareService: [HealthcareService]
+    healthcareService: [PractitionerRoleHealthcareServiceReference]
     """
     Contact details that are specific to the role/location/service.
     """
@@ -148,7 +207,7 @@ type PractitionerRole {
     Technical endpoints providing access to services operated for the practitioner
     with this role.
     """
-    endpoint: [Endpoint]
+    endpoint: [PractitionerRoleEndpointReference]
 }
 
 type PractitionerRoleBundleEntry {

@@ -15,8 +15,94 @@
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
 
 union GuidanceResponseSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type GuidanceResponseSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: GuidanceResponseSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type GuidanceResponseEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Performer
+"""
+type GuidanceResponsePerformerReference {
+    id: String
+    extension: [Extension]
+    reference: Device
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union GuidanceResponseReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
+
+"""
+Reference type for ReasonReference
+"""
+type GuidanceResponseReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: GuidanceResponseReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for EvaluationMessage
+"""
+type GuidanceResponseEvaluationMessageReference {
+    id: String
+    extension: [Extension]
+    reference: OperationOutcome
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for OutputParameters
+"""
+type GuidanceResponseOutputParametersReference {
+    id: String
+    extension: [Extension]
+    reference: Parameters
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union GuidanceResponseResult = CarePlan | RequestGroup
+
+"""
+Reference type for Result
+"""
+type GuidanceResponseResultReference {
+    id: String
+    extension: [Extension]
+    reference: GuidanceResponseResult
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -125,12 +211,12 @@ type GuidanceResponse {
     """
     The patient for which the request was processed.
     """
-    subject: GuidanceResponseSubject
+    subject: GuidanceResponseSubjectReference
     """
     The encounter during which this response was created or to which the creation
     of this record is tightly associated.
     """
-    encounter: Encounter
+    encounter: GuidanceResponseEncounterReference
     """
     Indicates when the guidance response was processed.
     """
@@ -138,7 +224,7 @@ type GuidanceResponse {
     """
     Provides a reference to the device that performed the guidance.
     """
-    performer: Device
+    performer: GuidanceResponsePerformerReference
     """
     Describes the reason for the guidance response in coded or textual form.
     """
@@ -149,7 +235,7 @@ type GuidanceResponse {
     cases, such as subscription- or event-based scenarios, it may provide an
     indication of the cause for the response.
     """
-    reasonReference: [GuidanceResponseReasonReference]
+    reasonReference: [GuidanceResponseReasonReferenceReference]
     """
     Provides a mechanism to communicate additional information about the response.
     """
@@ -159,7 +245,7 @@ type GuidanceResponse {
     of evaluating the request, the engine may produce informational or warning
     messages. These messages will be provided by this element.
     """
-    evaluationMessage: [OperationOutcome]
+    evaluationMessage: [GuidanceResponseEvaluationMessageReference]
     """
     The output parameters of the evaluation, if any. Many modules will result in
     the return of specific resources such as procedure or communication requests
@@ -167,11 +253,11 @@ type GuidanceResponse {
     specific outputs that would be returned as the result of the evaluation, and
     these would be returned in this element.
     """
-    outputParameters: Parameters
+    outputParameters: GuidanceResponseOutputParametersReference
     """
     The actions, if any, produced by the evaluation of the artifact.
     """
-    result: GuidanceResponseResult
+    result: GuidanceResponseResultReference
     """
     If the evaluation could not be completed due to lack of information, or
     additional information would potentially result in a more accurate response,

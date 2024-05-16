@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         deviceDefinition: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -15,36 +14,40 @@ module.exports = {
             );
         }
     },
-    DeviceDefinition: {
+    DeviceDefinitionManufacturerReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        manufacturerReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.manufacturerReference);
-        },
+                parent
+            );
+        }
+    },
+    DeviceDefinitionOwnerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        owner: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.owner);
-        },
+                parent
+            );
+        }
+    },
+    DeviceDefinitionParentDeviceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        parentDevice: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.parentDevice);
+                parent
+            );
         }
     }
 };

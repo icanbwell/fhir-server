@@ -6,6 +6,30 @@
 # import InsurancePlanGeneralCost from "../backbone_elements/insurancePlanGeneralCost.graphql"
 # import InsurancePlanSpecificCost from "../backbone_elements/insurancePlanSpecificCost.graphql"
 
+"""
+Reference type for CoverageArea
+"""
+type InsurancePlanPlanCoverageAreaReference {
+    id: String
+    extension: [Extension]
+    reference: Location
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Network
+"""
+type InsurancePlanPlanNetworkReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 InsurancePlan.Plan
@@ -52,11 +76,11 @@ type InsurancePlanPlan {
     """
     The geographic region in which a health insurance plan's benefits apply.
     """
-    coverageArea: [Location]
+    coverageArea: [InsurancePlanPlanCoverageAreaReference]
     """
     Reference to the network that providing the type of coverage.
     """
-    network: [Organization]
+    network: [InsurancePlanPlanNetworkReference]
     """
     Overall costs associated with the plan.
     """

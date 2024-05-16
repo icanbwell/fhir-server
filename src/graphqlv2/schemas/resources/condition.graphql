@@ -18,8 +18,58 @@
 # import Annotation from "../complex_types/annotation.graphql"
 
 union ConditionSubject = Patient | Group
+
+"""
+Reference type for Subject
+"""
+type ConditionSubjectReference {
+    id: String
+    extension: [Extension]
+    reference: ConditionSubject
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Encounter
+"""
+type ConditionEncounterReference {
+    id: String
+    extension: [Extension]
+    reference: Encounter
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ConditionRecorder = Practitioner | PractitionerRole | Patient | RelatedPerson
+
+"""
+Reference type for Recorder
+"""
+type ConditionRecorderReference {
+    id: String
+    extension: [Extension]
+    reference: ConditionRecorder
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union ConditionAsserter = Practitioner | PractitionerRole | Patient | RelatedPerson
+
+"""
+Reference type for Asserter
+"""
+type ConditionAsserterReference {
+    id: String
+    extension: [Extension]
+    reference: ConditionAsserter
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -125,12 +175,12 @@ type Condition {
     """
     Indicates the patient or group who the condition record is associated with.
     """
-    subject: ConditionSubject
+    subject: ConditionSubjectReference
     """
     The Encounter during which this Condition was created or to which the creation
     of this record is tightly associated.
     """
-    encounter: Encounter
+    encounter: ConditionEncounterReference
     """
     None
     """
@@ -179,11 +229,11 @@ type Condition {
     """
     Individual who recorded the record and takes responsibility for its content.
     """
-    recorder: ConditionRecorder
+    recorder: ConditionRecorderReference
     """
     Individual who is making the condition statement.
     """
-    asserter: ConditionAsserter
+    asserter: ConditionAsserterReference
     """
     Clinical stage or grade of a condition. May include formal severity
     assessments.

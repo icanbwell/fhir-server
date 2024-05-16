@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         medicationDispense: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -25,7 +24,7 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MedicationDispenseSupportingInformationV2: {
+    MedicationDispenseSupportingInformation: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -35,136 +34,148 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MedicationDispense: {
+    MedicationDispensePartOfReference: {
         // noinspection JSUnusedLocalSymbols
-
-        partOf: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.partOf);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        statusReasonReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.statusReasonReference);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseStatusReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        medicationReference: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.medicationReference);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseMedicationReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-
-        subject: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.subject);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-
-        context: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.context);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseContextReference: {
         // noinspection JSUnusedLocalSymbols
-
-        supportingInformationV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.supportingInformation);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        supportingInformation: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.supportingInformation);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        location: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.location);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseSupportingInformationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        authorizingPrescription: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.authorizingPrescription);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        destination: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.destination);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseLocationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        receiver: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.receiver);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseAuthorizingPrescriptionReference: {
         // noinspection JSUnusedLocalSymbols
-
-        detectedIssue: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.detectedIssue);
-        },
+                parent
+            );
+        }
+    },
+    MedicationDispenseDestinationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        eventHistory: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.eventHistory);
+                parent
+            );
+        }
+    },
+    MedicationDispenseReceiverReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    MedicationDispenseDetectedIssueReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    MedicationDispenseEventHistoryReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

@@ -15,7 +15,6 @@
 # import AuditEventEntity from "../backbone_elements/auditEventEntity.graphql"
 
 
-
 """
 AuditEvent
     A record of an event made for purposes of maintaining a security log. Typical

@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         episodeOfCare: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,66 +19,76 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    EpisodeOfCare: {
+    EpisodeOfCarePatientReference: {
         // noinspection JSUnusedLocalSymbols
-
-        patient: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.patient);
-        },
+                parent
+            );
+        }
+    },
+    EpisodeOfCareManagingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
-
-        managingOrganization: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.managingOrganization);
-        },
+                parent
+            );
+        }
+    },
+    EpisodeOfCareReferralRequestReference: {
         // noinspection JSUnusedLocalSymbols
-
-        referralRequest: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.referralRequest);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        careManager: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.careManager);
-        },
+                parent
+            );
+        }
+    },
+    EpisodeOfCareCareManagerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        team: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.team);
-        },
+                parent
+            );
+        }
+    },
+    EpisodeOfCareTeamReference: {
         // noinspection JSUnusedLocalSymbols
-
-        account: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.account);
+                parent
+            );
+        }
+    },
+    EpisodeOfCareAccountReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
         }
     }
 };

@@ -15,6 +15,18 @@
 
 union CatalogEntryReferencedItem = Medication | Device | Organization | Practitioner | PractitionerRole | HealthcareService | ActivityDefinition | PlanDefinition | SpecimenDefinition | ObservationDefinition | Binary
 
+"""
+Reference type for ReferencedItem
+"""
+type CatalogEntryReferencedItemReference {
+    id: String
+    extension: [Extension]
+    reference: CatalogEntryReferencedItem
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 CatalogEntry
@@ -100,7 +112,7 @@ type CatalogEntry {
     """
     The item in a catalog or definition.
     """
-    referencedItem: CatalogEntryReferencedItem
+    referencedItem: CatalogEntryReferencedItemReference
     """
     Used in supporting related concepts, e.g. NDC to RxNorm.
     """

@@ -3,6 +3,18 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Reference
+"""
+type MedicationKnowledgeRelatedMedicationKnowledgeReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: MedicationKnowledge
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicationKnowledge.RelatedMedicationKnowledge
@@ -44,5 +56,5 @@ type MedicationKnowledgeRelatedMedicationKnowledge {
     """
     Associated documentation about the associated medication knowledge.
     """
-    reference: [MedicationKnowledge]
+    reference: [MedicationKnowledgeRelatedMedicationKnowledgeReferenceReference]
 }

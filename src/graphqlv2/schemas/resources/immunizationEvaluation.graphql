@@ -12,6 +12,41 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 
+"""
+Reference type for Patient
+"""
+type ImmunizationEvaluationPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Authority
+"""
+type ImmunizationEvaluationAuthorityReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ImmunizationEvent
+"""
+type ImmunizationEvaluationImmunizationEventReference {
+    id: String
+    extension: [Extension]
+    reference: Immunization
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -96,7 +131,7 @@ type ImmunizationEvaluation {
     """
     The individual for whom the evaluation is being done.
     """
-    patient: Patient
+    patient: ImmunizationEvaluationPatientReference
     """
     The date the evaluation of the vaccine administration event was performed.
     """
@@ -104,7 +139,7 @@ type ImmunizationEvaluation {
     """
     Indicates the authority who published the protocol (e.g. ACIP).
     """
-    authority: Organization
+    authority: ImmunizationEvaluationAuthorityReference
     """
     The vaccine preventable disease the dose is being evaluated against.
     """
@@ -112,7 +147,7 @@ type ImmunizationEvaluation {
     """
     The vaccine administration event being evaluated.
     """
-    immunizationEvent: Immunization
+    immunizationEvent: ImmunizationEvaluationImmunizationEventReference
     """
     Indicates if the dose is valid or not valid with respect to the published
     recommendations.

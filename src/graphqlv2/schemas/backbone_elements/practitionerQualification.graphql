@@ -5,6 +5,18 @@
 # import Period from "../complex_types/period.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
+"""
+Reference type for Issuer
+"""
+type PractitionerQualificationIssuerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 Practitioner.Qualification
@@ -55,5 +67,5 @@ type PractitionerQualification {
     """
     Organization that regulates and issues the qualification.
     """
-    issuer: Organization
+    issuer: PractitionerQualificationIssuerReference
 }

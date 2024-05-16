@@ -6,6 +6,19 @@
 union AdverseEventSuspectEntityInstance = Immunization | Procedure | Substance | Medication | MedicationAdministration | MedicationStatement | Device
 
 """
+Reference type for Instance
+"""
+type AdverseEventSuspectEntityInstanceReference {
+    id: String
+    extension: [Extension]
+    reference: AdverseEventSuspectEntityInstance
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 AdverseEvent.SuspectEntity
     Actual or  potential/avoided event causing unintended physical injury
     resulting from or contributed to by medical care, a research study or other
@@ -46,7 +59,7 @@ type AdverseEventSuspectEntity {
     substance, medication, medication administration, medication statement or a
     device.
     """
-    instance: AdverseEventSuspectEntityInstance
+    instance: AdverseEventSuspectEntityInstanceReference
     """
     Information on the possible cause of the event.
     """

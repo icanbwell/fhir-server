@@ -2,16 +2,16 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    Identifier: {
+    IdentifierAssignerReference: {
         // noinspection JSUnusedLocalSymbols
-
-        assigner: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.assigner);
+                parent
+            );
         }
     }
 };

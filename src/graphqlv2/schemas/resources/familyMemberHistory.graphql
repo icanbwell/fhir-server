@@ -18,7 +18,31 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import FamilyMemberHistoryCondition from "../backbone_elements/familyMemberHistoryCondition.graphql"
 
+"""
+Reference type for Patient
+"""
+type FamilyMemberHistoryPatientReference {
+    id: String
+    extension: [Extension]
+    reference: Patient
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 union FamilyMemberHistoryReasonReference = Condition | Observation | AllergyIntolerance | QuestionnaireResponse | DiagnosticReport | DocumentReference
+
+"""
+Reference type for ReasonReference
+"""
+type FamilyMemberHistoryReasonReferenceReference {
+    id: String
+    extension: [Extension]
+    reference: FamilyMemberHistoryReasonReference
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -119,7 +143,7 @@ type FamilyMemberHistory {
     """
     The person who this history concerns.
     """
-    patient: Patient
+    patient: FamilyMemberHistoryPatientReference
     """
     The date (and possibly time) when the family member history was recorded or
     last updated.
@@ -195,7 +219,7 @@ type FamilyMemberHistory {
     Indicates a Condition, Observation, AllergyIntolerance, or
     QuestionnaireResponse that justifies this family member history event.
     """
-    reasonReference: [FamilyMemberHistoryReasonReference]
+    reasonReference: [FamilyMemberHistoryReasonReferenceReference]
     """
     This property allows a non condition-specific note to the made about the
     related person. Ideally, the note would be in the condition property, but this

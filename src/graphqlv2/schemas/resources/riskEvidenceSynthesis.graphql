@@ -21,6 +21,41 @@
 # import RiskEvidenceSynthesisRiskEstimate from "../backbone_elements/riskEvidenceSynthesisRiskEstimate.graphql"
 # import RiskEvidenceSynthesisCertainty from "../backbone_elements/riskEvidenceSynthesisCertainty.graphql"
 
+"""
+Reference type for Population
+"""
+type RiskEvidenceSynthesisPopulationReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Exposure
+"""
+type RiskEvidenceSynthesisExposureReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Outcome
+"""
+type RiskEvidenceSynthesisOutcomeReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -236,17 +271,17 @@ type RiskEvidenceSynthesis {
     A reference to a EvidenceVariable resource that defines the population for the
     research.
     """
-    population: EvidenceVariable
+    population: RiskEvidenceSynthesisPopulationReference
     """
     A reference to a EvidenceVariable resource that defines the exposure for the
     research.
     """
-    exposure: EvidenceVariable
+    exposure: RiskEvidenceSynthesisExposureReference
     """
     A reference to a EvidenceVariable resomece that defines the outcome for the
     research.
     """
-    outcome: EvidenceVariable
+    outcome: RiskEvidenceSynthesisOutcomeReference
     """
     A description of the size of the sample involved in the synthesis.
     """

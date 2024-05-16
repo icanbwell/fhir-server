@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         linkage: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,16 +19,16 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    Linkage: {
+    LinkageAuthorReference: {
         // noinspection JSUnusedLocalSymbols
-
-        author: async (parent, args, context, info) => {
+        reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.author);
+                parent
+            );
         }
     }
 };

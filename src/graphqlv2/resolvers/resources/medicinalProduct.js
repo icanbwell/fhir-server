@@ -4,7 +4,6 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-
         medicinalProduct: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -20,66 +19,76 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MedicinalProduct: {
+    MedicinalProductPharmaceuticalProductReference: {
         // noinspection JSUnusedLocalSymbols
-
-        pharmaceuticalProduct: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.pharmaceuticalProduct);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductPackagedMedicinalProductReference: {
         // noinspection JSUnusedLocalSymbols
-
-        packagedMedicinalProduct: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.packagedMedicinalProduct);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductAttachedDocumentReference: {
         // noinspection JSUnusedLocalSymbols
-
-        attachedDocument: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.attachedDocument);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductMasterFileReference: {
         // noinspection JSUnusedLocalSymbols
-
-        masterFile: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.masterFile);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductContactReference: {
         // noinspection JSUnusedLocalSymbols
-
-        contact: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.contact);
-        },
+                parent
+            );
+        }
+    },
+    MedicinalProductClinicalTrialReference: {
         // noinspection JSUnusedLocalSymbols
-
-        clinicalTrial: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.clinicalTrial);
+                parent
+            );
         }
     }
 };

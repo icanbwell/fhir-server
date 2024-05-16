@@ -7,6 +7,19 @@
 union EncounterDiagnosisCondition = Condition | Procedure
 
 """
+Reference type for Condition
+"""
+type EncounterDiagnosisConditionReference {
+    id: String
+    extension: [Extension]
+    reference: EncounterDiagnosisCondition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+
+"""
 Encounter.Diagnosis
     An interaction between a patient and healthcare provider(s) for the purpose of
     providing healthcare service(s) or assessing the health status of a patient.
@@ -46,7 +59,7 @@ type EncounterDiagnosis {
     typically be a Condition (with other resources referenced in the
     evidence.detail), or a Procedure.
     """
-    condition: EncounterDiagnosisCondition
+    condition: EncounterDiagnosisConditionReference
     """
     Role that this diagnosis has within the encounter (e.g. admission, billing,
     discharge …).

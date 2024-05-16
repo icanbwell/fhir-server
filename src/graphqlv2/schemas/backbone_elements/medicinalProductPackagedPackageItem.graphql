@@ -7,6 +7,42 @@
 # import ProdCharacteristic from "../backbone_elements/prodCharacteristic.graphql"
 # import ProductShelfLife from "../backbone_elements/productShelfLife.graphql"
 
+"""
+Reference type for Device
+"""
+type MedicinalProductPackagedPackageItemDeviceReference {
+    id: String
+    extension: [Extension]
+    reference: DeviceDefinition
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ManufacturedItem
+"""
+type MedicinalProductPackagedPackageItemManufacturedItemReference {
+    id: String
+    extension: [Extension]
+    reference: MedicinalProductManufactured
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Manufacturer
+"""
+type MedicinalProductPackagedPackageItemManufacturerReference {
+    id: String
+    extension: [Extension]
+    reference: Organization
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
 
 """
 MedicinalProductPackaged.PackageItem
@@ -65,11 +101,11 @@ type MedicinalProductPackagedPackageItem {
     """
     A device accompanying a medicinal product.
     """
-    device: [DeviceDefinition]
+    device: [MedicinalProductPackagedPackageItemDeviceReference]
     """
     The manufactured item as contained in the packaged medicinal product.
     """
-    manufacturedItem: [MedicinalProductManufactured]
+    manufacturedItem: [MedicinalProductPackagedPackageItemManufacturedItemReference]
     """
     Allows containers within containers.
     """
@@ -89,5 +125,5 @@ type MedicinalProductPackagedPackageItem {
     """
     Manufacturer of this Package Item.
     """
-    manufacturer: [Organization]
+    manufacturer: [MedicinalProductPackagedPackageItemManufacturerReference]
 }

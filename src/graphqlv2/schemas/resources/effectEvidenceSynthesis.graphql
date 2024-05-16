@@ -22,6 +22,53 @@
 # import EffectEvidenceSynthesisEffectEstimate from "../backbone_elements/effectEvidenceSynthesisEffectEstimate.graphql"
 # import EffectEvidenceSynthesisCertainty from "../backbone_elements/effectEvidenceSynthesisCertainty.graphql"
 
+"""
+Reference type for Population
+"""
+type EffectEvidenceSynthesisPopulationReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Exposure
+"""
+type EffectEvidenceSynthesisExposureReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for ExposureAlternative
+"""
+type EffectEvidenceSynthesisExposureAlternativeReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
+
+"""
+Reference type for Outcome
+"""
+type EffectEvidenceSynthesisOutcomeReference {
+    id: String
+    extension: [Extension]
+    reference: EvidenceVariable
+    type: uri
+    identifier: Identifier
+    display: String
+}
 
 
 """
@@ -237,22 +284,22 @@ type EffectEvidenceSynthesis {
     A reference to a EvidenceVariable resource that defines the population for the
     research.
     """
-    population: EvidenceVariable
+    population: EffectEvidenceSynthesisPopulationReference
     """
     A reference to a EvidenceVariable resource that defines the exposure for the
     research.
     """
-    exposure: EvidenceVariable
+    exposure: EffectEvidenceSynthesisExposureReference
     """
     A reference to a EvidenceVariable resource that defines the comparison
     exposure for the research.
     """
-    exposureAlternative: EvidenceVariable
+    exposureAlternative: EffectEvidenceSynthesisExposureAlternativeReference
     """
     A reference to a EvidenceVariable resomece that defines the outcome for the
     research.
     """
-    outcome: EvidenceVariable
+    outcome: EffectEvidenceSynthesisOutcomeReference
     """
     A description of the size of the sample involved in the synthesis.
     """

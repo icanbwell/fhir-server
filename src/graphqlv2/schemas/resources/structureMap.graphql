@@ -17,7 +17,6 @@
 # import StructureMapGroup from "../backbone_elements/structureMapGroup.graphql"
 
 
-
 """
 StructureMap
     A Map of relationships between 2 structures that can be used to transform
