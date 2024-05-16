@@ -1,0 +1,19 @@
+query {
+    codeSystem {
+        entry {
+            resource {
+                id
+                resourceType
+                status
+                concept(code: "3584-4") {
+                    code
+                    display
+                    property {
+                        code
+                        valueString
+                    }
+                }
+            }
+        }
+    }
+}

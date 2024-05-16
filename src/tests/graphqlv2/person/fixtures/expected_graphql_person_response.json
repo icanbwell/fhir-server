@@ -1,0 +1,199 @@
+[
+  {
+    "resourceType": "Person",
+    "id": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324",
+    "identifier": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "http://www.icanbwell.com/identifier-types",
+              "code": "user-identifier"
+            }
+          ]
+        },
+        "system": "http://www.client.com/profileid",
+        "value": "healthsystemId1"
+      },
+      {
+        "type": null,
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324"
+      },
+      {
+        "type": null,
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324"
+      }
+    ],
+    "meta": {
+      "id": null,
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell",
+          "id": null
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell",
+          "id": null
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "bwell",
+          "id": null
+        }
+      ],
+      "extension": null,
+      "versionId": "1",
+      "profile": null,
+      "tag": null
+    },
+    "link": [
+      {
+        "id": null,
+        "extension": null,
+        "assurance": "level4",
+        "target": { "id": null, "reference": null }
+      },
+      {
+        "id": null,
+        "extension": null,
+        "assurance": "level4",
+        "target": { "id": null, "reference": null }
+      }
+    ],
+    "implicitRules": null,
+    "name": [{ "family": "Last", "given": ["First"] }],
+    "address": [
+      {
+        "id": null,
+        "line": ["address"],
+        "city": "city",
+        "district": null,
+        "state": "IL",
+        "postalCode": "60062",
+        "country": null,
+        "period": null
+      }
+    ],
+    "gender": "male",
+    "photo": null,
+    "language": null,
+    "telecom": [
+      {
+        "id": null,
+        "system": "phone",
+        "value": "1103110311",
+        "use": null,
+        "period": null
+      },
+      {
+        "id": null,
+        "system": "email",
+        "value": "first.last@icanbwell.com",
+        "use": null,
+        "period": null
+      }
+    ]
+  },
+  {
+    "resourceType": "Person",
+    "id": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b",
+    "identifier": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "http://www.icanbwell.com/identifier-types",
+              "code": "user-identifier"
+            }
+          ]
+        },
+        "system": "http://www.client.com/profileid",
+        "value": "healthsystemId1"
+      },
+      {
+        "type": null,
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b"
+      },
+      {
+        "type": null,
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b"
+      }
+    ],
+    "meta": {
+      "id": "38926006-a93a-4c2a-9bac-0406c113f2d1",
+      "source": "https://www.icanbwell.com",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client",
+          "id": null
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client",
+          "id": null
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "client",
+          "id": null
+        }
+      ],
+      "extension": null,
+      "versionId": "1",
+      "profile": null,
+      "tag": null
+    },
+    "link": [
+      {
+        "id": "6a919cd5-d84c-4ccc-9340-299cab9878f9",
+        "extension": null,
+        "assurance": "level4",
+        "target": {
+          "id": null,
+          "reference": { "id": "6bcdef66-b41c-413b-b9e3-40ffe20dd18e" }
+        }
+      }
+    ],
+    "implicitRules": null,
+    "name": [{ "family": "Last", "given": ["First"] }],
+    "address": [
+      {
+        "id": "a03a0964-5854-40de-b33c-f74689b6bced",
+        "line": ["address"],
+        "city": "CITY",
+        "district": null,
+        "state": "IL",
+        "postalCode": "60062",
+        "country": null,
+        "period": null
+      }
+    ],
+    "gender": "male",
+    "photo": null,
+    "language": null,
+    "telecom": [
+      {
+        "id": null,
+        "system": "email",
+        "value": "first.last@icanbwell.com",
+        "use": null,
+        "period": null
+      },
+      {
+        "id": null,
+        "system": "phone",
+        "value": "1103110311",
+        "use": null,
+        "period": null
+      }
+    ]
+  }
+]

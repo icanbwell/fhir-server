@@ -1,0 +1,16 @@
+{
+  "data": {
+    "person": {
+      "entry": [
+        {
+          "resource": {
+            "id": "1",
+            "meta": { "source": "test" },
+            "link": [{ "target": { "reference": null } }]
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}

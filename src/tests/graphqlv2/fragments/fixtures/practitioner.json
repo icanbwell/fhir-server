@@ -1,0 +1,42 @@
+[
+  {
+    "resourceType": "Practitioner",
+    "id": "1",
+    "meta": {
+      "source": "test",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "name": [
+      {
+        "use": "nickname",
+        "family": "Azamar",
+        "given": ["Daniel"]
+      }
+    ]
+  },
+  {
+    "resourceType": "Practitioner",
+    "id": "2",
+    "meta": {
+      "source": "test",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client"
+        }
+      ]
+    },
+    "name": [
+      {
+        "use": "nickname",
+        "family": "Azamar",
+        "given": ["Daniel"]
+      }
+    ]
+  }
+]
