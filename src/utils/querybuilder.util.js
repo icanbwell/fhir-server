@@ -900,6 +900,7 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
+    startQuery.$type = 'string';
     startQuery = { [`${fieldName}.start`]: startQuery };
 
     // Build query for period.end
@@ -931,8 +932,227 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
+    if (endQuery[`${fieldName}.end`]) {
+        endQuery[`${fieldName}.end`].$type = 'string';
+    } else {
+        endQuery = [
+            { [`${fieldName}.end`]: endQuery },
+            {
+                [`${fieldName}.end`]:
+                    {
+                        $type: 'string'
+                    }
+            }
+        ];
+    }
 
     return [startQuery, endQuery];
+};
+
+/**
+ * filters by date for a Timing field
+ * https://www.hl7.org/fhir/search.html#date
+ * https://www.hl7.org/fhir/search.html#prefix
+ * @param {string} dateQueryItem
+ * @param {string} fieldName
+ * @returns {Object[]}
+ */
+const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
+    const regex = /([a-z]+)(.+)/;
+    const match = dateQueryItem.match(regex);
+
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
+
+    // Build query for timing.event
+    let timingQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'le':
+        case 'lt':
+            timingQuery = dateQueryBuilder({
+                date: `le${date}`,
+                type: 'date'
+            });
+            break;
+        case 'sa':
+            timingQuery = dateQueryBuilder({
+                date: `ge${date}`,
+                type: 'date'
+            });
+            break;
+        case 'ge':
+        case 'gt':
+        case 'eb':
+            timingQuery = {
+                $ne: null
+            };
+            break;
+    }
+    timingQuery = [
+            { [`${fieldName}.event`]: timingQuery },
+            {
+                [`${fieldName}.event`]:
+                {
+                    $type: 'string'
+                }
+            }
+        ];
+
+    return timingQuery;
+};
+
+/**
+ * filters by date for a Period
+ * https://www.hl7.org/fhir/search.html#date
+ * https://www.hl7.org/fhir/search.html#prefix
+ * @param {string} dateQueryItem
+ * @param {string} type
+ * @param {string} fieldName
+ * @returns {Object[]}
+ */
+const datePeriodQueryBuilderNative = function ({ dateQueryItem, type, fieldName }) {
+    const regex = /([a-z]+)(.+)/;
+    const match = dateQueryItem.match(regex);
+
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
+
+    // Build query for period.start
+    let startQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'le':
+        case 'lt':
+            startQuery = dateQueryBuilderNative({
+                dateSearchParameter: `le${date}`,
+                type,
+                path: fieldName
+            });
+            break;
+        case 'sa':
+            startQuery = dateQueryBuilderNative({
+                dateSearchParameter: `ge${date}`,
+                type,
+                path: fieldName
+            });
+            break;
+        case 'ge':
+        case 'gt':
+        case 'eb':
+            startQuery = {
+                $ne: null
+            };
+            break;
+    }
+    startQuery.$type = 'date';
+    startQuery = { [`${fieldName}.start`]: startQuery };
+
+    // Build query for period.end
+    let endQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'ge':
+        case 'gt':
+            endQuery = {
+                $or: [
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilderNative({
+                            dateSearchParameter: `ge${date}`,
+                            type,
+                            path: fieldName
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: null
+                    }
+                ]
+            };
+            break;
+        case 'eb':
+            endQuery = {
+                [`${fieldName}.end`]: dateQueryBuilderNative({
+                    dateSearchParameter: `le${date}`,
+                    type,
+                    path: fieldName
+                })
+            };
+            break;
+    }
+    if (endQuery[`${fieldName}.end`]) {
+        endQuery[`${fieldName}.end`].$type = 'date';
+    } else {
+        endQuery = [
+            { [`${fieldName}.end`]: endQuery },
+            {
+                [`${fieldName}.end`]:
+                    {
+                        $type: 'date'
+                    }
+            }
+        ];
+    }
+
+    return [startQuery, endQuery];
+};
+
+/**
+ * filters by date for a Timing field
+ * https://www.hl7.org/fhir/search.html#date
+ * https://www.hl7.org/fhir/search.html#prefix
+ * @param {string} dateQueryItem
+ * @param {string} type
+ * @param {string} fieldName
+ * @returns {Object[]}
+ */
+const dateTimingQueryBuilderNative = function ({ dateQueryItem, type, fieldName }) {
+    const regex = /([a-z]+)(.+)/;
+    const match = dateQueryItem.match(regex);
+
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
+
+    // Build query for timing.event
+    let timingQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'le':
+        case 'lt':
+            timingQuery = dateQueryBuilderNative({
+                dateSearchParameter: `le${date}`,
+                type,
+                path: fieldName
+            });
+            break;
+        case 'sa':
+            timingQuery = dateQueryBuilderNative({
+                dateSearchParameter: `ge${date}`,
+                type,
+                path: fieldName
+            });
+            break;
+        case 'ge':
+        case 'gt':
+        case 'eb':
+            timingQuery = {
+                $ne: null
+            };
+            break;
+    }
+    timingQuery = [
+            { [`${fieldName}.event`]: timingQuery },
+            {
+                [`${fieldName}.event`]:
+                {
+                    $type: 'date'
+                }
+            }
+        ];
+
+    return timingQuery;
 };
 
 /**
@@ -1209,6 +1429,9 @@ module.exports = {
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
+    datetimeTimingQueryBuilder,
+    datePeriodQueryBuilderNative,
+    dateTimingQueryBuilderNative,
     partialTextQueryBuilder,
     exactMatchQueryBuilder,
     tokenQueryContainsBuilder,
