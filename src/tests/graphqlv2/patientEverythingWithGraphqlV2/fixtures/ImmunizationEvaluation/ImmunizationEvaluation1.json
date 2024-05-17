@@ -1,0 +1,17 @@
+{
+  "id": "1",
+  "resourceType": "ImmunizationEvaluation",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "targetDisease": {},
+  "doseStatus": {},
+  "immunizationEvent": {
+    "reference": "Immunization/1"
+  }
+}

@@ -23,28 +23,10 @@
               { "detail": { "code": { "text": "Heat therapy" } }, "outcomeReference": null }
             ],
             "encounter": {
-              "reference": {
-                "extension": [
-                  {
-                    "id": "referenceDisplay",
-                    "url": "https://www.icanbwell.com/referenceDisplay",
-                    "valueString": "Visit with Dr. Who",
-                    "valueUri": null
-                  }
-                ]
-              }
+              "reference": null
             },
             "author": {
-              "reference": {
-                "extension": [
-                  {
-                    "id": "referenceDisplay",
-                    "url": "https://www.icanbwell.com/referenceDisplay",
-                    "valueString": "Annis955 Hamill307",
-                    "valueUri": null
-                  }
-                ]
-              }
+              "reference": null
             },
             "careTeam": [{ "reference": null }]
           }
@@ -76,22 +58,7 @@
               }
             ],
             "encounter": {
-              "reference": {
-                "extension": [
-                  {
-                    "id": "referenceDisplay",
-                    "url": "https://www.icanbwell.com/referenceDisplay",
-                    "valueString": "Visit with another Dr. Who",
-                    "valueUri": null
-                  },
-                  {
-                    "id": "referenceType",
-                    "url": "https://www.icanbwell.com/referenceType",
-                    "valueString": null,
-                    "valueUri": "Encounter"
-                  }
-                ]
-              }
+              "reference": null
             },
             "author": null,
             "careTeam": [{ "reference": null }]
@@ -127,16 +94,7 @@
             "author": null,
             "careTeam": [
               {
-                "reference": {
-                  "extension": [
-                    {
-                      "id": "referenceDisplay",
-                      "url": "https://www.icanbwell.com/referenceDisplay",
-                      "valueString": "Care team display",
-                      "valueUri": null
-                    }
-                  ]
-                }
+                "reference": null
               }
             ]
           }

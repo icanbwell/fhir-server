@@ -1,0 +1,13 @@
+{
+  "id": "2",
+  "resourceType": "DocumentManifest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "current",
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "content": [{ "reference": "Patient/2" }]
+}

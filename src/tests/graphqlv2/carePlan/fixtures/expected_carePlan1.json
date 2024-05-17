@@ -21,22 +21,7 @@
               }
             ],
             "encounter": {
-              "reference": {
-                "extension": [
-                  {
-                    "id": "referenceDisplay",
-                    "url": "https://www.icanbwell.com/referenceDisplay",
-                    "valueString": "Visit with another Dr. Who",
-                    "valueUri": null
-                  },
-                  {
-                    "id": "referenceType",
-                    "url": "https://www.icanbwell.com/referenceType",
-                    "valueString": null,
-                    "valueUri": "Encounter"
-                  }
-                ]
-              }
+              "reference": null
             },
             "author": null,
             "careTeam": [{ "reference": null }]

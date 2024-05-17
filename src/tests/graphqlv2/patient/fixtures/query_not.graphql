@@ -1,8 +1,8 @@
 query my_patient {
     patient(_debug: true,
-            _id: {
+            id: {
                 notEquals: {value: "WPS-0559166162"}
-                }
+            }
 
     ) {
         entry {

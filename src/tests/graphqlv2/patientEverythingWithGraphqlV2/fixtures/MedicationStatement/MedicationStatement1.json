@@ -1,0 +1,16 @@
+{
+  "id": "1",
+  "resourceType": "MedicationStatement",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "medicationCodeableConcept": {},
+  "medicationReference": {
+    "reference": "Medication/1"
+  },
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "1",
+  "resourceType": "Account",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "subject": [
+    {
+      "reference": "Patient/1"
+    }
+  ]
+}

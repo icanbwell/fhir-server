@@ -1,0 +1,15 @@
+{
+  "id": "2",
+  "resourceType": "DeviceUseStatement",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "device": {
+    "reference": "Device/2"
+  }
+}
