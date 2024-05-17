@@ -11,7 +11,6 @@ const {
     getGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const { logError } = require('../../../operations/common/logging');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { createTestContainer } = require('../../createTestContainer');
 
@@ -79,7 +78,6 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
 

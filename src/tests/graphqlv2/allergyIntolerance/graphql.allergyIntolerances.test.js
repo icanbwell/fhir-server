@@ -19,7 +19,6 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQLV2 AllergyIntolerance Tests', () => {
     beforeEach(async () => {
@@ -36,36 +35,21 @@ describe('GraphQLV2 AllergyIntolerance Tests', () => {
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
             let resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
-            logInfo('------- response 1 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 2  ------------');
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 2  ------------');
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-            logInfo('------- response patient ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response patient  ------------');
             resp = await request.get('/4_0_0/AllergyIntolerance/').set(getHeaders()).expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', { resp: resp.body });
-            logInfo('------- end response 2  ------------');
 
             resp = await request
                 // .get('/$graphql/?query=' + graphqlQueryText)

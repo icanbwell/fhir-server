@@ -26,7 +26,6 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
-const { logError, logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Tests', () => {
     let requestId;
@@ -130,7 +129,6 @@ describe('GraphQL Patient Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction
@@ -140,7 +138,6 @@ describe('GraphQL Patient Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
-            logInfo('', { auditLogs });
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {

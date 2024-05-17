@@ -20,7 +20,6 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { cleanMeta } = require('../../customMatchers');
-const { logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQLV2 Patient Tests', () => {
     beforeEach(async () => {
@@ -80,7 +79,6 @@ describe('GraphQLV2 Patient Tests', () => {
                     query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
-            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {
