@@ -40,7 +40,7 @@ type DeviceVersion {
     """
     modifierExtension: [Extension]
     """
-    The type of the device version.
+    The type of the device version, e.g. manufacturer, approved, internal.
     """
     type: CodeableConcept
     """

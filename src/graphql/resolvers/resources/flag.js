@@ -16,12 +16,12 @@ module.exports = {
         }
     },
     FlagSubject: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     FlagAuthor: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

@@ -2,16 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    SignatureWho: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    SignatureOnBehalfOf: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     Signature: {
         // noinspection JSUnusedLocalSymbols
 

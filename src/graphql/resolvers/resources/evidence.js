@@ -18,33 +18,13 @@ module.exports = {
     Evidence: {
         // noinspection JSUnusedLocalSymbols
 
-        exposureBackground: async (parent, args, context, info) => {
+        citeAsReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
                 context,
                 info,
-                parent.exposureBackground);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        exposureVariant: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.exposureVariant);
-        },
-        // noinspection JSUnusedLocalSymbols
-
-        outcome: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.outcome);
+                parent.citeAsReference);
         }
     }
 };

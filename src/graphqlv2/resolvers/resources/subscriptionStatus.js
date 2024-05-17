@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    SubscriptionStatusSubscription: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     SubscriptionStatusSubscriptionReference: {
         // noinspection JSUnusedLocalSymbols
         reference: async (parent, args, context, info) => {

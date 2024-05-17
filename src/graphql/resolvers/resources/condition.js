@@ -16,17 +16,17 @@ module.exports = {
         }
     },
     ConditionSubject: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ConditionRecorder: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ConditionAsserter: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

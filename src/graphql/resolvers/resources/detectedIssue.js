@@ -16,12 +16,12 @@ module.exports = {
         }
     },
     DetectedIssueAuthor: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     DetectedIssueImplicatedV2: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

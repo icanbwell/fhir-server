@@ -5,6 +5,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
+
         subscription_subscription: async (parent, args, context, info) => {
             if (args._id) {
                 // change into search by connection_id

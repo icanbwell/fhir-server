@@ -933,7 +933,7 @@ class FhirXmlSchemaParser:
         de_xml_file: Path = (
             data_dir.joinpath("xsd")
             .joinpath("definitions.xml")
-            .joinpath("dataelements.xml")
+            .joinpath("profiles-resources.xml")
         )
 
         with open(de_xml_file, "rb") as file:
@@ -944,52 +944,56 @@ class FhirXmlSchemaParser:
             fhir_references: List[FhirReferenceType] = []
             entry: ObjectifiedElement
             for entry in entries:
-                structure_definition: ObjectifiedElement = entry["resource"][
-                    "StructureDefinition"
-                ]
+                if not hasattr(entry["resource"], "StructureDefinition"):
+                    continue
+
+                structure_definition: ObjectifiedElement = entry["resource"]["StructureDefinition"]
                 # name: str = structure_definition["name"].get("value")
-                snapshot_element: ObjectifiedElement = structure_definition["snapshot"][
-                    "element"
-                ]
-                types: ObjectifiedElement = snapshot_element["type"]
-                type_: ObjectifiedElement
-                for type_ in types:
-                    type_code_obj = type_["code"]
-                    type_code: str = type_code_obj.get("value")
-                    if type_code.endswith("Reference"):
-                        if not hasattr(type_, "targetProfile"):
-                            logger.warning(
-                                f'ASSERT: targetProfile not in {type_} for {snapshot_element["path"].get("value")}'
-                            )
-                        if hasattr(type_, "targetProfile"):
-                            target_profile_list: ObjectifiedElement = type_[
-                                "targetProfile"
-                            ]
-                            target_profiles: List[str] = [
-                                c.get("value") for c in target_profile_list
-                            ]
-                            target_resources: List[str] = [
-                                c.split("/")[-1] for c in target_profiles
-                            ]
-                            # If target resource is type Reference(Any),
-                            # the target resource will be a list of all resources.
-                            if "Resource" in target_resources:
-                                fhir_reference: FhirReferenceType = FhirReferenceType(
-                                    target_resources=target_resources,
-                                    path=snapshot_element["path"].get("value"),
+                snapshot_elements: ObjectifiedElement = structure_definition["snapshot"]["element"]
+                snapshot_element: ObjectifiedElement
+                for snapshot_element in snapshot_elements:
+                    if not hasattr(snapshot_element, 'type'):
+                        continue
+
+                    types: ObjectifiedElement = snapshot_element["type"]
+                    type_: ObjectifiedElement
+                    for type_ in types:
+                        type_code_obj = type_["code"]
+                        type_code: str = type_code_obj.get("value")
+                        if type_code.endswith("Reference"):
+                            if not hasattr(type_, "targetProfile"):
+                                logger.warning(
+                                    f'ASSERT: targetProfile not in {type_} for {snapshot_element["path"].get("value")}'
                                 )
-                                fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
-                                    target_resources=resources_list,
-                                    path=f'{snapshot_element["path"].get("value")}V2',
-                                )
-                                fhir_references.append(fhir_reference_v2_support)
-                            # Else target resource is the list of allowed references.
-                            else :
-                                fhir_reference: FhirReferenceType = FhirReferenceType(
-                                    target_resources=target_resources,
-                                    path=snapshot_element["path"].get("value"),
-                                )
-                            fhir_references.append(fhir_reference)
+                            if hasattr(type_, "targetProfile"):
+                                target_profile_list: ObjectifiedElement = type_[
+                                    "targetProfile"
+                                ]
+                                target_profiles: List[str] = [
+                                    c.get("value") for c in target_profile_list
+                                ]
+                                target_resources: List[str] = [
+                                    c.split("/")[-1] for c in target_profiles
+                                ]
+                                # If target resource is type Reference(Any),
+                                # the target resource will be a list of all resources.
+                                if "Resource" in target_resources:
+                                    fhir_reference: FhirReferenceType = FhirReferenceType(
+                                        target_resources=target_resources,
+                                        path=snapshot_element["path"].get("value"),
+                                    )
+                                    fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
+                                        target_resources=resources_list,
+                                        path=f'{snapshot_element["path"].get("value")}V2',
+                                    )
+                                    fhir_references.append(fhir_reference_v2_support)
+                                # Else target resource is the list of allowed references.
+                                else :
+                                    fhir_reference: FhirReferenceType = FhirReferenceType(
+                                        target_resources=target_resources,
+                                        path=snapshot_element["path"].get("value"),
+                                    )
+                                fhir_references.append(fhir_reference)
             return fhir_references
 
     @staticmethod

@@ -3,7 +3,7 @@
 # import code from "../simple_types/code.graphql"
 # import canonical from "../simple_types/canonical.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Group from "../resources/group.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import DataRequirementCodeFilter from "../complex_types/dataRequirementCodeFilter.graphql"
 # import DataRequirementDateFilter from "../complex_types/dataRequirementDateFilter.graphql"
 # import positiveInt from "../simple_types/int.graphql"
@@ -47,7 +47,7 @@ type DataRequirement {
     """
     None
     """
-    subjectReference: Group
+    subjectReference: Resource
     """
     Indicates that specific elements of the type are referenced by the knowledge
     module and must be supported by the consumer in order to obtain an effective

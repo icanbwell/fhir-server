@@ -16,22 +16,22 @@ module.exports = {
         }
     },
     ClinicalImpressionSubject: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ClinicalImpressionAssessor: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ClinicalImpressionProblem: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ClinicalImpressionSupportingInfoV2: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

@@ -16,27 +16,27 @@ module.exports = {
         }
     },
     MedicationAdministrationPartOf: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     MedicationAdministrationSubject: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     MedicationAdministrationContext: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     MedicationAdministrationSupportingInformationV2: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     MedicationAdministrationReasonReference: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

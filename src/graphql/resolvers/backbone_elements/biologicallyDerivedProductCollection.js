@@ -3,12 +3,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     BiologicallyDerivedProductCollectionCollector: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     BiologicallyDerivedProductCollectionSource: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

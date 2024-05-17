@@ -14,31 +14,7 @@ module.exports = {
             );
         }
     },
-    EvidenceExposureBackgroundReference: {
-        // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent
-            );
-        }
-    },
-    EvidenceExposureVariantReference: {
-        // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent
-            );
-        }
-    },
-    EvidenceOutcomeReference: {
+    EvidenceCiteAsReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(

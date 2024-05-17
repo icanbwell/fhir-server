@@ -3,12 +3,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     ProvenanceAgentWho: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ProvenanceAgentOnBehalfOf: {
-        __resolveType (obj, context, info) {
+        __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

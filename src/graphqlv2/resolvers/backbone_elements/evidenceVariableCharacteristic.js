@@ -3,7 +3,29 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    EvidenceVariableCharacteristicDefinitionReference: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
+    EvidenceVariableCharacteristicDevice: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
     EvidenceVariableCharacteristicDefinitionReferenceReference: {
+        // noinspection JSUnusedLocalSymbols
+        reference: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent
+            );
+        }
+    },
+    EvidenceVariableCharacteristicDeviceReference: {
         // noinspection JSUnusedLocalSymbols
         reference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(

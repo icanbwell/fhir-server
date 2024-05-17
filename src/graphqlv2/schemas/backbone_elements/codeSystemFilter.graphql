@@ -40,7 +40,7 @@ type CodeSystemFilter {
     modifierExtension: [Extension]
     """
     The code that identifies this filter when it is used as a filter in
-    [[[ValueSet]]].compose.include.filter.
+    [ValueSet](valueset.html#).compose.include.filter.
     """
     code: code
     """
