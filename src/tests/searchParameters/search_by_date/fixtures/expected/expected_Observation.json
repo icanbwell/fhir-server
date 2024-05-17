@@ -59,7 +59,7 @@
           }
         ],
         "effectivePeriod": {
-          "start": "2019-10-16"
+          "start": "2019-10-16T00:00:00.000Z"
         },
         "id": "c4171fee-aaa6-4526-a377-ea39860a5c76",
         "identifier": [
@@ -74,7 +74,7 @@
             "value": "c4171fee-aaa6-4526-a377-ea39860a5c76"
           }
         ],
-        "issued": "2019-10-16T12:12:29-10:00",
+        "issued": "2019-10-16T22:12:29.000Z",
         "meta": {
           "security": [
             {

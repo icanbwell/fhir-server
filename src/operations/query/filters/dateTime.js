@@ -72,12 +72,12 @@ class FilterByDateTime extends BaseFilter {
         if (this.filterType === 'date') {
             if (isDateSearchingPeriod) {
                 dateQuery = datePeriodQueryBuilderNative(
-                        {
-                            dateQueryItem: value,
-                            fieldName,
-                            type: this.propertyObj.type
-                        }
-                    );
+                    {
+                        dateQueryItem: value,
+                        fieldName,
+                        type: this.propertyObj.type
+                    }
+                );
             } else if (isDateSearchingTiming) {
                 dateQuery = dateTimingQueryBuilderNative(
                     {
@@ -86,10 +86,7 @@ class FilterByDateTime extends BaseFilter {
                         type: this.propertyObj.type
                     }
                 );
-            } else if (
-                field === 'meta.lastUpdated' ||
-                isColumnDateType(this.resourceType, fieldName)
-            ) {
+            } else {
                 dateQuery = {
                     [fieldName]: dateQueryBuilderNative(
                         {
@@ -132,13 +129,12 @@ class FilterByDateTime extends BaseFilter {
                 }
             );
             this.filterType = 'date';
-            and_segments.push({
-                    $or: this.propertyObj.fields.flatMap((field) => {
+            const dateSegments =
+                    this.propertyObj.fields.flatMap((field) => {
                             return this.filterByField(field, this.parsedArg.queryParameterValue);
                         }
-                    )
-                }
             );
+            and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
         }
 
         return and_segments;

@@ -912,10 +912,20 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             endQuery = {
                 $or: [
                     {
-                        [`${fieldName}.end`]: dateQueryBuilder({
+                        $and: [
+                        {
+                            [`${fieldName}.end`]: dateQueryBuilder({
                             date: `ge${date}`,
                             type: 'date'
                         })
+                        },
+                        {
+                            [`${fieldName}.end`]:
+                                {
+                                    $type: 'string'
+                                }
+                        }
+                        ]
                     },
                     {
                         [`${fieldName}.end`]: null
@@ -934,16 +944,6 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     }
     if (endQuery[`${fieldName}.end`]) {
         endQuery[`${fieldName}.end`].$type = 'string';
-    } else {
-        endQuery = [
-            { [`${fieldName}.end`]: endQuery },
-            {
-                [`${fieldName}.end`]:
-                    {
-                        $type: 'string'
-                    }
-            }
-        ];
     }
 
     return [startQuery, endQuery];
@@ -999,6 +999,7 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
                 }
             }
         ];
+    // timingQuery = { [`${fieldName}.event`]: timingQuery };
 
     return timingQuery;
 };
@@ -1059,11 +1060,21 @@ const datePeriodQueryBuilderNative = function ({ dateQueryItem, type, fieldName 
             endQuery = {
                 $or: [
                     {
-                        [`${fieldName}.end`]: dateQueryBuilderNative({
+                        $and: [
+                        {
+                            [`${fieldName}.end`]: dateQueryBuilderNative({
                             dateSearchParameter: `ge${date}`,
                             type,
                             path: fieldName
                         })
+                        },
+                        {
+                            [`${fieldName}.end`]:
+                                {
+                                    $type: 'date'
+                                }
+                        }
+                        ]
                     },
                     {
                         [`${fieldName}.end`]: null
@@ -1083,16 +1094,6 @@ const datePeriodQueryBuilderNative = function ({ dateQueryItem, type, fieldName 
     }
     if (endQuery[`${fieldName}.end`]) {
         endQuery[`${fieldName}.end`].$type = 'date';
-    } else {
-        endQuery = [
-            { [`${fieldName}.end`]: endQuery },
-            {
-                [`${fieldName}.end`]:
-                    {
-                        $type: 'date'
-                    }
-            }
-        ];
     }
 
     return [startQuery, endQuery];
