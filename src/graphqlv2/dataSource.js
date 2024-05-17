@@ -1,7 +1,7 @@
 const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ } } = require('../constants');
+const { OPERATIONS: { READ } } = require('../constants');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
@@ -220,7 +220,7 @@ class FhirDataSource {
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference (parent, args, context, info, reference) {
-        if (!reference) {
+        if (!reference || !reference.reference) {
             return null;
         }
 
@@ -236,10 +236,6 @@ class FhirDataSource {
                 }
             })
             ?.filter(s => s) || [];
-
-        if (!reference.reference) {
-            return null;
-        }
 
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
         const referenceValue = ['Person', 'Practitioner'].includes(

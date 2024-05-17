@@ -1,0 +1,11 @@
+{
+    "id": "1",
+    "resourceType": "Schedule",
+    "meta": {
+        "source": "test",
+        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "actor": {
+        "reference": "Patient/1"
+    }
+}

@@ -1,5 +1,5 @@
 query {
-  person(id: "1") {
+  person(id: {value: "1"}) {
     entry {
       resource {
         id

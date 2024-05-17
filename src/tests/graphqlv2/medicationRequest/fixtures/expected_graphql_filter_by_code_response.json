@@ -35,10 +35,7 @@
       "text": "Aspirin"
     },
     "requester": {
-      "reference": {
-        "__typename": "Practitioner",
-        "id": null
-      }
+      "reference": null
     }
   }
 ]

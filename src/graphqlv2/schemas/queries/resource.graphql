@@ -10,9 +10,9 @@ extend type Query {
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
-        list of ids to retrieve.
+        ids to retrieve.
         """
-        id: [String]
+        id: SearchString
 
         # search parameters for all resources
 

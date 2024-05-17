@@ -1,0 +1,11 @@
+{
+  "id": "1",
+  "resourceType": "EnrollmentRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "candidate": {
+    "reference": "Patient/1"
+  }
+}
