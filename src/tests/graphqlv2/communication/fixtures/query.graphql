@@ -4,7 +4,7 @@ query Totals {
       resource {
         about {
           reference {
-            ... on Resource {
+            ... on Patient {
               id
               resourceType
             }
