@@ -12,7 +12,7 @@ Substance
 */
 class Substance extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -62,7 +62,7 @@ class Substance extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -479,7 +479,7 @@ class Substance extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -623,7 +623,6 @@ class Substance extends Resource {
             instance: this.instance && this.instance.map(v => v.toJSONInternal()),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal())
         };
-
         if (this._access) {
             json._access = this._access;
         }

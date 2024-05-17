@@ -14,7 +14,7 @@ MessageDefinition
 */
 class MessageDefinition extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -44,7 +44,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {code|undefined} [responseRequired],
+     * @param {messageheaderResponseRequest|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]
@@ -100,7 +100,7 @@ class MessageDefinition extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -721,7 +721,7 @@ class MessageDefinition extends Resource {
         /**
          * @description Declare at a message definition level whether a response is required or only
     upon error or success, or never.
-         * @property {code|undefined}
+         * @property {messageheaderResponseRequest|undefined}
         */
         Object.defineProperty(this, 'responseRequired', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -760,9 +760,10 @@ class MessageDefinition extends Resource {
 
         /**
          * @description Canonical reference to a GraphDefinition. If a URL is provided, it is the
-    canonical reference to a [[[GraphDefinition]]] that it controls what resources
-    are to be added to the bundle when building the document. The GraphDefinition
-    can also specify profiles that apply to the various resources.
+    canonical reference to a [GraphDefinition](graphdefinition.html) that it
+    controls what resources are to be added to the bundle when building the
+    document. The GraphDefinition can also specify profiles that apply to the
+    various resources.
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'graph', {
@@ -895,7 +896,7 @@ class MessageDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -925,7 +926,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {code|undefined} [responseRequired],
+     * @param {messageheaderResponseRequest|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]
@@ -1131,7 +1132,6 @@ class MessageDefinition extends Resource {
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSONInternal()),
             graph: this.graph
         };
-
         if (this._access) {
             json._access = this._access;
         }

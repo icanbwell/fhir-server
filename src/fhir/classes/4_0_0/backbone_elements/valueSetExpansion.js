@@ -10,7 +10,7 @@ const async = require('async');
 ValueSet.Expansion
     A ValueSet resource instance specifies a set of codes drawn from one or more
     code systems, intended for use in a particular context. Value sets link
-    between [[[CodeSystem]]] definitions and their use in [coded
+    between [CodeSystem](codesystem.html) definitions and their use in [coded
     elements](terminologies.html).
 */
 class ValueSetExpansion extends Element {
@@ -238,6 +238,7 @@ class ValueSetExpansion extends Element {
                 this.__data.contains = FhirResourceCreator.createArray(valueProvided, ValueSetContains);
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

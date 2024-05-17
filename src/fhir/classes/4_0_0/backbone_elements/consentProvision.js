@@ -40,7 +40,7 @@ class ConsentProvision extends Element {
             action,
             securityLabel,
             purpose,
-            class: class_,
+            'class': class_,
             code,
             dataPeriod,
             data,
@@ -349,6 +349,7 @@ class ConsentProvision extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -360,7 +361,7 @@ class ConsentProvision extends Element {
             action,
             securityLabel,
             purpose,
-            class: class_,
+            'class': class_,
             code,
             dataPeriod,
             data,

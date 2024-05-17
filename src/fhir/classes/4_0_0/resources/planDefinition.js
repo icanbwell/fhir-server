@@ -9,13 +9,14 @@ const async = require('async');
 PlanDefinition
     This resource allows for the definition of various types of plans as a
     sharable, consumable, and executable artifact. The resource is general enough
-    to support the description of a broad range of clinical artifacts such as
-    clinical decision support rules, order sets and protocols.
+    to support the description of a broad range of clinical and non-clinical
+    artifacts such as clinical decision support rules, order sets, protocols, and
+    drug quality specifications.
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class PlanDefinition extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -34,6 +35,7 @@ class PlanDefinition extends Resource {
      * @param {Boolean|undefined} [experimental],
      * @param {CodeableConcept|undefined} [subjectCodeableConcept],
      * @param {Reference|undefined} [subjectReference],
+     * @param {canonical|undefined} [subjectCanonical],
      * @param {dateTime|undefined} [date],
      * @param {String|undefined} [publisher],
      * @param {ContactDetail[]|undefined} [contact],
@@ -81,6 +83,7 @@ class PlanDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -115,7 +118,7 @@ class PlanDefinition extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -526,6 +529,24 @@ class PlanDefinition extends Resource {
         });
 
         /**
+         * @description None
+         * @property {canonical|undefined}
+        */
+        Object.defineProperty(this, 'subjectCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.subjectCanonical,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectCanonical = undefined;
+                    return;
+                }
+                this.__data.subjectCanonical = valueProvided;
+            }
+        });
+
+        /**
          * @description The date  (and optionally time) when the plan definition was published. The
     date must change when the business version changes and it must change if the
     status code changes. In addition, it should change when the substantive
@@ -913,10 +934,11 @@ class PlanDefinition extends Resource {
         });
 
         /**
-         * @description Goals that describe what the activities within the plan are intended to
-    achieve. For example, weight loss, restoring an activity of daily living,
-    obtaining herd immunity via immunization, meeting a process improvement
-    objective, etc.
+         * @description A goal describes an expected outcome that activities within the plan are
+    intended to achieve. For example, weight loss, restoring an activity of daily
+    living, obtaining herd immunity via immunization, meeting a process
+    improvement objective, meeting the acceptance criteria for a test as specified
+    by a quality specification, etc.
          * @property {PlanDefinitionGoal[]|undefined}
         */
         Object.defineProperty(this, 'goal', {
@@ -936,7 +958,11 @@ class PlanDefinition extends Resource {
         });
 
         /**
-         * @description An action or group of actions to be taken as part of the plan.
+         * @description An action or group of actions to be taken as part of the plan. For example, in
+    clinical care, an action would be to prescribe a particular indicated
+    medication, or perform a particular test as appropriate. In pharmaceutical
+    quality, an action would be the test that needs to be performed on a drug
+    product as defined in the quality specification.
          * @property {PlanDefinitionAction[]|undefined}
         */
         Object.defineProperty(this, 'action', {
@@ -1029,6 +1055,7 @@ class PlanDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1078,7 +1105,7 @@ class PlanDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -1097,6 +1124,7 @@ class PlanDefinition extends Resource {
      * @param {Boolean|undefined} [experimental],
      * @param {CodeableConcept|undefined} [subjectCodeableConcept],
      * @param {Reference|undefined} [subjectReference],
+     * @param {canonical|undefined} [subjectCanonical],
      * @param {dateTime|undefined} [date],
      * @param {String|undefined} [publisher],
      * @param {ContactDetail[]|undefined} [contact],
@@ -1145,6 +1173,7 @@ class PlanDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1192,6 +1221,7 @@ class PlanDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1256,6 +1286,7 @@ class PlanDefinition extends Resource {
             experimental: this.experimental,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSON(),
             subjectReference: this.subjectReference && this.subjectReference.toJSON(),
+            subjectCanonical: this.subjectCanonical,
             date: this.date,
             publisher: this.publisher,
             contact: this.contact && this.contact.map(v => v.toJSON()),
@@ -1336,6 +1367,7 @@ class PlanDefinition extends Resource {
             experimental: this.experimental,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSONInternal(),
             subjectReference: this.subjectReference && this.subjectReference.toJSONInternal(),
+            subjectCanonical: this.subjectCanonical,
             date: this.date,
             publisher: this.publisher,
             contact: this.contact && this.contact.map(v => v.toJSONInternal()),
@@ -1358,7 +1390,6 @@ class PlanDefinition extends Resource {
             goal: this.goal && this.goal.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal())
         };
-
         if (this._access) {
             json._access = this._access;
         }

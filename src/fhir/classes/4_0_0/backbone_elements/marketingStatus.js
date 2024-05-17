@@ -18,10 +18,10 @@ class MarketingStatus extends Element {
      * @param {String|undefined} [id],
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
-     * @param {CodeableConcept} country,
+     * @param {CodeableConcept|undefined} [country],
      * @param {CodeableConcept|undefined} [jurisdiction],
      * @param {CodeableConcept} status,
-     * @param {Period} dateRange,
+     * @param {Period|undefined} [dateRange],
      * @param {dateTime|undefined} [restoreDate],
     */
     constructor (
@@ -117,7 +117,7 @@ class MarketingStatus extends Element {
         /**
          * @description The country in which the marketing authorisation has been granted shall be
     specified It should be specified using the ISO 3166 ‑ 1 alpha-2 code elements.
-         * @property {CodeableConcept}
+         * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'country', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -186,7 +186,7 @@ class MarketingStatus extends Element {
     day, month and year shall be specified using the ISO 8601 date format NOTE
     “Placed on the market” refers to the release of the Medicinal Product into the
     distribution chain.
-         * @property {Period}
+         * @property {Period|undefined}
         */
         Object.defineProperty(this, 'dateRange', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -226,6 +226,7 @@ class MarketingStatus extends Element {
                 this.__data.restoreDate = valueProvided;
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

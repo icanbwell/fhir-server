@@ -313,7 +313,6 @@ class Attachment extends Element {
             title: this.title,
             creation: this.creation
         };
-
         if (this._file_id) {
             json._file_id = this._file_id;
         }

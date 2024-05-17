@@ -29,7 +29,7 @@ class StructureMapGroup extends Element {
             extension,
             modifierExtension,
             name,
-            extends: extends_,
+            'extends': extends_,
             typeMode,
             documentation,
             input,
@@ -229,13 +229,14 @@ class StructureMapGroup extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
             name,
-            extends: extends_,
+            'extends': extends_,
             typeMode,
             documentation,
             input,

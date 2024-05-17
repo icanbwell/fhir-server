@@ -27,7 +27,7 @@ class ChargeItemPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor
         }
     ) {
@@ -150,12 +150,13 @@ class ChargeItemPerformer extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor
         });
     }

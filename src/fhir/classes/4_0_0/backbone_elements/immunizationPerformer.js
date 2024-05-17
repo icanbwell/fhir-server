@@ -24,7 +24,7 @@ class ImmunizationPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor
         }
     ) {
@@ -147,12 +147,13 @@ class ImmunizationPerformer extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor
         });
     }

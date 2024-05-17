@@ -24,7 +24,7 @@ class EncounterClassHistory extends Element {
             id,
             extension,
             modifierExtension,
-            class: class_,
+            'class': class_,
             period
         }
     ) {
@@ -146,12 +146,13 @@ class EncounterClassHistory extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
-            class: class_,
+            'class': class_,
             period
         });
     }

@@ -33,7 +33,7 @@ MedicationStatement
 */
 class MedicationStatement extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -44,7 +44,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {code} status,
+     * @param {MedicationStatementStatusCodes} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],
@@ -107,7 +107,7 @@ class MedicationStatement extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -355,7 +355,7 @@ class MedicationStatement extends Resource {
          * @description A code representing the patient or other source's judgment about the state of
     the medication used that this statement is about.  Generally, this will be
     active or completed.
-         * @property {code}
+         * @property {MedicationStatementStatusCodes}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -783,7 +783,7 @@ class MedicationStatement extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -794,7 +794,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {code} status,
+     * @param {MedicationStatementStatusCodes} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],
@@ -998,7 +998,6 @@ class MedicationStatement extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             dosage: this.dosage && this.dosage.map(v => v.toJSONInternal())
         };
-
         if (this._access) {
             json._access = this._access;
         }

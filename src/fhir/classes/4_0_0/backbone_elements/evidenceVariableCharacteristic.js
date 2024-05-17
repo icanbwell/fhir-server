@@ -8,8 +8,8 @@ const async = require('async');
 
 /**
 EvidenceVariable.Characteristic
-    The EvidenceVariable resource describes a "PICO" element that knowledge
-    (evidence, assertion, recommendation) is about.
+    The EvidenceVariable resource describes an element that knowledge (Evidence)
+    is about.
 */
 class EvidenceVariableCharacteristic extends Element {
     /**
@@ -21,15 +21,10 @@ class EvidenceVariableCharacteristic extends Element {
      * @param {canonical|undefined} [definitionCanonical],
      * @param {CodeableConcept|undefined} [definitionCodeableConcept],
      * @param {Expression|undefined} [definitionExpression],
-     * @param {DataRequirement|undefined} [definitionDataRequirement],
-     * @param {TriggerDefinition|undefined} [definitionTriggerDefinition],
-     * @param {UsageContext[]|undefined} [usageContext],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {Reference|undefined} [device],
      * @param {Boolean|undefined} [exclude],
-     * @param {dateTime|undefined} [participantEffectiveDateTime],
-     * @param {Period|undefined} [participantEffectivePeriod],
-     * @param {Quantity|undefined} [participantEffectiveDuration],
-     * @param {Timing|undefined} [participantEffectiveTiming],
-     * @param {Quantity|undefined} [timeFromStart],
+     * @param {EvidenceVariableTimeFromStart|undefined} [timeFromStart],
      * @param {code|undefined} [groupMeasure],
     */
     constructor (
@@ -42,14 +37,9 @@ class EvidenceVariableCharacteristic extends Element {
             definitionCanonical,
             definitionCodeableConcept,
             definitionExpression,
-            definitionDataRequirement,
-            definitionTriggerDefinition,
-            usageContext,
+            method,
+            device,
             exclude,
-            participantEffectiveDateTime,
-            participantEffectivePeriod,
-            participantEffectiveDuration,
-            participantEffectiveTiming,
             timeFromStart,
             groupMeasure
         }
@@ -230,63 +220,42 @@ class EvidenceVariableCharacteristic extends Element {
         });
 
         /**
-         * @description None
-         * @property {DataRequirement|undefined}
+         * @description Method used for describing characteristic.
+         * @property {CodeableConcept|undefined}
         */
-        Object.defineProperty(this, 'definitionDataRequirement', {
+        Object.defineProperty(this, 'method', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.definitionDataRequirement,
+            get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionDataRequirement = undefined;
+                    this.__data.method = undefined;
                     return;
                 }
-                const DataRequirement = require('../complex_types/dataRequirement.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.definitionDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
+                this.__data.method = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
         /**
-         * @description None
-         * @property {TriggerDefinition|undefined}
+         * @description Device used for determining characteristic.
+         * @property {Reference|undefined}
         */
-        Object.defineProperty(this, 'definitionTriggerDefinition', {
+        Object.defineProperty(this, 'device', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.definitionTriggerDefinition,
+            get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionTriggerDefinition = undefined;
+                    this.__data.device = undefined;
                     return;
                 }
-                const TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                const Reference = require('../complex_types/reference.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.definitionTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
-            }
-        });
-
-        /**
-         * @description Use UsageContext to define the members of the population, such as Age Ranges,
-    Genders, Settings.
-         * @property {UsageContext[]|undefined}
-        */
-        Object.defineProperty(this, 'usageContext', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.usageContext,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.usageContext = undefined;
-                    return;
-                }
-                const UsageContext = require('../complex_types/usageContext.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.usageContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
+                this.__data.device = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -309,86 +278,9 @@ class EvidenceVariableCharacteristic extends Element {
         });
 
         /**
-         * @description None
-         * @property {dateTime|undefined}
-        */
-        Object.defineProperty(this, 'participantEffectiveDateTime', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.participantEffectiveDateTime,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveDateTime = undefined;
-                    return;
-                }
-                this.__data.participantEffectiveDateTime = valueProvided;
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Period|undefined}
-        */
-        Object.defineProperty(this, 'participantEffectivePeriod', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.participantEffectivePeriod,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectivePeriod = undefined;
-                    return;
-                }
-                const Period = require('../complex_types/period.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.participantEffectivePeriod = FhirResourceCreator.create(valueProvided, Period);
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Quantity|undefined}
-        */
-        Object.defineProperty(this, 'participantEffectiveDuration', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.participantEffectiveDuration,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveDuration = undefined;
-                    return;
-                }
-                const Quantity = require('../complex_types/quantity.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.participantEffectiveDuration = FhirResourceCreator.create(valueProvided, Quantity);
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Timing|undefined}
-        */
-        Object.defineProperty(this, 'participantEffectiveTiming', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.participantEffectiveTiming,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveTiming = undefined;
-                    return;
-                }
-                const Timing = require('../backbone_elements/timing.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.participantEffectiveTiming = FhirResourceCreator.create(valueProvided, Timing);
-            }
-        });
-
-        /**
-         * @description Indicates duration from the participant's study entry.
-         * @property {Quantity|undefined}
+         * @description Indicates duration, period, or point of observation from the participant's
+    study entry.
+         * @property {EvidenceVariableTimeFromStart|undefined}
         */
         Object.defineProperty(this, 'timeFromStart', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -400,9 +292,9 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.timeFromStart = undefined;
                     return;
                 }
-                const Quantity = require('../complex_types/quantity.js');
+                const EvidenceVariableTimeFromStart = require('../backbone_elements/evidenceVariableTimeFromStart.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.timeFromStart = FhirResourceCreator.create(valueProvided, Quantity);
+                this.__data.timeFromStart = FhirResourceCreator.create(valueProvided, EvidenceVariableTimeFromStart);
             }
         });
 
@@ -424,6 +316,7 @@ class EvidenceVariableCharacteristic extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -434,14 +327,9 @@ class EvidenceVariableCharacteristic extends Element {
             definitionCanonical,
             definitionCodeableConcept,
             definitionExpression,
-            definitionDataRequirement,
-            definitionTriggerDefinition,
-            usageContext,
+            method,
+            device,
             exclude,
-            participantEffectiveDateTime,
-            participantEffectivePeriod,
-            participantEffectiveDuration,
-            participantEffectiveTiming,
             timeFromStart,
             groupMeasure
         });
@@ -463,14 +351,9 @@ class EvidenceVariableCharacteristic extends Element {
             definitionCanonical: this.definitionCanonical,
             definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSON(),
             definitionExpression: this.definitionExpression && this.definitionExpression.toJSON(),
-            definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSON(),
-            definitionTriggerDefinition: this.definitionTriggerDefinition && this.definitionTriggerDefinition.toJSON(),
-            usageContext: this.usageContext && this.usageContext.map(v => v.toJSON()),
+            method: this.method && this.method.toJSON(),
+            device: this.device && this.device.toJSON(),
             exclude: this.exclude,
-            participantEffectiveDateTime: this.participantEffectiveDateTime,
-            participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSON(),
-            participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
-            participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSON(),
             groupMeasure: this.groupMeasure
         });
@@ -487,12 +370,8 @@ class EvidenceVariableCharacteristic extends Element {
             if (this.definitionReference) { await this.definitionReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.definitionCodeableConcept) { await this.definitionCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.definitionExpression) { await this.definitionExpression.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.definitionDataRequirement) { await this.definitionDataRequirement.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.definitionTriggerDefinition) { await this.definitionTriggerDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.usageContext) { await async.each(this.usageContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.participantEffectivePeriod) { await this.participantEffectivePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.participantEffectiveDuration) { await this.participantEffectiveDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.participantEffectiveTiming) { await this.participantEffectiveTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.method) { await this.method.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.device) { await this.device.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.timeFromStart) { await this.timeFromStart.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
@@ -511,14 +390,9 @@ class EvidenceVariableCharacteristic extends Element {
             definitionCanonical: this.definitionCanonical,
             definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSONInternal(),
             definitionExpression: this.definitionExpression && this.definitionExpression.toJSONInternal(),
-            definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSONInternal(),
-            definitionTriggerDefinition: this.definitionTriggerDefinition && this.definitionTriggerDefinition.toJSONInternal(),
-            usageContext: this.usageContext && this.usageContext.map(v => v.toJSONInternal()),
+            method: this.method && this.method.toJSONInternal(),
+            device: this.device && this.device.toJSONInternal(),
             exclude: this.exclude,
-            participantEffectiveDateTime: this.participantEffectiveDateTime,
-            participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSONInternal(),
-            participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
-            participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSONInternal(),
             groupMeasure: this.groupMeasure
         };

@@ -14,7 +14,7 @@ ActivityDefinition
 */
 class ActivityDefinition extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -32,6 +32,7 @@ class ActivityDefinition extends Resource {
      * @param {Boolean|undefined} [experimental],
      * @param {CodeableConcept|undefined} [subjectCodeableConcept],
      * @param {Reference|undefined} [subjectReference],
+     * @param {canonical|undefined} [subjectCanonical],
      * @param {dateTime|undefined} [date],
      * @param {String|undefined} [publisher],
      * @param {ContactDetail[]|undefined} [contact],
@@ -100,6 +101,7 @@ class ActivityDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -156,7 +158,7 @@ class ActivityDefinition extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -543,6 +545,24 @@ class ActivityDefinition extends Resource {
                 const Reference = require('../complex_types/reference.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subjectReference = FhirResourceCreator.create(valueProvided, Reference);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {canonical|undefined}
+        */
+        Object.defineProperty(this, 'subjectCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.subjectCanonical,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectCanonical = undefined;
+                    return;
+                }
+                this.__data.subjectCanonical = valueProvided;
             }
         });
 
@@ -1494,6 +1514,7 @@ class ActivityDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1565,7 +1586,7 @@ class ActivityDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -1583,6 +1604,7 @@ class ActivityDefinition extends Resource {
      * @param {Boolean|undefined} [experimental],
      * @param {CodeableConcept|undefined} [subjectCodeableConcept],
      * @param {Reference|undefined} [subjectReference],
+     * @param {canonical|undefined} [subjectCanonical],
      * @param {dateTime|undefined} [date],
      * @param {String|undefined} [publisher],
      * @param {ContactDetail[]|undefined} [contact],
@@ -1652,6 +1674,7 @@ class ActivityDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1720,6 +1743,7 @@ class ActivityDefinition extends Resource {
             experimental,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             date,
             publisher,
             contact,
@@ -1805,6 +1829,7 @@ class ActivityDefinition extends Resource {
             experimental: this.experimental,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSON(),
             subjectReference: this.subjectReference && this.subjectReference.toJSON(),
+            subjectCanonical: this.subjectCanonical,
             date: this.date,
             publisher: this.publisher,
             contact: this.contact && this.contact.map(v => v.toJSON()),
@@ -1920,6 +1945,7 @@ class ActivityDefinition extends Resource {
             experimental: this.experimental,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSONInternal(),
             subjectReference: this.subjectReference && this.subjectReference.toJSONInternal(),
+            subjectCanonical: this.subjectCanonical,
             date: this.date,
             publisher: this.publisher,
             contact: this.contact && this.contact.map(v => v.toJSONInternal()),
@@ -1964,7 +1990,6 @@ class ActivityDefinition extends Resource {
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal())
         };
-
         if (this._access) {
             json._access = this._access;
         }

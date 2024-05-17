@@ -673,6 +673,7 @@ class FhirXmlSchemaParser:
             value_properties: List[bool] = [
                 c.cleaned_type.endswith("-primitive")
                 or c.cleaned_type.endswith("-list")
+                or c.cleaned_type.endswith("Enum")
                 for c in fhir_properties
                 if c.fhir_name == "value" and c.cleaned_type
             ]

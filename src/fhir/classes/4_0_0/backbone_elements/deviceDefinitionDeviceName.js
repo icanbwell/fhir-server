@@ -144,6 +144,7 @@ class DeviceDefinitionDeviceName extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,

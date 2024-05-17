@@ -26,7 +26,7 @@ class ProcedurePerformer extends Element {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor,
             onBehalfOf
         }
@@ -170,12 +170,13 @@ class ProcedurePerformer extends Element {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
-            function: function_,
+            'function': function_,
             actor,
             onBehalfOf
         });
