@@ -16,7 +16,6 @@ process.env.STREAMING_BATCH_COUNT = '10';
 process.env.ENABLE_PATIENT_FILTERING = '1';
 process.env.ENABLE_EVENTS_KAFKA = '0';
 process.env.ENABLE_GRAPHQLV2 = '1';
-process.env.ENABLE_GRAPHQLV2_PLAYGROUND = '1';
 process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
