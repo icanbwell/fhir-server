@@ -3,12 +3,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     EncounterHospitalizationOrigin: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     EncounterHospitalizationDestination: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

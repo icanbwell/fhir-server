@@ -16,17 +16,17 @@ module.exports = {
         }
     },
     CoveragePolicyHolder: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     CoverageSubscriber: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     CoveragePayor: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

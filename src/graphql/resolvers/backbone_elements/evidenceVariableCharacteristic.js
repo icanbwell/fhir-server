@@ -3,12 +3,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     EvidenceVariableCharacteristicDefinitionReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     EvidenceVariableCharacteristicDevice: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

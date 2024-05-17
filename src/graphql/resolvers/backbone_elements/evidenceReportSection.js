@@ -3,17 +3,17 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     EvidenceReportSectionFocusReferenceV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     EvidenceReportSectionAuthor: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     EvidenceReportSectionEntryReferenceV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

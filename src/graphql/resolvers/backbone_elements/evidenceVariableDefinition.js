@@ -3,12 +3,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     EvidenceVariableDefinitionObserved: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     EvidenceVariableDefinitionIntended: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
