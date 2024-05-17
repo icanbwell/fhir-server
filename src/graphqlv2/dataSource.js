@@ -238,34 +238,7 @@ class FhirDataSource {
             ?.filter(s => s) || [];
 
         if (!reference.reference) {
-            if (requestedResources.length === 0) {
-                if (info.returnType) {
-                    if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType?._types?.length > 0) {
-                        requestedResources.push(info.returnType.ofType._types[0].name);
-                    } else if (info.returnType._types?.length > 0) {
-                        requestedResources.push(info.returnType._types[0].name);
-                    }
-                }
-            }
-            if (
-                reference.type &&
-                requestedResources.length !== 0 &&
-                !requestedResources.includes(reference.type) &&
-                !requestedResources.includes('Resource')
-            ) {
-                return null;
-            }
-            const possibleResourceType = reference.type ? reference.type : requestedResources[0];
-
-            const enrichedResource = this.enrichResourceWithReferenceData(
-                {},
-                reference,
-                possibleResourceType
-            );
-            if (Object.keys(enrichedResource).length === 0) {
-                return null;
-            }
-            return enrichedResource;
+            return null;
         }
 
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
@@ -296,7 +269,6 @@ class FhirDataSource {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
             let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
-            resource = this.enrichResourceWithReferenceData(resource, reference, resourceType);
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
@@ -593,37 +565,6 @@ class FhirDataSource {
             parsedArgs.headers = headers;
         }
         return parsedArgs;
-    }
-
-    /**
-     * Populate resolved or unresolved Reference resource with data from reference like display and type.
-     * This is useful when no resource is resolved and the client needs display data in graphql response.
-     * @param resolvedResource
-     * @param reference
-     * @param resourceType
-     * @returns {{extension}|*|{}}
-     */
-    enrichResourceWithReferenceData (resolvedResource, reference, resourceType) {
-        let resource = resolvedResource;
-        const dataToEnrich = ['display', 'type'];
-        const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
-        if (dataToEnrich.some(dataKey => !!reference[`${dataKey}`])) {
-            const extension = (resource && resource.extension) || [];
-            dataToEnrich.forEach(dataKey => {
-                if (reference[`${dataKey}`]) {
-                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
-                    extensionData[extensionData.valueKey] = reference[`${dataKey}`];
-                    delete extensionData.valueKey;
-                    extension.push(extensionData);
-                }
-            });
-            resource = resource || {};
-            resource.extension = extension;
-            if (!resource.resourceType) {
-                resource.resourceType = resourceType;
-            }
-        }
-        return resource;
     }
 
     /**
