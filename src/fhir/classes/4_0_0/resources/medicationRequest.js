@@ -25,9 +25,9 @@ class MedicationRequest extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
-     * @param {medicationrequestStatus} status,
+     * @param {code} status,
      * @param {CodeableConcept|undefined} [statusReason],
-     * @param {medicationRequestIntent} intent,
+     * @param {code} intent,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {code|undefined} [priority],
      * @param {Boolean|undefined} [doNotPerform],
@@ -327,7 +327,7 @@ class MedicationRequest extends Resource {
         /**
          * @description A code specifying the current state of the order.  Generally, this will be
     active or completed state.
-         * @property {medicationrequestStatus}
+         * @property {code}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -365,7 +365,7 @@ class MedicationRequest extends Resource {
 
         /**
          * @description Whether the request is a proposal, plan, or an original order.
-         * @property {medicationRequestIntent}
+         * @property {code}
         */
         Object.defineProperty(this, 'intent', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1135,9 +1135,9 @@ class MedicationRequest extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
-     * @param {medicationrequestStatus} status,
+     * @param {code} status,
      * @param {CodeableConcept|undefined} [statusReason],
-     * @param {medicationRequestIntent} intent,
+     * @param {code} intent,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {code|undefined} [priority],
      * @param {Boolean|undefined} [doNotPerform],

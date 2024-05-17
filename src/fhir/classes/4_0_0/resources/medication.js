@@ -24,7 +24,7 @@ class Medication extends Resource {
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
      * @param {CodeableConcept|undefined} [code],
-     * @param {MedicationStatusCodes|undefined} [status],
+     * @param {code|undefined} [status],
      * @param {Reference|undefined} [manufacturer],
      * @param {CodeableConcept|undefined} [form],
      * @param {Ratio|undefined} [amount],
@@ -292,7 +292,7 @@ class Medication extends Resource {
 
         /**
          * @description A code to indicate if the medication is in active use.
-         * @property {MedicationStatusCodes|undefined}
+         * @property {code|undefined}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -521,7 +521,7 @@ class Medication extends Resource {
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
      * @param {CodeableConcept|undefined} [code],
-     * @param {MedicationStatusCodes|undefined} [status],
+     * @param {code|undefined} [status],
      * @param {Reference|undefined} [manufacturer],
      * @param {CodeableConcept|undefined} [form],
      * @param {Ratio|undefined} [amount],

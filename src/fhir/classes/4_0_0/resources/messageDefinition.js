@@ -44,7 +44,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {messageheaderResponseRequest|undefined} [responseRequired],
+     * @param {code|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]
@@ -721,7 +721,7 @@ class MessageDefinition extends Resource {
         /**
          * @description Declare at a message definition level whether a response is required or only
     upon error or success, or never.
-         * @property {messageheaderResponseRequest|undefined}
+         * @property {code|undefined}
         */
         Object.defineProperty(this, 'responseRequired', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -926,7 +926,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {messageheaderResponseRequest|undefined} [responseRequired],
+     * @param {code|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]

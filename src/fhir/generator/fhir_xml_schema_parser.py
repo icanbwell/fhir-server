@@ -1004,7 +1004,7 @@ class FhirXmlSchemaParser:
         de_xml_file: Path = (
             data_dir.joinpath("xsd")
             .joinpath("definitions.xml")
-            .joinpath("dataelements.xml")
+            .joinpath("profiles-resources.xml")
         )
 
         with open(de_xml_file, "rb") as file:
@@ -1015,56 +1015,48 @@ class FhirXmlSchemaParser:
             fhir_codeable_types: List[FhirCodeableType] = []
             entry: ObjectifiedElement
             for entry in entries:
-                structure_definition: ObjectifiedElement = entry["resource"][
-                    "StructureDefinition"
-                ]
-                # name: str = structure_definition["name"].get("value")
-                snapshot_element: ObjectifiedElement = structure_definition["snapshot"][
-                    "element"
-                ]
-                if hasattr(snapshot_element, "binding"):
-                    types: ObjectifiedElement = snapshot_element["type"]
-                    type_: ObjectifiedElement
-                    if types is not None:
-                        type_ = types
-                        if type_["code"].get("value") in [
-                            "Coding",
-                            "CodeableConcept",
-                            "code",
-                        ]:
-                            bindings: ObjectifiedElement = snapshot_element["binding"]
-                            binding: ObjectifiedElement
-                            for binding in bindings:
-                                extension_code_list = binding["extension"]
-                                url: str = "http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName"
-                                value_set_url = (
-                                    binding["valueSet"].get("value")
-                                    if hasattr(binding, "valueSet")
-                                    else None
+                if not hasattr(entry["resource"], "StructureDefinition"):
+                    continue
+
+                structure_definition: ObjectifiedElement = entry["resource"]["StructureDefinition"]
+                snapshot_elements: ObjectifiedElement = structure_definition["snapshot"]["element"]
+
+                for snapshot_element in snapshot_elements:
+                    if not hasattr(snapshot_element, "type"):
+                        continue
+                    type_ = snapshot_element["type"]
+
+                    if type_["code"].get("value") in [ "Coding", "CodeableConcept", "code" ] and hasattr(snapshot_element, "binding"):
+                        bindings: ObjectifiedElement = snapshot_element["binding"]
+                        binding: ObjectifiedElement
+                        for binding in bindings:
+                            extension_code_list = binding["extension"]
+                            url: str = "http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName"
+                            value_set_url = (
+                                binding["valueSet"].get("value")
+                                if hasattr(binding, "valueSet")
+                                else None
+                            )
+                            codeable_type_list: List[ObjectifiedElement] = [
+                                bind
+                                for bind in extension_code_list
+                                if bind.get("url") == url
+                            ]
+                            if codeable_type_list:
+                                codeable_type_obj: ObjectifiedElement = (
+                                    codeable_type_list[0]
                                 )
-                                codeable_type_list: List[ObjectifiedElement] = [
-                                    bind
-                                    for bind in extension_code_list
-                                    if bind.get("url") == url
-                                ]
-                                if codeable_type_list:
-                                    codeable_type_obj: ObjectifiedElement = (
-                                        codeable_type_list[0]
+                                codeable_type: str = codeable_type_obj[
+                                    "valueString"
+                                ].get("value")
+                                fhir_codeable_types.append(
+                                    FhirCodeableType(
+                                        path=snapshot_element["path"].get("value"),
+                                        codeable_type=codeable_type,
+                                        codeable_type_url=value_set_url,
+                                        is_codeable_concept=type_["code"].get("value") in ["Coding", "CodeableConcept"],
                                     )
-                                    codeable_type: str = codeable_type_obj[
-                                        "valueString"
-                                    ].get("value")
-                                    fhir_codeable_types.append(
-                                        FhirCodeableType(
-                                            path=snapshot_element["path"].get("value"),
-                                            codeable_type=codeable_type,
-                                            codeable_type_url=value_set_url,
-                                            is_codeable_concept=type_["code"].get(
-                                                "value"
-                                            )
-                                                                in ["Coding", "CodeableConcept"],
-                                        )
-                                    )
+                                )
             return fhir_codeable_types
 
     @staticmethod

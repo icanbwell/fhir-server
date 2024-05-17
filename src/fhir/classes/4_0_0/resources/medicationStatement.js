@@ -44,7 +44,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {MedicationStatementStatusCodes} status,
+     * @param {code} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],
@@ -355,7 +355,7 @@ class MedicationStatement extends Resource {
          * @description A code representing the patient or other source's judgment about the state of
     the medication used that this statement is about.  Generally, this will be
     active or completed.
-         * @property {MedicationStatementStatusCodes}
+         * @property {code}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -794,7 +794,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {MedicationStatementStatusCodes} status,
+     * @param {code} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],

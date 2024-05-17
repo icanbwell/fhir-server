@@ -14,7 +14,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Coding from "../complex_types/coding.graphql"
 # import MessageDefinitionFocus from "../backbone_elements/messageDefinitionFocus.graphql"
-# import messageheaderResponseRequest from "../simple_types/messageheaderResponseRequest.graphql"
 # import MessageDefinitionAllowedResponse from "../backbone_elements/messageDefinitionAllowedResponse.graphql"
 
 
@@ -211,7 +210,7 @@ type MessageDefinition {
     Declare at a message definition level whether a response is required or only
     upon error or success, or never.
     """
-    responseRequired: messageheaderResponseRequest
+    responseRequired: code
     """
     Indicates what types of messages may be sent as an application-level response
     to this message.
