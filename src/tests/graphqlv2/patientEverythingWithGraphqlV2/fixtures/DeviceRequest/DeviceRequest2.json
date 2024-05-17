@@ -1,0 +1,16 @@
+{
+  "id": "2",
+  "resourceType": "DeviceRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "intent": "plan",
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "codeReference": {
+    "reference": "Device/2"
+  },
+  "codeCodeableConcept": {}
+}

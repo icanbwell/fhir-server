@@ -1,0 +1,34 @@
+{
+  "data": {
+    "carePlan": {
+      "entry": [
+        {
+          "resource": {
+            "id": "8dea4e52-5e76-35a7-0bf9-0f07b83a7e7f",
+            "period": { "start": "2020-02-29T20:33:52-05:00" },
+            "category": [
+              { "text": null },
+              { "text": "Infectious disease care plan (record artifact)" }
+            ],
+            "activity": [
+              {
+                "detail": { "code": { "text": "Airborne precautions (procedure)" } },
+                "outcomeReference": [{ "id": null, "reference": null }]
+              },
+              {
+                "detail": { "code": { "text": "Personal protective equipment (physical object)" } },
+                "outcomeReference": null
+              }
+            ],
+            "encounter": {
+              "reference": null
+            },
+            "author": null,
+            "careTeam": [{ "reference": null }]
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}

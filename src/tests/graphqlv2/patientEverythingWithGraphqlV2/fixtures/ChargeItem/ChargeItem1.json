@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "resourceType": "ChargeItem",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "billed",
+  "code": {},
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

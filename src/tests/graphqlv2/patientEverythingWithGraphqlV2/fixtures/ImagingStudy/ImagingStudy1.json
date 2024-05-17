@@ -1,0 +1,12 @@
+{
+  "id": "1",
+  "resourceType": "ImagingStudy",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "unknown",
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

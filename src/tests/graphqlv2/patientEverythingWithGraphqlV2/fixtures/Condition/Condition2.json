@@ -1,0 +1,11 @@
+{
+  "id": "2",
+  "resourceType": "Condition",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "subject": {
+    "reference": "Patient/2"
+  }
+}

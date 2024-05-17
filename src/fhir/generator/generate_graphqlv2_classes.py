@@ -163,7 +163,7 @@ def main() -> int:
                 with open(file_path, "w") as file2:
                     file2.write(result)
             # write queries
-            with open(data_dir.joinpath("template.resource_queries.jinja2"), "r") as file:
+            with open(data_dir.joinpath("template.resource_queriesv2.jinja2"), "r") as file:
                 template_contents = file.read()
                 from jinja2 import Template
 

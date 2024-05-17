@@ -1,0 +1,16 @@
+{
+  "id": "1",
+  "resourceType": "MedicationDispense",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "medicationCodeableConcept": {},
+  "medicationReference": {
+    "reference": "Medication/1"
+  },
+  "subject": {
+    "reference": "Patient/1"
+  }
+}
