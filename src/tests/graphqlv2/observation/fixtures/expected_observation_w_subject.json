@@ -1,0 +1,20 @@
+{
+  "entry":
+    [
+      {
+        "resource":
+          {
+            "id":"exs2hLRJfViSgT3bVra9fQ-Kby.uXxCNtphbSgs6mos56m",
+            "category":
+              [
+                {"coding":
+                  [
+                    {"code":"vital-signs"}
+                  ]
+                }
+              ]
+          }
+      }
+    ],
+    "meta":null
+}
