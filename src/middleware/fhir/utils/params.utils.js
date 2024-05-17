@@ -35,6 +35,9 @@ const getSearchParameters = (profile, version, customArgsModule) => {
         allArguments = getParameters(version, lowercaseProfileName);
     } // Load our common arguments that apply to all resources
 
+    if (!allArguments) {
+        return {};
+    }
     allArguments = Object.assign(allArguments, getParameters(version, 'resource')); // Everyone has a DomainResource and Resource parameter we want to include
     // except DSTU2(1_0_2), so do not attempt to assign that in DSTU2
 
