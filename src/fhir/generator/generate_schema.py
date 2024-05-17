@@ -93,7 +93,7 @@ class FhirXmlToJsonSchemaParser:
                 # if not a primitive type then check for list types
                 elif hasattr(simple_type.restriction, 'enumeration'):
                     name = name.replace('-list', '').replace('Enum', '')
-                    values = [b.get('value') for b in simple_type.restriction.enumeration]
+                    values = list(set([b.get('value') for b in simple_type.restriction.enumeration]))
 
                     if len(values) > 0:
                         logger.info(f'Schema generated for {name}')
@@ -148,7 +148,7 @@ class FhirXmlToJsonSchemaParser:
                 property_type = property.get('ref').split(':')[0]
 
             property_name = property_name.replace('.', '')
-            property_type = property_type.replace('.', '').replace('-primitive', '').replace('-list', '')
+            property_type = property_type.replace('.', '').replace('-primitive', '').replace('-list', '').replace('Enum', '')
             
             if property_type == 'SampledDataDataType' and property_name == 'data':
                 property_type = 'string'
