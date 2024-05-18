@@ -27,7 +27,7 @@ class MedicationAdministrationPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         }
     ) {
@@ -156,7 +156,7 @@ class MedicationAdministrationPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         });
     }

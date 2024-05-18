@@ -24,7 +24,7 @@ class EncounterClassHistory extends Element {
             id,
             extension,
             modifierExtension,
-            'class': class_,
+            class: class_,
             period
         }
     ) {
@@ -152,7 +152,7 @@ class EncounterClassHistory extends Element {
             id,
             extension,
             modifierExtension,
-            'class': class_,
+            class: class_,
             period
         });
     }

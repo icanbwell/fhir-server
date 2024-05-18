@@ -1,6 +1,8 @@
 # This file has the code generator to reach search-parameters.json and generate searchParameters.js
 
 import json
+import os
+import shutil
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -19,6 +21,7 @@ class QueryEntry:
     field: str
     target: Optional[List[str]]
     description: Optional[str]
+    definition: Optional[str]
 
 
 def add_values_in_dict(sample_dict: Dict[str, Dict[str, List[QueryEntry]]], query_entry: QueryEntry):
@@ -55,6 +58,7 @@ def main() -> int:
         base: str = "|".join(resource["base"])
         expression: str = resource.get("expression", None)
         xpath: str = resource.get("xpath", None)
+        definition: str = resource.get("url", None)
         if resource["id"] in ["individual-given", "individual-family"]:
             parameter_name = resource["id"].split("-")[-1]
             base += "|Person"
@@ -76,7 +80,8 @@ def main() -> int:
                     type_=type_,
                     field=exp1,
                     target=target.split("|") if target else None,
-                    description=description
+                    description=description,
+                    definition=definition
                 )
                 query_entries.append(query_entry)
 
@@ -117,8 +122,83 @@ def main() -> int:
         file2.write("search_parameter_queries = {\n")
         write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_python=True)
         file2.write("\n")
+    
+    parameters_folder: Path = data_dir.joinpath("../middleware/fhir/resources/4_0_0/parameters")
+    if os.path.exists(parameters_folder):
+        shutil.rmtree(parameters_folder)
+    os.mkdir(parameters_folder)
+    # generate parameter files
+    write_parameter_files(parameters_folder, sample_dict)
 
     return 0
+
+
+def write_parameter_files(parameters_folder: Path, sample_dict):
+    resources = ['Account', 'ActivityDefinition', 'AdministrableProductDefinition', 'AdverseEvent',
+        'AllergyIntolerance', 'Appointment', 'AppointmentResponse', 'AuditEvent', 'Basic', 'Binary',
+        'BiologicallyDerivedProduct', 'BodyStructure', 'Bundle', 'CapabilityStatement', 'CarePlan',
+        'CareTeam', 'CatalogEntry', 'ChargeItem', 'ChargeItemDefinition', 'Citation', 'Claim',
+        'ClaimResponse', 'ClinicalImpression', 'ClinicalUseDefinition', 'CodeSystem', 'Communication',
+        'CommunicationRequest', 'CompartmentDefinition', 'Composition', 'ConceptMap', 'Condition',
+        'Consent', 'Contract', 'Coverage', 'CoverageEligibilityRequest', 'CoverageEligibilityResponse',
+        'DetectedIssue', 'Device', 'DeviceDefinition', 'DeviceMetric', 'DeviceRequest', 'DeviceUseStatement',
+        'DiagnosticReport', 'DocumentManifest', 'DocumentReference', 'Encounter',
+        'Endpoint', 'EnrollmentRequest', 'EnrollmentResponse', 'EpisodeOfCare', 'EventDefinition',
+        'Evidence', 'EvidenceReport', 'EvidenceVariable', 'ExampleScenario', 'ExplanationOfBenefit',
+        'FamilyMemberHistory', 'Flag', 'Goal', 'GraphDefinition', 'Group', 'GuidanceResponse',
+        'HealthcareService', 'ImagingStudy', 'Immunization', 'ImmunizationEvaluation',
+        'ImmunizationRecommendation', 'ImplementationGuide', 'Ingredient', 'InsurancePlan', 'Invoice',
+        'Library', 'Linkage', 'List', 'Location', 'ManufacturedItemDefinition', 'Measure', 'MeasureReport',
+        'Media', 'Medication', 'MedicationAdministration', 'MedicationDispense', 'MedicationKnowledge',
+        'MedicationRequest', 'MedicationStatement', 'MedicinalProductDefinition', 'MessageDefinition',
+        'MessageHeader', 'MolecularSequence', 'NamingSystem', 'NutritionOrder', 'NutritionProduct',
+        'Observation', 'ObservationDefinition', 'OperationDefinition', 'OperationOutcome', 'Organization',
+        'OrganizationAffiliation', 'PackagedProductDefinition', 'Parameters', 'Patient', 'PaymentNotice',
+        'PaymentReconciliation', 'Person', 'PlanDefinition', 'Practitioner', 'PractitionerRole', 'Procedure',
+        'Provenance', 'Questionnaire', 'QuestionnaireResponse', 'RegulatedAuthorization', 'RelatedPerson',
+        'RequestGroup', 'ResearchDefinition', 'ResearchElementDefinition', 'ResearchStudy', 'ResearchSubject',
+        'RiskAssessment', 'Schedule', 'SearchParameter', 'ServiceRequest', 'Slot', 'Specimen',
+        'SpecimenDefinition', 'StructureDefinition', 'StructureMap', 'Subscription', 'SubscriptionStatus',
+        'SubscriptionTopic', 'Substance', 'SubstanceDefinition', 'SupplyDelivery', 'SupplyRequest', 'Task',
+        'TerminologyCapabilities', 'TestReport', 'TestScript', 'ValueSet', 'VerificationResult', 'VisionPrescription']
+
+    # generate parameter files
+    for resource_name in resources:
+        file_name = resource_name.lower() + '.parameters.js'
+        file_path = parameters_folder.joinpath(file_name)
+        resource_entries_dict = sample_dict[resource_name] if resource_name in sample_dict else None
+
+        with open(file_path, "w") as file:
+            file.write("// Autogenerated by script: generate_search_parameters.py.  Do not edit.\n")
+            file.write("/**\n")
+            file.write(" * @name exports\n")
+            file.write(" * @static\n")
+            file.write(f" * @summary Arguments for the {resource_name} query\n")
+            file.write(" */\n")
+            file.write("module.exports = {\n")
+            if resource_entries_dict is not None:
+                for search_parameter, search_parameter_entries in resource_entries_dict.items():
+                    cleaned_description: Optional[str] = search_parameter_entries[0].description.replace('\n', '').replace('\r', '').replace("'", "")
+                    file.write("\t'" + search_parameter + '\': {\n')
+                    file.write(f"\t\ttype: '{search_parameter_entries[0].type_}',\n")
+                    file.write(f"\t\tfhirtype: '{search_parameter_entries[0].type_}',\n")
+                    file.write("\t\txpath: '" + resource_name + "." + search_parameter_entries[0].field.replace("'", "\\'") + "',\n")
+                    file.write(f"\t\tdefinition: '{search_parameter_entries[0].definition}',\n")
+                    file.write(f"\t\tdescription: '{cleaned_description}',\n")
+                    file.write('\t},\n')
+
+            file.write("};\n")
+
+    # generate index file
+    index_file_path = parameters_folder.joinpath('index.js')
+    with open(index_file_path, "w") as index_file:
+        for resource_name in resources:
+            index_file.write(f"const {resource_name.lower()} = require('./{resource_name.lower()}.parameters.js');\n\n")
+
+        index_file.write("module.exports = {\n")
+        for resource_name in resources:
+            index_file.write(f"\t{resource_name.lower()},\n")
+        index_file.write("};\n")
 
 
 def write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_python=False):

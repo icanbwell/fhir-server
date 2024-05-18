@@ -26,7 +26,7 @@ class ProcedurePerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor,
             onBehalfOf
         }
@@ -176,7 +176,7 @@ class ProcedurePerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor,
             onBehalfOf
         });

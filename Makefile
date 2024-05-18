@@ -182,7 +182,9 @@ classes:
 
 .PHONY:searchParameters
 searchParameters:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/searchParameters/generate_search_parameters.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/searchParameters/generate_search_parameters.py" && \
+	eslint --fix "src/middleware/fhir/resources/**/*.js" && \
+	eslint --fix "src/searchParameters/*.js"
 
 .PHONY:audit_fix
 audit_fix:
