@@ -5,39 +5,39 @@
  * @summary Arguments for the SubstanceDefinition query
  */
 module.exports = {
-	classification: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'SubstanceDefinition.classification',
-		definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-classification',
-		description: 'High or low level categorization, e.g. polymer vs. nucleic acid or linear vs. branch chain'
-	},
-	code: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'SubstanceDefinition.code.code',
-		definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-code',
-		description: 'The specific code'
-	},
-	domain: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'SubstanceDefinition.domain',
-		definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-domain',
-		description: 'If the substance applies to only human or veterinary use'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'SubstanceDefinition.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-identifier',
-		description: 'Identifier by which this substance is known'
-	},
-	name: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'SubstanceDefinition.name.name',
-		definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-name',
-		description: 'The actual name'
-	}
+  classification: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'SubstanceDefinition.classification',
+    definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-classification',
+    description: 'High or low level categorization, e.g. polymer vs. nucleic acid or linear vs. branch chain'
+  },
+  code: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'SubstanceDefinition.code.code',
+    definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-code',
+    description: 'The specific code'
+  },
+  domain: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'SubstanceDefinition.domain',
+    definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-domain',
+    description: 'If the substance applies to only human or veterinary use'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'SubstanceDefinition.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-identifier',
+    description: 'Identifier by which this substance is known'
+  },
+  name: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'SubstanceDefinition.name.name',
+    definition: 'http://hl7.org/fhir/SearchParameter/SubstanceDefinition-name',
+    description: 'The actual name'
+  }
 };

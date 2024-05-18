@@ -5,60 +5,60 @@
  * @summary Arguments for the Ingredient query
  */
 module.exports = {
-	for: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'Ingredient.for',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-for',
-		description: 'The product which this ingredient is a constituent part of'
-	},
-	function: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'Ingredient.function',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-function',
-		description: 'A classification of the ingredient identifying its precise purpose(s) in the drug product. This extends the Ingredient.role to add more detail. Example: Antioxidant, Alkalizing Agent'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'Ingredient.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-identifier',
-		description: 'An identifier or code by which the ingredient can be referenced'
-	},
-	manufacturer: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'Ingredient.manufacturer',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-manufacturer',
-		description: 'The organization that manufactures this ingredient'
-	},
-	role: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'Ingredient.role',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-role',
-		description: 'A classification of the ingredient identifying its purpose within the product, e.g. active, inactive'
-	},
-	substance: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'Ingredient.substance.code.reference',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance',
-		description: 'Reference to a resource (by instance)'
-	},
-	'substance-code': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'Ingredient.substance.code.concept',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance-code',
-		description: 'Reference to a concept (by class)'
-	},
-	'substance-definition': {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'Ingredient.substance.code.reference',
-		definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance-definition',
-		description: 'Reference to a resource (by instance)'
-	}
+  for: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'Ingredient.for',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-for',
+    description: 'The product which this ingredient is a constituent part of'
+  },
+  function: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'Ingredient.function',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-function',
+    description: 'A classification of the ingredient identifying its precise purpose(s) in the drug product. This extends the Ingredient.role to add more detail. Example: Antioxidant, Alkalizing Agent'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'Ingredient.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-identifier',
+    description: 'An identifier or code by which the ingredient can be referenced'
+  },
+  manufacturer: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'Ingredient.manufacturer',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-manufacturer',
+    description: 'The organization that manufactures this ingredient'
+  },
+  role: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'Ingredient.role',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-role',
+    description: 'A classification of the ingredient identifying its purpose within the product, e.g. active, inactive'
+  },
+  substance: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'Ingredient.substance.code.reference',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance',
+    description: 'Reference to a resource (by instance)'
+  },
+  'substance-code': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'Ingredient.substance.code.concept',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance-code',
+    description: 'Reference to a concept (by class)'
+  },
+  'substance-definition': {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'Ingredient.substance.code.reference',
+    definition: 'http://hl7.org/fhir/SearchParameter/Ingredient-substance-definition',
+    description: 'Reference to a resource (by instance)'
+  }
 };

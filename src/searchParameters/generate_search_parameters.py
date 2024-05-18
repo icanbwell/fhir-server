@@ -179,13 +179,13 @@ def write_parameter_files(parameters_folder: Path, sample_dict):
             if resource_entries_dict is not None:
                 for search_parameter, search_parameter_entries in resource_entries_dict.items():
                     cleaned_description: Optional[str] = search_parameter_entries[0].description.replace('\n', '').replace('\r', '').replace("'", "")
-                    file.write("\t'" + search_parameter + '\': {\n')
-                    file.write(f"\t\ttype: '{search_parameter_entries[0].type_}',\n")
-                    file.write(f"\t\tfhirtype: '{search_parameter_entries[0].type_}',\n")
-                    file.write("\t\txpath: '" + resource_name + "." + search_parameter_entries[0].field.replace("'", "\\'") + "',\n")
-                    file.write(f"\t\tdefinition: '{search_parameter_entries[0].definition}',\n")
-                    file.write(f"\t\tdescription: '{cleaned_description}',\n")
-                    file.write('\t},\n')
+                    file.write("  '" + search_parameter + '\': {\n')
+                    file.write(f"    type: '{search_parameter_entries[0].type_}',\n")
+                    file.write(f"    fhirtype: '{search_parameter_entries[0].type_}',\n")
+                    file.write("    xpath: '" + resource_name + "." + search_parameter_entries[0].field.replace("'", "\\'") + "',\n")
+                    file.write(f"    definition: '{search_parameter_entries[0].definition}',\n")
+                    file.write(f"    description: '{cleaned_description}',\n")
+                    file.write('  },\n')
 
             file.write("};\n")
 
@@ -197,7 +197,7 @@ def write_parameter_files(parameters_folder: Path, sample_dict):
 
         index_file.write("module.exports = {\n")
         for resource_name in resources:
-            index_file.write(f"\t{resource_name.lower()},\n")
+            index_file.write(f"  {resource_name.lower()},\n")
         index_file.write("};\n")
 
 

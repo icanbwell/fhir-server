@@ -5,88 +5,88 @@
  * @summary Arguments for the MedicinalProductDefinition query
  */
 module.exports = {
-	characteristic: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.characteristic.value',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-characteristic',
-		description: 'Allows the key product features to be recorded, such as "sugar free", "modified release", "parallel import"'
-	},
-	'characteristic-type': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.characteristic.type',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-characteristic-type',
-		description: 'A category for the characteristic'
-	},
-	contact: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'MedicinalProductDefinition.contact.contact',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-contact',
-		description: 'A product specific contact, person (in a role), or an organization'
-	},
-	domain: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.domain',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-domain',
-		description: 'If this medicine applies to human or veterinary uses'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-identifier',
-		description: 'Business identifier for this product. Could be an MPID'
-	},
-	ingredient: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.ingredient',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-ingredient',
-		description: 'An ingredient of this product'
-	},
-	'master-file': {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'MedicinalProductDefinition.masterFile',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-master-file',
-		description: 'A master file for to the medicinal product (e.g. Pharmacovigilance System Master File)'
-	},
-	name: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'MedicinalProductDefinition.name.productName',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-name',
-		description: 'The full product name'
-	},
-	'name-language': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.name.countryLanguage.language',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-name-language',
-		description: 'Language code for this name'
-	},
-	'product-classification': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.classification',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-product-classification',
-		description: 'Allows the product to be classified by various systems'
-	},
-	status: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.status',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-status',
-		description: 'The status within the lifecycle of this product record. A high-level status, this is not intended to duplicate details carried elsewhere such as legal status, or authorization status'
-	},
-	type: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MedicinalProductDefinition.type',
-		definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-type',
-		description: 'Regulatory type, e.g. Investigational or Authorized'
-	}
+  characteristic: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.characteristic.value',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-characteristic',
+    description: 'Allows the key product features to be recorded, such as "sugar free", "modified release", "parallel import"'
+  },
+  'characteristic-type': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.characteristic.type',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-characteristic-type',
+    description: 'A category for the characteristic'
+  },
+  contact: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'MedicinalProductDefinition.contact.contact',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-contact',
+    description: 'A product specific contact, person (in a role), or an organization'
+  },
+  domain: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.domain',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-domain',
+    description: 'If this medicine applies to human or veterinary uses'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-identifier',
+    description: 'Business identifier for this product. Could be an MPID'
+  },
+  ingredient: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.ingredient',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-ingredient',
+    description: 'An ingredient of this product'
+  },
+  'master-file': {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'MedicinalProductDefinition.masterFile',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-master-file',
+    description: 'A master file for to the medicinal product (e.g. Pharmacovigilance System Master File)'
+  },
+  name: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'MedicinalProductDefinition.name.productName',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-name',
+    description: 'The full product name'
+  },
+  'name-language': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.name.countryLanguage.language',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-name-language',
+    description: 'Language code for this name'
+  },
+  'product-classification': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.classification',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-product-classification',
+    description: 'Allows the product to be classified by various systems'
+  },
+  status: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.status',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-status',
+    description: 'The status within the lifecycle of this product record. A high-level status, this is not intended to duplicate details carried elsewhere such as legal status, or authorization status'
+  },
+  type: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MedicinalProductDefinition.type',
+    definition: 'http://hl7.org/fhir/SearchParameter/MedicinalProductDefinition-type',
+    description: 'Regulatory type, e.g. Investigational or Authorized'
+  }
 };

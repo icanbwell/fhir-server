@@ -5,88 +5,88 @@
  * @summary Arguments for the EvidenceVariable query
  */
 module.exports = {
-	context: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'EvidenceVariable.useContext.valueCodeableConcept',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context',
-		description: 'A use context assigned to the evidence variable'
-	},
-	'context-quantity': {
-		type: 'quantity',
-		fhirtype: 'quantity',
-		xpath: 'EvidenceVariable.useContext.valueQuantity',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context-quantity',
-		description: 'A quantity- or range-valued use context assigned to the evidence variable'
-	},
-	'context-type': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'EvidenceVariable.useContext.code',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context-type',
-		description: 'A type of use context assigned to the evidence variable'
-	},
-	date: {
-		type: 'date',
-		fhirtype: 'date',
-		xpath: 'EvidenceVariable.date',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-date',
-		description: 'The evidence variable publication date'
-	},
-	description: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'EvidenceVariable.description',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-description',
-		description: 'The description of the evidence variable'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'EvidenceVariable.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-identifier',
-		description: 'External identifier for the evidence variable'
-	},
-	name: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'EvidenceVariable.name',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-name',
-		description: 'Computationally friendly name of the evidence variable'
-	},
-	publisher: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'EvidenceVariable.publisher',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-publisher',
-		description: 'Name of the publisher of the evidence variable'
-	},
-	status: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'EvidenceVariable.status',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-status',
-		description: 'The current status of the evidence variable'
-	},
-	title: {
-		type: 'string',
-		fhirtype: 'string',
-		xpath: 'EvidenceVariable.title',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-title',
-		description: 'The human-friendly name of the evidence variable'
-	},
-	url: {
-		type: 'uri',
-		fhirtype: 'uri',
-		xpath: 'EvidenceVariable.url',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-url',
-		description: 'The uri that identifies the evidence variable'
-	},
-	version: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'EvidenceVariable.version',
-		definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-version',
-		description: 'The business version of the evidence variable'
-	}
+  context: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'EvidenceVariable.useContext.valueCodeableConcept',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context',
+    description: 'A use context assigned to the evidence variable'
+  },
+  'context-quantity': {
+    type: 'quantity',
+    fhirtype: 'quantity',
+    xpath: 'EvidenceVariable.useContext.valueQuantity',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context-quantity',
+    description: 'A quantity- or range-valued use context assigned to the evidence variable'
+  },
+  'context-type': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'EvidenceVariable.useContext.code',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-context-type',
+    description: 'A type of use context assigned to the evidence variable'
+  },
+  date: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'EvidenceVariable.date',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-date',
+    description: 'The evidence variable publication date'
+  },
+  description: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'EvidenceVariable.description',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-description',
+    description: 'The description of the evidence variable'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'EvidenceVariable.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-identifier',
+    description: 'External identifier for the evidence variable'
+  },
+  name: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'EvidenceVariable.name',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-name',
+    description: 'Computationally friendly name of the evidence variable'
+  },
+  publisher: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'EvidenceVariable.publisher',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-publisher',
+    description: 'Name of the publisher of the evidence variable'
+  },
+  status: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'EvidenceVariable.status',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-status',
+    description: 'The current status of the evidence variable'
+  },
+  title: {
+    type: 'string',
+    fhirtype: 'string',
+    xpath: 'EvidenceVariable.title',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-title',
+    description: 'The human-friendly name of the evidence variable'
+  },
+  url: {
+    type: 'uri',
+    fhirtype: 'uri',
+    xpath: 'EvidenceVariable.url',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-url',
+    description: 'The uri that identifies the evidence variable'
+  },
+  version: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'EvidenceVariable.version',
+    definition: 'http://hl7.org/fhir/SearchParameter/EvidenceVariable-version',
+    description: 'The business version of the evidence variable'
+  }
 };

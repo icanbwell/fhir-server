@@ -5,60 +5,60 @@
  * @summary Arguments for the AdministrableProductDefinition query
  */
 module.exports = {
-	device: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'AdministrableProductDefinition.device',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-device',
-		description: 'A device that is integral to the medicinal product, in effect being considered as an "ingredient" of the medicinal product. This is not intended for devices that are just co-packaged'
-	},
-	'dose-form': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'AdministrableProductDefinition.administrableDoseForm',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-dose-form',
-		description: 'The administrable dose form, i.e. the dose form of the final product after necessary reconstitution or processing'
-	},
-	'form-of': {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'AdministrableProductDefinition.formOf',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-form-of',
-		description: 'The medicinal product that this is an administrable form of. This is not a reference to the item(s) that make up this administrable form - it is the whole product'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'AdministrableProductDefinition.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-identifier',
-		description: 'An identifier for the administrable product'
-	},
-	ingredient: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'AdministrableProductDefinition.ingredient',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-ingredient',
-		description: 'The ingredients of this administrable medicinal product'
-	},
-	'manufactured-item': {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'AdministrableProductDefinition.producedFrom',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-manufactured-item',
-		description: 'The manufactured item(s) that this administrable product is produced from. Either a single item, or several that are mixed before administration (e.g. a power item and a solution item). Note that these are not raw ingredients'
-	},
-	route: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'AdministrableProductDefinition.routeOfAdministration.code',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-route',
-		description: 'Coded expression for the route'
-	},
-	'target-species': {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'AdministrableProductDefinition.routeOfAdministration.targetSpecies.code',
-		definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-target-species',
-		description: 'Coded expression for the species'
-	}
+  device: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'AdministrableProductDefinition.device',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-device',
+    description: 'A device that is integral to the medicinal product, in effect being considered as an "ingredient" of the medicinal product. This is not intended for devices that are just co-packaged'
+  },
+  'dose-form': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'AdministrableProductDefinition.administrableDoseForm',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-dose-form',
+    description: 'The administrable dose form, i.e. the dose form of the final product after necessary reconstitution or processing'
+  },
+  'form-of': {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'AdministrableProductDefinition.formOf',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-form-of',
+    description: 'The medicinal product that this is an administrable form of. This is not a reference to the item(s) that make up this administrable form - it is the whole product'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'AdministrableProductDefinition.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-identifier',
+    description: 'An identifier for the administrable product'
+  },
+  ingredient: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'AdministrableProductDefinition.ingredient',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-ingredient',
+    description: 'The ingredients of this administrable medicinal product'
+  },
+  'manufactured-item': {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'AdministrableProductDefinition.producedFrom',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-manufactured-item',
+    description: 'The manufactured item(s) that this administrable product is produced from. Either a single item, or several that are mixed before administration (e.g. a power item and a solution item). Note that these are not raw ingredients'
+  },
+  route: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'AdministrableProductDefinition.routeOfAdministration.code',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-route',
+    description: 'Coded expression for the route'
+  },
+  'target-species': {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'AdministrableProductDefinition.routeOfAdministration.targetSpecies.code',
+    definition: 'http://hl7.org/fhir/SearchParameter/AdministrableProductDefinition-target-species',
+    description: 'Coded expression for the species'
+  }
 };

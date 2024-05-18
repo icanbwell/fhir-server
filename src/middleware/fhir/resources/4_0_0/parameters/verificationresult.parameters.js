@@ -5,11 +5,11 @@
  * @summary Arguments for the VerificationResult query
  */
 module.exports = {
-	target: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'VerificationResult.target',
-		definition: 'http://hl7.org/fhir/SearchParameter/VerificationResult-target',
-		description: 'A resource that was validated'
-	}
+  target: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'VerificationResult.target',
+    definition: 'http://hl7.org/fhir/SearchParameter/VerificationResult-target',
+    description: 'A resource that was validated'
+  }
 };

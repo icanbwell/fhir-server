@@ -5,67 +5,67 @@
  * @summary Arguments for the MolecularSequence query
  */
 module.exports = {
-	chromosome: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MolecularSequence.referenceSeq.chromosome',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-chromosome',
-		description: 'Chromosome number of the reference sequence'
-	},
-	identifier: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MolecularSequence.identifier',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-identifier',
-		description: 'The unique identity for a particular sequence'
-	},
-	patient: {
-		type: 'reference',
-		fhirtype: 'reference',
-		xpath: 'MolecularSequence.patient',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-patient',
-		description: 'The subject that the observation is about'
-	},
-	referenceseqid: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MolecularSequence.referenceSeq.referenceSeqId',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-referenceseqid',
-		description: 'Reference Sequence of the sequence'
-	},
-	type: {
-		type: 'token',
-		fhirtype: 'token',
-		xpath: 'MolecularSequence.type',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-type',
-		description: 'Amino Acid Sequence/ DNA Sequence / RNA Sequence'
-	},
-	'variant-end': {
-		type: 'number',
-		fhirtype: 'number',
-		xpath: 'MolecularSequence.variant.end',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-variant-end',
-		description: 'End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the variant.'
-	},
-	'variant-start': {
-		type: 'number',
-		fhirtype: 'number',
-		xpath: 'MolecularSequence.variant.start',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-variant-start',
-		description: 'Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the variant.'
-	},
-	'window-end': {
-		type: 'number',
-		fhirtype: 'number',
-		xpath: 'MolecularSequence.referenceSeq.windowEnd',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-window-end',
-		description: 'End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the reference sequence.'
-	},
-	'window-start': {
-		type: 'number',
-		fhirtype: 'number',
-		xpath: 'MolecularSequence.referenceSeq.windowStart',
-		definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-window-start',
-		description: 'Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the reference sequence.'
-	}
+  chromosome: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MolecularSequence.referenceSeq.chromosome',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-chromosome',
+    description: 'Chromosome number of the reference sequence'
+  },
+  identifier: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MolecularSequence.identifier',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-identifier',
+    description: 'The unique identity for a particular sequence'
+  },
+  patient: {
+    type: 'reference',
+    fhirtype: 'reference',
+    xpath: 'MolecularSequence.patient',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-patient',
+    description: 'The subject that the observation is about'
+  },
+  referenceseqid: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MolecularSequence.referenceSeq.referenceSeqId',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-referenceseqid',
+    description: 'Reference Sequence of the sequence'
+  },
+  type: {
+    type: 'token',
+    fhirtype: 'token',
+    xpath: 'MolecularSequence.type',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-type',
+    description: 'Amino Acid Sequence/ DNA Sequence / RNA Sequence'
+  },
+  'variant-end': {
+    type: 'number',
+    fhirtype: 'number',
+    xpath: 'MolecularSequence.variant.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-variant-end',
+    description: 'End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the variant.'
+  },
+  'variant-start': {
+    type: 'number',
+    fhirtype: 'number',
+    xpath: 'MolecularSequence.variant.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-variant-start',
+    description: 'Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the variant.'
+  },
+  'window-end': {
+    type: 'number',
+    fhirtype: 'number',
+    xpath: 'MolecularSequence.referenceSeq.windowEnd',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-window-end',
+    description: 'End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the reference sequence.'
+  },
+  'window-start': {
+    type: 'number',
+    fhirtype: 'number',
+    xpath: 'MolecularSequence.referenceSeq.windowStart',
+    definition: 'http://hl7.org/fhir/SearchParameter/MolecularSequence-window-start',
+    description: 'Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the reference sequence.'
+  }
 };
