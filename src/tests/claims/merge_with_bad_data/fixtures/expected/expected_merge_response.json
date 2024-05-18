@@ -65,7 +65,7 @@
         {
           "code": "invalid",
           "details": {
-            "text": "/4_0_0/ExplanationOfBenefit/1/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"predetermination\",\"preauthorization\",\"claim\"]}: at position .use"
+            "text": "/4_0_0/ExplanationOfBenefit/1/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"claim\",\"preauthorization\",\"predetermination\"]}: at position .use"
           },
           "severity": "error"
         },
