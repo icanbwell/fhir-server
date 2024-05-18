@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd','Group/a28ad76e-41dd-5c0d-b52d-a5841690c3bd']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'subject._uuid':'Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

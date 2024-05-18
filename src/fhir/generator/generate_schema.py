@@ -93,7 +93,7 @@ class FhirXmlToJsonSchemaParser:
                 # if not a primitive type then check for list types
                 elif hasattr(simple_type.restriction, 'enumeration'):
                     name = name.replace('-list', '').replace('Enum', '')
-                    values = list(set([b.get('value') for b in simple_type.restriction.enumeration]))
+                    values = [b.get('value') for b in simple_type.restriction.enumeration]
 
                     if len(values) > 0:
                         logger.info(f'Schema generated for {name}')
@@ -223,6 +223,9 @@ class FhirXmlToJsonSchemaParser:
                     properties[property['name']] = {
                         '$ref': f"#/definitions/{property['type']}"
                     }
+            
+            if name == "GraphDefinitionTarget":
+                required = []
 
             schema[name] = {
                 'additionalProperties': False,

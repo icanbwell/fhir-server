@@ -577,55 +577,55 @@
     "AdministrativeGender": {
       "type": "string",
       "enum": [
-        "other",
+        "male",
         "female",
-        "unknown",
-        "male"
+        "other",
+        "unknown"
       ]
     },
     "AgeUnits": {
       "type": "string",
       "enum": [
-        "d",
-        "a",
+        "min",
         "h",
-        "mo",
+        "d",
         "wk",
-        "min"
+        "mo",
+        "a"
       ]
     },
     "BindingStrength": {
       "type": "string",
       "enum": [
-        "preferred",
-        "extensible",
         "required",
+        "extensible",
+        "preferred",
         "example"
       ]
     },
     "ConceptMapEquivalence": {
       "type": "string",
       "enum": [
-        "unmatched",
-        "inexact",
-        "specializes",
-        "subsumes",
-        "disjoint",
-        "wider",
-        "equivalent",
         "relatedto",
+        "equivalent",
+        "equal",
+        "wider",
+        "subsumes",
         "narrower",
-        "equal"
+        "specializes",
+        "inexact",
+        "unmatched",
+        "disjoint"
       ]
     },
     "DefinitionResourceType": {
       "type": "string",
       "enum": [
+        "ActivityDefinition",
+        "EventDefinition",
         "Measure",
         "OperationDefinition",
-        "ActivityDefinition",
         "PlanDefinition",
-        "EventDefinition",
         "Questionnaire"
       ]
     },
@@ -633,792 +633,792 @@
       "type": "string",
       "enum": [
         "current",
-        "entered-in-error",
-        "superseded"
+        "superseded",
+        "entered-in-error"
       ]
     },
     "EventOrRequestResourceTypes": {
       "type": "string",
       "enum": [
-        "EnrollmentRequest",
+        "ChargeItem",
         "ClaimResponse",
-        "Procedure",
-        "CommunicationRequest",
-        "DiagnosticReport",
-        "MedicationStatement",
-        "NutritionOrder",
+        "ClinicalImpression",
         "Communication",
-        "VisionPrescription",
-        "Contract",
-        "RiskAssessment",
-        "EnrollmentResponse",
         "Composition",
+        "Condition",
+        "Consent",
+        "Coverage",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
         "DocumentReference",
         "Encounter",
-        "SupplyDelivery",
-        "Appointment",
-        "PaymentReconciliation",
-        "ImmunizationRecommendation",
-        "PaymentNotice",
-        "Claim",
-        "MedicationDispense",
-        "DocumentManifest",
-        "GuidanceResponse",
-        "ClinicalImpression",
-        "Condition",
-        "ServiceRequest",
-        "Observation",
-        "ChargeItem",
-        "MedicationRequest",
-        "Consent",
-        "MeasureReport",
+        "EnrollmentResponse",
+        "EpisodeOfCare",
         "ExplanationOfBenefit",
         "FamilyMemberHistory",
-        "AppointmentResponse",
-        "DeviceRequest",
-        "Media",
-        "Immunization",
-        "SupplyRequest",
-        "DeviceUseStatement",
-        "ProcessResponse",
+        "GuidanceResponse",
         "ImagingStudy",
-        "Task",
+        "Immunization",
+        "MeasureReport",
+        "Media",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationStatement",
+        "Observation",
+        "PaymentNotice",
+        "PaymentReconciliation",
+        "Procedure",
+        "ProcessResponse",
         "QuestionnaireResponse",
+        "RiskAssessment",
+        "SupplyDelivery",
+        "Task",
+        "Appointment",
+        "AppointmentResponse",
         "CarePlan",
-        "EpisodeOfCare",
-        "Coverage",
-        "MedicationAdministration"
+        "Claim",
+        "CommunicationRequest",
+        "Contract",
+        "DeviceRequest",
+        "EnrollmentRequest",
+        "ImmunizationRecommendation",
+        "MedicationRequest",
+        "NutritionOrder",
+        "ServiceRequest",
+        "SupplyRequest",
+        "VisionPrescription"
       ]
     },
     "EventResourceType": {
       "type": "string",
       "enum": [
+        "ChargeItem",
         "ClaimResponse",
-        "Procedure",
-        "DiagnosticReport",
-        "MedicationStatement",
+        "ClinicalImpression",
         "Communication",
-        "RiskAssessment",
-        "EnrollmentResponse",
         "Composition",
+        "Condition",
+        "Consent",
+        "Coverage",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
         "DocumentReference",
         "Encounter",
-        "SupplyDelivery",
-        "PaymentReconciliation",
-        "PaymentNotice",
-        "MedicationDispense",
-        "DocumentManifest",
-        "GuidanceResponse",
-        "ClinicalImpression",
-        "Condition",
-        "Observation",
-        "ChargeItem",
-        "Consent",
-        "MeasureReport",
+        "EnrollmentResponse",
+        "EpisodeOfCare",
         "ExplanationOfBenefit",
         "FamilyMemberHistory",
-        "Media",
-        "Immunization",
-        "DeviceUseStatement",
-        "ProcessResponse",
+        "GuidanceResponse",
         "ImagingStudy",
-        "Task",
+        "Immunization",
+        "MeasureReport",
+        "Media",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationStatement",
+        "Observation",
+        "PaymentNotice",
+        "PaymentReconciliation",
+        "Procedure",
+        "ProcessResponse",
         "QuestionnaireResponse",
-        "EpisodeOfCare",
-        "Coverage",
-        "MedicationAdministration"
+        "RiskAssessment",
+        "SupplyDelivery",
+        "Task"
       ]
     },
     "FHIRPathTypes": {
       "type": "string",
       "enum": [
-        "http://hl7.org/fhirpath/System.Date",
-        "http://hl7.org/fhirpath/System.Integer",
-        "http://hl7.org/fhirpath/System.Time",
-        "http://hl7.org/fhirpath/System.Decimal",
         "http://hl7.org/fhirpath/System.String",
+        "http://hl7.org/fhirpath/System.Boolean",
+        "http://hl7.org/fhirpath/System.Date",
         "http://hl7.org/fhirpath/System.DateTime",
-        "http://hl7.org/fhirpath/System.Boolean"
+        "http://hl7.org/fhirpath/System.Decimal",
+        "http://hl7.org/fhirpath/System.Integer",
+        "http://hl7.org/fhirpath/System.Time"
       ]
     },
     "FHIRVersion": {
       "type": "string",
       "enum": [
-        "0.11",
-        "1.0.2",
-        "4.1.0",
-        "3.0.0",
-        "4.0.1",
-        "1.6.0",
-        "1.0.0",
         "0.01",
-        "3.0.2",
         "0.05",
-        "0.5.0",
-        "1.0.1",
-        "3.5.0",
-        "4.3.0",
-        "3.3.0",
+        "0.06",
+        "0.11",
         "0.0.80",
-        "3.0.1",
-        "1.1.0",
-        "4.0.0",
-        "1.4.0",
-        "4.3.0-cibuild",
-        "4.3.0-snapshot1",
-        "0.4.0",
-        "1.8.0",
         "0.0.81",
         "0.0.82",
-        "0.06"
+        "0.4.0",
+        "0.5.0",
+        "1.0.0",
+        "1.0.1",
+        "1.0.2",
+        "1.1.0",
+        "1.4.0",
+        "1.6.0",
+        "1.8.0",
+        "3.0.0",
+        "3.0.1",
+        "3.0.2",
+        "3.3.0",
+        "3.5.0",
+        "4.0.0",
+        "4.0.1",
+        "4.1.0",
+        "4.3.0-cibuild",
+        "4.3.0-snapshot1",
+        "4.3.0"
       ]
     },
     "KnowledgeResourceType": {
       "type": "string",
       "enum": [
-        "StructureDefinition",
-        "Measure",
         "ActivityDefinition",
-        "ConceptMap",
         "CodeSystem",
+        "ConceptMap",
+        "Library",
+        "Measure",
         "PlanDefinition",
+        "StructureDefinition",
         "StructureMap",
-        "ValueSet",
-        "Library"
+        "ValueSet"
       ]
     },
     "NoteType": {
       "type": "string",
       "enum": [
-        "printoper",
         "display",
-        "print"
+        "print",
+        "printoper"
       ]
     },
     "PublicationStatus": {
       "type": "string",
       "enum": [
+        "draft",
         "active",
         "retired",
-        "unknown",
-        "draft"
+        "unknown"
       ]
     },
     "RemittanceOutcome": {
       "type": "string",
       "enum": [
-        "error",
+        "queued",
         "complete",
-        "partial",
-        "queued"
+        "error",
+        "partial"
       ]
     },
     "RequestResourceType": {
       "type": "string",
       "enum": [
-        "MedicationRequest",
-        "EnrollmentRequest",
         "Appointment",
-        "CommunicationRequest",
-        "ImmunizationRecommendation",
-        "SupplyRequest",
-        "Claim",
-        "NutritionOrder",
-        "Task",
-        "VisionPrescription",
-        "Contract",
-        "ServiceRequest",
-        "CarePlan",
         "AppointmentResponse",
-        "DeviceRequest"
+        "CarePlan",
+        "Claim",
+        "CommunicationRequest",
+        "Contract",
+        "DeviceRequest",
+        "EnrollmentRequest",
+        "ImmunizationRecommendation",
+        "MedicationRequest",
+        "NutritionOrder",
+        "ServiceRequest",
+        "SupplyRequest",
+        "Task",
+        "VisionPrescription"
       ]
     },
     "ResourceType": {
       "type": "string",
       "enum": [
-        "ChargeItemDefinition",
-        "EnrollmentRequest",
-        "NutritionProduct",
-        "ClaimResponse",
-        "DeviceDefinition",
-        "Procedure",
-        "AuditEvent",
-        "PlanDefinition",
-        "Communication",
-        "Parameters",
-        "VisionPrescription",
-        "RiskAssessment",
-        "Appointment",
-        "BodyStructure",
-        "Bundle",
-        "CodeSystem",
-        "DocumentManifest",
-        "Substance",
-        "ClinicalImpression",
-        "DeviceMetric",
-        "Invoice",
-        "ResearchStudy",
-        "FamilyMemberHistory",
-        "Provenance",
-        "Ingredient",
-        "CoverageEligibilityRequest",
-        "SubscriptionTopic",
-        "Media",
-        "SupplyRequest",
-        "ConceptMap",
-        "List",
-        "Task",
-        "QuestionnaireResponse",
-        "NutritionOrder",
-        "EpisodeOfCare",
-        "MessageDefinition",
-        "AllergyIntolerance",
-        "NamingSystem",
-        "DetectedIssue",
-        "CapabilityStatement",
-        "OperationDefinition",
-        "ActivityDefinition",
-        "ResearchDefinition",
-        "PackagedProductDefinition",
-        "EnrollmentResponse",
-        "Encounter",
-        "Practitioner",
-        "PaymentNotice",
-        "Specimen",
-        "EventDefinition",
-        "Condition",
-        "Location",
         "Resource",
-        "ExplanationOfBenefit",
-        "RelatedPerson",
+        "Binary",
+        "Bundle",
+        "DomainResource",
+        "Account",
+        "ActivityDefinition",
+        "AdministrableProductDefinition",
+        "AdverseEvent",
+        "AllergyIntolerance",
+        "Appointment",
+        "AppointmentResponse",
+        "AuditEvent",
         "Basic",
-        "Immunization",
+        "BiologicallyDerivedProduct",
+        "BodyStructure",
+        "CapabilityStatement",
+        "CarePlan",
         "CareTeam",
+        "CatalogEntry",
+        "ChargeItem",
+        "ChargeItemDefinition",
+        "Citation",
+        "Claim",
+        "ClaimResponse",
+        "ClinicalImpression",
+        "ClinicalUseDefinition",
+        "CodeSystem",
+        "Communication",
+        "CommunicationRequest",
+        "CompartmentDefinition",
+        "Composition",
+        "ConceptMap",
+        "Condition",
+        "Consent",
+        "Contract",
+        "Coverage",
+        "CoverageEligibilityRequest",
+        "CoverageEligibilityResponse",
+        "DetectedIssue",
+        "Device",
+        "DeviceDefinition",
+        "DeviceMetric",
+        "DeviceRequest",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
+        "DocumentReference",
+        "Encounter",
+        "Endpoint",
+        "EnrollmentRequest",
+        "EnrollmentResponse",
+        "EpisodeOfCare",
+        "EventDefinition",
+        "Evidence",
+        "EvidenceReport",
+        "EvidenceVariable",
+        "ExampleScenario",
+        "ExplanationOfBenefit",
+        "FamilyMemberHistory",
+        "Flag",
+        "Goal",
+        "GraphDefinition",
+        "Group",
+        "GuidanceResponse",
         "HealthcareService",
         "ImagingStudy",
-        "ManufacturedItemDefinition",
-        "VerificationResult",
-        "Person",
-        "PractitionerRole",
-        "TerminologyCapabilities",
-        "MedicationKnowledge",
-        "Slot",
-        "Flag",
-        "Organization",
-        "ValueSet",
-        "SupplyDelivery",
-        "StructureDefinition",
-        "Claim",
-        "RegulatedAuthorization",
-        "ObservationDefinition",
-        "SearchParameter",
-        "StructureMap",
-        "GuidanceResponse",
-        "ServiceRequest",
-        "Observation",
-        "ChargeItem",
-        "MedicationRequest",
-        "Subscription",
-        "Device",
-        "Citation",
-        "Goal",
-        "Evidence",
-        "Patient",
-        "EvidenceReport",
-        "GraphDefinition",
-        "DeviceUseStatement",
-        "ResearchSubject",
-        "OperationOutcome",
-        "CarePlan",
+        "Immunization",
         "ImmunizationEvaluation",
-        "RequestGroup",
-        "SpecimenDefinition",
-        "EvidenceVariable",
-        "CommunicationRequest",
-        "Measure",
-        "Medication",
-        "Endpoint",
-        "OrganizationAffiliation",
-        "DiagnosticReport",
-        "MedicationStatement",
-        "SubstanceDefinition",
-        "Contract",
-        "Library",
-        "MolecularSequence",
-        "Composition",
-        "ImplementationGuide",
-        "DocumentReference",
-        "CompartmentDefinition",
         "ImmunizationRecommendation",
+        "ImplementationGuide",
+        "Ingredient",
         "InsurancePlan",
-        "Binary",
-        "BiologicallyDerivedProduct",
-        "DomainResource",
-        "CatalogEntry",
+        "Invoice",
+        "Library",
         "Linkage",
-        "PaymentReconciliation",
-        "CoverageEligibilityResponse",
-        "MedicationDispense",
-        "Group",
-        "Schedule",
-        "Consent",
+        "List",
+        "Location",
+        "ManufacturedItemDefinition",
+        "Measure",
         "MeasureReport",
-        "TestScript",
-        "Account",
-        "SubscriptionStatus",
+        "Media",
+        "Medication",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationKnowledge",
+        "MedicationRequest",
+        "MedicationStatement",
         "MedicinalProductDefinition",
-        "Questionnaire",
-        "AppointmentResponse",
-        "DeviceRequest",
+        "MessageDefinition",
         "MessageHeader",
-        "TestReport",
-        "AdministrableProductDefinition",
-        "ExampleScenario",
+        "MolecularSequence",
+        "NamingSystem",
+        "NutritionOrder",
+        "NutritionProduct",
+        "Observation",
+        "ObservationDefinition",
+        "OperationDefinition",
+        "OperationOutcome",
+        "Organization",
+        "OrganizationAffiliation",
+        "PackagedProductDefinition",
+        "Patient",
+        "PaymentNotice",
+        "PaymentReconciliation",
+        "Person",
+        "PlanDefinition",
+        "Practitioner",
+        "PractitionerRole",
+        "Procedure",
+        "Provenance",
+        "Questionnaire",
+        "QuestionnaireResponse",
+        "RegulatedAuthorization",
+        "RelatedPerson",
+        "RequestGroup",
+        "ResearchDefinition",
         "ResearchElementDefinition",
-        "ClinicalUseDefinition",
-        "AdverseEvent",
-        "Coverage",
-        "MedicationAdministration"
+        "ResearchStudy",
+        "ResearchSubject",
+        "RiskAssessment",
+        "Schedule",
+        "SearchParameter",
+        "ServiceRequest",
+        "Slot",
+        "Specimen",
+        "SpecimenDefinition",
+        "StructureDefinition",
+        "StructureMap",
+        "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic",
+        "Substance",
+        "SubstanceDefinition",
+        "SupplyDelivery",
+        "SupplyRequest",
+        "Task",
+        "TerminologyCapabilities",
+        "TestReport",
+        "TestScript",
+        "ValueSet",
+        "VerificationResult",
+        "VisionPrescription",
+        "Parameters"
       ]
     },
     "SearchParamType": {
       "type": "string",
       "enum": [
-        "token",
-        "special",
-        "quantity",
-        "reference",
-        "uri",
-        "string",
-        "date",
         "number",
-        "composite"
+        "date",
+        "string",
+        "token",
+        "reference",
+        "composite",
+        "quantity",
+        "uri",
+        "special"
       ]
     },
     "FHIRAllTypes": {
       "type": "string",
       "enum": [
-        "ChargeItemDefinition",
-        "DataRequirement",
-        "EnrollmentRequest",
-        "ClaimResponse",
-        "DeviceDefinition",
-        "NutritionProduct",
-        "AuditEvent",
-        "Procedure",
-        "BackboneElement",
-        "Communication",
-        "PlanDefinition",
-        "UsageContext",
-        "Parameters",
-        "VisionPrescription",
-        "RiskAssessment",
-        "xhtml",
-        "Appointment",
-        "BodyStructure",
-        "Timing",
-        "Bundle",
-        "CodeSystem",
+        "Address",
+        "Age",
         "Annotation",
-        "DocumentManifest",
-        "Population",
-        "Meta",
-        "ClinicalImpression",
-        "Substance",
-        "DeviceMetric",
-        "ContactDetail",
-        "Invoice",
-        "id",
-        "Identifier",
-        "RelatedArtifact",
-        "ResearchStudy",
-        "FamilyMemberHistory",
-        "Provenance",
-        "Ingredient",
-        "Signature",
-        "CoverageEligibilityRequest",
-        "SubscriptionTopic",
-        "Media",
-        "SupplyRequest",
-        "positiveInt",
-        "code",
-        "ConceptMap",
-        "List",
-        "Task",
-        "integer",
-        "QuestionnaireResponse",
-        "Type",
-        "NutritionOrder",
-        "ProdCharacteristic",
-        "EpisodeOfCare",
-        "MessageDefinition",
+        "Attachment",
+        "BackboneElement",
         "CodeableConcept",
-        "AllergyIntolerance",
-        "NamingSystem",
-        "DetectedIssue",
-        "CapabilityStatement",
-        "OperationDefinition",
-        "ActivityDefinition",
-        "ResearchDefinition",
-        "PackagedProductDefinition",
-        "EnrollmentResponse",
-        "Encounter",
-        "Reference",
-        "Count",
-        "Practitioner",
-        "PaymentNotice",
-        "Distance",
-        "time",
-        "Specimen",
-        "EventDefinition",
-        "Range",
-        "Condition",
-        "ParameterDefinition",
-        "Location",
-        "Resource",
-        "ExplanationOfBenefit",
-        "RelatedPerson",
-        "Basic",
-        "Duration",
+        "CodeableReference",
+        "Coding",
+        "ContactDetail",
         "ContactPoint",
-        "Immunization",
+        "Contributor",
+        "Count",
+        "DataRequirement",
+        "Distance",
+        "Dosage",
+        "Duration",
+        "Element",
+        "ElementDefinition",
+        "Expression",
+        "Extension",
+        "HumanName",
+        "Identifier",
+        "MarketingStatus",
+        "Meta",
+        "Money",
+        "MoneyQuantity",
+        "Narrative",
+        "ParameterDefinition",
+        "Period",
+        "Population",
+        "ProdCharacteristic",
+        "ProductShelfLife",
+        "Quantity",
+        "Range",
+        "Ratio",
+        "RatioRange",
+        "Reference",
+        "RelatedArtifact",
+        "SampledData",
+        "Signature",
+        "SimpleQuantity",
+        "Timing",
+        "TriggerDefinition",
+        "UsageContext",
+        "base64Binary",
+        "boolean",
+        "canonical",
+        "code",
+        "date",
+        "dateTime",
+        "decimal",
+        "id",
+        "instant",
+        "integer",
+        "markdown",
+        "oid",
+        "positiveInt",
+        "string",
+        "time",
+        "unsignedInt",
+        "uri",
+        "url",
+        "uuid",
+        "xhtml",
+        "Resource",
+        "Binary",
+        "Bundle",
+        "DomainResource",
+        "Account",
+        "ActivityDefinition",
+        "AdministrableProductDefinition",
+        "AdverseEvent",
+        "AllergyIntolerance",
+        "Appointment",
+        "AppointmentResponse",
+        "AuditEvent",
+        "Basic",
+        "BiologicallyDerivedProduct",
+        "BodyStructure",
+        "CapabilityStatement",
+        "CarePlan",
         "CareTeam",
+        "CatalogEntry",
+        "ChargeItem",
+        "ChargeItemDefinition",
+        "Citation",
+        "Claim",
+        "ClaimResponse",
+        "ClinicalImpression",
+        "ClinicalUseDefinition",
+        "CodeSystem",
+        "Communication",
+        "CommunicationRequest",
+        "CompartmentDefinition",
+        "Composition",
+        "ConceptMap",
+        "Condition",
+        "Consent",
+        "Contract",
+        "Coverage",
+        "CoverageEligibilityRequest",
+        "CoverageEligibilityResponse",
+        "DetectedIssue",
+        "Device",
+        "DeviceDefinition",
+        "DeviceMetric",
+        "DeviceRequest",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
+        "DocumentReference",
+        "Encounter",
+        "Endpoint",
+        "EnrollmentRequest",
+        "EnrollmentResponse",
+        "EpisodeOfCare",
+        "EventDefinition",
+        "Evidence",
+        "EvidenceReport",
+        "EvidenceVariable",
+        "ExampleScenario",
+        "ExplanationOfBenefit",
+        "FamilyMemberHistory",
+        "Flag",
+        "Goal",
+        "GraphDefinition",
+        "Group",
+        "GuidanceResponse",
         "HealthcareService",
         "ImagingStudy",
-        "ManufacturedItemDefinition",
-        "VerificationResult",
-        "Person",
-        "ProductShelfLife",
-        "PractitionerRole",
-        "TerminologyCapabilities",
-        "Extension",
-        "CodeableReference",
-        "Period",
-        "MedicationKnowledge",
-        "Age",
-        "Slot",
-        "Flag",
-        "Organization",
-        "Ratio",
-        "ValueSet",
-        "uri",
-        "Dosage",
-        "Address",
-        "markdown",
-        "SupplyDelivery",
-        "Expression",
-        "StructureDefinition",
-        "Claim",
-        "RegulatedAuthorization",
-        "ObservationDefinition",
-        "SearchParameter",
-        "HumanName",
-        "StructureMap",
-        "GuidanceResponse",
-        "ServiceRequest",
-        "Contributor",
-        "Observation",
-        "ChargeItem",
-        "MedicationRequest",
-        "Subscription",
-        "Element",
-        "Device",
-        "Citation",
-        "Goal",
-        "ElementDefinition",
-        "Money",
-        "decimal",
-        "Evidence",
-        "Patient",
-        "EvidenceReport",
-        "Narrative",
-        "GraphDefinition",
-        "DeviceUseStatement",
-        "TriggerDefinition",
-        "unsignedInt",
-        "canonical",
-        "uuid",
-        "ResearchSubject",
-        "MoneyQuantity",
-        "OperationOutcome",
-        "CarePlan",
+        "Immunization",
         "ImmunizationEvaluation",
-        "Quantity",
-        "RequestGroup",
-        "SpecimenDefinition",
-        "EvidenceVariable",
-        "CommunicationRequest",
-        "Measure",
-        "Medication",
-        "Endpoint",
-        "OrganizationAffiliation",
-        "DiagnosticReport",
-        "MedicationStatement",
-        "RatioRange",
-        "SubstanceDefinition",
-        "Contract",
-        "MarketingStatus",
-        "dateTime",
-        "Library",
-        "MolecularSequence",
-        "Composition",
-        "ImplementationGuide",
-        "instant",
-        "CompartmentDefinition",
-        "DocumentReference",
-        "BiologicallyDerivedProduct",
-        "Binary",
-        "CatalogEntry",
-        "DomainResource",
         "ImmunizationRecommendation",
+        "ImplementationGuide",
+        "Ingredient",
         "InsurancePlan",
+        "Invoice",
+        "Library",
         "Linkage",
-        "PaymentReconciliation",
-        "CoverageEligibilityResponse",
-        "MedicationDispense",
-        "date",
-        "string",
-        "Group",
-        "Schedule",
-        "Consent",
+        "List",
+        "Location",
+        "ManufacturedItemDefinition",
+        "Measure",
         "MeasureReport",
-        "TestScript",
-        "Account",
-        "oid",
-        "SubscriptionStatus",
+        "Media",
+        "Medication",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationKnowledge",
+        "MedicationRequest",
+        "MedicationStatement",
         "MedicinalProductDefinition",
-        "Questionnaire",
-        "AppointmentResponse",
-        "Any",
-        "SimpleQuantity",
-        "DeviceRequest",
+        "MessageDefinition",
         "MessageHeader",
-        "boolean",
-        "base64Binary",
-        "SampledData",
-        "Coding",
-        "AdministrableProductDefinition",
-        "ExampleScenario",
+        "MolecularSequence",
+        "NamingSystem",
+        "NutritionOrder",
+        "NutritionProduct",
+        "Observation",
+        "ObservationDefinition",
+        "OperationDefinition",
+        "OperationOutcome",
+        "Organization",
+        "OrganizationAffiliation",
+        "PackagedProductDefinition",
+        "Patient",
+        "PaymentNotice",
+        "PaymentReconciliation",
+        "Person",
+        "PlanDefinition",
+        "Practitioner",
+        "PractitionerRole",
+        "Procedure",
+        "Provenance",
+        "Questionnaire",
+        "QuestionnaireResponse",
+        "RegulatedAuthorization",
+        "RelatedPerson",
+        "RequestGroup",
+        "ResearchDefinition",
         "ResearchElementDefinition",
+        "ResearchStudy",
+        "ResearchSubject",
+        "RiskAssessment",
+        "Schedule",
+        "SearchParameter",
+        "ServiceRequest",
+        "Slot",
+        "Specimen",
+        "SpecimenDefinition",
+        "StructureDefinition",
+        "StructureMap",
+        "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic",
+        "Substance",
+        "SubstanceDefinition",
+        "SupplyDelivery",
+        "SupplyRequest",
+        "Task",
+        "TerminologyCapabilities",
         "TestReport",
-        "ClinicalUseDefinition",
-        "url",
-        "Attachment",
-        "AdverseEvent",
-        "Coverage",
-        "MedicationAdministration"
+        "TestScript",
+        "ValueSet",
+        "VerificationResult",
+        "VisionPrescription",
+        "Parameters",
+        "Type",
+        "Any"
       ]
     },
     "FHIRDefinedType": {
       "type": "string",
       "enum": [
-        "ChargeItemDefinition",
-        "DataRequirement",
-        "EnrollmentRequest",
-        "ClaimResponse",
-        "DeviceDefinition",
-        "NutritionProduct",
-        "AuditEvent",
-        "Procedure",
-        "BackboneElement",
-        "Communication",
-        "PlanDefinition",
-        "UsageContext",
-        "Parameters",
-        "VisionPrescription",
-        "RiskAssessment",
-        "xhtml",
-        "Appointment",
-        "BodyStructure",
-        "Timing",
-        "Bundle",
-        "CodeSystem",
+        "Address",
+        "Age",
         "Annotation",
-        "DocumentManifest",
-        "Population",
-        "Meta",
-        "ClinicalImpression",
-        "Substance",
-        "DeviceMetric",
-        "ContactDetail",
-        "Invoice",
-        "id",
-        "Identifier",
-        "RelatedArtifact",
-        "ResearchStudy",
-        "FamilyMemberHistory",
-        "Provenance",
-        "Ingredient",
-        "Signature",
-        "CoverageEligibilityRequest",
-        "SubscriptionTopic",
-        "Media",
-        "SupplyRequest",
-        "positiveInt",
-        "code",
-        "ConceptMap",
-        "List",
-        "Task",
-        "integer",
-        "QuestionnaireResponse",
-        "NutritionOrder",
-        "ProdCharacteristic",
-        "EpisodeOfCare",
-        "MessageDefinition",
+        "Attachment",
+        "BackboneElement",
         "CodeableConcept",
-        "AllergyIntolerance",
-        "NamingSystem",
-        "DetectedIssue",
-        "CapabilityStatement",
-        "OperationDefinition",
-        "ActivityDefinition",
-        "ResearchDefinition",
-        "PackagedProductDefinition",
-        "EnrollmentResponse",
-        "Encounter",
-        "Reference",
-        "Count",
-        "Practitioner",
-        "PaymentNotice",
-        "Distance",
-        "time",
-        "Specimen",
-        "EventDefinition",
-        "Range",
-        "Condition",
-        "ParameterDefinition",
-        "Location",
-        "Resource",
-        "ExplanationOfBenefit",
-        "RelatedPerson",
-        "Basic",
-        "Duration",
+        "CodeableReference",
+        "Coding",
+        "ContactDetail",
         "ContactPoint",
-        "Immunization",
+        "Contributor",
+        "Count",
+        "DataRequirement",
+        "Distance",
+        "Dosage",
+        "Duration",
+        "Element",
+        "ElementDefinition",
+        "Expression",
+        "Extension",
+        "HumanName",
+        "Identifier",
+        "MarketingStatus",
+        "Meta",
+        "Money",
+        "MoneyQuantity",
+        "Narrative",
+        "ParameterDefinition",
+        "Period",
+        "Population",
+        "ProdCharacteristic",
+        "ProductShelfLife",
+        "Quantity",
+        "Range",
+        "Ratio",
+        "RatioRange",
+        "Reference",
+        "RelatedArtifact",
+        "SampledData",
+        "Signature",
+        "SimpleQuantity",
+        "Timing",
+        "TriggerDefinition",
+        "UsageContext",
+        "base64Binary",
+        "boolean",
+        "canonical",
+        "code",
+        "date",
+        "dateTime",
+        "decimal",
+        "id",
+        "instant",
+        "integer",
+        "markdown",
+        "oid",
+        "positiveInt",
+        "string",
+        "time",
+        "unsignedInt",
+        "uri",
+        "url",
+        "uuid",
+        "xhtml",
+        "Resource",
+        "Binary",
+        "Bundle",
+        "DomainResource",
+        "Account",
+        "ActivityDefinition",
+        "AdministrableProductDefinition",
+        "AdverseEvent",
+        "AllergyIntolerance",
+        "Appointment",
+        "AppointmentResponse",
+        "AuditEvent",
+        "Basic",
+        "BiologicallyDerivedProduct",
+        "BodyStructure",
+        "CapabilityStatement",
+        "CarePlan",
         "CareTeam",
+        "CatalogEntry",
+        "ChargeItem",
+        "ChargeItemDefinition",
+        "Citation",
+        "Claim",
+        "ClaimResponse",
+        "ClinicalImpression",
+        "ClinicalUseDefinition",
+        "CodeSystem",
+        "Communication",
+        "CommunicationRequest",
+        "CompartmentDefinition",
+        "Composition",
+        "ConceptMap",
+        "Condition",
+        "Consent",
+        "Contract",
+        "Coverage",
+        "CoverageEligibilityRequest",
+        "CoverageEligibilityResponse",
+        "DetectedIssue",
+        "Device",
+        "DeviceDefinition",
+        "DeviceMetric",
+        "DeviceRequest",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
+        "DocumentReference",
+        "Encounter",
+        "Endpoint",
+        "EnrollmentRequest",
+        "EnrollmentResponse",
+        "EpisodeOfCare",
+        "EventDefinition",
+        "Evidence",
+        "EvidenceReport",
+        "EvidenceVariable",
+        "ExampleScenario",
+        "ExplanationOfBenefit",
+        "FamilyMemberHistory",
+        "Flag",
+        "Goal",
+        "GraphDefinition",
+        "Group",
+        "GuidanceResponse",
         "HealthcareService",
         "ImagingStudy",
-        "ManufacturedItemDefinition",
-        "VerificationResult",
-        "Person",
-        "ProductShelfLife",
-        "PractitionerRole",
-        "TerminologyCapabilities",
-        "Extension",
-        "CodeableReference",
-        "Period",
-        "MedicationKnowledge",
-        "Age",
-        "Slot",
-        "Flag",
-        "Organization",
-        "Ratio",
-        "ValueSet",
-        "uri",
-        "Dosage",
-        "Address",
-        "markdown",
-        "SupplyDelivery",
-        "Expression",
-        "StructureDefinition",
-        "Claim",
-        "RegulatedAuthorization",
-        "ObservationDefinition",
-        "SearchParameter",
-        "HumanName",
-        "StructureMap",
-        "GuidanceResponse",
-        "ServiceRequest",
-        "Contributor",
-        "Observation",
-        "ChargeItem",
-        "MedicationRequest",
-        "Subscription",
-        "Element",
-        "Device",
-        "Citation",
-        "Goal",
-        "ElementDefinition",
-        "Money",
-        "decimal",
-        "Evidence",
-        "Patient",
-        "EvidenceReport",
-        "Narrative",
-        "GraphDefinition",
-        "DeviceUseStatement",
-        "TriggerDefinition",
-        "unsignedInt",
-        "canonical",
-        "uuid",
-        "ResearchSubject",
-        "MoneyQuantity",
-        "OperationOutcome",
-        "CarePlan",
+        "Immunization",
         "ImmunizationEvaluation",
-        "Quantity",
-        "RequestGroup",
-        "SpecimenDefinition",
-        "EvidenceVariable",
-        "CommunicationRequest",
-        "Measure",
-        "Medication",
-        "Endpoint",
-        "OrganizationAffiliation",
-        "DiagnosticReport",
-        "MedicationStatement",
-        "RatioRange",
-        "SubstanceDefinition",
-        "Contract",
-        "MarketingStatus",
-        "dateTime",
-        "Library",
-        "MolecularSequence",
-        "Composition",
-        "ImplementationGuide",
-        "instant",
-        "CompartmentDefinition",
-        "DocumentReference",
-        "BiologicallyDerivedProduct",
-        "Binary",
-        "CatalogEntry",
-        "DomainResource",
         "ImmunizationRecommendation",
+        "ImplementationGuide",
+        "Ingredient",
         "InsurancePlan",
+        "Invoice",
+        "Library",
         "Linkage",
-        "PaymentReconciliation",
-        "CoverageEligibilityResponse",
-        "MedicationDispense",
-        "date",
-        "string",
-        "Group",
-        "Schedule",
-        "Consent",
+        "List",
+        "Location",
+        "ManufacturedItemDefinition",
+        "Measure",
         "MeasureReport",
-        "TestScript",
-        "Account",
-        "oid",
-        "SubscriptionStatus",
+        "Media",
+        "Medication",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationKnowledge",
+        "MedicationRequest",
+        "MedicationStatement",
         "MedicinalProductDefinition",
-        "Questionnaire",
-        "AppointmentResponse",
-        "SimpleQuantity",
-        "DeviceRequest",
+        "MessageDefinition",
         "MessageHeader",
-        "boolean",
-        "base64Binary",
-        "SampledData",
-        "Coding",
-        "AdministrableProductDefinition",
-        "ExampleScenario",
+        "MolecularSequence",
+        "NamingSystem",
+        "NutritionOrder",
+        "NutritionProduct",
+        "Observation",
+        "ObservationDefinition",
+        "OperationDefinition",
+        "OperationOutcome",
+        "Organization",
+        "OrganizationAffiliation",
+        "PackagedProductDefinition",
+        "Patient",
+        "PaymentNotice",
+        "PaymentReconciliation",
+        "Person",
+        "PlanDefinition",
+        "Practitioner",
+        "PractitionerRole",
+        "Procedure",
+        "Provenance",
+        "Questionnaire",
+        "QuestionnaireResponse",
+        "RegulatedAuthorization",
+        "RelatedPerson",
+        "RequestGroup",
+        "ResearchDefinition",
         "ResearchElementDefinition",
+        "ResearchStudy",
+        "ResearchSubject",
+        "RiskAssessment",
+        "Schedule",
+        "SearchParameter",
+        "ServiceRequest",
+        "Slot",
+        "Specimen",
+        "SpecimenDefinition",
+        "StructureDefinition",
+        "StructureMap",
+        "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic",
+        "Substance",
+        "SubstanceDefinition",
+        "SupplyDelivery",
+        "SupplyRequest",
+        "Task",
+        "TerminologyCapabilities",
         "TestReport",
-        "ClinicalUseDefinition",
-        "url",
-        "Attachment",
-        "AdverseEvent",
-        "Coverage",
-        "MedicationAdministration"
+        "TestScript",
+        "ValueSet",
+        "VerificationResult",
+        "VisionPrescription",
+        "Parameters"
       ]
     },
     "date": {
@@ -1496,37 +1496,37 @@
     "NarrativeStatus": {
       "type": "string",
       "enum": [
-        "empty",
-        "additional",
+        "generated",
         "extensions",
-        "generated"
+        "additional",
+        "empty"
       ]
     },
     "AddressUse": {
       "type": "string",
       "enum": [
-        "old",
-        "billing",
         "home",
         "work",
-        "temp"
+        "temp",
+        "old",
+        "billing"
       ]
     },
     "AddressType": {
       "type": "string",
       "enum": [
-        "both",
+        "postal",
         "physical",
-        "postal"
+        "both"
       ]
     },
     "ContributorType": {
       "type": "string",
       "enum": [
-        "endorser",
+        "author",
         "editor",
         "reviewer",
-        "author"
+        "endorser"
       ]
     },
     "SortDirection": {
@@ -1539,45 +1539,45 @@
     "NameUse": {
       "type": "string",
       "enum": [
-        "maiden",
-        "old",
-        "anonymous",
-        "official",
-        "nickname",
         "usual",
-        "temp"
+        "official",
+        "temp",
+        "nickname",
+        "anonymous",
+        "old",
+        "maiden"
       ]
     },
     "ContactPointSystem": {
       "type": "string",
       "enum": [
-        "email",
-        "fax",
-        "sms",
-        "pager",
         "phone",
+        "fax",
+        "email",
+        "pager",
         "url",
+        "sms",
         "other"
       ]
     },
     "ContactPointUse": {
       "type": "string",
       "enum": [
-        "old",
-        "mobile",
         "home",
         "work",
-        "temp"
+        "temp",
+        "old",
+        "mobile"
       ]
     },
     "IdentifierUse": {
       "type": "string",
       "enum": [
-        "secondary",
-        "old",
-        "official",
         "usual",
-        "temp"
+        "official",
+        "temp",
+        "secondary",
+        "old"
       ]
     },
     "SampledDataDataType": {
@@ -1587,11 +1587,11 @@
     "PropertyRepresentation": {
       "type": "string",
       "enum": [
-        "xhtml",
-        "xmlText",
-        "cdaText",
         "xmlAttr",
-        "typeAttr"
+        "xmlText",
+        "typeAttr",
+        "cdaText",
+        "xhtml"
       ]
     },
     "ConstraintSeverity": {
@@ -1612,8 +1612,8 @@
     "ReferenceVersionRules": {
       "type": "string",
       "enum": [
-        "independent",
         "either",
+        "independent",
         "specific"
       ]
     },
@@ -1628,116 +1628,116 @@
     "DiscriminatorType": {
       "type": "string",
       "enum": [
-        "exists",
-        "type",
         "value",
-        "profile",
-        "pattern"
+        "exists",
+        "pattern",
+        "type",
+        "profile"
       ]
     },
     "TriggerType": {
       "type": "string",
       "enum": [
-        "periodic",
-        "data-added",
-        "data-changed",
-        "data-accessed",
-        "data-removed",
         "named-event",
+        "periodic",
+        "data-changed",
+        "data-added",
         "data-modified",
+        "data-removed",
+        "data-accessed",
         "data-access-ended"
       ]
     },
     "QuantityComparator": {
       "type": "string",
       "enum": [
-        ">",
-        "<=",
         "<",
-        ">="
+        "<=",
+        ">=",
+        ">"
       ]
     },
     "RelatedArtifactType": {
       "type": "string",
       "enum": [
-        "derived-from",
-        "successor",
-        "predecessor",
-        "depends-on",
         "documentation",
-        "citation",
         "justification",
+        "citation",
+        "predecessor",
+        "successor",
+        "derived-from",
+        "depends-on",
         "composed-of"
       ]
     },
     "ExpressionLanguage": {
       "type": "string",
       "enum": [
-        "text/fhirpath",
-        "text/cql-expression",
         "text/cql",
+        "text/fhirpath",
         "application/x-fhir-query",
-        "text/cql-identifier"
+        "text/cql-identifier",
+        "text/cql-expression"
       ]
     },
     "UnitsOfTime": {
       "type": "string",
       "enum": [
-        "d",
-        "a",
-        "h",
-        "mo",
-        "wk",
         "s",
-        "min"
+        "min",
+        "h",
+        "d",
+        "wk",
+        "mo",
+        "a"
       ]
     },
     "EventTiming": {
       "type": "string",
       "enum": [
         "MORN",
-        "AFT.late",
+        "MORN.early",
         "MORN.late",
+        "NOON",
         "AFT",
+        "AFT.early",
+        "AFT.late",
+        "EVE",
+        "EVE.early",
         "EVE.late",
-        "PCV",
-        "WAKE",
+        "NIGHT",
+        "PHS",
         "HS",
-        "PCD",
+        "WAKE",
+        "C",
+        "CM",
         "CD",
+        "CV",
+        "AC",
+        "ACM",
+        "ACD",
         "ACV",
         "PC",
-        "AC",
-        "MORN.early",
-        "ACM",
-        "AFT.early",
-        "CV",
-        "CM",
-        "NIGHT",
-        "EVE",
-        "C",
-        "NOON",
-        "ACD",
-        "PHS",
         "PCM",
-        "EVE.early"
+        "PCD",
+        "PCV"
       ]
     },
     "AccountStatus": {
       "type": "string",
       "enum": [
         "active",
-        "unknown",
         "inactive",
         "entered-in-error",
-        "on-hold"
+        "on-hold",
+        "unknown"
       ]
     },
     "ActionParticipantType": {
       "type": "string",
       "enum": [
-        "practitioner",
         "patient",
+        "practitioner",
         "related-person",
         "device"
       ]
@@ -1745,39 +1745,39 @@
     "RequestIntent": {
       "type": "string",
       "enum": [
-        "reflex-order",
-        "original-order",
-        "filler-order",
-        "instance-order",
-        "option",
+        "proposal",
+        "plan",
         "directive",
         "order",
-        "plan",
-        "proposal"
+        "original-order",
+        "reflex-order",
+        "filler-order",
+        "instance-order",
+        "option"
       ]
     },
     "RequestPriority": {
       "type": "string",
       "enum": [
-        "stat",
-        "asap",
         "routine",
-        "urgent"
+        "urgent",
+        "asap",
+        "stat"
       ]
     },
     "AdverseEventActuality": {
       "type": "string",
       "enum": [
-        "potential",
-        "actual"
+        "actual",
+        "potential"
       ]
     },
     "AllergyIntoleranceCriticality": {
       "type": "string",
       "enum": [
-        "unable-to-assess",
         "low",
-        "high"
+        "high",
+        "unable-to-assess"
       ]
     },
     "AllergyIntoleranceType": {
@@ -1791,49 +1791,49 @@
       "type": "string",
       "enum": [
         "food",
+        "medication",
         "environment",
-        "biologic",
-        "medication"
+        "biologic"
       ]
     },
     "AllergyIntoleranceSeverity": {
       "type": "string",
       "enum": [
+        "mild",
         "moderate",
-        "severe",
-        "mild"
+        "severe"
       ]
     },
     "ParticipantRequired": {
       "type": "string",
       "enum": [
-        "information-only",
         "required",
-        "optional"
+        "optional",
+        "information-only"
       ]
     },
     "AppointmentStatus": {
       "type": "string",
       "enum": [
-        "fulfilled",
-        "arrived",
-        "checked-in",
-        "waitlist",
-        "booked",
         "proposed",
+        "pending",
+        "booked",
+        "arrived",
+        "fulfilled",
         "cancelled",
         "noshow",
         "entered-in-error",
-        "pending"
+        "checked-in",
+        "waitlist"
       ]
     },
     "ParticipationStatus": {
       "type": "string",
       "enum": [
-        "tentative",
         "accepted",
-        "needs-action",
-        "declined"
+        "declined",
+        "tentative",
+        "needs-action"
       ]
     },
     "AuditEventOutcome": {
@@ -1848,28 +1848,28 @@
     "AuditEventAction": {
       "type": "string",
       "enum": [
-        "D",
-        "R",
         "C",
+        "R",
         "U",
+        "D",
         "E"
       ]
     },
     "AuditEventAgentNetworkType": {
       "type": "string",
       "enum": [
-        "3",
-        "2",
-        "5",
         "1",
-        "4"
+        "2",
+        "3",
+        "4",
+        "5"
       ]
     },
     "BiologicallyDerivedProductCategory": {
       "type": "string",
       "enum": [
-        "tissue",
         "organ",
+        "tissue",
         "fluid",
         "cells",
         "biologicalAgent"
@@ -1878,25 +1878,25 @@
     "BiologicallyDerivedProductStatus": {
       "type": "string",
       "enum": [
-        "unavailable",
-        "available"
+        "available",
+        "unavailable"
       ]
     },
     "BiologicallyDerivedProductStorageScale": {
       "type": "string",
       "enum": [
         "farenheit",
-        "kelvin",
-        "celsius"
+        "celsius",
+        "kelvin"
       ]
     },
     "HTTPVerb": {
       "type": "string",
       "enum": [
         "GET",
-        "PUT",
         "HEAD",
         "POST",
+        "PUT",
         "DELETE",
         "PATCH"
       ]
@@ -1904,15 +1904,15 @@
     "BundleType": {
       "type": "string",
       "enum": [
-        "transaction-response",
-        "collection",
-        "transaction",
-        "batch-response",
-        "searchset",
-        "batch",
-        "history",
+        "document",
         "message",
-        "document"
+        "transaction",
+        "transaction-response",
+        "batch",
+        "batch-response",
+        "history",
+        "searchset",
+        "collection"
       ]
     },
     "SearchEntryMode": {
@@ -1927,23 +1927,23 @@
       "type": "string",
       "enum": [
         "instance",
-        "requirements",
-        "capability"
+        "capability",
+        "requirements"
       ]
     },
     "EventCapabilityMode": {
       "type": "string",
       "enum": [
-        "receiver",
-        "sender"
+        "sender",
+        "receiver"
       ]
     },
     "ResourceVersionPolicy": {
       "type": "string",
       "enum": [
-        "versioned-update",
         "no-version",
-        "versioned"
+        "versioned",
+        "versioned-update"
       ]
     },
     "DocumentMode": {
@@ -1963,15 +1963,15 @@
     "TypeRestfulInteraction": {
       "type": "string",
       "enum": [
-        "history-type",
-        "patch",
         "read",
-        "search-type",
         "vread",
-        "create",
-        "delete",
         "update",
-        "history-instance"
+        "patch",
+        "delete",
+        "history-instance",
+        "history-type",
+        "create",
+        "search-type"
       ]
     },
     "SystemRestfulInteraction": {
@@ -1987,19 +1987,19 @@
       "type": "string",
       "enum": [
         "not-supported",
-        "full-support",
+        "modified-since",
         "not-match",
-        "modified-since"
+        "full-support"
       ]
     },
     "ReferenceHandlingPolicy": {
       "type": "string",
       "enum": [
         "literal",
-        "local",
         "logical",
         "resolves",
-        "enforced"
+        "enforced",
+        "local"
       ]
     },
     "ConditionalDeleteStatus": {
@@ -2013,58 +2013,58 @@
     "CarePlanActivityKind": {
       "type": "string",
       "enum": [
-        "MedicationRequest",
         "Appointment",
         "CommunicationRequest",
-        "Task",
-        "VisionPrescription",
-        "ServiceRequest",
+        "DeviceRequest",
+        "MedicationRequest",
         "NutritionOrder",
-        "DeviceRequest"
+        "Task",
+        "ServiceRequest",
+        "VisionPrescription"
       ]
     },
     "CarePlanActivityStatus": {
       "type": "string",
       "enum": [
-        "unknown",
         "not-started",
-        "in-progress",
         "scheduled",
-        "stopped",
+        "in-progress",
+        "on-hold",
         "completed",
         "cancelled",
-        "entered-in-error",
-        "on-hold"
+        "stopped",
+        "unknown",
+        "entered-in-error"
       ]
     },
     "CarePlanIntent": {
       "type": "string",
       "enum": [
-        "order",
-        "option",
+        "proposal",
         "plan",
-        "proposal"
+        "order",
+        "option"
       ]
     },
     "RequestStatus": {
       "type": "string",
       "enum": [
-        "active",
-        "unknown",
         "draft",
-        "completed",
+        "active",
+        "on-hold",
         "revoked",
+        "completed",
         "entered-in-error",
-        "on-hold"
+        "unknown"
       ]
     },
     "CareTeamStatus": {
       "type": "string",
       "enum": [
-        "suspended",
-        "active",
-        "inactive",
         "proposed",
+        "active",
+        "suspended",
+        "inactive",
         "entered-in-error"
       ]
     },
@@ -2078,32 +2078,32 @@
     "ChargeItemStatus": {
       "type": "string",
       "enum": [
-        "billed",
         "planned",
         "billable",
-        "unknown",
-        "aborted",
         "not-billable",
-        "entered-in-error"
+        "aborted",
+        "billed",
+        "entered-in-error",
+        "unknown"
       ]
     },
     "InvoicePriceComponentType": {
       "type": "string",
       "enum": [
         "base",
-        "tax",
+        "surcharge",
         "deduction",
         "discount",
-        "surcharge",
+        "tax",
         "informational"
       ]
     },
     "Use": {
       "type": "string",
       "enum": [
-        "predetermination",
+        "claim",
         "preauthorization",
-        "claim"
+        "predetermination"
       ]
     },
     "FinancialResourceStatusCodes": {
@@ -2111,139 +2111,139 @@
       "enum": [
         "active",
         "cancelled",
-        "entered-in-error",
-        "draft"
+        "draft",
+        "entered-in-error"
       ]
     },
     "ClinicalImpressionStatus": {
       "type": "string",
       "enum": [
-        "entered-in-error",
+        "in-progress",
         "completed",
-        "in-progress"
+        "entered-in-error"
       ]
     },
     "ClinicalUseDefinitionType": {
       "type": "string",
       "enum": [
-        "warning",
-        "contraindication",
-        "undesirable-effect",
         "indication",
-        "interaction"
+        "contraindication",
+        "interaction",
+        "undesirable-effect",
+        "warning"
       ]
     },
     "FilterOperator": {
       "type": "string",
       "enum": [
-        "exists",
         "=",
-        "is-not-a",
-        "not-in",
-        "regex",
-        "descendent-of",
         "is-a",
+        "descendent-of",
+        "is-not-a",
+        "regex",
         "in",
-        "generalizes"
+        "not-in",
+        "generalizes",
+        "exists"
       ]
     },
     "PropertyType": {
       "type": "string",
       "enum": [
-        "boolean",
         "code",
         "Coding",
-        "integer",
-        "decimal",
         "string",
-        "dateTime"
+        "integer",
+        "boolean",
+        "dateTime",
+        "decimal"
       ]
     },
     "CodeSystemHierarchyMeaning": {
       "type": "string",
       "enum": [
-        "classified-with",
+        "grouped-by",
         "is-a",
         "part-of",
-        "grouped-by"
+        "classified-with"
       ]
     },
     "CodeSystemContentMode": {
       "type": "string",
       "enum": [
-        "supplement",
         "not-present",
-        "complete",
+        "example",
         "fragment",
-        "example"
+        "complete",
+        "supplement"
       ]
     },
     "EventStatus": {
       "type": "string",
       "enum": [
         "preparation",
-        "unknown",
         "in-progress",
+        "not-done",
+        "on-hold",
         "stopped",
         "completed",
-        "not-done",
         "entered-in-error",
-        "on-hold"
+        "unknown"
       ]
     },
     "CompartmentType": {
       "type": "string",
       "enum": [
+        "Patient",
         "Encounter",
-        "Practitioner",
-        "Device",
         "RelatedPerson",
-        "Patient"
+        "Practitioner",
+        "Device"
       ]
     },
     "CompositionStatus": {
       "type": "string",
       "enum": [
-        "amended",
         "preliminary",
-        "entered-in-error",
-        "final"
+        "final",
+        "amended",
+        "entered-in-error"
       ]
     },
     "DocumentRelationshipType": {
       "type": "string",
       "enum": [
-        "appends",
+        "replaces",
         "transforms",
         "signs",
-        "replaces"
+        "appends"
       ]
     },
     "Confidentiality": {
       "type": "string",
       "enum": [
-        "V",
         "L",
+        "M",
+        "N",
         "R",
         "U",
-        "N",
-        "M"
+        "V"
       ]
     },
     "CompositionAttestationMode": {
       "type": "string",
       "enum": [
-        "legal",
+        "personal",
         "professional",
-        "official",
-        "personal"
+        "legal",
+        "official"
       ]
     },
     "ListMode": {
       "type": "string",
       "enum": [
-        "snapshot",
         "working",
+        "snapshot",
         "changes"
       ]
     },
@@ -2258,107 +2258,107 @@
     "ConsentProvisionType": {
       "type": "string",
       "enum": [
-        "permit",
-        "deny"
+        "deny",
+        "permit"
       ]
     },
     "ConsentDataMeaning": {
       "type": "string",
       "enum": [
-        "authoredby",
         "instance",
         "related",
-        "dependents"
+        "dependents",
+        "authoredby"
       ]
     },
     "ConsentState": {
       "type": "string",
       "enum": [
-        "active",
         "draft",
-        "inactive",
-        "rejected",
         "proposed",
+        "active",
+        "rejected",
+        "inactive",
         "entered-in-error"
       ]
     },
     "ContractResourceStatusCodes": {
       "type": "string",
       "enum": [
-        "appended",
-        "policy",
-        "executed",
-        "resolved",
-        "offered",
-        "disputed",
         "amended",
-        "renewed",
-        "rejected",
-        "executable",
-        "revoked",
-        "terminated",
+        "appended",
         "cancelled",
+        "disputed",
         "entered-in-error",
-        "negotiable"
+        "executable",
+        "executed",
+        "negotiable",
+        "offered",
+        "policy",
+        "rejected",
+        "renewed",
+        "revoked",
+        "resolved",
+        "terminated"
       ]
     },
     "ContractResourcePublicationStatusCodes": {
       "type": "string",
       "enum": [
-        "appended",
-        "policy",
-        "executed",
-        "resolved",
-        "offered",
-        "disputed",
         "amended",
-        "renewed",
-        "rejected",
-        "executable",
-        "revoked",
-        "terminated",
+        "appended",
         "cancelled",
+        "disputed",
         "entered-in-error",
-        "negotiable"
+        "executable",
+        "executed",
+        "negotiable",
+        "offered",
+        "policy",
+        "rejected",
+        "renewed",
+        "revoked",
+        "resolved",
+        "terminated"
       ]
     },
     "EligibilityRequestPurpose": {
       "type": "string",
       "enum": [
-        "benefits",
-        "validation",
         "auth-requirements",
-        "discovery"
+        "benefits",
+        "discovery",
+        "validation"
       ]
     },
     "EligibilityResponsePurpose": {
       "type": "string",
       "enum": [
-        "benefits",
-        "validation",
         "auth-requirements",
-        "discovery"
+        "benefits",
+        "discovery",
+        "validation"
       ]
     },
     "ObservationStatus": {
       "type": "string",
       "enum": [
-        "corrected",
-        "unknown",
-        "amended",
+        "registered",
         "preliminary",
+        "final",
+        "amended",
+        "corrected",
         "cancelled",
         "entered-in-error",
-        "final",
-        "registered"
+        "unknown"
       ]
     },
     "DetectedIssueSeverity": {
       "type": "string",
       "enum": [
+        "high",
         "moderate",
-        "low",
-        "high"
+        "low"
       ]
     },
     "FHIRDeviceStatus": {
@@ -2374,62 +2374,62 @@
       "type": "string",
       "enum": [
         "udi-label-name",
-        "model-name",
         "user-friendly-name",
         "patient-reported-name",
-        "other",
-        "manufacturer-name"
+        "manufacturer-name",
+        "model-name",
+        "other"
       ]
     },
     "UDIEntryType": {
       "type": "string",
       "enum": [
-        "self-reported",
-        "rfid",
         "barcode",
-        "unknown",
+        "rfid",
+        "manual",
         "card",
-        "manual"
+        "self-reported",
+        "unknown"
       ]
     },
     "DeviceMetricCalibrationType": {
       "type": "string",
       "enum": [
+        "unspecified",
         "offset",
-        "two-point",
         "gain",
-        "unspecified"
+        "two-point"
       ]
     },
     "DeviceMetricColor": {
       "type": "string",
       "enum": [
+        "black",
+        "red",
         "green",
         "yellow",
-        "white",
-        "magenta",
-        "red",
         "blue",
+        "magenta",
         "cyan",
-        "black"
+        "white"
       ]
     },
     "DeviceMetricCalibrationState": {
       "type": "string",
       "enum": [
+        "not-calibrated",
         "calibration-required",
         "calibrated",
-        "unspecified",
-        "not-calibrated"
+        "unspecified"
       ]
     },
     "DeviceMetricOperationalStatus": {
       "type": "string",
       "enum": [
-        "entered-in-error",
+        "on",
         "off",
         "standby",
-        "on"
+        "entered-in-error"
       ]
     },
     "DeviceMetricCategory": {
@@ -2444,35 +2444,35 @@
     "DeviceUseStatementStatus": {
       "type": "string",
       "enum": [
-        "intended",
         "active",
-        "stopped",
         "completed",
         "entered-in-error",
+        "intended",
+        "stopped",
         "on-hold"
       ]
     },
     "DiagnosticReportStatus": {
       "type": "string",
       "enum": [
+        "registered",
         "partial",
-        "appended",
-        "corrected",
-        "unknown",
-        "amended",
         "preliminary",
+        "final",
+        "amended",
+        "corrected",
+        "appended",
         "cancelled",
         "entered-in-error",
-        "final",
-        "registered"
+        "unknown"
       ]
     },
     "EncounterLocationStatus": {
       "type": "string",
       "enum": [
-        "reserved",
         "planned",
         "active",
+        "reserved",
         "completed"
       ]
     },
@@ -2480,23 +2480,23 @@
       "type": "string",
       "enum": [
         "planned",
-        "unknown",
-        "in-progress",
-        "triaged",
         "arrived",
+        "triaged",
+        "in-progress",
+        "onleave",
         "finished",
         "cancelled",
-        "onleave",
-        "entered-in-error"
+        "entered-in-error",
+        "unknown"
       ]
     },
     "EndpointStatus": {
       "type": "string",
       "enum": [
-        "off",
-        "suspended",
         "active",
+        "suspended",
         "error",
+        "off",
         "entered-in-error",
         "test"
       ]
@@ -2505,9 +2505,9 @@
       "type": "string",
       "enum": [
         "planned",
-        "onhold",
-        "active",
         "waitlist",
+        "active",
+        "onhold",
         "finished",
         "cancelled",
         "entered-in-error"
@@ -2516,34 +2516,34 @@
     "EvidenceVariableHandling": {
       "type": "string",
       "enum": [
-        "ordinal",
-        "polychotomous",
+        "continuous",
         "dichotomous",
-        "continuous"
+        "ordinal",
+        "polychotomous"
       ]
     },
     "ReportRelationshipType": {
       "type": "string",
       "enum": [
-        "amendedWith",
-        "transformedWith",
+        "replaces",
         "amends",
-        "transforms",
         "appends",
-        "appendedWith",
+        "transforms",
         "replacedWith",
-        "replaces"
+        "amendedWith",
+        "appendedWith",
+        "transformedWith"
       ]
     },
     "GroupMeasure": {
       "type": "string",
       "enum": [
+        "mean",
+        "median",
         "mean-of-mean",
         "mean-of-median",
-        "median",
-        "mean",
-        "median-of-median",
-        "median-of-mean"
+        "median-of-mean",
+        "median-of-median"
       ]
     },
     "CharacteristicCombination": {
@@ -2565,17 +2565,17 @@
       "enum": [
         "active",
         "cancelled",
-        "entered-in-error",
-        "draft"
+        "draft",
+        "entered-in-error"
       ]
     },
     "FamilyHistoryStatus": {
       "type": "string",
       "enum": [
         "partial",
-        "health-unknown",
+        "completed",
         "entered-in-error",
-        "completed"
+        "health-unknown"
       ]
     },
     "FlagStatus": {
@@ -2589,15 +2589,15 @@
     "GoalLifecycleStatus": {
       "type": "string",
       "enum": [
-        "planned",
-        "active",
-        "completed",
-        "rejected",
         "proposed",
-        "cancelled",
+        "planned",
         "accepted",
+        "active",
+        "on-hold",
+        "completed",
+        "cancelled",
         "entered-in-error",
-        "on-hold"
+        "rejected"
       ]
     },
     "GraphCompartmentUse": {
@@ -2610,460 +2610,460 @@
     "GraphCompartmentRule": {
       "type": "string",
       "enum": [
-        "custom",
         "identical",
+        "matching",
         "different",
-        "matching"
+        "custom"
       ]
     },
     "GroupType": {
       "type": "string",
       "enum": [
+        "person",
+        "animal",
         "practitioner",
         "device",
         "medication",
-        "substance",
-        "person",
-        "animal"
+        "substance"
       ]
     },
     "GuidanceResponseStatus": {
       "type": "string",
       "enum": [
-        "failure",
-        "data-requested",
-        "in-progress",
-        "data-required",
         "success",
+        "data-requested",
+        "data-required",
+        "in-progress",
+        "failure",
         "entered-in-error"
       ]
     },
     "DaysOfWeek": {
       "type": "string",
       "enum": [
-        "sat",
+        "mon",
         "tue",
         "wed",
-        "sun",
         "thu",
-        "mon",
-        "fri"
+        "fri",
+        "sat",
+        "sun"
       ]
     },
     "ImagingStudyStatus": {
       "type": "string",
       "enum": [
-        "unknown",
+        "registered",
         "available",
         "cancelled",
         "entered-in-error",
-        "registered"
+        "unknown"
       ]
     },
     "ImmunizationStatusCodes": {
       "type": "string",
       "enum": [
-        "not-done",
+        "completed",
         "entered-in-error",
-        "completed"
+        "not-done"
       ]
     },
     "ImmunizationEvaluationStatusCodes": {
       "type": "string",
       "enum": [
-        "entered-in-error",
-        "completed"
+        "completed",
+        "entered-in-error"
       ]
     },
     "GuideParameterCode": {
       "type": "string",
       "enum": [
-        "generate-turtle",
-        "generate-xml",
-        "rule-broken-links",
-        "generate-json",
-        "path-resource",
-        "path-tx-cache",
-        "html-template",
-        "expansion-parameter",
         "apply",
-        "path-pages"
+        "path-resource",
+        "path-pages",
+        "path-tx-cache",
+        "expansion-parameter",
+        "rule-broken-links",
+        "generate-xml",
+        "generate-json",
+        "generate-turtle",
+        "html-template"
       ]
     },
     "SPDXLicense": {
       "type": "string",
       "enum": [
-        "SugarCRM-1.1.3",
-        "CC-BY-ND-1.0",
-        "LGPL-2.1-only",
-        "curl",
-        "OLDAP-2.5",
-        "PHP-3.01",
-        "OFL-1.1",
-        "NBPL-1.0",
-        "SPL-1.0",
-        "MS-PL",
-        "Imlib2",
-        "BSD-2-Clause",
-        "CATOSL-1.1",
-        "gSOAP-1.3b",
-        "CECILL-C",
-        "RPSL-1.0",
-        "Unlicense",
-        "Zend-2.0",
-        "Artistic-1.0",
-        "ClArtistic",
-        "CC-BY-SA-3.0",
-        "OSET-PL-2.1",
-        "mpich2",
-        "OLDAP-2.3",
-        "OLDAP-1.3",
-        "NOSL",
-        "Caldera",
-        "Intel-ACPI",
-        "BSD-3-Clause-Attribution",
-        "Info-ZIP",
-        "SNIA",
-        "ADSL",
-        "Xnet",
-        "AAL",
-        "Glulxe",
-        "BSD-3-Clause-No-Nuclear-License",
-        "BSD-2-Clause-FreeBSD",
-        "OLDAP-2.0",
-        "LGPL-2.0-or-later",
-        "WTFPL",
-        "BSD-Source-Code",
-        "CrystalStacker",
-        "psutils",
-        "CECILL-2.0",
-        "zlib-acknowledgement",
-        "Spencer-94",
-        "CC-BY-NC-4.0",
-        "bzip2-1.0.5",
-        "XSkat",
-        "Intel",
-        "Cube",
-        "PostgreSQL",
-        "MPL-1.0",
-        "MIT-0",
-        "Noweb",
-        "GL2PS",
-        "CC-BY-ND-2.0",
-        "OSL-1.1",
-        "MakeIndex",
-        "RPL-1.1",
-        "Leptonica",
-        "OLDAP-2.6",
-        "EUPL-1.2",
-        "CC-BY-NC-SA-3.0",
-        "ErlPL-1.1",
-        "SISSL-1.2",
-        "LiLiQ-R-1.1",
-        "Zlib",
-        "AFL-1.1",
-        "Aladdin",
-        "IJG",
-        "IBM-pibs",
-        "AFL-2.1",
-        "MITNFA",
-        "CDDL-1.1",
-        "CC-BY-NC-SA-4.0",
-        "CECILL-1.1",
-        "Interbase-1.0",
-        "CC-BY-NC-ND-4.0",
-        "CC-BY-SA-2.0",
-        "CC-BY-NC-3.0",
-        "Python-2.0",
-        "MIT-enna",
-        "MIT-CMU",
-        "Unicode-DFS-2016",
-        "BSL-1.0",
-        "ZPL-2.1",
-        "BSD-4-Clause-UC",
-        "Nokia",
-        "ECL-2.0",
-        "SGI-B-1.0",
-        "Spencer-99",
-        "OCLC-2.0",
-        "CECILL-B",
-        "SimPL-2.0",
-        "SMLNJ",
-        "YPL-1.1",
-        "OFL-1.0",
-        "NRL",
-        "CUA-OPL-1.0",
-        "DSDP",
-        "Borceux",
-        "CC-BY-NC-SA-2.5",
-        "SISSL",
-        "OpenSSL",
-        "TORQUE-1.1",
-        "Zed",
-        "bzip2-1.0.6",
-        "UPL-1.0",
-        "GFDL-1.3-only",
-        "GFDL-1.1-or-later",
-        "Glide",
-        "Apache-2.0",
-        "Frameworx-1.0",
-        "Afmparse",
-        "BSD-3-Clause-LBNL",
-        "QPL-1.0",
-        "IPL-1.0",
-        "OLDAP-2.4",
-        "NLOD-1.0",
-        "NTP",
-        "W3C-20150513",
-        "NPL-1.0",
-        "Adobe-Glyph",
-        "Condor-1.1",
-        "GFDL-1.1-only",
-        "OLDAP-2.1",
-        "AGPL-3.0-or-later",
-        "AML",
-        "GPL-1.0-only",
-        "OGTSL",
-        "TOSL",
-        "Unicode-TOU",
-        "Qhull",
-        "CC-BY-2.5",
-        "VSL-1.0",
-        "Entessa",
-        "CECILL-2.1",
-        "APSL-2.0",
-        "Ruby",
-        "X11",
-        "ZPL-1.1",
-        "OML",
-        "Barr",
-        "EPL-1.0",
-        "LAL-1.3",
-        "xinetd",
-        "AFL-1.2",
-        "MPL-1.1",
-        "CC-BY-3.0",
-        "GFDL-1.3-or-later",
-        "Latex2e",
-        "HaskellReport",
-        "ODbL-1.0",
-        "Naumen",
-        "Watcom-1.0",
-        "ANTLR-PD",
         "not-open-source",
-        "PDDL-1.0",
-        "NASA-1.3",
-        "W3C",
-        "MPL-2.0",
-        "BSD-Protection",
-        "W3C-19980720",
-        "JSON",
-        "CPL-1.0",
-        "AFL-2.0",
-        "MIT-advertising",
-        "OLDAP-1.1",
-        "Giftware",
-        "OLDAP-1.2",
-        "AMDPLPA",
-        "MirOS",
-        "PHP-3.0",
-        "Sleepycat",
-        "CC-BY-ND-4.0",
-        "CC0-1.0",
-        "Multics",
-        "BitTorrent-1.1",
+        "0BSD",
+        "AAL",
         "Abstyles",
-        "BSD-2-Clause-Patent",
-        "OSL-2.1",
-        "Linux-OpenIB",
-        "OSL-2.0",
-        "DOC",
-        "gnuplot",
-        "Zimbra-1.3",
-        "CC-BY-SA-2.5",
-        "CC-BY-NC-ND-1.0",
-        "SGI-B-2.0",
-        "CDLA-Permissive-1.0",
-        "ICU",
-        "CDDL-1.0",
-        "RSA-MD",
-        "GFDL-1.2-or-later",
-        "LGPL-2.0-only",
-        "CC-BY-ND-3.0",
-        "Apache-1.1",
-        "FreeImage",
-        "JasPer-2.0",
-        "CPAL-1.0",
-        "OSL-3.0",
-        "Rdisc",
-        "Xerox",
-        "Plexus",
-        "CC-BY-ND-2.5",
-        "Spencer-86",
-        "CNRI-Jython",
-        "EUPL-1.1",
-        "CDLA-Sharing-1.0",
-        "LPPL-1.3c",
-        "CPOL-1.02",
-        "BSD-3-Clause-No-Nuclear-License-2014",
-        "Eurosym",
-        "Apache-1.0",
+        "Adobe-2006",
+        "Adobe-Glyph",
+        "ADSL",
+        "AFL-1.1",
+        "AFL-1.2",
+        "AFL-2.0",
+        "AFL-2.1",
+        "AFL-3.0",
+        "Afmparse",
+        "AGPL-1.0-only",
+        "AGPL-1.0-or-later",
+        "AGPL-3.0-only",
+        "AGPL-3.0-or-later",
+        "Aladdin",
+        "AMDPLPA",
+        "AML",
         "AMPAS",
-        "iMatix",
-        "Artistic-1.0-cl8",
-        "EUDatagrid",
-        "CC-BY-SA-4.0",
-        "Mup",
-        "HPND",
-        "SGI-B-1.1",
-        "ECL-1.0",
-        "D-FSL-1.0",
-        "Sendmail",
-        "TCP-wrappers",
-        "FTL",
-        "CECILL-1.0",
-        "MTLL",
-        "EFL-1.0",
-        "Fair",
-        "MS-RL",
-        "Newsletr",
-        "OLDAP-1.4",
-        "libtiff",
-        "NPOSL-3.0",
-        "CC-BY-NC-SA-1.0",
-        "diffmark",
-        "OLDAP-2.8",
-        "OLDAP-2.2.2",
-        "NLPL",
+        "ANTLR-PD",
+        "Apache-1.0",
+        "Apache-1.1",
+        "Apache-2.0",
+        "APAFML",
         "APL-1.0",
-        "BSD-3-Clause-Clear",
-        "Artistic-1.0-Perl",
-        "FSFULLR",
-        "BSD-3-Clause-No-Nuclear-Warranty",
-        "GPL-2.0-or-later",
-        "Unicode-DFS-2015",
-        "LGPL-3.0-only",
-        "CC-BY-NC-2.0",
-        "CNRI-Python-GPL-Compatible",
-        "CC-BY-2.0",
-        "TMate",
         "APSL-1.0",
-        "MIT-feh",
-        "OLDAP-2.7",
-        "Saxpath",
-        "SAX-PD",
-        "SWL",
+        "APSL-1.1",
+        "APSL-1.2",
+        "APSL-2.0",
+        "Artistic-1.0-cl8",
+        "Artistic-1.0-Perl",
+        "Artistic-1.0",
+        "Artistic-2.0",
+        "Bahyph",
+        "Barr",
+        "Beerware",
         "BitTorrent-1.0",
-        "ZPL-2.0",
-        "GPL-3.0-or-later",
-        "RPL-1.5",
-        "MIT",
-        "OSL-1.0",
-        "YPL-1.0",
+        "BitTorrent-1.1",
+        "Borceux",
+        "BSD-1-Clause",
+        "BSD-2-Clause-FreeBSD",
+        "BSD-2-Clause-NetBSD",
+        "BSD-2-Clause-Patent",
+        "BSD-2-Clause",
+        "BSD-3-Clause-Attribution",
+        "BSD-3-Clause-Clear",
+        "BSD-3-Clause-LBNL",
+        "BSD-3-Clause-No-Nuclear-License-2014",
+        "BSD-3-Clause-No-Nuclear-License",
+        "BSD-3-Clause-No-Nuclear-Warranty",
+        "BSD-3-Clause",
+        "BSD-4-Clause-UC",
+        "BSD-4-Clause",
+        "BSD-Protection",
+        "BSD-Source-Code",
+        "BSL-1.0",
+        "bzip2-1.0.5",
+        "bzip2-1.0.6",
+        "Caldera",
+        "CATOSL-1.1",
+        "CC-BY-1.0",
+        "CC-BY-2.0",
+        "CC-BY-2.5",
+        "CC-BY-3.0",
+        "CC-BY-4.0",
+        "CC-BY-NC-1.0",
+        "CC-BY-NC-2.0",
+        "CC-BY-NC-2.5",
+        "CC-BY-NC-3.0",
+        "CC-BY-NC-4.0",
+        "CC-BY-NC-ND-1.0",
+        "CC-BY-NC-ND-2.0",
+        "CC-BY-NC-ND-2.5",
+        "CC-BY-NC-ND-3.0",
+        "CC-BY-NC-ND-4.0",
+        "CC-BY-NC-SA-1.0",
+        "CC-BY-NC-SA-2.0",
+        "CC-BY-NC-SA-2.5",
+        "CC-BY-NC-SA-3.0",
+        "CC-BY-NC-SA-4.0",
+        "CC-BY-ND-1.0",
+        "CC-BY-ND-2.0",
+        "CC-BY-ND-2.5",
+        "CC-BY-ND-3.0",
+        "CC-BY-ND-4.0",
+        "CC-BY-SA-1.0",
+        "CC-BY-SA-2.0",
+        "CC-BY-SA-2.5",
+        "CC-BY-SA-3.0",
+        "CC-BY-SA-4.0",
+        "CC0-1.0",
+        "CDDL-1.0",
+        "CDDL-1.1",
+        "CDLA-Permissive-1.0",
+        "CDLA-Sharing-1.0",
+        "CECILL-1.0",
+        "CECILL-1.1",
+        "CECILL-2.0",
+        "CECILL-2.1",
+        "CECILL-B",
+        "CECILL-C",
+        "ClArtistic",
+        "CNRI-Jython",
+        "CNRI-Python-GPL-Compatible",
+        "CNRI-Python",
+        "Condor-1.1",
+        "CPAL-1.0",
+        "CPL-1.0",
+        "CPOL-1.02",
+        "Crossword",
+        "CrystalStacker",
+        "CUA-OPL-1.0",
+        "Cube",
+        "curl",
+        "D-FSL-1.0",
+        "diffmark",
+        "DOC",
+        "Dotseqn",
+        "DSDP",
+        "dvipdfm",
+        "ECL-1.0",
+        "ECL-2.0",
+        "EFL-1.0",
+        "EFL-2.0",
+        "eGenix",
+        "Entessa",
+        "EPL-1.0",
+        "EPL-2.0",
+        "ErlPL-1.1",
+        "EUDatagrid",
+        "EUPL-1.0",
+        "EUPL-1.1",
+        "EUPL-1.2",
+        "Eurosym",
+        "Fair",
+        "Frameworx-1.0",
+        "FreeImage",
+        "FSFAP",
+        "FSFUL",
+        "FSFULLR",
+        "FTL",
+        "GFDL-1.1-only",
+        "GFDL-1.1-or-later",
+        "GFDL-1.2-only",
+        "GFDL-1.2-or-later",
+        "GFDL-1.3-only",
+        "GFDL-1.3-or-later",
+        "Giftware",
+        "GL2PS",
+        "Glide",
+        "Glulxe",
+        "gnuplot",
+        "GPL-1.0-only",
         "GPL-1.0-or-later",
-        "XFree86-1.1",
+        "GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "GPL-3.0-only",
+        "GPL-3.0-or-later",
+        "gSOAP-1.3b",
+        "HaskellReport",
+        "HPND",
+        "IBM-pibs",
+        "ICU",
+        "IJG",
+        "ImageMagick",
+        "iMatix",
+        "Imlib2",
+        "Info-ZIP",
+        "Intel-ACPI",
+        "Intel",
+        "Interbase-1.0",
+        "IPA",
+        "IPL-1.0",
+        "ISC",
+        "JasPer-2.0",
+        "JSON",
+        "LAL-1.2",
+        "LAL-1.3",
+        "Latex2e",
+        "Leptonica",
+        "LGPL-2.0-only",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-only",
+        "LGPL-2.1-or-later",
+        "LGPL-3.0-only",
+        "LGPL-3.0-or-later",
+        "LGPLLR",
+        "Libpng",
+        "libtiff",
+        "LiLiQ-P-1.1",
+        "LiLiQ-R-1.1",
+        "LiLiQ-Rplus-1.1",
+        "Linux-OpenIB",
+        "LPL-1.0",
+        "LPL-1.02",
+        "LPPL-1.0",
+        "LPPL-1.1",
+        "LPPL-1.2",
+        "LPPL-1.3a",
+        "LPPL-1.3c",
+        "MakeIndex",
+        "MirOS",
+        "MIT-0",
+        "MIT-advertising",
+        "MIT-CMU",
+        "MIT-enna",
+        "MIT-feh",
+        "MIT",
+        "MITNFA",
+        "Motosoto",
+        "mpich2",
+        "MPL-1.0",
+        "MPL-1.1",
+        "MPL-2.0-no-copyleft-exception",
+        "MPL-2.0",
+        "MS-PL",
+        "MS-RL",
+        "MTLL",
+        "Multics",
+        "Mup",
+        "NASA-1.3",
+        "Naumen",
+        "NBPL-1.0",
+        "NCSA",
         "Net-SNMP",
         "NetCDF",
-        "NPL-1.1",
-        "CC-BY-NC-ND-2.5",
-        "LGPL-3.0-or-later",
-        "CNRI-Python",
-        "BSD-3-Clause",
-        "TCL",
-        "LiLiQ-Rplus-1.1",
-        "GPL-3.0-only",
-        "psfrag",
-        "FSFUL",
-        "LPPL-1.3a",
-        "RSCPL",
-        "FSFAP",
-        "Wsuipa",
-        "GFDL-1.2-only",
-        "AGPL-1.0-only",
-        "OCCT-PL",
-        "Beerware",
-        "NCSA",
-        "AGPL-3.0-only",
-        "SCEA",
-        "Vim",
-        "OPL-1.0",
-        "CC-BY-NC-SA-2.0",
-        "ISC",
-        "AGPL-1.0-or-later",
-        "GPL-2.0-only",
-        "LiLiQ-P-1.1",
-        "eGenix",
-        "OLDAP-2.0.1",
-        "LGPL-2.1-or-later",
-        "BSD-4-Clause",
-        "SMPPL",
-        "Dotseqn",
-        "CC-BY-4.0",
-        "BSD-1-Clause",
-        "AFL-3.0",
-        "LPL-1.02",
-        "Artistic-2.0",
-        "OLDAP-2.2.1",
-        "Bahyph",
-        "ImageMagick",
-        "LGPLLR",
-        "LPPL-1.0",
-        "RHeCos-1.1",
-        "CC-BY-1.0",
+        "Newsletr",
         "NGPL",
-        "LAL-1.2",
-        "LPPL-1.2",
+        "NLOD-1.0",
+        "NLPL",
+        "Nokia",
+        "NOSL",
+        "Noweb",
+        "NPL-1.0",
+        "NPL-1.1",
+        "NPOSL-3.0",
+        "NRL",
+        "NTP",
+        "OCCT-PL",
+        "OCLC-2.0",
+        "ODbL-1.0",
+        "OFL-1.0",
+        "OFL-1.1",
+        "OGTSL",
+        "OLDAP-1.1",
+        "OLDAP-1.2",
+        "OLDAP-1.3",
+        "OLDAP-1.4",
+        "OLDAP-2.0.1",
+        "OLDAP-2.0",
+        "OLDAP-2.1",
+        "OLDAP-2.2.1",
+        "OLDAP-2.2.2",
         "OLDAP-2.2",
-        "LPPL-1.1",
+        "OLDAP-2.3",
+        "OLDAP-2.4",
+        "OLDAP-2.5",
+        "OLDAP-2.6",
+        "OLDAP-2.7",
+        "OLDAP-2.8",
+        "OML",
+        "OpenSSL",
+        "OPL-1.0",
+        "OSET-PL-2.1",
+        "OSL-1.0",
+        "OSL-1.1",
+        "OSL-2.0",
+        "OSL-2.1",
+        "OSL-3.0",
+        "PDDL-1.0",
+        "PHP-3.0",
+        "PHP-3.01",
+        "Plexus",
+        "PostgreSQL",
+        "psfrag",
+        "psutils",
+        "Python-2.0",
+        "Qhull",
+        "QPL-1.0",
+        "Rdisc",
+        "RHeCos-1.1",
+        "RPL-1.1",
+        "RPL-1.5",
+        "RPSL-1.0",
+        "RSA-MD",
+        "RSCPL",
+        "Ruby",
+        "SAX-PD",
+        "Saxpath",
+        "SCEA",
+        "Sendmail",
+        "SGI-B-1.0",
+        "SGI-B-1.1",
+        "SGI-B-2.0",
+        "SimPL-2.0",
+        "SISSL-1.2",
+        "SISSL",
+        "Sleepycat",
+        "SMLNJ",
+        "SMPPL",
+        "SNIA",
+        "Spencer-86",
+        "Spencer-94",
+        "Spencer-99",
+        "SPL-1.0",
+        "SugarCRM-1.1.3",
+        "SWL",
+        "TCL",
+        "TCP-wrappers",
+        "TMate",
+        "TORQUE-1.1",
+        "TOSL",
+        "Unicode-DFS-2015",
+        "Unicode-DFS-2016",
+        "Unicode-TOU",
+        "Unlicense",
+        "UPL-1.0",
+        "Vim",
         "VOSTROM",
-        "Zimbra-1.4",
-        "CC-BY-NC-ND-3.0",
-        "EUPL-1.0",
-        "Adobe-2006",
-        "Motosoto",
-        "dvipdfm",
-        "CC-BY-NC-ND-2.0",
-        "CC-BY-NC-2.5",
-        "APSL-1.1",
-        "IPA",
-        "APAFML",
-        "APSL-1.2",
-        "CC-BY-NC-1.0",
-        "MPL-2.0-no-copyleft-exception",
-        "Crossword",
+        "VSL-1.0",
+        "W3C-19980720",
+        "W3C-20150513",
+        "W3C",
+        "Watcom-1.0",
+        "Wsuipa",
+        "WTFPL",
+        "X11",
+        "Xerox",
+        "XFree86-1.1",
+        "xinetd",
+        "Xnet",
         "xpp",
-        "LPL-1.0",
-        "Libpng",
-        "0BSD",
-        "EPL-2.0",
-        "CC-BY-SA-1.0",
-        "EFL-2.0",
-        "BSD-2-Clause-NetBSD"
+        "XSkat",
+        "YPL-1.0",
+        "YPL-1.1",
+        "Zed",
+        "Zend-2.0",
+        "Zimbra-1.3",
+        "Zimbra-1.4",
+        "zlib-acknowledgement",
+        "Zlib",
+        "ZPL-1.1",
+        "ZPL-2.0",
+        "ZPL-2.1"
       ]
     },
     "GuidePageGeneration": {
       "type": "string",
       "enum": [
-        "markdown",
-        "generated",
         "html",
-        "xml"
+        "markdown",
+        "xml",
+        "generated"
       ]
     },
     "IngredientManufacturerRole": {
       "type": "string",
       "enum": [
-        "actual",
+        "allowed",
         "possible",
-        "allowed"
+        "actual"
       ]
     },
     "InvoiceStatus": {
       "type": "string",
       "enum": [
-        "balanced",
-        "issued",
         "draft",
+        "issued",
+        "balanced",
         "cancelled",
         "entered-in-error"
       ]
@@ -3071,17 +3071,17 @@
     "LinkageType": {
       "type": "string",
       "enum": [
+        "source",
         "alternate",
-        "historical",
-        "source"
+        "historical"
       ]
     },
     "ListStatus": {
       "type": "string",
       "enum": [
         "current",
-        "entered-in-error",
-        "retired"
+        "retired",
+        "entered-in-error"
       ]
     },
     "LocationMode": {
@@ -3095,25 +3095,25 @@
       "type": "string",
       "enum": [
         "active",
-        "inactive",
-        "suspended"
+        "suspended",
+        "inactive"
       ]
     },
     "MeasureReportStatus": {
       "type": "string",
       "enum": [
-        "error",
         "complete",
-        "pending"
+        "pending",
+        "error"
       ]
     },
     "MeasureReportType": {
       "type": "string",
       "enum": [
-        "subject-list",
-        "data-collection",
         "individual",
-        "summary"
+        "subject-list",
+        "summary",
+        "data-collection"
       ]
     },
     "MedicationStatusCodes": {
@@ -3128,63 +3128,63 @@
       "type": "string",
       "enum": [
         "active",
-        "unknown",
-        "draft",
-        "stopped",
-        "completed",
+        "on-hold",
         "cancelled",
+        "completed",
         "entered-in-error",
-        "on-hold"
+        "stopped",
+        "draft",
+        "unknown"
       ]
     },
     "medicationRequestIntent": {
       "type": "string",
       "enum": [
-        "reflex-order",
+        "proposal",
+        "plan",
+        "order",
         "original-order",
+        "reflex-order",
         "filler-order",
         "instance-order",
-        "option",
-        "order",
-        "plan",
-        "proposal"
+        "option"
       ]
     },
     "MedicationStatementStatusCodes": {
       "type": "string",
       "enum": [
-        "intended",
-        "not-taken",
         "active",
-        "unknown",
-        "stopped",
         "completed",
         "entered-in-error",
-        "on-hold"
+        "intended",
+        "stopped",
+        "on-hold",
+        "unknown",
+        "not-taken"
       ]
     },
     "MessageSignificanceCategory": {
       "type": "string",
       "enum": [
-        "notification",
         "consequence",
-        "currency"
+        "currency",
+        "notification"
       ]
     },
     "messageheaderResponseRequest": {
       "type": "string",
       "enum": [
         "always",
-        "on-success",
+        "on-error",
         "never",
-        "on-error"
+        "on-success"
       ]
     },
     "ResponseType": {
       "type": "string",
       "enum": [
-        "transient-error",
         "ok",
+        "transient-error",
         "fatal-error"
       ]
     },
@@ -3198,43 +3198,43 @@
     "orientationType": {
       "type": "string",
       "enum": [
-        "antisense",
-        "sense"
+        "sense",
+        "antisense"
       ]
     },
     "repositoryType": {
       "type": "string",
       "enum": [
         "directlink",
+        "openapi",
         "login",
         "oauth",
-        "other",
-        "openapi"
+        "other"
       ]
     },
     "qualityType": {
       "type": "string",
       "enum": [
-        "snp",
         "indel",
+        "snp",
         "unknown"
       ]
     },
     "sequenceType": {
       "type": "string",
       "enum": [
+        "aa",
         "dna",
-        "rna",
-        "aa"
+        "rna"
       ]
     },
     "NamingSystemIdentifierType": {
       "type": "string",
       "enum": [
-        "uuid",
-        "other",
         "oid",
-        "uri"
+        "uuid",
+        "uri",
+        "other"
       ]
     },
     "NamingSystemType": {
@@ -3256,124 +3256,124 @@
     "ObservationDataType": {
       "type": "string",
       "enum": [
-        "Period",
-        "boolean",
-        "SampledData",
         "Quantity",
-        "time",
-        "Ratio",
+        "CodeableConcept",
+        "string",
+        "boolean",
         "integer",
         "Range",
-        "string",
+        "Ratio",
+        "SampledData",
+        "time",
         "dateTime",
-        "CodeableConcept"
+        "Period"
       ]
     },
     "ObservationRangeCategory": {
       "type": "string",
       "enum": [
-        "absolute",
         "reference",
-        "critical"
+        "critical",
+        "absolute"
       ]
     },
     "OperationParameterUse": {
       "type": "string",
       "enum": [
-        "out",
-        "in"
+        "in",
+        "out"
       ]
     },
     "OperationKind": {
       "type": "string",
       "enum": [
-        "query",
-        "operation"
+        "operation",
+        "query"
       ]
     },
     "IssueType": {
       "type": "string",
       "enum": [
-        "business-rule",
-        "incomplete",
         "invalid",
-        "not-supported",
-        "security",
-        "forbidden",
-        "not-found",
-        "exception",
-        "deleted",
-        "too-costly",
-        "expired",
-        "extension",
-        "lock-error",
-        "informational",
-        "throttled",
-        "value",
-        "required",
-        "no-store",
-        "unknown",
-        "timeout",
-        "login",
-        "conflict",
-        "invariant",
-        "code-invalid",
         "structure",
-        "multiple-matches",
-        "transient",
-        "duplicate",
+        "required",
+        "value",
+        "invariant",
+        "security",
+        "login",
+        "unknown",
+        "expired",
+        "forbidden",
         "suppressed",
         "processing",
-        "too-long"
+        "not-supported",
+        "duplicate",
+        "multiple-matches",
+        "not-found",
+        "deleted",
+        "too-long",
+        "code-invalid",
+        "extension",
+        "too-costly",
+        "business-rule",
+        "conflict",
+        "transient",
+        "lock-error",
+        "no-store",
+        "exception",
+        "timeout",
+        "incomplete",
+        "throttled",
+        "informational"
       ]
     },
     "IssueSeverity": {
       "type": "string",
       "enum": [
-        "error",
-        "information",
         "fatal",
-        "warning"
+        "error",
+        "warning",
+        "information"
       ]
     },
     "LinkType": {
       "type": "string",
       "enum": [
-        "refer",
+        "replaced-by",
         "replaces",
-        "seealso",
-        "replaced-by"
+        "refer",
+        "seealso"
       ]
     },
     "IdentityAssuranceLevel": {
       "type": "string",
       "enum": [
         "level1",
-        "level4",
+        "level2",
         "level3",
-        "level2"
+        "level4"
       ]
     },
     "ActionRequiredBehavior": {
       "type": "string",
       "enum": [
-        "could",
         "must",
+        "could",
         "must-unless-documented"
       ]
     },
     "ActionRelationshipType": {
       "type": "string",
       "enum": [
-        "concurrent-with-start",
+        "before-start",
         "before",
         "before-end",
-        "after-end",
-        "after-start",
-        "concurrent-with-end",
-        "after",
+        "concurrent-with-start",
         "concurrent",
-        "before-start"
+        "concurrent-with-end",
+        "after-start",
+        "after",
+        "after-end"
       ]
     },
     "ActionGroupingBehavior": {
@@ -3387,12 +3387,12 @@
     "ActionSelectionBehavior": {
       "type": "string",
       "enum": [
-        "all-or-none",
-        "one-or-more",
         "any",
-        "exactly-one",
         "all",
-        "at-most-one"
+        "all-or-none",
+        "exactly-one",
+        "at-most-one",
+        "one-or-more"
       ]
     },
     "ActionCardinalityBehavior": {
@@ -3412,70 +3412,70 @@
     "ActionConditionKind": {
       "type": "string",
       "enum": [
-        "stop",
+        "applicability",
         "start",
-        "applicability"
+        "stop"
       ]
     },
     "ProvenanceEntityRole": {
       "type": "string",
       "enum": [
         "derivation",
+        "revision",
         "quotation",
         "source",
-        "removal",
-        "revision"
+        "removal"
       ]
     },
     "QuestionnaireItemType": {
       "type": "string",
       "enum": [
-        "boolean",
-        "display",
-        "choice",
-        "attachment",
-        "quantity",
-        "reference",
-        "time",
-        "open-choice",
-        "integer",
-        "decimal",
-        "date",
-        "string",
-        "url",
-        "dateTime",
         "group",
+        "display",
         "question",
-        "text"
+        "boolean",
+        "decimal",
+        "integer",
+        "date",
+        "dateTime",
+        "time",
+        "string",
+        "text",
+        "url",
+        "choice",
+        "open-choice",
+        "attachment",
+        "reference",
+        "quantity"
       ]
     },
     "EnableWhenBehavior": {
       "type": "string",
       "enum": [
-        "any",
-        "all"
+        "all",
+        "any"
       ]
     },
     "QuestionnaireItemOperator": {
       "type": "string",
       "enum": [
         "exists",
-        "<=",
+        "=",
+        "!=",
         ">",
         "<",
-        "=",
         ">=",
-        "!="
+        "<="
       ]
     },
     "QuestionnaireResponseStatus": {
       "type": "string",
       "enum": [
         "in-progress",
-        "amended",
-        "stopped",
         "completed",
-        "entered-in-error"
+        "amended",
+        "entered-in-error",
+        "stopped"
       ]
     },
     "ResearchElementType": {
@@ -3489,103 +3489,103 @@
     "VariableType": {
       "type": "string",
       "enum": [
-        "descriptive",
         "dichotomous",
-        "continuous"
+        "continuous",
+        "descriptive"
       ]
     },
     "ResearchStudyStatus": {
       "type": "string",
       "enum": [
-        "administratively-completed",
-        "in-review",
-        "closed-to-accrual-and-intervention",
         "active",
-        "disapproved",
+        "administratively-completed",
         "approved",
-        "temporarily-closed-to-accrual",
         "closed-to-accrual",
+        "closed-to-accrual-and-intervention",
         "completed",
-        "withdrawn",
-        "temporarily-closed-to-accrual-and-intervention"
+        "disapproved",
+        "in-review",
+        "temporarily-closed-to-accrual",
+        "temporarily-closed-to-accrual-and-intervention",
+        "withdrawn"
       ]
     },
     "ResearchSubjectStatus": {
       "type": "string",
       "enum": [
-        "not-registered",
-        "eligible",
-        "on-study",
-        "off-study",
-        "on-study-observation",
         "candidate",
-        "potential-candidate",
+        "eligible",
         "follow-up",
-        "withdrawn",
+        "ineligible",
+        "not-registered",
+        "off-study",
+        "on-study",
         "on-study-intervention",
-        "screening",
+        "on-study-observation",
         "pending-on-study",
-        "ineligible"
+        "potential-candidate",
+        "screening",
+        "withdrawn"
       ]
     },
     "XPathUsageType": {
       "type": "string",
       "enum": [
         "normal",
-        "distance",
         "phonetic",
         "nearby",
+        "distance",
         "other"
       ]
     },
     "SearchModifierCode": {
       "type": "string",
       "enum": [
-        "type",
-        "identifier",
-        "above",
-        "not-in",
         "missing",
+        "exact",
         "contains",
         "not",
         "text",
-        "ofType",
-        "exact",
         "in",
-        "below"
+        "not-in",
+        "below",
+        "above",
+        "type",
+        "identifier",
+        "ofType"
       ]
     },
     "SearchComparator": {
       "type": "string",
       "enum": [
-        "ne",
         "eq",
+        "ne",
+        "gt",
+        "lt",
+        "ge",
         "le",
         "sa",
         "eb",
-        "ap",
-        "gt",
-        "lt",
-        "ge"
+        "ap"
       ]
     },
     "SlotStatus": {
       "type": "string",
       "enum": [
-        "free",
         "busy",
-        "busy-tentative",
+        "free",
         "busy-unavailable",
+        "busy-tentative",
         "entered-in-error"
       ]
     },
     "SpecimenStatus": {
       "type": "string",
       "enum": [
-        "entered-in-error",
+        "available",
         "unavailable",
         "unsatisfactory",
-        "available"
+        "entered-in-error"
       ]
     },
     "SpecimenContainedPreference": {
@@ -3598,10 +3598,10 @@
     "StructureDefinitionKind": {
       "type": "string",
       "enum": [
+        "primitive-type",
         "complex-type",
         "resource",
-        "logical",
-        "primitive-type"
+        "logical"
       ]
     },
     "TypeDerivationRule": {
@@ -3622,8 +3622,8 @@
     "StructureMapInputMode": {
       "type": "string",
       "enum": [
-        "target",
-        "source"
+        "source",
+        "target"
       ]
     },
     "StructureMapContextType": {
@@ -3636,41 +3636,41 @@
     "StructureMapTargetListMode": {
       "type": "string",
       "enum": [
-        "last",
-        "collate",
         "first",
-        "share"
+        "share",
+        "last",
+        "collate"
       ]
     },
     "StructureMapTransform": {
       "type": "string",
       "enum": [
-        "id",
+        "create",
+        "copy",
         "truncate",
-        "cc",
-        "cp",
+        "escape",
+        "cast",
+        "append",
         "translate",
         "reference",
-        "pointer",
-        "uuid",
-        "c",
-        "copy",
-        "create",
-        "qty",
-        "cast",
-        "escape",
-        "evaluate",
         "dateOp",
-        "append"
+        "uuid",
+        "pointer",
+        "evaluate",
+        "cc",
+        "c",
+        "qty",
+        "id",
+        "cp"
       ]
     },
     "StructureMapSourceListMode": {
       "type": "string",
       "enum": [
-        "last",
-        "not_first",
-        "not_last",
         "first",
+        "not_first",
+        "last",
+        "not_last",
         "only_one"
       ]
     },
@@ -3685,27 +3685,27 @@
     "StructureMapModelMode": {
       "type": "string",
       "enum": [
-        "target",
-        "produced",
         "source",
-        "queried"
+        "queried",
+        "target",
+        "produced"
       ]
     },
     "SubscriptionStatusCodes": {
       "type": "string",
       "enum": [
-        "error",
+        "requested",
         "active",
-        "off",
-        "requested"
+        "error",
+        "off"
       ]
     },
     "SubscriptionChannelType": {
       "type": "string",
       "enum": [
-        "email",
-        "websocket",
         "rest-hook",
+        "websocket",
+        "email",
         "sms",
         "message"
       ]
@@ -3713,19 +3713,19 @@
     "SubscriptionNotificationType": {
       "type": "string",
       "enum": [
-        "heartbeat",
         "handshake",
-        "query-event",
+        "heartbeat",
         "event-notification",
-        "query-status"
+        "query-status",
+        "query-event"
       ]
     },
     "InteractionTrigger": {
       "type": "string",
       "enum": [
+        "create",
         "update",
-        "delete",
-        "create"
+        "delete"
       ]
     },
     "CriteriaNotExistsBehavior": {
@@ -3746,53 +3746,53 @@
     "SupplyDeliveryStatus": {
       "type": "string",
       "enum": [
-        "abandoned",
-        "entered-in-error",
+        "in-progress",
         "completed",
-        "in-progress"
+        "abandoned",
+        "entered-in-error"
       ]
     },
     "SupplyRequestStatus": {
       "type": "string",
       "enum": [
-        "suspended",
-        "active",
-        "unknown",
         "draft",
-        "completed",
+        "active",
+        "suspended",
         "cancelled",
-        "entered-in-error"
+        "completed",
+        "entered-in-error",
+        "unknown"
       ]
     },
     "TaskStatus": {
       "type": "string",
       "enum": [
+        "draft",
+        "requested",
+        "received",
+        "accepted",
+        "rejected",
+        "ready",
+        "cancelled",
+        "in-progress",
         "on-hold",
         "failed",
-        "draft",
-        "in-progress",
-        "received",
-        "ready",
-        "rejected",
         "completed",
-        "cancelled",
-        "accepted",
-        "entered-in-error",
-        "requested"
+        "entered-in-error"
       ]
     },
     "TaskIntent": {
       "type": "string",
       "enum": [
-        "reflex-order",
+        "unknown",
+        "proposal",
+        "plan",
+        "order",
         "original-order",
+        "reflex-order",
         "filler-order",
         "instance-order",
-        "option",
-        "unknown",
-        "order",
-        "plan",
-        "proposal"
+        "option"
       ]
     },
     "CodeSearchSupport": {
@@ -3805,37 +3805,37 @@
     "TestReportStatus": {
       "type": "string",
       "enum": [
-        "waiting",
-        "in-progress",
-        "stopped",
         "completed",
+        "in-progress",
+        "waiting",
+        "stopped",
         "entered-in-error"
       ]
     },
     "TestReportActionResult": {
       "type": "string",
       "enum": [
+        "pass",
+        "skip",
         "fail",
         "warning",
-        "skip",
-        "error",
-        "pass"
+        "error"
       ]
     },
     "TestReportParticipantType": {
       "type": "string",
       "enum": [
+        "test-engine",
         "client",
-        "server",
-        "test-engine"
+        "server"
       ]
     },
     "TestReportResult": {
       "type": "string",
       "enum": [
+        "pass",
         "fail",
-        "pending",
-        "pass"
+        "pending"
       ]
     },
     "AssertionDirectionType": {
@@ -3848,73 +3848,73 @@
     "AssertionOperatorType": {
       "type": "string",
       "enum": [
+        "equals",
+        "notEquals",
+        "in",
+        "notIn",
         "greaterThan",
         "lessThan",
-        "notContains",
-        "notEquals",
         "empty",
         "notEmpty",
-        "equals",
         "contains",
-        "notIn",
-        "in",
+        "notContains",
         "eval"
       ]
     },
     "AssertionResponseTypes": {
       "type": "string",
       "enum": [
-        "gone",
-        "notModified",
         "okay",
-        "bad",
-        "methodNotAllowed",
-        "unprocessable",
-        "preconditionFailed",
         "created",
-        "conflict",
         "noContent",
+        "notModified",
+        "bad",
         "forbidden",
-        "notFound"
+        "notFound",
+        "methodNotAllowed",
+        "conflict",
+        "gone",
+        "preconditionFailed",
+        "unprocessable"
       ]
     },
     "TestScriptRequestMethodCode": {
       "type": "string",
       "enum": [
-        "patch",
-        "put",
+        "delete",
         "get",
-        "head",
-        "post",
         "options",
-        "delete"
+        "patch",
+        "post",
+        "put",
+        "head"
       ]
     },
     "status": {
       "type": "string",
       "enum": [
-        "req-revalid",
-        "reval-fail",
+        "attested",
         "validated",
-        "val-fail",
         "in-process",
-        "attested"
+        "req-revalid",
+        "val-fail",
+        "reval-fail"
       ]
     },
     "VisionBase": {
       "type": "string",
       "enum": [
-        "down",
         "up",
-        "out",
-        "in"
+        "down",
+        "in",
+        "out"
       ]
     },
     "VisionEyes": {
       "type": "string",
       "enum": [
-        "left",
-        "right"
+        "right",
+        "left"
       ]
     },
     "xhtml": {
@@ -24072,9 +24072,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "type"
-      ]
+      "required": []
     },
     "GraphDefinitionCompartment": {
       "additionalProperties": false,
