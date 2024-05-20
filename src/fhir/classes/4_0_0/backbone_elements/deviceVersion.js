@@ -110,7 +110,7 @@ class DeviceVersion extends Element {
         });
 
         /**
-         * @description The type of the device version.
+         * @description The type of the device version, e.g. manufacturer, approved, internal.
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
@@ -166,6 +166,7 @@ class DeviceVersion extends Element {
                 this.__data.value = valueProvided;
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

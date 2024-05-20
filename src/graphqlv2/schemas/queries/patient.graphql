@@ -91,7 +91,7 @@ extend type Query {
         death_date: SearchDate
         """
         deceased (FHIR type: token)
-        This patient has been marked as deceased, or as a death date entered
+        This patient has been marked as deceased, or has a death date entered
         """
         deceased: SearchToken
         """

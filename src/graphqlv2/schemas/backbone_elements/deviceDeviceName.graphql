@@ -39,7 +39,7 @@ type DeviceDeviceName {
     """
     modifierExtension: [Extension]
     """
-    The name of the device.
+    The name that identifies the device.
     """
     name: String
     """

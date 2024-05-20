@@ -10,7 +10,7 @@ const async = require('async');
 ValueSet.Compose
     A ValueSet resource instance specifies a set of codes drawn from one or more
     code systems, intended for use in a particular context. Value sets link
-    between [[[CodeSystem]]] definitions and their use in [coded
+    between [CodeSystem](codesystem.html) definitions and their use in [coded
     elements](terminologies.html).
 */
 class ValueSetCompose extends Element {
@@ -195,6 +195,7 @@ class ValueSetCompose extends Element {
                 this.__data.exclude = FhirResourceCreator.createArray(valueProvided, ValueSetInclude);
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

@@ -354,11 +354,11 @@ class ResourceValidator {
         }
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
             operationOutcome.issue = new OperationOutcomeIssue({
-                'code': 'informational',
-                'details': new CodeableConcept({
-                    'text': 'OK'
+                code: 'informational',
+                details: new CodeableConcept({
+                    text: 'OK'
                 }),
-                'expression': [
+                expression: [
                     'Practitioner'
                 ],
                 severity: 'information'

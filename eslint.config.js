@@ -16,7 +16,8 @@ module.exports = [
             "no-undef": "off",
             "no-unused-vars": "off",
             "comma-dangle": "error",
-            "no-trailing-spaces": "error"
+            "no-trailing-spaces": "error",
+            "quote-props": ["error", "as-needed"]
         },
         ignores: [
             "src/dist/*",

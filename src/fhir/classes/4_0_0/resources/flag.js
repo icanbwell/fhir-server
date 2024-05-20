@@ -12,7 +12,7 @@ Flag
 */
 class Flag extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -64,7 +64,7 @@ class Flag extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -507,7 +507,7 @@ class Flag extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -658,7 +658,6 @@ class Flag extends Resource {
             encounter: this.encounter && this.encounter.toJSONInternal(),
             author: this.author && this.author.toJSONInternal()
         };
-
         if (this._access) {
             json._access = this._access;
         }

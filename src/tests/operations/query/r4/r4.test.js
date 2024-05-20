@@ -263,7 +263,7 @@ describe('r4 search Tests', () => {
             });
             expect(result.query.$and[0]['for._sourceId'].$in[0]).toStrictEqual('Account/1234');
             expect(result.query.$and[0]['for._sourceId'].$in[1]).toStrictEqual('ActivityDefinition/1234');
-            expect(result.query.$and[0]['for._sourceId'].$in[145]).toStrictEqual('Account/4567');
+            expect(result.query.$and[0]['for._sourceId'].$in[140]).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple codes', async () => {
             await createTestRequest((container) => {

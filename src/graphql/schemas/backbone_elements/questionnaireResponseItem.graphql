@@ -45,8 +45,8 @@ type QuestionnaireResponseItem {
     """
     linkId: String
     """
-    A reference to an [[[ElementDefinition]]] that provides the details for the
-    item.
+    A reference to an [ElementDefinition](elementdefinition.html) that provides
+    the details for the item.
     """
     definition: uri
     """

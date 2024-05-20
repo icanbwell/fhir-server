@@ -133,9 +133,10 @@ class CapabilityStatementSearchParam extends Element {
         /**
          * @description An absolute URI that is a formal reference to where this parameter was first
     defined, so that a client can be confident of the meaning of the search
-    parameter (a reference to [[[SearchParameter.url]]]). This element SHALL be
-    populated if the search parameter refers to a SearchParameter defined by the
-    FHIR core specification or externally defined IGs.
+    parameter (a reference to [SearchParameter.url](searchparameter-
+    definitions.html#SearchParameter.url)). This element SHALL be populated if the
+    search parameter refers to a SearchParameter defined by the FHIR core
+    specification or externally defined IGs.
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'definition', {
@@ -189,6 +190,7 @@ class CapabilityStatementSearchParam extends Element {
                 this.__data.documentation = valueProvided;
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

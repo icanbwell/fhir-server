@@ -10,8 +10,9 @@ const async = require('async');
 PlanDefinition.Condition
     This resource allows for the definition of various types of plans as a
     sharable, consumable, and executable artifact. The resource is general enough
-    to support the description of a broad range of clinical artifacts such as
-    clinical decision support rules, order sets and protocols.
+    to support the description of a broad range of clinical and non-clinical
+    artifacts such as clinical decision support rules, order sets, protocols, and
+    drug quality specifications.
 */
 class PlanDefinitionCondition extends Element {
     /**
@@ -146,6 +147,7 @@ class PlanDefinitionCondition extends Element {
                 this.__data.expression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

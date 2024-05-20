@@ -26,6 +26,7 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
+# import CodeableReference from "../complex_types/codeableReference.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
@@ -37,6 +38,7 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
+# import RatioRange from "../complex_types/ratioRange.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import SampledData from "../complex_types/sampledData.graphql"
 # import Signature from "../complex_types/signature.graphql"
@@ -50,13 +52,12 @@
 # import TriggerDefinition from "../complex_types/triggerDefinition.graphql"
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import Dosage from "../backbone_elements/dosage.graphql"
-# import Meta from "../complex_types/meta.graphql"
 # import ElementDefinitionExample from "../backbone_elements/elementDefinitionExample.graphql"
 # import ElementDefinitionConstraint from "../backbone_elements/elementDefinitionConstraint.graphql"
 # import ElementDefinitionBinding from "../backbone_elements/elementDefinitionBinding.graphql"
 # import ElementDefinitionMapping from "../backbone_elements/elementDefinitionMapping.graphql"
 
-union ElementDefinitionDefaultValueReference = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+union ElementDefinitionDefaultValueReference =Account | ActivityDefinition | AdministrableProductDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Citation | Claim | ClaimResponse | ClinicalImpression | ClinicalUseDefinition | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceReport | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | Ingredient | InsurancePlan | Invoice | Library | Linkage | List | Location | ManufacturedItemDefinition | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProductDefinition | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | NutritionProduct | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | PackagedProductDefinition | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RegulatedAuthorization | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceDefinition | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
 
 """
 Reference type for DefaultValueReference
@@ -70,7 +71,7 @@ type ElementDefinitionDefaultValueReferenceReference {
     display: String
 }
 
-union ElementDefinitionFixedReference = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+union ElementDefinitionFixedReference =Account | ActivityDefinition | AdministrableProductDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Citation | Claim | ClaimResponse | ClinicalImpression | ClinicalUseDefinition | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceReport | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | Ingredient | InsurancePlan | Invoice | Library | Linkage | List | Location | ManufacturedItemDefinition | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProductDefinition | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | NutritionProduct | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | PackagedProductDefinition | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RegulatedAuthorization | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceDefinition | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
 
 """
 Reference type for FixedReference
@@ -84,7 +85,7 @@ type ElementDefinitionFixedReferenceReference {
     display: String
 }
 
-union ElementDefinitionPatternReference = Account | ActivityDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Claim | ClaimResponse | ClinicalImpression | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | EffectEvidenceSynthesis | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | InsurancePlan | Invoice | Library | Linkage | List | Location | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProduct | MedicinalProductAuthorization | MedicinalProductContraindication | MedicinalProductIndication | MedicinalProductIngredient | MedicinalProductInteraction | MedicinalProductManufactured | MedicinalProductPackaged | MedicinalProductPharmaceutical | MedicinalProductUndesirableEffect | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | RiskEvidenceSynthesis | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceNucleicAcid | SubstancePolymer | SubstanceProtein | SubstanceReferenceInformation | SubstanceSourceMaterial | SubstanceSpecification | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
+union ElementDefinitionPatternReference =Account | ActivityDefinition | AdministrableProductDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Citation | Claim | ClaimResponse | ClinicalImpression | ClinicalUseDefinition | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceReport | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | Ingredient | InsurancePlan | Invoice | Library | Linkage | List | Location | ManufacturedItemDefinition | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProductDefinition | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | NutritionProduct | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | PackagedProductDefinition | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RegulatedAuthorization | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceDefinition | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
 
 """
 Reference type for PatternReference
@@ -340,6 +341,10 @@ type ElementDefinition {
     """
     None
     """
+    defaultValueCodeableReference: CodeableReference
+    """
+    None
+    """
     defaultValueCoding: Coding
     """
     None
@@ -385,6 +390,10 @@ type ElementDefinition {
     None
     """
     defaultValueRatio: Ratio
+    """
+    None
+    """
+    defaultValueRatioRange: RatioRange
     """
     None
     """
@@ -437,10 +446,6 @@ type ElementDefinition {
     None
     """
     defaultValueDosage: Dosage
-    """
-    None
-    """
-    defaultValueMeta: Meta
     """
     The Implicit meaning that is to be understood when this element is missing
     (e.g. 'when this element is missing, the period is ongoing').
@@ -551,6 +556,10 @@ type ElementDefinition {
     """
     None
     """
+    fixedCodeableReference: CodeableReference
+    """
+    None
+    """
     fixedCoding: Coding
     """
     None
@@ -596,6 +605,10 @@ type ElementDefinition {
     None
     """
     fixedRatio: Ratio
+    """
+    None
+    """
+    fixedRatioRange: RatioRange
     """
     None
     """
@@ -648,10 +661,6 @@ type ElementDefinition {
     None
     """
     fixedDosage: Dosage
-    """
-    None
-    """
-    fixedMeta: Meta
     """
     None
     """
@@ -751,6 +760,10 @@ type ElementDefinition {
     """
     None
     """
+    patternCodeableReference: CodeableReference
+    """
+    None
+    """
     patternCoding: Coding
     """
     None
@@ -796,6 +809,10 @@ type ElementDefinition {
     None
     """
     patternRatio: Ratio
+    """
+    None
+    """
+    patternRatioRange: RatioRange
     """
     None
     """
@@ -848,10 +865,6 @@ type ElementDefinition {
     None
     """
     patternDosage: Dosage
-    """
-    None
-    """
-    patternMeta: Meta
     """
     A sample value for this element demonstrating the type of information that
     would typically be found in the element.

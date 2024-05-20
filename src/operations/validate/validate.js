@@ -168,7 +168,8 @@ class ValidateOperation {
                             currentOperationName,
                             requestInfo,
                             startTime
-                        });
+                        }
+                    );
                     if (operationOutcome) {
                         // combine the operation outcome issues
                         if (operationOutcome.issue) {

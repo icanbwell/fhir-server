@@ -273,7 +273,6 @@ class Reference extends Element {
             identifier: this.identifier && this.identifier.toJSONInternal(),
             display: this.display
         };
-
         if (this._sourceAssigningAuthority) {
             json._sourceAssigningAuthority = this._sourceAssigningAuthority;
         }

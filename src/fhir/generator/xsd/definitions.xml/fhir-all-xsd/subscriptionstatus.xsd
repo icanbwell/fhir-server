@@ -69,7 +69,7 @@
     <xs:complexContent>
       <xs:extension base="DomainResource">
         <xs:sequence>
-          <xs:element name="status" minOccurs="0" maxOccurs="1" type="code">
+          <xs:element name="status" minOccurs="0" maxOccurs="1" type="SubscriptionStatusCodes">
             <xs:annotation>
               <xs:documentation xml:lang="en">The status of the subscription, which marks the server state for managing the subscription.</xs:documentation>
            </xs:annotation>
@@ -139,7 +139,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="SubscriptionNotificationType-list">
+  <xs:simpleType name="SubscriptionNotificationTypeEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="handshake">
         <xs:annotation>
@@ -175,7 +175,7 @@
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="SubscriptionNotificationType-list" use="optional"/>
+        <xs:attribute name="value" type="SubscriptionNotificationTypeEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

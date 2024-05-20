@@ -155,10 +155,11 @@ class QuestionnaireItem extends Element {
         });
 
         /**
-         * @description This element is a URI that refers to an [[[ElementDefinition]]] that provides
-    information about this item, including information that might otherwise be
-    included in the instance of the Questionnaire resource. A detailed description
-    of the construction of the URI is shown in Comments, below. If this element is
+         * @description This element is a URI that refers to an
+    [ElementDefinition](elementdefinition.html) that provides information about
+    this item, including information that might otherwise be included in the
+    instance of the Questionnaire resource. A detailed description of the
+    construction of the URI is shown in Comments, below. If this element is
     present then the following element values MAY be derived from the Element
     Definition if the corresponding elements of this Questionnaire resource
     instance have no value:
@@ -462,6 +463,7 @@ class QuestionnaireItem extends Element {
                 this.__data.item = FhirResourceCreator.createArray(valueProvided, QuestionnaireItem);
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

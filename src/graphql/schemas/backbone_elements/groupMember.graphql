@@ -3,7 +3,7 @@
 # import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
-union GroupMemberEntity = Patient | Practitioner | PractitionerRole | Device | Medication | Substance | Group
+union GroupMemberEntity = Patient | RelatedPerson | Practitioner | PractitionerRole | Device | Medication | Substance | Group
 
 """
 Group.Member

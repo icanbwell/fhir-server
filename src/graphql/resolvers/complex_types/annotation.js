@@ -2,11 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    AnnotationAuthorReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     Annotation: {
         // noinspection JSUnusedLocalSymbols
 

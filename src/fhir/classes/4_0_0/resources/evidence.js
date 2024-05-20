@@ -7,14 +7,15 @@ const async = require('async');
 
 /**
 Evidence
-    The Evidence resource describes the conditional state (population and any
-    exposures being compared within the population) and outcome (if specified)
-    that the knowledge (evidence, assertion, recommendation) is about.
+    The Evidence Resource provides a machine-interpretable expression of an
+    evidence concept including the evidence variables (eg population,
+    exposures/interventions, comparators, outcomes, measured variables,
+    confounding variables), the statistics, and the certainty of this evidence.
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Evidence extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -25,31 +26,29 @@ class Evidence extends Resource {
      * @param {uri|undefined} [url],
      * @param {Identifier[]|undefined} [identifier],
      * @param {String|undefined} [version],
-     * @param {String|undefined} [name],
      * @param {String|undefined} [title],
-     * @param {String|undefined} [shortTitle],
-     * @param {String|undefined} [subtitle],
+     * @param {Reference|undefined} [citeAsReference],
+     * @param {markdown|undefined} [citeAsMarkdown],
      * @param {code} status,
      * @param {dateTime|undefined} [date],
-     * @param {String|undefined} [publisher],
-     * @param {ContactDetail[]|undefined} [contact],
-     * @param {markdown|undefined} [description],
-     * @param {Annotation[]|undefined} [note],
      * @param {UsageContext[]|undefined} [useContext],
-     * @param {CodeableConcept[]|undefined} [jurisdiction],
-     * @param {markdown|undefined} [copyright],
      * @param {date|undefined} [approvalDate],
      * @param {date|undefined} [lastReviewDate],
-     * @param {Period|undefined} [effectivePeriod],
-     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
      * @param {ContactDetail[]|undefined} [author],
      * @param {ContactDetail[]|undefined} [editor],
      * @param {ContactDetail[]|undefined} [reviewer],
      * @param {ContactDetail[]|undefined} [endorser],
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
-     * @param {Reference} exposureBackground,
-     * @param {Reference[]|undefined} [exposureVariant],
-     * @param {Reference[]|undefined} [outcome],
+     * @param {markdown|undefined} [description],
+     * @param {markdown|undefined} [assertion],
+     * @param {Annotation[]|undefined} [note],
+     * @param {EvidenceVariableDefinition[]} variableDefinition,
+     * @param {CodeableConcept|undefined} [synthesisType],
+     * @param {CodeableConcept|undefined} [studyType],
+     * @param {EvidenceStatistic[]|undefined} [statistic],
+     * @param {EvidenceCertainty[]|undefined} [certainty],
      * @param {Object|undefined} [_access]
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
@@ -68,31 +67,29 @@ class Evidence extends Resource {
             url,
             identifier,
             version,
-            name,
             title,
-            shortTitle,
-            subtitle,
+            citeAsReference,
+            citeAsMarkdown,
             status,
             date,
-            publisher,
-            contact,
-            description,
-            note,
             useContext,
-            jurisdiction,
-            copyright,
             approvalDate,
             lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            exposureBackground,
-            exposureVariant,
-            outcome,
+            description,
+            assertion,
+            note,
+            variableDefinition,
+            synthesisType,
+            studyType,
+            statistic,
+            certainty,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -106,7 +103,7 @@ class Evidence extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -290,9 +287,9 @@ class Evidence extends Resource {
          * @description An absolute URI that is used to identify this evidence when it is referenced
     in a specification, model, design or an instance; also called its canonical
     identifier. This SHOULD be globally unique and SHOULD be a literal address at
-    which at which an authoritative instance of this evidence is (or will be)
+    which at which an authoritative instance of this summary is (or will be)
     published. This URL can be the target of a canonical reference. It SHALL
-    remain the same when the evidence is stored on different servers.
+    remain the same when the summary is stored on different servers.
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
@@ -310,7 +307,7 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description A formal identifier that is used to identify this evidence when it is
+         * @description A formal identifier that is used to identify this summary when it is
     represented in other formats, or referenced in a specification, model, design
     or an instance.
          * @property {Identifier[]|undefined}
@@ -332,16 +329,12 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description The identifier that is used to identify this version of the evidence when it
-    is referenced in a specification, model, design or instance. This is an
-    arbitrary value managed by the evidence author and is not expected to be
-    globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a
-    managed version is not available. There is also no expectation that versions
-    can be placed in a lexicographical sequence. To provide a version consistent
-    with the Decision Support Service specification, use the format
-    Major.Minor.Revision (e.g. 1.0.0). For more information on versioning
-    knowledge assets, refer to the Decision Support Service specification. Note
-    that a version is required for non-experimental active artifacts.
+         * @description The identifier that is used to identify this version of the summary when it is
+    referenced in a specification, model, design or instance. This is an arbitrary
+    value managed by the summary author and is not expected to be globally unique.
+    For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is
+    not available. There is also no expectation that versions can be placed in a
+    lexicographical sequence.
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
@@ -359,27 +352,7 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description A natural language name identifying the evidence. This name should be usable
-    as an identifier for the module by machine processing applications such as
-    code generation.
-         * @property {String|undefined}
-        */
-        Object.defineProperty(this, 'name', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.name,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = undefined;
-                    return;
-                }
-                this.__data.name = valueProvided;
-            }
-        });
-
-        /**
-         * @description A short, descriptive, user-friendly title for the evidence.
+         * @description A short, descriptive, user-friendly title for the summary.
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
@@ -397,45 +370,45 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description The short title provides an alternate title for use in informal descriptive
-    contexts where the full, formal title is not necessary.
-         * @property {String|undefined}
+         * @description None
+         * @property {Reference|undefined}
         */
-        Object.defineProperty(this, 'shortTitle', {
+        Object.defineProperty(this, 'citeAsReference', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.shortTitle,
+            get: () => this.__data.citeAsReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.shortTitle = undefined;
+                    this.__data.citeAsReference = undefined;
                     return;
                 }
-                this.__data.shortTitle = valueProvided;
+                const Reference = require('../complex_types/reference.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.citeAsReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
         /**
-         * @description An explanatory or alternate title for the Evidence giving additional
-    information about its content.
-         * @property {String|undefined}
+         * @description None
+         * @property {markdown|undefined}
         */
-        Object.defineProperty(this, 'subtitle', {
+        Object.defineProperty(this, 'citeAsMarkdown', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.subtitle,
+            get: () => this.__data.citeAsMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subtitle = undefined;
+                    this.__data.citeAsMarkdown = undefined;
                     return;
                 }
-                this.__data.subtitle = valueProvided;
+                this.__data.citeAsMarkdown = valueProvided;
             }
         });
 
         /**
-         * @description The status of this evidence. Enables tracking the life-cycle of the content.
+         * @description The status of this summary. Enables tracking the life-cycle of the content.
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
@@ -453,10 +426,10 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description The date  (and optionally time) when the evidence was published. The date must
+         * @description The date  (and optionally time) when the summary was published. The date must
     change when the business version changes and it must change if the status code
     changes. In addition, it should change when the substantive content of the
-    evidence changes.
+    summary changes.
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
@@ -470,6 +443,68 @@ class Evidence extends Resource {
                     return;
                 }
                 this.__data.date = valueProvided;
+            }
+        });
+
+        /**
+         * @description The content was developed with a focus and intent of supporting the contexts
+    that are listed. These contexts may be general categories (gender, age, ...)
+    or may be references to specific programs (insurance plans, studies, ...) and
+    may be used to assist with indexing and searching for appropriate evidence
+    instances.
+         * @property {UsageContext[]|undefined}
+        */
+        Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.useContext,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.useContext = undefined;
+                    return;
+                }
+                const UsageContext = require('../complex_types/usageContext.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
+            }
+        });
+
+        /**
+         * @description The date on which the resource content was approved by the publisher. Approval
+    happens once when the content is officially approved for usage.
+         * @property {date|undefined}
+        */
+        Object.defineProperty(this, 'approvalDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.approvalDate,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.approvalDate = undefined;
+                    return;
+                }
+                this.__data.approvalDate = valueProvided;
+            }
+        });
+
+        /**
+         * @description The date on which the resource content was last reviewed. Review happens
+    periodically after approval but does not change the original approval date.
+         * @property {date|undefined}
+        */
+        Object.defineProperty(this, 'lastReviewDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.lastReviewDate,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.lastReviewDate = undefined;
+                    return;
+                }
+                this.__data.lastReviewDate = valueProvided;
             }
         });
 
@@ -513,191 +548,7 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description A free text natural language description of the evidence from a consumer's
-    perspective.
-         * @property {markdown|undefined}
-        */
-        Object.defineProperty(this, 'description', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.description,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = undefined;
-                    return;
-                }
-                this.__data.description = valueProvided;
-            }
-        });
-
-        /**
-         * @description A human-readable string to clarify or explain concepts about the resource.
-         * @property {Annotation[]|undefined}
-        */
-        Object.defineProperty(this, 'note', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.note,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = undefined;
-                    return;
-                }
-                const Annotation = require('../complex_types/annotation.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
-            }
-        });
-
-        /**
-         * @description The content was developed with a focus and intent of supporting the contexts
-    that are listed. These contexts may be general categories (gender, age, ...)
-    or may be references to specific programs (insurance plans, studies, ...) and
-    may be used to assist with indexing and searching for appropriate evidence
-    instances.
-         * @property {UsageContext[]|undefined}
-        */
-        Object.defineProperty(this, 'useContext', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.useContext,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = undefined;
-                    return;
-                }
-                const UsageContext = require('../complex_types/usageContext.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
-            }
-        });
-
-        /**
-         * @description A legal or geographic region in which the evidence is intended to be used.
-         * @property {CodeableConcept[]|undefined}
-        */
-        Object.defineProperty(this, 'jurisdiction', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.jurisdiction,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = undefined;
-                    return;
-                }
-                const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
-            }
-        });
-
-        /**
-         * @description A copyright statement relating to the evidence and/or its contents. Copyright
-    statements are generally legal restrictions on the use and publishing of the
-    evidence.
-         * @property {markdown|undefined}
-        */
-        Object.defineProperty(this, 'copyright', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.copyright,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = undefined;
-                    return;
-                }
-                this.__data.copyright = valueProvided;
-            }
-        });
-
-        /**
-         * @description The date on which the resource content was approved by the publisher. Approval
-    happens once when the content is officially approved for usage.
-         * @property {date|undefined}
-        */
-        Object.defineProperty(this, 'approvalDate', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.approvalDate,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.approvalDate = undefined;
-                    return;
-                }
-                this.__data.approvalDate = valueProvided;
-            }
-        });
-
-        /**
-         * @description The date on which the resource content was last reviewed. Review happens
-    periodically after approval but does not change the original approval date.
-         * @property {date|undefined}
-        */
-        Object.defineProperty(this, 'lastReviewDate', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.lastReviewDate,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lastReviewDate = undefined;
-                    return;
-                }
-                this.__data.lastReviewDate = valueProvided;
-            }
-        });
-
-        /**
-         * @description The period during which the evidence content was or is planned to be in active
-    use.
-         * @property {Period|undefined}
-        */
-        Object.defineProperty(this, 'effectivePeriod', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.effectivePeriod,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectivePeriod = undefined;
-                    return;
-                }
-                const Period = require('../complex_types/period.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.effectivePeriod = FhirResourceCreator.create(valueProvided, Period);
-            }
-        });
-
-        /**
-         * @description Descriptive topics related to the content of the Evidence. Topics provide a
-    high-level categorization grouping types of Evidences that can be useful for
-    filtering and searching.
-         * @property {CodeableConcept[]|undefined}
-        */
-        Object.defineProperty(this, 'topic', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.topic,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topic = undefined;
-                    return;
-                }
-                const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.topic = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
-            }
-        });
-
-        /**
-         * @description An individiual or organization primarily involved in the creation and
+         * @description An individiual, organization, or device primarily involved in the creation and
     maintenance of the content.
          * @property {ContactDetail[]|undefined}
         */
@@ -718,8 +569,8 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description An individual or organization primarily responsible for internal coherence of
-    the content.
+         * @description An individiual, organization, or device primarily responsible for internal
+    coherence of the content.
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'editor', {
@@ -739,8 +590,8 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description An individual or organization primarily responsible for review of some aspect
-    of the content.
+         * @description An individiual, organization, or device primarily responsible for review of
+    some aspect of the content.
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'reviewer', {
@@ -760,8 +611,8 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description An individual or organization responsible for officially endorsing the content
-    for use in some setting.
+         * @description An individiual, organization, or device responsible for officially endorsing
+    the content for use in some setting.
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'endorser', {
@@ -781,8 +632,7 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description Related artifacts such as additional documentation, justification, or
-    bibliographic references.
+         * @description Link or citation to artifact associated with the summary.
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'relatedArtifact', {
@@ -802,65 +652,160 @@ class Evidence extends Resource {
         });
 
         /**
-         * @description A reference to a EvidenceVariable resource that defines the population for the
-    research.
-         * @property {Reference}
+         * @description A free text natural language description of the evidence from a consumer's
+    perspective.
+         * @property {markdown|undefined}
         */
-        Object.defineProperty(this, 'exposureBackground', {
+        Object.defineProperty(this, 'description', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.exposureBackground,
+            get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exposureBackground = undefined;
+                    this.__data.description = undefined;
                     return;
                 }
-                const Reference = require('../complex_types/reference.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.exposureBackground = FhirResourceCreator.create(valueProvided, Reference);
+                this.__data.description = valueProvided;
             }
         });
 
         /**
-         * @description A reference to a EvidenceVariable resource that defines the exposure for the
-    research.
-         * @property {Reference[]|undefined}
+         * @description Declarative description of the Evidence.
+         * @property {markdown|undefined}
         */
-        Object.defineProperty(this, 'exposureVariant', {
+        Object.defineProperty(this, 'assertion', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.exposureVariant,
+            get: () => this.__data.assertion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exposureVariant = undefined;
+                    this.__data.assertion = undefined;
                     return;
                 }
-                const Reference = require('../complex_types/reference.js');
-                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.exposureVariant = FhirResourceCreator.createArray(valueProvided, Reference);
+                this.__data.assertion = valueProvided;
             }
         });
 
         /**
-         * @description A reference to a EvidenceVariable resomece that defines the outcome for the
-    research.
-         * @property {Reference[]|undefined}
+         * @description Footnotes and/or explanatory notes.
+         * @property {Annotation[]|undefined}
         */
-        Object.defineProperty(this, 'outcome', {
+        Object.defineProperty(this, 'note', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.outcome,
+            get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.outcome = undefined;
+                    this.__data.note = undefined;
                     return;
                 }
-                const Reference = require('../complex_types/reference.js');
+                const Annotation = require('../complex_types/annotation.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator');
-                this.__data.outcome = FhirResourceCreator.createArray(valueProvided, Reference);
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
+            }
+        });
+
+        /**
+         * @description Evidence variable such as population, exposure, or outcome.
+         * @property {EvidenceVariableDefinition[]}
+        */
+        Object.defineProperty(this, 'variableDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.variableDefinition,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variableDefinition = undefined;
+                    return;
+                }
+                const EvidenceVariableDefinition = require('../backbone_elements/evidenceVariableDefinition.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.variableDefinition = FhirResourceCreator.createArray(valueProvided, EvidenceVariableDefinition);
+            }
+        });
+
+        /**
+         * @description The method to combine studies.
+         * @property {CodeableConcept|undefined}
+        */
+        Object.defineProperty(this, 'synthesisType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.synthesisType,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.synthesisType = undefined;
+                    return;
+                }
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.synthesisType = FhirResourceCreator.create(valueProvided, CodeableConcept);
+            }
+        });
+
+        /**
+         * @description The type of study that produced this evidence.
+         * @property {CodeableConcept|undefined}
+        */
+        Object.defineProperty(this, 'studyType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.studyType,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.studyType = undefined;
+                    return;
+                }
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.studyType = FhirResourceCreator.create(valueProvided, CodeableConcept);
+            }
+        });
+
+        /**
+         * @description Values and parameters for a single statistic.
+         * @property {EvidenceStatistic[]|undefined}
+        */
+        Object.defineProperty(this, 'statistic', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.statistic,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.statistic = undefined;
+                    return;
+                }
+                const EvidenceStatistic = require('../backbone_elements/evidenceStatistic.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.statistic = FhirResourceCreator.createArray(valueProvided, EvidenceStatistic);
+            }
+        });
+
+        /**
+         * @description Assessment of certainty, confidence in the estimates, or quality of the
+    evidence.
+         * @property {EvidenceCertainty[]|undefined}
+        */
+        Object.defineProperty(this, 'certainty', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.certainty,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.certainty = undefined;
+                    return;
+                }
+                const EvidenceCertainty = require('../backbone_elements/evidenceCertainty.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.certainty = FhirResourceCreator.createArray(valueProvided, EvidenceCertainty);
             }
         });
 
@@ -930,31 +875,29 @@ class Evidence extends Resource {
             url,
             identifier,
             version,
-            name,
             title,
-            shortTitle,
-            subtitle,
+            citeAsReference,
+            citeAsMarkdown,
             status,
             date,
-            publisher,
-            contact,
-            description,
-            note,
             useContext,
-            jurisdiction,
-            copyright,
             approvalDate,
             lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            exposureBackground,
-            exposureVariant,
-            outcome,
+            description,
+            assertion,
+            note,
+            variableDefinition,
+            synthesisType,
+            studyType,
+            statistic,
+            certainty,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -983,7 +926,7 @@ class Evidence extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -994,31 +937,29 @@ class Evidence extends Resource {
      * @param {uri|undefined} [url],
      * @param {Identifier[]|undefined} [identifier],
      * @param {String|undefined} [version],
-     * @param {String|undefined} [name],
      * @param {String|undefined} [title],
-     * @param {String|undefined} [shortTitle],
-     * @param {String|undefined} [subtitle],
+     * @param {Reference|undefined} [citeAsReference],
+     * @param {markdown|undefined} [citeAsMarkdown],
      * @param {code} status,
      * @param {dateTime|undefined} [date],
-     * @param {String|undefined} [publisher],
-     * @param {ContactDetail[]|undefined} [contact],
-     * @param {markdown|undefined} [description],
-     * @param {Annotation[]|undefined} [note],
      * @param {UsageContext[]|undefined} [useContext],
-     * @param {CodeableConcept[]|undefined} [jurisdiction],
-     * @param {markdown|undefined} [copyright],
      * @param {date|undefined} [approvalDate],
      * @param {date|undefined} [lastReviewDate],
-     * @param {Period|undefined} [effectivePeriod],
-     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
      * @param {ContactDetail[]|undefined} [author],
      * @param {ContactDetail[]|undefined} [editor],
      * @param {ContactDetail[]|undefined} [reviewer],
      * @param {ContactDetail[]|undefined} [endorser],
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
-     * @param {Reference} exposureBackground,
-     * @param {Reference[]|undefined} [exposureVariant],
-     * @param {Reference[]|undefined} [outcome],
+     * @param {markdown|undefined} [description],
+     * @param {markdown|undefined} [assertion],
+     * @param {Annotation[]|undefined} [note],
+     * @param {EvidenceVariableDefinition[]} variableDefinition,
+     * @param {CodeableConcept|undefined} [synthesisType],
+     * @param {CodeableConcept|undefined} [studyType],
+     * @param {EvidenceStatistic[]|undefined} [statistic],
+     * @param {EvidenceCertainty[]|undefined} [certainty],
      * @param {Object|undefined} [_access]
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
@@ -1038,31 +979,29 @@ class Evidence extends Resource {
             url,
             identifier,
             version,
-            name,
             title,
-            shortTitle,
-            subtitle,
+            citeAsReference,
+            citeAsMarkdown,
             status,
             date,
-            publisher,
-            contact,
-            description,
-            note,
             useContext,
-            jurisdiction,
-            copyright,
             approvalDate,
             lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            exposureBackground,
-            exposureVariant,
-            outcome,
+            description,
+            assertion,
+            note,
+            variableDefinition,
+            synthesisType,
+            studyType,
+            statistic,
+            certainty,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -1081,31 +1020,29 @@ class Evidence extends Resource {
             url,
             identifier,
             version,
-            name,
             title,
-            shortTitle,
-            subtitle,
+            citeAsReference,
+            citeAsMarkdown,
             status,
             date,
-            publisher,
-            contact,
-            description,
-            note,
             useContext,
-            jurisdiction,
-            copyright,
             approvalDate,
             lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            exposureBackground,
-            exposureVariant,
-            outcome,
+            description,
+            assertion,
+            note,
+            variableDefinition,
+            synthesisType,
+            studyType,
+            statistic,
+            certainty,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -1141,31 +1078,29 @@ class Evidence extends Resource {
             url: this.url,
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             version: this.version,
-            name: this.name,
             title: this.title,
-            shortTitle: this.shortTitle,
-            subtitle: this.subtitle,
+            citeAsReference: this.citeAsReference && this.citeAsReference.toJSON(),
+            citeAsMarkdown: this.citeAsMarkdown,
             status: this.status,
             date: this.date,
-            publisher: this.publisher,
-            contact: this.contact && this.contact.map(v => v.toJSON()),
-            description: this.description,
-            note: this.note && this.note.map(v => v.toJSON()),
             useContext: this.useContext && this.useContext.map(v => v.toJSON()),
-            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
-            copyright: this.copyright,
             approvalDate: this.approvalDate,
             lastReviewDate: this.lastReviewDate,
-            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
-            topic: this.topic && this.topic.map(v => v.toJSON()),
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSON()),
             author: this.author && this.author.map(v => v.toJSON()),
             editor: this.editor && this.editor.map(v => v.toJSON()),
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSON()),
             endorser: this.endorser && this.endorser.map(v => v.toJSON()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
-            exposureBackground: this.exposureBackground && this.exposureBackground.toJSON(),
-            exposureVariant: this.exposureVariant && this.exposureVariant.map(v => v.toJSON()),
-            outcome: this.outcome && this.outcome.map(v => v.toJSON())
+            description: this.description,
+            assertion: this.assertion,
+            note: this.note && this.note.map(v => v.toJSON()),
+            variableDefinition: this.variableDefinition && this.variableDefinition.map(v => v.toJSON()),
+            synthesisType: this.synthesisType && this.synthesisType.toJSON(),
+            studyType: this.studyType && this.studyType.toJSON(),
+            statistic: this.statistic && this.statistic.map(v => v.toJSON()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSON())
         });
     }
 
@@ -1181,20 +1116,20 @@ class Evidence extends Resource {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.citeAsReference) { await this.citeAsReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
             if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.effectivePeriod) { await this.effectivePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.topic) { await async.each(this.topic, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.author) { await async.each(this.author, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.editor) { await async.each(this.editor, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.reviewer) { await async.each(this.reviewer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.endorser) { await async.each(this.endorser, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
             if (this.relatedArtifact) { await async.each(this.relatedArtifact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.exposureBackground) { await this.exposureBackground.updateReferencesAsync({ fnUpdateReferenceAsync }); }
-            if (this.exposureVariant) { await async.each(this.exposureVariant, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
-            if (this.outcome) { await async.each(this.outcome, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.variableDefinition) { await async.each(this.variableDefinition, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.synthesisType) { await this.synthesisType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.studyType) { await this.studyType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.statistic) { await async.each(this.statistic, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.certainty) { await async.each(this.certainty, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1216,33 +1151,30 @@ class Evidence extends Resource {
             url: this.url,
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
             version: this.version,
-            name: this.name,
             title: this.title,
-            shortTitle: this.shortTitle,
-            subtitle: this.subtitle,
+            citeAsReference: this.citeAsReference && this.citeAsReference.toJSONInternal(),
+            citeAsMarkdown: this.citeAsMarkdown,
             status: this.status,
             date: this.date,
-            publisher: this.publisher,
-            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
-            description: this.description,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
             useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
-            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
-            copyright: this.copyright,
             approvalDate: this.approvalDate,
             lastReviewDate: this.lastReviewDate,
-            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
-            topic: this.topic && this.topic.map(v => v.toJSONInternal()),
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
             author: this.author && this.author.map(v => v.toJSONInternal()),
             editor: this.editor && this.editor.map(v => v.toJSONInternal()),
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSONInternal()),
             endorser: this.endorser && this.endorser.map(v => v.toJSONInternal()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
-            exposureBackground: this.exposureBackground && this.exposureBackground.toJSONInternal(),
-            exposureVariant: this.exposureVariant && this.exposureVariant.map(v => v.toJSONInternal()),
-            outcome: this.outcome && this.outcome.map(v => v.toJSONInternal())
+            description: this.description,
+            assertion: this.assertion,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            variableDefinition: this.variableDefinition && this.variableDefinition.map(v => v.toJSONInternal()),
+            synthesisType: this.synthesisType && this.synthesisType.toJSONInternal(),
+            studyType: this.studyType && this.studyType.toJSONInternal(),
+            statistic: this.statistic && this.statistic.map(v => v.toJSONInternal()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
-
         if (this._access) {
             json._access = this._access;
         }

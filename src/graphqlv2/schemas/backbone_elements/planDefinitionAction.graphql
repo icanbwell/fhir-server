@@ -5,6 +5,7 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import id from "../simple_types/id.graphql"
 # import Group from "../resources/group.graphql"
+# import canonical from "../simple_types/canonical.graphql"
 # import TriggerDefinition from "../complex_types/triggerDefinition.graphql"
 # import PlanDefinitionCondition from "../backbone_elements/planDefinitionCondition.graphql"
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
@@ -16,7 +17,6 @@
 # import Range from "../complex_types/range.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 # import PlanDefinitionParticipant from "../backbone_elements/planDefinitionParticipant.graphql"
-# import canonical from "../simple_types/canonical.graphql"
 # import uri from "../simple_types/uri.graphql"
 # import PlanDefinitionDynamicValue from "../backbone_elements/planDefinitionDynamicValue.graphql"
 
@@ -37,8 +37,9 @@ type PlanDefinitionActionSubjectReferenceReference {
 PlanDefinition.Action
     This resource allows for the definition of various types of plans as a
     sharable, consumable, and executable artifact. The resource is general enough
-    to support the description of a broad range of clinical artifacts such as
-    clinical decision support rules, order sets and protocols.
+    to support the description of a broad range of clinical and non-clinical
+    artifacts such as clinical decision support rules, order sets, protocols, and
+    drug quality specifications.
 """
 type PlanDefinitionAction {
     """
@@ -74,7 +75,9 @@ type PlanDefinitionAction {
     """
     prefix: String
     """
-    The title of the action displayed to a user.
+    The textual description of the action displayed to a user. For example, when
+    the action is a test to be performed, the title would be the title of the test
+    such as Assay by HPLC.
     """
     title: String
     """
@@ -94,8 +97,10 @@ type PlanDefinitionAction {
     """
     priority: code
     """
-    A code that provides meaning for the action or action group. For example, a
-    section may have a LOINC code for the section of a documentation template.
+    A code that provides a meaning, grouping, or classification for the action or
+    action group. For example, a section may have a LOINC code for the section of
+    a documentation template. In pharmaceutical quality, an action (Test) such as
+    pH could be classified as a physical property.
     """
     code: [CodeableConcept]
     """
@@ -110,7 +115,10 @@ type PlanDefinitionAction {
     documentation: [RelatedArtifact]
     """
     Identifies goals that this action supports. The reference must be to a goal
-    element defined within this plan definition.
+    element defined within this plan definition. In pharmaceutical quality, a goal
+    represents acceptance criteria (Goal) for a given action (Test), so the goalId
+    would be the unique id of a defined goal element establishing the acceptance
+    criteria for the action.
     """
     goalId: [id]
     """
@@ -121,6 +129,10 @@ type PlanDefinitionAction {
     None
     """
     subjectReference: PlanDefinitionActionSubjectReferenceReference
+    """
+    None
+    """
+    subjectCanonical: canonical
     """
     A description of when the action should be triggered.
     """

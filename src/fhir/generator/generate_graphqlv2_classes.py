@@ -130,6 +130,8 @@ def main() -> int:
         # use template to generate new code files
         resource_name: str = fhir_entity.cleaned_name
         entity_file_name = fhir_entity.name_snake_case
+
+        resource_list = FhirXmlSchemaParser.get_list_of_resources()
         if fhir_entity.is_value_set:  # valueset
             pass
 
@@ -151,6 +153,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
+                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
@@ -210,6 +213,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
+                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     total_resources_count=total_resources_count
                 )
@@ -246,6 +250,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
+                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     total_resources_count=total_resources_count
                 )
@@ -281,6 +286,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
+                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     total_resources_count=total_resources_count
                 )
@@ -317,6 +323,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
+                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     total_resources_count=total_resources_count
                 )

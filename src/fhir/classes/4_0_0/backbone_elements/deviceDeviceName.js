@@ -108,7 +108,7 @@ class DeviceDeviceName extends Element {
         });
 
         /**
-         * @description The name of the device.
+         * @description The name that identifies the device.
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
@@ -144,6 +144,7 @@ class DeviceDeviceName extends Element {
                 this.__data.type = valueProvided;
             }
         });
+
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {

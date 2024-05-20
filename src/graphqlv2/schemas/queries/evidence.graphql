@@ -4,9 +4,10 @@
 extend type Query {
     """
     Evidence
-        The Evidence resource describes the conditional state (population and any
-    exposures being compared within the population) and outcome (if specified)
-    that the knowledge (evidence, assertion, recommendation) is about.
+        The Evidence Resource provides a machine-interpretable expression of an
+    evidence concept including the evidence variables (eg population,
+    exposures/interventions, comparators, outcomes, measured variables,
+    confounding variables), the statistics, and the certainty of this evidence.
         If the element is present, it must have either a @value, an @id, or extensions
     """
     evidence(
@@ -46,11 +47,6 @@ extend type Query {
 
         # search parameters for Evidence
         """
-        composed-of (FHIR type: reference)
-        What resource is being referenced
-        """
-        composed_of: SearchReference
-        """
         context (FHIR type: token)
         A use context assigned to the evidence
         """
@@ -71,45 +67,15 @@ extend type Query {
         """
         date: SearchDate
         """
-        depends-on (FHIR type: reference)
-        What resource is being referenced
-        """
-        depends_on: SearchReference
-        """
-        derived-from (FHIR type: reference)
-        What resource is being referenced
-        """
-        derived_from: SearchReference
-        """
         description (FHIR type: string)
         The description of the evidence
         """
         description: SearchString
         """
-        effective (FHIR type: date)
-        The time during which the evidence is intended to be in use
-        """
-        effective: SearchDate
-        """
         identifier (FHIR type: token)
         External identifier for the evidence
         """
         identifier: SearchToken
-        """
-        jurisdiction (FHIR type: token)
-        Intended jurisdiction for the evidence
-        """
-        jurisdiction: SearchToken
-        """
-        name (FHIR type: string)
-        Computationally friendly name of the evidence
-        """
-        name: SearchString
-        """
-        predecessor (FHIR type: reference)
-        What resource is being referenced
-        """
-        predecessor: SearchReference
         """
         publisher (FHIR type: string)
         Name of the publisher of the evidence
@@ -121,20 +87,10 @@ extend type Query {
         """
         status: SearchToken
         """
-        successor (FHIR type: reference)
-        What resource is being referenced
-        """
-        successor: SearchReference
-        """
         title (FHIR type: string)
         The human-friendly name of the evidence
         """
         title: SearchString
-        """
-        topic (FHIR type: token)
-        Topics associated with the Evidence
-        """
-        topic: SearchToken
         """
         url (FHIR type: uri)
         The uri that identifies the evidence
