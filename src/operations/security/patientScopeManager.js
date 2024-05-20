@@ -161,7 +161,7 @@ class PatientScopeManager {
         // If this resource has a patient property then get the value of that property
         if (patientFilterProperty) {
             if (patientFilterProperty === 'id') {
-                return resource._uuid;
+                return [resource._uuid];
             } else {
                 const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
                 let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });

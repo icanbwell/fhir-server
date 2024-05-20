@@ -1,0 +1,29 @@
+{
+    "resourceType": "Patient",
+    "id": "49d410d2-b090-4f9c-ad9a-efac145bf81a",
+    "meta": {
+        "source": "http://clienthealth.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "birthDate": "2017-01-01",
+    "gender": "female",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["SHYLA"],
+            "prefix": [],
+            "suffix": []
+        }
+    ]
+}

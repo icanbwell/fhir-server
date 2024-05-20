@@ -106,19 +106,23 @@ class ResourceValidator {
 
             let referenceMatched = true;
             // Case when multiple reference exists at the patient reference field
-            if (Array.isArray(currentValue) && Array.isArray(newValue)) {
-                // In case of non user/patient scope, we are not raising error if patient references are updated
+            if (Array.isArray(currentValue) || Array.isArray(newValue)) {
+                // In case of non user/patient scope, we are not raising error if patient references are list
                 if (!isUser) {
                     return null;
                 }
-                currentValue.sort();
-                newValue.sort();
+                if (Array.isArray(currentValue) && Array.isArray(newValue)) {
+                    currentValue.sort();
+                    newValue.sort();
 
-                for(let index = 0 ; index < currentValue.length ; index++) {
-                    if ( currentValue[index] !== newValue[index] ) {
-                        referenceMatched = false;
-                        break;
+                    for(let index = 0 ; index < currentValue.length ; index++) {
+                        if ( currentValue[index] !== newValue[index] ) {
+                            referenceMatched = false;
+                            break;
+                        }
                     }
+                } else {
+                    referenceMatched = false;
                 }
             } else {
                 referenceMatched = currentValue === newValue;
