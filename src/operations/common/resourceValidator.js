@@ -105,9 +105,9 @@ class ResourceValidator {
             });
 
             let referenceMatched = true;
-            // Case when multiple reference exists at the patient reference field
+            // In this is an array field, then allow update for non patient scopes
+            // Resources which support patient reference fields as array/list: Account, Appointment, Contract, Group, Person, Provenance, Schedule
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
-                // In case of non user/patient scope, we are not raising error if patient references are list
                 if (!isUser) {
                     return null;
                 }

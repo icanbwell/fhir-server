@@ -169,6 +169,7 @@ class PatientScopeManager {
                 if (!value || value?.length === 0) {
                     value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
                 }
+                // If patient reference field returns multiple ids, return all of them
                 if (Array.isArray(value) && value.length > 0) {
                     const result = [];
                     for (let item of value) {
