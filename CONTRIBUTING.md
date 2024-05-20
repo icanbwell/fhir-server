@@ -9,7 +9,7 @@ On Macs:
 1. `brew install nvm`
 2. Add the content into ~/.zshrc as suggested by above
 3. Close shell window and open again
-4. `nvm install 20.13.1`
+4. `nvm install`
 5. `nvm use`
 6. `npm install -g yarn`
 7. `yarn install`
