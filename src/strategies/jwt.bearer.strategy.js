@@ -262,7 +262,6 @@ module.exports.strategy = new MyJwtStrategy(
 
         // Validate the audience and the issuer.
         // audience: 'urn:my-resource-server',
-        // issuer: env.AUTH_ISSUER,
         algorithms: ['RS256'],
         // pass request to verify callback
         passReqToCallback: true
