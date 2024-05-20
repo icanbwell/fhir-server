@@ -85,11 +85,12 @@ class ResourceValidator {
      * @typedef {Object} ValidatePatientReferenceParams
      * @property {Resource} currentResource
      * @property {Object} resourceToValidateJson
+     * @property {Boolean} isUser
      *
      * @param {ValidatePatientReferenceParams}
      * @returns {OperationOutcome | null}
      */
-    validatePatientReference ({ currentResource, resourceToValidateJson }) {
+    validatePatientReference ({ currentResource, resourceToValidateJson, isUser }) {
         // Get Patient field
         const patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: currentResource.resourceType
@@ -104,7 +105,12 @@ class ResourceValidator {
             });
 
             let referenceMatched = true;
+            // Case when multiple reference exists at the patient reference field
             if (Array.isArray(currentValue) && Array.isArray(newValue)) {
+                // In case of non user/patient scope, we are not raising error if patient references are updated
+                if (!isUser) {
+                    return null;
+                }
                 currentValue.sort();
                 newValue.sort();
 
@@ -201,12 +207,11 @@ class ResourceValidator {
 
         const { isUser } = requestInfo;
 
-        // In case of user/patient scope, updation of patient references is not allowed.
-        // If not user/patinet scope, updation for only Person resource is allowed.
-        if (!validationOperationOutcome && currentResource && (isUser || resourceType !== 'Person')) {
+        if (!validationOperationOutcome && currentResource) {
             validationOperationOutcome = this.validatePatientReference({
                 currentResource,
-                resourceToValidateJson
+                resourceToValidateJson,
+                isUser
             });
         }
         if (validationOperationOutcome) {
