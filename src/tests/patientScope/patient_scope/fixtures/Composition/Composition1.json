@@ -8,9 +8,9 @@
   "status": "final",
   "type": {},
   "date": "2023-11-11T10:30:10.000Z",
-  "author": {
+  "author": [{
     "reference": "Patient/1"
-  },
+  }],
   "subject": {
     "reference": "Patient/1"
   },

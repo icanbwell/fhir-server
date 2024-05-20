@@ -1,11 +1,11 @@
 {
-    "id": "1",
-    "resourceType": "Specimen",
-    "meta": {
-        "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
-    },
-    "subject": {
-        "reference": "Patient/1"
-    }
+  "id": "1",
+  "resourceType": "Specimen",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "subject": {
+    "reference": "Patient/1"
+  }
 }

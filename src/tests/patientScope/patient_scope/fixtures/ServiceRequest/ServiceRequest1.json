@@ -1,13 +1,13 @@
 {
-    "id": "1",
-    "resourceType": "ServiceRequest",
-    "meta": {
-        "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
-    },
-    "status": "draft",
-    "intent": "plan",
-    "subject": {
-        "reference": "Patient/1"
-    }
+  "id": "1",
+  "resourceType": "ServiceRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "draft",
+  "intent": "plan",
+  "subject": {
+    "reference": "Patient/1"
+  }
 }

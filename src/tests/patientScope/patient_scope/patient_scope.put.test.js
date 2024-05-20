@@ -104,6 +104,8 @@ const NutritionOrderResource1 = require('./fixtures/NutritionOrder/NutritionOrde
 const NutritionOrderResource2 = require('./fixtures/NutritionOrder/NutritionOrder2.json');
 const ObservationResource1 = require('./fixtures/Observation/Observation1.json');
 const ObservationResource2 = require('./fixtures/Observation/Observation2.json');
+const PatientResource1 = require('./fixtures/Patient/Patient1.json');
+const PatientResource2 = require('./fixtures/Patient/Patient2.json');
 const BwellPersonResource = require('./fixtures/Person/bwellPerson.json');
 const PersonResource1 = require('./fixtures/Person/Person1.json');
 const PersonResource2 = require('./fixtures/Person/Person2.json');
@@ -181,867 +183,875 @@ describe('Patient scope resource testcases', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // resp = await request.post('/4_0_0/Account/').send(AccountResource1).set(headers1);
+        // resp = await request.put('/4_0_0/Account/1').send(AccountResource1).set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
-        // resp = await request.post('/4_0_0/Account/').send(AccountResource2).set(headers1);
+        // resp = await request.put('/4_0_0/Account/1').send(AccountResource2).set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AdverseEvent/')
+            .put('/4_0_0/AdverseEvent/1')
             .send(AdverseEventResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AdverseEvent/')
+            .put('/4_0_0/AdverseEvent/2')
             .send(AdverseEventResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AllergyIntolerance/')
+            .put('/4_0_0/AllergyIntolerance/1')
             .send(AllergyIntoleranceResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AllergyIntolerance/')
+            .put('/4_0_0/AllergyIntolerance/2')
             .send(AllergyIntoleranceResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Appointment/')
+        //     .put('/4_0_0/Appointment/1')
         //     .send(AppointmentResource1)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Appointment/')
+        //     .put('/4_0_0/Appointment/2')
         //     .send(AppointmentResource2)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AppointmentResponse/')
+            .put('/4_0_0/AppointmentResponse/1')
             .send(AppointmentResponseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/AppointmentResponse/')
+            .put('/4_0_0/AppointmentResponse/2')
             .send(AppointmentResponseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Basic/').send(BasicResource1).set(headers1);
+        resp = await request.put('/4_0_0/Basic/1').send(BasicResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Basic/').send(BasicResource2).set(headers1);
+        resp = await request.put('/4_0_0/Basic/2').send(BasicResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/BodyStructure/')
+            .put('/4_0_0/BodyStructure/1')
             .send(BodyStructureResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/BodyStructure/')
+            .put('/4_0_0/BodyStructure/2')
             .send(BodyStructureResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CarePlan/')
+            .put('/4_0_0/CarePlan/1')
             .send(CarePlanResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CarePlan/')
+            .put('/4_0_0/CarePlan/2')
             .send(CarePlanResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CareTeam/')
+            .put('/4_0_0/CareTeam/1')
             .send(CareTeamResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CareTeam/')
+            .put('/4_0_0/CareTeam/2')
             .send(CareTeamResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ChargeItem/')
+            .put('/4_0_0/ChargeItem/1')
             .send(ChargeItemResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ChargeItem/')
+            .put('/4_0_0/ChargeItem/2')
             .send(ChargeItemResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Claim/').send(ClaimResource1).set(headers1);
+        resp = await request.put('/4_0_0/Claim/1').send(ClaimResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Claim/').send(ClaimResource2).set(headers1);
+        resp = await request.put('/4_0_0/Claim/2').send(ClaimResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ClaimResponse/')
+            .put('/4_0_0/ClaimResponse/1')
             .send(ClaimResponseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ClaimResponse/')
+            .put('/4_0_0/ClaimResponse/2')
             .send(ClaimResponseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ClinicalImpression/')
+            .put('/4_0_0/ClinicalImpression/1')
             .send(ClinicalImpressionResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ClinicalImpression/')
+            .put('/4_0_0/ClinicalImpression/2')
             .send(ClinicalImpressionResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Communication/')
+            .put('/4_0_0/Communication/1')
             .send(CommunicationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Communication/')
+            .put('/4_0_0/Communication/2')
             .send(CommunicationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CommunicationRequest/')
+            .put('/4_0_0/CommunicationRequest/1')
             .send(CommunicationRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CommunicationRequest/')
+            .put('/4_0_0/CommunicationRequest/2')
             .send(CommunicationRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Composition/')
+            .put('/4_0_0/Composition/1')
             .send(CompositionResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Composition/')
+            .put('/4_0_0/Composition/2')
             .send(CompositionResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Condition/')
+            .put('/4_0_0/Condition/1')
             .send(ConditionResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Condition/')
+            .put('/4_0_0/Condition/2')
             .send(ConditionResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Consent/').send(ConsentResource1).set(headers1);
+        resp = await request.put('/4_0_0/Consent/1').send(ConsentResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Consent/').send(ConsentResource2).set(headers1);
+        resp = await request.put('/4_0_0/Consent/2').send(ConsentResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Contract/')
+        //     .put('/4_0_0/Contract/1')
         //     .send(ContractResource1)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Contract/')
+        //     .put('/4_0_0/Contract/2')
         //     .send(ContractResource2)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Coverage/')
+            .put('/4_0_0/Coverage/1')
             .send(CoverageResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Coverage/')
+            .put('/4_0_0/Coverage/2')
             .send(CoverageResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CoverageEligibilityRequest/')
+            .put('/4_0_0/CoverageEligibilityRequest/1')
             .send(CoverageEligibilityRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CoverageEligibilityRequest/')
+            .put('/4_0_0/CoverageEligibilityRequest/2')
             .send(CoverageEligibilityRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CoverageEligibilityResponse/')
+            .put('/4_0_0/CoverageEligibilityResponse/1')
             .send(CoverageEligibilityResponseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/CoverageEligibilityResponse/')
+            .put('/4_0_0/CoverageEligibilityResponse/2')
             .send(CoverageEligibilityResponseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DetectedIssue/')
+            .put('/4_0_0/DetectedIssue/1')
             .send(DetectedIssueResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DetectedIssue/')
+            .put('/4_0_0/DetectedIssue/2')
             .send(DetectedIssueResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Device/').send(DeviceResource1).set(headers1);
+        resp = await request.put('/4_0_0/Device/1').send(DeviceResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Device/').send(DeviceResource2).set(headers1);
+        resp = await request.put('/4_0_0/Device/2').send(DeviceResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DeviceRequest/')
+            .put('/4_0_0/DeviceRequest/1')
             .send(DeviceRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DeviceRequest/')
+            .put('/4_0_0/DeviceRequest/2')
             .send(DeviceRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DeviceUseStatement/')
+            .put('/4_0_0/DeviceUseStatement/1')
             .send(DeviceUseStatementResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DeviceUseStatement/')
+            .put('/4_0_0/DeviceUseStatement/2')
             .send(DeviceUseStatementResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DiagnosticReport/')
+            .put('/4_0_0/DiagnosticReport/1')
             .send(DiagnosticReportResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DiagnosticReport/')
+            .put('/4_0_0/DiagnosticReport/2')
             .send(DiagnosticReportResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DocumentManifest/')
+            .put('/4_0_0/DocumentManifest/1')
             .send(DocumentManifestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DocumentManifest/')
+            .put('/4_0_0/DocumentManifest/2')
             .send(DocumentManifestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DocumentReference/')
+            .put('/4_0_0/DocumentReference/1')
             .send(DocumentReferenceResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/DocumentReference/')
+            .put('/4_0_0/DocumentReference/2')
             .send(DocumentReferenceResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Encounter/')
+            .put('/4_0_0/Encounter/1')
             .send(EncounterResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Encounter/')
+            .put('/4_0_0/Encounter/2')
             .send(EncounterResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/EnrollmentRequest/')
+            .put('/4_0_0/EnrollmentRequest/1')
             .send(EnrollmentRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/EnrollmentRequest/')
+            .put('/4_0_0/EnrollmentRequest/2')
             .send(EnrollmentRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/EpisodeOfCare/')
+            .put('/4_0_0/EpisodeOfCare/1')
             .send(EpisodeOfCareResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/EpisodeOfCare/')
+            .put('/4_0_0/EpisodeOfCare/2')
             .send(EpisodeOfCareResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ExplanationOfBenefit/')
+            .put('/4_0_0/ExplanationOfBenefit/1')
             .send(ExplanationOfBenefitResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ExplanationOfBenefit/')
+            .put('/4_0_0/ExplanationOfBenefit/2')
             .send(ExplanationOfBenefitResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/FamilyMemberHistory/')
+            .put('/4_0_0/FamilyMemberHistory/1')
             .send(FamilyMemberHistoryResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/FamilyMemberHistory/')
+            .put('/4_0_0/FamilyMemberHistory/2')
             .send(FamilyMemberHistoryResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Flag/').send(FlagResource1).set(headers1);
+        resp = await request.put('/4_0_0/Flag/1').send(FlagResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Flag/').send(FlagResource2).set(headers1);
+        resp = await request.put('/4_0_0/Flag/2').send(FlagResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Goal/').send(GoalResource1).set(headers1);
+        resp = await request.put('/4_0_0/Goal/1').send(GoalResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Goal/').send(GoalResource2).set(headers1);
+        resp = await request.put('/4_0_0/Goal/2').send(GoalResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        // resp = await request.post('/4_0_0/Group/').send(GroupResource1).set(headers1);
+        // resp = await request.put('/4_0_0/Group/1').send(GroupResource1).set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
-        // resp = await request.post('/4_0_0/Group/').send(GroupResource2).set(headers1);
+        // resp = await request.put('/4_0_0/Group/2').send(GroupResource2).set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/GuidanceResponse/')
+            .put('/4_0_0/GuidanceResponse/1')
             .send(GuidanceResponseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/GuidanceResponse/')
+            .put('/4_0_0/GuidanceResponse/2')
             .send(GuidanceResponseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImagingStudy/')
+            .put('/4_0_0/ImagingStudy/1')
             .send(ImagingStudyResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImagingStudy/')
+            .put('/4_0_0/ImagingStudy/2')
             .send(ImagingStudyResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Immunization/')
+            .put('/4_0_0/Immunization/1')
             .send(ImmunizationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Immunization/')
+            .put('/4_0_0/Immunization/2')
             .send(ImmunizationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImmunizationEvaluation/')
+            .put('/4_0_0/ImmunizationEvaluation/1')
             .send(ImmunizationEvaluationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImmunizationEvaluation/')
+            .put('/4_0_0/ImmunizationEvaluation/2')
             .send(ImmunizationEvaluationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImmunizationRecommendation/')
+            .put('/4_0_0/ImmunizationRecommendation/1')
             .send(ImmunizationRecommendationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ImmunizationRecommendation/')
+            .put('/4_0_0/ImmunizationRecommendation/2')
             .send(ImmunizationRecommendationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Invoice/').send(InvoiceResource1).set(headers1);
+        resp = await request.put('/4_0_0/Invoice/1').send(InvoiceResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Invoice/').send(InvoiceResource2).set(headers1);
+        resp = await request.put('/4_0_0/Invoice/2').send(InvoiceResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/List/').send(ListResource1).set(headers1);
+        resp = await request.put('/4_0_0/List/1').send(ListResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/List/').send(ListResource2).set(headers1);
+        resp = await request.put('/4_0_0/List/2').send(ListResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MeasureReport/')
+            .put('/4_0_0/MeasureReport/1')
             .send(MeasureReportResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MeasureReport/')
+            .put('/4_0_0/MeasureReport/2')
             .send(MeasureReportResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Media/').send(MediaResource1).set(headers1);
+        resp = await request.put('/4_0_0/Media/1').send(MediaResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Media/').send(MediaResource2).set(headers1);
+        resp = await request.put('/4_0_0/Media/2').send(MediaResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationAdministration/')
+            .put('/4_0_0/MedicationAdministration/1')
             .send(MedicationAdministrationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationAdministration/')
+            .put('/4_0_0/MedicationAdministration/2')
             .send(MedicationAdministrationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationDispense/')
+            .put('/4_0_0/MedicationDispense/1')
             .send(MedicationDispenseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationDispense/')
+            .put('/4_0_0/MedicationDispense/2')
             .send(MedicationDispenseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationRequest/')
+            .put('/4_0_0/MedicationRequest/1')
             .send(MedicationRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationRequest/')
+            .put('/4_0_0/MedicationRequest/2')
             .send(MedicationRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationStatement/')
+            .put('/4_0_0/MedicationStatement/1')
             .send(MedicationStatementResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MedicationStatement/')
+            .put('/4_0_0/MedicationStatement/2')
             .send(MedicationStatementResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MolecularSequence/')
+            .put('/4_0_0/MolecularSequence/1')
             .send(MolecularSequenceResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/MolecularSequence/')
+            .put('/4_0_0/MolecularSequence/2')
             .send(MolecularSequenceResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/NutritionOrder/')
+            .put('/4_0_0/NutritionOrder/1')
             .send(NutritionOrderResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/NutritionOrder/')
+            .put('/4_0_0/NutritionOrder/2')
             .send(NutritionOrderResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Observation/')
+            .put('/4_0_0/Observation/1')
             .send(ObservationResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Observation/')
+            .put('/4_0_0/Observation/2')
             .send(ObservationResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
+        resp = await request.put('/4_0_0/Patient/1').send(PatientResource1).set(headers1);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveStatusCode(201);
+
+        resp = await request.put('/4_0_0/Patient/2').send(PatientResource2).set(headers1);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveStatusCode(201);
+
         resp = await request
-            .post('/4_0_0/Procedure/')
+            .put('/4_0_0/Procedure/1')
             .send(ProcedureResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Procedure/')
+            .put('/4_0_0/Procedure/2')
             .send(ProcedureResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Provenance/')
+        //     .put('/4_0_0/Provenance/1')
         //     .send(ProvenanceResource1)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Provenance/')
+        //     .put('/4_0_0/Provenance/2')
         //     .send(ProvenanceResource2)
         //     .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/QuestionnaireResponse/')
+            .put('/4_0_0/QuestionnaireResponse/1')
             .send(QuestionnaireResponseResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/QuestionnaireResponse/')
+            .put('/4_0_0/QuestionnaireResponse/2')
             .send(QuestionnaireResponseResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RelatedPerson/')
+            .put('/4_0_0/RelatedPerson/1')
             .send(RelatedPersonResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RelatedPerson/')
+            .put('/4_0_0/RelatedPerson/2')
             .send(RelatedPersonResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RequestGroup/')
+            .put('/4_0_0/RequestGroup/1')
             .send(RequestGroupResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RequestGroup/')
+            .put('/4_0_0/RequestGroup/2')
             .send(RequestGroupResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ResearchSubject/')
+            .put('/4_0_0/ResearchSubject/1')
             .send(ResearchSubjectResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ResearchSubject/')
+            .put('/4_0_0/ResearchSubject/2')
             .send(ResearchSubjectResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RiskAssessment/')
+            .put('/4_0_0/RiskAssessment/1')
             .send(RiskAssessmentResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/RiskAssessment/')
+            .put('/4_0_0/RiskAssessment/2')
             .send(RiskAssessmentResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Schedule/')
+        //     .put('/4_0_0/Schedule/1')
         //     .send(ScheduleResource1)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         // resp = await request
-        //     .post('/4_0_0/Schedule/')
+        //     .put('/4_0_0/Schedule/2')
         //     .send(ScheduleResource2)
         //     .set(headers1);
         // // noinspection JSUnresolvedFunction
         // expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ServiceRequest/')
+            .put('/4_0_0/ServiceRequest/1')
             .send(ServiceRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/ServiceRequest/')
+            .put('/4_0_0/ServiceRequest/2')
             .send(ServiceRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Specimen/')
+            .put('/4_0_0/Specimen/1')
             .send(SpecimenResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/Specimen/')
+            .put('/4_0_0/Specimen/2')
             .send(SpecimenResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/SupplyDelivery/')
+            .put('/4_0_0/SupplyDelivery/1')
             .send(SupplyDeliveryResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/SupplyDelivery/')
+            .put('/4_0_0/SupplyDelivery/2')
             .send(SupplyDeliveryResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/SupplyRequest/')
+            .put('/4_0_0/SupplyRequest/1')
             .send(SupplyRequestResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/SupplyRequest/')
+            .put('/4_0_0/SupplyRequest/2')
             .send(SupplyRequestResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Task/').send(TaskResource1).set(headers1);
+        resp = await request.put('/4_0_0/Task/1').send(TaskResource1).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
-        resp = await request.post('/4_0_0/Task/').send(TaskResource2).set(headers1);
+        resp = await request.put('/4_0_0/Task/2').send(TaskResource2).set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/VisionPrescription/')
+            .put('/4_0_0/VisionPrescription/1')
             .send(VisionPrescriptionResource1)
             .set(headers1);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .post('/4_0_0/VisionPrescription/')
+            .put('/4_0_0/VisionPrescription/2')
             .send(VisionPrescriptionResource2)
             .set(headers1);
         // noinspection JSUnresolvedFunction

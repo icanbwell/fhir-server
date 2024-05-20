@@ -1,25 +1,29 @@
 {
-    "id": "2",
-    "resourceType": "VisionPrescription",
-    "meta": {
-        "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
-    },
-    "status": "active",
-    "created": "2023-10-10T10:20:10.000Z",
-    "patient": {
-        "reference": "Patient/2"
-    },
-    "dateWritten": "2023-10-10T10:20:10.000Z",
-    "prescriber": {
-        "reference": "Practitioner/2"
-    },
-    "lensSpecification": {
-        "product": {},
-        "eye": "right",
-        "prism": {
-            "amount": 2.0,
-            "base": "up"
+  "id": "2",
+  "resourceType": "VisionPrescription",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "created": "2023-10-10T10:20:10.000Z",
+  "patient": {
+    "reference": "Patient/2"
+  },
+  "dateWritten": "2023-10-10T10:20:10.000Z",
+  "prescriber": {
+    "reference": "Practitioner/2"
+  },
+  "lensSpecification": [
+    {
+      "product": {},
+      "eye": "right",
+      "prism": [
+        {
+          "amount": 2.0,
+          "base": "up"
         }
+      ]
     }
+  ]
 }

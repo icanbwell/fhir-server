@@ -1,13 +1,13 @@
 {
-    "id": "2",
-    "resourceType": "Observation",
-    "meta": {
-        "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
-    },
-    "status": "final",
-    "code": "1-8",
-    "subject": {
-        "reference": "Patient/2"
-    }
+  "id": "2",
+  "resourceType": "Observation",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "final",
+  "code": "1-8",
+  "subject": {
+    "reference": "Patient/2"
+  }
 }

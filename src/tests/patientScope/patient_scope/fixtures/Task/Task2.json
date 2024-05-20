@@ -1,13 +1,13 @@
 {
-    "id": "2",
-    "resourceType": "Task",
-    "meta": {
-        "source": "test",
-        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
-    },
-    "status": "draft",
-    "intent": "plan",
-    "for": {
-        "reference": "Patient/2"
-    }
+  "id": "2",
+  "resourceType": "Task",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "draft",
+  "intent": "plan",
+  "for": {
+    "reference": "Patient/2"
+  }
 }

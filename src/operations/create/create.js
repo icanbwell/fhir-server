@@ -177,7 +177,7 @@ class CreateOperation {
                     requestInfo,
                     id: resource_incoming.id,
                     resourceType,
-                    resourceToValidate: resource_incoming,
+                    resourceToValidate: body,
                     path,
                     currentDate,
                     resourceObj: resource
