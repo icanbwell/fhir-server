@@ -1,0 +1,52 @@
+{
+  "resourceType": "Person",
+  "id": "c123456",
+  "meta": {
+    "source": "https://www.icanbwell.com/enterprise-person-service",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-1"
+      }
+    ]
+  },
+  "name": [
+    {
+      "use": "official",
+      "family": "Irving",
+      "given": ["Lloyd"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "2024-01-18",
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8|client"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6|client-1"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce7|client-1"
+      }
+    }
+  ]
+}

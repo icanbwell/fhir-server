@@ -1,0 +1,21 @@
+{
+  "resourceType": "Patient",
+  "id": "c6b8d61a-b0ca-4d2f-8eb3-ee60b5da4486",
+  "meta": {
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "client"
+      }
+    ]
+  },
+  "gender": "male"
+}

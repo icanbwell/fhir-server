@@ -49,7 +49,7 @@ describe('PatientScopeManager Tests', () => {
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = patientScopeManager.getValueOfPatientPropertyFromResource({ resource: patient });
             const expectedPatientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
-            expect(patientUuid).toStrictEqual(expectedPatientUuid);
+            expect(patientUuid).toStrictEqual([expectedPatientUuid]);
         });
         test('getValueOfPatientPropertyFromResource works for Condition', async () => {
             /** @type {SimpleContainer} */
@@ -67,7 +67,7 @@ describe('PatientScopeManager Tests', () => {
             const patientReference = condition.subject.reference;
             const patientId = patientReference.split('/')[1];
             const expectedPatientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
-            expect(patientUuid).toStrictEqual(expectedPatientUuid);
+            expect(patientUuid).toStrictEqual([expectedPatientUuid]);
         });
     });
 

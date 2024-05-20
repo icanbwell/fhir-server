@@ -85,11 +85,12 @@ class ResourceValidator {
      * @typedef {Object} ValidatePatientReferenceParams
      * @property {Resource} currentResource
      * @property {Object} resourceToValidateJson
+     * @property {Boolean} isUser
      *
      * @param {ValidatePatientReferenceParams}
      * @returns {OperationOutcome | null}
      */
-    validatePatientReference ({ currentResource, resourceToValidateJson }) {
+    validatePatientReference ({ currentResource, resourceToValidateJson, isUser }) {
         // Get Patient field
         const patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: currentResource.resourceType
@@ -103,8 +104,32 @@ class ResourceValidator {
                 obj: resourceToValidateJson, path: patientField
             });
 
+            let referenceMatched = true;
+            // In this is an array field, then allow update for non patient scopes
+            // Resources which support patient reference fields as array/list: Account, Appointment, Contract, Group, Person, Provenance, Schedule
+            if (Array.isArray(currentValue) || Array.isArray(newValue)) {
+                if (!isUser) {
+                    return null;
+                }
+                if (Array.isArray(currentValue) && Array.isArray(newValue)) {
+                    currentValue.sort();
+                    newValue.sort();
+
+                    for(let index = 0 ; index < currentValue.length ; index++) {
+                        if ( currentValue[index] !== newValue[index] ) {
+                            referenceMatched = false;
+                            break;
+                        }
+                    }
+                } else {
+                    referenceMatched = false;
+                }
+            } else {
+                referenceMatched = currentValue === newValue;
+            }
+
             // Return operationOutcome is patientReference are not same to avoid patientReference change
-            if (currentValue !== newValue) {
+            if (!referenceMatched) {
                 return new OperationOutcome({
                     issue: new OperationOutcomeIssue({
                         code: 'invalid',
@@ -184,10 +209,13 @@ class ResourceValidator {
                 }
             );
 
+        const { isUser } = requestInfo;
+
         if (!validationOperationOutcome && currentResource) {
             validationOperationOutcome = this.validatePatientReference({
                 currentResource,
-                resourceToValidateJson
+                resourceToValidateJson,
+                isUser
             });
         }
         if (validationOperationOutcome) {

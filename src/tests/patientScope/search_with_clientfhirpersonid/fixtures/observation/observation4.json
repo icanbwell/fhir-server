@@ -1,0 +1,41 @@
+{
+  "id": "heart-rate5",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-1"
+      }
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://www.icanbwell.com/cql/library",
+        "code": "BMI001"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/libraryVersion",
+        "code": "1.0.0"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/rule",
+        "code": "InAgeCohort"
+      }
+    ]
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/c6b8d61a-b0ca-4d2f-8eb3-ee60b5da4486"
+  }
+}

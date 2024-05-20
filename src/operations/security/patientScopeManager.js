@@ -160,42 +160,35 @@ class PatientScopeManager {
         });
         // If this resource has a patient property then get the value of that property
         if (patientFilterProperty) {
-            if (Array.isArray(patientFilterProperty)) {
-                for (const p of patientFilterProperty) {
-                    // if patient itself then search by _uuid
-                    if (p === 'id') {
-                        return resource._uuid;
-                    } else {
-                        const propertyUuid = p.replace('.reference', '._uuid');
-                        let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
-                        // for incoming request, it may be stored in ".reference" only
-                        if (!value) {
-                            value = NestedPropertyReader.getNestedProperty({ obj: resource, path: p });
-                        }
-                        if (value !== undefined) {
-                            const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(value);
-                            return sourceAssigningAuthority && !isUuid(id)
-                                ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
-                                : id;
-                        }
-                    }
-                }
+            if (patientFilterProperty === 'id') {
+                return [resource._uuid];
             } else {
-                if (patientFilterProperty === 'id') {
-                    return resource._uuid;
-                } else {
-                    const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
-                    let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
-                    // for incoming request, it may be stored in ".reference" only
-                    if (!value) {
-                        value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
+                let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                // for incoming request, it may be stored in ".reference" only
+                if (!value || value?.length === 0) {
+                    value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                }
+                // If patient reference field returns multiple ids, return all of them
+                if (Array.isArray(value) && value.length > 0) {
+                    const result = [];
+                    for (let item of value) {
+                        const { id, sourceAssigningAuthority, resourceType } = ReferenceParser.parseReference(item);
+                        if (resourceType === 'Patient') {
+                            result.push(
+                                sourceAssigningAuthority && !isUuid(id)
+                                ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
+                                : id
+                            );
+                        }
                     }
-                    if (value !== undefined) {
-                        const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(value);
-                        return sourceAssigningAuthority && !isUuid(id)
-                            ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
-                            : id;
-                    }
+                    return result;
+                }
+                else if (value) {
+                    const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(value);
+                    return [sourceAssigningAuthority && !isUuid(id)
+                        ? generateUUIDv5(`${id}|${sourceAssigningAuthority}`)
+                        : id];
                 }
             }
         }
@@ -227,15 +220,19 @@ class PatientScopeManager {
         const patientForResource = this.getValueOfPatientPropertyFromResource({ resource });
         // if we have any uuids then check if any of those are included in patient ids in patient scope
         if (patientUuids && patientUuids.length > 0) {
-            if (patientUuids.includes(patientForResource)) {
-                return true;
+            for (let patient of patientForResource) {
+                if (patientUuids.includes(patient)) {
+                    return true;
+                }
             }
         }
         // now check any non-uuids
         const patientNonUuids = patientIds.filter(id => !isUuid(id));
         if (patientNonUuids && patientNonUuids.length > 0) {
-            if (patientNonUuids.includes(patientForResource)) {
-                return true;
+            for (let patient of patientForResource) {
+                if (patientNonUuids.includes(patient)) {
+                    return true;
+                }
             }
         }
         return false;
