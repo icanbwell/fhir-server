@@ -19,7 +19,7 @@ module.exports = {
     },
     CompositionSection: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         author: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -29,7 +29,7 @@ module.exports = {
                 parent.author);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         focusV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -39,7 +39,7 @@ module.exports = {
                 parent.focus);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         focus: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -49,7 +49,7 @@ module.exports = {
                 parent.focus);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         entryV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -59,7 +59,7 @@ module.exports = {
                 parent.entry);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         entry: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

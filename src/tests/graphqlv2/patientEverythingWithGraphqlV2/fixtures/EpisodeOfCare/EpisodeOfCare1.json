@@ -1,0 +1,12 @@
+{
+  "id": "1",
+  "resourceType": "EpisodeOfCare",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "planned",
+  "patient": {
+    "reference": "Patient/1"
+  }
+}

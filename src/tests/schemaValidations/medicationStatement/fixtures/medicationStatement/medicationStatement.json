@@ -40,7 +40,7 @@
     "informationSource": {
       "reference": "Patient/1"
     },
-    "status": "inactive",
+    "status": "completed",
     "dosage": [
       {
         "text": "Atorvastatin 20mg tablet - 1 tablet at night",

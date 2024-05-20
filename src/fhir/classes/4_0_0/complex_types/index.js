@@ -16,6 +16,7 @@ const money = require('./money');
 const humanname = require('./humanName');
 const contactpoint = require('./contactPoint');
 const identifier = require('./identifier');
+const ratiorange = require('./ratioRange');
 const coding = require('./coding');
 const sampleddata = require('./sampledData');
 const ratio = require('./ratio');
@@ -29,6 +30,7 @@ const annotation = require('./annotation');
 const contactdetail = require('./contactDetail');
 const usagecontext = require('./usageContext');
 const expression = require('./expression');
+const codeablereference = require('./codeableReference');
 const signature = require('./signature');
 const codeableconcept = require('./codeableConcept');
 const parameterdefinition = require('./parameterDefinition');
@@ -50,6 +52,7 @@ module.exports = {
     humanname,
     contactpoint,
     identifier,
+    ratiorange,
     coding,
     sampleddata,
     ratio,
@@ -63,7 +66,9 @@ module.exports = {
     contactdetail,
     usagecontext,
     expression,
+    codeablereference,
     signature,
     codeableconcept,
     parameterdefinition
 };
+

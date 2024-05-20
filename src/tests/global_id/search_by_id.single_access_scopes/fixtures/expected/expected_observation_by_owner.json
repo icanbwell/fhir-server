@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'_sourceId':'1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'C'}}}]}, {}).sort({'_uuid':1}).limit(1000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'C'}}}]}, {}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -103,7 +103,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['meta.security.system','meta.security.code','_sourceId','_uuid']",
+        "display": "['_sourceId','meta.security.system','meta.security.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

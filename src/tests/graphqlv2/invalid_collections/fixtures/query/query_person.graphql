@@ -1,0 +1,21 @@
+query {
+  person(id: {value: "1"}) {
+    entry {
+      resource {
+        id
+        meta {
+          source
+        }
+        link {
+          target {
+            reference {
+              ... on Patient {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

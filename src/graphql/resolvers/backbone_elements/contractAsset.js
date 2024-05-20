@@ -9,7 +9,7 @@ module.exports = {
     },
     ContractAsset: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         typeReferenceV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.typeReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         typeReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

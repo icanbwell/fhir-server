@@ -113,7 +113,7 @@ class CreateOperation {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async createAsync ({ requestInfo, parsedArgs, path, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -187,8 +187,8 @@ class CreateOperation {
                 logInfo('Resource Validation Failed', {
                     operation: currentOperationName,
                     id: resource.id,
-                    uuid: resource.id,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    _uuid: resource.id,
+                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
                     created: false,
                     updated: false,
@@ -289,8 +289,7 @@ class CreateOperation {
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
-                action: currentOperationName,
-                result: JSON.stringify(doc, getCircularReplacer())
+                action: currentOperationName
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 result: JSON.stringify(doc, getCircularReplacer())

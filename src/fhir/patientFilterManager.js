@@ -87,29 +87,6 @@ class PatientFilterManager {
         this.patientFilterWithQueryMapping = {
             Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
         };
-        /**
-         * defines resources that don't have patient data
-         * @type {string[]}
-         */
-        this.resourcesWithoutPatientData = [
-            'Practitioner',
-            'PractitionerRole',
-            'Organization',
-            'Medication',
-            'CodeSystem',
-            'Library',
-            'PlanDefinition',
-            'GuidanceResponse',
-            'Measure',
-            'Location',
-            'HealthcareService',
-            'InsurancePlan',
-            'Binary',
-            'ValueSet',
-            'ChargeItemDefinition',
-            'Questionnaire',
-            'Bundle'
-        ];
     }
 
     /**
@@ -135,8 +112,7 @@ class PatientFilterManager {
      */
     canAccessResourceWithPatientScope ({ resourceType }) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
-            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType) ||
-            this.resourcesWithoutPatientData.includes(resourceType);
+            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType);
     }
 
     /**

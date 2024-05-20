@@ -4,7 +4,7 @@
 module.exports = {
     ClaimDiagnosis: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         diagnosisReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

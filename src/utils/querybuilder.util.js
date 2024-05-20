@@ -800,7 +800,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
  * @return {Object}
  */
 // noinspection JSUnusedLocalSymbols
-// eslint-disable-next-line no-unused-vars
+
 const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
     let date = null;
     let operation = null;

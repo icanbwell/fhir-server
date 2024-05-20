@@ -162,8 +162,7 @@ class ExpandOperation {
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
-                action: currentOperationName,
-                result: JSON.stringify(resource.toJSON())
+                action: currentOperationName
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 result: JSON.stringify(resource.toJSON())

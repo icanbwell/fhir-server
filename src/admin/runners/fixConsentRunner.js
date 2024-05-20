@@ -1,5 +1,5 @@
-/* eslint-disable no-useless-computed-key */
-/* eslint-disable comma-dangle */
+
+
 const { ObjectId } = require('mongodb');
 const deepEqual = require('fast-deep-equal');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
@@ -447,38 +447,38 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 
         // only those without provision.class considered
-        // eslint-disable-next-line no-useless-computed-key
-        // eslint-disable-next-line comma-dangle
+
+
         query.$and.push({
             ['provision.class']: {
                 $exists: false
-            },
+            }
         });
         // must have sourceReference
         query.$and.push({
             ['sourceReference']: {
                 $exists: true
-            },
+            }
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                    $lt: this.beforeLastUpdatedDate
+                }
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
                 ['meta.lastUpdated']: {
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         }
 

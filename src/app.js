@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
 const { graphql } = require('./middleware/graphql/graphqlServer');
+const { graphqlV2 } = require('./middleware/graphql/graphqlServerV2.js');
 
 const passport = require('passport');
 const { strategy } = require('./strategies/jwt.bearer.strategy');
@@ -102,6 +103,9 @@ function createApp ({ fnGetContainer }) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+    // Urls to be ignored for which access logs are to be created in db.
+    const ignoredUrls = ['/live', '/health', '/ready'];
+
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
@@ -138,6 +142,18 @@ function createApp ({ fnGetContainer }) {
                     );
                 }
             }
+
+            if (
+                configManager.enableAccessLogsMiddleware &&
+                !ignoredUrls.some(url => reqPath.startsWith(url))
+            ) {
+                container.accessLogger.logAccessLogAsync({
+                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
+                    req,
+                    statusCode: res.statusCode,
+                    startTime
+                });
+            }
             logInfo('Request Completed', logData);
         });
         next();
@@ -153,11 +169,12 @@ function createApp ({ fnGetContainer }) {
     app.use((req, res, next) => {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
+            const isGraphQLUrl = reqPath.startsWith('/$graphql') || reqPath.startsWith('/4_0_0/$graphqlv2');
             // check if this is home page, resource page, or admin page
             const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
             const isAdminUrl = reqPath.startsWith('/admin');
-            // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
+            // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
+            if (!isGraphQLUrl && isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', { path: reqPath });
                 if (isAdminUrl) {
                     res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
@@ -285,7 +302,6 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('adminStrategy', strategy);
 
-    // eslint-disable-next-line new-cap
     const adminRouter = express.Router({ mergeParams: true });
     // Add authentication
     adminRouter.use(passport.initialize());
@@ -305,53 +321,90 @@ function createApp ({ fnGetContainer }) {
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);
 
-    // enable middleware for graphql
-    if (isTrue(env.ENABLE_GRAPHQL)) {
+    // enable middleware for graphql & graphqlv2
+    if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        graphql(fnGetContainer)
-            .then((graphqlMiddleware) => {
-                // eslint-disable-next-line new-cap
-                const router = express.Router();
-                router.use(passport.initialize());
-                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
-                router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(express.json());
-                // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
-                router.use(handleSecurityPolicyGraphql);
-                router.use(function (req, res, next) {
-                    res.once('finish', async () => {
-                        const req1 = req;
+        const router = express.Router();
+        router.use(passport.initialize());
+        router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        router.use(cors(fhirServerConfig.server.corsOptions));
+        router.use(express.json());
+        // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+        router.use(handleSecurityPolicyGraphql);
+        router.use(function (req, res, next) {
+            res.once('finish', async () => {
+                const req1 = req;
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container1 = req1.container;
+                if (container1) {
+                    /**
+                     * @type {PostRequestProcessor}
+                     */
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                         /**
-                         * @type {SimpleContainer}
+                         * @type {RequestSpecificCache}
                          */
-                        const container1 = req1.container;
-                        if (container1) {
-                            /**
-                             * @type {PostRequestProcessor}
-                             */
-                            const postRequestProcessor = container1.postRequestProcessor;
-                            if (postRequestProcessor) {
-                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                                /**
-                                 * @type {RequestSpecificCache}
-                                 */
-                                const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({ requestId });
-                                await requestSpecificCache.clearAsync({ requestId });
-                            }
-                        }
-                    });
-                    next();
-                });
-                // noinspection JSCheckFunctionSignatures
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({ requestId });
+                        await requestSpecificCache.clearAsync({ requestId });
+                    }
+                }
+            });
+            next();
+        });
+
+        const routerv2 = express.Router();
+        routerv2.use(passport.initialize());
+        routerv2.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        routerv2.use(cors(fhirServerConfig.server.corsOptions));
+        routerv2.use(express.json());
+        // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+        routerv2.use(handleSecurityPolicyGraphql);
+        routerv2.use(function (req, res, next) {
+            res.once('finish', async () => {
+                const req1 = req;
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container1 = req1.container;
+                if (container1) {
+                    /**
+                     * @type {PostRequestProcessor}
+                     */
+                    const postRequestProcessor = container1.postRequestProcessor;
+                    if (postRequestProcessor) {
+                        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                        /**
+                         * @type {RequestSpecificCache}
+                         */
+                        const requestSpecificCache = container1.requestSpecificCache;
+                        await postRequestProcessor.executeAsync({ requestId });
+                        await requestSpecificCache.clearAsync({ requestId });
+                    }
+                }
+            });
+            next();
+        });
+
+        Promise.all([
+            isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
+            configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
+        ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
+            if(graphqlMiddleware) {
                 router.use(graphqlMiddleware);
                 app.use('/\\$graphql', router);
-            })
-            .then((_) => {
-                createFhirApp(fnGetContainer, app);
-                // getRoutes(app);
-            });
+            }
+            if(graphqlV2Middleware) {
+                routerv2.use(graphqlV2Middleware);
+                app.use('/4_0_0/\\$graphqlv2', routerv2);
+            }
+            createFhirApp(fnGetContainer, app);
+        });
     } else {
         createFhirApp(fnGetContainer, app);
     }
@@ -364,22 +417,6 @@ function createApp ({ fnGetContainer }) {
         // If the resource is not found, send a 404 response
         res.status(404).send('Not Found');
     });
-
-    // middleware to create access logs
-    if (configManager.enableAccessLogsMiddleware) {
-        app.use((req, res, next) => {
-            const startTime = Date.now();
-            res.on('finish', () => {
-                container.accessLogger.logAccessLogAsync({
-                    ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
-                    req,
-                    statusCode: res.statusCode,
-                    startTime
-                });
-            });
-            next();
-        });
-    }
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html

@@ -4,7 +4,7 @@
 module.exports = {
     InvoiceLineItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         chargeItemReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

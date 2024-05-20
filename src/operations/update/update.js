@@ -278,8 +278,8 @@ class UpdateOperation {
                     logInfo('Resource Validation Failed', {
                         operation: currentOperationName,
                         id: resource_incoming_json.id,
-                        uuid: resource_incoming_json._uuid,
-                        sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
+                        _uuid: resource_incoming_json._uuid,
+                        _sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
                         resourceType: resource_incoming_json.resourceType,
                         created: false,
                         updated: false,
@@ -338,8 +338,8 @@ class UpdateOperation {
                     logInfo('Resource Validation Failed', {
                         operation: currentOperationName,
                         id: doc.id,
-                        uuid: doc.id,
-                        sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                        _uuid: doc._uuid,
+                        _sourceAssigningAuthority: doc._sourceAssigningAuthority,
                         resourceType: doc.resourceType,
                         created: false,
                         updated: false,
@@ -442,8 +442,7 @@ class UpdateOperation {
                     args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
+                    action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     result: JSON.stringify(result, getCircularReplacer())
@@ -464,8 +463,8 @@ class UpdateOperation {
                 logInfo('Resource neither created or updated', {
                     operation: currentOperationName,
                     id: foundResource.id,
-                    uuid: foundResource._uuid,
-                    sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                    _uuid: foundResource._uuid,
+                    _sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
                     resourceType: foundResource.resourceType,
                     created: false,
                     updated: false
@@ -484,8 +483,7 @@ class UpdateOperation {
                     args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result, getCircularReplacer())
+                    action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     result: JSON.stringify(result, getCircularReplacer())

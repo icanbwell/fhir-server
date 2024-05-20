@@ -14,7 +14,7 @@ module.exports = {
     },
     EncounterHospitalization: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         origin: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.origin);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         destination: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

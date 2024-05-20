@@ -209,7 +209,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string[]} properties
      * @return {import('mongodb').Filter<import('mongodb').Document>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     getFilter (properties) {
         if (!properties || properties.length === 0) {
             return {};

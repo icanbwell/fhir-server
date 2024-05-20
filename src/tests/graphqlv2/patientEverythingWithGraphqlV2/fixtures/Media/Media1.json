@@ -1,0 +1,20 @@
+{
+  "id": "1",
+  "resourceType": "Media",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "content": {
+    "attachment": {
+      "contentType": "application/json",
+      "data": "c2RhY2U=",
+      "title": "PhoneVerified",
+      "creation": "2022-12-17T09:44:58.033Z"
+    }
+  },
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

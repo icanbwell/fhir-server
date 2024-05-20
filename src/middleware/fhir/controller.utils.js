@@ -19,7 +19,7 @@ class ControllerUtils {
      * @param {string} version
      * @param {string} resourceName
      */
-    // eslint-disable-next-line no-unused-vars
+
     getController (version, resourceName) {
         switch (version) {
             case '4_0_0':

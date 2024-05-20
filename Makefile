@@ -166,6 +166,13 @@ graphql:
 	graphql-schema-linter src/graphql/**/*.graphql && \
 	eslint --fix "src/graphql/**/*.js"
 
+.PHONY:graphqlv2
+graphqlv2:
+	. ${NVM_DIR}/nvm.sh && nvm use && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_graphqlv2_classes.py" && \
+	graphql-schema-linter src/graphqlv2/**/*.graphql && \
+	eslint --fix "src/graphqlv2/**/*.js"
+
 .PHONY:classes
 classes:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
@@ -175,7 +182,9 @@ classes:
 
 .PHONY:searchParameters
 searchParameters:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/searchParameters/generate_search_parameters.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/searchParameters/generate_search_parameters.py" && \
+	eslint --fix "src/middleware/fhir/resources/**/*.js" && \
+	eslint --fix "src/searchParameters/*.js"
 
 .PHONY:audit_fix
 audit_fix:

@@ -9,7 +9,7 @@ module.exports = {
     },
     AccountGuarantor: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         party: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -31,7 +31,7 @@ describe('Person Tests', () => {
 
     describe('Person FixReferenceId bwellMasterPerson Tests', () => {
         test('Fix client person and bwell master person reference', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

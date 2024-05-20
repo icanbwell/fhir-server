@@ -1,0 +1,18 @@
+{
+  "id": "2",
+  "resourceType": "ImmunizationRecommendation",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "date": "2023-10-10T10:10:10.000Z",
+  "patient": {
+    "reference": "Patient/2"
+  },
+  "recommendation": [
+    {
+      "forecastStatus": {}
+    }
+  ]
+}

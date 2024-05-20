@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         chargeItem: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
@@ -47,7 +47,7 @@ module.exports = {
     },
     ChargeItem: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         partOf: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -57,7 +57,7 @@ module.exports = {
                 parent.partOf);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         subject: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -67,7 +67,7 @@ module.exports = {
                 parent.subject);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         context: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -77,7 +77,7 @@ module.exports = {
                 parent.context);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         performingOrganization: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -87,7 +87,7 @@ module.exports = {
                 parent.performingOrganization);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         requestingOrganization: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -97,7 +97,7 @@ module.exports = {
                 parent.requestingOrganization);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         costCenter: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -107,7 +107,7 @@ module.exports = {
                 parent.costCenter);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         enterer: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -117,7 +117,7 @@ module.exports = {
                 parent.enterer);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         service: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -127,7 +127,7 @@ module.exports = {
                 parent.service);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         productReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -137,7 +137,7 @@ module.exports = {
                 parent.productReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         account: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -147,7 +147,7 @@ module.exports = {
                 parent.account);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         supportingInformationV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -157,7 +157,7 @@ module.exports = {
                 parent.supportingInformation);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         supportingInformation: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

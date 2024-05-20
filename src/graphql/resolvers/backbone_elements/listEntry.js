@@ -9,7 +9,7 @@ module.exports = {
     },
     ListEntry: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         itemV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.item);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         item: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

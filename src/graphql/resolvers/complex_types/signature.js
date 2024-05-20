@@ -2,19 +2,9 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    SignatureWho: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    SignatureOnBehalfOf: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     Signature: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         who: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -24,7 +14,7 @@ module.exports = {
                 parent.who);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         onBehalfOf: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

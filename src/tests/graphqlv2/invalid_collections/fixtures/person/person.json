@@ -1,0 +1,25 @@
+{
+  "resourceType": "Person",
+  "id": "1",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "test/xyz1",
+        "display": "Ariadne Bor-Jansma"
+      }
+    }
+  ]
+}

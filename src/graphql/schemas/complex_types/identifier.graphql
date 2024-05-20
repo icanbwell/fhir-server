@@ -53,5 +53,5 @@ type Identifier {
     """
     Organization that issued/manages the identifier.
     """
-    assigner: Organization
+    assigner: Resource
 }

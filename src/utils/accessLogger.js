@@ -85,16 +85,16 @@ class AccessLogger {
         result
     }) {
         /**
-         * @type {FhirRequestInfo}
-         */
-        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        /**
          * @type {string}
          */
         const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2];
         if (!resourceType) {
             return;
         }
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         /**
          * @type {boolean}
          */

@@ -4,7 +4,7 @@ class BundleMetaApolloServerPlugin /* extends ApolloServerPlugin */ {
      */
 
     // noinspection JSUnusedLoclSymbols
-    // eslint-disable-next-line no-unused-vars
+
     async requestDidStart (requestContext1) {
         // noinspection JSUnusedGlobalSymbols
         return {

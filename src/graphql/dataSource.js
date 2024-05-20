@@ -195,7 +195,7 @@ class FhirDataSource {
      * @return {null|string}
      */
     // noinspection JSUnusedLocalSymbols
-    // eslint-disable-next-line no-unused-vars
+
     resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
             // noinspection JSUnresolvedReference
@@ -228,7 +228,13 @@ class FhirDataSource {
         const requestedResources = info
             .fieldNodes[0]
             .selectionSet
-            ?.selections?.map(s => s.typeCondition?.name?.value)
+            ?.selections?.map(s => {
+                if (s.kind === 'FragmentSpread' && info.fragments) {
+                    return info.fragments[s.name.value]?.typeCondition?.name?.value
+                } else {
+                    return s.typeCondition?.name?.value;
+                }
+            })
             ?.filter(s => s) || [];
 
         if (!reference.reference) {

@@ -271,7 +271,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','meta.lastUpdated','meta.security.system','meta.security.code','meta.tag.system','meta.tag.code','_uuid']",
+        "display": "['recorded','meta.security.system','meta.security.code','meta.lastUpdated','meta.tag.system','meta.tag.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

@@ -98,17 +98,17 @@ const processRequest = requestType => {
 };
 
 const processQuestion = () => {
-// eslint-disable-next-line no-unused-vars
+
     return (req, res) => new Promise((resolve, reject) => {
         logger.info('Base >>> Question');
         const {
-// eslint-disable-next-line no-unused-vars
+
             resourceType,
-// eslint-disable-next-line no-unused-vars
+
             type
         } = req.body;
         const {
-// eslint-disable-next-line no-unused-vars
+
             base_version: baseVersion
         } = req.params;
 

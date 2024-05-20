@@ -8,7 +8,6 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { validateReferences } = require('./referenceValidator');
 
-const schema = require('../fhir/generator/json/fhir.schema.json');
 const generatedSchema = require('../fhir/generator/json/fhir-generated.schema.json');
 
 /**
@@ -27,9 +26,7 @@ const validatorConfig = {
         error: console.error.bind(console)
     }
 };
-const fhirValidator = new JSONValidator(schema, validatorConfig);
 const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfig);
-const validateUsingGeneratedSchema = env.VALIDATE_WITH_GENERATED_SCHEMA?.split(',') ?? [];
 
 /**
  * @function validateResource
@@ -56,9 +53,7 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    const errors = validateUsingGeneratedSchema.includes(resourceBody.resourceType)
-        ? fhirGeneratedValidator.validate(resourceBody)
-        : fhirValidator.validate(resourceBody);
+    const errors = fhirGeneratedValidator.validate(resourceBody);
     const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
     let issue;
     if (errors && errors.length) {

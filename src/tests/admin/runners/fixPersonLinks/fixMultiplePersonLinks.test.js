@@ -59,7 +59,7 @@ describe('Person Tests', () => {
 
     describe('Person fixPersonLinks Tests', () => {
         test('fixPersonLinks works for main person 1', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -68,7 +68,7 @@ describe('Person Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records

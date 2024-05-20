@@ -1,6 +1,6 @@
 const parametersR4 = require('../resources/4_0_0/parameters');
 
-// eslint-disable-next-line no-unused-vars
+
 const getParameters = (version, resource) => {
     switch (version) {
         case '4_0_0':

@@ -9,7 +9,7 @@ module.exports = {
     },
     AuditEventAgent: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         who: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.who);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         location: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

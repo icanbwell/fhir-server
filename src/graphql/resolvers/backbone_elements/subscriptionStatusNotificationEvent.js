@@ -2,9 +2,29 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    SubscriptionStatusNotificationEventFocusV2: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
+    SubscriptionStatusNotificationEventAdditionalContextV2: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
     SubscriptionStatusNotificationEvent: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
+        focusV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.focus);
+        },
+        // noinspection JSUnusedLocalSymbols
+
         focus: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -14,7 +34,17 @@ module.exports = {
                 parent.focus);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
+        additionalContextV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.additionalContext);
+        },
+        // noinspection JSUnusedLocalSymbols
+
         additionalContext: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,

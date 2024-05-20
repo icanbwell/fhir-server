@@ -148,7 +148,7 @@ class FhirXmlToJsonSchemaParser:
                 property_type = property.get('ref').split(':')[0]
 
             property_name = property_name.replace('.', '')
-            property_type = property_type.replace('.', '').replace('-primitive', '').replace('-list', '')
+            property_type = property_type.replace('.', '').replace('-primitive', '').replace('-list', '').replace('Enum', '')
             
             if property_type == 'SampledDataDataType' and property_name == 'data':
                 property_type = 'string'
@@ -223,6 +223,9 @@ class FhirXmlToJsonSchemaParser:
                     properties[property['name']] = {
                         '$ref': f"#/definitions/{property['type']}"
                     }
+            
+            if name == "GraphDefinitionTarget":
+                required = []
 
             schema[name] = {
                 'additionalProperties': False,

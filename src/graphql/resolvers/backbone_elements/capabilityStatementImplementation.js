@@ -4,7 +4,7 @@
 module.exports = {
     CapabilityStatementImplementation: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         custodian: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

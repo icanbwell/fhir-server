@@ -86,7 +86,7 @@ describe('Patient Tests', () => {
 
     describe('Patient runPreSave Tests', () => {
         test('runPreSave works for patient 1', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -95,7 +95,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -150,7 +150,7 @@ describe('Patient Tests', () => {
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
         test('runPreSave works for patient 2', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -159,7 +159,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -216,7 +216,7 @@ describe('Patient Tests', () => {
             expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);
         });
         test('runPreSave works for patient 3 with uuid but no identifier', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -225,7 +225,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -283,7 +283,7 @@ describe('Patient Tests', () => {
             expect(patient3).toStrictEqual(expectedPatient3DatabaseAfterRun);
         });
         test('runPreSave works with patient 4 with all fields but sourceAssigningAuthority', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -292,7 +292,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -349,7 +349,7 @@ describe('Patient Tests', () => {
             expect(patient4._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave works with patient 5 with all fields', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -358,7 +358,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -413,7 +413,7 @@ describe('Patient Tests', () => {
             expect(patient5._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave is skipped for patient 6 newer than threshold', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -422,7 +422,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -470,7 +470,7 @@ describe('Patient Tests', () => {
             expect(patient6).toStrictEqual(expectedPatient6DatabaseAfterRun);
         });
         test('runPreSave works for patient 7 with id as uuid', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -479,7 +479,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -533,7 +533,7 @@ describe('Patient Tests', () => {
             expect(patient7).toStrictEqual(expectedPatient7DatabaseAfterRun);
         });
         test('runPreSave with afterLastUpdatedDate works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -542,7 +542,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -597,7 +597,7 @@ describe('Patient Tests', () => {
             expect(patient8).toStrictEqual(expectedPatient8DatabaseAfterRun);
         });
         test('runPreSave is skipped using afterLastUpdatedDate works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -606,7 +606,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -654,7 +654,7 @@ describe('Patient Tests', () => {
             expect(patient6).toStrictEqual(expectedPatient6DatabaseAfterRun);
         });
         test('runPreSave with afterLastUpdatedDate and beforeLastUpdatedDate works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -663,7 +663,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -720,7 +720,7 @@ describe('Patient Tests', () => {
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
         test('runPreSave is skipped using afterLastUpdatedDate and beforeLastUpdatedDate works', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -729,7 +729,7 @@ describe('Patient Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records

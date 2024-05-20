@@ -74,7 +74,7 @@ class QueryRewriterManager {
      * @param {rewriteArgsAsyncParams}
      * @return {Promise<ParsedArgs>}
      */
-    // eslint-disable-next-line no-unused-vars
+
     async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}

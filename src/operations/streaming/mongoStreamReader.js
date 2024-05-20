@@ -64,7 +64,7 @@ class MongoReadableStream extends Readable {
         this.response = response;
     }
 
-    // eslint-disable-next-line no-unused-vars
+
     async _read (size) {
         // Ensure we are not already fetching data
         if (!this.isFetchingData) {

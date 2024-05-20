@@ -23,7 +23,7 @@ class MongoQuerySimplifier {
             for (const [subFilterIndex, subFilter] of filter.$or.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$or) {
                     const orFilters = subFilter.$or;
-                    // eslint-disable-next-line no-loop-func
+
                     orFilters.forEach(af => filter.$or.push(af));
                     indexesToSplice.push(subFilterIndex);
                 }
@@ -87,7 +87,7 @@ class MongoQuerySimplifier {
             for (const [subFilterIndex, subFilter] of filter.$and.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$and) {
                     const andFilters = subFilter.$and;
-                    // eslint-disable-next-line no-loop-func
+
                     andFilters.forEach(af => filter.$and.push(af));
                     indexesToSplice.push(subFilterIndex);
                 }
@@ -191,7 +191,7 @@ class MongoQuerySimplifier {
             }
             if (Array.isArray(subFilter)) {
                 const newColumns = subFilter.flatMap(
-                    // eslint-disable-next-line no-loop-func
+
                     sf => Array.from(
                         this.findColumnsInFilter(
                             {

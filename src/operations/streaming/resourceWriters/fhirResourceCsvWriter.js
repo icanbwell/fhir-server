@@ -80,7 +80,7 @@ class FhirResourceCsvWriter extends Transform {
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
-    // eslint-disable-next-line no-unused-vars
+
     writeOperationOutcome ({ operationOutcome, encoding }) {
     }
 

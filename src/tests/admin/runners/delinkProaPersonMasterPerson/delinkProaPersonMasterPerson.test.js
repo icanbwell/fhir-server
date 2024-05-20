@@ -46,7 +46,7 @@ describe('Person Tests', () => {
 
     describe('Proa Persons Tests', () => {
         test('deleteData flag is false so nothing is deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -132,7 +132,7 @@ describe('Person Tests', () => {
         });
 
         test('Master person with status Master Person Not Linked to Client Person and Master Patient is deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -219,7 +219,7 @@ describe('Person Tests', () => {
         });
 
         test('Master person with status Master Person Not Linked to Client Person is not deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -324,7 +324,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person with status Proa Person not linked to master person is deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -399,7 +399,7 @@ describe('Person Tests', () => {
         });
 
         test('Proa Person with links present is not deleted', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server
@@ -474,7 +474,7 @@ describe('Person Tests', () => {
         });
 
         test('Csv contains client person status so nothing is done', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest();
 
             // add the resources to FHIR server

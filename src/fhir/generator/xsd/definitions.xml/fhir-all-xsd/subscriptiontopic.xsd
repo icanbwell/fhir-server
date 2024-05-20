@@ -343,7 +343,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="InteractionTrigger-list">
+  <xs:simpleType name="InteractionTriggerEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="create">
         <xs:annotation>
@@ -369,11 +369,11 @@
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="InteractionTrigger-list" use="optional"/>
+        <xs:attribute name="value" type="InteractionTriggerEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="CriteriaNotExistsBehavior-list">
+  <xs:simpleType name="CriteriaNotExistsBehaviorEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="test-passes">
         <xs:annotation>
@@ -394,7 +394,7 @@
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="CriteriaNotExistsBehavior-list" use="optional"/>
+        <xs:attribute name="value" type="CriteriaNotExistsBehaviorEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

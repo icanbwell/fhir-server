@@ -9,7 +9,7 @@ module.exports = {
     },
     CoverageEligibilityRequestSupportingInfo: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         informationV2: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -19,7 +19,7 @@ module.exports = {
                 parent.information);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         information: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

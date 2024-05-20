@@ -2,9 +2,11 @@ const account = require('./account.parameters.js');
 
 const activitydefinition = require('./activitydefinition.parameters.js');
 
+const administrableproductdefinition = require('./administrableproductdefinition.parameters.js');
+
 const adverseevent = require('./adverseevent.parameters.js');
 
-const allergyintolerance = require('./allergyintolerance.parameters');
+const allergyintolerance = require('./allergyintolerance.parameters.js');
 
 const appointment = require('./appointment.parameters.js');
 
@@ -16,6 +18,8 @@ const basic = require('./basic.parameters.js');
 
 const binary = require('./binary.parameters.js');
 
+const biologicallyderivedproduct = require('./biologicallyderivedproduct.parameters.js');
+
 const bodystructure = require('./bodystructure.parameters.js');
 
 const bundle = require('./bundle.parameters.js');
@@ -26,15 +30,21 @@ const careplan = require('./careplan.parameters.js');
 
 const careteam = require('./careteam.parameters.js');
 
+const catalogentry = require('./catalogentry.parameters.js');
+
 const chargeitem = require('./chargeitem.parameters.js');
 
 const chargeitemdefinition = require('./chargeitemdefinition.parameters.js');
+
+const citation = require('./citation.parameters.js');
 
 const claim = require('./claim.parameters.js');
 
 const claimresponse = require('./claimresponse.parameters.js');
 
 const clinicalimpression = require('./clinicalimpression.parameters.js');
+
+const clinicalusedefinition = require('./clinicalusedefinition.parameters.js');
 
 const codesystem = require('./codesystem.parameters.js');
 
@@ -78,10 +88,6 @@ const documentmanifest = require('./documentmanifest.parameters.js');
 
 const documentreference = require('./documentreference.parameters.js');
 
-const domainresource = require('./domainresource.parameters.js');
-
-const effectevidencesynthesis = require('./effectevidencesynthesis.parameters.js');
-
 const encounter = require('./encounter.parameters.js');
 
 const endpoint = require('./endpoint.parameters.js');
@@ -93,6 +99,12 @@ const enrollmentresponse = require('./enrollmentresponse.parameters.js');
 const episodeofcare = require('./episodeofcare.parameters.js');
 
 const eventdefinition = require('./eventdefinition.parameters.js');
+
+const evidence = require('./evidence.parameters.js');
+
+const evidencereport = require('./evidencereport.parameters.js');
+
+const evidencevariable = require('./evidencevariable.parameters.js');
 
 const examplescenario = require('./examplescenario.parameters.js');
 
@@ -122,6 +134,8 @@ const immunizationrecommendation = require('./immunizationrecommendation.paramet
 
 const implementationguide = require('./implementationguide.parameters.js');
 
+const ingredient = require('./ingredient.parameters.js');
+
 const insuranceplan = require('./insuranceplan.parameters.js');
 
 const invoice = require('./invoice.parameters.js');
@@ -133,6 +147,8 @@ const linkage = require('./linkage.parameters.js');
 const list = require('./list.parameters.js');
 
 const location = require('./location.parameters.js');
+
+const manufactureditemdefinition = require('./manufactureditemdefinition.parameters.js');
 
 const measure = require('./measure.parameters.js');
 
@@ -152,17 +168,7 @@ const medicationrequest = require('./medicationrequest.parameters.js');
 
 const medicationstatement = require('./medicationstatement.parameters.js');
 
-const medicinalproduct = require('./medicinalproduct.parameters.js');
-
-const medicinalproductauthorization = require('./medicinalproductauthorization.parameters.js');
-
-const medicinalproductcontraindication = require('./medicinalproductcontraindication.parameters.js');
-
-const medicinalproductindication = require('./medicinalproductindication.parameters.js');
-
-const medicinalproductpackaged = require('./medicinalproductpackaged.parameters.js');
-
-const medicinalproductpharmaceutical = require('./medicinalproductpharmaceutical.parameters.js');
+const medicinalproductdefinition = require('./medicinalproductdefinition.parameters.js');
 
 const messagedefinition = require('./messagedefinition.parameters.js');
 
@@ -174,13 +180,23 @@ const namingsystem = require('./namingsystem.parameters.js');
 
 const nutritionorder = require('./nutritionorder.parameters.js');
 
+const nutritionproduct = require('./nutritionproduct.parameters.js');
+
 const observation = require('./observation.parameters.js');
 
+const observationdefinition = require('./observationdefinition.parameters.js');
+
 const operationdefinition = require('./operationdefinition.parameters.js');
+
+const operationoutcome = require('./operationoutcome.parameters.js');
 
 const organization = require('./organization.parameters.js');
 
 const organizationaffiliation = require('./organizationaffiliation.parameters.js');
+
+const packagedproductdefinition = require('./packagedproductdefinition.parameters.js');
+
+const parameters = require('./parameters.parameters.js');
 
 const patient = require('./patient.parameters.js');
 
@@ -204,6 +220,8 @@ const questionnaire = require('./questionnaire.parameters.js');
 
 const questionnaireresponse = require('./questionnaireresponse.parameters.js');
 
+const regulatedauthorization = require('./regulatedauthorization.parameters.js');
+
 const relatedperson = require('./relatedperson.parameters.js');
 
 const requestgroup = require('./requestgroup.parameters.js');
@@ -216,11 +234,7 @@ const researchstudy = require('./researchstudy.parameters.js');
 
 const researchsubject = require('./researchsubject.parameters.js');
 
-const resource = require('./resource.parameters.js');
-
 const riskassessment = require('./riskassessment.parameters.js');
-
-const riskevidencesynthesis = require('./riskevidencesynthesis.parameters.js');
 
 const schedule = require('./schedule.parameters.js');
 
@@ -246,7 +260,7 @@ const subscriptiontopic = require('./subscriptiontopic.parameters.js');
 
 const substance = require('./substance.parameters.js');
 
-const substancespecification = require('./substancespecification.parameters.js');
+const substancedefinition = require('./substancedefinition.parameters.js');
 
 const supplydelivery = require('./supplydelivery.parameters.js');
 
@@ -269,6 +283,7 @@ const visionprescription = require('./visionprescription.parameters.js');
 module.exports = {
   account,
   activitydefinition,
+  administrableproductdefinition,
   adverseevent,
   allergyintolerance,
   appointment,
@@ -276,16 +291,20 @@ module.exports = {
   auditevent,
   basic,
   binary,
+  biologicallyderivedproduct,
   bodystructure,
   bundle,
   capabilitystatement,
   careplan,
   careteam,
+  catalogentry,
   chargeitem,
   chargeitemdefinition,
+  citation,
   claim,
   claimresponse,
   clinicalimpression,
+  clinicalusedefinition,
   codesystem,
   communication,
   communicationrequest,
@@ -307,14 +326,15 @@ module.exports = {
   diagnosticreport,
   documentmanifest,
   documentreference,
-  domainresource,
-  effectevidencesynthesis,
   encounter,
   endpoint,
   enrollmentrequest,
   enrollmentresponse,
   episodeofcare,
   eventdefinition,
+  evidence,
+  evidencereport,
+  evidencevariable,
   examplescenario,
   explanationofbenefit,
   familymemberhistory,
@@ -329,12 +349,14 @@ module.exports = {
   immunizationevaluation,
   immunizationrecommendation,
   implementationguide,
+  ingredient,
   insuranceplan,
   invoice,
   library,
   linkage,
   list,
   location,
+  manufactureditemdefinition,
   measure,
   measurereport,
   media,
@@ -344,21 +366,21 @@ module.exports = {
   medicationknowledge,
   medicationrequest,
   medicationstatement,
-  medicinalproduct,
-  medicinalproductauthorization,
-  medicinalproductcontraindication,
-  medicinalproductindication,
-  medicinalproductpackaged,
-  medicinalproductpharmaceutical,
+  medicinalproductdefinition,
   messagedefinition,
   messageheader,
   molecularsequence,
   namingsystem,
   nutritionorder,
+  nutritionproduct,
   observation,
+  observationdefinition,
   operationdefinition,
+  operationoutcome,
   organization,
   organizationaffiliation,
+  packagedproductdefinition,
+  parameters,
   patient,
   paymentnotice,
   paymentreconciliation,
@@ -370,19 +392,19 @@ module.exports = {
   provenance,
   questionnaire,
   questionnaireresponse,
+  regulatedauthorization,
   relatedperson,
   requestgroup,
   researchdefinition,
   researchelementdefinition,
   researchstudy,
   researchsubject,
-  resource,
   riskassessment,
-  riskevidencesynthesis,
   schedule,
   searchparameter,
   servicerequest,
   slot,
+  specimen,
   specimendefinition,
   structuredefinition,
   structuremap,
@@ -390,10 +412,9 @@ module.exports = {
   subscriptionstatus,
   subscriptiontopic,
   substance,
-  substancespecification,
+  substancedefinition,
   supplydelivery,
   supplyrequest,
-  specimen,
   task,
   terminologycapabilities,
   testreport,

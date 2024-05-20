@@ -2,14 +2,9 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    UsageContextValueReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     UsageContext: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         valueReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

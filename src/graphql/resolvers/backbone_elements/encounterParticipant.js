@@ -9,7 +9,7 @@ module.exports = {
     },
     EncounterParticipant: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         individual: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -58,7 +58,7 @@ describe('ExplanationOfBenefit Tests', () => {
 
     describe('ExplanationOfBenefit runPreSave Tests', () => {
         test('runPreSave works for patient 1', async () => {
-            // eslint-disable-next-line no-unused-vars
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
                 return c;
@@ -67,7 +67,7 @@ describe('ExplanationOfBenefit Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-                // eslint-disable-next-line no-unused-vars
+
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records

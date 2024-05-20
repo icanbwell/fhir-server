@@ -4,7 +4,7 @@
 module.exports = {
     ElementDefinition: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         defaultValueReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -14,7 +14,7 @@ module.exports = {
                 parent.defaultValueReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         fixedReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -24,7 +24,7 @@ module.exports = {
                 parent.fixedReference);
         },
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         patternReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

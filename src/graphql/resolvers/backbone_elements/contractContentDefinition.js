@@ -9,7 +9,7 @@ module.exports = {
     },
     ContractContentDefinition: {
         // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
+
         publisher: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

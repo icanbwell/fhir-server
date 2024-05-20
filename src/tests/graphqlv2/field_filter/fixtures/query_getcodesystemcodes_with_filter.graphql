@@ -1,0 +1,19 @@
+query getCodeSystem($code: [String], $id: [String]){
+    getCodeSystemCodes(code: $code, id: $id) {
+        entry {
+            resource {
+                id
+                resourceType
+                status
+                concept {
+                    code
+                    display
+                    property {
+                        code
+                        valueString
+                    }
+                }
+            }
+        }
+    }
+}

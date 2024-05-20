@@ -1,3 +1,4 @@
+const cron = require('node-cron');
 const env = require('var');
 const { jest } = require('@jest/globals');
 
@@ -87,6 +88,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
     jest.setTimeout(30000);
+    cron.schedule = jest.fn();
     env.VALIDATE_SCHEMA = true;
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
@@ -417,7 +419,7 @@ module.exports.mockHttpContext = ({
     systemGeneratedRequestId,
     userRequestId
 } = {}) => {
-    // eslint-disable-next-line no-undef
+
     jest.spyOn(httpContext, 'get');
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
