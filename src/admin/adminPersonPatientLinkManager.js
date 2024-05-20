@@ -800,7 +800,7 @@ class AdminPersonPatientLinkManager {
      * @returns {boolean}
      */
     updatePatientReference ({ reference, currentResource }) {
-        // Patient reference from Person and Group resource are not updated here
+        // Patient reference from resources: Account, Appointment, Contract, Group, Person, Provenance, Schedule are not updated here
         if (!reference) {
             return;
         }

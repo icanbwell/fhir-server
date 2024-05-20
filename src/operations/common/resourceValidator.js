@@ -103,8 +103,23 @@ class ResourceValidator {
                 obj: resourceToValidateJson, path: patientField
             });
 
+            let referenceMatched = true;
+            if (Array.isArray(currentValue) && Array.isArray(newValue)) {
+                currentValue.sort();
+                newValue.sort();
+
+                for(let index = 0 ; index < currentValue.length ; index++) {
+                    if ( currentValue[index] !== newValue[index] ) {
+                        referenceMatched = false;
+                        break;
+                    }
+                }
+            } else {
+                referenceMatched = currentValue === newValue;
+            }
+
             // Return operationOutcome is patientReference are not same to avoid patientReference change
-            if (currentValue !== newValue) {
+            if (!referenceMatched) {
                 return new OperationOutcome({
                     issue: new OperationOutcomeIssue({
                         code: 'invalid',
@@ -184,7 +199,11 @@ class ResourceValidator {
                 }
             );
 
-        if (!validationOperationOutcome && currentResource) {
+        const { isUser } = requestInfo;
+
+        // In case of user/patient scope, updation of patient references is not allowed.
+        // If not user/patinet scope, updation for only Person resource is allowed.
+        if (!validationOperationOutcome && currentResource && (isUser || resourceType !== 'Person')) {
             validationOperationOutcome = this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson
