@@ -1,3 +1,4 @@
+
 {
   "entry": [
     {
@@ -18,54 +19,9 @@
             "severity": "error"
           },
           {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "2b2ea9d1-73b9-58fe-8572-9f757ada9769"
-          }
-        ],
-        "status": "active",
-        "type": {
-          "coding": [
-            {
-              "system": "https://hl7.org/FHIR/codesystem-claim-type.html",
-              "code": "Institutional"
-            }
-          ],
-          "text": "Claim Type"
-        },
-        "use": "claim",
-        "patient": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/WPS-0559166162"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/88d5028b-42d5-569b-8b3c-beb24c00c6c4"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "client"
-            }
-          ],
-          "reference": "Patient/WPS-0559166162"
-        },
-        "created": "2023-11-11T00:00:00.000Z",
-        "insurer": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Organization/WPS-Health"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Organization/05da92c1-d004-5e5a-971a-e49cda65e672"
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/ExplanationOfBenefit/$graph should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
             },
             "severity": "error"
           }
