@@ -8,9 +8,9 @@ module.exports = {
 
         subscription_subscription: async (parent, args, context, info) => {
             if (args._id) {
-                // change into search by connection_id
-                const connection_id = args._id.value;
-                args.extension = `https://icanbwell.com/codes/service_slug|${connection_id}`;
+                // change into search by service_slug
+                const service_slug = args._id.value;
+                args.extension = `https://icanbwell.com/codes/service_slug|${service_slug}`;
                 delete args._id;
             }
             return await context.dataApi.getResourcesBundle(
