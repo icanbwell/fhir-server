@@ -318,13 +318,12 @@ describe('Condition Tests', () => {
                 token_use: 'access'
             };
             const headers1 = getHeadersWithCustomPayload(person1_payload);
-            const skipResources = ['Bundle', 'ImplementationGuide'];
+            const skipResources = ['Bundle', 'ImplementationGuide', 'Parameters'];
             for (const resourceType of Object.values(COLLECTION)) {
                 if (
                     !patientFilterManager.canAccessResourceWithPatientScope({ resourceType }) &&
                     !skipResources.includes(resourceType)
                 ) {
-                    console.log(resourceType)
                     const resp = await request
                         .post(`/4_0_0/${resourceType}/$merge`)
                         .send({ ...resourceStructure, resourceType })

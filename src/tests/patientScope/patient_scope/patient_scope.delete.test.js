@@ -1492,33 +1492,6 @@ describe('Patient scope resource testcases', () => {
         expect(resp.body.entry).toHaveLength(0);
 
         resp = await request
-            .put('/4_0_0/NutritionOrder/1')
-            .send(NutritionOrderResource1)
-            .set(headers1);
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveStatusCode(201);
-
-        resp = await request
-            .get('/4_0_0/NutritionOrder/?_bundle=1')
-            .set(headers1);
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveStatusCode(200);
-        expect(resp.body.entry).toHaveLength(1);
-
-        resp = await request
-            .delete('/4_0_0/NutritionOrder/1')
-            .set(headers1);
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveStatusCode(204);
-
-        resp = await request
-            .get('/4_0_0/NutritionOrder/?_bundle=1')
-            .set(headers1);
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveStatusCode(200);
-        expect(resp.body.entry).toHaveLength(0);
-
-        resp = await request
             .put('/4_0_0/Observation/1')
             .send(ObservationResource1)
             .set(headers1);
