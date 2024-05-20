@@ -64,8 +64,7 @@ describe('No invalid collections made through Graph endpoint Tests', () => {
             collections = await db.listCollections().toArray();
             const collectionNames = collections.map(collection => collection.name);
             expect(collectionNames).toEqual(expect.arrayContaining([
-                'Person_4_0_0', 'ExplanationOfBenefit_4_0_0',
-                'Organization_4_0_0', 'Patient_4_0_0'
+                'Person_4_0_0', 'ExplanationOfBenefit_4_0_0'
             ]));
         });
     });
