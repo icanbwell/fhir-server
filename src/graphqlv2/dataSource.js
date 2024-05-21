@@ -589,6 +589,22 @@ class FhirDataSource {
             }
         );
     }
+
+    /**
+     * Gets the extension value by url
+     * @param {Resource} resource
+     * @param {string} url
+     * @param {string} valueType
+     * @return {Promise<*|null>}
+     */
+    async getExtensionValueByUrl({resource, url, valueType= "valueString"}) {
+        // noinspection JSUnresolvedReference
+        if (!resource || !resource.extension) {
+            return null;
+        }
+        const extension = resource.extension.find(e => e.url === url);
+        return extension ? extension[valueType] : null;
+    }
 }
 
 module.exports = {
