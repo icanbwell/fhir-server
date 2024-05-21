@@ -105,10 +105,15 @@ class ResourceValidator {
             });
 
             let referenceMatched = true;
-            // In this is an array field, then allow update for non patient scopes
+
             // Resources which support patient reference fields as array/list: Account, Appointment, Contract, Group, Person, Provenance, Schedule
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
-                if (!isUser || !this.configManager.useClientFhirPersonId) {
+                // If this is an array field, then allow update for non patient scopes
+                if (!isUser) {
+                    return null;
+                }
+                // Feature flag to enable the validation for patient scope
+                if (!this.configManager.useClientFhirPersonId) {
                     return null;
                 }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {
