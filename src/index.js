@@ -7,7 +7,6 @@ const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
-const { logError } = require('./operations/common/logging');
 const { getImageVersion } = require('./utils/getImageVersion');
 
 Sentry.init({
@@ -23,10 +22,8 @@ const main = async function () {
         await createServer(() => container);
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
-        console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
+        console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));
     }
 };
 
-main().catch((reason) => {
-    logError('Top level error', { reason });
-});
+main();

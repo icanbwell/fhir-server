@@ -384,6 +384,10 @@ class UpdateOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                    logInfo('Resource neither created or updated', {
+                        operation: currentOperationName,
+                        ...mergeResults[0]
+                    });
                     throw new BadRequestError(
                         new Error(mergeResults.length > 0
                             ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
@@ -399,11 +403,6 @@ class UpdateOperation {
                     });
                 } else if (mergeResults[0].updated) {
                     logInfo('Resource Updated', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
-                } else {
-                    logInfo('Resource neither created or updated', {
                         operation: currentOperationName,
                         ...mergeResults[0]
                     });

@@ -145,7 +145,7 @@ class PatientScopeManager {
     /**
      * Gets value of patient property from resource
      * @param {Resource} resource
-     * @return {string | undefined}
+     * @return {string[] | undefined}
      */
     getValueOfPatientPropertyFromResource ({ resource }) {
         assertTypeEquals(resource, Resource);
@@ -216,8 +216,12 @@ class PatientScopeManager {
         // separate uuids from non-uuids
         const patientUuids = patientIds.filter(id => isUuid(id));
 
-        /** @type {string} */
+        /** @type {string[]|undefined} */
         const patientForResource = this.getValueOfPatientPropertyFromResource({ resource });
+        // if patient reference is not present in the resource then cannot write with patient scopes
+        if (!patientForResource) {
+            return false;
+        }
         // if we have any uuids then check if any of those are included in patient ids in patient scope
         if (patientUuids && patientUuids.length > 0) {
             for (let patient of patientForResource) {

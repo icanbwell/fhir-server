@@ -1,0 +1,17 @@
+{
+  "id": "1",
+  "resourceType": "MedicationRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "intent": "plan",
+  "medicationCodeableConcept": {},
+  "medicationReference": {
+    "reference": "Medication/1"
+  },
+  "subject": {
+    "reference": "Patient/1"
+  }
+}

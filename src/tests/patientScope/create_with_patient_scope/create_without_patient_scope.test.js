@@ -65,5 +65,35 @@ describe('Condition Tests', () => {
             expect(body.resourceType).toStrictEqual('OperationOutcome');
             expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [user/*.*] failed access check to [Condition.write]');
         });
+        test('create without valid user scopes doesn\'t work', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('patientFilterManager', () => new MockPatientFilterManager());
+                return c;
+            });
+
+            const person1_payload = {
+                scope: 'patient/Condition.*',
+                username: 'patient-123@example.com',
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'person1',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
+            };
+            const headers1 = getHeadersWithCustomPayload(person1_payload);
+
+            // ARRANGE
+            // add the resources to FHIR server
+            const resp = await request
+                .post('/4_0_0/Condition')
+                .send(condition1Resource)
+                .set(headers1);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(403);
+            const body = resp.body;
+            expect(body.resourceType).toStrictEqual('OperationOutcome');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [Condition.write]');
+        });
     });
 });

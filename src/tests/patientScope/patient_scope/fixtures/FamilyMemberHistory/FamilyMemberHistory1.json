@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "resourceType": "FamilyMemberHistory",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "relationship": {}
+}

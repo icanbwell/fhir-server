@@ -47,5 +47,25 @@ describe('Patient Tests', () => {
                 .set(getHeaders('access/access.* user/*.*'))
                 .expect(403);
         });
+
+        test('create without access scopes', async () => {
+            const request = await createTestRequest();
+
+            await request
+                .post('/4_0_0/Patient/')
+                .send(patient1Resource)
+                .set(getHeaders('user/*.*'))
+                .expect(403);
+        });
+
+        test('create without scopes', async () => {
+            const request = await createTestRequest();
+
+            await request
+                .post('/4_0_0/Patient/')
+                .send(patient1Resource)
+                .set(getHeaders(''))
+                .expect(403);
+        });
     });
 });

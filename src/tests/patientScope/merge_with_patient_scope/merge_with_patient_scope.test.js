@@ -1,6 +1,7 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
+const resourceStructure = require('./fixtures/Resource/resource.json');
 
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
@@ -8,7 +9,9 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
+const env = require('var');
 const deepcopy = require('deepcopy');
+const { COLLECTION } = require('../../../constants');
 
 const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
 
@@ -294,6 +297,51 @@ describe('Condition Tests', () => {
             const condition1Response = body[0];
             expect(condition1Response.created).toStrictEqual(false);
             expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+        });
+        test('Non patient resources can not be accessed with patient scopes', async () => {
+            const envValue = env.VALIDATE_SCHEMA;
+            env.VALIDATE_SCHEMA = '0';
+
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
+             */
+            const patientFilterManager = container.patientFilterManager;
+            const person1_payload = {
+                scope: 'patient/*.*',
+                username: 'patient-123@example.com',
+                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: 'person1',
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
+            };
+            const headers1 = getHeadersWithCustomPayload(person1_payload);
+
+            // get list of patient resources from patientFilterManager
+            const patientResources = Object.keys(patientFilterManager.patientFilterMapping)
+                .concat(Object.keys(patientFilterManager.patientFilterWithQueryMapping));
+            const skipResources = ['Bundle', 'ImplementationGuide', 'Parameters'];
+            // calculate non patient resources
+            const nonPatientResources = Object.values(COLLECTION)
+                .filter(resource => !patientResources.includes(resource) && !skipResources.includes(resource));
+            for (const resourceType of nonPatientResources) {
+                const resp = await request
+                    .post(`/4_0_0/${resourceType}/$merge`)
+                    .send({ ...resourceStructure, resourceType })
+                    .set(headers1);
+
+                expect(resp.body.issue).toEqual({
+                    severity: 'error',
+                    code: 'forbidden',
+                    details: {
+                        text: `Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [${resourceType}.write]`
+                    },
+                    diagnostics: `Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [${resourceType}.write]`
+                });
+            }
+            env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

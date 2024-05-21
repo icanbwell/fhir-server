@@ -1,0 +1,11 @@
+{
+  "id": "1",
+  "resourceType": "RelatedPerson",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "patient": {
+    "reference": "Patient/1"
+  }
+}

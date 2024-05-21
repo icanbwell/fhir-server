@@ -1,0 +1,12 @@
+{
+  "id": "1",
+  "resourceType": "DetectedIssue",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "final",
+  "patient": {
+    "reference": "Patient/1"
+  }
+}

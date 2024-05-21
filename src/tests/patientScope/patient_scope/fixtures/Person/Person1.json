@@ -1,0 +1,20 @@
+{
+  "id": "1",
+  "resourceType": "Person",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/1"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/2"
+      }
+    }
+  ]
+}

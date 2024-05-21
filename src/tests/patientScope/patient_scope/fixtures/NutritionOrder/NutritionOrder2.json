@@ -1,0 +1,14 @@
+{
+  "id": "2",
+  "resourceType": "NutritionOrder",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "draft",
+  "intent": "plan",
+  "dateTime": "2023-10-10T10:20:10.000Z",
+  "patient": {
+    "reference": "Patient/2"
+  }
+}

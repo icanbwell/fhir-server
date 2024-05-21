@@ -1,0 +1,15 @@
+{
+  "id": "1",
+  "resourceType": "ResearchSubject",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "eligible",
+  "study": {
+    "reference": "ResearchStudy/1"
+  },
+  "individual": {
+    "reference": "Patient/1"
+  }
+}
