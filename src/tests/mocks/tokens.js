@@ -12,7 +12,7 @@ function createToken (key, kid, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'RS256',
-        issuer: env.AUTH_ISSUER,
+        issuer: 'http://foo:80',
         header: { alg: 'RS256', kid }
     });
 }
@@ -27,7 +27,7 @@ function createSymmetricToken (key, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'HS256',
-        issuer: env.AUTH_ISSUER,
+        issuer: 'http://foo:80',
         header: { alg: 'HS256' }
     });
 }
