@@ -84,6 +84,7 @@ describe('Observation Tests', () => {
             };
             let headers = getHeadersWithCustomPayload(jwt_payload);
 
+            let oldValue = env.USE_CLIENT_FHIR_PERSON_ID;
             env.USE_CLIENT_FHIR_PERSON_ID = '1';
 
             // Observations linked to client person are returned
@@ -102,6 +103,8 @@ describe('Observation Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse3);
+
+            env.USE_CLIENT_FHIR_PERSON_ID = oldValue;
         });
     });
 });

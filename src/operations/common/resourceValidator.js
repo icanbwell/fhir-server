@@ -108,7 +108,7 @@ class ResourceValidator {
             // In this is an array field, then allow update for non patient scopes
             // Resources which support patient reference fields as array/list: Account, Appointment, Contract, Group, Person, Provenance, Schedule
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
-                if (!isUser) {
+                if (!isUser || !this.configManager.useClientFhirPersonId) {
                     return null;
                 }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {

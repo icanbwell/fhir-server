@@ -3,7 +3,6 @@
     "id": "person1",
     "meta": {
         "versionId": "3",
-        "lastUpdated": "2024-05-20T11:35:00.000Z",
         "source": "client",
         "security": [
             { "system": "https://www.icanbwell.com/access", "code": "client" },
