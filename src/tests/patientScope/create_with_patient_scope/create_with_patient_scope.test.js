@@ -163,17 +163,19 @@ describe('Condition Tests', () => {
              * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
              */
             const patientFilterManager = container.patientFilterManager;
-            for (const resourceType of Object.values(COLLECTION)) {
-                if (!patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
-                    const resp = await request
-                        .post(`/4_0_0/${resourceType}/`)
-                        .send({ ...resourceStructure, resourceType })
-                        .set(getHeaders('patient/*.*'));
 
-                    if (resp.statusCode !== 404) {
-                        expect(resp).toHaveStatusCode(403);
-                    }
-                }
+            // get list of patient resources from patientFilterManager
+            const patientResources = Object.keys(patientFilterManager.patientFilterMapping);
+            // calculate non patient resources
+            const nonPatientResources = Object.values(COLLECTION)
+                .filter(resource => !patientResources.includes(resource));
+            for (const resourceType of nonPatientResources) {
+                const resp = await request
+                    .post(`/4_0_0/${resourceType}/`)
+                    .send({ ...resourceStructure, resourceType })
+                    .set(getHeaders('patient/*.*'));
+
+                expect(resp).toHaveStatusCode(403);
             }
             env.VALIDATE_SCHEMA = envValue;
         });
