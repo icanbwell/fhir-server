@@ -31,7 +31,15 @@ const sdk = new opentelemetry.NodeSDK({
         new ExpressInstrumentation(),
         new GraphQLInstrumentation(),
         new HttpInstrumentation({
-            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url)
+            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+            applyCustomAttributesOnSpan: (span) => {
+                if (span.attributes['http.url']) {
+                    span.attributes['http.url'] = encodeURIComponent(span.attributes['http.url']);
+                }
+                if (span.attributes['http.target']) {
+                    span.attributes['http.target'] = encodeURIComponent(span.attributes['http.target']);
+                }
+            }
         }),
         new LruMemoizerInstrumentation(),
         new MongoDBInstrumentation({
