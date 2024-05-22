@@ -4,4 +4,10 @@
 
 extend type Subscription_Subscription {
     subscriptionStatus: [Subscription_SubscriptionStatus]
+    master_person_id: String
+    client_person_id: String
+    source_patient_id: String
+    connection_type: String
+    connection_name: String
+    service_slug: String
 }

@@ -3,6 +3,12 @@ query subscriptionQuery {
         entry {
             resource {
                 id
+                master_person_id
+                client_person_id
+                source_patient_id
+                connection_type
+                connection_name
+                service_slug
                 subscriptionStatus {
                     id
                     subscriptionTopic {

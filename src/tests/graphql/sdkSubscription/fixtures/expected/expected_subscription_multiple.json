@@ -2,13 +2,25 @@
   "entry": [
     {
       "resource": {
+        "client_person_id": "79e59046-ffc7-4c41-9819-c8ef83275454",
+        "connection_name": "Emory Healthcare",
+        "connection_type": "proa",
         "id": "subscription3",
+        "master_person_id": "a6026593-63b2-4fc6-8129-fe2cd520e7fd",
+        "service_slug": "4567",
+        "source_patient_id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
         "subscriptionStatus": []
       }
     },
     {
       "resource": {
+        "client_person_id": "79e59046-ffc7-4c41-9819-c8ef83275454",
+        "connection_name": "Emory Healthcare",
+        "connection_type": "proa",
         "id": "subscription1",
+        "master_person_id": "a6026593-63b2-4fc6-8129-fe2cd520e7fd",
+        "service_slug": "1234",
+        "source_patient_id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
         "subscriptionStatus": [
           {
             "error": [
@@ -181,7 +193,6 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Subscription_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'person.79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'8ba1017f-0aad-1b91-ff9e-416a96e11f0b'}}}]}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionStatus_4_0_0.find({'$and':[{'subscription._sourceId':'Subscription/subscription3'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionStatus_4_0_0.find({'$and':[{'subscription._sourceId':'Subscription/subscription1'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionTopic_4_0_0.find({'_sourceId':{'$in':['subscriptionTopic1','subscriptionTopic3']}}, {}).sort({'_uuid':1}).limit(1000)]",
         "system": "https://www.icanbwell.com/query"
       },
       {

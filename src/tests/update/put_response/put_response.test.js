@@ -2,9 +2,13 @@
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition1.json');
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
 
+const observation1Resource = require('./fixtures/Observation/observation1.json');
+const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
+
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
 
+const env = require('var');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -128,6 +132,47 @@ describe('ActivityDefinition Tests', () => {
             expect(collectionNames).toEqual(expect.arrayContaining([
                 'ActivityDefinition_4_0_0', 'ActivityDefinition_4_0_0_History'
             ]));
+        });
+        test('system AuditEvent is not created while creating/updating AuditEvent', async () => {
+            const envValue = env.REQUIRED_AUDIT_EVENT_FILTERS;
+            env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+
+            const request = await createTestRequest();
+            // Create api hit with valid resource
+            let resp = await request
+                .put('/4_0_0/AuditEvent/1')
+                .send(auditEvent1Resource)
+                .set(getHeaders())
+                .expect(201);
+
+            resp = await request
+                .get('/4_0_0/AuditEvent/')
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResourceCount(1);
+            env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+        });
+        test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
+            const envValue = env.VALIDATE_SCHEMA;
+            env.VALIDATE_SCHEMA = '0';
+
+            const request = await createTestRequest();
+            // Create api hit with valid resource
+            await request
+                .put('/4_0_0/Observation/1')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(201);
+
+            env.VALIDATE_SCHEMA = '1';
+            await request
+                .put('/4_0_0/Observation/1')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(400);
+
+            env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

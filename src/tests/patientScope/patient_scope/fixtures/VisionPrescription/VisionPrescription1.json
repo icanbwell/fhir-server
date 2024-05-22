@@ -1,0 +1,29 @@
+{
+  "id": "1",
+  "resourceType": "VisionPrescription",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "active",
+  "created": "2023-10-10T10:20:10.000Z",
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "dateWritten": "2023-10-10T10:20:10.000Z",
+  "prescriber": {
+    "reference": "Practitioner/1"
+  },
+  "lensSpecification": [
+    {
+      "product": {},
+      "eye": "right",
+      "prism": [
+        {
+          "amount": 2.0,
+          "base": "up"
+        }
+      ]
+    }
+  ]
+}

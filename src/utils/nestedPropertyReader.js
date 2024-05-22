@@ -6,18 +6,23 @@ class NestedPropertyReader {
      * @returns {undefined|*}
      */
     static getNestedProperty ({ obj, path }) {
-        if (!path) {
+        if (!path || !obj) {
             return undefined;
         }
         const properties = path.split('.');
-        let value = obj;
-        for (const property of properties) {
-            value = value[`${property}`];
-            if (value === undefined) {
-                return undefined; // Return undefined if property is not found
+        if(!Array.isArray(obj)) {
+            if (properties.length === 1) return obj[properties[0]];
+            return NestedPropertyReader.getNestedProperty({ obj: obj[properties[0]], path: path.replace(`${properties[0]}.`, '') })
+        } else {
+            const result = [];
+            for (let item of obj) {
+                const value = NestedPropertyReader.getNestedProperty({ obj: item, path });
+                if (value) {
+                    result.push(value);
+                }
             }
+            return result;
         }
-        return value;
     }
 }
 

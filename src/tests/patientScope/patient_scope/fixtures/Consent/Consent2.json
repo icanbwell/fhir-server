@@ -1,0 +1,14 @@
+{
+  "id": "2",
+  "resourceType": "Consent",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "draft",
+  "scope": {},
+  "category": [{}],
+  "patient": {
+    "reference": "Patient/2"
+  }
+}

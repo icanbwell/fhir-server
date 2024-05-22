@@ -1,6 +1,7 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
+const resourceStructure = require('./fixtures/Resource/resource.json');
 
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
@@ -9,6 +10,9 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 const deepcopy = require('deepcopy');
+const env = require('var');
+const { COLLECTION } = require('../../../constants');
+
 
 const person_payload = {
     scope: 'patient/Condition.write',
@@ -197,6 +201,32 @@ describe('Condition Tests', () => {
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
             expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.')
+        });
+        test('Non patient resources can not be accessed with patient scopes', async () => {
+            const envValue = env.VALIDATE_SCHEMA;
+            env.VALIDATE_SCHEMA = '0';
+
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
+             */
+            const patientFilterManager = container.patientFilterManager;
+
+            // get list of patient resources from patientFilterManager
+            const patientResources = Object.keys(patientFilterManager.patientFilterMapping);
+            // calculate non patient resources
+            const nonPatientResources = Object.values(COLLECTION)
+                .filter(resource => !patientResources.includes(resource));
+            for (const resourceType of nonPatientResources) {
+                const resp = await request
+                    .put(`/4_0_0/${resourceType}/1`)
+                    .send({ ...resourceStructure, resourceType })
+                    .set(getHeaders('patient/*.*'));
+
+                expect(resp).toHaveStatusCode(403);
+            }
+            env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

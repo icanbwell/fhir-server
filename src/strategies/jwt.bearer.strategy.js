@@ -128,7 +128,10 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        context.personIdFromJwtToken = jwt_payload[requiredJWTFields.bwellFhirPersonId]
+        context.personIdFromJwtToken = jwt_payload[env.USE_CLIENT_FHIR_PERSON_ID ?
+            requiredJWTFields.clientFhirPersonId:
+            requiredJWTFields.bwellFhirPersonId
+        ]
     }
 
     return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
@@ -262,7 +265,6 @@ module.exports.strategy = new MyJwtStrategy(
 
         // Validate the audience and the issuer.
         // audience: 'urn:my-resource-server',
-        // issuer: env.AUTH_ISSUER,
         algorithms: ['RS256'],
         // pass request to verify callback
         passReqToCallback: true

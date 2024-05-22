@@ -197,7 +197,7 @@ module.exports.getHeaders = (scope) => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope !== null && scope !== undefined ? getToken(scope) : getFullAccessToken()}`,
         Host: 'localhost:3000'
     };
 };

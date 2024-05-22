@@ -1,0 +1,14 @@
+{
+  "id": "1",
+  "resourceType": "SupplyRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "quantity": {
+    "value": 10
+  },
+  "requester": {
+    "reference": "Patient/1"
+  }
+}

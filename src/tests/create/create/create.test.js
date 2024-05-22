@@ -8,6 +8,10 @@ const practitioner6Resource = require('./fixtures/Practitioner/practitioner6.jso
 const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.json');
 const practitioner8Resource = require('./fixtures/Practitioner/practitioner8.json');
 
+const observation1Resource = require('./fixtures/Observation/observation1.json');
+
+const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
+
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
@@ -19,10 +23,11 @@ const {
     createTestRequest,
     getTestContainer,
     mockHttpContext
-} = require('../common');
+} = require('../../common');
+const env = require('var');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { generateUUIDv5 } = require('../../utils/uid.util');
-const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     let requestId;
@@ -208,6 +213,57 @@ describe('Practitioner Tests', () => {
             expect(collectionNames).toEqual(expect.arrayContaining([
                 'Practitioner_4_0_0', 'Practitioner_4_0_0_History'
             ]));
+        });
+        test('Multiple resources not supported in create', async () => {
+            const request = await createTestRequest();
+
+            // Create api hit with valid resource
+            await request
+                .post('/4_0_0/Practitioner/')
+                .send([practitioner8Resource])
+                .set(getHeaders())
+                .expect(400);
+        });
+        test('system AuditEvent is not created while creating AuditEvent', async () => {
+            const envValue = env.REQUIRED_AUDIT_EVENT_FILTERS;
+            env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+
+            const request = await createTestRequest();
+            // Create api hit with valid resource
+            let resp = await request
+                .post('/4_0_0/AuditEvent/')
+                .send(auditEvent1Resource)
+                .set(getHeaders())
+                .expect(201);
+
+            resp = await request
+                .get('/4_0_0/AuditEvent/')
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResourceCount(1);
+            env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+        });
+        test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
+            const envValue = env.VALIDATE_SCHEMA;
+            env.VALIDATE_SCHEMA = '0';
+
+            const request = await createTestRequest();
+            // Create api hit with valid resource
+            await request
+                .post('/4_0_0/Observation/')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(201);
+
+            env.VALIDATE_SCHEMA = '1';
+            await request
+                .post('/4_0_0/Observation/')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(400);
+
+            env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

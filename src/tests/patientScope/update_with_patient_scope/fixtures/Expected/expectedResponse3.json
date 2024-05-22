@@ -1,0 +1,50 @@
+{
+    "resourceType": "Person",
+    "id": "person1",
+    "meta": {
+        "versionId": "3",
+        "source": "client",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "client" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "client" }
+        ]
+    },
+    "identifier": [
+        { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "person1" },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+        }
+    ],
+    "name": [{ "use": "usual", "text": "t", "family": "PATIENT2", "given": ["OTHER"] }],
+    "gender": "male",
+    "birthDate": "1990-01-01",
+    "link": [
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/patient2"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/3c1769c0-d829-5d56-9aa1-90d2ca127cd7"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ],
+                "reference": "Patient/patient2",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
+    ]
+}

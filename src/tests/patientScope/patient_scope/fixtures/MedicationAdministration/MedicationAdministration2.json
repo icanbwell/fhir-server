@@ -1,0 +1,18 @@
+{
+  "id": "2",
+  "resourceType": "MedicationAdministration",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "completed",
+  "medicationCodeableConcept": {},
+  "medicationReference": {
+    "reference": "Medication/2"
+  },
+  "subject": {
+    "reference": "Patient/2"
+  },
+  "effectiveDateTime": "2023-10-10T10:10:10.000Z",
+  "effectivePeriod": {}
+}

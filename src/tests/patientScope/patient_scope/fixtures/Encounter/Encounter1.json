@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "resourceType": "Encounter",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+  },
+  "status": "planned",
+  "class": {},
+  "subject": {
+    "reference": "Patient/1"
+  }
+}
