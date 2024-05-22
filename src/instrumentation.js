@@ -31,7 +31,16 @@ const sdk = new opentelemetry.NodeSDK({
         new ExpressInstrumentation(),
         new GraphQLInstrumentation(),
         new HttpInstrumentation({
-            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url)
+            ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+            applyCustomAttributesOnSpan: (span) => {
+                // For graphql urls we need to remove $ as it causes issues on datadog
+                if (span.attributes['http.url'] && span.attributes['http.url'].includes('/$graphql')) {
+                    span.attributes['http.url'] = span.attributes['http.url'].replace('$', '');
+                }
+                if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
+                    span.attributes['http.target'] = span.attributes['http.target'].replace('$', '');
+                }
+            }
         }),
         new LruMemoizerInstrumentation(),
         new MongoDBInstrumentation({
