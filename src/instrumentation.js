@@ -33,6 +33,7 @@ const sdk = new opentelemetry.NodeSDK({
         new HttpInstrumentation({
             ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
             applyCustomAttributesOnSpan: (span) => {
+                // For graphql urls we need to remove $ as it causes issues on datadog
                 if (span.attributes['http.url'] && span.attributes['http.url'].includes('/$graphql')) {
                     span.attributes['http.url'] = span.attributes['http.url'].replace('$', '');
                 }
