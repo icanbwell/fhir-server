@@ -20,7 +20,7 @@
   ],
   "name": [{ "use": "usual", "text": "t", "family": "NEW_FAMILY", "given": ["OTHER"] }],
   "gender": "male",
-  "birthDate": "1990-01-01",
+  "birthDate": "1990-01-01T00:00:00.000Z",
   "link": [
     {
       "target": {
