@@ -33,11 +33,11 @@ const sdk = new opentelemetry.NodeSDK({
         new HttpInstrumentation({
             ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
             applyCustomAttributesOnSpan: (span) => {
-                if (span.attributes['http.url']) {
-                    span.attributes['http.url'] = encodeURIComponent(span.attributes['http.url']);
+                if (span.attributes['http.url'] && span.attributes['http.url'].includes('/$graphql')) {
+                    span.attributes['http.url'] = span.attributes['http.url'].replace('$', '');
                 }
-                if (span.attributes['http.target']) {
-                    span.attributes['http.target'] = encodeURIComponent(span.attributes['http.target']);
+                if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
+                    span.attributes['http.target'] = span.attributes['http.target'].replace('$', '');
                 }
             }
         }),
