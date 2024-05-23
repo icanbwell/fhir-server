@@ -33,12 +33,15 @@ const sdk = new opentelemetry.NodeSDK({
         new HttpInstrumentation({
             ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
             applyCustomAttributesOnSpan: (span) => {
-                // For graphql urls we need to remove $ as it causes issues on datadog
-                if (span.attributes['http.url'] && span.attributes['http.url'].includes('/$graphql')) {
-                    span.attributes['http.url'] = span.attributes['http.url'].replace('$', '');
-                }
+                // For graphql urls we are using middlewares to process the graphql request, there is no route
+                // attached with any http method so we have to add the route in the 'span' to aggregate
+                // data on datadog and grafana
                 if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
-                    span.attributes['http.target'] = span.attributes['http.target'].replace('$', '');
+                    span.attributes['http.route'] = span.attributes['http.target'].replace(/\$/g, '([$])');
+                    // graphqlv2 path starts with base_version
+                    if (span.attributes['http.route'].includes('graphqlv2')) {
+                        span.attributes['http.route'] = span.attributes['http.route'].replace('4_0_0', ':base_version')
+                    }
                 }
             }
         }),
