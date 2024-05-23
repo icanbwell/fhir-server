@@ -91,21 +91,14 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
                 }
             }
 
-            this.writeStream = fs.createWriteStream('./validationOperationOutcomes.csv', { flags: 'a' });
-
-            if (!fs.existsSync('./validationOperationOutcomes.csv')) {
-                this.writeStream.write('ResourceType| ResourceId| ValidationOperationOutcome|\n');
-            }
+            // create directory to store validation errors for all resources
+            fs.mkdirSync('validationErrors');
 
             for (const collectionName of this.collections) {
                 this.adminLogger.logInfo(`Processing ${collectionName} collection`);
                 await this.validateCollectionAsync(collectionName);
                 this.adminLogger.logInfo(`Finished processing ${collectionName} collection`);
             }
-
-            this.writeStream.close();
-
-            return new Promise((r) => this.writeStream.on('close', r));
         } catch (err) {
             this.adminLogger.logError(`ERROR: ${err.message}`, { stack: err.stack });
         }
@@ -134,6 +127,9 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
                 }
             });
 
+            this.writeStream = fs.createWriteStream(`./validationErrors/${resourceType}-errors.csv`, { flags: 'w' });
+            this.writeStream.write('ResourceType| ResourceId| ValidationOperationOutcome|\n');
+
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
 
@@ -154,6 +150,9 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
                     this.writeStream.write(`${resourceType}| ${resource._uuid}| ${JSON.stringify(validationOperationOutcome)}|\n`);
                 }
             }
+
+            this.writeStream.close();
+            return new Promise((r) => this.writeStream.on('close', r));
         } catch (err) {
             throw new RethrownError({
                 message: `Error in validateCollection: ${err.message}`,
