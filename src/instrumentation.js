@@ -38,6 +38,7 @@ const sdk = new opentelemetry.NodeSDK({
                     span.attributes['http.url'] = span.attributes['http.url'].replace('$', '');
                 }
                 if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
+                    span.attributes['http.route'] = span.attributes['http.target'].replace('$', '([$])');
                     span.attributes['http.target'] = span.attributes['http.target'].replace('$', '');
                 }
             }
