@@ -33,6 +33,9 @@ const setRequestIdInLog = (args) => {
  * @param {Number} level denotes the level at which the file which called Log method is present
  */
 const setFileDetailsInLog = (args, level) => {
+    if (!args) {
+        return;
+    }
     // use the error stack to get file details
     const stack = new Error().stack;
     // get the file details by splitting the stack trace and getting the level element
