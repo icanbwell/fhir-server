@@ -28,12 +28,32 @@ const setRequestIdInLog = (args) => {
 };
 
 /**
+ * Adds filename with line number in the args
+ * @param {Object} args
+ * @param {Number} level denotes the level at which the file which called Log method is present
+ */
+const setFileDetailsInLog = (args, level) => {
+    // use the error stack to get file details
+    const stack = new Error().stack;
+    // get the file details by splitting the stack trace and getting the level element
+    const fileDetailsInStack = stack.split('\n')[level];
+    // remove the first two folders as these will be srv/src to have the relative path from fhir-server root
+    const relativeRoot = fileDetailsInStack.split('/').splice(3).join('/');
+    // remove the column number from the file path
+    const file = relativeRoot.split(':').splice(0, 2).join(':');
+
+    args.file = file;
+}
+
+/**
  * Logs information
  * @param {string} message
  * @param {Object} args
+ * @param {number} level
  */
-const logInfo = (message, args) => {
+const logInfo = (message, args, level = 3) => {
     setRequestIdInLog(args);
+    setFileDetailsInLog(args, level);
     logger.info(message, args);
 };
 

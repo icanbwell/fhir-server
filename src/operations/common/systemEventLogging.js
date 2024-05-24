@@ -1,12 +1,10 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const httpContext = require('express-http-context');
-const { REQUEST_ID_TYPE } = require('../../constants');
 
 const os = require('os');
 const { generateUUID } = require('../../utils/uid.util');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
-const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
+const { logError, logInfo } = require('./logging');
 
 /**
  * Get detail array from args
@@ -48,7 +46,6 @@ const logSystemEventAsync = async ({ event, message, args }) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: 'Success',
-        message,
         entity: [
             {
                 name: 'system',
@@ -56,14 +53,8 @@ const logSystemEventAsync = async ({ event, message, args }) => {
             }
         ]
     };
-    logEntry.request = {
-        // represents the id that is passed as header or req.id.
-        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
-        // represents the server unique requestId and that is used in operations.
-        systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
-    };
-    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
-    fhirInSecureLogger.info(logEntry);
+
+    logInfo(message, logEntry, 4);
 };
 
 /**
@@ -107,7 +98,6 @@ const logSystemErrorAsync = async ({ event, message, args, error }) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: error ? 'Error' : 'Success',
-        message: message + (error ? (' : ' + JSON.stringify(error.stack, getCircularReplacer())) : ''),
         entity: [
             {
                 name: 'system',
@@ -115,18 +105,12 @@ const logSystemErrorAsync = async ({ event, message, args, error }) => {
             }
         ]
     };
-    logEntry.request = {
-        // represents the id that is passed as header or req.id.
-        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
-        // represents the server unique requestId and that is used in operations.
-        systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
-    };
+    const msg = message + (error ? (' : ' + JSON.stringify(error.stack, getCircularReplacer())) : '');
 
-    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
     if (error) {
-        fhirInSecureLogger.error(logEntry);
+        logError(msg, logEntry);
     } else {
-        fhirInSecureLogger.info(logEntry);
+        logInfo(msg, logEntry, 4);
     }
 };
 
