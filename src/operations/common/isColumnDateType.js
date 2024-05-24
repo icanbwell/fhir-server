@@ -518,7 +518,6 @@ function isColumnDateType (resourceType, columnName) {
             break;
         case 'Immunization':
             if (columnName === 'occurrenceDateTime' ||
-                columnName === 'occurrenceString' ||
                 columnName === 'expirationDate' ||
                 columnName === 'series.started' ||
                 columnName === 'education.publicationDate' ||

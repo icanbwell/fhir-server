@@ -57,12 +57,7 @@ class FilterByDateTime extends BaseFilter {
                     })
                 };
                 if (strQuery) {
-                    strQuery = [
-                        {
-                            [`${fieldName}`]: { $type: 'string' }
-                        },
-                        strQuery
-                    ];
+                    strQuery[`${fieldName}`].$type = 'string';
                 }
             }
            return strQuery;
@@ -96,13 +91,8 @@ class FilterByDateTime extends BaseFilter {
                     )
                 };
                 if (dateQuery) {
-                    dateQuery = [
-                        {
-                            [`${fieldName}`]: { $type: 'date' }
-                        },
-                        dateQuery
-                    ];
-                }
+                    dateQuery[`${fieldName}`].$type = 'date';
+                 }
             }
             return dateQuery;
         }
