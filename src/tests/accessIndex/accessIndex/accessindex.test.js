@@ -4,7 +4,9 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
+const expectedAuditEventResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
+const expectedAuditEventWithoutAccessIndexResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
@@ -212,7 +214,7 @@ describe('AuditEvent Tests', () => {
                 .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cthedcare&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResources);
+            expect(resp).toHaveResponse(expectedAuditEventResourcesThedcare);
         });
         test('accessIndex works even for resources not on partitionResources', async () => {
             const request = await createTestRequest((c) => {
