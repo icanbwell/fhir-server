@@ -5,7 +5,6 @@ const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
 const {TestConfigManager} = require('../../../testConfigManager');
 const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 
-const {PatientQueryCreator} = require('../../../../operations/common/PatientQueryCreator');
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
 const {mergeObject} = require('../../../../utils/mergeHelper');
