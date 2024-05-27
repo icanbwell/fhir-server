@@ -134,7 +134,7 @@
     "@sentry/node": "6.9.0",
     "async": "^3.2.5",
     "async-mutex": "^0.5.0",
-    "axios": "^1.7.1",
+    "axios": "^1.7.2",
     "compression": "^1.7.4",
     "content-type": "^1.0.5",
     "cookie-parser": "^1.4.6",
@@ -175,7 +175,7 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
+    "@babel/core": "^7.24.6",
     "@graphql-eslint/eslint-plugin": "^3.20.1",
     "@jest/globals": "^29.7.0",
     "csv42": "^5.0.0",
@@ -193,7 +193,7 @@
     "mongodb-memory-server-core": "^9.2.0",
     "ndjson-to-json-text": "^1.0.2",
     "nock": "^13.5.4",
-    "nodemon": "^3.1.0",
+    "nodemon": "^3.1.1",
     "npm-check-updates": "^16.14.20",
     "pre-commit": "^1.2.2",
     "prettier": "^3.2.5",
