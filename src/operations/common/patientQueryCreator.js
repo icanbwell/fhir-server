@@ -252,11 +252,14 @@ class PatientQueryCreator {
                 queries.push(personsQuery);
             }
         }
-
+        // if no queries found then don't allow access
+        if (queries.length === 0) {
+            return {id: '__invalid__'}; // return nothing since no valid query was found
+        }
         // Now combine all the queries into one
         const patientAndPersonQuery = {
-                $or: queries
-            };
+            $or: queries
+        };
         // run simplifier to simplify the query
         if (patientAndPersonQuery) {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({query, andQuery: patientAndPersonQuery});

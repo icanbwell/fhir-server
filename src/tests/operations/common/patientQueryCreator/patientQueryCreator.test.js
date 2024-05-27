@@ -56,7 +56,7 @@ describe('PatientQueryCreator Tests', () => {
                 "participant.actor._sourceId": "Patient/1"
             });
         });
-        test('PatientQueryCreator works with Subscription resources with uuid', async () => {
+        test('PatientQueryCreator works with Subscription resources with patient uuid', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             // noinspection JSUnresolvedReference
@@ -68,27 +68,9 @@ describe('PatientQueryCreator Tests', () => {
                 resourceType: 'Subscription',
                 useHistoryTable: false
             });
+            // Subscription resource is filtered by person id, not patient id
             expect(query).toStrictEqual({
-                $and: [
-                    {
-                        extension: {
-                            $elemMatch: {
-                                url: "https://icanbwell.com/codes/source_patient_id",
-                                valueString: "4afa8a5e-cc8a-58e1-93b0-6ed185789338"
-                            }
-                        }
-                    },
-                    {
-                        "meta.tag": {
-                            $not: {
-                                $elemMatch: {
-                                    code: "hidden",
-                                    system: "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
-                                }
-                            }
-                        }
-                    }
-                ]
+                id: "__invalid__"
             });
         });
     });

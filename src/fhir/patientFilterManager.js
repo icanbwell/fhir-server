@@ -84,19 +84,16 @@ class PatientFilterManager {
          * defines the field in each resource that links to person
          * @type {Object}
          */
-        this.personFilterMapping = {
-        };
+        this.personFilterMapping = {};
 
         /**
-         * defines the field in each resource that links to patient
+         * defines the filter query in each resource that links to patient
          * @type {Object}
          */
-        this.patientFilterWithQueryMapping = {
-            Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
-        };
+        this.patientFilterWithQueryMapping = {};
 
         /**
-         * defines the field in each resource that links to person
+         * defines the filter in each resource that links to person
          * @type {Object}
          */
         this.personFilterWithQueryMapping = {
@@ -143,7 +140,9 @@ class PatientFilterManager {
      */
     canAccessResourceWithPatientScope({resourceType}) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
-            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType);
+            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType) ||
+            Object.hasOwn(this.personFilterMapping, resourceType) ||
+            Object.hasOwn(this.personFilterWithQueryMapping, resourceType);
     }
 
     /**
@@ -151,7 +150,10 @@ class PatientFilterManager {
      * @param {string} resourceType
      */
     isPatientRelatedResource({resourceType}) {
-        return Object.keys(this.patientFilterMapping).includes(resourceType);
+        return Object.keys(this.patientFilterMapping).includes(resourceType) ||
+            Object.keys(this.patientFilterWithQueryMapping).includes(resourceType) ||
+            Object.keys(this.personFilterMapping).includes(resourceType) ||
+            Object.keys(this.personFilterWithQueryMapping).includes(resourceType);
     }
 }
 
