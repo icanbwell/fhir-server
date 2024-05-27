@@ -24,9 +24,10 @@ describe('PatientQueryCreator Tests', () => {
 
     describe('PatientQueryCreator Tests', () => {
         const base_version = '4_0_0';
-        test('PatientQueryCreator works with identical resources', async () => {
+        test('PatientQueryCreator works with Condition resources with id', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
+            // noinspection JSUnresolvedReference
             /** @type {PatientQueryCreator} */
             const patientQueryCreator = container.patientQueryCreator;
             const query = patientQueryCreator.getQueryWithPatientFilter({
@@ -37,6 +38,57 @@ describe('PatientQueryCreator Tests', () => {
             });
             expect(query).toStrictEqual({
                 "subject._sourceId": "Patient/1"
+            });
+        });
+        test('PatientQueryCreator works with Appointment resources with id', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            // noinspection JSUnresolvedReference
+            /** @type {PatientQueryCreator} */
+            const patientQueryCreator = container.patientQueryCreator;
+            const query = patientQueryCreator.getQueryWithPatientFilter({
+                patientIds: ['1'],
+                query: {},
+                resourceType: 'Appointment',
+                useHistoryTable: false
+            });
+            expect(query).toStrictEqual({
+                "participant.actor._sourceId": "Patient/1"
+            });
+        });
+        test('PatientQueryCreator works with Subscription resources with uuid', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            // noinspection JSUnresolvedReference
+            /** @type {PatientQueryCreator} */
+            const patientQueryCreator = container.patientQueryCreator;
+            const query = patientQueryCreator.getQueryWithPatientFilter({
+                patientIds: ['4afa8a5e-cc8a-58e1-93b0-6ed185789338'],
+                query: {},
+                resourceType: 'Subscription',
+                useHistoryTable: false
+            });
+            expect(query).toStrictEqual({
+                $and: [
+                    {
+                        extension: {
+                            $elemMatch: {
+                                url: "https://icanbwell.com/codes/source_patient_id",
+                                valueString: "4afa8a5e-cc8a-58e1-93b0-6ed185789338"
+                            }
+                        }
+                    },
+                    {
+                        "meta.tag": {
+                            $not: {
+                                $elemMatch: {
+                                    code: "hidden",
+                                    system: "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+                                }
+                            }
+                        }
+                    }
+                ]
             });
         });
     });
