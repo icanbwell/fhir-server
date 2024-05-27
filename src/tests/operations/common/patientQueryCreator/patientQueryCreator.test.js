@@ -40,6 +40,27 @@ describe('PatientQueryCreator Tests', () => {
                 "subject._sourceId": "Patient/1"
             });
         });
+        test('PatientQueryCreator works with Condition resources with multiple id', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            // noinspection JSUnresolvedReference
+            /** @type {PatientQueryCreator} */
+            const patientQueryCreator = container.patientQueryCreator;
+            const query = patientQueryCreator.getQueryWithPatientFilter({
+                patientIds: ['1', '2'],
+                query: {},
+                resourceType: 'Condition',
+                useHistoryTable: false
+            });
+            expect(query).toStrictEqual({
+                "subject._sourceId": {
+                    $in: [
+                        "Patient/1",
+                        "Patient/2"
+                    ]
+                }
+            });
+        });
         test('PatientQueryCreator works with Condition resources with uuid', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
@@ -54,6 +75,27 @@ describe('PatientQueryCreator Tests', () => {
             });
             expect(query).toStrictEqual({
                 "subject._uuid": "Patient/4afa8a5e-cc8a-58e1-93b0-6ed185789338"
+            });
+        });
+        test('PatientQueryCreator works with Condition resources with multiple uuids', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            // noinspection JSUnresolvedReference
+            /** @type {PatientQueryCreator} */
+            const patientQueryCreator = container.patientQueryCreator;
+            const query = patientQueryCreator.getQueryWithPatientFilter({
+                patientIds: ['4afa8a5e-cc8a-58e1-93b0-6ed185789338', '4afa8a5e-cc8a-58e1-93b0-6ed185789339'],
+                query: {},
+                resourceType: 'Condition',
+                useHistoryTable: false
+            });
+            expect(query).toStrictEqual({
+                "subject._uuid": {
+                    $in: [
+                        "Patient/4afa8a5e-cc8a-58e1-93b0-6ed185789338",
+                        "Patient/4afa8a5e-cc8a-58e1-93b0-6ed185789339"
+                    ]
+                }
             });
         });
         test('PatientQueryCreator works with Appointment resources with id', async () => {
