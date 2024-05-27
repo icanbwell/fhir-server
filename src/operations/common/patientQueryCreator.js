@@ -7,6 +7,7 @@ const { R4SearchQueryCreator } = require('../query/r4');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const querystring = require('querystring');
+const {OPERATIONS} = require('../../constants');
 
 class PatientQueryCreator {
     /**
@@ -83,6 +84,7 @@ class PatientQueryCreator {
                     };
                 } else {
                     // if patient itself then search by _uuid
+                    // noinspection IfStatementWithIdenticalBranchesJS
                     if (patientFilterProperty === 'id') {
                         patientsUuidQuery = { [fieldMapper.getFieldName('_uuid')]: inQuery };
                     } else {
@@ -110,7 +112,8 @@ class PatientQueryCreator {
                     useOrFilterForArrays: true
                 });
                 ({ query: patientsUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable
+                    resourceType, parsedArgs, useHistoryTable,
+                    operation: OPERATIONS.READ
                 }));
             }
         }
@@ -141,6 +144,7 @@ class PatientQueryCreator {
                     };
                 } else {
                     // if patient itself then search by _sourceId
+                    // noinspection IfStatementWithIdenticalBranchesJS
                     if (patientFilterProperty === 'id') {
                         patientsNonUuidQuery = { [fieldMapper.getFieldName('_sourceId')]: inQuery };
                     } else {
