@@ -10,6 +10,7 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic3Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic3.json');
 const patientBundleResource = require('./fixtures/Patient/patient1.json');
 const personBundleResource = require('./fixtures/Person/person1.json');
+const personBundle2Resource = require('./fixtures/Person/person2.json');
 
 // expected
 const expectedSubscriptionResources = require('./fixtures/expected/expected_subscription.json');
@@ -302,6 +303,13 @@ describe('GraphQL Subscription Tests', () => {
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
