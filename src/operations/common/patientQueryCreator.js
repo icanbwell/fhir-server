@@ -56,7 +56,7 @@ class PatientQueryCreator {
          */
         const queries = [];
         // separate uuids from non-uuids
-        const patientUuids = patientIds.filter(id => isUuid(id));
+        const patientUuids = patientIds ? patientIds.filter(id => isUuid(id)): [];
         if (patientUuids && patientUuids.length > 0) {
             /**
              * @type {import('mongodb').Document}
@@ -129,7 +129,7 @@ class PatientQueryCreator {
                 queries.push(patientsUuidQuery);
             }
         }
-        const patientNonUuids = patientIds.filter(id => !isUuid(id));
+        const patientNonUuids = patientIds ? patientIds.filter(id => !isUuid(id)): [];
         if (patientNonUuids && patientNonUuids.length > 0) {
             /**
              * @type {import('mongodb').Document}
@@ -236,7 +236,7 @@ class PatientQueryCreator {
                  */
                 const args = querystring.parse(personFilterWithQueryProperty);
                 // TODO: don't hardcode 'extension' here.  Use name of property from above
-                args.extension = patientUuids.map(p => args.extension.replace('{person}', p));
+                args.extension = personIds.map(p => args.extension.replace('{person}', p));
                 args.base_version = VERSIONS['4_0_0'];
                 const parsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType,

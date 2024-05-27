@@ -56,7 +56,43 @@ describe('PatientQueryCreator Tests', () => {
                 "participant.actor._sourceId": "Patient/1"
             });
         });
-        test('PatientQueryCreator works with Subscription resources with patient uuid', async () => {
+        test('PatientQueryCreator works with Subscription resources with person uuid', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            // noinspection JSUnresolvedReference
+            /** @type {PatientQueryCreator} */
+            const patientQueryCreator = container.patientQueryCreator;
+            const query = patientQueryCreator.getQueryWithPatientFilter({
+                personIds: ['4afa8a5e-cc8a-58e1-93b0-6ed185789338'],
+                query: {},
+                resourceType: 'Subscription',
+                useHistoryTable: false
+            });
+            // Subscription resource is filtered by person id, not patient id
+            expect(query).toStrictEqual({
+                $and: [
+                    {
+                        extension: {
+                            $elemMatch: {
+                                url: "https://icanbwell.com/codes/client_person_id",
+                                valueString: "4afa8a5e-cc8a-58e1-93b0-6ed185789338"
+                            }
+                        }
+                    },
+                    {
+                        "meta.tag": {
+                            $not: {
+                                $elemMatch: {
+                                    code: "hidden",
+                                    system: "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+        });
+        test('PatientQueryCreator fails with Subscription resources with patient uuid', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             // noinspection JSUnresolvedReference
