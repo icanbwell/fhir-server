@@ -205,7 +205,7 @@ class ScopesValidator {
                 }))
             ) {
                 throw new ForbiddenError(
-                    'The current patient scope and person id in the JWT token do not allow writing this resource.'
+                    `The current patient scope and person id in the JWT token do not allow writing the ${resource.resourceType} resource.`
                 );
             }
         } catch (e) {

@@ -109,7 +109,7 @@ describe('Condition Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(200);
             const body = resp.body;
-            expect(body.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(body.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.');
         });
         test('merge_with_patient_scope fails if patient scope does not allow', async () => {
             const request = await createTestRequest((c) => {
@@ -214,7 +214,7 @@ describe('Condition Tests', () => {
 
             const condition1Response = body[1];
             expect(condition1Response.created).toStrictEqual(false);
-            expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.');
 
             const condition2Response = body[0];
             expect(condition2Response.created).toStrictEqual(true);
@@ -296,7 +296,7 @@ describe('Condition Tests', () => {
 
             const condition1Response = body[0];
             expect(condition1Response.created).toStrictEqual(false);
-            expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.');
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
             const envValue = env.VALIDATE_SCHEMA;
