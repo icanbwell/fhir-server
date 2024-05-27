@@ -87,6 +87,14 @@ class PatientFilterManager {
         this.patientFilterWithQueryMapping = {
             Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
         };
+
+        /**
+         * defines the field in each resource that links to person
+         * @type {Object}
+         */
+        this.personFilterWithQueryMapping = {
+            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}'
+        };
     }
 
     /**
