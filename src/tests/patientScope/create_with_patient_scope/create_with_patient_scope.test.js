@@ -108,7 +108,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.');
         });
         test('create_with_patient_scope fails if patient scopes are Invalid', async () => {
             const request = await createTestRequest((c) => {

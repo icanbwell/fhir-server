@@ -256,7 +256,7 @@ class MongoCollectionManager {
      */
     async clearCollectionAsync ({ db, collectionName }) {
         /**
-         * @type {Collection<Document>}
+         * @type {import('mongodb').Collection<Document>}
          */
         const collection = await this.getOrCreateCollectionAsync({ db, collectionName });
         return await collection.deleteMany({});

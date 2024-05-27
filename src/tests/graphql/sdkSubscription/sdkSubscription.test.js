@@ -10,6 +10,7 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic3Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic3.json');
 const patientBundleResource = require('./fixtures/Patient/patient1.json');
 const personBundleResource = require('./fixtures/Person/person1.json');
+const personBundle2Resource = require('./fixtures/Person/person2.json');
 
 // expected
 const expectedSubscriptionResources = require('./fixtures/expected/expected_subscription.json');
@@ -31,7 +32,7 @@ const {
     createTestRequest,
     getGraphQLHeadersWithPerson
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('GraphQL Subscription Tests', () => {
     beforeEach(async () => {
@@ -52,7 +53,7 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             // resp = await request
             //     .get('/4_0_0/Subscription/subscription1')
@@ -63,63 +64,70 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
                 .send(subscriptionStatus2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
                 .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
                 .send(subscriptionTopic1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic2/$merge?validate=true')
                 .send(subscriptionTopic2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic3/$merge?validate=true')
                 .send(subscriptionTopic3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             const graphqlQueryText = subscriptionQuery.replace(/\\n/g, '');
             // ACT & ASSERT
@@ -149,77 +157,85 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
                 .send(subscription2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Subscription/subscription3/$merge?validate=true')
                 .send(subscription3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
                 .send(subscriptionStatus2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
                 .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
                 .send(subscriptionTopic1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic2/$merge?validate=true')
                 .send(subscriptionTopic2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic3/$merge?validate=true')
                 .send(subscriptionTopic3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
 
             const graphqlQueryText = subscriptionQuery.replace(/\\n/g, '');
             // ACT & ASSERT
@@ -258,7 +274,7 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             // resp = await request
             //     .get('/4_0_0/Subscription/subscription1')
@@ -269,42 +285,49 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
                 .send(subscriptionStatus2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
                 .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             const graphqlQueryText = subscriptionQuery.replace(/\\n/g, '');
             // ACT & ASSERT
@@ -334,70 +357,77 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
                 .send(subscription2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
                 .send(subscriptionStatus2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
                 .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
                 .send(subscriptionTopic1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic2/$merge?validate=true')
                 .send(subscriptionTopic2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic3/$merge?validate=true')
                 .send(subscriptionTopic3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             const graphqlQueryText = subscriptionQueryByConnectionId.replace(/\\n/g, '');
             // ACT & ASSERT
@@ -427,70 +457,78 @@ describe('GraphQL Subscription Tests', () => {
                 .send(subscription1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
                 .send(subscription2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
                 .send(subscriptionStatus1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus2/$merge?validate=true')
                 .send(subscriptionStatus2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionStatus/subscriptionStatus3/$merge?validate=true')
                 .send(subscriptionStatus3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
                 .send(subscriptionTopic1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic2/$merge?validate=true')
                 .send(subscriptionTopic2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/SubscriptionTopic/subscriptionTopic3/$merge?validate=true')
                 .send(subscriptionTopic3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
 
             const graphqlQueryText = subscriptionQueryByConnectionId.replace(/\\n/g, '')
                 .replace('1234', '9999');

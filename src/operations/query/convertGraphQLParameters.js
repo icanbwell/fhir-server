@@ -41,21 +41,22 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     const newQueryParameterValue = [];
                     notQueryParameterValue = [];
                     if (queryParameterValue.values) {
-                        for (let token of queryParameterValue.values) {
+                        for (const token of queryParameterValue.values) {
+                            let tokenToProcess = token;
                             let innerNotEquals = false;
-                            if (token.notEquals) {
-                                token = token.notEquals;
+                            if (tokenToProcess.notEquals) {
+                                tokenToProcess = token.notEquals;
                                 innerNotEquals = true;
                             }
                             let tokenString = '';
-                            if (token.system) {
-                                tokenString = token.system + '|';
+                            if (tokenToProcess.system) {
+                                tokenString = tokenToProcess.system + '|';
                             }
-                            if (token.code) {
-                                tokenString += token.code;
+                            if (tokenToProcess.code) {
+                                tokenString += tokenToProcess.code;
                             }
-                            if (token.value) {
-                                tokenString += token.value;
+                            if (tokenToProcess.value) {
+                                tokenString += tokenToProcess.value;
                             }
                             if (tokenString) {
                                 if (useNotEquals || innerNotEquals) {

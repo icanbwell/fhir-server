@@ -1,5 +1,5 @@
 class PatientFilterManager {
-    constructor () {
+    constructor() {
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -81,11 +81,23 @@ class PatientFilterManager {
         };
 
         /**
-         * defines the field in each resource that links to patient
+         * defines the field in each resource that links to person
          * @type {Object}
          */
-        this.patientFilterWithQueryMapping = {
-            Subscription: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
+        this.personFilterMapping = {};
+
+        /**
+         * defines the filter query in each resource that links to patient
+         * @type {Object}
+         */
+        this.patientFilterWithQueryMapping = {};
+
+        /**
+         * defines the filter in each resource that links to person
+         * @type {Object}
+         */
+        this.personFilterWithQueryMapping = {
+            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}'
         };
     }
 
@@ -93,7 +105,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getPatientPropertyForResource ({ resourceType }) {
+    getPatientPropertyForResource({resourceType}) {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
@@ -101,8 +113,24 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getFilterQueryForResource ({ resourceType }) {
+    getPersonPropertyForResource({resourceType}) {
+        return this.personFilterMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPatientFilterQueryForResource({resourceType}) {
         return this.patientFilterWithQueryMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPersonFilterQueryForResource({resourceType}) {
+        return this.personFilterWithQueryMapping[`${resourceType}`];
     }
 
     /**
@@ -110,17 +138,35 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    canAccessResourceWithPatientScope ({ resourceType }) {
+    canAccessResourceWithPatientScope({resourceType}) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
-            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType);
+            Object.hasOwn(this.patientFilterWithQueryMapping, resourceType) ||
+            Object.hasOwn(this.personFilterMapping, resourceType) ||
+            Object.hasOwn(this.personFilterWithQueryMapping, resourceType);
     }
 
     /**
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */
-    isPatientRelatedResource ({ resourceType }) {
-        return Object.keys(this.patientFilterMapping).includes(resourceType);
+    isPatientRelatedResource({resourceType}) {
+        return Object.keys(this.patientFilterMapping).includes(resourceType) ||
+            Object.keys(this.patientFilterWithQueryMapping).includes(resourceType) ||
+            Object.keys(this.personFilterMapping).includes(resourceType) ||
+            Object.keys(this.personFilterWithQueryMapping).includes(resourceType);
+    }
+
+    /**
+     * Returns all the patient or person related resources
+     * @return {string[]}
+     */
+    getAllPatientOrPersonRelatedResources() {
+        return [
+            ...Object.keys(this.patientFilterMapping),
+            ...Object.keys(this.patientFilterWithQueryMapping),
+            ...Object.keys(this.personFilterMapping),
+            ...Object.keys(this.personFilterWithQueryMapping)
+        ];
     }
 }
 

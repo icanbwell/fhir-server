@@ -198,13 +198,12 @@ describe('Condition Tests', () => {
             const request = await createTestRequest();
             const container = getTestContainer();
             /**
-             * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
+             * @type {PatientFilterManager}
              */
             const patientFilterManager = container.patientFilterManager;
 
             // get list of patient resources from patientFilterManager
-            const patientResources = Object.keys(patientFilterManager.patientFilterMapping)
-                .concat(Object.keys(patientFilterManager.patientFilterWithQueryMapping));
+            const patientResources = patientFilterManager.getAllPatientOrPersonRelatedResources();
             // calculate non patient resources
             const nonPatientResources = Object.values(COLLECTION)
                 .filter(resource => !patientResources.includes(resource));
