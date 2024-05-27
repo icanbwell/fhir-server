@@ -1,5 +1,5 @@
 class PatientFilterManager {
-    constructor () {
+    constructor() {
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -81,6 +81,13 @@ class PatientFilterManager {
         };
 
         /**
+         * defines the field in each resource that links to person
+         * @type {Object}
+         */
+        this.personFilterMapping = {
+        };
+
+        /**
          * defines the field in each resource that links to patient
          * @type {Object}
          */
@@ -101,7 +108,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getPatientPropertyForResource ({ resourceType }) {
+    getPatientPropertyForResource({resourceType}) {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
@@ -109,8 +116,24 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getFilterQueryForResource ({ resourceType }) {
+    getPersonPropertyForResource({resourceType}) {
+        return this.personFilterMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPatientFilterQueryForResource({resourceType}) {
         return this.patientFilterWithQueryMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPersonFilterQueryForResource({resourceType}) {
+        return this.personFilterWithQueryMapping[`${resourceType}`];
     }
 
     /**
@@ -118,7 +141,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    canAccessResourceWithPatientScope ({ resourceType }) {
+    canAccessResourceWithPatientScope({resourceType}) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             Object.hasOwn(this.patientFilterWithQueryMapping, resourceType);
     }
@@ -127,7 +150,7 @@ class PatientFilterManager {
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */
-    isPatientRelatedResource ({ resourceType }) {
+    isPatientRelatedResource({resourceType}) {
         return Object.keys(this.patientFilterMapping).includes(resourceType);
     }
 }

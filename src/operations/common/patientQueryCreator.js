@@ -74,7 +74,7 @@ class PatientQueryCreator {
             /**
              * @type {string|string[]|null}
              */
-            const patientFilterWithQueryProperty = this.patientFilterManager.getFilterQueryForResource({
+            const patientFilterWithQueryProperty = this.patientFilterManager.getPatientFilterQueryForResource({
                 resourceType
             });
             if (patientFilterProperty) {
@@ -191,13 +191,13 @@ class PatientQueryCreator {
             /**
              * @type {string|string[]|null}
              */
-            const personFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+            const personFilterProperty = this.patientFilterManager.getPersonPropertyForResource({
                 resourceType
             });
             /**
              * @type {string|string[]|null}
              */
-            const personFilterWithQueryProperty = this.patientFilterManager.getFilterQueryForResource({
+            const personFilterWithQueryProperty = this.patientFilterManager.getPersonFilterQueryForResource({
                 resourceType
             });
             if (personFilterProperty) {
@@ -235,7 +235,7 @@ class PatientQueryCreator {
                  * @type {ParsedUrlQuery}
                  */
                 const args = querystring.parse(personFilterWithQueryProperty);
-                // TODO: don't hardcode extension here.  Use name of property from above
+                // TODO: don't hardcode 'extension' here.  Use name of property from above
                 args.extension = patientUuids.map(p => args.extension.replace('{person}', p));
                 args.base_version = VERSIONS['4_0_0'];
                 const parsedArgs = this.r4ArgsParser.parseArgs({
