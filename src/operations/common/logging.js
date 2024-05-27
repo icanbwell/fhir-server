@@ -36,8 +36,11 @@ const setFileDetailsInLog = (args, level) => {
     if (!args) {
         return;
     }
-    // use the error stack to get file details
-    const stack = new Error().stack;
+
+    const obj = {};
+    Error.captureStackTrace(obj)
+    // use the stack trace to get file details
+    const stack = obj.stack;
     // get the file details by splitting the stack trace and getting the level element
     const fileDetailsInStack = stack.split('\n')[level];
     // remove the first two folders as these will be srv/src to have the relative path from fhir-server root
