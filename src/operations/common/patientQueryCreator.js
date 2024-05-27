@@ -56,7 +56,7 @@ class PatientQueryCreator {
          */
         const queries = [];
         // separate uuids from non-uuids
-        const patientUuids = patientIds ? patientIds.filter(id => isUuid(id)): [];
+        const patientUuids = patientIds ? patientIds.filter(id => isUuid(id)) : [];
         if (patientUuids && patientUuids.length > 0) {
             /**
              * @type {import('mongodb').Document}
@@ -112,8 +112,8 @@ class PatientQueryCreator {
                  * @type {ParsedUrlQuery}
                  */
                 const args = querystring.parse(patientFilterWithQueryProperty);
-                // TODO: don't hardcode extension here.  Use name of property from above
-                args.extension = patientUuids.map(p => args.extension.replace('{patient}', p));
+                const propertyName = Object.keys(args)[0];
+                args[propertyName] = patientUuids.map(p => args[propertyName].replace('{patient}', p));
                 args.base_version = VERSIONS['4_0_0'];
                 const parsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType,
@@ -129,7 +129,7 @@ class PatientQueryCreator {
                 queries.push(patientsUuidQuery);
             }
         }
-        const patientNonUuids = patientIds ? patientIds.filter(id => !isUuid(id)): [];
+        const patientNonUuids = patientIds ? patientIds.filter(id => !isUuid(id)) : [];
         if (patientNonUuids && patientNonUuids.length > 0) {
             /**
              * @type {import('mongodb').Document}
@@ -144,6 +144,13 @@ class PatientQueryCreator {
             const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
                 resourceType
             });
+            /**
+             * @type {string|string[]|null}
+             */
+            const patientFilterWithQueryProperty = this.patientFilterManager.getPatientFilterQueryForResource({
+                resourceType
+            });
+
             if (patientFilterProperty) {
                 if (Array.isArray(patientFilterProperty)) {
                     patientsNonUuidQuery = {
@@ -173,6 +180,24 @@ class PatientQueryCreator {
                         };
                     }
                 }
+            } else if (patientFilterWithQueryProperty) {
+                // replace patient with value of patient
+                /**
+                 * @type {ParsedUrlQuery}
+                 */
+                const args = querystring.parse(patientFilterWithQueryProperty);
+                const propertyName = Object.keys(args)[0];
+                args[propertyName] = patientNonUuids.map(p => args[propertyName].replace('{patient}', p));
+                args.base_version = VERSIONS['4_0_0'];
+                const parsedArgs = this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args,
+                    useOrFilterForArrays: true
+                });
+                ({query: patientsNonUuidQuery} = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType, parsedArgs, useHistoryTable,
+                    operation: OPERATIONS.READ
+                }));
             }
             if (patientsNonUuidQuery) {
                 queries.push(patientsNonUuidQuery);
@@ -235,8 +260,8 @@ class PatientQueryCreator {
                  * @type {ParsedUrlQuery}
                  */
                 const args = querystring.parse(personFilterWithQueryProperty);
-                // TODO: don't hardcode 'extension' here.  Use name of property from above
-                args.extension = personIds.map(p => args.extension.replace('{person}', p));
+                const propertyName = Object.keys(args)[0];
+                args[propertyName] = personIds.map(p => args[propertyName].replace('{person}', p));
                 args.base_version = VERSIONS['4_0_0'];
                 const parsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType,
