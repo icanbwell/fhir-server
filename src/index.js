@@ -26,4 +26,12 @@ const main = async function () {
     }
 };
 
-main();
+(async () => {
+    try {
+        // Your async code here
+        await main();
+    } catch (error) {
+        console.error('Error in main function:', error);
+        process.exit(1); // Exit with a failure code
+    }
+})();

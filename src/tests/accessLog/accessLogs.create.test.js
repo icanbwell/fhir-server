@@ -19,9 +19,7 @@ class MockAccessLogger extends AccessLogger {
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
-     * @param {Error|undefined} error
      * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
      */
     async logAccessLogAsync ({
         req,

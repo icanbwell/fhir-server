@@ -140,7 +140,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
- * @param {import('http').IncomingMessage} request
+ * @param {import('http').IncomingMessage} _request
  * @param {Object} jwt_payload
  * @param {requestCallback} done
  * @return {*}

@@ -9,9 +9,9 @@ module.exports = [
             sourceType: "commonjs"
         },
         rules: {
-            "indent": "off",
-            "semi": "off",
-            "camelcase": "off",
+            indent: "off",
+            semi: "off",
+            camelcase: "off",
             "multiline-ternary": "off",
             "no-undef": "off",
             "no-unused-vars": "off",

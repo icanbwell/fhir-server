@@ -64,7 +64,7 @@ const removeNullFromArray = (obj) => {
     });
 
     return obj;
-}
+};
 
 module.exports = {
     removeNull,

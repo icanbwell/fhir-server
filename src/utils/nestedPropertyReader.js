@@ -11,7 +11,8 @@ class NestedPropertyReader {
         }
         const properties = path.split('.');
         if(!Array.isArray(obj)) {
-            if (properties.length === 1) return obj[properties[0]];
+            if (properties.length === 1) {return obj[properties[0]]}
+            // noinspection TailRecursionJS
             return NestedPropertyReader.getNestedProperty({ obj: obj[properties[0]], path: path.replace(`${properties[0]}.`, '') })
         } else {
             const result = [];

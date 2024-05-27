@@ -71,7 +71,7 @@ async function main () {
     );
 
     /**
-     * @type {FixConsentDataSharingRunner}
+     * @type {FixConsentRunner}
      */
     const fixConsentRunner = container.fixConsentRunner;
     await fixConsentRunner.processAsync();
