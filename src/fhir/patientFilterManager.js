@@ -155,6 +155,19 @@ class PatientFilterManager {
             Object.keys(this.personFilterMapping).includes(resourceType) ||
             Object.keys(this.personFilterWithQueryMapping).includes(resourceType);
     }
+
+    /**
+     * Returns all the patient or person related resources
+     * @return {string[]}
+     */
+    getAllPatientOrPersonRelatedResources() {
+        return [
+            ...Object.keys(this.patientFilterMapping),
+            ...Object.keys(this.patientFilterWithQueryMapping),
+            ...Object.keys(this.personFilterMapping),
+            ...Object.keys(this.personFilterWithQueryMapping)
+        ];
+    }
 }
 
 module.exports = {

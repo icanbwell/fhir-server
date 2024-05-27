@@ -305,7 +305,7 @@ describe('Condition Tests', () => {
             const request = await createTestRequest();
             const container = getTestContainer();
             /**
-             * @type {import('../../../fhir/patientFilterManager').PatientFilterManager}
+             * @type {PatientFilterManager}
              */
             const patientFilterManager = container.patientFilterManager;
             const person1_payload = {
@@ -320,8 +320,7 @@ describe('Condition Tests', () => {
             const headers1 = getHeadersWithCustomPayload(person1_payload);
 
             // get list of patient resources from patientFilterManager
-            const patientResources = Object.keys(patientFilterManager.patientFilterMapping)
-                .concat(Object.keys(patientFilterManager.patientFilterWithQueryMapping));
+            const patientResources = patientFilterManager.getAllPatientOrPersonRelatedResources();
             const skipResources = ['Bundle', 'ImplementationGuide', 'Parameters'];
             // calculate non patient resources
             const nonPatientResources = Object.values(COLLECTION)
