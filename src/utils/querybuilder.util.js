@@ -817,8 +817,9 @@ const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
             query.$lte = moment(date).utc().endOf('day').toDate();
             break;
         case 'ne':
-            query.$lt = moment(date).utc().startOf('day').toDate();
-            query.$gt = moment(date).utc().endOf('day').toDate();
+            query.$not = {};
+            query.$not.$gte = moment(date).utc().startOf('day').toDate();
+            query.$not.$lte = moment(date).utc().endOf('day').toDate();
             break;
         case 'lt':
             query.$lt = date;
