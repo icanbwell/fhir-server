@@ -12,7 +12,7 @@ Bulk data export can be triggered by POST request using below 3 endpoints:
 
 3. `/Group/:id/$export` - This endpoint will allow data export for resources related to the members of the provided group which are accessible via provided jwt scopes.
 
-POST request payload will be a Parameter resource, and parameter with name owner is required
+POST request payload will be a Parameter resource
 ```json
 {
     "id": "1",
@@ -21,21 +21,11 @@ POST request payload will be a Parameter resource, and parameter with name owner
         "source": "client",
         "security": [
             {
-                "system": "https://icanbwell.com/access",
-                "code": "client"
-            },
-            {
                 "system": "https://icanbwell.com/owner",
                 "code": "client"
             }
         ]
-    },
-    "parameters": [
-        {
-            "name": "owner",
-            "valueString": "client"
-        }
-    ]
+    }
 }
 ```
 
