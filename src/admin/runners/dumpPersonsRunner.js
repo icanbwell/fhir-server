@@ -86,6 +86,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                     writer.once('drain', resolve);
                 });
             }
+            return Promise.resolve();
         };
 
         const config = await this.mongoDatabaseManager.getClientConfigAsync();
@@ -122,7 +123,8 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         let pageCount = 0;
         let newPage = true;
         let outputStream;
-        for await (let doc of result) {
+        for await (const doc of result) {
+            let docToProcess = doc;
             if (newPage) {
                 console.log(`Opening Page ${pageCount}`);
                 outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json`);
@@ -134,8 +136,8 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                 }
                 newPage = false;
             }
-            doc = await this.formatDocument(doc);
-            const docWrite = writeStream(outputStream, JSON.stringify(doc, null, 4));
+            docToProcess = await this.formatDocument(docToProcess);
+            const docWrite = writeStream(outputStream, JSON.stringify(docToProcess, null, 4));
             if (docWrite) {
                 await docWrite;
             }

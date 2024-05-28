@@ -177,7 +177,7 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
 
     /**
      * Gets duplicate practitioners with NPI _sourceIds
-     * @param {require('mongodb').collection} collection
+     * @param {import('mongodb').collection} collection
      * @returns {Promise<string[]>}
      */
     async getDuplicatePractitionerArrayAsync ({ collection }) {
@@ -249,8 +249,8 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
 
     /**
      * Deletes duplicate practitioners with NPI _sourceIds
-     * @param {require('mongodb').collection} collection
-     * @returns {Promise<}
+     * @param {import('mongodb').collection} collection
+     * @returns {Promise<void>}
      */
     async deleteDuplicatePractitioners ({ collection }) {
         const justUuids = this.dupUuids.map(u => {

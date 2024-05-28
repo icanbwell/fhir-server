@@ -154,11 +154,14 @@ class FixConsentRunner extends BaseBulkOperationRunner {
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {import('mongodb').Document} doc
-     * @returns {Promise<Operations[]>}
+     * @returns {Promise<import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]>}
      */
     async processRecordsAsync ({ base_version, requestInfo, doc }) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
 
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+         */
         const operations = [];
         /**
          * @type {Resource}

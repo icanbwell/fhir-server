@@ -181,7 +181,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Subscription_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'person.79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'8ba1017f-0aad-1b91-ff9e-416a96e11f0b'}}}]}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionStatus_4_0_0.find({'$and':[{'subscription._sourceId':'Subscription/subscription1'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionTopic_4_0_0.find({'_sourceId':{'$in':['subscriptionTopic1','subscriptionTopic3']}}, {}).sort({'_uuid':1}).limit(1000)]",
+        "display": "[db.Subscription_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'79e59046-ffc7-4c41-9819-c8ef83275454'}}}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionStatus_4_0_0.find({'$and':[{'subscription._sourceId':'Subscription/subscription1'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.SubscriptionTopic_4_0_0.find({'_sourceId':{'$in':['subscriptionTopic1','subscriptionTopic3']}}, {}).sort({'_uuid':1}).limit(1000)]",
         "system": "https://www.icanbwell.com/query"
       },
       {

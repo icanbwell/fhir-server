@@ -248,7 +248,8 @@ class SearchManager {
                     query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     query = this.patientQueryCreator.getQueryWithPatientFilter({
-                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable
+                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable,
+                        personIds: personIdFromJwtToken ? [personIdFromJwtToken] : null
                     });
                 }
             } else if (securityTags && securityTags.length > 0) {
