@@ -77,16 +77,43 @@ class GetIdSourceIdMismatchCountRunner extends BaseBulkOperationRunner {
                         },
                         {
                             $project: {
-                                totalCount: { $arrayElemAt: ['$totalCount.count', 0] },
-                                minLastUpdated: { $arrayElemAt: ['$minLastUpdated', 0] },
-                                maxLastUpdated: { $arrayElemAt: ['$maxLastUpdated', 0] }
+                                totalCount: { $arrayElemAt: ["$totalCount.count", 0] },
+                                minUuid: { $arrayElemAt: ["$minLastUpdated._uuid", 0] },
+                                minLastUpdated: { $arrayElemAt: ["$minLastUpdated.meta.lastUpdated", 0] },
+                                maxUuid: { $arrayElemAt: ["$maxLastUpdated._uuid", 0] },
+                                maxLastUpdated: { $arrayElemAt: ["$maxLastUpdated.meta.lastUpdated", 0] }
                             }
                         }
                     ]);
                     while (await result.hasNext()) {
                         const data = await result.next();
                         if (data.totalCount > 0) {
-                            this.writeStream.write(`${collectionName}| ${data.totalCount}| ${data.minLastUpdated._uuid}| ${data.minLastUpdated.meta.lastUpdated.toISOString()}| ${data.maxLastUpdated._uuid}| ${data.maxLastUpdated.meta.lastUpdated.toISOString()}| \n`);
+                            let minLastUpdated = new Date(data.minLastUpdated);
+                            try {
+                                minLastUpdated = minLastUpdated.toISOString();
+                            }
+                            catch (e) {
+                                minLastUpdated = '-';
+                                this.adminLogger.logError(
+                                    `Invalid date format for Resource: '${collectionName}', uuid: '${data.minUuid}', ` +
+                                    `value of meta.lastUpdated: '${data.minLastUpdated}'`
+                                );
+                            }
+                            let maxLastUpdated = new Date(data.maxLastUpdated);
+                            try {
+                                maxLastUpdated = maxLastUpdated.toISOString();
+                            }
+                            catch (e) {
+                                maxLastUpdated = '-';
+                                this.adminLogger.logError(
+                                    `Invalid date format for Resource: '${collectionName}', uuid: '${data.maxUuid}', ` +
+                                    `value of meta.lastUpdated: '${data.maxLastUpdated}'`
+                                );
+                            }
+                            this.writeStream.write(
+                                `${collectionName}| ${data.totalCount}| ${data.minUuid}| ${minLastUpdated}| ` +
+                                `${data.maxUuid}| ${maxLastUpdated}| \n`
+                            );
                         }
                     }
                     this.adminLogger.logInfo(`Finished Processing ${collectionName}`);
