@@ -7,7 +7,7 @@
         "url": "/4_0_0/Patient/00100000000"
       },
       "resource": {
-        "birthDate": "2017-01-01T00:00:00.000Z",
+        "birthDate": "2015-01-01T00:00:00.000Z",
         "gender": "female",
         "id": "00100000000",
         "identifier": [
@@ -52,136 +52,21 @@
         ],
         "resourceType": "Patient"
       },
-      "response": {
-        "outcome": {
-          "issue": [
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/0\",\"value\":\"2\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/1\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/2\",\"value\":\"1\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/3\",\"value\":\"5\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/4\",\"value\":\"-\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/5\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/6\",\"value\":\"1\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/7\",\"value\":\"-\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/8\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/9\",\"value\":\"1\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/10\",\"value\":\"T\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/11\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/12\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/13\",\"value\":\":\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/14\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/15\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-               {
-               "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/16\",\"value\":\":\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/17\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-             {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/18\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/19\",\"value\":\".\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/20\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/21\",\"value\":\"0\"}",
-                "severity": "information"
-              },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/22\",\"value\":\"0\"}",
-                "severity": "information"
-               },
-              {
-                "code": "informational",
-                "diagnostics": "{\"op\":\"add\",\"path\":\"/birthDate/23\",\"value\":\"Z\"}",
-                "severity": "information"
+          "response": {
+              "status": "200",
+              "outcome": {
+                  "resourceType": "OperationOutcome",
+                  "issue": [
+                      {
+                          "severity": "information",
+                          "code": "informational",
+                          "diagnostics": "{\"op\":\"replace\",\"path\":\"/birthDate\",\"value\":\"2015-01-01\"}"
+                      }
+                  ]
               }
-          ],
-          "resourceType": "OperationOutcome"
-        },
-        "status": "200"
-      }
-    },
-    {
+          }
+      },
+      {
         "id": "5b8e2400-af14-56e1-9518-1d18625afe93",
         "request": {
           "method": "POST",
