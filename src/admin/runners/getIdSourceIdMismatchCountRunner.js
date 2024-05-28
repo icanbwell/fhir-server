@@ -84,7 +84,7 @@ class GetIdSourceIdMismatchCountRunner extends BaseBulkOperationRunner {
                                 maxLastUpdated: { $arrayElemAt: ["$maxLastUpdated.meta.lastUpdated", 0] }
                             }
                         }
-                    ]);
+                    ], { allowDiskUse: true });
                     while (await result.hasNext()) {
                         const data = await result.next();
                         if (data.totalCount > 0) {
