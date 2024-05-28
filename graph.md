@@ -10,13 +10,13 @@ Note: Make sure you set `Content-Type: application/fhir+json` in the HTTP call.
 
 ### Examples
 
-Here are the examples graphs that $everything uses underneath: https://github.com/icanbwell/fhir-server/tree/master/src/graphs
+Here are the examples graphs that $everything uses underneath: https://github.com/icanbwell/fhir-server/tree/main/src/graphs
 
 ### Implementation
 
 here's the $graph implementation: https://github.com/icanbwell/fhir-server/blob/16990bd500d316300ef36d1a305cd8d255e42935/src/services/base/base.service.js#L2305
 
-and unit test for it: https://github.com/icanbwell/fhir-server/tree/master/src/tests/organization/graph
+and unit test for it: https://github.com/icanbwell/fhir-server/tree/main/src/tests/organization/graph
 
 #### GraphDefinition
 

@@ -47,6 +47,10 @@ For example:
 
 [Streaming](streaming.md)
 
+## (WIP) Bulk Export functionality
+
+[Bulk Export](export.md)
+
 ## Optimistic Concurrency Support
 [Optimistic Concurrency](concurrency.md)
 
