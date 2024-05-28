@@ -92,7 +92,16 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
             }
 
             // create directory to store validation errors for all resources
-            fs.mkdirSync('validationErrors');
+            try {
+                fs.mkdirSync('validationErrors');
+            } catch (err) {
+                // if folder exists then continue
+                if (err.code === 'EEXIST') {
+                    this.adminLogger.logInfo('Directory already exists');
+                } else {
+                    throw err;
+                }
+            }
 
             for (const collectionName of this.collections) {
                 this.adminLogger.logInfo(`Processing ${collectionName} collection`);
@@ -143,7 +152,8 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
 
                 const validationOperationOutcome = validateResource({
                     resourceBody: resourceJson,
-                    resourceName: resourceType
+                    resourceName: resourceType,
+                    path: resourceType
                 });
 
                 if (validationOperationOutcome) {
