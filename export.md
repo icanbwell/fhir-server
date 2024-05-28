@@ -12,8 +12,6 @@ Bulk data export can be triggered by POST request using below 3 endpoints:
 
 3. `/Group/:id/$export` - This endpoint will allow data export for resources related to the members of the provided group which are accessible via provided jwt scopes.
 
-Whenever a request is received for data export, firstly an `ExportStatus` resource is created which contains details related to the export.
-
 Note: It will be allowed for non-patient REST requests only.
 
 ## Supported Query Params:
