@@ -1471,7 +1471,7 @@
     },
     "base64Binary": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+      "pattern": "^[A-Za-z0-9+/\\s]*={0,2}$"
     },
     "unsignedInt": {
       "type": "number",
