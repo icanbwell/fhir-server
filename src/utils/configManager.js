@@ -65,6 +65,14 @@ class ConfigManager {
     }
 
     /**
+     * current environment value
+     * @return {string|null}
+     */
+    get environmentValue () {
+        return env.ENVIRONMENT || '';
+    }
+
+    /**
      * @returns {string[]}
      */
     get accessTagsIndexed () {
