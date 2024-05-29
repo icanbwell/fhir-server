@@ -129,6 +129,8 @@ class SearchBundleOperation {
             originalUrl: url,
             /** @type {string} */
             personIdFromJwtToken,
+            /** @type {string} */
+            clientPersonIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string | null} */
@@ -182,6 +184,7 @@ class SearchBundleOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    clientPersonIdFromJwtToken,
                     parsedArgs,
                     operation: READ
                 }));
