@@ -99,7 +99,8 @@ const graphqlV2 = async (fnGetContainer) => {
                 host: req.hostname,
                 body: req.body,
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-                personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
+                personIdFromJwtToken: req.authInfo?.context?.personIdFromJwtToken,
+                clientPersonIdFromJwtToken: req.authInfo?.context?.clientPersonIdFromJwtToken,
                 headers: req.headers,
                 method: req.method,
                 contentTypeFromHeader
