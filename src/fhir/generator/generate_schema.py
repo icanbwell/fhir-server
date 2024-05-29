@@ -77,8 +77,9 @@ class FhirXmlToJsonSchemaParser:
                     name = name.replace('-primitive', '')
                     pattern = simple_type.restriction.pattern.get('value') if name != 'string' else '[ \\r\\n\\t\\S]+'
 
+                    # Cannot support pattern from r4b since it in inefficient for larger base64 strings
                     if name == 'base64Binary':
-                        pattern = '[A-Za-z0-9+/]*={0,2}'
+                        pattern = '[A-Za-z0-9+/\\s]*={0,2}'
 
                     if '{1,64}' in pattern:
                         # we can have id with length more than 64
