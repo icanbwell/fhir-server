@@ -41,7 +41,10 @@ class K8sClient {
     async createJob(jobManifest) {
         try {
             const namespace = `fhir-server-job-${this.configManager.environmentValue}`;
-            const response = await this.k8sBatchV1Api.createNamespacedJob(namespace, jobManifest);
+            const param = {
+                namespace, body: jobManifest
+            }
+            const response = await this.k8sBatchV1Api.createNamespacedJob(param);
             logInfo('Job created:', response.body);
             return response.body;
         } catch (error) {
