@@ -262,28 +262,9 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
     const payload = {
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
-        clientFhirPersonId: 'clientFhirPerson',
-        clientFhirPatientId: 'clientFhirPatient',
-        bwellFhirPersonId: personId,
-        bwellFhirPatientId: 'bwellFhirPatient',
-        token_use: 'access'
-    };
-    return {
-        'Content-Type': 'application/json; charset=utf-8',
-        accept: '*/*',
-        Authorization: `Bearer ${
-            getTokenWithCustomPayload(payload)
-        }`
-    };
-};
-
-module.exports.getGraphQLHeadersWithClientPerson = (personId) => {
-    const payload = {
-        scope: 'patient/*.read user/*.* access/*.*',
-        username: 'patient-123@example.com',
         clientFhirPersonId: personId,
         clientFhirPatientId: 'clientFhirPatient',
-        bwellFhirPersonId: 'bwellFhirPerson',
+        bwellFhirPersonId: personId,
         bwellFhirPatientId: 'bwellFhirPatient',
         token_use: 'access'
     };

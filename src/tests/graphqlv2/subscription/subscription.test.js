@@ -25,7 +25,7 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getGraphQLHeadersWithClientPerson
+    getGraphQLHeadersWithPerson
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -139,7 +139,7 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithClientPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscription');
@@ -223,7 +223,7 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithClientPerson('xyz'));
+                .set(getGraphQLHeadersWithPerson('xyz'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscription');
