@@ -81,6 +81,7 @@ const { PersonMatchManager } = require('./admin/personMatchManager');
 const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
 const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
 const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
+const { K8sClient } = require('./utils/k8sClient');
 const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
@@ -718,6 +719,10 @@ const createContainer = function () {
             }
         )
     );
+
+    container.register('k8sClient', (c) => new K8sClient({
+        configManager: c.configManager
+    }));
 
     container.register('accessIndexManager', (c) => new AccessIndexManager({
         configManager: c.configManager,
