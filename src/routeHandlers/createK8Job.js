@@ -23,7 +23,7 @@ module.exports.createK8Job = async (fnGetContainer, req, res) => {
                             {
                                 name: 'test-job-container',
                                 image: 'busybox',
-                                command: ['sh', '-c', 'echo "Hi, testing k8 job creation from fhir-server"']
+                                command: ['sh', '-c', 'echo "Hi, testing k8 job creation from fhir-server" && ls']
                             }
                         ],
                         restartPolicy: 'Never'
