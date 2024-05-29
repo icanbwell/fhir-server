@@ -15,16 +15,28 @@ class K8sClient {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
-        /**
-         * Loading config from cluster
-         */
-        this.kc = new k8s.KubeConfig();
-        this.kc.loadFromCluster();
+        this.init();
+    }
 
-        /**
-         * Create an API client for batch (jobs) operations
-         */
-        this.k8sBatchV1Api = this.kc.makeApiClient(k8s.BatchV1Api);
+    /**
+     * function to initialize k8 client
+     */
+    init () {
+        try {
+            /**
+             * Loading config from cluster
+             *
+             */
+            this.kc = new k8s.KubeConfig();
+            this.kc.loadFromCluster();
+
+            /**
+             * Create an API client for batch (jobs) operations
+             */
+            this.k8sBatchV1Api = this.kc.makeApiClient(k8s.BatchV1Api);
+        } catch (error) {
+            logError('Error while initializing k8 client:', error);
+        }
     }
 
     async createJob(jobManifest) {
