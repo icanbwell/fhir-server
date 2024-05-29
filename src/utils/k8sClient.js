@@ -25,7 +25,6 @@ class K8sClient {
         try {
             /**
              * Loading config from cluster
-             *
              */
             this.kc = new k8s.KubeConfig();
             this.kc.loadFromCluster();
