@@ -73,6 +73,22 @@ class ConfigManager {
     }
 
     /**
+     * current hostname value
+     * @return {string|null}
+     */
+    get hostnameValue () {
+        return env.HOSTNAME || '';
+    }
+
+    /**
+     * docker image
+     * @return {string|null}
+     */
+    get dockerImageValue () {
+        return env.DOCKER_IMAGE || '';
+    }
+
+    /**
      * @returns {string[]}
      */
     get accessTagsIndexed () {
