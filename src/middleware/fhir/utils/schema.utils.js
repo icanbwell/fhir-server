@@ -2,8 +2,9 @@ const {
     VERSIONS
 } = require('./constants');
 
-const schemasR4 = require('../../../fhir/classes/4_0_0/resources');
-const schemasComplexTypeR4 = require('../../../fhir/classes/4_0_0/complex_types');
+const schemasR4B = require('../../../fhir/classes/4_0_0/resources');
+const schemasComplexTypeR4B = require('../../../fhir/classes/4_0_0/complex_types');
+const schemasCustom = require('../../../fhir/classes/4_0_0/custom_resources');
 
 /**
  *
@@ -16,7 +17,11 @@ const resolveSchema = (version = '4_0_0', schema = '') => {
 
     switch (version) {
         case '4_0_0':
-            return schemasR4[`${lowercaseSchema}`] || schemasComplexTypeR4[`${lowercaseSchema}`];
+            return (
+                schemasR4B[`${lowercaseSchema}`] ||
+                schemasComplexTypeR4B[`${lowercaseSchema}`] ||
+                schemasCustom[`${lowercaseSchema}`]
+            );
     }
 };
 /**
