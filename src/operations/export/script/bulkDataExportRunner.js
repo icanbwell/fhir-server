@@ -188,11 +188,11 @@ class BulkDataExportRunner {
                     // ex: user/Patient.*
                     const inner_scope = scope1.replace('user/', '');
                     const [resource, accessType] = inner_scope.split('.');
-                    if (resource === '*') {
-                        allowedResourcesByScopes = null;
-                        break;
-                    }
                     if (accessType === '*' || accessType === 'read') {
+                        if (resource === '*') {
+                            allowedResourcesByScopes = null;
+                            break;
+                        }
                         allowedResourcesByScopes.push(resource);
                     }
                 }
