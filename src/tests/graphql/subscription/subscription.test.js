@@ -1,6 +1,7 @@
 // test file
 const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
 const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
+const subscription4Resource = require('./fixtures/Subscription/subscription4.json');
 const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
 const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
 const subscriptionStatus3Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus3.json');
@@ -13,8 +14,10 @@ const personBundle2Resource = require('./fixtures/Person/person2.json');
 
 // expected
 const expectedSubscriptionResources = require('./fixtures/expected/expected_subscription.json');
+const expectedSubscriptionResources2 = require('./fixtures/expected/expected_subscription2.json');
 const expectedSubscriptionInvalidResources = require('./fixtures/expected/expected_subscription_invalid.json');
 
+const deepcopy = require('deepcopy');
 const fs = require('fs');
 const path = require('path');
 
@@ -25,7 +28,8 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getGraphQLHeadersWithPerson
+    getGraphQLHeadersWithPerson,
+    getHeadersWithCustomPayload
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -227,6 +231,102 @@ describe('GraphQL Subscription Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscription');
+        });
+        test('Read & Write Subscription with Patient Scope', async () => {
+            const request = await createTestRequest();
+
+            // ARRANGE
+            // add the resources to FHIR server
+
+            let personResponse = await request
+                .post('/4_0_0/Person/$merge')
+                .send(personBundleResource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(personResponse).toHaveMergeResponse({ created: true });
+
+            let personResponse2 = await request
+                .post('/4_0_0/Person/$merge')
+                .send(personBundle2Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(personResponse2).toHaveMergeResponse({ created: true });
+
+            let subscriptionResponse = await request
+                .post('/4_0_0/Subscription/$merge')
+                .send(subscription4Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(subscriptionResponse).toHaveMergeResponse({ created: true });
+
+            const person_payload = {
+                scope: 'patient/Subscription.*',
+                username: 'patient-123@example.com',
+                clientFhirPersonId: personResponse2.body.uuid,
+                clientFhirPatientId: 'clientFhirPatient',
+                bwellFhirPersonId: personResponse.body.uuid,
+                bwellFhirPatientId: 'bwellFhirPatient',
+                token_use: 'access'
+            };
+
+            const headers1 = getHeadersWithCustomPayload(person_payload);
+
+            // Successful read Subscription request for Patient Scope
+            let resp = await request
+                .get('/4_0_0/Subscription/subscription4')
+                .set(headers1)
+                .expect(200)
+
+            expect(resp).toHaveResponse(expectedSubscriptionResources2)
+
+            let subscriptionResponseWithChange = deepcopy(subscription4Resource.entry[0].resource);
+
+            subscriptionResponseWithChange.reason = 'Monitor new neonatal function';
+
+            // Unsuccessful write Subscription request for Patient Scope
+            resp = await request
+                .put('/4_0_0/Subscription/subscription4')
+                .set(headers1)
+                .send(subscriptionResponseWithChange)
+                .expect(403)
+
+            expect(resp).toHaveResponse(
+                {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'forbidden',
+                            details: {
+                                text: "The current patient scope and person id in the JWT token do not allow writing the Subscription resource."
+                            },
+                            diagnostics: "The current patient scope and person id in the JWT token do not allow writing the Subscription resource."
+                        }
+                    ]
+                }
+            );
+
+            person_payload.clientFhirPersonId = personResponse.body.id;
+
+            resp = await request
+                .put('/4_0_0/Subscription/subscription4')
+                .set(headers1)
+                .expect(400)
+
+            expect(resp).toHaveResponse(
+                {
+                    resourceType: 'OperationOutcome',
+                    issue: [{
+                        severity: 'error', code: 'invalid', details: {
+                            text: 'Validation failed for data posted to /4_0_0/Subscription/subscription4 for resource undefined. ResourceType does not match the endpoint you are posting to.'
+                        }
+                    }]
+                }
+
+            )
         });
     });
 });
