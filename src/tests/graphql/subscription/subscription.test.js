@@ -309,19 +309,21 @@ describe('GraphQL Subscription Tests', () => {
                 }
             );
 
-            person_payload.clientFhirPersonId = personResponse.body.id;
+            person_payload.clientFhirPersonId = personResponse.body.uuid;
+
+            const headers2 = getHeadersWithCustomPayload(person_payload);
 
             resp = await request
-                .put('/4_0_0/Subscription/subscription4')
-                .set(headers1)
-                .expect(400)
+                .get('/4_0_0/Subscription/subscription4')
+                .set(headers2)
+                .expect(404)
 
             expect(resp).toHaveResponse(
                 {
                     resourceType: 'OperationOutcome',
                     issue: [{
-                        severity: 'error', code: 'invalid', details: {
-                            text: 'Validation failed for data posted to /4_0_0/Subscription/subscription4 for resource undefined. ResourceType does not match the endpoint you are posting to.'
+                        severity: 'error', code: 'not-found', details: {
+                            text: 'Resource not found: Subscription/subscription4'
                         }
                     }]
                 }
