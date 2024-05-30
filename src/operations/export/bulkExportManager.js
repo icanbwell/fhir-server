@@ -1,7 +1,7 @@
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { RethrownError } = require('../../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { isUUID } = require('validator');
+const { isUuid } = require('../../utils/uid.util');
 
 class BulkExportManager {
     /**
@@ -37,7 +37,7 @@ class BulkExportManager {
              * @type {import('../../fhir/classes/4_0_0/resources/resource')}
              */
             const resource = await databaseQueryManager.findOneAsync({
-                query: { [isUUID(exportStatusId) ? '_uuid' : '_sourceId']: exportStatusId }
+                query: { [isUuid(exportStatusId) ? '_uuid' : '_sourceId']: exportStatusId }
             });
 
             return resource;

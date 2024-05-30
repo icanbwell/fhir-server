@@ -6,9 +6,9 @@ const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttach
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
-const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 
 class BulkDataExportRunner {
@@ -20,6 +20,7 @@ class BulkDataExportRunner {
      * @property {PatientFilterManager} patientFilterManager
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SecurityTagManager} securityTagManager
+     * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {AdminLogger} adminLogger
      * @property {string} exportStatusId
      *
@@ -31,6 +32,7 @@ class BulkDataExportRunner {
         patientFilterManager,
         databaseAttachmentManager,
         securityTagManager,
+        r4SearchQueryCreator,
         adminLogger,
         exportStatusId
     }) {
@@ -65,6 +67,12 @@ class BulkDataExportRunner {
         assertTypeEquals(securityTagManager, SecurityTagManager);
 
         /**
+         * @type {R4SearchQueryCreator}
+         */
+        this.r4SearchQueryCreator = r4SearchQueryCreator;
+        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
          * @type {AdminLogger}
          */
         this.adminLogger = adminLogger;
@@ -82,10 +90,11 @@ class BulkDataExportRunner {
      */
     async processAsync() {
         try {
-            const exportStatusResource =
-                await this.bulkExportManager.getExportStatusResourceWithId({
+            const exportStatusResource = await this.bulkExportManager.getExportStatusResourceWithId(
+                {
                     exportStatusId: this.exportStatusId
-                });
+                }
+            );
 
             if (!exportStatusResource) {
                 this.adminLogger.logInfo(
@@ -96,22 +105,11 @@ class BulkDataExportRunner {
 
             const { pathname, searchParams } = new URL(exportStatusResource.requestUrl);
 
-            let query = this.getQueryWithAccessTags(exportStatusResource);
-
-            if (searchParams.has('_since')) {
-                query = {
-                    $and: [
-                        query,
-                        {
-                            'meta.lastUpdated': {
-                                $gte: moment.utc(searchParams.get('_since')).toDate()
-                            }
-                        }
-                    ]
-                };
-            }
-
-            let requestResources = searchParams.get('_type')?.split(',');
+            const query = this.getQueryForExport({
+                scope: exportStatusResource.scope,
+                user: exportStatusResource.user,
+                searchParams
+            });
 
             // Create folder for export files
             if (!fs.existsSync(this.exportStatusId)) {
@@ -120,9 +118,11 @@ class BulkDataExportRunner {
 
             if (pathname.startsWith('/4_0_0/$export')) {
                 // Get all the valid resources to export
-                requestResources = Object.values(COLLECTION).filter(
-                    (r) => !requestResources || requestResources.includes(r)
-                );
+                const requestResources = this.getRequestedResource({
+                    scope: exportStatusResource.scope,
+                    searchParams,
+                    allowedResources: Object.values(COLLECTION)
+                });
 
                 for (const resourceType of requestResources) {
                     await this.processResourceAsync({ resourceType, query });
@@ -135,15 +135,81 @@ class BulkDataExportRunner {
         }
     }
 
-    getQueryWithAccessTags(resource) {
-        const securityTags = resource.meta.security.reduce((tags, securityTag) => {
-            if (securityTag.system === SecurityTagSystem.access) {
-                tags.push(securityTag.code);
-            }
-            return tags;
-        }, []);
+    /**
+     * @typedef {Object} GetQueryForExportParams
+     * @property {string} scope
+     * @property {string} user
+     * @property {URLSearchParams} searchParams
+     *
+     * @param {GetQueryForExportParams}
+     */
+    getQueryForExport({ scope, user, searchParams }) {
+        let query = {};
 
-        return this.securityTagManager.getQueryWithSecurityTags({ securityTags, query: {} });
+        query = this.securityTagManager.getQueryWithSecurityTags({
+            securityTags: this.securityTagManager.getSecurityTagsFromScope({
+                user,
+                scope,
+                accessRequested: 'read'
+            }),
+            query
+        });
+
+        if (searchParams.has('_since')) {
+            query = this.r4SearchQueryCreator.appendAndSimplifyQuery({
+                query,
+                andQuery: {
+                    'meta.lastUpdated': {
+                        $gte: moment.utc(searchParams.get('_since')).toDate()
+                    }
+                }
+            });
+        }
+
+        return query;
+    }
+
+    /**
+     * Gets requested resources from allowed resources based on scope and _type param
+     * @typedef {Object} GetRequestedResourceParams
+     * @property {string} scope
+     * @property {URLSearchParams} searchParams
+     * @property {string[]} allowedResources
+     *
+     * @param {GetRequestedResourceParams}
+     */
+    getRequestedResource({ scope, searchParams, allowedResources }) {
+        if (scope) {
+            let allowedResourcesByScopes = [];
+
+            // check allowed resource by scope
+            for (const scope1 of scope.split(' ')) {
+                if (scope1.startsWith('user')) {
+                    // ex: user/Patient.*
+                    const inner_scope = scope1.replace('user/', '');
+                    const [resource, accessType] = inner_scope.split('.');
+                    if (resource === '*') {
+                        allowedResourcesByScopes = null;
+                        break;
+                    }
+                    if (accessType === '*' || accessType === 'read') {
+                        allowedResourcesByScopes.push(resource);
+                    }
+                }
+            }
+
+            if (allowedResourcesByScopes) {
+                allowedResources = allowedResources.filter(resource => allowedResourcesByScopes.includes(resource));
+            }
+        }
+
+        if (searchParams.has('_type')) {
+            const requestResources = searchParams.get('_type').split(',');
+
+            allowedResources = requestResources.filter(resource => allowedResources.includes(resource));
+        }
+
+        return allowedResources;
     }
 
     /**

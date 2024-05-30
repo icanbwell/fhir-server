@@ -7,6 +7,8 @@ class ExportStatus extends Resource {
      * @property {import('../complex_types/meta.js')} [meta]
      * @property {code} status
      * @property {url} requestUrl
+     * @property {string} scope
+     * @property {string} user
      * @property {date} transactionTime
      * @property {import('./exportStatusEntry.js')[]} [output]
      * @property {import('./exportStatusEntry.js')[]} [errors]
@@ -18,6 +20,8 @@ class ExportStatus extends Resource {
         meta,
         status,
         requestUrl,
+        scope,
+        user,
         transactionTime,
         output,
         errors,
@@ -89,7 +93,7 @@ class ExportStatus extends Resource {
 
         /**
          * @description The url that triggered the export
-         * @property {string}
+         * @property {url}
          */
         Object.defineProperty(this, 'requestUrl', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -102,6 +106,42 @@ class ExportStatus extends Resource {
                     return;
                 }
                 this.__data.requestUrl = valueProvided;
+            }
+        });
+
+        /**
+         * @description The scopes used to trigger the export
+         * @property {string}
+         */
+        Object.defineProperty(this, 'scope', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.scope,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.scope = undefined;
+                    return;
+                }
+                this.__data.scope = valueProvided;
+            }
+        });
+
+        /**
+         * @description The user who trigger the export
+         * @property {string}
+         */
+        Object.defineProperty(this, 'user', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.user,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.user = undefined;
+                    return;
+                }
+                this.__data.user = valueProvided;
             }
         });
 
@@ -243,6 +283,8 @@ class ExportStatus extends Resource {
             meta,
             status,
             requestUrl,
+            scope,
+            user,
             transactionTime,
             output,
             errors,
@@ -276,6 +318,8 @@ class ExportStatus extends Resource {
             meta: this.meta && this.meta.toJSON(),
             status: this.status,
             requestUrl: this.requestUrl,
+            scope: this.scope,
+            user: this.user,
             transactionTime: this.transactionTime,
             output: this.output && this.output.map(o => o.toJSON()),
             errors: this.errors && this.errors.map(o => o.toJSON())
@@ -294,6 +338,8 @@ class ExportStatus extends Resource {
             meta: this.meta && this.meta.toJSONInternal(),
             status: this.status,
             requestUrl: this.requestUrl,
+            scope: this.scope,
+            user: this.user,
             transactionTime: this.transactionTime,
             output: this.output && this.output.map(o => o.toJSONInternal()),
             errors: this.errors && this.errors.map(o => o.toJSONInternal())

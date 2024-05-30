@@ -52,6 +52,7 @@ async function main() {
                 bulkExportManager: c.bulkExportManager,
                 patientFilterManager: c.patientFilterManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                r4SearchQueryCreator: c.r4SearchQueryCreator,
                 securityTagManager: c.securityTagManager,
                 adminLogger,
                 exportStatusId
