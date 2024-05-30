@@ -32,6 +32,8 @@ async function main() {
         throw new Error('Cannot run Bulk export script without exportStatusId param');
     }
 
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+
     const currentDateTime = new Date();
 
     const adminLogger = new AdminLogger();
@@ -54,8 +56,10 @@ async function main() {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 securityTagManager: c.securityTagManager,
+                patientQueryCreator: c.patientQueryCreator,
                 adminLogger,
-                exportStatusId
+                exportStatusId,
+                batchSize
             })
     );
 

@@ -1,14 +1,18 @@
 const fs = require('fs');
+const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { AdminLogger } = require('../../../admin/adminLogger');
 const { BulkExportManager } = require('../bulkExportManager');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
+const { PatientQueryCreator } = require('../../common/patientQueryCreator');
+const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
+const { isUuid } = require('../../../utils/uid.util');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 
 class BulkDataExportRunner {
@@ -21,8 +25,10 @@ class BulkDataExportRunner {
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SecurityTagManager} securityTagManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
+     * @property {PatientQueryCreator} patientQueryCreator
      * @property {AdminLogger} adminLogger
      * @property {string} exportStatusId
+     * @property {number} batchSize
      *
      * @param {ConstructorParams}
      */
@@ -33,8 +39,10 @@ class BulkDataExportRunner {
         databaseAttachmentManager,
         securityTagManager,
         r4SearchQueryCreator,
+        patientQueryCreator,
         adminLogger,
-        exportStatusId
+        exportStatusId,
+        batchSize
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -73,6 +81,12 @@ class BulkDataExportRunner {
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
 
         /**
+         * @type {PatientQueryCreator}
+         */
+        this.patientQueryCreator = patientQueryCreator;
+        assertTypeEquals(patientQueryCreator, PatientQueryCreator);
+
+        /**
          * @type {AdminLogger}
          */
         this.adminLogger = adminLogger;
@@ -83,6 +97,11 @@ class BulkDataExportRunner {
          */
         this.exportStatusId = exportStatusId;
         assertIsValid(exportStatusId, 'exportStatusId is required for running BulkExport');
+
+        /**
+         * @type {number}
+         */
+        this.batchSize = batchSize;
     }
 
     /**
@@ -105,19 +124,20 @@ class BulkDataExportRunner {
 
             const { pathname, searchParams } = new URL(exportStatusResource.requestUrl);
 
-            const query = this.getQueryForExport({
+            let query = this.getQueryForExport({
                 scope: exportStatusResource.scope,
                 user: exportStatusResource.user,
                 searchParams
             });
 
             // Create folder for export files
-            if (!fs.existsSync(this.exportStatusId)) {
-                fs.mkdirSync(this.exportStatusId);
+            if (fs.existsSync(this.exportStatusId)) {
+                fs.rmSync(this.exportStatusId, { recursive: true });
             }
+            fs.mkdirSync(this.exportStatusId);
 
             if (pathname.startsWith('/4_0_0/$export')) {
-                // Get all the valid resources to export
+                // Get all the requested resources to export
                 const requestResources = this.getRequestedResource({
                     scope: exportStatusResource.scope,
                     searchParams,
@@ -126,6 +146,21 @@ class BulkDataExportRunner {
 
                 for (const resourceType of requestResources) {
                     await this.processResourceAsync({ resourceType, query });
+                }
+            } else {
+                const requestedResources = this.getRequestedResource({
+                    scope: exportStatusResource.scope,
+                    searchParams,
+                    allowedResources:
+                        this.patientFilterManager.getAllPatientOrPersonRelatedResources()
+                });
+
+                if (pathname.startsWith('/4_0_0/Patient/$export')) {
+                    await this.handlePatientExportAsync({
+                        searchParams,
+                        query,
+                        requestedResources
+                    });
                 }
             }
         } catch (err) {
@@ -199,17 +234,136 @@ class BulkDataExportRunner {
             }
 
             if (allowedResourcesByScopes) {
-                allowedResources = allowedResources.filter(resource => allowedResourcesByScopes.includes(resource));
+                allowedResources = allowedResources.filter((resource) =>
+                    allowedResourcesByScopes.includes(resource)
+                );
             }
         }
 
         if (searchParams.has('_type')) {
             const requestResources = searchParams.get('_type').split(',');
 
-            allowedResources = requestResources.filter(resource => allowedResources.includes(resource));
+            allowedResources = requestResources.filter((resource) =>
+                allowedResources.includes(resource)
+            );
         }
 
         return allowedResources;
+    }
+
+    /**
+     * Adds patient related filters to the query
+     * @typedef {Object} AddPatientFiltersToQueryParams
+     * @property {string[]} patientReferences
+     * @property {Object} query
+     * @property {string} resourceType
+     *
+     * @param {AddPatientFiltersToQueryParams}
+     */
+    addPatientFiltersToQuery({ patientReferences, query, resourceType }) {
+        if (patientReferences && patientReferences.length > 0) {
+            const uuidReferences = patientReferences.filter((r) => isUuid(r));
+
+            const nonUuidReferences = patientReferences.filter((r) => !isUuid(r));
+
+            let andQuery;
+            if (resourceType === 'Patient') {
+                andQuery = {
+                    $or: [
+                        {
+                            _uuid: {
+                                $in: uuidReferences.map(
+                                    (r) => ReferenceParser.parseReference(r).id
+                                )
+                            }
+                        },
+                        {
+                            _sourceId: {
+                                $in: nonUuidReferences.map(
+                                    (r) => ReferenceParser.parseReference(r).id
+                                )
+                            }
+                        }
+                    ]
+                };
+            } else {
+                const patientField = this.patientFilterManager.getPatientPropertyForResource({
+                    resourceType
+                });
+
+                query = {
+                    [patientField.replace('.reference', '._uuid')]: {
+                        $in: patientReferences
+                    }
+                };
+            }
+
+            query = this.r4SearchQueryCreator.appendAndSimplifyQuery({ query, andQuery });
+        }
+
+        return query;
+    }
+
+    /**
+     * @typedef {Object} HandlePatientExportAsyncParams
+     * @property {URLSearchParams} searchParams
+     * @property {Object} query
+     * @property {string[]} requestedResources
+     *
+     * @param {HandlePatientExportAsyncParams}
+     */
+    async handlePatientExportAsync({ searchParams, query, requestedResources }) {
+        // Create patient query and get cursor to process patients batchwise
+        const patientQuery = this.addPatientFiltersToQuery({
+            patientReferences: searchParams.get('patient')?.split(','),
+            query: deepcopy(query),
+            resourceType: 'Patient'
+        });
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Patient',
+            base_version: '4_0_0'
+        });
+
+        const patientCursor = await databaseQueryManager.findAsync({
+            query: patientQuery,
+            options: { projection: { _uuid: 1 } }
+        });
+
+        let patientReferences = [];
+        while (await patientCursor.hasNext()) {
+            const data = await patientCursor.nextRaw();
+            patientReferences.push(`Patient/${data._uuid}`);
+
+            if (patientReferences.length === this.batchSize) {
+                await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+                patientReferences = [];
+            }
+        }
+
+        if (patientReferences.length > 0) {
+            await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+        }
+    }
+
+    /**
+     * @typedef {Object} ExportPatientDataAsyncParams
+     * @property {string[]} requestedResources
+     * @property {Object} query
+     * @property {string[]} patientReferences
+     *
+     * @param {ExportPatientDataAsyncParams}
+     */
+    async exportPatientDataAsync({ requestedResources, query, patientReferences }) {
+        for (const resourceType of requestedResources) {
+            const resourceQuery = this.addPatientFiltersToQuery({
+                patientReferences,
+                query: deepcopy(query),
+                resourceType
+            });
+
+            await this.processResourceAsync({ resourceType, query: resourceQuery });
+        }
     }
 
     /**
@@ -231,7 +385,7 @@ class BulkDataExportRunner {
 
             const filePath = `${this.exportStatusId}/${resourceType}.ndjson`;
 
-            const writeStream = fs.createWriteStream(filePath, { flags: 'w' });
+            const writeStream = fs.createWriteStream(filePath, { flags: 'a' });
 
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
