@@ -78,6 +78,8 @@ class CustomOperationsController {
                     this.fhirResponseWriter.graph({ req, res, result });
                 } else if (name === 'everything') {
                     this.fhirResponseWriter.everything({ req, res, result });
+                } else if (name === 'export') {
+                    this.fhirResponseWriter.export({ req, res, result });
                 } else {
                     this.fhirResponseWriter.readCustomOperation({ req, res, result });
                 }

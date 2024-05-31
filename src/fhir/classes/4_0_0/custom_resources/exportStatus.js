@@ -5,6 +5,7 @@ class ExportStatus extends Resource {
      * @typedef {Object} ConstructorParams
      * @property {String} [id]
      * @property {import('../complex_types/meta.js')} [meta]
+     * @property {import('../complex_types/identifier.js')} [identifier]
      * @property {code} status
      * @property {url} requestUrl
      * @property {string} scope
@@ -18,6 +19,7 @@ class ExportStatus extends Resource {
     constructor({
         id,
         meta,
+        identifier,
         status,
         requestUrl,
         scope,
@@ -70,6 +72,28 @@ class ExportStatus extends Resource {
                 const Meta = require('../complex_types/meta.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator.js');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
+            }
+        });
+
+        /**
+         * @description The metadata about the resource. This is content that is maintained by the
+         * infrastructure. Changes to the content might not always be associated with
+         * version changes to the resource.
+         * @property {import('../complex_types/identifier')|undefined}
+         */
+        Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.identifier,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = undefined;
+                    return;
+                }
+                const Identifier = require('../complex_types/identifier.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator.js');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -198,7 +222,7 @@ class ExportStatus extends Resource {
                 }
                 const ExportStatusEntry = require('./exportStatusEntry.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator.js');
-                this.__data.output = FhirResourceCreator.create(valueProvided, ExportStatusEntry);
+                this.__data.output = FhirResourceCreator.createArray(valueProvided, ExportStatusEntry);
             }
         });
 
@@ -218,7 +242,7 @@ class ExportStatus extends Resource {
                 }
                 const ExportStatusEntry = require('./exportStatusEntry.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator.js');
-                this.__data.errors = FhirResourceCreator.create(valueProvided, ExportStatusEntry);
+                this.__data.errors = FhirResourceCreator.createArray(valueProvided, ExportStatusEntry);
             }
         });
 
@@ -281,6 +305,7 @@ class ExportStatus extends Resource {
         Object.assign(this, {
             id,
             meta,
+            identifier,
             status,
             requestUrl,
             scope,
@@ -316,6 +341,7 @@ class ExportStatus extends Resource {
         return removeNull({
             id: this.id,
             meta: this.meta && this.meta.toJSON(),
+            identifier: this.identifier && this.identifier.map(o => o.toJSON()),
             status: this.status,
             requestUrl: this.requestUrl,
             scope: this.scope,
@@ -336,6 +362,7 @@ class ExportStatus extends Resource {
         const json = removeNull({
             id: this.id,
             meta: this.meta && this.meta.toJSONInternal(),
+            identifier: this.identifier && this.identifier.map(o => o.toJSONInternal()),
             status: this.status,
             requestUrl: this.requestUrl,
             scope: this.scope,

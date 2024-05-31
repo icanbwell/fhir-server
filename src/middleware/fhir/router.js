@@ -9,6 +9,10 @@ const {
 } = require('./metadata/metadata.config');
 
 const {
+    routes: exportConfig
+} = require('./export/export.config');
+
+const {
     routeArgs,
     routes
 } = require('./route.config');
@@ -284,6 +288,41 @@ class FhirRouter {
         }
     }
 
+    enableExportRoutes (app, config, corsDefaults) {
+        const operationName = 'export';
+        for (const profile of exportConfig) {
+            const lowercaseMethod = profile.method.toLowerCase();
+
+            const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions);
+
+            let operationsControllerRouteHandler;
+            switch (lowercaseMethod) {
+                case 'post':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsPost({
+                        name: operationName
+                    });
+                    break;
+            }
+
+            app.options(profile.path, cors(corsOptions)); // Enable this operation route
+
+            // noinspection JSCheckFunctionSignatures
+            app[profile.method.toLowerCase()](
+                profile.path,
+                cors(corsOptions),
+                versionValidationMiddleware(profile),
+                sanitizeMiddleware(profile.args),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
+                    route: profile.path,
+                    auth: config.auth,
+                    name: operationName
+                }),
+                operationsControllerRouteHandler
+            );
+        }
+    }
+
     /**
      * @function enableProfileRoutes
      * @description Start iterating over potential routes to enable for this profile
@@ -452,6 +491,7 @@ class FhirRouter {
         const corsDefaults = Object.assign({}, server.corsOptions); // Enable all routes, operations are enabled inside enableResourceRoutes
 
         this.enableMetadataRoute(app, config, corsDefaults);
+        this.enableExportRoutes(app, config, corsDefaults);
         this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions
 
         this.enableBaseRoute(app, config, corsDefaults);
