@@ -37,9 +37,6 @@ const {
     getHeadersWithCustomPayload
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const { head } = require('superagent');
-const ContractLegal = require('../../../fhir/classes/4_0_0/backbone_elements/contractLegal');
-const { Console } = require('console');
 
 describe('GraphQL Subscription Tests', () => {
     beforeEach(async () => {
