@@ -2,8 +2,7 @@ const k8s = require('@kubernetes/client-node');
 const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { logError, logInfo } = require('../operations/common/logging');
-const { getImageVersion } = require('./getImageVersion');
-const { generateUUID } = require('./utils/uid.util');
+const { generateUUID } = require('./uid.util');
 
 
 class K8sClient {
