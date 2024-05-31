@@ -79,7 +79,7 @@ class K8sClient {
 
             // Set Job name
             const metadata = new k8s.V1ObjectMeta();
-            metadata.name = `fhir-server-job-${generateUUID().slice(0, 10)}`;
+            metadata.name = `fhir-server-job-${generateUUID().slice(-10)}`;
             job.metadata = metadata;
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
@@ -122,7 +122,7 @@ class K8sClient {
 
     async createJob(scriptPath) {
         try {
-            const namespace = `fhir-server-${this.configManager.environmentValue}`;
+            const namespace = `fhir-server-job-${this.configManager.environmentValue}`;
             const body = await this.createJobBody(scriptPath);
             const param = {
                 namespace,
