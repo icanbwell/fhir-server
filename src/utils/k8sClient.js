@@ -54,6 +54,7 @@ class K8sClient {
                 namespace: currentNamespace
             };
             const podDetails = await this.k8sApi.readNamespacedPod(readNamespacedPodParam);
+            logInfo(podDetails);
             const currentContainer = podDetails.body.spec.containers[0];
 
             // Extract environment variables from the current Pod
