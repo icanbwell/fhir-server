@@ -1,0 +1,13 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+                "text": "The current patient scope and person id in the JWT token do not allow writing the Subscription resource."
+            },
+            "diagnostics": "The current patient scope and person id in the JWT token do not allow writing the Subscription resource."
+        }
+    ]
+}
