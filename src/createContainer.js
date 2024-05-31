@@ -102,6 +102,9 @@ const { WriteAllowedByScopesValidator } = require('./operations/merge/validators
 const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
 const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
+const { ExportOperation } = require('./operations/export/export');
+const { ExportManager } = require('./operations/export/exportManager');
+const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -674,6 +677,7 @@ const createContainer = function () {
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
                 expandOperation: c.expandOperation,
+                exportOperation: c.exportOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager
             }
@@ -794,7 +798,30 @@ const createContainer = function () {
     container.register('searchParametersManager', () => new SearchParametersManager());
 
     container.register('databaseExportManager', (c) => new DatabaseExportManager({
-        databaseQueryFactory: c.databaseQueryFactory
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
+    container.register('exportOperation', (c) => new ExportOperation({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        preSaveManager: c.preSaveManager,
+        resourceValidator: c.resourceValidator,
+        exportManager: c.exportManager,
+        postRequestProcessor: c.postRequestProcessor,
+        auditLogger: c.auditLogger,
+        databaseExportManager: c.databaseExportManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        patientFilterManager: c.patientFilterManager,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        securityTagManager: c.securityTagManager,
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        patientQueryCreator: c.patientQueryCreator
+    }));
+
+    container.register('exportManager', (c) => new ExportManager({
+        securityTagManager: c.securityTagManager,
+        preSaveManager: c.preSaveManager
     }));
 
     return container;

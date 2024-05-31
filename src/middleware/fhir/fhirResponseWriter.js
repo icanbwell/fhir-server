@@ -223,6 +223,21 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function export
+     * @description Used when bulk export is triggered
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - results of the export
+     */
+    export ({ req, res, result }) {
+        const baseUrl = `${req.host.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
+        const statusUrl =`${baseUrl}/${result?.id}/$export`;
+
+        res.setHeader('Content-Location', statusUrl);
+        res.sendStatus(202);
+    }
+
+    /**
      * @function setBaseResponseHeaders
      * @description Used to set base response headers
      * @param {import('http').IncomingMessage} req - Express request object

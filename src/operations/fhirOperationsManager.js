@@ -1,6 +1,7 @@
 const { SearchBundleOperation } = require('./search/searchBundle');
 const { SearchByIdOperation } = require('./searchById/searchById');
 const { ExpandOperation } = require('./expand/expand');
+const { ExportOperation } = require('./export/export');
 const { CreateOperation } = require('./create/create');
 const { UpdateOperation } = require('./update/update');
 const { MergeOperation } = require('./merge/merge');
@@ -50,6 +51,7 @@ class FhirOperationsManager {
      * @param validateOperation
      * @param graphOperation
      * @param expandOperation
+     * @param exportOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
@@ -70,6 +72,7 @@ class FhirOperationsManager {
             validateOperation,
             graphOperation,
             expandOperation,
+            exportOperation,
             r4ArgsParser,
             queryRewriterManager
         }
@@ -149,6 +152,11 @@ class FhirOperationsManager {
          */
         this.expandOperation = expandOperation;
         assertTypeEquals(expandOperation, ExpandOperation);
+        /**
+         * @type {ExportOperation}
+         */
+        this.exportOperation = exportOperation;
+        assertTypeEquals(exportOperation, ExportOperation);
 
         /**
          * @type {R4ArgsParser}
@@ -857,6 +865,20 @@ resourceType
                 resourceType
             }
         );
+    }
+
+    async export (args, { req }) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        return await this.exportOperation.exportAsync({ requestInfo, args: combined_args });
     }
 }
 
