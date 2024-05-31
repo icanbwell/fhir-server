@@ -3,6 +3,8 @@ const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { logError, logInfo } = require('../operations/common/logging');
 const { getImageVersion } = require('./getImageVersion');
+const { generateUUID } = require('./utils/uid.util');
+
 
 class K8sClient {
     /**
@@ -76,11 +78,9 @@ class K8sClient {
             job.apiVersion = 'batch/v1';
             job.kind = 'Job';
 
+            // Set Job name
             const metadata = new k8s.V1ObjectMeta();
-            metadata.name = 'test-job';
-            metadata.labels = {
-                job_type: 'fhir-server-background-task'
-            }
+            metadata.name = `fhir-server-job-${generateUUID().slice(0, 10)}`;
             job.metadata = metadata;
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
