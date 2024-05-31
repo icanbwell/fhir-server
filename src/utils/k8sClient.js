@@ -55,7 +55,7 @@ class K8sClient {
             };
             const podDetails = await this.k8sApi.readNamespacedPod(readNamespacedPodParam);
             logInfo(podDetails);
-            const currentContainer = podDetails.body.spec.containers[0];
+            const currentContainer = podDetails.spec.containers[0];
 
             // Extract environment variables from the current Pod
             const envVars = currentContainer.env.map(env => {
@@ -79,7 +79,7 @@ class K8sClient {
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
             const container = new k8s.V1Container();
-            container.name = 'fhir-server-k8s-job';
+            container.name = currentNamespace //'fhir-server-k8s-job';
             container.image = `${this.configManager.dockerImageValue}:${getImageVersion()}`;
             container.env = envVars;
             const resourceRequirements = new k8s.V1ResourceRequirements();
@@ -91,7 +91,7 @@ class K8sClient {
                 memory: '8G'
             };
             container.resources = resourceRequirements;
-            container.command = ['sh', '-c', `pws && ls && node ${scriptPath}`]
+            container.command = ['sh', '-c', `pws && ls && node ${scriptPath} && sleep 10000`]
 
             // Create template
             const template = new k8s.V1PodTemplateSpec();
