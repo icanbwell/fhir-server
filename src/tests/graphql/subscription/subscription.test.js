@@ -251,7 +251,6 @@ describe('GraphQL Subscription Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(personResponse).toHaveMergeResponse({ created: true });
 
-
             let personResponse2 = await request
                 .post('/4_0_0/Person/$merge')
                 .send(personBundle2Resource)
@@ -299,7 +298,6 @@ describe('GraphQL Subscription Tests', () => {
                 .expect(200)
 
             expect(subscriptionListResponse).toHaveResponse(expectedSubscriptionListResponse)
-
 
             // Update Subscriptions
             let subscriptionResponseWithChange = deepcopy(subscription4Resource.entry[0].resource);
@@ -384,7 +382,6 @@ describe('GraphQL Subscription Tests', () => {
             };
 
             const headers = getHeadersWithCustomPayload(person_payload)
-
             resp = await request
                 .get('/4_0_0/Subscription/subscription4')
                 .set(headers)
