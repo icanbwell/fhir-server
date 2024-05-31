@@ -65,6 +65,12 @@ class K8sClient {
                 return envVar;
             });
 
+            // Extract secretEvn
+            const secretEnvSource = new k8s.V1SecretEnvSource();
+            secretEnvSource.name = currentContainer.envFrom[0].secretRef.name;
+            const envFromSource = new k8s.V1EnvFromSource();
+            envFromSource.secretRef = secretEnvSource;
+
             // Create job
             const job = new k8s.V1Job();
             job.apiVersion = 'batch/v1';
@@ -80,8 +86,9 @@ class K8sClient {
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
             const container = new k8s.V1Container();
             container.name = currentNamespace //'fhir-server-k8s-job';
-            container.image = `${this.configManager.dockerImageValue}:${getImageVersion()}`;
+            container.image = currentContainer.image;
             container.env = envVars;
+            container.envFrom = envFromSource;
             const resourceRequirements = new k8s.V1ResourceRequirements();
             resourceRequirements.requests = {
                 cpu: '.5',
