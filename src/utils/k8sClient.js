@@ -122,7 +122,7 @@ class K8sClient {
 
     async createJob(scriptPath) {
         try {
-            const namespace = `fhir-server-job-${this.configManager.environmentValue}`;
+            const namespace = `fhir-server-${this.configManager.environmentValue}`;
             const body = await this.createJobBody(scriptPath);
             const param = {
                 namespace,
