@@ -39,7 +39,7 @@ const cors = require('cors');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { NotFoundError } = require('../../utils/httpErrors');
 
-// const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
+const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
 class FhirRouter {
     /**

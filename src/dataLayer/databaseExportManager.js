@@ -76,7 +76,7 @@ class DatabaseExportManager {
             await databaseUpdateManager.insertOneAsync({ doc: exportStatusResource });
         } catch (err) {
             throw new RethrownError({
-                message: `Error in getExportStatusResourceWithId: ${err.message}`,
+                message: `Error in insertExportStatusAsync: ${err.message}`,
                 error: err,
                 args: { exportStatusId: exportStatusResource.id }
             });
