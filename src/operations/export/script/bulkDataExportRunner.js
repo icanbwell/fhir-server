@@ -2,8 +2,8 @@ const fs = require('fs');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { AdminLogger } = require('../../../admin/adminLogger');
-const { BulkExportManager } = require('../bulkExportManager');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
+const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
@@ -20,7 +20,7 @@ class BulkDataExportRunner {
      * @typedef {Object} ConstructorParams
 
      * @property {DatabaseQueryFactory} databaseQueryFactory
-     * @property {BulkExportManager} bulkExportManager
+     * @property {DatabaseExportManager} databaseExportManager
      * @property {PatientFilterManager} patientFilterManager
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SecurityTagManager} securityTagManager
@@ -34,7 +34,7 @@ class BulkDataExportRunner {
      */
     constructor({
         databaseQueryFactory,
-        bulkExportManager,
+        databaseExportManager,
         patientFilterManager,
         databaseAttachmentManager,
         securityTagManager,
@@ -51,10 +51,10 @@ class BulkDataExportRunner {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
         /**
-         * @type {BulkExportManager}
+         * @type {DatabaseExportManager}
          */
-        this.bulkExportManager = bulkExportManager;
-        assertTypeEquals(bulkExportManager, BulkExportManager);
+        this.databaseExportManager = databaseExportManager;
+        assertTypeEquals(databaseExportManager, DatabaseExportManager);
 
         /**
          * @type {PatientFilterManager}
@@ -109,7 +109,7 @@ class BulkDataExportRunner {
      */
     async processAsync() {
         try {
-            const exportStatusResource = await this.bulkExportManager.getExportStatusResourceWithId(
+            const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId(
                 {
                     exportStatusId: this.exportStatusId
                 }
@@ -151,8 +151,7 @@ class BulkDataExportRunner {
                 const requestedResources = this.getRequestedResource({
                     scope: exportStatusResource.scope,
                     searchParams,
-                    allowedResources:
-                        this.patientFilterManager.getAllPatientOrPersonRelatedResources()
+                    allowedResources: Object.keys(this.patientFilterManager.patientFilterMapping)
                 });
 
                 if (pathname.startsWith('/4_0_0/Patient/$export')) {
@@ -291,7 +290,7 @@ class BulkDataExportRunner {
                     resourceType
                 });
 
-                query = {
+                andQuery = {
                     [patientField.replace('.reference', '._uuid')]: {
                         $in: patientReferences
                     }
@@ -313,36 +312,51 @@ class BulkDataExportRunner {
      * @param {HandlePatientExportAsyncParams}
      */
     async handlePatientExportAsync({ searchParams, query, requestedResources }) {
-        // Create patient query and get cursor to process patients batchwise
-        const patientQuery = this.addPatientFiltersToQuery({
-            patientReferences: searchParams.get('patient')?.split(','),
-            query: deepcopy(query),
-            resourceType: 'Patient'
-        });
+        try {
+            // Create patient query and get cursor to process patients batchwise
+            const patientQuery = this.addPatientFiltersToQuery({
+                patientReferences: searchParams.get('patient')?.split(','),
+                query: deepcopy(query),
+                resourceType: 'Patient'
+            });
 
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType: 'Patient',
-            base_version: '4_0_0'
-        });
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: 'Patient',
+                base_version: '4_0_0'
+            });
 
-        const patientCursor = await databaseQueryManager.findAsync({
-            query: patientQuery,
-            options: { projection: { _uuid: 1 } }
-        });
+            const patientCursor = await databaseQueryManager.findAsync({
+                query: patientQuery,
+                options: { projection: { _uuid: 1 } }
+            });
 
-        let patientReferences = [];
-        while (await patientCursor.hasNext()) {
-            const data = await patientCursor.nextRaw();
-            patientReferences.push(`Patient/${data._uuid}`);
+            let patientReferences = [];
+            while (await patientCursor.hasNext()) {
+                const data = await patientCursor.nextRaw();
+                patientReferences.push(`Patient/${data._uuid}`);
 
-            if (patientReferences.length === this.batchSize) {
-                await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
-                patientReferences = [];
+                if (patientReferences.length === this.batchSize) {
+                    await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+                    patientReferences = [];
+                }
             }
-        }
 
-        if (patientReferences.length > 0) {
-            await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+            if (patientReferences.length > 0) {
+                await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+            }
+        } catch (err) {
+            this.adminLogger.logError(`Error in handlePatientExportAsync: ${err.message}`, {
+                error: err.stack,
+                query
+            });
+            throw new RethrownError({
+                message: err.message,
+                source: 'BulkDataExportRunner.handlePatientExportAsync',
+                error: err,
+                args: {
+                    query
+                }
+            });
         }
     }
 
@@ -355,14 +369,29 @@ class BulkDataExportRunner {
      * @param {ExportPatientDataAsyncParams}
      */
     async exportPatientDataAsync({ requestedResources, query, patientReferences }) {
-        for (const resourceType of requestedResources) {
-            const resourceQuery = this.addPatientFiltersToQuery({
-                patientReferences,
-                query: deepcopy(query),
-                resourceType
-            });
+        try {
+            for (const resourceType of requestedResources) {
+                const resourceQuery = this.addPatientFiltersToQuery({
+                    patientReferences,
+                    query: deepcopy(query),
+                    resourceType
+                });
 
-            await this.processResourceAsync({ resourceType, query: resourceQuery });
+                await this.processResourceAsync({ resourceType, query: resourceQuery });
+            }
+        } catch (err) {
+            this.adminLogger.logError(`Error in exportPatientDataAsync: ${err.message}`, {
+                error: err.stack,
+                query
+            });
+            throw new RethrownError({
+                message: err.message,
+                source: 'BulkDataExportRunner.exportPatientDataAsync',
+                error: err,
+                args: {
+                    query
+                }
+            });
         }
     }
 
@@ -376,6 +405,7 @@ class BulkDataExportRunner {
      */
     async processResourceAsync({ resourceType, query }) {
         try {
+            this.adminLogger.logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType,
                 base_version: '4_0_0'
@@ -397,7 +427,7 @@ class BulkDataExportRunner {
 
                 writeStream.write(JSON.stringify(resource) + '\n');
             }
-
+            this.adminLogger.logInfo(`Finished exporting ${resourceType} resource`);
             writeStream.close();
             return new Promise((r) => writeStream.on('close', r));
         } catch (err) {

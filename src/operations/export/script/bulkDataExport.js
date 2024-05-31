@@ -51,7 +51,7 @@ async function main() {
         (c) =>
             new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
-                bulkExportManager: c.bulkExportManager,
+                databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,

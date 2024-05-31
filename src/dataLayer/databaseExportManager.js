@@ -1,9 +1,9 @@
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { RethrownError } = require('../../utils/rethrownError');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { isUuid } = require('../../utils/uid.util');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { RethrownError } = require('../utils/rethrownError');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { isUuid } = require('../utils/uid.util');
 
-class BulkExportManager {
+class DatabaseExportManager {
     /**
      * @typedef {Object} ConstructorParams
      * @property {DatabaseQueryFactory} databaseQueryFactory
@@ -23,7 +23,7 @@ class BulkExportManager {
      * @property {string} [exportStatusId]
      *
      * @param {GetExportStatusResourceWithIdParams}
-     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')>}
      */
     async getExportStatusResourceWithId({ exportStatusId }) {
         assertIsValid(exportStatusId, 'exportStatusId is required');
@@ -34,7 +34,7 @@ class BulkExportManager {
             });
 
             /**
-             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             * @type {import('../fhir/classes/4_0_0/resources/resource')}
              */
             const resource = await databaseQueryManager.findOneAsync({
                 query: { [isUuid(exportStatusId) ? '_uuid' : '_sourceId']: exportStatusId }
@@ -51,4 +51,4 @@ class BulkExportManager {
     }
 }
 
-module.exports = { BulkExportManager };
+module.exports = { DatabaseExportManager };
