@@ -88,7 +88,7 @@ class K8sClient {
             container.name = currentNamespace //'fhir-server-k8s-job';
             container.image = currentContainer.image;
             container.env = envVars;
-            container.envFrom = envFromSource;
+            container.envFrom = [envFromSource];
             const resourceRequirements = new k8s.V1ResourceRequirements();
             resourceRequirements.requests = {
                 cpu: '.5',
