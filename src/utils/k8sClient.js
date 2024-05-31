@@ -98,7 +98,7 @@ class K8sClient {
                 memory: '8G'
             };
             container.resources = resourceRequirements;
-            container.command = ['sh', '-c', `pws && ls && node ${scriptPath} && sleep 10000`]
+            container.command = ['sh', '-c', `ls && node ${scriptPath} && sleep 10000`]
 
             // Create template
             const template = new k8s.V1PodTemplateSpec();
