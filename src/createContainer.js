@@ -101,6 +101,7 @@ const { PatientScopeManager } = require('./operations/security/patientScopeManag
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
+const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -791,6 +792,10 @@ const createContainer = function () {
     }));
 
     container.register('searchParametersManager', () => new SearchParametersManager());
+
+    container.register('databaseExportManager', (c) => new DatabaseExportManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
 
     return container;
 };
