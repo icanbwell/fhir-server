@@ -47,7 +47,9 @@ class FhirResponseWriter {
      */
     readCustomOperation ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
-        res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        if (!res.headersSent) {
+            res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        }
     }
 
     /**
