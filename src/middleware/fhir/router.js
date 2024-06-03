@@ -35,9 +35,11 @@ const { VERSIONS, INTERACTIONS } = require('./utils/constants');
 
 const { CustomOperationsController } = require('./4_0_0/controllers/operations.controller');
 
+const env = require('var');
 const cors = require('cors');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { NotFoundError } = require('../../utils/httpErrors');
+const { isTrue } = require('../../utils/isTrue');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -289,6 +291,10 @@ class FhirRouter {
     }
 
     enableExportRoutes (app, config, corsDefaults) {
+        if (!isTrue(env.ENABLE_BULK_EXPORT)) {
+            return;
+        }
+
         for (const profile of exportConfig) {
             const lowercaseMethod = profile.method.toLowerCase();
             const operationName = profile.operation;

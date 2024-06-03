@@ -60,6 +60,7 @@ services:
       FHIR_ADMIN_UI_URL: 'http://localhost:4000'
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
+      ENABLE_BULK_EXPORT: '1'
     ports:
       - '3000:3000'
     volumes:
