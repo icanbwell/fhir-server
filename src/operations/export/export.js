@@ -176,7 +176,7 @@ class ExportOperation {
 
             // Trigger k8s job to export data
             await this.k8sClient.createJob(
-                `NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
+                `node ./src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
             );
 
             // Logic to add auditEvent
