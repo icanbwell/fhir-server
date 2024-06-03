@@ -259,12 +259,6 @@ describe('GraphQL Subscription Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(personResponse2).toHaveMergeResponse({ created: true });
 
-            await request
-                .post('/4_0_0/Subscription/$merge')
-                .send(subscription4Resource)
-                .set(getHeaders())
-                .expect(200)
-
             const person_payload = {
                 scope: 'patient/*.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
@@ -276,6 +270,20 @@ describe('GraphQL Subscription Tests', () => {
             };
 
             const headers1 = getHeadersWithCustomPayload(person_payload);
+
+            // Create Subscriptions using patient/user JWT
+            let resp = await request
+                .post('/4_0_0/Subscription/')
+                .send(subscription4Resource.entry[0].resource)
+                .set(headers1)
+                .expect(403)
+
+            // Create Subscriptions via $merge with full access
+            await request
+                .post('/4_0_0/Subscription/$merge')
+                .send(subscription4Resource)
+                .set(getHeaders())
+                .expect(200)
 
             // Get Subscriptions
             let subscriptionResponse = await request
@@ -311,7 +319,7 @@ describe('GraphQL Subscription Tests', () => {
 
             expect(resp).toHaveResponse(expectedUpdateSubscriptionResponse);
 
-            // Create Subscriptions
+            // Create Subscriptions via $merge
             resp = await request
                 .post('/4_0_0/Subscription/$merge?_debug=1')
                 .send(subscription2Resource)
