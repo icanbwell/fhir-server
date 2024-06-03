@@ -7,7 +7,7 @@ class ExportStatus extends Resource {
      * @property {import('../complex_types/meta.js')} [meta]
      * @property {import('../complex_types/identifier.js')} [identifier]
      * @property {code} status
-     * @property {url} requestUrl
+     * @property {url} request
      * @property {string} scope
      * @property {string} user
      * @property {date} transactionTime
@@ -21,7 +21,7 @@ class ExportStatus extends Resource {
         meta,
         identifier,
         status,
-        requestUrl,
+        request,
         scope,
         user,
         transactionTime,
@@ -87,7 +87,7 @@ class ExportStatus extends Resource {
             configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                if (valueProvided === undefined || valueProvided === null || !Array.isArray(valueProvided)) {
                     this.__data.identifier = undefined;
                     return;
                 }
@@ -119,17 +119,17 @@ class ExportStatus extends Resource {
          * @description The url that triggered the export
          * @property {url}
          */
-        Object.defineProperty(this, 'requestUrl', {
+        Object.defineProperty(this, 'request', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.requestUrl,
+            get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.requestUrl = undefined;
+                    this.__data.request = undefined;
                     return;
                 }
-                this.__data.requestUrl = valueProvided;
+                this.__data.request = valueProvided;
             }
         });
 
@@ -216,7 +216,7 @@ class ExportStatus extends Resource {
             configurable: true,
             get: () => this.__data.output,
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                if (valueProvided === undefined || valueProvided === null || !Array.isArray(valueProvided)) {
                     this.__data.output = undefined;
                     return;
                 }
@@ -236,7 +236,7 @@ class ExportStatus extends Resource {
             configurable: true,
             get: () => this.__data.ererors,
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                if (valueProvided === undefined || valueProvided === null || !Array.isArray(valueProvided)) {
                     this.__data.errors = undefined;
                     return;
                 }
@@ -307,7 +307,7 @@ class ExportStatus extends Resource {
             meta,
             identifier,
             status,
-            requestUrl,
+            request,
             scope,
             user,
             transactionTime,
@@ -340,15 +340,16 @@ class ExportStatus extends Resource {
 
         return removeNull({
             id: this.id,
+            resourceType: this.resourceType,
             meta: this.meta && this.meta.toJSON(),
-            identifier: this.identifier && this.identifier.map(o => o.toJSON()),
+            identifier: this.identifier && this.identifier.map(o => o && o.toJSON()),
             status: this.status,
             requestUrl: this.requestUrl,
             scope: this.scope,
             user: this.user,
             transactionTime: this.transactionTime,
-            output: this.output && this.output.map(o => o.toJSON()),
-            errors: this.errors && this.errors.map(o => o.toJSON())
+            output: this.output && this.output.map(o => o && o.toJSON()),
+            errors: this.errors && this.errors.map(o => o && o.toJSON())
         });
     }
 
@@ -361,15 +362,16 @@ class ExportStatus extends Resource {
 
         const json = removeNull({
             id: this.id,
+            resourceType: this.resourceType,
             meta: this.meta && this.meta.toJSONInternal(),
-            identifier: this.identifier && this.identifier.map(o => o.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(o => o && o.toJSONInternal()),
             status: this.status,
-            requestUrl: this.requestUrl,
+            request: this.request,
             scope: this.scope,
             user: this.user,
             transactionTime: this.transactionTime,
-            output: this.output && this.output.map(o => o.toJSONInternal()),
-            errors: this.errors && this.errors.map(o => o.toJSONInternal())
+            output: this.output && this.output.map(o => o && o.toJSONInternal()),
+            errors: this.errors && this.errors.map(o => o && o.toJSONInternal())
         });
 
         if (this._access) {

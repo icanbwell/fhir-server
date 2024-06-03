@@ -29,6 +29,7 @@ const { REQUEST_ID_TYPE } = require('../constants');
 const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
 const { fhirContentTypes } = require('../utils/contentTypes');
+const { ExportByIdOperation } = require('./export/exportById');
 const { READ, WRITE } = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
@@ -52,6 +53,7 @@ class FhirOperationsManager {
      * @param graphOperation
      * @param expandOperation
      * @param exportOperation
+     * @param exportByIdOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
@@ -73,6 +75,7 @@ class FhirOperationsManager {
             graphOperation,
             expandOperation,
             exportOperation,
+            exportByIdOperation,
             r4ArgsParser,
             queryRewriterManager
         }
@@ -157,6 +160,11 @@ class FhirOperationsManager {
          */
         this.exportOperation = exportOperation;
         assertTypeEquals(exportOperation, ExportOperation);
+        /**
+         * @type {ExportByIdOperation}
+         */
+        this.exportByIdOperation = exportByIdOperation;
+        assertTypeEquals(exportByIdOperation, ExportByIdOperation);
 
         /**
          * @type {R4ArgsParser}
@@ -867,6 +875,12 @@ resourceType
         );
     }
 
+    /**
+     * does FHIR Bulk export
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Resource | Resource[]}
+     */
     async export (args, { req }) {
         /**
          * combined args
@@ -879,6 +893,26 @@ resourceType
         const requestInfo = this.getRequestInfo(req);
 
         return await this.exportOperation.exportAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * returns status for the bulk export
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Resource | Resource[]}
+     */
+    async exportById (args, { req }) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
     }
 }
 

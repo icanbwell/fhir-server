@@ -32,7 +32,7 @@ class DatabaseExportManager {
      * @property {string} [exportStatusId]
      *
      * @param {GetExportStatusResourceWithIdParams}
-     * @returns {Promise<import('../fhir/classes/4_0_0/custom_resources/exportStatus')>}
+     * @returns {Promise<import('../fhir/classes/4_0_0/custom_resources/exportStatus')|null>}
      */
     async getExportStatusResourceWithId({ exportStatusId }) {
         assertIsValid(exportStatusId, 'exportStatusId is required');
@@ -43,7 +43,7 @@ class DatabaseExportManager {
             });
 
             /**
-             * @type {import('../fhir/classes/4_0_0/resources/resource')}
+             * @type {import('../fhir/classes/4_0_0/resources/resource')|null}
              */
             const resource = await databaseQueryManager.findOneAsync({
                 query: { [isUuid(exportStatusId) ? '_uuid' : '_sourceId']: exportStatusId }
@@ -68,7 +68,7 @@ class DatabaseExportManager {
     async insertExportStatusAsync({ exportStatusResource }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
-            const databaseUpdateManager = await this.databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
             });
@@ -77,6 +77,30 @@ class DatabaseExportManager {
         } catch (err) {
             throw new RethrownError({
                 message: `Error in insertExportStatusAsync: ${err.message}`,
+                error: err,
+                args: { exportStatusId: exportStatusResource.id }
+            });
+        }
+    }
+
+    /**
+     * @typedef {Object} UpdateExportStatusAsyncParams
+     * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
+     *
+     * @param {UpdateExportStatusAsyncParams}
+     */
+    async updateExportStatusAsync({ exportStatusResource }) {
+        assertTypeEquals(exportStatusResource, ExportStatus);
+        try {
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType: 'ExportStatus',
+                base_version: '4_0_0'
+            });
+
+            await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in updateExportStatusAsync: ${err.message}`,
                 error: err,
                 args: { exportStatusId: exportStatusResource.id }
             });

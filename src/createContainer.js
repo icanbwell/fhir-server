@@ -105,6 +105,7 @@ const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
 const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
+const { ExportByIdOperation } = require('./operations/export/exportById');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -678,6 +679,7 @@ const createContainer = function () {
                 graphOperation: c.graphOperation,
                 expandOperation: c.expandOperation,
                 exportOperation: c.exportOperation,
+                exportByIdOperation: c.exportByIdOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager
             }
@@ -822,6 +824,12 @@ const createContainer = function () {
     container.register('exportManager', (c) => new ExportManager({
         securityTagManager: c.securityTagManager,
         preSaveManager: c.preSaveManager
+    }));
+
+    container.register('exportByIdOperation', (c) => new ExportByIdOperation({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        databaseExportManager: c.databaseExportManager
     }));
 
     return container;
