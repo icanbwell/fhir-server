@@ -506,6 +506,16 @@ class ConfigManager {
         }
         return isTrue(env.USE_CLIENT_FHIR_PERSON_ID);
     }
+
+    /**
+     * represent whether to use authentication for request or not
+     */
+    get authEnabled() {
+        if (env.AUTH_ENABLED === null || env.AUTH_ENABLED === undefined) {
+            return true;
+        }
+        return isTrue(env.AUTH_ENABLED);
+    }
 }
 
 module.exports = {

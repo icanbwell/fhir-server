@@ -190,7 +190,9 @@ function createApp ({ fnGetContainer }) {
     });
 
     // middleware for oAuth
-    app.use(passport.initialize());
+    if (isTrue(env.AUTH_ENABLED)) {
+        app.use(passport.initialize());
+    }
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
@@ -300,12 +302,16 @@ function createApp ({ fnGetContainer }) {
 
     // Set up admin routes
     // noinspection JSCheckFunctionSignatures
-    passport.use('adminStrategy', strategy);
+    if (isTrue(env.AUTH_ENABLED)) {
+        passport.use('adminStrategy', strategy);
+    }
 
     const adminRouter = express.Router({ mergeParams: true });
     // Add authentication
-    adminRouter.use(passport.initialize());
-    adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
+    if (isTrue(env.AUTH_ENABLED)) {
+        adminRouter.use(passport.initialize());
+        adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
+    }
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
     adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
@@ -319,15 +325,19 @@ function createApp ({ fnGetContainer }) {
     app.use(adminRouter);
 
     // noinspection JSCheckFunctionSignatures
-    passport.use('graphqlStrategy', strategy);
+    if (isTrue(env.AUTH_ENABLED)) {
+        passport.use('graphqlStrategy', strategy);
+    }
 
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
         const router = express.Router();
-        router.use(passport.initialize());
-        router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        if (isTrue(env.AUTH_ENABLED)) {
+            router.use(passport.initialize());
+            router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        }
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -359,8 +369,10 @@ function createApp ({ fnGetContainer }) {
         });
 
         const routerv2 = express.Router();
-        routerv2.use(passport.initialize());
-        routerv2.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        if (isTrue(env.AUTH_ENABLED)) {
+            routerv2.use(passport.initialize());
+            routerv2.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        }
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui

@@ -5,6 +5,7 @@ const env = require('var');
 const Sentry = require('@sentry/node');
 const { profiles } = require('./profiles');
 const { getQueryParams } = require('./utils/getQueryParams');
+const { isTrue } = require('./utils/isTrue');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
@@ -251,18 +252,20 @@ const fhirServerConfig = {
     profiles
 };
 
-fhirServerConfig.auth = {
-    // This servers URI
-    resourceServer: env.RESOURCE_SERVER,
-    //
-    // if you use this strategy, you need to add the corresponding env vars to docker-compose
-    //
-    strategy: {
-        name: 'jwt',
-        useSession: false,
-        service: './src/strategies/jwt.bearer.strategy.js'
-    }
-};
+if (isTrue(env.AUTH_ENABLED)) {
+    fhirServerConfig.auth = {
+        // This servers URI
+        resourceServer: env.RESOURCE_SERVER,
+        //
+        // if you use this strategy, you need to add the corresponding env vars to docker-compose
+        //
+        strategy: {
+            name: 'jwt',
+            useSession: false,
+            service: './src/strategies/jwt.bearer.strategy.js'
+        }
+    };
+}
 
 module.exports = {
     fhirServerConfig,

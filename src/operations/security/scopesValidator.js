@@ -58,6 +58,9 @@ class ScopesValidator {
      * @returns {ForbiddenError}
      */
     verifyHasValidScopes ({ requestInfo, resourceType, accessRequested }) {
+        if (!this.configManager.authEnabled) {
+            return;
+        }
         // eslint-disable-next-line no-useless-catch
         try {
             const { user, scope } = requestInfo;
