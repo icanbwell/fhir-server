@@ -55,7 +55,6 @@ class K8sClient {
                 namespace: currentNamespace
             };
             const podDetails = await this.k8sApi.readNamespacedPod(readNamespacedPodParam);
-            logInfo(podDetails);
             const currentContainer = podDetails.spec.containers[0];
 
             // Extract environment variables from the current Pod
@@ -97,7 +96,7 @@ class K8sClient {
                 memory: '8G'
             };
             container.resources = resourceRequirements;
-            container.command = [scriptCommand];
+            container.args = scriptCommand.split(' ');
 
             // Create template
             const template = new k8s.V1PodTemplateSpec();
