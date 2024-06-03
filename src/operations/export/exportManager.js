@@ -34,7 +34,7 @@ class ExportManager {
      * @param {GenerateExportStatusResourceAsyncParams}
      */
     async generateExportStatusResourceAsync({ parameterResource, requestInfo }) {
-        const { scope, user, originalUrl: requestUrl } = requestInfo;
+        const { scope, user, originalUrl } = requestInfo;
 
         // Create ExportStatus resource
         /**
@@ -48,7 +48,9 @@ class ExportManager {
                 scope,
                 user,
                 status: 'accepted',
-                requestUrl: `https://fhir.export${requestUrl}`
+                request: `https://fhir.export${originalUrl}`,
+                output: [],
+                errors: []
             },
             'ExportStatus'
         );

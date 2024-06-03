@@ -106,14 +106,11 @@ class DatabaseUpdateManager {
      * Updates the resource present in db
      * @typedef {Object} UpdateOneAsyncParams
      * @property {Resource} doc
-     * @property {FhirRequestInfo} requestInfo
      *
      * @param {UpdateOneAsyncParams}
      */
-    async updateOneAsync ({ doc, requestInfo }) {
-        assertTypeEquals(requestInfo, FhirRequestInfo);
+    async updateOneAsync ({ doc }) {
         assertTypeEquals(doc, Resource);
-
         try {
             await this.preSaveManager.preSaveAsync({ resource: doc });
             /**
@@ -122,9 +119,6 @@ class DatabaseUpdateManager {
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
 
             await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
-
-            // create history for the resource
-            await this.postSaveAsync({ requestInfo, doc });
         } catch (err) {
             throw new RethrownError({
                 error: err,

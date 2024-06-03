@@ -1,6 +1,8 @@
+const env = require('var');
 const fs = require('fs');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { AdminLogger } = require('../../../admin/adminLogger');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
@@ -14,6 +16,7 @@ const { SecurityTagManager } = require('../../common/securityTagManager');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
 const { COLLECTION, GRIDFS } = require('../../../constants');
+const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
 
 class BulkDataExportRunner {
     /**
@@ -102,6 +105,11 @@ class BulkDataExportRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
+         */
+        this.exportStatusResource = null;
     }
 
     /**
@@ -109,24 +117,28 @@ class BulkDataExportRunner {
      */
     async processAsync() {
         try {
-            const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId(
-                {
-                    exportStatusId: this.exportStatusId
-                }
-            );
+            this.exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
+                exportStatusId: this.exportStatusId
+            });
 
-            if (!exportStatusResource) {
+            if (!this.exportStatusResource) {
                 this.adminLogger.logInfo(
                     `ExportStatus resource not found with Id: ${this.exportStatusId}`
                 );
                 return;
             }
 
-            const { pathname, searchParams } = new URL(exportStatusResource.requestUrl);
+            // Update status of ExportStatus resource to in-progress
+            this.exportStatusResource.status = 'in-progress';
+            await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
+
+            const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
             let query = this.getQueryForExport({
-                scope: exportStatusResource.scope,
-                user: exportStatusResource.user,
+                scope: this.exportStatusResource.scope,
+                user: this.exportStatusResource.user,
                 searchParams
             });
 
@@ -139,7 +151,7 @@ class BulkDataExportRunner {
             if (pathname.startsWith('/4_0_0/$export')) {
                 // Get all the requested resources to export
                 const requestResources = this.getRequestedResource({
-                    scope: exportStatusResource.scope,
+                    scope: this.exportStatusResource.scope,
                     searchParams,
                     allowedResources: Object.values(COLLECTION)
                 });
@@ -149,7 +161,7 @@ class BulkDataExportRunner {
                 }
             } else {
                 const requestedResources = this.getRequestedResource({
-                    scope: exportStatusResource.scope,
+                    scope: this.exportStatusResource.scope,
                     searchParams,
                     allowedResources: Object.keys(this.patientFilterManager.patientFilterMapping)
                 });
@@ -162,9 +174,64 @@ class BulkDataExportRunner {
                     });
                 }
             }
+
+            // Upload the files to s3 and add to output field of ExportStatus resource
+            await this.uploadExportedFilesToS3Async();
+
+            // Update status of ExportStatus resource to completed and add output and error
+            this.exportStatusResource.status = 'completed';
+            await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
         } catch (err) {
+            // Update status of ExportStatus resource to failed if ExportStatus resource exists
+            this.exportStatusResource.status = 'failed';
+            await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
             this.adminLogger.logError(`ERROR: ${err.message}`, {
                 error: err.stack
+            });
+        }
+    }
+
+    /**
+     * Uploads the folder with name exportStatusId to s3
+     */
+    async uploadExportedFilesToS3Async() {
+        try {
+            const files = fs.readdirSync(this.exportStatusId);
+            this.exportStatusResource.output = [];
+
+            const s3Client = new S3Client({ region: 'us-east-1' });
+
+            for (const file of files) {
+                const filePath = `${this.exportStatusId}/${file}`;
+
+                await s3Client.send(
+                    new PutObjectCommand({
+                        Bucket: env.AWS_EXPORT_BUCKET_NAME,
+                        Key: filePath,
+                        Body: fs.createReadStream(filePath)
+                    })
+                );
+
+                this.exportStatusResource.output.push(
+                    new ExportStatusEntry({
+                        type: file.split('.')[0],
+                        url: filePath
+                    })
+                );
+                this.adminLogger.logInfo(`File uploaded to S3: ${filePath}`);
+            }
+        } catch (err) {
+            this.adminLogger.logError(`Error in uploadExportedFilesToS3Async: ${err.message}`, {
+                error: err.stack
+            });
+            throw new RethrownError({
+                message: err.message,
+                source: 'BulkDataExportRunner.uploadExportedFilesToS3Async',
+                error: err
             });
         }
     }

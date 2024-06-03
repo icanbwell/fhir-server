@@ -144,7 +144,7 @@ class ExportOperation {
         try {
             if (!incomingResource || incomingResource.resourceType !== 'Parameters') {
                 throw new BadRequestError(
-                    new Error(`Bulk request requires Parameter resource in the body`)
+                    new Error('Bulk request requires Parameters resource in the body')
                 );
             }
 

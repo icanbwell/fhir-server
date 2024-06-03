@@ -289,9 +289,9 @@ class FhirRouter {
     }
 
     enableExportRoutes (app, config, corsDefaults) {
-        const operationName = 'export';
         for (const profile of exportConfig) {
             const lowercaseMethod = profile.method.toLowerCase();
+            const operationName = profile.operation;
 
             const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions);
 
@@ -302,6 +302,11 @@ class FhirRouter {
                         name: operationName
                     });
                     break;
+
+                case 'get':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsGet({
+                        name: operationName
+                    });
             }
 
             app.options(profile.path, cors(corsOptions)); // Enable this operation route

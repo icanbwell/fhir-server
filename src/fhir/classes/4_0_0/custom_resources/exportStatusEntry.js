@@ -1,4 +1,6 @@
-class ExportStatusEntry {
+const Element = require('../complex_types/element');
+
+class ExportStatusEntry extends Element {
     /**
      * @typedef {Object} ConstructorParams
      * @property {string} [id]
@@ -8,6 +10,8 @@ class ExportStatusEntry {
      * @param {ConstructorParams}
      */
     constructor({ id, type, url }) {
+        super({});
+
         /**
          * @description None
          * @property {String|undefined}
