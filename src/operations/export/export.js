@@ -176,7 +176,7 @@ class ExportOperation {
 
             // Trigger k8s job to export data
             await this.k8sClient.createJob(
-                `node ./src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
+                `node /srv/src/src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
             );
 
             // Logic to add auditEvent
