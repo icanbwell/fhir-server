@@ -19,7 +19,6 @@ const { handleAlert } = require('./routeHandlers/alert');
 const { MyFHIRServer } = require('./routeHandlers/fhirServer');
 const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHandlers/contentSecurityPolicy');
 const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
-const { createK8Job } = require('./routeHandlers/createK8Job.js');
 const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
 const { handleVersion } = require('./routeHandlers/version');
 const { handleStats } = require('./routeHandlers/stats');
@@ -265,8 +264,6 @@ function createApp ({ fnGetContainer }) {
         res.redirect(`${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
             `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
     });
-
-    app.get('/create-k8-job', (req, res) => createK8Job(fnGetContainer, req, res));
 
     app.get('/health', (req, res) => handleHealthCheck(
         fnGetContainer, req, res

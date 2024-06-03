@@ -818,12 +818,7 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
         databaseExportManager: c.databaseExportManager,
-        databaseQueryFactory: c.databaseQueryFactory,
-        patientFilterManager: c.patientFilterManager,
-        databaseAttachmentManager: c.databaseAttachmentManager,
-        securityTagManager: c.securityTagManager,
-        r4SearchQueryCreator: c.r4SearchQueryCreator,
-        patientQueryCreator: c.patientQueryCreator
+        k8sClient: c.k8sClient
     }));
 
     container.register('exportManager', (c) => new ExportManager({

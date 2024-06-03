@@ -45,7 +45,7 @@ class K8sClient {
         }
     }
 
-    async createJobBody(scriptPath) {
+    async createJobBody(scriptCommand) {
         try {
             const currentNamespace = `fhir-server-${this.configManager.environmentValue}`;
 
@@ -97,7 +97,7 @@ class K8sClient {
                 memory: '8G'
             };
             container.resources = resourceRequirements;
-            container.command = ['sh', '-c', `ls && node ${scriptPath} && sleep 10000`]
+            container.command = [scriptCommand];
 
             // Create template
             const template = new k8s.V1PodTemplateSpec();
@@ -120,10 +120,10 @@ class K8sClient {
         }
     }
 
-    async createJob(scriptPath) {
+    async createJob(scriptCommand) {
         try {
             const namespace = `fhir-server-${this.configManager.environmentValue}`;
-            const body = await this.createJobBody(scriptPath);
+            const body = await this.createJobBody(scriptCommand);
             const param = {
                 namespace,
                 body
