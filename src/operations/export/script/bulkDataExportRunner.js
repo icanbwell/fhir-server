@@ -184,11 +184,13 @@ class BulkDataExportRunner {
                 exportStatusResource: this.exportStatusResource
             });
         } catch (err) {
-            // Update status of ExportStatus resource to failed if ExportStatus resource exists
-            this.exportStatusResource.status = 'failed';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
+            if (this.exportStatusResource) {
+                // Update status of ExportStatus resource to failed if ExportStatus resource exists
+                this.exportStatusResource.status = 'failed';
+                await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource: this.exportStatusResource
+                });
+            }
             this.adminLogger.logError(`ERROR: ${err.message}`, {
                 error: err.stack
             });
