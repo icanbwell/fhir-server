@@ -81,6 +81,7 @@ const { PersonMatchManager } = require('./admin/personMatchManager');
 const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
 const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
 const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
+const { K8sClient } = require('./utils/k8sClient');
 const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
@@ -719,6 +720,10 @@ const createContainer = function () {
         )
     );
 
+    container.register('k8sClient', (c) => new K8sClient({
+        configManager: c.configManager
+    }));
+
     container.register('accessIndexManager', (c) => new AccessIndexManager({
         configManager: c.configManager,
         indexProvider: c.indexProvider
@@ -813,12 +818,7 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
         databaseExportManager: c.databaseExportManager,
-        databaseQueryFactory: c.databaseQueryFactory,
-        patientFilterManager: c.patientFilterManager,
-        databaseAttachmentManager: c.databaseAttachmentManager,
-        securityTagManager: c.securityTagManager,
-        r4SearchQueryCreator: c.r4SearchQueryCreator,
-        patientQueryCreator: c.patientQueryCreator
+        k8sClient: c.k8sClient
     }));
 
     container.register('exportManager', (c) => new ExportManager({

@@ -1,18 +1,17 @@
 const moment = require('moment-timezone');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError, NotValidatedError } = require('../../utils/httpErrors');
-const { BulkDataExportRunner } = require('./script/bulkDataExportRunner');
 const { DatabaseExportManager } = require('../../dataLayer/databaseExportManager');
 const { ExportManager } = require('./exportManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { K8sClient } = require('../../utils/k8sClient');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
-const { AdminLogger } = require('../../admin/adminLogger');
 
 
 class ExportOperation {
@@ -26,6 +25,7 @@ class ExportOperation {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {AuditLogger} auditLogger
      * @property {DatabaseExportManager} databaseExportManager
+     * @property {K8sClient} k8sClient
      *
      * @param {ConstructorParams}
      */
@@ -38,12 +38,7 @@ class ExportOperation {
         postRequestProcessor,
         auditLogger,
         databaseExportManager,
-        databaseQueryFactory,
-        patientFilterManager,
-        databaseAttachmentManager,
-        securityTagManager,
-        r4SearchQueryCreator,
-        patientQueryCreator
+        k8sClient
     }) {
         /**
          * @type {ScopesManager}
@@ -93,12 +88,11 @@ class ExportOperation {
         this.databaseExportManager = databaseExportManager;
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
 
-        this.databaseQueryFactory = databaseQueryFactory;
-        this.patientFilterManager = patientFilterManager;
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        this.securityTagManager = securityTagManager;
-        this.r4SearchQueryCreator = r4SearchQueryCreator;
-        this.patientQueryCreator = patientQueryCreator;
+        /**
+         * @type {K8sClient}
+         */
+        this.k8sClient = k8sClient;
+        assertTypeEquals(k8sClient, K8sClient);
     }
 
     /**
@@ -180,21 +174,10 @@ class ExportOperation {
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
 
-            // TODO: trigger eks job from here
-            const bulkDataExportRunner = new BulkDataExportRunner({
-                databaseQueryFactory: this.databaseQueryFactory,
-                adminLogger: new AdminLogger(),
-                patientFilterManager: this.patientFilterManager,
-                databaseExportManager: this.databaseExportManager,
-                databaseAttachmentManager: this.databaseAttachmentManager,
-                securityTagManager: this.securityTagManager,
-                r4SearchQueryCreator: this.r4SearchQueryCreator,
-                patientQueryCreator: this.patientQueryCreator,
-                exportStatusId: exportStatusResource.id,
-                batchSize: 100
-            });
-
-            await bulkDataExportRunner.processAsync();
+            // Trigger k8s job to export data
+            await this.k8sClient.createJob(
+                `NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
+            );
 
             // Logic to add auditEvent
             this.postRequestProcessor.add({
