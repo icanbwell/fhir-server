@@ -61,7 +61,7 @@ services:
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'
-      AUTH_ENABLED: '0'
+      AUTH_ENABLED: '1'
     ports:
       - '3000:3000'
     volumes:

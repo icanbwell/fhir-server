@@ -28,3 +28,4 @@ process.env.KAFKA_MAX_RETRY = '3';
 process.env.ENABLE_CONSENTED_PROA_DATA_ACCESS = '1';
 process.env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS = '1';
 process.env.EXTERNAL_REQUEST_TIMEOUT_SEC = '5';
+process.env.AUTH_ENABLED = '1'
