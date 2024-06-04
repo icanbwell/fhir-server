@@ -3,7 +3,7 @@ const { VERSIONS } = require('../utils/constants.js');
 
 const routes = [
     {
-        path: '/:base_version/ExportStatus/:id',
+        path: '/:base_version/([$])export/:id',
         method: 'GET',
         corsOptions: {
             methods: ['GET']

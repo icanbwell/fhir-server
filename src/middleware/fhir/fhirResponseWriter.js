@@ -233,10 +233,10 @@ class FhirResponseWriter {
      */
     export ({ req, res, result }) {
         const baseUrl = `${req.host.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
-        const statusUrl =`${baseUrl}/4_0_0/ExportStatus/${result?.id}`;
+        const statusUrl =`${baseUrl}/4_0_0/$export/${result?.id}`;
 
         res.setHeader('Content-Location', statusUrl);
-        res.sendStatus(202);
+        res.status(202).send();
     }
 
     /**
@@ -249,9 +249,16 @@ class FhirResponseWriter {
     exportById ({ req, res, result }) {
         if (result.status !== "completed") {
             res.setHeader('X-Progress', result.status);
-            res.sendStatus(202);
+            res.status(202).send();
         } else {
-            res.status(200).json(result.toJSON());
+            res.status(200).json({
+                transactionTime: result.transactionTime,
+                requiresAccessToken: result.requiresAccessToken,
+                request: result.request,
+                output: result.output,
+                errors: result.errors,
+                extension: result.extension
+            });
         }
     }
 
