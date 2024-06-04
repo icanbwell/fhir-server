@@ -506,6 +506,13 @@ class ConfigManager {
         }
         return isTrue(env.USE_CLIENT_FHIR_PERSON_ID);
     }
+
+    /**
+     * S3 bucket name to export data to S3
+     */
+    get bulkExportS3BucketName () {
+        return env.BULK_EXPORT_S3_BUCKET_NAME;
+    }
 }
 
 module.exports = {

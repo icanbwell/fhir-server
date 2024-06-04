@@ -35,6 +35,7 @@ class BulkDataExportRunner {
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {string} exportStatusId
      * @property {number} batchSize
+     * @property {string} bulkExportS3BucketName
      *
      * @param {ConstructorParams}
      */
@@ -47,7 +48,8 @@ class BulkDataExportRunner {
         r4SearchQueryCreator,
         patientQueryCreator,
         exportStatusId,
-        batchSize
+        batchSize,
+        bulkExportS3BucketName
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -96,6 +98,12 @@ class BulkDataExportRunner {
          */
         this.exportStatusId = exportStatusId;
         assertIsValid(exportStatusId, 'exportStatusId is required for running BulkExport');
+
+        /**
+         * @type {string}
+         */
+        this.bulkExportS3BucketName = bulkExportS3BucketName;
+        assertIsValid(bulkExportS3BucketName, 'S3 bucket name is required for running BulkExport');
 
         /**
          * @type {number}
