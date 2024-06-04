@@ -2,8 +2,11 @@ const env = require('var');
 const fs = require('fs');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { AdminLogger } = require('../../../admin/adminLogger');
+const stream = require('stream');
+const { S3Client } = require('@aws-sdk/client-s3');
+const { Upload } = require('@aws-sdk/lib-storage');
+
+const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
@@ -15,8 +18,9 @@ const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
+const { logInfo, logError } = require('../../common/logging');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
-const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
 
 class BulkDataExportRunner {
     /**
@@ -29,7 +33,6 @@ class BulkDataExportRunner {
      * @property {SecurityTagManager} securityTagManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
-     * @property {AdminLogger} adminLogger
      * @property {string} exportStatusId
      * @property {number} batchSize
      *
@@ -43,7 +46,6 @@ class BulkDataExportRunner {
         securityTagManager,
         r4SearchQueryCreator,
         patientQueryCreator,
-        adminLogger,
         exportStatusId,
         batchSize
     }) {
@@ -90,12 +92,6 @@ class BulkDataExportRunner {
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
 
         /**
-         * @type {AdminLogger}
-         */
-        this.adminLogger = adminLogger;
-        assertTypeEquals(adminLogger, AdminLogger);
-
-        /**
          * @type {string}
          */
         this.exportStatusId = exportStatusId;
@@ -110,6 +106,11 @@ class BulkDataExportRunner {
          * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
          */
         this.exportStatusResource = null;
+
+        /**
+         * @type {S3Client}
+         */
+        this.s3Client = new S3Client({ region: 'us-east-1' });
     }
 
     /**
@@ -122,7 +123,7 @@ class BulkDataExportRunner {
             });
 
             if (!this.exportStatusResource) {
-                this.adminLogger.logInfo(
+                logInfo(
                     `ExportStatus resource not found with Id: ${this.exportStatusId}`
                 );
                 return;
@@ -133,6 +134,10 @@ class BulkDataExportRunner {
             await this.databaseExportManager.updateExportStatusAsync({
                 exportStatusResource: this.exportStatusResource
             });
+
+            // compute base folder where data will be upload in s3
+            const ownerTag = this.exportStatusResource.meta.security.find(s => s.system === SecurityTagSystem.owner).code;
+            this.baseS3Folder = `/exports/${ownerTag}/${this.exportStatusId}`;
 
             const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
@@ -175,9 +180,6 @@ class BulkDataExportRunner {
                 }
             }
 
-            // Upload the files to s3 and add to output field of ExportStatus resource
-            await this.uploadExportedFilesToS3Async();
-
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
             await this.databaseExportManager.updateExportStatusAsync({
@@ -186,54 +188,13 @@ class BulkDataExportRunner {
         } catch (err) {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
-                this.exportStatusResource.status = 'failed';
+                this.exportStatusResource.status = 'entered-in-error';
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: this.exportStatusResource
                 });
             }
-            this.adminLogger.logError(`ERROR: ${err.message}`, {
+            logError(`ERROR: ${err.message}`, {
                 error: err.stack
-            });
-        }
-    }
-
-    /**
-     * Uploads the folder with name exportStatusId to s3
-     */
-    async uploadExportedFilesToS3Async() {
-        try {
-            const files = fs.readdirSync(this.exportStatusId);
-            this.exportStatusResource.output = [];
-
-            const s3Client = new S3Client({ region: 'us-east-1' });
-
-            for (const file of files) {
-                const filePath = `${this.exportStatusId}/${file}`;
-
-                await s3Client.send(
-                    new PutObjectCommand({
-                        Bucket: env.AWS_EXPORT_BUCKET_NAME,
-                        Key: filePath,
-                        Body: fs.createReadStream(filePath)
-                    })
-                );
-
-                this.exportStatusResource.output.push(
-                    new ExportStatusEntry({
-                        type: file.split('.')[0],
-                        url: filePath
-                    })
-                );
-                this.adminLogger.logInfo(`File uploaded to S3: ${filePath}`);
-            }
-        } catch (err) {
-            this.adminLogger.logError(`Error in uploadExportedFilesToS3Async: ${err.message}`, {
-                error: err.stack
-            });
-            throw new RethrownError({
-                message: err.message,
-                source: 'BulkDataExportRunner.uploadExportedFilesToS3Async',
-                error: err
             });
         }
     }
@@ -414,7 +375,7 @@ class BulkDataExportRunner {
                 await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
             }
         } catch (err) {
-            this.adminLogger.logError(`Error in handlePatientExportAsync: ${err.message}`, {
+            logError(`Error in handlePatientExportAsync: ${err.message}`, {
                 error: err.stack,
                 query
             });
@@ -449,7 +410,7 @@ class BulkDataExportRunner {
                 await this.processResourceAsync({ resourceType, query: resourceQuery });
             }
         } catch (err) {
-            this.adminLogger.logError(`Error in exportPatientDataAsync: ${err.message}`, {
+            logError(`Error in exportPatientDataAsync: ${err.message}`, {
                 error: err.stack,
                 query
             });
@@ -474,7 +435,7 @@ class BulkDataExportRunner {
      */
     async processResourceAsync({ resourceType, query }) {
         try {
-            this.adminLogger.logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
+            logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType,
                 base_version: '4_0_0'
@@ -482,10 +443,19 @@ class BulkDataExportRunner {
 
             const cursor = await databaseQueryManager.findAsync({ query });
 
-            const filePath = `${this.exportStatusId}/${resourceType}.ndjson`;
+            const filePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
 
-            const writeStream = fs.createWriteStream(filePath, { flags: 'a' });
+            const passableStream = new stream.PassThrough();
 
+            const fileUpload =  new Upload({
+                client: this.s3Client,
+                params: {
+                    Bucket: env.BULK_EXPORT_S3_BUCKET_NAME,
+                    Key: filePath,
+                    Body: passableStream
+                }
+            });
+            let count = 0;
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
 
@@ -493,14 +463,21 @@ class BulkDataExportRunner {
                     resource,
                     operation: GRIDFS.RETRIEVE
                 });
-
-                writeStream.write(JSON.stringify(resource) + '\n');
+                count++;
+                passableStream.write(`${JSON.stringify(resource)}\n`);
+                logInfo(`${resourceType} resources exported: ${count}`);
             }
-            this.adminLogger.logInfo(`Finished exporting ${resourceType} resource`);
-            writeStream.close();
-            return new Promise((r) => writeStream.on('close', r));
+            await fileUpload.done();
+            this.exportStatusResource.output.push(
+                new ExportStatusEntry({
+                    type: resourceType,
+                    url: `https://s3.amazonaws.com/${env.BULK_EXPORT_S3_BUCKET_NAME}/${filePath}`
+                })
+            );
+
+            logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {
-            this.adminLogger.logError(`Error in processResourceAsync: ${err.message}`, {
+            logError(`Error in processResourceAsync: ${err.message}`, {
                 error: err.stack,
                 resourceType,
                 query
