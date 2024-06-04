@@ -47,7 +47,9 @@ class FhirResponseWriter {
      */
     readCustomOperation ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
-        res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        if (!res.headersSent) {
+            res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        }
     }
 
     /**
@@ -260,12 +262,12 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      */
     setBaseResponseHeaders ({ req, res }) {
-        if (!res.headersSent) {
-            const fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
+        if (res.headersSent) {
+            return;
         }
-
-        if (req.id && !res.headersSent) {
+        const fhirVersion = req.params.base_version;
+        res.type(this.getContentType(fhirVersion));
+        if (req.id) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
     }
