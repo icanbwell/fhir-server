@@ -450,7 +450,7 @@ class BulkDataExportRunner {
             const fileUpload =  new Upload({
                 client: this.s3Client,
                 params: {
-                    Bucket: env.AWS_EXPORT_BUCKET_NAME,
+                    Bucket: env.BULK_EXPORT_S3_BUCKET_NAME,
                     Key: filePath,
                     Body: passableStream
                 }
@@ -471,7 +471,7 @@ class BulkDataExportRunner {
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: `https://s3.amazonaws.com/${env.AWS_EXPORT_BUCKET_NAME}/${filePath}`
+                    url: `https://s3.amazonaws.com/${env.BULK_EXPORT_S3_BUCKET_NAME}/${filePath}`
                 })
             );
 
