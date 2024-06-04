@@ -150,8 +150,6 @@ class BulkDataExportRunner {
             const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
             let query = this.getQueryForExport({
-                scope: this.exportStatusResource.scope,
-                user: this.exportStatusResource.user,
                 searchParams
             });
 
@@ -209,21 +207,19 @@ class BulkDataExportRunner {
 
     /**
      * @typedef {Object} GetQueryForExportParams
-     * @property {string} scope
-     * @property {string} user
      * @property {URLSearchParams} searchParams
      *
      * @param {GetQueryForExportParams}
      */
-    getQueryForExport({ scope, user, searchParams }) {
+    getQueryForExport({ searchParams }) {
         let query = {};
 
+        const securityTags = this.exportStatusResource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
         query = this.securityTagManager.getQueryWithSecurityTags({
-            securityTags: this.securityTagManager.getSecurityTagsFromScope({
-                user,
-                scope,
-                accessRequested: 'read'
-            }),
+            securityTags,
             query
         });
 
@@ -449,6 +445,11 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
+            const totalCount = await databaseQueryManager.exactDocumentCountAsync({ query });
+            logInfo(`Exporting ${totalCount} resources for ${resourceType} resource`);
+
+            const totalBatches = Math.ceil(totalCount / this.batchSize);
+
             const cursor = await databaseQueryManager.findAsync({ query });
 
             const filePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
@@ -477,10 +478,14 @@ class BulkDataExportRunner {
                 if (count % this.batchSize === 0) {
                     passableStream.write(batch);
                     batch = '';
+                    logInfo(`${resourceType} batch exported: ${Math.floor(count/this.batchSize)}/${totalBatches}`);
                 }
-                logInfo(`${resourceType} resources exported: ${count}`);
             }
-            passableStream.write(batch);
+            if (batch) {
+                passableStream.write(batch);
+                logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
+            }
+
             await fileUpload.done();
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
