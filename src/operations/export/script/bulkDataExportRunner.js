@@ -485,6 +485,7 @@ class BulkDataExportRunner {
                 passableStream.write(batch);
                 logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
             }
+            passableStream.end();
 
             await fileUpload.done();
             this.exportStatusResource.output.push(
