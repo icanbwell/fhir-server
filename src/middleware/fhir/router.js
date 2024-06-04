@@ -9,6 +9,10 @@ const {
 } = require('./metadata/metadata.config');
 
 const {
+    routes: exportConfig
+} = require('./export/export.config');
+
+const {
     routeArgs,
     routes
 } = require('./route.config');
@@ -31,9 +35,11 @@ const { VERSIONS, INTERACTIONS } = require('./utils/constants');
 
 const { CustomOperationsController } = require('./4_0_0/controllers/operations.controller');
 
+const env = require('var');
 const cors = require('cors');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { NotFoundError } = require('../../utils/httpErrors');
+const { isTrue } = require('../../utils/isTrue');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -284,6 +290,50 @@ class FhirRouter {
         }
     }
 
+    enableExportRoutes (app, config, corsDefaults) {
+        if (!isTrue(env.ENABLE_BULK_EXPORT)) {
+            return;
+        }
+
+        for (const profile of exportConfig) {
+            const lowercaseMethod = profile.method.toLowerCase();
+            const operationName = profile.operation;
+
+            const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions);
+
+            let operationsControllerRouteHandler;
+            switch (lowercaseMethod) {
+                case 'post':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsPost({
+                        name: operationName
+                    });
+                    break;
+
+                case 'get':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsGet({
+                        name: operationName
+                    });
+            }
+
+            app.options(profile.path, cors(corsOptions)); // Enable this operation route
+
+            // noinspection JSCheckFunctionSignatures
+            app[profile.method.toLowerCase()](
+                profile.path,
+                cors(corsOptions),
+                versionValidationMiddleware(profile),
+                sanitizeMiddleware(profile.args),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
+                    route: profile.path,
+                    auth: config.auth,
+                    name: operationName
+                }),
+                operationsControllerRouteHandler
+            );
+        }
+    }
+
     /**
      * @function enableProfileRoutes
      * @description Start iterating over potential routes to enable for this profile
@@ -452,6 +502,7 @@ class FhirRouter {
         const corsDefaults = Object.assign({}, server.corsOptions); // Enable all routes, operations are enabled inside enableResourceRoutes
 
         this.enableMetadataRoute(app, config, corsDefaults);
+        this.enableExportRoutes(app, config, corsDefaults);
         this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions
 
         this.enableBaseRoute(app, config, corsDefaults);
