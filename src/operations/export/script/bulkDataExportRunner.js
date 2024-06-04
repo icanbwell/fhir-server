@@ -491,7 +491,7 @@ class BulkDataExportRunner {
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: `https://s3.amazonaws.com/${this.bulkExportS3BucketName}/${filePath}`
+                    url: `https://${this.bulkExportS3BucketName}.s3.amazonaws.com/${filePath}`
                 })
             );
 
