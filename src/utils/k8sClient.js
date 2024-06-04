@@ -57,8 +57,8 @@ class K8sClient {
             const podDetails = await this.k8sApi.readNamespacedPod(readNamespacedPodParam);
             const currentContainer = podDetails.spec.containers[0];
 
-            // Extract environment variables from the current Pod
-            const envVars = currentContainer.env.map(env => {
+            // Extract environment variables from the current Pod but skip any env varible injected by serviceAccount
+            const envVars = currentContainer.env.filter(env => !env.name.startsWith('AWS_')).map(env => {
                 const envVar = new k8s.V1EnvVar();
                 envVar.name = env.name;
                 envVar.value = env.value;
@@ -79,17 +79,18 @@ class K8sClient {
             // Set Job name
             const metadata = new k8s.V1ObjectMeta();
             metadata.name = `fhir-server-job-${generateUUID().slice(-10)}`;
+            metadata.labels = { app: 'fhir-server' };
             job.metadata = metadata;
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
             const container = new k8s.V1Container();
-            container.name = currentNamespace //'fhir-server-k8s-job';
+            container.name = currentNamespace;
             container.image = currentContainer.image;
             container.env = envVars;
             container.envFrom = [envFromSource];
             const resourceRequirements = new k8s.V1ResourceRequirements();
             resourceRequirements.requests = {
-                cpu: '.5',
+                cpu: '1',
                 memory: '2G'
             };
             resourceRequirements.limits = {
@@ -104,7 +105,11 @@ class K8sClient {
             spec.containers = [container];
             spec.restartPolicy = 'Never';
             spec.serviceAccountName = 'fhir-server';
+            spec.automountServiceAccountToken = true;
             template.spec = spec;
+
+            template.metadata = new k8s.V1ObjectMeta();
+            template.metadata.labels = { app: 'fhir-server' };
 
             // Create job spec
             const jobSpec = new k8s.V1JobSpec();

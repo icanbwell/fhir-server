@@ -12,6 +12,7 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
+const { ConfigManager } = require('../../utils/configManager');
 
 
 class ExportOperation {
@@ -26,6 +27,7 @@ class ExportOperation {
      * @property {AuditLogger} auditLogger
      * @property {DatabaseExportManager} databaseExportManager
      * @property {K8sClient} k8sClient
+     * @property {ConfigManager} configManager
      *
      * @param {ConstructorParams}
      */
@@ -38,7 +40,8 @@ class ExportOperation {
         postRequestProcessor,
         auditLogger,
         databaseExportManager,
-        k8sClient
+        k8sClient,
+        configManager
     }) {
         /**
          * @type {ScopesManager}
@@ -93,6 +96,12 @@ class ExportOperation {
          */
         this.k8sClient = k8sClient;
         assertTypeEquals(k8sClient, K8sClient);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -180,7 +189,9 @@ class ExportOperation {
 
             // Trigger k8s job to export data
             await this.k8sClient.createJob(
-                `node /srv/src/src/operations/export/script/bulkDataExport.js --exportStatusId ${exportStatusResource.id}`
+                'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
+                `--exportStatusId ${exportStatusResource.id} ` +
+                `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName}`
             );
 
             // Logic to add auditEvent
