@@ -79,6 +79,7 @@ class K8sClient {
             // Set Job name
             const metadata = new k8s.V1ObjectMeta();
             metadata.name = `fhir-server-job-${generateUUID().slice(-10)}`;
+            metadata.labels = { app: 'fhir-server' };
             job.metadata = metadata;
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
@@ -104,7 +105,11 @@ class K8sClient {
             spec.containers = [container];
             spec.restartPolicy = 'Never';
             spec.serviceAccountName = 'fhir-server';
+            spec.automountServiceAccountToken = true;
             template.spec = spec;
+
+            template.metadata = new k8s.V1ObjectMeta();
+            template.metadata.labels = { app: 'fhir-server' };
 
             // Create job spec
             const jobSpec = new k8s.V1JobSpec();
