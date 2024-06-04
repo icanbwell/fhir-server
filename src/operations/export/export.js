@@ -189,8 +189,8 @@ class ExportOperation {
 
             // Trigger k8s job to export data
             await this.k8sClient.createJob(
-                'node /srv/src/src/operations/export/script/bulkDataExport.js' +
-                `--exportStatusId ${exportStatusResource.id}` +
+                'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
+                `--exportStatusId ${exportStatusResource.id} ` +
                 `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName}`
             );
 
