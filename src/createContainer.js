@@ -818,7 +818,8 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
         databaseExportManager: c.databaseExportManager,
-        k8sClient: c.k8sClient
+        k8sClient: c.k8sClient,
+        configManager: c.configManager
     }));
 
     container.register('exportManager', (c) => new ExportManager({

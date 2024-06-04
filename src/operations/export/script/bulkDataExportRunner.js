@@ -35,6 +35,7 @@ class BulkDataExportRunner {
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {string} exportStatusId
      * @property {number} batchSize
+     * @property {string} bulkExportS3BucketName
      *
      * @param {ConstructorParams}
      */
@@ -47,7 +48,8 @@ class BulkDataExportRunner {
         r4SearchQueryCreator,
         patientQueryCreator,
         exportStatusId,
-        batchSize
+        batchSize,
+        bulkExportS3BucketName
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -98,6 +100,12 @@ class BulkDataExportRunner {
         assertIsValid(exportStatusId, 'exportStatusId is required for running BulkExport');
 
         /**
+         * @type {string}
+         */
+        this.bulkExportS3BucketName = bulkExportS3BucketName;
+        assertIsValid(bulkExportS3BucketName, 'S3 bucket name is required for running BulkExport');
+
+        /**
          * @type {number}
          */
         this.batchSize = batchSize;
@@ -110,7 +118,7 @@ class BulkDataExportRunner {
         /**
          * @type {S3Client}
          */
-        this.s3Client = new S3Client({ region: 'us-east-1' });
+        this.s3Client = new S3Client({ region: env.AWS_REGION });
     }
 
     /**
@@ -450,12 +458,13 @@ class BulkDataExportRunner {
             const fileUpload =  new Upload({
                 client: this.s3Client,
                 params: {
-                    Bucket: env.BULK_EXPORT_S3_BUCKET_NAME,
+                    Bucket: this.bulkExportS3BucketName,
                     Key: filePath,
                     Body: passableStream
                 }
             });
             let count = 0;
+            let batch = '';
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
 
@@ -464,14 +473,19 @@ class BulkDataExportRunner {
                     operation: GRIDFS.RETRIEVE
                 });
                 count++;
-                passableStream.write(`${JSON.stringify(resource)}\n`);
+                batch += `${JSON.stringify(resource)}\n`;
+                if (count % this.batchSize === 0) {
+                    passableStream.write(batch);
+                    batch = '';
+                }
                 logInfo(`${resourceType} resources exported: ${count}`);
             }
+            passableStream.write(batch);
             await fileUpload.done();
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: `https://s3.amazonaws.com/${env.BULK_EXPORT_S3_BUCKET_NAME}/${filePath}`
+                    url: `https://s3.amazonaws.com/${this.bulkExportS3BucketName}/${filePath}`
                 })
             );
 

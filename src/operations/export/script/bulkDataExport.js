@@ -32,7 +32,9 @@ async function main() {
         throw new Error('Cannot run Bulk export script without exportStatusId param');
     }
 
-    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
+
+    const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
     const currentDateTime = new Date();
 
@@ -59,7 +61,8 @@ async function main() {
                 patientQueryCreator: c.patientQueryCreator,
                 adminLogger,
                 exportStatusId,
-                batchSize
+                batchSize,
+                bulkExportS3BucketName
             })
     );
 
@@ -76,8 +79,8 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886
+ * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
     console.error(reason);
