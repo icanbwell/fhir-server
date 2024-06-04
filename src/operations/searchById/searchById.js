@@ -124,6 +124,8 @@ class SearchByIdOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
+            clientPersonIdFromJwtToken,
+            /** @type {string} */
             personIdFromJwtToken,
             /** @type {string | null} */
             user,
@@ -176,6 +178,7 @@ class SearchByIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                clientPersonIdFromJwtToken,
                 parsedArgs,
                 operation: READ,
                 requestId
