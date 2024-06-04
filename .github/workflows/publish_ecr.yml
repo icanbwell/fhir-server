@@ -10,7 +10,7 @@ env:
 
 jobs:
   docker-publish:
-    runs-on: [self-hosted, main]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
