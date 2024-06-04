@@ -32,7 +32,7 @@ async function main() {
         throw new Error('Cannot run Bulk export script without exportStatusId param');
     }
 
-    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 

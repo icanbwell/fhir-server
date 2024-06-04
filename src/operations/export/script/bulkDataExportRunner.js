@@ -118,7 +118,7 @@ class BulkDataExportRunner {
         /**
          * @type {S3Client}
          */
-        this.s3Client = new S3Client({ region: 'us-east-1' });
+        this.s3Client = new S3Client({ region: env.AWS_REGION });
     }
 
     /**
@@ -458,12 +458,13 @@ class BulkDataExportRunner {
             const fileUpload =  new Upload({
                 client: this.s3Client,
                 params: {
-                    Bucket: env.BULK_EXPORT_S3_BUCKET_NAME,
+                    Bucket: this.bulkExportS3BucketName,
                     Key: filePath,
                     Body: passableStream
                 }
             });
             let count = 0;
+            let batch = '';
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
 
@@ -472,14 +473,19 @@ class BulkDataExportRunner {
                     operation: GRIDFS.RETRIEVE
                 });
                 count++;
-                passableStream.write(`${JSON.stringify(resource)}\n`);
+                batch += `${JSON.stringify(resource)}\n`;
+                if (count % this.batchSize === 0) {
+                    passableStream.write(batch);
+                    batch = '';
+                }
                 logInfo(`${resourceType} resources exported: ${count}`);
             }
+            passableStream.write(batch);
             await fileUpload.done();
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: `https://s3.amazonaws.com/${env.BULK_EXPORT_S3_BUCKET_NAME}/${filePath}`
+                    url: `https://s3.amazonaws.com/${this.bulkExportS3BucketName}/${filePath}`
                 })
             );
 
