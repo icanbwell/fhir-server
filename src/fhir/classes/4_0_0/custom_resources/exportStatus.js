@@ -8,6 +8,7 @@ class ExportStatus extends Resource {
      * @property {import('../complex_types/identifier.js')} [identifier]
      * @property {code} status
      * @property {url} request
+     * @property {boolean} requiresAccessToken
      * @property {string} scope
      * @property {string} user
      * @property {date} transactionTime
@@ -22,6 +23,7 @@ class ExportStatus extends Resource {
         identifier,
         status,
         request,
+        requiresAccessToken,
         scope,
         user,
         transactionTime,
@@ -130,6 +132,24 @@ class ExportStatus extends Resource {
                     return;
                 }
                 this.__data.request = valueProvided;
+            }
+        });
+
+        /**
+         * @description None
+         * @property {boolean}
+         */
+        Object.defineProperty(this, 'requiresAccessToken', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.requiresAccessToken,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requiresAccessToken = undefined;
+                    return;
+                }
+                this.__data.requiresAccessToken = valueProvided;
             }
         });
 
@@ -308,6 +328,7 @@ class ExportStatus extends Resource {
             identifier,
             status,
             request,
+            requiresAccessToken,
             scope,
             user,
             transactionTime,
@@ -345,6 +366,7 @@ class ExportStatus extends Resource {
             identifier: this.identifier && this.identifier.map(o => o && o.toJSON()),
             status: this.status,
             requestUrl: this.requestUrl,
+            requiresAccessToken: this.requiresAccessToken,
             scope: this.scope,
             user: this.user,
             transactionTime: this.transactionTime,
@@ -367,6 +389,7 @@ class ExportStatus extends Resource {
             identifier: this.identifier && this.identifier.map(o => o && o.toJSONInternal()),
             status: this.status,
             request: this.request,
+            requiresAccessToken: this.requiresAccessToken,
             scope: this.scope,
             user: this.user,
             transactionTime: this.transactionTime,

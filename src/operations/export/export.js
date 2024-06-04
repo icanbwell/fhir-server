@@ -117,6 +117,8 @@ class ExportOperation {
             /** @type {Object | null} */
             body: incomingResource,
             /** @type {string} */
+            user,
+            /** @type {string} */
             scope,
             /** @type {string} */
             path
@@ -145,16 +147,16 @@ class ExportOperation {
             // generate uuid to avoid conflict
             incomingResource.id = generateUUID();
 
-            const parameterResource = FhirResourceCreator.create(incomingResource);
+            const parametersResource = FhirResourceCreator.create(incomingResource);
 
             // validate parameter resource in body
             const validationOperationOutcome =
-                this.resourceValidator.validateResourceMetaSync(parameterResource) ||
+                this.resourceValidator.validateResourceMetaSync(parametersResource) ||
                 (await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
-                    id: parameterResource.id,
-                    resourceType: parameterResource.resourceType,
+                    id: parametersResource.id,
+                    resourceType: parametersResource.resourceType,
                     resourceToValidate: incomingResource,
                     path,
                     currentDate
@@ -163,11 +165,13 @@ class ExportOperation {
             if (validationOperationOutcome) {
                 throw new NotValidatedError(validationOperationOutcome);
             }
-            await this.preSaveManager.preSaveAsync({ resource: parameterResource });
+            await this.preSaveManager.preSaveAsync({ resource: parametersResource });
+
+            this.exportManager.validateSecurityTags({ user, scope, parametersResource });
 
             // Create ExportStatus resource
             const exportStatusResource = await this.exportManager.generateExportStatusResourceAsync({
-                parameterResource,
+                parametersResource,
                 requestInfo
             });
 
@@ -189,7 +193,7 @@ class ExportOperation {
                         resourceType: 'ExportStatus',
                         operation: currentOperationName,
                         args,
-                        ids: [parameterResource.id]
+                        ids: [parametersResource.id]
                     });
                 }
             });
