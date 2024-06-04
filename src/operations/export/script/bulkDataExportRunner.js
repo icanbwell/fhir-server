@@ -485,7 +485,6 @@ class BulkDataExportRunner {
                 passableStream.write(batch);
                 logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
             }
-            logInfo(`Finished exporting ${resourceType} resource`);
 
             await fileUpload.done();
             this.exportStatusResource.output.push(
@@ -495,6 +494,7 @@ class BulkDataExportRunner {
                 })
             );
 
+            logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {
             logError(`Error in processResourceAsync: ${err.message}`, {
                 error: err.stack,
