@@ -115,6 +115,7 @@ class K8sClient {
             const jobSpec = new k8s.V1JobSpec();
             jobSpec.template = template;
             jobSpec.backoffLimit = 0;
+            jobSpec.activeDeadlineSeconds = 60; // 24 hours
             jobSpec.ttlSecondsAfterFinished = 60;
             job.spec = jobSpec;
 
