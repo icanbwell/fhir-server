@@ -106,6 +106,7 @@ class K8sClient {
             spec.restartPolicy = 'Never';
             spec.serviceAccountName = 'fhir-server';
             spec.automountServiceAccountToken = true;
+            spec.activeDeadlineSeconds = 60; // 24 hours
             template.spec = spec;
 
             template.metadata = new k8s.V1ObjectMeta();
@@ -115,7 +116,6 @@ class K8sClient {
             const jobSpec = new k8s.V1JobSpec();
             jobSpec.template = template;
             jobSpec.backoffLimit = 0;
-            jobSpec.activeDeadlineSeconds = 60; // 24 hours
             jobSpec.ttlSecondsAfterFinished = 60;
             job.spec = jobSpec;
 
