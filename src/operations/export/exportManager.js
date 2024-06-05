@@ -36,7 +36,7 @@ class ExportManager {
      * @param {GenerateExportStatusResourceAsyncParams}
      */
     async generateExportStatusResourceAsync({ parametersResource, requestInfo }) {
-        const { scope, user, originalUrl } = requestInfo;
+        const { scope, user, originalUrl, host } = requestInfo;
 
         // Create ExportStatus resource
         /**
@@ -52,7 +52,7 @@ class ExportManager {
                 transactionTime: new Date().toISOString(),
                 requiresAccessToken: false,
                 status: 'accepted',
-                request: `https://fhir.export${originalUrl}`,
+                request: `${host.startsWith('localhost') ? 'http://' : 'https://'}${host}${originalUrl}`,
                 output: [],
                 errors: []
             },

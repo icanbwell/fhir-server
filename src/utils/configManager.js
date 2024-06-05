@@ -513,6 +513,13 @@ class ConfigManager {
     get bulkExportS3BucketName () {
         return env.BULK_EXPORT_S3_BUCKET_NAME;
     }
+
+    /**
+     * Region for AWS services to use
+     */
+    get awsRegion () {
+        return env.AWS_REGION;
+    }
 }
 
 module.exports = {
