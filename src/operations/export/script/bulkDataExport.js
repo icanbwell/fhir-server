@@ -10,8 +10,8 @@ if (process.argv.includes('--dotenv')) {
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../../createContainer');
 const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
-const { AdminLogger } = require('../../../admin/adminLogger');
 const { BulkDataExportRunner } = require('./bulkDataExportRunner');
+const { S3Client } = require('../../../utils/s3Client');
 
 /**
  * main function
@@ -36,11 +36,11 @@ async function main() {
 
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
+    const awsRegion = parameters.awsRegion;
+
     const currentDateTime = new Date();
 
-    const adminLogger = new AdminLogger();
-
-    adminLogger.logInfo(
+    logInfo(
         `[${currentDateTime}] Running Bulk data export script for ${exportStatusId}`
     );
 
@@ -59,10 +59,12 @@ async function main() {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 securityTagManager: c.securityTagManager,
                 patientQueryCreator: c.patientQueryCreator,
-                adminLogger,
                 exportStatusId,
                 batchSize,
-                bulkExportS3BucketName
+                s3Client: new S3Client({
+                    bucketName: bulkExportS3BucketName,
+                    region: awsRegion
+                })
             })
     );
 
@@ -72,7 +74,7 @@ async function main() {
     const bulkDataExportRunner = container.bulkDataExportRunner;
     await bulkDataExportRunner.processAsync();
 
-    adminLogger.logInfo('Exiting process');
+    logInfo('Exiting process');
     process.exit(0);
 }
 

@@ -191,7 +191,8 @@ class ExportOperation {
             await this.k8sClient.createJob(
                 'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
                 `--exportStatusId ${exportStatusResource.id} ` +
-                `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName}`
+                `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
+                `--awsRegion ${this.configManager.awsRegion}`
             );
 
             // Logic to add auditEvent

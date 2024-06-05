@@ -1,12 +1,10 @@
-const env = require('var');
-const fs = require('fs');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const stream = require('stream');
-const { S3Client } = require('@aws-sdk/client-s3');
-const { Upload } = require('@aws-sdk/lib-storage');
 
 const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
+const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
@@ -16,6 +14,7 @@ const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
+const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
 const { logInfo, logError } = require('../../common/logging');
@@ -35,7 +34,7 @@ class BulkDataExportRunner {
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {string} exportStatusId
      * @property {number} batchSize
-     * @property {string} bulkExportS3BucketName
+     * @property {S3Client} s3Client
      *
      * @param {ConstructorParams}
      */
@@ -49,7 +48,7 @@ class BulkDataExportRunner {
         patientQueryCreator,
         exportStatusId,
         batchSize,
-        bulkExportS3BucketName
+        s3Client
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -94,16 +93,16 @@ class BulkDataExportRunner {
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
 
         /**
-         * @type {string}
+         * @type {S3Client}
          */
-        this.exportStatusId = exportStatusId;
-        assertIsValid(exportStatusId, 'exportStatusId is required for running BulkExport');
+        this.s3Client = s3Client;
+        assertTypeEquals(s3Client, S3Client);
 
         /**
          * @type {string}
          */
-        this.bulkExportS3BucketName = bulkExportS3BucketName;
-        assertIsValid(bulkExportS3BucketName, 'S3 bucket name is required for running BulkExport');
+        this.exportStatusId = exportStatusId;
+        assertIsValid(exportStatusId, 'exportStatusId is required for running BulkExport');
 
         /**
          * @type {number}
@@ -114,11 +113,6 @@ class BulkDataExportRunner {
          * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
          */
         this.exportStatusResource = null;
-
-        /**
-         * @type {S3Client}
-         */
-        this.s3Client = new S3Client({ region: env.AWS_REGION });
     }
 
     /**
@@ -153,15 +147,9 @@ class BulkDataExportRunner {
                 searchParams
             });
 
-            // Create folder for export files
-            if (fs.existsSync(this.exportStatusId)) {
-                fs.rmSync(this.exportStatusId, { recursive: true });
-            }
-            fs.mkdirSync(this.exportStatusId);
-
             if (pathname.startsWith('/4_0_0/$export')) {
                 // Get all the requested resources to export
-                const requestResources = this.getRequestedResource({
+                const requestResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
                     allowedResources: Object.values(COLLECTION)
@@ -171,7 +159,7 @@ class BulkDataExportRunner {
                     await this.processResourceAsync({ resourceType, query });
                 }
             } else {
-                const requestedResources = this.getRequestedResource({
+                const requestedResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
                     allowedResources: Object.keys(this.patientFilterManager.patientFilterMapping)
@@ -239,14 +227,14 @@ class BulkDataExportRunner {
 
     /**
      * Gets requested resources from allowed resources based on scope and _type param
-     * @typedef {Object} GetRequestedResourceParams
+     * @typedef {Object} GetRequestedResourceAsyncParams
      * @property {string} scope
      * @property {URLSearchParams} searchParams
      * @property {string[]} allowedResources
      *
-     * @param {GetRequestedResourceParams}
+     * @param {GetRequestedResourceAsyncParams}
      */
-    getRequestedResource({ scope, searchParams, allowedResources }) {
+    async getRequestedResourceAsync({ scope, searchParams, allowedResources }) {
         if (scope) {
             let allowedResourcesByScopes = [];
 
@@ -276,9 +264,49 @@ class BulkDataExportRunner {
         if (searchParams.has('_type')) {
             const requestResources = searchParams.get('_type').split(',');
 
-            allowedResources = requestResources.filter((resource) =>
-                allowedResources.includes(resource)
-            );
+            let errors = '';
+
+            allowedResources = requestResources.filter((resource) => {
+                if (allowedResources.includes(resource)) {
+                    return true;
+                }
+
+                const operationOutcome = new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'forbidden',
+                            details: { text: `Cannot access ${resource} with scope ${scope}` },
+                            diagnostics: `Cannot access ${resource} with scope ${scope}`
+                        })
+                    ]
+                })
+                errors += `${JSON.stringify(operationOutcome)}\n`;
+
+                return false;
+            });
+
+            // if there are errors write to s3
+            if (errors) {
+                const filePath = `${this.baseS3Folder}/OperationOutcome.ndjson`;
+
+                await this.s3Client.uploadAsync({
+                    filePath,
+                    data: errors
+                });
+
+                // Add errors to ExportStatus resource and update in database
+                this.exportStatusResource.errors.push(
+                    new ExportStatusEntry({
+                        type: 'OperationOutcome',
+                        url: this.s3Client.getPublicS3FilePath(filePath)
+                    })
+                );
+                await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource: this.exportStatusResource
+                });
+            }
         }
 
         return allowedResources;
@@ -456,14 +484,11 @@ class BulkDataExportRunner {
 
             const passableStream = new stream.PassThrough();
 
-            const fileUpload =  new Upload({
-                client: this.s3Client,
-                params: {
-                    Bucket: this.bulkExportS3BucketName,
-                    Key: filePath,
-                    Body: passableStream
-                }
+            const fileUpload = this.s3Client.startUploadViaStream({
+                filePath,
+                passableStream
             });
+
             let count = 0;
             let batch = '';
             while (await cursor.hasNext()) {
@@ -486,14 +511,18 @@ class BulkDataExportRunner {
                 logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
             }
             passableStream.end();
-
             await fileUpload.done();
+
+            // add filename to ExportStatus resource and update in database
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: `https://${this.bulkExportS3BucketName}.s3.amazonaws.com/${filePath}`
+                    url: this.s3Client.getPublicS3FilePath(filePath)
                 })
             );
+            await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
 
             logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {

@@ -254,7 +254,7 @@ class ExportStatus extends Resource {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.ererors,
+            get: () => this.__data.errors,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || !Array.isArray(valueProvided)) {
                     this.__data.errors = undefined;
