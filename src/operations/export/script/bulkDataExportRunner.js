@@ -153,12 +153,6 @@ class BulkDataExportRunner {
                 searchParams
             });
 
-            // Create folder for export files
-            if (fs.existsSync(this.exportStatusId)) {
-                fs.rmSync(this.exportStatusId, { recursive: true });
-            }
-            fs.mkdirSync(this.exportStatusId);
-
             if (pathname.startsWith('/4_0_0/$export')) {
                 // Get all the requested resources to export
                 const requestResources = this.getRequestedResource({

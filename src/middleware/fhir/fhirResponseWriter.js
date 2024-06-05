@@ -232,7 +232,7 @@ class FhirResponseWriter {
      * @param {Object} result - results of the export
      */
     export ({ req, res, result }) {
-        const baseUrl = `${req.host.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
+        const baseUrl = `${req.hostname.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
         const statusUrl =`${baseUrl}/4_0_0/$export/${result?.id}`;
 
         res.setHeader('Content-Location', statusUrl);
