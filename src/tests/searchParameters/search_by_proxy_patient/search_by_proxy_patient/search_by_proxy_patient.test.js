@@ -1,10 +1,13 @@
 // test file
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
+const patient3Resource = require('./fixtures/Patient/patient3.json')
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 const observation3Resource = require('./fixtures/Observation/observation3.json');
 const personResource = require('./fixtures/Person/person.json');
+const personResource2 = require('./fixtures/Person/person2.json')
+const personResource3 = require('./fixtures/Person/person3.json')
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
 // expected
@@ -17,6 +20,7 @@ const expectedObservationProxyPatient1 = require('./fixtures/expected/expectedOb
 const expectedObservationProxyPatient2 = require('./fixtures/expected/expectedObservationProxyPatient2.json');
 const expectedObservationProxyPatientNested = require('./fixtures/expected/expectedObservationProxyPatientNested.json');
 const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expected/expectedObservationProxyPatientWithDirectLink.json');
+const expectedObservationResponse = require('./fixtures/expected/expected_observation_response.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -486,6 +490,58 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationProxyPatientWithDirectLink);
+        });
+        test('Search Observations using Client/Bwell person as proxy patient', async () => {
+            const request = await createTestRequest();
+
+            const person2 = await request
+                .post('/4_0_0/Person/$merge')
+                .set(getHeaders())
+                .send(personResource2)
+                .expect(200);
+
+            expect(person2).toHaveMergeResponse({ created: true });
+
+            const person3 = await request
+                .post('/4_0_0/Person/$merge')
+                .set(getHeaders())
+                .send(personResource3)
+                .expect(200);
+
+            expect(person3).toHaveMergeResponse({ created: true });
+
+            const patient3 = await request
+                .post('/4_0_0/Person/$merge')
+                .set(getHeaders())
+                .send(patient3Resource)
+                .expect(200);
+
+            expect(patient3).toHaveMergeResponse({ created: true });
+
+            observation1Resource.subject.reference = `Patient/${patient3.body.uuid}`;
+
+            const observation1 = await request
+                .post('/4_0_0/Observation/$merge')
+                .set(getHeaders())
+                .send(observation1Resource)
+                .expect(200);
+
+            expect(observation1).toHaveMergeResponse({ created: true });
+
+            const observationResponse = await request
+                .get(`/4_0_0/Observation?patient=person.${person2.body.uuid}`)
+                .set(getHeaders())
+                .expect(200)
+
+            expect(observationResponse).toHaveResponse(expectedObservationResponse)
+
+            const observationResponse2 = await request
+                .get(`/4_0_0/Observation?patient=person.${person3.body.uuid}`)
+                .set(getHeaders())
+                .expect(200)
+
+            expect(observationResponse2).toHaveResponse(expectedObservationResponse)
+
         });
     });
 });
