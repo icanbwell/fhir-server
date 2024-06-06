@@ -5,11 +5,21 @@ class MockS3Client extends S3Client {
         // do nothing
     }
 
-    startUploadViaStream() {
-        // mock the done function
-        return {
-            done: () => {}
-        };
+    async createMultiPartUploadAsync() {
+        // do nothing just return a string
+        return 'test';
+    }
+
+    async uploadPartAsync() {
+        // do nothing
+    }
+
+    async completeMultiPartUploadAsync() {
+        // do nothing
+    }
+
+    async abortMultiPartUploadAsync() {
+        // do nothing
     }
 }
 

@@ -1,6 +1,5 @@
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const stream = require('stream');
 
 const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/exportStatusEntry');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
@@ -393,12 +392,14 @@ class BulkDataExportRunner {
             });
 
             let patientReferences = [];
+            let batchNumber = 1;
             while (await patientCursor.hasNext()) {
                 const data = await patientCursor.nextRaw();
                 patientReferences.push(`Patient/${data._uuid}`);
 
                 if (patientReferences.length === this.batchSize) {
-                    await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+                    await this.exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber });
+                    batchNumber++;
                     patientReferences = [];
                 }
             }
@@ -427,10 +428,11 @@ class BulkDataExportRunner {
      * @property {string[]} requestedResources
      * @property {Object} query
      * @property {string[]} patientReferences
+     * @property {number} batchNumber
      *
      * @param {ExportPatientDataAsyncParams}
      */
-    async exportPatientDataAsync({ requestedResources, query, patientReferences }) {
+    async exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber }) {
         try {
             for (const resourceType of requestedResources) {
                 const resourceQuery = this.addPatientFiltersToQuery({
@@ -439,7 +441,7 @@ class BulkDataExportRunner {
                     resourceType
                 });
 
-                await this.processResourceAsync({ resourceType, query: resourceQuery });
+                await this.processResourceAsync({ resourceType, query: resourceQuery, batchNumber });
             }
         } catch (err) {
             logError(`Error in exportPatientDataAsync: ${err.message}`, {
@@ -462,10 +464,12 @@ class BulkDataExportRunner {
      * @typedef {Object} ProcessResourceAsyncParams
      * @property {string} resourceType
      * @property {Object} query
+     * @property {number} [batchNumber]
      *
      * @param {ProcessResourceAsyncParams}
      */
-    async processResourceAsync({ resourceType, query }) {
+    async processResourceAsync({ resourceType, query, batchNumber }) {
+        let uploadId, filePath;
         try {
             logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -480,14 +484,12 @@ class BulkDataExportRunner {
 
             const cursor = await databaseQueryManager.findAsync({ query });
 
-            const filePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
+            filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
 
-            const passableStream = new stream.PassThrough();
-
-            const fileUpload = this.s3Client.startUploadViaStream({
-                filePath,
-                passableStream
-            });
+            uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
+            if (!uploadId) {
+                return;
+            }
 
             let count = 0;
             let batch = '';
@@ -501,18 +503,28 @@ class BulkDataExportRunner {
                 count++;
                 batch += `${JSON.stringify(resource)}\n`;
                 if (count % this.batchSize === 0) {
-                    passableStream.write(batch);
+                    const currBatchNumber = Math.floor(count/this.batchSize);
+                    await this.s3Client.uploadPartAsync({
+                        data: batch,
+                        partNumber: currBatchNumber,
+                        uploadId,
+                        filePath: filePath.replace('.ndjson', `_${currBatchNumber}.ndjson`)
+                    });
+                    logInfo(`${resourceType} batch exported: ${currBatchNumber}/${totalBatches}`);
                     batch = '';
-                    logInfo(`${resourceType} batch exported: ${Math.floor(count/this.batchSize)}/${totalBatches}`);
                 }
             }
             if (batch) {
-                passableStream.write(batch);
+                await this.s3Client.uploadPartAsync({
+                    data: batch,
+                    partNumber: totalBatches,
+                    uploadId,
+                    filePath: filePath.replace('.ndjson', `_${totalBatches}.ndjson`)
+                });
                 logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
             }
-            passableStream.end();
-            await fileUpload.done();
 
+            await this.s3Client.completeMultiPartUploadAsync({ filePath, uploadId });
             // add filename to ExportStatus resource and update in database
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
@@ -526,6 +538,9 @@ class BulkDataExportRunner {
 
             logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {
+            if (uploadId) {
+                await this.s3Client.abortMultiPartUploadAsync({ filePath, uploadId });
+            }
             logError(`Error in processResourceAsync: ${err.message}`, {
                 error: err.stack,
                 resourceType,

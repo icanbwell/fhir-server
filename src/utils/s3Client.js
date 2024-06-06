@@ -1,7 +1,7 @@
-const { S3Client: S3, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { Upload } = require('@aws-sdk/lib-storage');
+const { S3Client: S3, PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, AbortMultipartUploadCommand, CompleteMultipartUploadCommand } = require('@aws-sdk/client-s3');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
+const { logError } = require('../operations/common/logging');
 
 class S3Client {
     /**
@@ -68,25 +68,129 @@ class S3Client {
     }
 
     /**
-     * @typedef {Object} StartUploadViaStreamParams
+     * Starts a multi-part upload for the file provided
+     * @typedef {Object} CreateMultiPartUploadAsyncParams
      * @property {string} filePath
-     * @property {import('stream').PassThrough} passableStream
      *
-     * @param {StartUploadViaStreamParams}
+     * @param {CreateMultiPartUploadAsyncParams}
+     * @returns {Promise<string|undefined>}
      */
-    startUploadViaStream({ filePath, passableStream }) {
+    async createMultiPartUploadAsync({ filePath }) {
+        assertIsValid(filePath, 'Cannot start multi-part upload without a filePath');
         try {
-            return new Upload({
-                client: this.client,
-                params: {
-                    Bucket: this.bucketName,
-                    Key: filePath,
-                    Body: passableStream
+            for (let retry = 0; retry < 3; retry++) {
+                const resp = await this.client.send(
+                    new CreateMultipartUploadCommand({
+                        Bucket: this.bucketName,
+                        Key: filePath
+                    })
+                );
+
+                if (resp.UploadId) {
+                    return resp.UploadId;
                 }
-            });
+            }
+            logError(`Unable to start multi-part upload for file: ${filePath}`);
         } catch (err) {
             throw new RethrownError({
-                message: `Error in startUploadViaStreamAsync: ${err.message}`,
+                message: `Error in createMultiPartUploadAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
+            })
+        }
+    }
+
+    /**
+     * Upload a part to the multi-part upload for a file
+     * @typedef {Object} UploadPartAsyncParams
+     * @property {string} filePath
+     * @property {string} uploadId
+     * @property {string} data
+     * @property {number} partNumber
+     *
+     * @param {UploadPartAsyncParams}
+     */
+    async uploadPartAsync({ filePath, uploadId, data, partNumber }) {
+        assertIsValid(filePath, 'Cannot upload without filePath');
+        assertIsValid(uploadId, 'UploadId is required to upload part of a file');
+        try {
+            await this.client.send(
+                new UploadPartCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath,
+                    UploadId: uploadId,
+                    Body: data,
+                    PartNumber: partNumber
+                })
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in uploadPartAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
+            })
+        }
+    }
+
+    /**
+     * Completes the multi-part upload
+     * @typedef {Object} CompleteMultiPartUploadAsyncParams
+     * @property {string} filePath
+     * @property {string} uploadId
+     *
+     * @param {CompleteMultiPartUploadAsyncParams}
+     */
+    async completeMultiPartUploadAsync({ filePath, uploadId }) {
+        assertIsValid(filePath, 'Cannot complete multi-part upload without a filePath');
+        assertIsValid(uploadId, 'UploadId is required to complete multi-part upload');
+        try {
+            await this.client.send(
+                new CompleteMultipartUploadCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath,
+                    UploadId: uploadId
+                })
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in completeMultiPartUploadAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
+            })
+        }
+    }
+
+    /**
+     * Aborts the multi-part upload
+     * @typedef {Object} AbortMultiPartUploadAsyncParams
+     * @property {string} filePath
+     * @property {string} uploadId
+     *
+     * @param {AbortMultiPartUploadAsyncParams}
+     */
+    async abortMultiPartUploadAsync({ filePath, uploadId }) {
+        assertIsValid(filePath, 'Cannot abort multi-part upload without a filePath');
+        assertIsValid(uploadId, 'UploadId is required to abort multi-part upload');
+        try {
+            await this.client.send(
+                new AbortMultipartUploadCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath,
+                    UploadId: uploadId
+                })
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in abortMultiPartUploadAsync: ${err.message}`,
                 error: err,
                 source: 'S3Client',
                 args: {
