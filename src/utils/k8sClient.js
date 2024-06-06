@@ -137,7 +137,11 @@ class K8sClient {
             logInfo('Job created:', response.body);
             return response.body;
         } catch (error) {
-            logError('Error creating job:', error);
+            if (error?.response?.body?.reason === 'Forbidden') {
+                logInfo('Maximum number of active jobs reached in the namespace: ', error);
+            } else {
+                logError('Error creating job:', error);
+            }
         }
     }
 }
