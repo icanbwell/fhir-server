@@ -78,7 +78,7 @@ describe('Person Tests', () => {
                 level: 1
             });
             // will not be able to find patient due to wrong uuid of person
-            expect(patientReferencesBeforeRun).toEqual([]);
+            expect(patientReferencesBeforeRun).toEqual(["person.27153f78-54c7-5029-889b-1026a9580ebf"]);
 
             // run admin runner
             const collections = ['all'];

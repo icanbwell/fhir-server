@@ -492,7 +492,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedObservationProxyPatientWithDirectLink);
         });
         test('Search Observations using Client/Bwell person as proxy patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
 
             const person2 = await request
                 .post('/4_0_0/Person/$merge')
@@ -541,7 +544,6 @@ describe('Patient Tests', () => {
                 .expect(200)
 
             expect(observationResponse2).toHaveResponse(expectedObservationResponse)
-
         });
     });
 });
