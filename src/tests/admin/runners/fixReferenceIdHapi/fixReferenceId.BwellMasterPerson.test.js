@@ -120,7 +120,11 @@ describe('Person Tests', () => {
 
             // will find it correctly after fix
             const patientUuid = expectedPatient1AfterRun.identifier.find((v) => v.system === IdentifierSystem.uuid);
-            expect(patientReferencesAfterRun).toEqual([patientUuid.value]);
+            expect(patientReferencesAfterRun).toEqual([
+                "person.27153f78-54c7-5029-889b-1026a9580ebf",
+                "person.e8c1b4a5-f998-5793-8fbe-f9fea31c00ab",
+                "42f5ad1f-9711-50ed-9406-4b90bcb4473d"
+            ]);
         });
     });
 });

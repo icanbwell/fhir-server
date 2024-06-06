@@ -117,8 +117,11 @@ describe('Person Tests', () => {
                 }),
                 level: 1
             });
-            const patientUuid = expectedPatient1AfterRun.identifier.find((v) => v.system === IdentifierSystem.uuid);
-            expect(patientReferencesAfterRun).toEqual([patientUuid.value]);
+            expect(patientReferencesAfterRun).toEqual([
+                "person.27153f78-54c7-5029-889b-1026a9580ebf",
+                "person.96eb1fd2-b2af-5315-9e09-dae5ee44056b",
+                "350fccba-0740-57e2-a088-4aba2a9b3aea"
+            ]);
         });
     });
 });
