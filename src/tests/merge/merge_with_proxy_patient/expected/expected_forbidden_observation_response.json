@@ -1,0 +1,28 @@
+{
+    "created": false,
+    "id": "person5",
+    "issue": {
+        "code": "forbidden",
+        "details": {
+            "text": "The current patient scope and person id in the JWT token do not allow writing the Observation resource."
+        },
+        "diagnostics": "The current patient scope and person id in the JWT token do not allow writing the Observation resource.",
+        "severity": "error"
+    },
+    "operationOutcome": {
+        "issue": [
+            {
+                "code": "forbidden",
+                "details": {
+                    "text": "The current patient scope and person id in the JWT token do not allow writing the Observation resource."
+                },
+                "diagnostics": "The current patient scope and person id in the JWT token do not allow writing the Observation resource.",
+                "severity": "error"
+            }
+        ],
+        "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Observation",
+    "updated": false,
+    "uuid": "3b177119-6852-55c0-9caa-c43617a25ec7"
+}

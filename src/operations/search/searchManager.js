@@ -242,7 +242,7 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken
+                    base_version, isUser, personIdFromJwtToken, clientPersonIdFromJwtToken
                 });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
