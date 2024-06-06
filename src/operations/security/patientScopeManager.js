@@ -120,14 +120,14 @@ class PatientScopeManager {
      * @param {string} personIdFromJwtToken
      * @returns {Promise<string[]|null>}
      */
-    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken}) {
+    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken }) {
         /**
          * @type {string[]}
          */
         let patientIdsLinkedToPersonId;
         if (personIdFromJwtToken) {
             // Include Proxy Person too
-            patientIdsLinkedToPersonId = [`${PERSON_PROXY_PREFIX}${personIdFromJwtToken}`]
+            patientIdsLinkedToPersonId = [`${PERSON_PROXY_PREFIX}${personIdFromJwtToken}`];
             patientIdsLinkedToPersonId = patientIdsLinkedToPersonId.concat(
                 await this.getLinkedPatientsAsync(
                     {
@@ -271,7 +271,7 @@ class PatientScopeManager {
         const patientIds = await this.getPatientIdsFromScopeAsync({
             base_version,
             isUser,
-            personIdFromJwtToken,
+            personIdFromJwtToken
         });
         if (patientIds && patientIds.length > 0) {
             return await this.canWriteResourceWithAllowedPatientIdsAsync({
