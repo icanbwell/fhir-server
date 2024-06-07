@@ -33,7 +33,7 @@ class S3Client {
         /**
          * @type {S3}
          */
-        this.client = new S3({ region, endpoint: zonalEndpoint });
+        this.client = new S3({ region, endpoint: zonalEndpoint, forcePathStyle: true });
     }
 
     /**
@@ -86,7 +86,7 @@ class S3Client {
         assertIsValid(filePath, 'Cannot start multi-part upload without a filePath');
         try {
             for (let retry = 0; retry < 3; retry++) {
-                const resp = await this.client.send(
+            const resp = await this.client.send(
                     new CreateMultipartUploadCommand({
                         Bucket: this.bucketName,
                         Key: filePath
