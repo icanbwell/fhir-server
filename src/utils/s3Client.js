@@ -8,10 +8,11 @@ class S3Client {
      * @typedef {Object} ConstructorParams
      * @property {string} bucketName
      * @property {string} region
+     * @property {string} [zonalEndpoint]
      *
      * @param {ConstructorParams}
      */
-    constructor({ bucketName, region }) {
+    constructor({ bucketName, region, zonalEndpoint }) {
         /**
          * @type {string}
          */
@@ -22,12 +23,17 @@ class S3Client {
          * @type {string}
          */
         this.region = region;
-        assertIsValid(bucketName, 'Cannot initialize S3Client without region');
+        assertIsValid(region, 'Cannot initialize S3Client without region');
+
+        /**
+         * @type {string}
+         */
+        this.zonalEndpoint = zonalEndpoint;
 
         /**
          * @type {S3}
          */
-        this.client = new S3({ region });
+        this.client = new S3({ region, endpoint: zonalEndpoint });
     }
 
     /**
@@ -35,7 +41,7 @@ class S3Client {
      * @param {string} filePath
      */
     getPublicS3FilePath(filePath) {
-        return `https://${this.bucketName}.s3.amazonaws.com/${filePath}`;
+        return `s3://${this.bucketName}/${filePath}`;
     }
 
     /**
@@ -76,6 +82,7 @@ class S3Client {
      * @returns {Promise<string|undefined>}
      */
     async createMultiPartUploadAsync({ filePath }) {
+        assertIsValid(this.zonalEndpoint, 'multipart upload requires zonal endpoint');
         assertIsValid(filePath, 'Cannot start multi-part upload without a filePath');
         try {
             for (let retry = 0; retry < 3; retry++) {

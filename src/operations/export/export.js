@@ -192,7 +192,8 @@ class ExportOperation {
                 'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
                 `--exportStatusId ${exportStatusResource.id} ` +
                 `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
-                `--awsRegion ${this.configManager.awsRegion}`
+                `--awsRegion ${this.configManager.awsRegion} ` +
+                `--s3ZonalEndpoint ${this.configManager.s3ZonalEndpoint}`
             );
 
             // Logic to add auditEvent
