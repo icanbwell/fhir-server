@@ -141,6 +141,7 @@ class K8sClient {
             logInfo('Raised error 2: ', error.stack);
             logInfo('Raised error 3: ', JSON.stringify(error));
             logInfo('Raised error 4: ', error.details);
+            logInfo('Raised error 5: ', JSON.stringify(error, ["message", "body", "details"]));
             if (error.reason === 'Forbidden') {
                 logInfo('Maximum number of active jobs reached in the namespace: ', error);
             } else {
