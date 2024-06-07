@@ -89,7 +89,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            expectedClintObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
 
             // Get Observation for a specific person
             resp = await request
@@ -113,9 +113,9 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            expectedClintObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
             const expectedProaObservationCopy = deepcopy(expectedProaObservation);
-            expectedProaObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            expectedProaObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
 
             // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
@@ -140,7 +140,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            expectedClintObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
             const expectedProaObservationCopy = deepcopy(expectedProaObservation);
             expectedProaObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
@@ -169,7 +169,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            expectedClintObservationCopy.subject.reference = 'Patient/person.33226ded-51e8-590e-8342-1197955a2af7';
 
             // Get Observation for a specific person
             resp = await request

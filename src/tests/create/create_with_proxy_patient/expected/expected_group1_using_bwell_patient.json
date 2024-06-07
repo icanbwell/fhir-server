@@ -1,0 +1,58 @@
+[
+    {
+        "id": "1",
+        "resourceType": "Group",
+        "meta": {
+            "versionId": "1",
+            "source": "test",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client"
+                },
+                {
+                    "code": "client",
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+            ]
+        },
+        "type": "animal",
+        "actual": true,
+        "identifier": [
+            {
+                "id": "sourceId",
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1"
+            },
+            {
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+            }
+        ],
+        "member": [
+            {
+                "entity": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+                }
+            }
+        ]
+    }
+]

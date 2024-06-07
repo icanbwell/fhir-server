@@ -187,7 +187,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'for._uuid':{'$in':['Patient/34a735dd-6532-56b7-bcca-7b01327a179e','Patient/1fef74f0-775c-56c7-a550-07766a37ac44']}},{'for._sourceId':'Patient/person.bwellPerson1'}]}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'for._uuid':{'$in':['Patient/person.4a12829a-9c25-5953-881d-d5d15daa3f25','Patient/34a735dd-6532-56b7-bcca-7b01327a179e','Patient/person.7b912091-6a20-5a40-a4c2-884fb83013db','Patient/1fef74f0-775c-56c7-a550-07766a37ac44']}},{'for._sourceId':'Patient/person.bwellPerson1'}]}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

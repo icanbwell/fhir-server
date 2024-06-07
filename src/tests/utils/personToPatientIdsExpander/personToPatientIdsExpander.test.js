@@ -70,11 +70,13 @@ describe('personToPatientIdsExpanders Test', () => {
             ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
             includePatientPrefix: true
         });
-        expect(result.length).toEqual(4);
+        expect(result.length).toEqual(6);
         expect(result).toEqual([
             'Patient/person.00701751-032e-5b40-94c1-7265c0d547fe',
             'Patient/006d4074-e6d3-5829-ba9b-8e3ab3b7c283',
+            'Patient/person.006ab923-93ff-5b39-9bad-ede02156ab73',
             'Patient/000000ae-d0ed-429e-8af7-30e535db8059',
+            'Patient/person.006b265e-dd98-5db0-9ebe-248fc692555d',
             'Patient/f31e6f0a-a0fc-500d-8e6a-e017d633391d'
         ]);
     });

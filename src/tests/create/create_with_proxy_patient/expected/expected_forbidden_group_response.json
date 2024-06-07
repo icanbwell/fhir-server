@@ -1,0 +1,13 @@
+{
+    "issue": [
+        {
+            "code": "forbidden",
+            "details": {
+                "text": "The current patient scope and person id in the JWT token do not allow writing the Group resource."
+            },
+            "diagnostics": "The current patient scope and person id in the JWT token do not allow writing the Group resource.",
+            "severity": "error"
+        }
+    ],
+    "resourceType": "OperationOutcome"
+}
