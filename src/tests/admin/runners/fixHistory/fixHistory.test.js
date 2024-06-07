@@ -107,7 +107,6 @@ describe('Patient History Tests', () => {
             const patient1 = await collection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
-            expectedPatient1DatabaseAfterRun.resource.birthDate = new Date(expectedPatient1DatabaseAfterRun.resource.birthDate);
             expectedPatient1DatabaseAfterRun.resource.meta.lastUpdated = new Date(expectedPatient1DatabaseAfterRun.resource.meta.lastUpdated);
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
@@ -163,7 +162,6 @@ describe('Patient History Tests', () => {
             const patient2 = await collection.findOne({ id: patient2Resource.id });
             expect(patient2).toBeDefined();
             delete patient2._id;
-            expectedPatient2DatabaseAfterRun.resource.birthDate = new Date(expectedPatient2DatabaseAfterRun.resource.birthDate);
             expectedPatient2DatabaseAfterRun.resource.meta.lastUpdated = new Date(expectedPatient2DatabaseAfterRun.resource.meta.lastUpdated);
             expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);
         });

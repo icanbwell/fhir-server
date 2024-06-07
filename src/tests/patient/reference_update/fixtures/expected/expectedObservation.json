@@ -8,7 +8,7 @@
       }
     ]
   },
-  "effectiveDateTime": "2013-04-02T09:30:10.000Z",
+  "effectiveDateTime": "2013-04-02T10:30:10+01:00",
   "encounter": {
     "extension": [
       {

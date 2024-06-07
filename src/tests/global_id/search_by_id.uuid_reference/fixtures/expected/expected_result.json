@@ -67,8 +67,8 @@
                     "versionId": "1"
                 },
                 "period": {
-                    "end": "2014-06-19T01:30:45.000Z",
-                    "start": "2014-06-19T01:15:45.000Z"
+                    "end": "2014-06-19T01:30:45+00:00",
+                    "start": "2014-06-19T01:15:45+00:00"
                 },
                 "resourceType": "Encounter",
                 "serviceProvider": {

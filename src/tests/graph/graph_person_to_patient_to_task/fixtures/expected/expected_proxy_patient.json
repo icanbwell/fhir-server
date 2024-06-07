@@ -11,7 +11,7 @@
             "state": "Texas"
           }
         ],
-        "birthDate": "1996-01-01T00:00:00.000Z",
+        "birthDate": "1996-01-01",
         "contained": [
           {
             "code": {
@@ -303,7 +303,7 @@
             "state": "TX"
           }
         ],
-        "birthDate": "1991-09-10T00:00:00.000Z",
+        "birthDate": "1991-09-10",
         "contained": [
           {
             "for": {

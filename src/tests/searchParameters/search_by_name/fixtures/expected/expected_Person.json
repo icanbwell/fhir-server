@@ -13,7 +13,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "1",
         "identifier": [
@@ -122,7 +122,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "10",
         "identifier": [
@@ -242,7 +242,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "11",
         "identifier": [
@@ -362,7 +362,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "2",
         "identifier": [
@@ -471,7 +471,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "4",
         "identifier": [
@@ -581,7 +581,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "6",
         "identifier": [
@@ -692,7 +692,7 @@
             "state": "IA"
           }
         ],
-        "birthDate": "1950-10-10T00:00:00.000Z",
+        "birthDate": "1950-10-10",
         "gender": "female",
         "id": "8",
         "identifier": [

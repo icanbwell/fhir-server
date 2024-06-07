@@ -121,15 +121,6 @@ describe('ExplanationOfBenefit Tests', () => {
             expectedExplanationOfBenefit1DatabaseAfterRun.identifier
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = explanationOfBenefit1._uuid;
-            expectedExplanationOfBenefit1DatabaseAfterRun.created = new Date(expectedExplanationOfBenefit1DatabaseAfterRun.created);
-            expectedExplanationOfBenefit1DatabaseAfterRun.procedure[0].date =
-                new Date(expectedExplanationOfBenefit1DatabaseAfterRun.procedure[0].date);
-            expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[3].timingPeriod.start =
-                new Date(expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[3].timingPeriod.start);
-            expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[3].timingPeriod.end =
-                new Date(expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[3].timingPeriod.end);
-            expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[4].timingDate =
-                new Date(expectedExplanationOfBenefit1DatabaseAfterRun.supportingInfo[4].timingDate);
             expect(explanationOfBenefit1).toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun);
         });
     });

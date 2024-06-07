@@ -895,11 +895,8 @@ describe('r4 search Tests', () => {
             // need to convert dates to strings to make match work
             result.query.$and['0'].$or['4'].effectiveDateTime.$lte = result.query.$and['0'].$or['4'].effectiveDateTime.$lte.toISOString();
             result.query.$and['0'].$or['4'].effectiveDateTime.$gte = result.query.$and['0'].$or['4'].effectiveDateTime.$gte.toISOString();
-            result.query.$and['0'].$or['5'].$and['0']['effectivePeriod.start'].$lte = result.query.$and['0'].$or['5'].$and['0']['effectivePeriod.start'].$lte.toISOString();
-            result.query.$and['0'].$or['5'].$and['1'].$or['0'].$and['0']['effectivePeriod.end'].$gte = result.query.$and['0'].$or['5'].$and['1'].$or['0'].$and['0']['effectivePeriod.end'].$gte.toISOString();
-            result.query.$and['0'].$or['6'].$and['0']['effectiveTiming.event'].$lte = result.query.$and['0'].$or['6'].$and['0']['effectiveTiming.event'].$lte.toISOString();
-            result.query.$and['0'].$or['7'].effectiveInstant.$gte = result.query.$and['0'].$or['7'].effectiveInstant.$gte.toISOString();
-            result.query.$and['0'].$or['7'].effectiveInstant.$lte = result.query.$and['0'].$or['7'].effectiveInstant.$lte.toISOString();
+            result.query.$and['0'].$or['5'].effectiveInstant.$gte = result.query.$and['0'].$or['5'].effectiveInstant.$gte.toISOString();
+            result.query.$and['0'].$or['5'].effectiveInstant.$lte = result.query.$and['0'].$or['5'].effectiveInstant.$lte.toISOString();
             expect(result.query).toStrictEqual(
                 {
               $and: [
@@ -970,51 +967,6 @@ describe('r4 search Tests', () => {
                             $lte: '2019-10-16T23:59:59.999Z',
                             $type: 'date'
                           }
-                    },
-                    {
-                      $and: [
-                        {
-                          'effectivePeriod.start': {
-                            $lte: '2019-10-16T22:12:29.000Z',
-                            $type: 'date'
-                          }
-                        },
-                        {
-                          $or: [
-                            {
-                              $and: [
-                                {
-                                  'effectivePeriod.end': {
-                                    $gte: '2019-10-16T22:12:29.000Z'
-                                  }
-                                },
-                                {
-                                  'effectivePeriod.end': {
-                                    $type: 'date'
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              'effectivePeriod.end': null
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      $and: [
-                        {
-                          'effectiveTiming.event': {
-                            $lte: '2019-10-16T22:12:29.000Z'
-                          }
-                        },
-                        {
-                          'effectiveTiming.event': {
-                            $type: 'date'
-                          }
-                        }
-                      ]
                     },
                     {
                           effectiveInstant: {

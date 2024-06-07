@@ -2,11 +2,9 @@ const {
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
-    datetimeTimingQueryBuilder,
-    datePeriodQueryBuilderNative,
-    dateTimingQueryBuilderNative
+    datetimeTimingQueryBuilder
 } = require('../../../utils/querybuilder.util');
-const { isColumnDateType } = require('../../common/isColumnDateType');
+const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
 
 function isPeriodField (fieldString) {
@@ -65,23 +63,7 @@ class FilterByDateTime extends BaseFilter {
         // if this of native Date type
         // this field stores the date as a native date, so we can do faster queries
         if (this.filterType === 'date') {
-            if (isDateSearchingPeriod) {
-                dateQuery = datePeriodQueryBuilderNative(
-                    {
-                        dateQueryItem: value,
-                        fieldName,
-                        type: this.propertyObj.type
-                    }
-                );
-            } else if (isDateSearchingTiming) {
-                dateQuery = dateTimingQueryBuilderNative(
-                    {
-                        dateQueryItem: value,
-                        fieldName,
-                        type: this.propertyObj.type
-                    }
-                );
-            } else {
+            if (!isDateSearchingPeriod && !isDateSearchingTiming) {
                 dateQuery = {
                     [fieldName]: dateQueryBuilderNative(
                         {
@@ -146,7 +128,7 @@ class FilterByDateTime extends BaseFilter {
 
         if (
             field === 'meta.lastUpdated' ||
-            isColumnDateType(this.resourceType, this.fieldMapper.getFieldName(field))
+            isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field))
         ) {
             const simplifiedRangeQuery = {};
             const newChildQueries = [];

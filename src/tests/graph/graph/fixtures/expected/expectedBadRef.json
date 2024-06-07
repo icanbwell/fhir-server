@@ -77,7 +77,7 @@
                             }
                         ],
                         "gender": "male",
-                        "birthDate": "1965-11-11T00:00:00.000Z",
+                        "birthDate": "1965-11-11",
                         "address": [
                             {
                                 "id": "demographics.homeAddress",
@@ -191,7 +191,7 @@
                             }
                         ],
                         "period": {
-                            "start": "2020-11-23T19:00:00.000Z"
+                            "start": "2020-11-23T19:00:00+00:00"
                         },
                         "serviceProvider": {
                             "extension": [
@@ -276,7 +276,7 @@
                     }
                 ],
                 "gender": "male",
-                "birthDate": "1965-11-11T00:00:00.000Z",
+                "birthDate": "1965-11-11",
                 "address": [
                     {
                         "id": "abc6c9d4-1874-489d-9055-b69ce4afa664",

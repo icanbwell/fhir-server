@@ -22,7 +22,7 @@
             }
           ]
         },
-        "effectiveDateTime": "2023-02-02T03:16:38.000Z",
+        "effectiveDateTime": "2023-02-02T03:16:38+00:00",
         "extension": [
           {
             "url": "https://www.icanbwell.com/sourceType",

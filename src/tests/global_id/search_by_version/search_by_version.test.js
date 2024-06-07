@@ -87,7 +87,6 @@ describe('Observation Tests', () => {
             expectedObservationHistoryInDatabase1.request.id = userRequestId;
             expectedObservationHistoryInDatabase1.id = observationHistoryItem.id;
             expectedObservationHistoryInDatabase1.resource.meta.lastUpdated = observationHistoryItem.resource.meta.lastUpdated;
-            expectedObservationHistoryInDatabase1.resource.effectiveDateTime = new Date(expectedObservationHistoryInDatabase1.resource.effectiveDateTime);
             expect(observationHistoryItem).toStrictEqual(expectedObservationHistoryInDatabase1);
 
             // ACT & ASSERT
@@ -153,7 +152,6 @@ describe('Observation Tests', () => {
             expectedObservationHistoryInDatabase2.request.id = userRequestId;
             expectedObservationHistoryInDatabase2.id = observationHistoryItem.id;
             expectedObservationHistoryInDatabase2.resource.meta.lastUpdated = observationHistoryItem.resource.meta.lastUpdated;
-            expectedObservationHistoryInDatabase2.resource.effectiveDateTime = new Date(expectedObservationHistoryInDatabase2.resource.effectiveDateTime)
             expect(observationHistoryItem).toStrictEqual(expectedObservationHistoryInDatabase2);
 
             // ACT & ASSERT

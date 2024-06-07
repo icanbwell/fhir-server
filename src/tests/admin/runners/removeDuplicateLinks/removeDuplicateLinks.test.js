@@ -113,7 +113,6 @@ describe('Person Tests', () => {
             expect(person1).toBeDefined();
             expected1Person._uuid = person1._uuid;
             expected1Person.meta.lastUpdated = person1.meta.lastUpdated;
-            expected1Person.birthDate = new Date(expected1Person.birthDate);
             expect(person1).toStrictEqual(expected1Person);
 
             // Check person 1

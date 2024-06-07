@@ -1,5 +1,4 @@
 const { PreSaveHandler } = require('./preSaveHandler');
-const { isColumnDateType } = require('../../operations/common/isColumnDateType');
 const { isColumnDateTimeType } = require('../../operations/common/isColumnDateTimeType');
 
 /**
@@ -81,7 +80,7 @@ class DateColumnHandler extends PreSaveHandler {
 
     shouldUpdate (resource, path) {
         const cleanPath = path.replace(/\.\d+(\.|$)/g, '.');
-        return isColumnDateType(resource.resourceType, cleanPath);
+        return isColumnDateTimeType(resource.resourceType, cleanPath);
     }
 
     setDate (scalar, resource, path) {

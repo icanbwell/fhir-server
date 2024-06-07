@@ -20,7 +20,7 @@
             "use": null
           }
         ],
-        "birthDate": "1920-01-01T00:00:00.000Z",
+        "birthDate": "1920-01-01",
         "gender": "male",
         "identifier": [
           {

@@ -80,10 +80,8 @@ describe('Observation Tests', () => {
             for (const resource of expectedObservationsInDatabase) {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
-                resource.effectivePeriod.end = new Date(resource.effectivePeriod.end);
-                resource.effectivePeriod.start = new Date(resource.effectivePeriod.start);
-                resource.issued = new Date(resource.issued);
             }
+            expectedObservationsInDatabase[0].issued = new Date(expectedObservationsInDatabase[0].issued);
             expect(results).toStrictEqual(expectedObservationsInDatabase);
 
             // ACT & ASSERT

@@ -85,7 +85,7 @@
           ],
           "text": "Body temperature"
         },
-        "effectiveDateTime": "2023-12-12T08:00:00.000Z",
+        "effectiveDateTime": "2023-12-12T08:00:00+00:00",
         "id": "3",
         "identifier": [
           {

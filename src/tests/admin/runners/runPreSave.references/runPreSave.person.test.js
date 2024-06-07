@@ -114,7 +114,6 @@ describe('Person Tests', () => {
             expect(person1.meta.lastUpdated).toBeDefined();
             expect(person1.meta.lastUpdated).not.toStrictEqual(expectedPerson1DatabaseAfterRun.meta.lastUpdated);
             expectedPerson1DatabaseAfterRun.meta.lastUpdated = person1.meta.lastUpdated;
-            expectedPerson1DatabaseAfterRun.birthDate = new Date(expectedPerson1DatabaseAfterRun.birthDate);
             expectedPerson1DatabaseAfterRun.identifier
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = person1._uuid;

@@ -251,7 +251,7 @@
             ]
         },
         "outcome": "complete",
-        "created": "2014-08-16T00:00:00.000Z",
+        "created": "2014-08-16",
         "patient": {
             "reference": "Patient/WPS-7446041751"
         },
@@ -412,7 +412,7 @@
             }
         },
         "outcome": "complete",
-        "created": "2014-08-16T00:00:00.000Z",
+        "created": "2014-08-16",
         "careTeam": [
             {
                 "sequence": 1,
@@ -543,8 +543,8 @@
                 },
                 "modifier": [],
                 "servicedPeriod": {
-                    "start": "2020-01-07T00:00:00.000Z",
-                    "end": "2020-01-07T00:00:00.000Z"
+                    "start": "2020-01-07",
+                    "end": "2020-01-07"
                 },
                 "locationCodeableConcept": {
                     "coding": [
