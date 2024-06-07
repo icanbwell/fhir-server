@@ -139,8 +139,8 @@ class K8sClient {
         } catch (error) {
             logInfo('Raised error 1: ', error);
             logInfo('Raised error 2: ', error?.Body);
-            logInfo('Raised error 5: ', error?.Body?.reason);
-            if (error.Body?.reason === 'Forbidden') {
+            logInfo('Raised error 5: ', error?.reason);
+            if (error.reason === 'Forbidden') {
                 logInfo('Maximum number of active jobs reached in the namespace: ', error);
             } else {
                 logError('Error creating job:', error);
