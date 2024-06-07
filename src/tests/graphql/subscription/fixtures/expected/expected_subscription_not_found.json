@@ -1,0 +1,12 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "not-found",
+        "details": {
+          "text": "Resource not found: Subscription/subscription4"
+        }
+      }
+    ]
+}

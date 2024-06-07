@@ -262,7 +262,7 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
     const payload = {
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
-        clientFhirPersonId: 'clientFhirPerson',
+        clientFhirPersonId: personId,
         clientFhirPatientId: 'clientFhirPatient',
         bwellFhirPersonId: personId,
         bwellFhirPatientId: 'bwellFhirPatient',

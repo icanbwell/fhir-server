@@ -81,6 +81,7 @@ const { PersonMatchManager } = require('./admin/personMatchManager');
 const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
 const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
 const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
+const { K8sClient } = require('./utils/k8sClient');
 const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
@@ -101,6 +102,11 @@ const { PatientScopeManager } = require('./operations/security/patientScopeManag
 const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
 const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
 const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
+const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
+const { ExportOperation } = require('./operations/export/export');
+const { ExportManager } = require('./operations/export/exportManager');
+const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
+const { ExportByIdOperation } = require('./operations/export/exportById');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -673,6 +679,8 @@ const createContainer = function () {
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
                 expandOperation: c.expandOperation,
+                exportOperation: c.exportOperation,
+                exportByIdOperation: c.exportByIdOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager
             }
@@ -711,6 +719,10 @@ const createContainer = function () {
             }
         )
     );
+
+    container.register('k8sClient', (c) => new K8sClient({
+        configManager: c.configManager
+    }));
 
     container.register('accessIndexManager', (c) => new AccessIndexManager({
         configManager: c.configManager,
@@ -791,6 +803,35 @@ const createContainer = function () {
     }));
 
     container.register('searchParametersManager', () => new SearchParametersManager());
+
+    container.register('databaseExportManager', (c) => new DatabaseExportManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
+    container.register('exportOperation', (c) => new ExportOperation({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        preSaveManager: c.preSaveManager,
+        resourceValidator: c.resourceValidator,
+        exportManager: c.exportManager,
+        postRequestProcessor: c.postRequestProcessor,
+        auditLogger: c.auditLogger,
+        databaseExportManager: c.databaseExportManager,
+        k8sClient: c.k8sClient,
+        configManager: c.configManager
+    }));
+
+    container.register('exportManager', (c) => new ExportManager({
+        securityTagManager: c.securityTagManager,
+        preSaveManager: c.preSaveManager
+    }));
+
+    container.register('exportByIdOperation', (c) => new ExportByIdOperation({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        databaseExportManager: c.databaseExportManager
+    }));
 
     return container;
 };

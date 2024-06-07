@@ -47,7 +47,9 @@ class FhirResponseWriter {
      */
     readCustomOperation ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
-        res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        if (!res.headersSent) {
+            res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+        }
     }
 
     /**
@@ -223,18 +225,56 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function export
+     * @description Used when bulk export is triggered
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - results of the export
+     */
+    export ({ req, res, result }) {
+        const baseUrl = `${req.hostname.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
+        const statusUrl =`${baseUrl}/4_0_0/$export/${result?.id}`;
+
+        res.setHeader('Content-Location', statusUrl);
+        res.status(202).send();
+    }
+
+    /**
+     * @function exportById
+     * @description Used to check status of the bulk export
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - export status resource
+     */
+    exportById ({ req, res, result }) {
+        if (result.status !== "completed") {
+            res.setHeader('X-Progress', result.status);
+            res.status(202).send();
+        } else {
+            res.status(200).json({
+                transactionTime: result.transactionTime,
+                requiresAccessToken: result.requiresAccessToken,
+                request: result.request,
+                output: result.output,
+                errors: result.errors,
+                extension: result.extension
+            });
+        }
+    }
+
+    /**
      * @function setBaseResponseHeaders
      * @description Used to set base response headers
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      */
     setBaseResponseHeaders ({ req, res }) {
-        if (!res.headersSent) {
-            const fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
+        if (res.headersSent) {
+            return;
         }
-
-        if (req.id && !res.headersSent) {
+        const fhirVersion = req.params.base_version;
+        res.type(this.getContentType(fhirVersion));
+        if (req.id) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
     }

@@ -65,6 +65,30 @@ class ConfigManager {
     }
 
     /**
+     * current environment value
+     * @return {string|null}
+     */
+    get environmentValue () {
+        return env.ENVIRONMENT || '';
+    }
+
+    /**
+     * current hostname value
+     * @return {string|null}
+     */
+    get hostnameValue () {
+        return env.HOSTNAME || '';
+    }
+
+    /**
+     * docker image
+     * @return {string|null}
+     */
+    get dockerImageValue () {
+        return env.DOCKER_IMAGE || '';
+    }
+
+    /**
      * @returns {string[]}
      */
     get accessTagsIndexed () {
@@ -481,6 +505,20 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.USE_CLIENT_FHIR_PERSON_ID);
+    }
+
+    /**
+     * S3 bucket name to export data to S3
+     */
+    get bulkExportS3BucketName () {
+        return env.BULK_EXPORT_S3_BUCKET_NAME;
+    }
+
+    /**
+     * Region for AWS services to use
+     */
+    get awsRegion () {
+        return env.AWS_REGION;
     }
 }
 

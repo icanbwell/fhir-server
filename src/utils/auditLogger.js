@@ -180,12 +180,8 @@ class AuditLogger {
     async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids
     }) {
-        if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
-            return;
-        }
-
-        if (resourceType === 'AuditEvent') {
-            // don't create audit entries for audit entries
+        // don't create audit entries for audit entries or if DISABLE_AUDIT_LOGGING is set
+        if (isTrue(env.DISABLE_AUDIT_LOGGING) || resourceType === 'AuditEvent') {
             return;
         }
 

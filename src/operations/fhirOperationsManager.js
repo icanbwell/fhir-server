@@ -1,6 +1,7 @@
 const { SearchBundleOperation } = require('./search/searchBundle');
 const { SearchByIdOperation } = require('./searchById/searchById');
 const { ExpandOperation } = require('./expand/expand');
+const { ExportOperation } = require('./export/export');
 const { CreateOperation } = require('./create/create');
 const { UpdateOperation } = require('./update/update');
 const { MergeOperation } = require('./merge/merge');
@@ -28,6 +29,7 @@ const { REQUEST_ID_TYPE } = require('../constants');
 const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
 const { fhirContentTypes } = require('../utils/contentTypes');
+const { ExportByIdOperation } = require('./export/exportById');
 const { READ, WRITE } = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
@@ -50,6 +52,8 @@ class FhirOperationsManager {
      * @param validateOperation
      * @param graphOperation
      * @param expandOperation
+     * @param exportOperation
+     * @param exportByIdOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
@@ -70,6 +74,8 @@ class FhirOperationsManager {
             validateOperation,
             graphOperation,
             expandOperation,
+            exportOperation,
+            exportByIdOperation,
             r4ArgsParser,
             queryRewriterManager
         }
@@ -149,6 +155,16 @@ class FhirOperationsManager {
          */
         this.expandOperation = expandOperation;
         assertTypeEquals(expandOperation, ExpandOperation);
+        /**
+         * @type {ExportOperation}
+         */
+        this.exportOperation = exportOperation;
+        assertTypeEquals(exportOperation, ExportOperation);
+        /**
+         * @type {ExportByIdOperation}
+         */
+        this.exportByIdOperation = exportByIdOperation;
+        assertTypeEquals(exportByIdOperation, ExportByIdOperation);
 
         /**
          * @type {R4ArgsParser}
@@ -183,7 +199,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const personIdFromJwtToken = req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken;
+        const personIdFromJwtToken = req.authInfo?.context?.personIdFromJwtToken;
+        /**
+         * @type {string|null}
+         */
+        const clientPersonIdFromJwtToken = req.authInfo?.context?.clientPersonIdFromJwtToken;
         /**
          * @type {string}
          */
@@ -254,6 +274,7 @@ class FhirOperationsManager {
                 accept,
                 isUser,
                 personIdFromJwtToken,
+                clientPersonIdFromJwtToken,
                 headers,
                 method,
                 contentTypeFromHeader
@@ -852,6 +873,46 @@ resourceType
                 resourceType
             }
         );
+    }
+
+    /**
+     * does FHIR Bulk export
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Resource | Resource[]}
+     */
+    async export (args, { req }) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        return await this.exportOperation.exportAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * returns status for the bulk export
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Resource | Resource[]}
+     */
+    async exportById (args, { req }) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
     }
 }
 

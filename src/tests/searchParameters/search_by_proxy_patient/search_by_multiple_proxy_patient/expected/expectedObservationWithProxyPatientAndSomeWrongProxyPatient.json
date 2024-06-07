@@ -74,7 +74,7 @@
               "valueString": "client"
             }
           ],
-          "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+          "reference": "Patient/person.93f91e52-25c7-4f06-9c75-4e5c49f1096e"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -158,7 +158,7 @@
               "valueString": "client"
             }
           ],
-          "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+          "reference": "Patient/person.93f91e52-25c7-4f06-9c75-4e5c49f1096e"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -242,7 +242,7 @@
               "valueString": "client"
             }
           ],
-          "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+          "reference": "Patient/person.95ca23e6-fd24-4fdd-afbf-a8957752059f"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -326,7 +326,7 @@
               "valueString": "client"
             }
           ],
-          "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+          "reference": "Patient/person.95ca23e6-fd24-4fdd-afbf-a8957752059f"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -342,7 +342,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/312c79e6-6aaf-51ca-bd06-327d52d4936d','Patient/eb6ab41e-b40f-5ede-adf7-c96a40fafbe5','Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2','Patient/7f663ca0-26c7-524a-ae0c-200bf60daf11','Patient/e94bb079-6a9a-5785-9728-54a945018f84','Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8']}},{'subject._sourceId':'Patient/person.notExist3'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2','Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8','Patient/312c79e6-6aaf-51ca-bd06-327d52d4936d','Patient/eb6ab41e-b40f-5ede-adf7-c96a40fafbe5','Patient/person.93f91e52-25c7-4f06-9c75-4e5c49f1096e','Patient/7f663ca0-26c7-524a-ae0c-200bf60daf11','Patient/e94bb079-6a9a-5785-9728-54a945018f84','Patient/person.95ca23e6-fd24-4fdd-afbf-a8957752059f']}},{'subject._sourceId':'Patient/person.notExist3'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",

@@ -108,6 +108,7 @@
     "@apollo/subgraph": "^2.7.8",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
+    "@aws-sdk/client-s3": "^3.588.0",
     "@eslint/js": "^9.3.0",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/graphql-file-loader": "^8.0.1",
@@ -116,6 +117,7 @@
     "@json2csv/node": "^7.0.6",
     "@json2csv/plainjs": "^7.0.6",
     "@json2csv/transforms": "^7.0.6",
+    "@kubernetes/client-node": "1.0.0-rc4",
     "@mongodb-js/zstd": "^1.2.0",
     "@opentelemetry/api": "^1.8.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.51.1",
@@ -199,5 +201,6 @@
     "prettier": "^3.2.5",
     "supertest": "^7.0.0"
   },
-  "private": false
+  "private": false,
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

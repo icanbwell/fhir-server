@@ -771,6 +771,12 @@ class AdminPersonPatientLinkManager {
                 doc: relatedResource
             });
 
+            // create history for the resource
+            await databaseUpdateManager.postSaveAsync({
+                requestInfo,
+                doc: relatedResource
+            });
+
             await this.postSaveProcessor.afterSaveAsync({
                 requestId: requestInfo.requestId,
                 eventType: 'U',

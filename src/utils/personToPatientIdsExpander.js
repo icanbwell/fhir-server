@@ -171,7 +171,6 @@ class PersonToPatientIdsExpander {
          * Stores linked person to all base person
          * @type {Map<string, Set<string>>}
          */
-        const linkedPersonToPersons = new Map();
 
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
@@ -187,7 +186,7 @@ class PersonToPatientIdsExpander {
         while (await personResourceCursor.hasNext()) {
             const person = await personResourceCursor.next();
             let personId = person._uuid;
-
+            patientIds.push(`${personProxyPrefix}${personId}`);
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
             // also, this is only have significance when we want to return map
             if (returnOriginalPersonId && toMap) {
@@ -217,13 +216,6 @@ class PersonToPatientIdsExpander {
                         (l.target[`${uuidKey}`].startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => {
                         const linkedPersonId = l.target[`${uuidKey}`].replace(personReferencePrefix, '');
-                        if (toMap === true) {
-                            const personsOfLinkedPerson = linkedPersonToPersons.get(linkedPersonId) || new Set();
-                            // add person to linked person
-                            // it can be possible that 1 person can be linked to 2 curr persons
-                            personsOfLinkedPerson.add(personId);
-                            linkedPersonToPersons.set(linkedPersonId, personsOfLinkedPerson);
-                        }
                         return linkedPersonId;
                     });
 
@@ -259,16 +251,7 @@ class PersonToPatientIdsExpander {
 
                 // add all patients to current person
                 for (const [linkedPerson, linkedPatients] of linkedPeronToPatientIdsMap) {
-                    const currPersons = linkedPersonToPersons.get(linkedPerson);
-                    if (currPersons) {
-                        currPersons.forEach((currPerson) => {
-                            const patientsLinkedToCurrentPerson = personToLinkedPatient.get(currPerson) || new Set();
-                            linkedPatients.forEach((p) => {
-                                patientsLinkedToCurrentPerson.add(p);
-                            });
-                            personToLinkedPatient.set(currPerson, patientsLinkedToCurrentPerson);
-                        });
-                    }
+                    personToLinkedPatient.set(linkedPerson, linkedPatients);
                 }
 
                 // finally return the result

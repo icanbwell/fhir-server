@@ -176,6 +176,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {string} clientPersonIdFromJwtToken
      * @param {string|null} requestId
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
@@ -191,6 +192,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            clientPersonIdFromJwtToken,
             requestId,
             parsedArgs,
             useHistoryTable,
@@ -249,7 +251,7 @@ class SearchManager {
                 } else {
                     query = this.patientQueryCreator.getQueryWithPatientFilter({
                         patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable,
-                        personIds: personIdFromJwtToken ? [personIdFromJwtToken] : null
+                        personIds: clientPersonIdFromJwtToken ? [clientPersonIdFromJwtToken] : null
                     });
                 }
             } else if (securityTags && securityTags.length > 0) {

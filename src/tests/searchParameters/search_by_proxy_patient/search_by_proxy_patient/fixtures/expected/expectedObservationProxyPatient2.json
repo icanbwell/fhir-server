@@ -82,7 +82,7 @@
               "valueString": "healthsystem1"
             }
           ],
-          "reference": "Patient/person.m65634"
+          "reference": "Patient/person.97d887d3-7cd1-5bbe-8c9c-13106140f8b9"
         },
         "valueBoolean": false
       }
@@ -169,7 +169,7 @@
               "valueString": "healthsystem2"
             }
           ],
-          "reference": "Patient/person.m65634"
+          "reference": "Patient/person.97d887d3-7cd1-5bbe-8c9c-13106140f8b9"
         },
         "valueBoolean": false
       }
