@@ -490,6 +490,7 @@ class BulkDataExportRunner {
             if (!uploadId) {
                 return;
             }
+            logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
 
             let count = 0;
             let batch = '';
@@ -504,6 +505,7 @@ class BulkDataExportRunner {
                 batch += `${JSON.stringify(resource)}\n`;
                 if (count % this.batchSize === 0) {
                     const currBatchNumber = Math.floor(count/this.batchSize);
+                    logInfo(`Uploading batch ${currBatchNumber} for ${resourceType} using uploadId: ${uploadId}`);
                     await this.s3Client.uploadPartAsync({
                         data: batch,
                         partNumber: currBatchNumber,
