@@ -33,7 +33,7 @@ class S3Client {
         /**
          * @type {S3}
          */
-        this.client = new S3({ region, endpoint: zonalEndpoint, forcePathStyle: true });
+        this.client = new S3({ region, bucketEndpoint: zonalEndpoint, forcePathStyle: true });
     }
 
     /**
