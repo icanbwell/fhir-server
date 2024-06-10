@@ -13,6 +13,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
 const { ConfigManager } = require('../../utils/configManager');
+const { S3Client } = require('../../utils/s3Client');
 
 
 class ExportOperation {
@@ -187,13 +188,45 @@ class ExportOperation {
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
 
+            // Test upload local file to S3
+            const s3Client = new S3Client({
+                bucketName: this.configManager.bulkExportS3BucketName,
+                region: this.configManager.awsRegion
+            });
+
+            logInfo('Test: Starting multipart upload');
+            const uploadId = await s3Client.createMultiPartUploadAsync({ filePath: 'TestFile' });
+            logInfo(`Test: Multipart upload started with ID: ${uploadId}`);
+            if (uploadId) {
+                const fs = require('fs');
+                const data = fs.readFileSync('./src/graphql/resolvers/custom/patient.js', { encoding: 'utf8', flag: 'r' });
+                logInfo(`Test: Uploading parts for UploadId: ${uploadId}`);
+                await s3Client.uploadPartAsync({
+                    filePath: 'TestFile_1',
+                    uploadId,
+                    data,
+                    partNumber: 1
+                });
+
+                await s3Client.uploadPartAsync({
+                    filePath: 'TestFile_2',
+                    uploadId,
+                    data,
+                    partNumber: 2
+                });
+
+                logInfo(`Test: Completing upload for uploadId: ${uploadId}`);
+                await s3Client.completeMultiPartUploadAsync({ filePath: 'TestFile', uploadId });
+
+                logInfo(`Test: Upload Completed for uploadId: ${uploadId}`);
+            }
+
             // Trigger k8s job to export data
             await this.k8sClient.createJob(
                 'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
                 `--exportStatusId ${exportStatusResource.id} ` +
                 `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
-                `--awsRegion ${this.configManager.awsRegion} ` +
-                `--s3ZonalEndpoint ${this.configManager.s3ZonalEndpoint}`
+                `--awsRegion ${this.configManager.awsRegion}`
             );
 
             // Logic to add auditEvent

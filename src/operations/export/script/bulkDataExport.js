@@ -40,8 +40,6 @@ async function main() {
 
     const awsRegion = parameters.awsRegion;
 
-    const s3ZonalEndpoint = parameters.s3ZonalEndpoint;
-
     const currentDateTime = new Date();
 
     logInfo(
@@ -67,8 +65,7 @@ async function main() {
                 batchSize,
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
-                    region: awsRegion,
-                    zonalEndpoint: s3ZonalEndpoint
+                    region: awsRegion
                 })
             })
     );
@@ -86,8 +83,8 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --s3ZonalEndpoint https://s3express-use1-az4.us-east-1.amazonaws.com
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --s3ZonalEndpoint https://s3express-use1-az4.us-east-1.amazonaws.com
+ * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
     console.error(reason);

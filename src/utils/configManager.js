@@ -520,13 +520,6 @@ class ConfigManager {
     get awsRegion () {
         return env.AWS_REGION;
     }
-
-    /**
-     * Zonal endpoint for the S3 bucket
-     */
-    get s3ZonalEndpoint () {
-        return env.S3_ZONAL_ENDPOINT;
-    }
 }
 
 module.exports = {
