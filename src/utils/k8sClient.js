@@ -137,22 +137,14 @@ class K8sClient {
             logInfo('Job created:', response.body);
             return response.body;
         } catch (error) {
-            console.log('Raised error 1: ', error);
-            console.log('Raised error 2: ', error.body);
-            console.log('Raised error 3: ', typeof error.body);
-            console.log('Raised error 4: ', error.body.reason);
-            console.log('Raised error 5: ', typeof error.body.reason);
-            console.log('Raised error 6: ', Object.keys(error));
-            console.log('Raised error 7: ', Object.keys(error.body));
-            logInfo('Raised error 8: ', Object.keys(error.body));
-            logError('Raised error 9: ', Object.keys(error.body));
-            console.log('Raised error 10: ', error.code === 403);
-            console.log('Raised error 11: ', JSON.parse(error.body).message);
-            console.log('Raised error 12: ', JSON.parse(error.body).reason);
-            logInfo('Raised error 13: ', JSON.parse(error.body).message);
-            logInfo('Raised error 14: ', JSON.parse(error.body).reason);
-            if (error.body.reason === 'Forbidden') {
-                logInfo('Maximum number of active jobs reached in the namespace: ', error);
+            if (
+                typeof error.body === 'string' &&
+                error.body.includes('forbidden: exceeded quota') &&
+                JSON.parse(error.body)?.reason === 'Forbidden'
+            ) {
+                logInfo('Maximum number of active jobs reached in the namespace: ', {
+                    message: JSON.parse(error.body)?.message
+                });
             } else {
                 logError('Error creating job:', error);
             }
