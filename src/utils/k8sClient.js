@@ -137,8 +137,12 @@ class K8sClient {
             logInfo('Job created:', response.body);
             return response.body;
         } catch (error) {
-            if (error?.body?.reason === 'Forbidden') {
-                logInfo('Maximum number of active jobs reached in the namespace: ', error);
+            if (
+                typeof error.body === 'string' &&
+                error.body.includes('forbidden: exceeded quota') &&
+                JSON.parse(error.body)?.reason === 'Forbidden'
+            ) {
+                logInfo(`Maximum number of active jobs reached in the namespace: ${JSON.parse(error.body)?.message}`);
             } else {
                 logError('Error creating job:', error);
             }
