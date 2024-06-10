@@ -479,6 +479,10 @@ class BulkDataExportRunner {
 
             const totalCount = await databaseQueryManager.exactDocumentCountAsync({ query });
             logInfo(`Exporting ${totalCount} resources for ${resourceType} resource`);
+            if (totalCount === 0) {
+                logInfo(`Finished exporting ${resourceType} resource`);
+                return;
+            }
 
             const totalBatches = Math.ceil(totalCount / this.batchSize);
 
