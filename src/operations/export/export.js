@@ -200,8 +200,12 @@ class ExportOperation {
             logInfo(`Test: Multipart upload started with ID: ${uploadId}`);
             if (uploadId) {
                 const fs = require('fs');
-                const data = fs.readFileSync('./src/graphql/resolvers/custom/patient.js', { encoding: 'utf8', flag: 'r' });
+                let data = fs.readFileSync('./src/graphql/resolvers/custom/patient.js', { encoding: 'utf8', flag: 'r' });
                 logInfo(`Test: Uploading parts for UploadId: ${uploadId}`);
+
+                for (let i=0; i<10; i++) {
+                    data += data;
+                }
                 await s3Client.uploadPartAsync({
                     filePath: 'TestFile_1',
                     uploadId,
