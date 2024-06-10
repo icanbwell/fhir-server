@@ -143,6 +143,7 @@ class K8sClient {
             console.log('Raised error 4: ', Object.keys(error));
             console.log('Raised error 5: ', Object.keys(error.body));
             console.log('Raised error 6: ', typeof error.body.reason);
+            console.log('Raised error 7: ', error.code === 403);
             if (error.body.reason === 'Forbidden') {
                 logInfo('Maximum number of active jobs reached in the namespace: ', error);
             } else {
