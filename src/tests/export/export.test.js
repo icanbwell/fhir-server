@@ -81,6 +81,8 @@ describe('Export Tests', () => {
                 patientQueryCreator: c.patientQueryCreator,
                 exportStatusId,
                 batchSize: 1000,
+                logAfterReads: 1000,
+                uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
@@ -166,6 +168,8 @@ describe('Export Tests', () => {
                 patientQueryCreator: c.patientQueryCreator,
                 exportStatusId,
                 batchSize: 1000,
+                logAfterReads: 1000,
+                uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
@@ -240,6 +244,8 @@ describe('Export Tests', () => {
                 patientQueryCreator: c.patientQueryCreator,
                 exportStatusId,
                 batchSize: 1000,
+                logAfterReads: 1000,
+                uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'

@@ -34,6 +34,8 @@ class BulkDataExportRunner {
      * @property {string} exportStatusId
      * @property {number} batchSize
      * @property {S3Client} s3Client
+     * @property {number} uploadPartSize
+     * @property {number} logAfterReads
      *
      * @param {ConstructorParams}
      */
@@ -47,7 +49,9 @@ class BulkDataExportRunner {
         patientQueryCreator,
         exportStatusId,
         batchSize,
-        s3Client
+        s3Client,
+        uploadPartSize,
+        logAfterReads
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -112,6 +116,16 @@ class BulkDataExportRunner {
          * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
          */
         this.exportStatusResource = null;
+
+        /**
+         * @type {number}
+         */
+        this.uploadPartSize = uploadPartSize;
+
+        /**
+         * @type {number}
+         */
+        this.logAfterReads = logAfterReads;
     }
 
     /**
@@ -506,8 +520,11 @@ class BulkDataExportRunner {
                     operation: GRIDFS.RETRIEVE
                 });
                 count++;
+                if (count % this.logAfterReads === 0) {
+                    logInfo(`Number of ${resourceType} resource read: ${count}`);
+                }
                 batch += `${JSON.stringify(resource)}\n`;
-                if (batch > 1024 * 1024 * 1024) {
+                if (batch > this.uploadPartSize) {
                     logInfo(`Uploading batch ${currentPartNumber} for ${resourceType} using uploadId: ${uploadId}`);
                     multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({

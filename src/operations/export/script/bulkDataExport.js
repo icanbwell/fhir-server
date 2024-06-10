@@ -35,6 +35,10 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
+    const logAfterReads = parameters.logAfterReads || 10000;
+
+    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100);
+
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
     const awsRegion = parameters.awsRegion;
@@ -62,6 +66,8 @@ async function main() {
                 patientQueryCreator: c.patientQueryCreator,
                 exportStatusId,
                 batchSize,
+                logAfterReads,
+                uploadPartSize,
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
                     region: awsRegion
@@ -82,7 +88,7 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
+ * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --logAfterReads 100000 --uploadPartSize 1024
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
