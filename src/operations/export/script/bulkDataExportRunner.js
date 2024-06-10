@@ -484,8 +484,6 @@ class BulkDataExportRunner {
                 return;
             }
 
-            const totalBatches = Math.ceil(totalCount / this.batchSize);
-
             const cursor = await databaseQueryManager.findAsync({ query });
 
             filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
@@ -498,6 +496,7 @@ class BulkDataExportRunner {
             const multipartUploadParts = [];
 
             let count = 0;
+            let currentPartNumber = 1;
             let batch = '';
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
@@ -508,31 +507,31 @@ class BulkDataExportRunner {
                 });
                 count++;
                 batch += `${JSON.stringify(resource)}\n`;
-                if (batch.length > 1024 * 1024 * 10) {
-                    const currBatchNumber = Math.floor(count/this.batchSize);
-                    logInfo(`Uploading batch ${currBatchNumber} for ${resourceType} using uploadId: ${uploadId}`);
+                if (batch > 1024 * 1024 * 1024) {
+                    logInfo(`Uploading batch ${currentPartNumber} for ${resourceType} using uploadId: ${uploadId}`);
                     multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
                             data: batch,
-                            partNumber: currBatchNumber,
+                            partNumber: currentPartNumber,
                             uploadId,
                             filePath
                         })
                     );
-                    logInfo(`${resourceType} batch exported: ${currBatchNumber}/${totalBatches}`);
+                    logInfo(`${resourceType} resource exported: ${count}/${totalCount}`);
                     batch = '';
+                    currentPartNumber++;
                 }
             }
             if (batch) {
                 multipartUploadParts.push(
                     await this.s3Client.uploadPartAsync({
                         data: batch,
-                        partNumber: totalBatches,
+                        partNumber: currentPartNumber,
                         uploadId,
                         filePath
                     })
                 );
-                logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
+                logInfo(`${resourceType} resource exported: ${totalCount}/${totalCount}`);
             }
 
             await this.s3Client.completeMultiPartUploadAsync({
