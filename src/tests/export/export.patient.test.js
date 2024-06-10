@@ -1,8 +1,8 @@
 // test file
 const parameters1Resource = require('./fixtures/parameters/parameters1.json');
-
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
+const person1Resource = require('./fixtures/person/person1.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -104,7 +104,7 @@ describe('Export Tests', () => {
             expect(resp.body.errors).toHaveLength(0);
         });
 
-        test('Patient Export triggering all resources works', async () => {
+        test('Patient Export triggering all resources works only for resources present in db', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -145,6 +145,14 @@ describe('Export Tests', () => {
 
             expect(resp).toHaveMergeResponse({ created: true });
 
+            resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
 
@@ -174,7 +182,7 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp.body.output).toHaveLength(73);
+            expect(resp.body.output).toHaveLength(2);
             expect(resp.body.errors).toHaveLength(0);
         });
 
