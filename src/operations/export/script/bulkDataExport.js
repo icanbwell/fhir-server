@@ -13,7 +13,6 @@ const { CommandLineParser } = require('../../../admin/scripts/commandLineParser'
 const { BulkDataExportRunner } = require('./bulkDataExportRunner');
 const { S3Client } = require('../../../utils/s3Client');
 const { logInfo } = require('../../common/logging');
-const { assertIsValid } = require('../../../utils/assertType');
 
 /**
  * main function

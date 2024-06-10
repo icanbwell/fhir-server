@@ -14,6 +14,7 @@ const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
 const { ConfigManager } = require('../../utils/configManager');
 const { S3Client } = require('../../utils/s3Client');
+const { logInfo } = require('../common/logging');
 
 
 class ExportOperation {
