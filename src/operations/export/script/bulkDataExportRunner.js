@@ -556,7 +556,7 @@ class BulkDataExportRunner {
                     const readStream = fs.createReadStream(tempFilePath);
                     multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: 'readStream',
+                            data: readStream,
                             partNumber: currentPartNumber,
                             uploadId,
                             filePath
