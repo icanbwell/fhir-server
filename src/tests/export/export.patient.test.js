@@ -427,7 +427,7 @@ describe('Export Tests', () => {
             expectedExportStatusResponse[0].identifier[1].value = exportStatusPutResponse.body.id
             expectedExportStatusResponse[0].status = "in-progress"
 
-            expect(exportStatusPutResponse).toHaveResponse(expectedExpomrtStatusResponse)
+            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse)
 
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
