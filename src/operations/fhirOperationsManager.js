@@ -30,6 +30,7 @@ const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { ExportByIdOperation } = require('./export/exportById');
+const { UpdateExportStatusOperation } = require('./export/updateExportStatus')
 const { READ, WRITE } = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
@@ -54,6 +55,7 @@ class FhirOperationsManager {
      * @param expandOperation
      * @param exportOperation
      * @param exportByIdOperation
+     * @param updateExportStatusOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
@@ -76,6 +78,7 @@ class FhirOperationsManager {
             expandOperation,
             exportOperation,
             exportByIdOperation,
+            updateExportStatusOperation,
             r4ArgsParser,
             queryRewriterManager
         }
@@ -165,7 +168,11 @@ class FhirOperationsManager {
          */
         this.exportByIdOperation = exportByIdOperation;
         assertTypeEquals(exportByIdOperation, ExportByIdOperation);
-
+        /**
+         * @type {UpdateExportStatusOperation}
+         */
+        this.updateExportStatusOperation = updateExportStatusOperation;
+        assertTypeEquals(updateExportStatusOperation, UpdateExportStatusOperation);
         /**
          * @type {R4ArgsParser}
          */
@@ -913,6 +920,26 @@ resourceType
         const requestInfo = this.getRequestInfo(req);
 
         return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * returns status for the bulk export
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Resource | Resource[]}
+     */
+    async updateExportStatus (args, { req }) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        return await this.updateExportStatusOperation.updateExportStatusAsync({ requestInfo, args: combined_args });
     }
 }
 

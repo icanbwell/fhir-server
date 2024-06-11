@@ -112,13 +112,15 @@ class DatabaseUpdateManager {
     async updateOneAsync ({ doc }) {
         assertTypeEquals(doc, Resource);
         try {
-            await this.preSaveManager.preSaveAsync({ resource: doc });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
              */
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
 
             await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
+
+            return doc;
         } catch (err) {
             throw new RethrownError({
                 error: err,

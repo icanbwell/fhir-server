@@ -4,6 +4,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { isUuid } = require('../utils/uid.util');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
+const { response } = require('../middleware/fhir/resources/4_0_0/parameters/paymentnotice.parameters');
 
 class DatabaseExportManager {
     /**
@@ -97,7 +98,9 @@ class DatabaseExportManager {
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
+            const resource = await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
+
+            return resource;
         } catch (err) {
             throw new RethrownError({
                 message: `Error in updateExportStatusAsync: ${err.message}`,

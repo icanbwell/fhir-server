@@ -107,6 +107,7 @@ const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
 const { ExportByIdOperation } = require('./operations/export/exportById');
+const { UpdateExportStatusOperation } = require('./operations/export/updateExportStatus');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -681,6 +682,7 @@ const createContainer = function () {
                 expandOperation: c.expandOperation,
                 exportOperation: c.exportOperation,
                 exportByIdOperation: c.exportByIdOperation,
+                updateExportStatusOperation: c.updateExportStatusOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager
             }
@@ -828,6 +830,12 @@ const createContainer = function () {
     }));
 
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager,
+        databaseExportManager: c.databaseExportManager
+    }));
+
+    container.register('updateExportStatusOperation', (c) => new UpdateExportStatusOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
         databaseExportManager: c.databaseExportManager
