@@ -1,6 +1,6 @@
-const expectedExportStatusResponse = require('./fixtures/expected/expected_export_status1_response.json')
-const expectedExportStatusResponse2 = require('./fixtures/expected/expected_export_status2_response.json')
-const expectedExportStatusResponseList = require('./fixtures/expected/expected_export_status_list.json')
+const expectedExportStatusResponse = require('./fixtures/expected/expected_export_status1_response.json');
+const expectedExportStatusResponse2 = require('./fixtures/expected/expected_export_status2_response.json');
+const expectedExportStatusResponseList = require('./fixtures/expected/expected_export_status_list.json');
 
 const deepcopy = require('deepcopy');
 const env = require('var');
@@ -63,7 +63,7 @@ describe('Export Tests', () => {
                         }
                     ]
                 }
-            )
+            );
 
             // Get Export Status
             let exportStatusResponse = await request
@@ -71,12 +71,12 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            delete exportStatusResponse.body.transactionTime
-            delete exportStatusResponse.body.id
-            delete exportStatusResponse.body.identifier[0].value
-            delete exportStatusResponse.body.identifier[1].value
+            delete exportStatusResponse.body.transactionTime;
+            delete exportStatusResponse.body.id;
+            delete exportStatusResponse.body.identifier[0].value;
+            delete exportStatusResponse.body.identifier[1].value;
 
-            expect(exportStatusResponse).toHaveResponse(expectedExportStatusResponse)
+            expect(exportStatusResponse).toHaveResponse(expectedExportStatusResponse);
 
             // Get Export Status List
             let exportStatusResponseList = await request
@@ -84,13 +84,13 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(exportStatusResponseList.body.entry).toHaveLength(1)
+            expect(exportStatusResponseList.body.entry).toHaveLength(1);
 
-            delete exportStatusResponseList.body.entry[0].resource.transactionTime
-            delete exportStatusResponseList.body.entry[0].id
-            delete exportStatusResponseList.body.entry[0].resource.id
-            delete exportStatusResponseList.body.entry[0].resource.identifier[0].value
-            delete exportStatusResponseList.body.entry[0].resource.identifier[1].value
+            delete exportStatusResponseList.body.entry[0].resource.transactionTime;
+            delete exportStatusResponseList.body.entry[0].id;
+            delete exportStatusResponseList.body.entry[0].resource.id;
+            delete exportStatusResponseList.body.entry[0].resource.identifier[0].value;
+            delete exportStatusResponseList.body.entry[0].resource.identifier[1].value;
 
             expect(exportStatusResponseList).toHaveResponse(expectedExportStatusResponseList)
 
@@ -115,9 +115,9 @@ describe('Export Tests', () => {
                     ]
                 }
 
-            )
+            );
             const expectedExportStatusResponseCopy = deepcopy(expectedExportStatusResponse[0]);
-            expectedExportStatusResponseCopy.status = "in-progress"
+            expectedExportStatusResponseCopy.status = "in-progress";
 
             // Update ExportStatus Request
             let exportStatusPutResponse = await request
@@ -126,12 +126,12 @@ describe('Export Tests', () => {
                 .send(expectedExportStatusResponseCopy)
                 .expect(200);
 
-            delete exportStatusPutResponse.body.transactionTime
-            delete exportStatusPutResponse.body.id
-            delete exportStatusPutResponse.body.identifier[0].value
-            delete exportStatusPutResponse.body.identifier[1].value
+            delete exportStatusPutResponse.body.transactionTime;
+            delete exportStatusPutResponse.body.id;
+            delete exportStatusPutResponse.body.identifier[0].value;
+            delete exportStatusPutResponse.body.identifier[1].value;
 
-            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2)
+            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
 
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
@@ -154,7 +154,7 @@ describe('Export Tests', () => {
                     ]
                 }
 
-            )
+            );
         })
     });
 });

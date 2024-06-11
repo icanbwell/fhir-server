@@ -61,7 +61,7 @@ class UpdateExportStatusOperation {
         }
 
         try {
-            const { id, base_version } = args
+            const { id, base_version } = args;
             const exportResource = FhirResourceCreator.createByResourceType(body, 'ExportStatus');
 
             const fetchExportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
@@ -72,7 +72,7 @@ class UpdateExportStatusOperation {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
-            let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
+            let { updatedResource } = await this.resourceMerger.mergeResourceAsync({
                 base_version: base_version,
                 requestInfo: requestInfo,
                 currentResource: fetchExportStatusResource,
