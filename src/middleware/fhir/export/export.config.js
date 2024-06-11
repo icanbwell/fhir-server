@@ -61,7 +61,7 @@ const routes = [
         args: [routeArgs.BASE],
         versions: [VERSIONS['4_0_0']],
         operation: 'search'
-    },
+    }
 ];
 
 /**

@@ -352,7 +352,7 @@ describe('Export Tests', () => {
                             severity: 'error',
                             code: 'forbidden',
                             details: {
-                                "text": "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]",
+                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
                             },
                             diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
                         }
@@ -403,7 +403,7 @@ describe('Export Tests', () => {
                             severity: 'error',
                             code: 'forbidden',
                             details: {
-                                "text": "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]",
+                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
                             },
                             diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
                         }
@@ -427,7 +427,7 @@ describe('Export Tests', () => {
             expectedExportStatusResponse[0].identifier[1].value = exportStatusPutResponse.body.id
             expectedExportStatusResponse[0].status = "in-progress"
 
-            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse)
+            expect(exportStatusPutResponse).toHaveResponse(expectedExpomrtStatusResponse)
 
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
@@ -443,7 +443,7 @@ describe('Export Tests', () => {
                             severity: 'error',
                             code: 'forbidden',
                             details: {
-                                "text": "Bulk export status can not be accessed via patient scopes"
+                                text: "Bulk export status can not be accessed via patient scopes"
                             },
                             diagnostics: "Bulk export status can not be accessed via patient scopes"
                         }
