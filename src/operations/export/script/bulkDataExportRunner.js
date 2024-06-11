@@ -1,3 +1,4 @@
+const fs = require('fs');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 
@@ -483,7 +484,7 @@ class BulkDataExportRunner {
      * @param {ProcessResourceAsyncParams}
      */
     async processResourceAsync({ resourceType, query, batchNumber }) {
-        let uploadId, filePath;
+        let uploadId, filePath, tempFilePath;
         try {
             logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -501,6 +502,7 @@ class BulkDataExportRunner {
             const cursor = await databaseQueryManager.findAsync({ query });
 
             filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
+            tempFilePath = `${this.exportStatusId}/${resourceType}.ndjson`;
 
             uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
             if (!uploadId) {
@@ -510,8 +512,9 @@ class BulkDataExportRunner {
             const multipartUploadParts = [];
 
             let count = 0;
+            let size = 0;
             let currentPartNumber = 1;
-            let batch = '';
+            let writeStream = fs.createWriteStream(tempFilePath, { flags: 'w' });
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
 
@@ -520,34 +523,48 @@ class BulkDataExportRunner {
                     operation: GRIDFS.RETRIEVE
                 });
                 count++;
+                const buffer = `${JSON.stringify(resource)}\n`;
+                writeStream.write(buffer);
+                size += buffer.length;
+
                 if (count % this.logAfterReads === 0) {
                     logInfo(`Number of ${resourceType} resource read: ${count}`);
                 }
-                batch += `${JSON.stringify(resource)}\n`;
-                if (batch > this.uploadPartSize) {
+                if (size * 2 > this.uploadPartSize) {
+                    writeStream.close();
+                    await new Promise(r => writeStream.on('close', r));
+
                     logInfo(`Uploading batch ${currentPartNumber} for ${resourceType} using uploadId: ${uploadId}`);
+                    const readStream = fs.createReadStream(tempFilePath);
                     multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: batch,
+                            data: readStream,
                             partNumber: currentPartNumber,
                             uploadId,
                             filePath
                         })
                     );
+                    readStream.close();
                     logInfo(`${resourceType} resource exported: ${count}/${totalCount}`);
-                    batch = '';
+
+                    writeStream = fs.createWriteStream(tempFilePath, { flags: 'w' });
                     currentPartNumber++;
+                    size = 0;
                 }
             }
-            if (batch) {
+            writeStream.close();
+            await new Promise(r => writeStream.on('close', r));
+            if (size > 0) {
+                const readStream = fs.createReadStream(tempFilePath);
                 multipartUploadParts.push(
                     await this.s3Client.uploadPartAsync({
-                        data: batch,
+                        data: readStream,
                         partNumber: currentPartNumber,
                         uploadId,
                         filePath
                     })
                 );
+                readStream.close();
                 logInfo(`${resourceType} resource exported: ${totalCount}/${totalCount}`);
             }
 
@@ -584,6 +601,10 @@ class BulkDataExportRunner {
                     query
                 }
             });
+        } finally {
+            if (fs.existsSync(tempFilePath)) {
+                fs.rmSync(tempFilePath);
+            }
         }
     }
 }

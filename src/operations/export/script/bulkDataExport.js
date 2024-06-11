@@ -35,7 +35,7 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
-    const logAfterReads = parameters.logAfterReads || 10000;
+    const logAfterReads = parameters.logAfterReads || 1000;
 
     const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100);
 
