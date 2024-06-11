@@ -54,16 +54,20 @@ class UpdateExportStatusOperation {
         }
 
         try {
-            const {id} = args
+            const { id } = args
             const exportResource = FhirResourceCreator.createByResourceType(body, 'ExportStatus');
+
+            const fetchExportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
+                exportStatusId: id
+            });
+
+            if (!fetchExportStatusResource) {
+                throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
+            }
 
             const exportStatusResource = await this.databaseExportManager.updateExportStatusAsync({
                 exportStatusResource: exportResource
             });
-
-            if (!exportStatusResource) {
-                throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
-            }
 
             // log operation
             await this.fhirLoggingManager.logOperationSuccessAsync({

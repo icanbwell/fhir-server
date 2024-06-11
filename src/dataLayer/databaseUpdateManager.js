@@ -119,7 +119,6 @@ class DatabaseUpdateManager {
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
 
             await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
-
         } catch (err) {
             throw new RethrownError({
                 error: err,

@@ -100,7 +100,6 @@ class DatabaseExportManager {
             await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
 
             return exportStatusResource
-
         } catch (err) {
             throw new RethrownError({
                 message: `Error in updateExportStatusAsync: ${err.message}`,
