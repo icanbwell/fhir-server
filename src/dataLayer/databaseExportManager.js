@@ -71,6 +71,7 @@ class DatabaseExportManager {
         try {
             // Update meta.lastUpdated
             exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.version = '1';
 
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
@@ -98,6 +99,7 @@ class DatabaseExportManager {
         try {
             // Update meta.lastUpdated
             exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.versionId = `${parseInt(exportStatusResource.meta.versionId) + 1}`;
 
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
