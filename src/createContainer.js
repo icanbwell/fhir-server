@@ -838,7 +838,8 @@ const createContainer = function () {
     container.register('updateExportStatusOperation', (c) => new UpdateExportStatusOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
-        databaseExportManager: c.databaseExportManager
+        databaseExportManager: c.databaseExportManager,
+        resourceMerger: c.resourceMerger
     }));
 
     return container;

@@ -1,6 +1,7 @@
 const { DatabaseExportManager } = require("../../dataLayer/databaseExportManager");
 const { FhirLoggingManager } = require("../common/fhirLoggingManager");
 const { ForbiddenError, NotFoundError } = require("../../utils/httpErrors");
+const { ResourceMerger } = require('../common/resourceMerger');
 const { ScopesManager } = require("../security/scopesManager");
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { assertTypeEquals, assertIsValid } = require("../../utils/assertType");
@@ -11,10 +12,10 @@ class UpdateExportStatusOperation {
      * @property {ScopesManager} scopesManager
      * @property {FhirLoggingManager} fhirLoggingManager
      * @property {DatabaseExportManager} databaseExportManager
-     *
+     * @property {ResourceMerger} resourceMerger
      * @param {ConstructorParams}
      */
-    constructor({ scopesManager, fhirLoggingManager, databaseExportManager }) {
+    constructor({ scopesManager, fhirLoggingManager, databaseExportManager, resourceMerger }) {
         /**
          * @type {ScopesManager}
          */
@@ -32,6 +33,12 @@ class UpdateExportStatusOperation {
          */
         this.databaseExportManager = databaseExportManager;
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     async updateExportStatusAsync({ requestInfo, args }) {
@@ -54,7 +61,7 @@ class UpdateExportStatusOperation {
         }
 
         try {
-            const { id } = args
+            const { id, base_version } = args
             const exportResource = FhirResourceCreator.createByResourceType(body, 'ExportStatus');
 
             const fetchExportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
@@ -65,19 +72,30 @@ class UpdateExportStatusOperation {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
-            const exportStatusResource = await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: exportResource
+            let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
+                base_version: base_version,
+                requestInfo: requestInfo,
+                currentResource: fetchExportStatusResource,
+                resourceToMerge: exportResource,
+                smartMerge: false,
+                incrementVersion: false
             });
 
-            // log operation
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args,
-                startTime,
-                action: currentOperationName
-            });
+            if (updatedResource) {
+                await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource: exportResource
+                });
 
-            return exportStatusResource;
+                // log operation
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    startTime,
+                    action: currentOperationName
+                });
+            }
+
+            return exportResource;
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
