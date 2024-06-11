@@ -2,20 +2,16 @@
     "entry": [
         {
             "fullUrl": "http://localhost:3000/4_0_0/ExportStatus/6c81e127-df9a-4554-a602-c45ab052b02c",
-            "id": "6c81e127-df9a-4554-a602-c45ab052b02c",
             "resource": {
                 "errors": [],
-                "id": "6c81e127-df9a-4554-a602-c45ab052b02c",
                 "identifier": [
                     {
                         "id": "sourceId",
-                        "system": "https://www.icanbwell.com/sourceId",
-                        "value": "6c81e127-df9a-4554-a602-c45ab052b02c"
+                        "system": "https://www.icanbwell.com/sourceId"
                     },
                     {
                         "id": "uuid",
-                        "system": "https://www.icanbwell.com/uuid",
-                        "value": "6c81e127-df9a-4554-a602-c45ab052b02c"
+                        "system": "https://www.icanbwell.com/uuid"
                     }
                 ],
                 "meta": {

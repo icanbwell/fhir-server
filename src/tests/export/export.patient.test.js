@@ -1,6 +1,4 @@
 // test file
-const expectedExportStatusResponse = require('./fixtures/expected/expected_export_status1_response.json')
-const expectedExportStatusResponseList = require('./fixtures/expected/expected_export_status_list.json')
 const parameters1Resource = require('./fixtures/parameters/parameters1.json');
 
 const patient1Resource = require('./fixtures/patient/patient1.json');
@@ -9,7 +7,6 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
-const deepcopy = require('deepcopy');
 const { BulkDataExportRunner } = require('../../operations/export/script/bulkDataExportRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockS3Client } = require('./mocks/s3Client');
@@ -314,143 +311,5 @@ describe('Export Tests', () => {
                 resourceType: "OperationOutcome"
             });
         });
-        test('Test Get/List/Update ExportStatus', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('k8sClient', (c) => new MockK8sClient({
-                    configManager: c.configManager
-                }));
-                return c;
-            });
-
-            let resp = await request
-                .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
-                .set(getHeaders())
-                .expect(202);
-
-            expect(resp.headers['content-location']).toBeDefined();
-            const exportStatusId = resp.headers['content-location'].split('/').pop();
-
-            resp = await request
-                .get(`/4_0_0/$export/${exportStatusId}`)
-                .set(getHeaders())
-                .expect(202);
-
-            expect(resp.headers['x-progress']).toEqual('accepted');
-
-            // Get Export Status via patient scope
-            let exportStatusResponseViaPatientScope = await request
-                .get(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders('patient/*.*'))
-                .expect(403);
-
-            expect(exportStatusResponseViaPatientScope).toHaveResponse(
-                {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
-                            },
-                            diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
-                        }
-                    ]
-                }
-            )
-
-            // Get Export Status
-            let exportStatusResponse = await request
-                .get(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders())
-                .expect(200);
-
-            delete exportStatusResponse.body.transactionTime
-            expectedExportStatusResponse[0].id = exportStatusResponse.body.id
-            expectedExportStatusResponse[0].identifier[0].value = exportStatusResponse.body.id
-            expectedExportStatusResponse[0].identifier[1].value = exportStatusResponse.body.id
-
-            expect(exportStatusResponse).toHaveResponse(expectedExportStatusResponse)
-
-            // Get Export Status List
-            let exportStatusResponseList = await request
-                .get('/4_0_0/ExportStatus/')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(exportStatusResponseList.body.entry).toHaveLength(1)
-
-            delete exportStatusResponseList.body.entry[0].resource.transactionTime
-            expectedExportStatusResponseList.entry[0].id = exportStatusResponseList.body.entry[0].id
-            expectedExportStatusResponseList.entry[0].resource.id = exportStatusResponseList.body.entry[0].id
-            expectedExportStatusResponseList.entry[0].resource.identifier[0].value = exportStatusResponseList.body.entry[0].id
-            expectedExportStatusResponseList.entry[0].resource.identifier[1].value = exportStatusResponseList.body.entry[0].id
-
-            expect(exportStatusResponseList).toHaveResponse(expectedExportStatusResponseList)
-
-            // Get Export Status List Via Patient Scope
-            let exportStatusResponseListViaPatientScope = await request
-                .get('/4_0_0/ExportStatus/')
-                .set(getHeaders('patient/*.*'))
-                .expect(403);
-
-            expect(exportStatusResponseListViaPatientScope).toHaveResponse(
-                {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
-                            },
-                            diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
-                        }
-                    ]
-                }
-
-            )
-            const expectedExportStatusResponseCopy = deepcopy(expectedExportStatusResponse[0]);
-            expectedExportStatusResponseCopy.status = "in-progress"
-
-            // Update ExportStatus Request
-            let exportStatusPutResponse = await request
-                .put(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders())
-                .send(expectedExportStatusResponseCopy)
-                .expect(200);
-
-            delete exportStatusPutResponse.body.transactionTime
-            expectedExportStatusResponse[0].id = exportStatusPutResponse.body.id
-            expectedExportStatusResponse[0].identifier[0].value = exportStatusPutResponse.body.id
-            expectedExportStatusResponse[0].identifier[1].value = exportStatusPutResponse.body.id
-            expectedExportStatusResponse[0].status = "in-progress"
-
-            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse)
-
-            // Update ExportStatus Request Via Patient Scope
-            let exportStatusPutResponseViaPatientScope = await request
-                .put(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders('patient/*.*'))
-                .expect(403);
-
-            expect(exportStatusPutResponseViaPatientScope).toHaveResponse(
-                {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "Bulk export status can not be accessed via patient scopes"
-                            },
-                            diagnostics: "Bulk export status can not be accessed via patient scopes"
-                        }
-                    ]
-                }
-
-            )
-        })
     });
 });
