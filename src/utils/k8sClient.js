@@ -3,7 +3,7 @@ const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { logError, logInfo } = require('../operations/common/logging');
 const { generateUUID } = require('./uid.util');
-
+const { RethrownError } = require('./rethrownError');
 
 class K8sClient {
     /**
@@ -45,6 +45,12 @@ class K8sClient {
         }
     }
 
+    /**
+     * Generates the body for creating a Kubernetes Job based on the provided script command.
+     *
+     * @param {string} scriptCommand - The command to execute in the Job container.
+     * @returns {Object} - The body object for creating a Kubernetes Job.
+     */
     async createJobBody(scriptCommand) {
         try {
             const currentNamespace = `fhir-server-${this.configManager.environmentValue}`;
@@ -125,6 +131,13 @@ class K8sClient {
         }
     }
 
+    /**
+     * Creates a Kubernetes Job based on the provided script command.
+     *
+     * @param {string} scriptCommand - The command to execute in the Job container.
+     * @returns {Promise<boolean>} - True if the job is created successfully, false if the maximum quota is reached,
+     * otherwise throws an error.
+     */
     async createJob(scriptCommand) {
         try {
             const namespace = `fhir-server-${this.configManager.environmentValue}`;
@@ -135,12 +148,22 @@ class K8sClient {
             }
             const response = await this.k8sBatchV1Api.createNamespacedJob(param);
             logInfo('Job created:', response.body);
-            return response.body;
+            return true;
         } catch (error) {
-            if (error?.body?.reason === 'Forbidden') {
-                logInfo('Maximum number of active jobs reached in the namespace: ', error);
+            if (
+                typeof error.body === 'string' &&
+                error.body.includes('forbidden: exceeded quota') &&
+                JSON.parse(error.body)?.reason === 'Forbidden'
+            ) {
+                logInfo(`Maximum number of active jobs reached in the namespace: ${JSON.parse(error.body)?.message}`);
+                return false;
             } else {
                 logError('Error creating job:', error);
+                throw new RethrownError({
+                    message: error.message,
+                    source: 'K8sClient.createJob',
+                    error: error
+                });
             }
         }
     }
