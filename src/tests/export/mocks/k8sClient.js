@@ -6,7 +6,7 @@ class MockK8sClient extends K8sClient {
     }
 
     createJob() {
-        // do nothing
+        return true;
     }
 
     createJobBody() {

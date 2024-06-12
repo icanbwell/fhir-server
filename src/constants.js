@@ -205,5 +205,6 @@ module.exports = {
         READ: 'READ',
         WRITE: 'WRITE',
         DELETE: 'DELETE'
-    }
+    },
+    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000 // 24hrs
 };
