@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'executionPeriod.start':{'$lte':'2023-05-10T00:00:00+00:00','$type':'string'}},{'$or':[{'$and':[{'executionPeriod.end':{'$gte':'2023-05-10T00:00:00+00:00'}},{'executionPeriod.end':{'$type':'string'}}]},{'executionPeriod.end':null}]}]}, {}).sort({'_uuid':1}).limit(100)",
+         "display": "db.Task_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'executionPeriod.start':{'$lte':'2023-05-10T00:00:00+00:00','$type':'string'}},{'$or':[{'executionPeriod.end':{'$gte':'2023-05-10T00:00:00+00:00','$type':'string'}},{'executionPeriod.end':null}]}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
