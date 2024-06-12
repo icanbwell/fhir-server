@@ -6,6 +6,7 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { K8sClient } = require('../../../utils/k8sClient');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManager');
+const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
 
 class CronJobRunner {
     /**
@@ -127,7 +128,7 @@ class CronJobRunner {
     }
 
     /**
-     * Function to fetch ExportStatus resources with in-progress status & in same state for last 24 hrs
+     * Function to fetch ExportStatus resources with in-progress status & in same state for the specified time
      * @typedef {Object} TriggerK8JobForAcceptedResourcesParams
      * @property {DatabaseQueryManager} databaseQueryManager
      *
@@ -135,10 +136,10 @@ class CronJobRunner {
      */
     async updateInProgressResources({ databaseQueryManager }) {
         try {
-            // Query to fetch ExportStatus resources with in-progress status from last 24 hrs
+            // Query to fetch ExportStatus resources with in-progress status from the specified time
             const query = {
                 status: 'in-progress',
-                'meta.lastUpdated': { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+                'meta.lastUpdated': { $lt: new Date(Date.now() - EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME) }
             };
 
             logInfo(`Fetching ExportStatus resource with query: ${JSON.stringify(query)}`);

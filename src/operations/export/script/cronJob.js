@@ -1,17 +1,7 @@
-if (process.argv.includes('--dotenv')) {
-    const path = require('path');
-    const dotenv = require('dotenv');
-    const pathToEnv = path.resolve(__dirname, '.env');
-    dotenv.config({
-        path: pathToEnv
-    });
-    console.log(`Reading config from ${pathToEnv}`);
-}
-console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../../createContainer');
 const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
 const { CronJobRunner } = require('./cronJobRunner');
-const { logInfo } = require('../../common/logging');
+const { logInfo, logError } = require('../../common/logging');
 
 /**
  * main function
@@ -61,5 +51,5 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/cronJob.js
  */
 main().catch((reason) => {
-    console.error(reason);
+    logError(reason);
 });
