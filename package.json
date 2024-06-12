@@ -108,7 +108,7 @@
     "@apollo/subgraph": "^2.7.8",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@aws-sdk/client-s3": "^3.588.0",
+    "@aws-sdk/client-s3": "^3.592.0",
     "@eslint/js": "^9.3.0",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/graphql-file-loader": "^8.0.1",

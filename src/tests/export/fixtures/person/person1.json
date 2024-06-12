@@ -1,0 +1,24 @@
+{
+  "resourceType": "Person",
+  "id": "1",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      }
+    ]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+      }
+    }
+  ]
+}

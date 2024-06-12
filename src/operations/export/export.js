@@ -14,7 +14,6 @@ const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
 const { ConfigManager } = require('../../utils/configManager');
 
-
 class ExportOperation {
     /**
      * @typedef {Object} ConstructorParams
