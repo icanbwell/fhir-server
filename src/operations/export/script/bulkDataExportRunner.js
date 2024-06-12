@@ -7,10 +7,12 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
+const { EnrichmentManager } = require('../../../enrich/enrich');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
 const { S3Client } = require('../../../utils/s3Client');
@@ -31,6 +33,8 @@ class BulkDataExportRunner {
      * @property {SecurityTagManager} securityTagManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
+     * @property {EnrichmentManager} enrichmentManager
+     * @property {R4ArgsParser} r4ArgsParser
      * @property {string} exportStatusId
      * @property {number} batchSize
      * @property {S3Client} s3Client
@@ -47,6 +51,8 @@ class BulkDataExportRunner {
         securityTagManager,
         r4SearchQueryCreator,
         patientQueryCreator,
+        enrichmentManager,
+        r4ArgsParser,
         exportStatusId,
         batchSize,
         s3Client,
@@ -94,6 +100,18 @@ class BulkDataExportRunner {
          */
         this.patientQueryCreator = patientQueryCreator;
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
         /**
          * @type {S3Client}
@@ -274,11 +292,13 @@ class BulkDataExportRunner {
             }
         }
 
+        // do not allow auditEvent exoprt
+        allowedResources = allowedResources.filter(r => r !== 'AuditEvent');
+
         if (searchParams.has('_type')) {
             const requestResources = searchParams.get('_type').split(',');
 
             let errors = '';
-
             allowedResources = requestResources.filter((resource) => {
                 if (allowedResources.includes(resource)) {
                     return true;
@@ -489,84 +509,81 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
-            const totalCount = await databaseQueryManager.exactDocumentCountAsync({ query });
-            logInfo(
-                `Exporting ${totalCount} resources for ${resourceType} resource ` +
-                totalCount > 0 ? `in ${Math.floor(totalCount / this.minUploadBatchSize) + 1} batches` : ''
-            );
-            if (totalCount === 0) {
-                logInfo(`Finished exporting ${resourceType} resource`);
-                return;
-            }
-
-            // start multipart upload
-            uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
-            if (!uploadId) {
-                return;
-            }
-            logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
-            const multipartUploadParts = [];
-
-            let buffer = '';
-            let readCount = 0, lastProcessedUuid, batchQuery = query, currentPartNumber = 1, currentBatch = 1;
-            while(readCount < totalCount) {
-                // update query with lastProcessedUuid if present
-                if (lastProcessedUuid) {
-                    batchQuery = this.r4SearchQueryCreator.appendAndSimplifyQuery({
-                        query: deepcopy(query),
-                        andQuery: { _uuid: { $gt: lastProcessedUuid } }
-                    });
-                    lastProcessedUuid = null;
+            // generate parsed args for enriching the resource
+            const parsedArgs = this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: {
+                    base_version: '4_0_0'
                 }
+            });
+            parsedArgs.headers = {};
 
-                const cursor = await databaseQueryManager.findAsync({
-                    query: batchQuery,
+            const totalCount = await databaseQueryManager.exactDocumentCountAsync({ query });
+            logInfo(`Exporting ${totalCount} resources for ${resourceType} resource`);
+
+            if (totalCount === 0) {
+                // Upload an empty file as we cannot upload empty file using multipart upload
+                await this.s3Client.uploadAsync({ filePath, data: '' });
+            } else {
+                // start multipart upload
+                uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
+                if (!uploadId) {
+                    return;
+                }
+                logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
+                const multipartUploadParts = [];
+
+                let cursor = await databaseQueryManager.findAsync({
+                    query,
                     options: {
-                        sort: ['_uuid'],
-                        limit: this.minUploadBatchSize
+                        batchSize: this.minUploadBatchSize
                     }
                 });
 
-                logInfo(`Reading Batch ${currentBatch} for ${resourceType}`);
-                while (await cursor.hasNext()) {
-                    const resource = await cursor.next();
-                    lastProcessedUuid = resource._uuid;
-                    readCount++;
+                let buffer = '', readCount = 0, currentPartNumber = 1;
+                while(await cursor.hasNext()) {
+                    const currentBatch = await cursor.toArrayAsync();
 
-                    await this.databaseAttachmentManager.transformAttachments({
-                        resource,
-                        operation: GRIDFS.RETRIEVE
-                    });
+                    await this.enrichmentManager.enrichAsync({
+                        resources: currentBatch,
+                        parsedArgs
+                    })
+                    for (const resource of currentBatch) {
+                        readCount++;
 
-                    buffer += `${JSON.stringify(resource)}\n`;
+                        await this.databaseAttachmentManager.transformAttachments({
+                            resource,
+                            operation: GRIDFS.RETRIEVE
+                        });
+
+                        buffer += `${JSON.stringify(resource)}\n`;
+                    }
+                    logInfo(`${resourceType} resource read: ${readCount}/${totalCount}`);
+
+                    const fileSize = buffer.length * 2;
+                    if (fileSize > this.uploadPartSize || readCount >= totalCount) {
+                        // Upload the file to s3
+                        logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
+                        multipartUploadParts.push(
+                            await this.s3Client.uploadPartAsync({
+                                data: buffer,
+                                partNumber: currentPartNumber,
+                                uploadId,
+                                filePath
+                            })
+                        );
+                        logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${uploadId}`);
+
+                        currentPartNumber++;
+                        buffer = '';
+                    }
                 }
-                logInfo(`Finished reading Batch ${currentBatch} for ${resourceType}, total reads for ${resourceType}: ${readCount}`);
 
-                const fileSize = buffer.length * 2;
-
-                if ((fileSize > this.uploadPartSize || readCount >= totalCount) && lastProcessedUuid) {
-                    // Upload the file to s3
-                    logInfo(`Uploading part ${currentPartNumber} for ${resourceType} using uploadId: ${uploadId}`);
-                    multipartUploadParts.push(
-                        await this.s3Client.uploadPartAsync({
-                            data: buffer,
-                            partNumber: currentPartNumber,
-                            uploadId,
-                            filePath
-                        })
-                    );
-                    // close read stream
-                    currentPartNumber++;
-                    buffer = '';
-                    logInfo(`${resourceType} resources exported: ${readCount}/${totalCount}`);
-                }
-                currentBatch++;
+                // finish multipart upload
+                await this.s3Client.completeMultiPartUploadAsync({
+                    filePath, uploadId, multipartUploadParts
+                });
             }
-
-            // finish multipart upload
-            await this.s3Client.completeMultiPartUploadAsync({
-                filePath, uploadId, multipartUploadParts
-            });
             // add filename to ExportStatus resource
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({

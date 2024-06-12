@@ -64,6 +64,8 @@ async function main() {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 securityTagManager: c.securityTagManager,
                 patientQueryCreator: c.patientQueryCreator,
+                enrichmentManager: c.enrichmentManager,
+                r4ArgsParser: c.r4ArgsParser,
                 exportStatusId,
                 batchSize,
                 minUploadBatchSize,
