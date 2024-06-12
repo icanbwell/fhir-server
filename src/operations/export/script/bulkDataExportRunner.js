@@ -560,7 +560,7 @@ class BulkDataExportRunner {
 
                         const resourceString = `${JSON.stringify(resource)}\n`;
                         buffer += resourceString;
-                        fileSize += resourceString.length;
+                        fileSize += resourceString.length * 2;
                     }
                     logInfo(`${resourceType} resource read: ${readCount}/${totalCount}`);
 
