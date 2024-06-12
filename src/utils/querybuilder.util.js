@@ -913,20 +913,10 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             endQuery = {
                 $or: [
                     {
-                        $and: [
-                        {
-                            [`${fieldName}.end`]: dateQueryBuilder({
-                            date: `ge${date}`,
-                            type: 'date'
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                        date: `ge${date}`,
+                        type: 'date'
                         })
-                        },
-                        {
-                            [`${fieldName}.end`]:
-                                {
-                                    $type: 'string'
-                                }
-                        }
-                        ]
                     },
                     {
                         [`${fieldName}.end`]: null
@@ -946,7 +936,9 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     if (endQuery[`${fieldName}.end`]) {
         endQuery[`${fieldName}.end`].$type = 'string';
     }
-
+    if (endQuery.$or) {
+        endQuery.$or[0][`${fieldName}.end`].$type = 'string';
+    }
     return [startQuery, endQuery];
 };
 
@@ -991,16 +983,8 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
-    timingQuery = [
-            { [`${fieldName}.event`]: timingQuery },
-            {
-                [`${fieldName}.event`]:
-                {
-                    $type: 'string'
-                }
-            }
-        ];
-    // timingQuery = { [`${fieldName}.event`]: timingQuery };
+    timingQuery.$type = 'string';
+    timingQuery = { [`${fieldName}.event`]: timingQuery };
 
     return timingQuery;
 };

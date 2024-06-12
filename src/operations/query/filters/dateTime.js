@@ -49,13 +49,15 @@ class FilterByDateTime extends BaseFilter {
                 );
             } else {
                 // if this is date as a string
-                strQuery = {
-                    [fieldName]: dateQueryBuilder({
-                        date: value, type: this.propertyObj.type
-                    })
-                };
-                if (strQuery) {
-                    strQuery[`${fieldName}`].$type = 'string';
+                if (!isColumnDateTimeType(this.resourceType, fieldName)) {
+                    strQuery = {
+                        [fieldName]: dateQueryBuilder({
+                            date: value, type: this.propertyObj.type
+                        })
+                    };
+                    if (strQuery) {
+                        strQuery[`${fieldName}`].$type = 'string';
+                    }
                 }
             }
            return strQuery;
@@ -63,7 +65,7 @@ class FilterByDateTime extends BaseFilter {
         // if this of native Date type
         // this field stores the date as a native date, so we can do faster queries
         if (this.filterType === 'date') {
-            if (!isDateSearchingPeriod && !isDateSearchingTiming) {
+            if (isColumnDateTimeType(this.resourceType, fieldName)) {
                 dateQuery = {
                     [fieldName]: dateQueryBuilderNative(
                         {
@@ -126,10 +128,8 @@ class FilterByDateTime extends BaseFilter {
             [queryParameterValue.operator]: childQueries
         };
 
-        if (
-            field === 'meta.lastUpdated' ||
-            isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field))
-        ) {
+        if (isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field)) &&
+            this.filterType === 'date') {
             const simplifiedRangeQuery = {};
             const newChildQueries = [];
             // correct the query

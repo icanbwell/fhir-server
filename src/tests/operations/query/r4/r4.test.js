@@ -64,7 +64,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$and['1'].$or['0'].$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['1'].$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
@@ -98,8 +98,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'AuditEvent', args })
             });
-            expect(result.query.$and['1'].$or['0'].$and['1'].recorded.$gte).toStrictEqual('2021-09-19T00:00:00+00:00');
-            expect(result.query.$and['1'].$or['0'].$and['0'].recorded.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['1'].$and['1'].recorded.$gte).toStrictEqual(new Date('2021-09-19T00:00:00.000Z'));
+            expect(result.query.$and['1'].$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.00Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });
         test('r4 works with accessIndex', async () => {
@@ -133,7 +133,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'AuditEvent', args })
             });
-            expect(result.query.$and['1'].$or['0'].$and['0'].recorded.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['1'].$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']).toStrictEqual({ '_access.client': 1 });
         });
         test('r4 works with Task and subject', async () => {
@@ -893,10 +893,8 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Observation', args })
             });
             // need to convert dates to strings to make match work
-            result.query.$and['0'].$or['4'].effectiveDateTime.$lte = result.query.$and['0'].$or['4'].effectiveDateTime.$lte.toISOString();
-            result.query.$and['0'].$or['4'].effectiveDateTime.$gte = result.query.$and['0'].$or['4'].effectiveDateTime.$gte.toISOString();
-            result.query.$and['0'].$or['5'].effectiveInstant.$gte = result.query.$and['0'].$or['5'].effectiveInstant.$gte.toISOString();
-            result.query.$and['0'].$or['5'].effectiveInstant.$lte = result.query.$and['0'].$or['5'].effectiveInstant.$lte.toISOString();
+            result.query.$and['0'].$or['3'].effectiveInstant.$gte = result.query.$and['0'].$or['3'].effectiveInstant.$gte.toISOString();
+            result.query.$and['0'].$or['3'].effectiveInstant.$lte = result.query.$and['0'].$or['3'].effectiveInstant.$lte.toISOString();
             expect(result.query).toStrictEqual(
                 {
               $and: [
@@ -920,18 +918,10 @@ describe('r4 search Tests', () => {
                         {
                           $or: [
                             {
-                              $and: [
-                                {
-                                  'effectivePeriod.end': {
-                                    $gte: '2019-10-16T22:12:29+00:00'
-                                  }
-                                },
-                                {
-                                  'effectivePeriod.end': {
-                                    $type: 'string'
-                                  }
-                                }
-                              ]
+                              'effectivePeriod.end': {
+                                $gte: '2019-10-16T22:12:29+00:00',
+                                $type: 'string'
+                              }
                             },
                             {
                               'effectivePeriod.end': null
@@ -941,39 +931,17 @@ describe('r4 search Tests', () => {
                       ]
                     },
                     {
-                      $and: [
-                        {
-                          'effectiveTiming.event': {
-                            $lte: '2019-10-16T22:12:29+00:00'
-                          }
-                        },
-                        {
-                          'effectiveTiming.event': {
-                            $type: 'string'
-                          }
-                        }
-                      ]
+                      'effectiveTiming.event': {
+                          $lte: '2019-10-16T22:12:29+00:00',
+                          $type: 'string'
+                      }
                     },
                     {
                       effectiveInstant: {
-                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/,
-                        $options: 'i',
-                        $type: 'string'
-                          }
-                    },
-                    {
-                          effectiveDateTime: {
-                            $gte: '2019-10-16T00:00:00.000Z',
-                            $lte: '2019-10-16T23:59:59.999Z',
-                            $type: 'date'
-                          }
-                    },
-                    {
-                          effectiveInstant: {
-                            $gte: '2019-10-16T00:00:00.000Z',
-                            $lte: '2019-10-16T23:59:59.999Z',
-                            $type: 'date'
-                          }
+                        $gte: '2019-10-16T00:00:00.000Z',
+                        $lte: '2019-10-16T23:59:59.999Z',
+                        $type: 'date'
+                      }
                     }
                   ]
                 },

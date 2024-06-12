@@ -6,7 +6,6 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
 const expectedAuditEventResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
-const expectedAuditEventWithoutAccessIndexResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
