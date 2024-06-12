@@ -533,21 +533,23 @@ class BulkDataExportRunner {
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
                 const multipartUploadParts = [];
 
-                let cursor = await databaseQueryManager.findAsync({
-                    query,
-                    options: {
-                        batchSize: this.minUploadBatchSize
-                    }
+                // TODO: add logic to use toArray from cursor and use batchSize to load batches
+                const cursor = await databaseQueryManager.findAsync({
+                    query
                 });
 
-                let buffer = '', readCount = 0, currentPartNumber = 1;
+                let buffer = '', readCount = 0, currentPartNumber = 1, fileSize = 0;
                 while(await cursor.hasNext()) {
-                    const currentBatch = await cursor.toArrayAsync();
+                    const currentBatch = [];
+
+                    while(await cursor.hasNext() && currentBatch.length < this.minUploadBatchSize) {
+                        currentBatch.push(await cursor.next());
+                    }
 
                     await this.enrichmentManager.enrichAsync({
                         resources: currentBatch,
                         parsedArgs
-                    })
+                    });
                     for (const resource of currentBatch) {
                         readCount++;
 
@@ -556,11 +558,12 @@ class BulkDataExportRunner {
                             operation: GRIDFS.RETRIEVE
                         });
 
-                        buffer += `${JSON.stringify(resource)}\n`;
+                        const resourceString = `${JSON.stringify(resource)}\n`;
+                        buffer += resourceString;
+                        fileSize += resourceString.length;
                     }
                     logInfo(`${resourceType} resource read: ${readCount}/${totalCount}`);
 
-                    const fileSize = buffer.length * 2;
                     if (fileSize > this.uploadPartSize || readCount >= totalCount) {
                         // Upload the file to s3
                         logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
@@ -576,6 +579,7 @@ class BulkDataExportRunner {
 
                         currentPartNumber++;
                         buffer = '';
+                        fileSize = 0;
                     }
                 }
 
