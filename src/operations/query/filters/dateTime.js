@@ -97,18 +97,26 @@ class FilterByDateTime extends BaseFilter {
             this.filterType = 'string';
             and_segments.push({
                     $or: this.propertyObj.fields.flatMap((field) => {
-                            return this.filterByField(field, this.parsedArg.queryParameterValue);
+                            const sq = this.filterByField(field, this.parsedArg.queryParameterValue);
+                            if (sq[this.parsedArg.queryParameterValue.operator][0]) {
+                                return sq;
+                            }
                         }
                     )
                 }
             );
             this.filterType = 'date';
             const dateSegments =
-                    this.propertyObj.fields.flatMap((field) => {
-                            return this.filterByField(field, this.parsedArg.queryParameterValue);
+                this.propertyObj.fields.flatMap((field) => {
+                        const dq = this.filterByField(field, this.parsedArg.queryParameterValue);
+                        if (dq[this.parsedArg.queryParameterValue.operator][0]) {
+                            return dq;
                         }
+                    }
             );
-            and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
+            if (dateSegments && dateSegments.length > 0) {
+                and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
+            }
         }
 
         return and_segments;
