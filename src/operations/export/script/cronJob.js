@@ -52,4 +52,5 @@ async function main() {
  */
 main().catch((reason) => {
     logError(reason);
+    process.exit(1);
 });
