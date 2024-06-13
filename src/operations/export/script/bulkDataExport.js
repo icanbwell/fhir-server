@@ -1,18 +1,8 @@
-if (process.argv.includes('--dotenv')) {
-    const path = require('path');
-    const dotenv = require('dotenv');
-    const pathToEnv = path.resolve(__dirname, '.env');
-    dotenv.config({
-        path: pathToEnv
-    });
-    console.log(`Reading config from ${pathToEnv}`);
-}
-console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../../createContainer');
 const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
 const { BulkDataExportRunner } = require('./bulkDataExportRunner');
 const { S3Client } = require('../../../utils/s3Client');
-const { logInfo } = require('../../common/logging');
+const { logInfo, logError } = require('../../common/logging');
 
 /**
  * main function
@@ -94,5 +84,6 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
-    console.error(reason);
+    logError.error(reason);
+    process.exit(1)
 });
