@@ -29,6 +29,13 @@
         "subscription": {
           "reference": "Subscription/subscription1"
         },
+        "extension": [
+          {
+            "id": "ae966c455e1fb4bb45b7c2af6b8b7981d36e90269e6092f5d94af54b99d5a2dd",
+            "url": "https://icanbwell.com/codes/test",
+            "valueString": "a6026593-63b2-4fc6-8129-fe2cd520e7fa"
+          }
+        ],
         "topic": "https://fhir.icanbwell.com/4_0_0/SubscriptionTopic/subscriptionTopic3",
         "error": [
           {

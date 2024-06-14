@@ -3,8 +3,18 @@ query subscriptionQuery {
         entry {
             resource {
                 id
+                extension {
+                    id
+                    url
+                    valueString
+                }
                 subscriptionStatus {
                     id
+                    extension {
+                        id
+                        url
+                        valueString
+                    }
                     subscriptionTopic {
                         id
                         url
