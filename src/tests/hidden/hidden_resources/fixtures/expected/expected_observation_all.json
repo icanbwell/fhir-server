@@ -6,17 +6,11 @@
         "id": "2",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2024-06-14T09:04:51.000Z",
+          "lastUpdated": "2024-06-14T09:41:22.000Z",
           "source": "http://clienthealth.org/provider",
           "security": [
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "client"
-            },
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "client"
-            },
+            { "system": "https://www.icanbwell.com/access", "code": "client" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "client"
@@ -56,11 +50,7 @@
         ],
         "code": {
           "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "8302-2",
-              "display": "Body height"
-            }
+            { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
           ]
         },
         "valueQuantity": {
@@ -77,17 +67,11 @@
         "id": "3",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2024-06-14T09:04:51.000Z",
+          "lastUpdated": "2024-06-14T09:41:22.000Z",
           "source": "http://clienthealth.org/provider",
           "security": [
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "client"
-            },
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "client"
-            },
+            { "system": "https://www.icanbwell.com/access", "code": "client" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "client"
@@ -172,17 +156,11 @@
         "id": "1",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2024-06-14T09:04:51.000Z",
+          "lastUpdated": "2024-06-14T09:41:22.000Z",
           "source": "http://clienthealth.org/provider",
           "security": [
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "client"
-            },
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "client"
-            },
+            { "system": "https://www.icanbwell.com/access", "code": "client" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "client"
@@ -214,11 +192,7 @@
         ],
         "code": {
           "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "8302-2",
-              "display": "Body height"
-            }
+            { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
           ]
         },
         "valueQuantity": {
@@ -231,16 +205,44 @@
     }
   ],
   "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Observation_4_0_0.find({}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      { "system": "https://www.icanbwell.com/queryCollection", "code": "Observation_4_0_0" },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
+      },
+      { "system": "https://www.icanbwell.com/queryFields", "display": "['_uuid']" },
+      { "system": "https://www.icanbwell.com/queryTime", "display": "0.011" },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      },
+      { "system": "https://www.icanbwell.com/queryDatabase", "code": "fhir" },
+      {
+        "system": "https://www.icanbwell.com/queryExplain",
+        "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Observation_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{},\"queryHash\":\"AD973D3D\",\"planCacheKey\":\"AD973D3D\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":3,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":3,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":3,\"executionTimeMillisEstimate\":0,\"works\":8,\"advanced\":3,\"needTime\":4,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":4522,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"nReturned\":3,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":3,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":3}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Observation_4_0_0\",\"filter\":{},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":36359,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7380291765007286304\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7380291765007286304\"}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple",
+        "display": "[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"docsExamined\":3,\"nReturned\":3,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":3,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":3,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":3},\"query\":\"db.Observation_4_0_0.find({}, {}).sort({'_uuid':1}).limit(100)\"}]"
+      }
+    ]
+  },
   "type": "searchset",
   "total": 3,
   "link": [
     {
       "relation": "self",
-      "url": "http://localhost:3000/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=true"
+      "url": "http://localhost:3000/4_0_0/Observation/?_total=accurate&_includeHidden=true&_debug=true&_bundle=1"
     },
     {
       "relation": "next",
-      "url": "http://localhost:3000/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=true&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+      "url": "http://localhost:3000/4_0_0/Observation/?_total=accurate&_includeHidden=true&_debug=true&_bundle=1&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
     }
   ]
 }

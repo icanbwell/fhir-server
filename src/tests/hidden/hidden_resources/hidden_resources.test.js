@@ -49,7 +49,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_total=accurate')
+                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_debug=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
@@ -109,7 +109,7 @@ describe('Observation Tests', () => {
 
             // Requested with value of _includeHidden as true
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=true')
+                .get('/4_0_0/Observation/?_total=accurate&_includeHidden=true&_debug=true&_bundle=1')
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
@@ -120,7 +120,7 @@ describe('Observation Tests', () => {
 
             // Requested with value of _includeHidden as 1
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=1')
+                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=1&_debug=true')
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
@@ -130,7 +130,7 @@ describe('Observation Tests', () => {
 
             // Requested with value of _includeHidden as a non-true value
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=0')
+                .get('/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=0&_debug=true')
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
