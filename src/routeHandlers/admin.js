@@ -21,7 +21,7 @@ const { AdminExportManager } = require('../admin/adminExportManager');
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync({
+async function showIndexesAsync ({
     req,
     res,
     container,
@@ -49,7 +49,7 @@ async function showIndexesAsync({
  * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
-async function synchronizeIndexesAsync({
+async function synchronizeIndexesAsync ({
     req,
     container,
     res
@@ -73,7 +73,7 @@ async function synchronizeIndexesAsync({
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminGet(
+async function handleAdminGet (
     fnGetContainer,
     req,
     res
@@ -204,7 +204,6 @@ async function handleAdminGet(
             });
         }
     } catch (e) {
-        console.log(e)
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
@@ -226,7 +225,7 @@ async function handleAdminGet(
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminPost(
+async function handleAdminPost (
     fnGetContainer,
     req,
     res
@@ -403,7 +402,7 @@ async function handleAdminPost(
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminPut(
+async function handleAdminPut (
     fnGetContainer,
     req,
     res
@@ -457,7 +456,7 @@ async function handleAdminPut(
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminDelete(
+async function handleAdminDelete (
     fnGetContainer,
     req,
     res

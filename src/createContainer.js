@@ -466,7 +466,6 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
-                scopesManager: c.scopesManager,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,

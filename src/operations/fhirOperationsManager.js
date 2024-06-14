@@ -165,6 +165,7 @@ class FhirOperationsManager {
          */
         this.exportByIdOperation = exportByIdOperation;
         assertTypeEquals(exportByIdOperation, ExportByIdOperation);
+
         /**
          * @type {R4ArgsParser}
          */

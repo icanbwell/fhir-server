@@ -129,7 +129,6 @@ class AdminExportManager {
             }
             if (exportStatusId) {
 
-
                 const exportStatusResource = await this.fhirOperationsManager.searchById(
                     args,
                     {
