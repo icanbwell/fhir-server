@@ -1,0 +1,220 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "Observation",
+                "id": "2",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-06-14T09:04:51.000Z",
+                    "source": "http://clienthealth.org/provider",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/access", "code": "client" },
+                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ],
+                    "tag": [
+                        {
+                            "id": "hidden",
+                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
+                            "code": "hidden",
+                            "display": "Hidden"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "941f082a-39a9-5f55-9630-5839a010e1bc"
+                    }
+                ],
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "vital-signs"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
+                    ]
+                },
+                "valueQuantity": {
+                    "value": 177.8,
+                    "unit": "cm",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "cm"
+                }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Observation",
+                "id": "3",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-06-14T09:04:51.000Z",
+                    "source": "http://clienthealth.org/provider",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/access", "code": "client" },
+                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ],
+                    "tag": [
+                        {
+                            "id": "not-hidden",
+                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
+                            "code": "not-hidden",
+                            "display": "Not Hidden"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "3"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "aef217d8-2f34-56f7-b748-b24a120b2654"
+                    }
+                ],
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "vital-signs",
+                                "display": "Vital Signs"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "8310-5",
+                            "display": "Body temperature"
+                        }
+                    ],
+                    "text": "Body temperature"
+                },
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/example"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/87031866-aa89-5e0e-a9dd-91fa7e382df4"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Patient/example",
+                    "display": "Example Patient"
+                },
+                "effectiveDateTime": "2023-12-12T08:00:00+00:00",
+                "valueQuantity": {
+                    "value": 98.59999999999994,
+                    "unit": "F",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "[degF]"
+                }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Observation",
+                "id": "1",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-06-14T09:04:51.000Z",
+                    "source": "http://clienthealth.org/provider",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/access", "code": "client" },
+                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+                    }
+                ],
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "vital-signs"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
+                    ]
+                },
+                "valueQuantity": {
+                    "value": 70.00000000000001,
+                    "unit": "inch",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "[in_i]"
+                }
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 3,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=true"
+        },
+        {
+            "relation": "next",
+            "url": "http://localhost:3000/4_0_0/Observation/?_bundle=1&_total=accurate&_includeHidden=true&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+        }
+    ]
+}
