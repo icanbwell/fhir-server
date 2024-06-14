@@ -311,15 +311,7 @@ class FhirRouter {
 
                 case 'get':
                     operationsControllerRouteHandler = this.customOperationsController.operationsGet({
-                        name: operationName,
-                        resourceType: 'ExportStatus'
-                    });
-                    break;
-
-                case 'put':
-                    operationsControllerRouteHandler = this.customOperationsController.operationsPut({
-                        name: operationName,
-                        resourceType: 'ExportStatus'
+                        name: operationName
                     });
             }
 

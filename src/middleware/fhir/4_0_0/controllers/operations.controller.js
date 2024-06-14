@@ -168,35 +168,6 @@ class CustomOperationsController {
             }
         };
     }
-
-    /**
-     * @description Controller for all PUT operations
-     * @param {name: string, resourceType: string}
-     */
-    operationsPut (
-        {
-            name,
-            resourceType
-        }) {
-        return async (
-            /** @type {import('http').IncomingMessage} */req,
-            /** @type {import('http').ServerResponse} */res,
-            /** @type {function() : void} */next) => {
-            try {
-                const result = await
-                    this.fhirOperationsManager[`${name}`](req.sanitized_args, {
-                        req, res
-                    }, resourceType);
-                this.fhirResponseWriter.readCustomOperation({ req, res, result });
-            } catch (e) {
-                next(e);
-            } finally {
-                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({ requestId });
-                await this.requestSpecificCache.clearAsync({ requestId });
-            }
-        };
-    }
 }
 
 module.exports = {

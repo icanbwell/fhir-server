@@ -7,7 +7,7 @@ const env = require('var');
 
 const parameters1Resource = require('./fixtures/parameters/parameters1.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 
@@ -45,30 +45,20 @@ describe('Export Tests', () => {
 
             // Get Export Status via patient scope
             let exportStatusResponseViaPatientScope = await request
-                .get(`/4_0_0/ExportStatus/${exportStatusId}`)
+                .get(`/admin/ExportStatus?id=${exportStatusId}`)
                 .set(getHeaders('patient/*.*'))
                 .expect(403);
 
             expect(exportStatusResponseViaPatientScope).toHaveResponse(
                 {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
-                            },
-                            diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
-                        }
-                    ]
+                    message: "Missing scopes for admin/*.read in patient/*.*"
                 }
             );
 
             // Get Export Status
             let exportStatusResponse = await request
-                .get(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders())
+                .get(`/admin/ExportStatus?id=${exportStatusId}`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200);
 
             delete exportStatusResponse.body.transactionTime;
@@ -80,8 +70,8 @@ describe('Export Tests', () => {
 
             // Get Export Status List
             let exportStatusResponseList = await request
-                .get('/4_0_0/ExportStatus/')
-                .set(getHeaders())
+                .get('/admin/ExportStatus/')
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200);
 
             expect(exportStatusResponseList.body.entry).toHaveLength(1);
@@ -96,23 +86,13 @@ describe('Export Tests', () => {
 
             // Get Export Status List Via Patient Scope
             let exportStatusResponseListViaPatientScope = await request
-                .get('/4_0_0/ExportStatus/')
+                .get('/admin/ExportStatus/')
                 .set(getHeaders('patient/*.*'))
                 .expect(403);
 
             expect(exportStatusResponseListViaPatientScope).toHaveResponse(
                 {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]"
-                            },
-                            diagnostics: 'None of the provided scopes matched an allowed scope.: user imran with scopes [] failed access check to [ExportStatus.read]'
-                        }
-                    ]
+                    message: "Missing scopes for admin/*.read in patient/*.*"
                 }
 
             );
@@ -121,8 +101,8 @@ describe('Export Tests', () => {
 
             // Update ExportStatus Request
             let exportStatusPutResponse = await request
-                .put(`/4_0_0/ExportStatus/${exportStatusId}`)
-                .set(getHeaders())
+                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
                 .expect(200);
 
@@ -135,25 +115,15 @@ describe('Export Tests', () => {
 
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
-                .put(`/4_0_0/ExportStatus/${exportStatusId}`)
+                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .send(expectedExportStatusResponseCopy)
                 .set(getHeaders('patient/*.*'))
                 .expect(403);
 
             expect(exportStatusPutResponseViaPatientScope).toHaveResponse(
                 {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'forbidden',
-                            details: {
-                                text: "Bulk export status can not be accessed via patient scopes"
-                            },
-                            diagnostics: "Bulk export status can not be accessed via patient scopes"
-                        }
-                    ]
+                    message: "Missing scopes for admin/*.read in patient/*.*"
                 }
-
             );
         })
     });

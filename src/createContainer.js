@@ -107,7 +107,7 @@ const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
 const { ExportByIdOperation } = require('./operations/export/exportById');
-const { UpdateExportStatusOperation } = require('./operations/export/updateExportStatus');
+const { AdminExportManager } = require('./admin/adminExportManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -466,6 +466,7 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
+                scopesManager: c.scopesManager,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
@@ -682,7 +683,6 @@ const createContainer = function () {
                 expandOperation: c.expandOperation,
                 exportOperation: c.exportOperation,
                 exportByIdOperation: c.exportByIdOperation,
-                updateExportStatusOperation: c.updateExportStatusOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager
             }
@@ -835,11 +835,14 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager
     }));
 
-    container.register('updateExportStatusOperation', (c) => new UpdateExportStatusOperation({
-        scopesManager: c.scopesManager,
-        fhirLoggingManager: c.fhirLoggingManager,
+    container.register('adminExportManager', (c) => new AdminExportManager({
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache,
+        fhirOperationsManager: c.fhirOperationsManager,
         databaseExportManager: c.databaseExportManager,
-        resourceMerger: c.resourceMerger
+        resourceMerger: c.resourceMerger,
+        configManager: c.configManager,
+        k8sClient: c.k8sClient
     }));
 
     return container;

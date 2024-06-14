@@ -11,6 +11,7 @@ const { assertIsValid } = require('../utils/assertType');
 const { generateUUID } = require('../utils/uid.util');
 const { logInfo } = require('../operations/common/logging');
 const { REQUEST_ID_HEADER } = require('../constants');
+const { AdminExportManager } = require('../admin/adminExportManager');
 
 /**
  * shows indexes
@@ -20,7 +21,7 @@ const { REQUEST_ID_HEADER } = require('../constants');
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync ({
+async function showIndexesAsync({
     req,
     res,
     container,
@@ -48,7 +49,7 @@ async function showIndexesAsync ({
  * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
-async function synchronizeIndexesAsync ({
+async function synchronizeIndexesAsync({
     req,
     container,
     res
@@ -72,7 +73,7 @@ async function synchronizeIndexesAsync ({
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminGet (
+async function handleAdminGet(
     fnGetContainer,
     req,
     res
@@ -92,6 +93,11 @@ async function handleAdminGet (
          * @type {ScopesManager}
          */
         const scopesManager = container.scopesManager;
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
+        /**
         /**
          * @type {string|undefined}
          */
@@ -183,6 +189,11 @@ async function handleAdminGet (
                     return res.json(json);
                 }
 
+                case 'ExportStatus': {
+                    logInfo('', { 'req.query': req.query });
+                    return await adminExportManager.getExportStatus({ req, res })
+                }
+
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -193,6 +204,7 @@ async function handleAdminGet (
             });
         }
     } catch (e) {
+        console.log(e)
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
@@ -214,7 +226,7 @@ async function handleAdminGet (
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminPost (
+async function handleAdminPost(
     fnGetContainer,
     req,
     res
@@ -234,6 +246,10 @@ async function handleAdminPost (
          * @type {ScopesManager}
          */
         const scopesManager = container.scopesManager;
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
         /**
          * @type {string|undefined}
          */
@@ -351,7 +367,11 @@ async function handleAdminPost (
                         message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
                     });
                 }
-
+                case 'exportData': {
+                    logInfo('', { 'req.body': req.body });
+                    await adminExportManager.triggerExportJob({ req, res});
+                    break;
+                }
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -378,12 +398,66 @@ async function handleAdminPost (
 }
 
 /**
+ * Handles admin put routes
+ * @param {function (): SimpleContainer} fnGetContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ */
+async function handleAdminPut(
+    fnGetContainer,
+    req,
+    res
+) {
+    req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+    httpContext.set('requestId', req.id);
+    const operation = req.params.op;
+    logInfo(`op=${operation}`, {});
+    // set up all the standard services in the container
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = fnGetContainer();
+    /**
+     * @type {AdminExportManager}
+     */
+    const adminExportManager = container.adminExportManager;
+    /**
+     * @type {ScopesManager}
+     */
+    const scopesManager = container.scopesManager;
+    /**
+     * @type {string|undefined}
+     */
+    const scope = scopesManager.getScopeFromRequest({ req });
+    /**
+     * @type {string[]}
+     */
+    const adminScopes = scopesManager.getAdminScopes({ scope });
+
+    if (adminScopes.length > 0) {
+        switch (operation) {
+            case 'ExportStatus': {
+                logInfo('', { 'req.query': req.query });
+                return await adminExportManager.updateExportStatus({ req, res })
+            }
+            default: {
+                return res.json({ message: 'Invalid Path' });
+            }
+        }
+    } else {
+        return res.status(403).json({
+            message: `Missing scopes for admin/*.read in ${scope}`
+        });
+    }
+}
+
+/**
  * Handles admin delete routes
  * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminDelete (
+async function handleAdminDelete(
     fnGetContainer,
     req,
     res
@@ -588,5 +662,6 @@ async function handleAdminDelete (
 module.exports = {
     handleAdminGet,
     handleAdminPost,
-    handleAdminDelete
+    handleAdminDelete,
+    handleAdminPut
 };

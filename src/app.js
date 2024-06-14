@@ -27,7 +27,7 @@ const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration
 const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
-const { handleAdminGet, handleAdminPost, handleAdminDelete } = require('./routeHandlers/admin');
+const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
 const { generateUUID } = require('./utils/uid.util');
@@ -315,6 +315,10 @@ function createApp ({ fnGetContainer }) {
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
     adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+    adminRouter.put(
+        '/admin/:op?',
+         express.json({ type: allowedContentTypes }),
+         (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use(adminRouter);
 
