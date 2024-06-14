@@ -191,7 +191,7 @@ async function handleAdminGet (
 
                 case 'ExportStatus': {
                     logInfo('', { 'req.query': req.query });
-                    return await adminExportManager.getExportStatus({ req, res })
+                    return res.json(await adminExportManager.getExportStatus({ req, res }))
                 }
 
                 default: {
@@ -367,9 +367,13 @@ async function handleAdminPost (
                     });
                 }
                 case 'exportData': {
-                    logInfo('', { 'req.body': req.body });
-                    await adminExportManager.triggerExportJob({ req, res});
-                    break;
+                    const exportStatusId = req.query.id
+                    if (exportStatusId) {
+                        return res.json(await adminExportManager.triggerExportJob({ req, res }));
+                    }
+                    else {
+                        return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                    }
                 }
                 default: {
                     return res.json({ message: 'Invalid Path' });
@@ -402,7 +406,7 @@ async function handleAdminPost (
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminPut (
+async function handleAdminPut(
     fnGetContainer,
     req,
     res
@@ -437,7 +441,12 @@ async function handleAdminPut (
         switch (operation) {
             case 'ExportStatus': {
                 logInfo('', { 'req.query': req.query });
-                return await adminExportManager.updateExportStatus({ req, res })
+                if (req.query.id) {
+                    return res.json(await adminExportManager.updateExportStatus({ req, res }));
+                }
+                else {
+                    return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                }
             }
             default: {
                 return res.json({ message: 'Invalid Path' });
@@ -456,7 +465,7 @@ async function handleAdminPut (
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminDelete (
+async function handleAdminDelete(
     fnGetContainer,
     req,
     res

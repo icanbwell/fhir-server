@@ -825,7 +825,9 @@ const createContainer = function () {
 
     container.register('exportManager', (c) => new ExportManager({
         securityTagManager: c.securityTagManager,
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        configManager: c.configManager,
+        k8sClient: c.k8sClient
     }));
 
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({
@@ -841,7 +843,8 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager,
         resourceMerger: c.resourceMerger,
         configManager: c.configManager,
-        k8sClient: c.k8sClient
+        k8sClient: c.k8sClient,
+        exportManager: c.exportManager
     }));
 
     return container;
