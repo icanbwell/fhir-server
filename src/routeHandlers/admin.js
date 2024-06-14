@@ -465,7 +465,7 @@ async function handleAdminPut(
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdminDelete(
+async function handleAdminDelete (
     fnGetContainer,
     req,
     res
