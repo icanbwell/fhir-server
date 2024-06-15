@@ -9,6 +9,7 @@ const parameters1Resource = require('./fixtures/parameters/parameters1.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { MockK8sClient } = require('./mocks/k8sClient');
 
 
 describe('Export Tests', () => {
@@ -25,14 +26,18 @@ describe('Export Tests', () => {
     describe('Patient Export tests', () => {
 
         test('Test Get/List/Update ExportStatus', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
                 .send(parameters1Resource)
                 .set(getHeaders())
-
-            console.log(resp.body)
+                .expect(202);
 
             expect(resp.headers['content-location']).toBeDefined();
             const exportStatusId = resp.headers['content-location'].split('/').pop();
