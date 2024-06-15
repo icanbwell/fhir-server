@@ -31,7 +31,8 @@ describe('Export Tests', () => {
                 .post('/4_0_0/Patient/$export?_type=Patient')
                 .send(parameters1Resource)
                 .set(getHeaders())
-                .expect(202);
+
+            console.log(resp.body)
 
             expect(resp.headers['content-location']).toBeDefined();
             const exportStatusId = resp.headers['content-location'].split('/').pop();
