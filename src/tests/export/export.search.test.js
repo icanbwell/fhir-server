@@ -1,5 +1,6 @@
 const expectedExportStatusResponse = require('./fixtures/expected/expected_export_status1_response.json');
 const expectedExportStatusResponse2 = require('./fixtures/expected/expected_export_status2_response.json');
+const expectedExportStatusResponse3 = require('./fixtures/expected/expected_export_status3_response.json');
 const expectedExportStatusResponseList = require('./fixtures/expected/expected_export_status_list.json');
 
 const deepcopy = require('deepcopy');
@@ -215,12 +216,11 @@ describe('Export Tests', () => {
                 .send(expectedExportStatusResponseCopy2)
                 .expect(200);
 
-            expectedExportStatusResponse2[0].status = "accepted"
             delete exportStatusNoChangesPutResponse.body.transactionTime;
             delete exportStatusNoChangesPutResponse.body.id;
             delete exportStatusNoChangesPutResponse.body.identifier[0].value;
             delete exportStatusNoChangesPutResponse.body.identifier[1].value;
-            expect(exportStatusNoChangesPutResponse).toHaveResponse(expectedExportStatusResponse2)
+            expect(exportStatusNoChangesPutResponse).toHaveResponse(expectedExportStatusResponse3)
 
         });
     });
