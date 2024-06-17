@@ -6,7 +6,6 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const { R4SearchQueryCreator } = require('../query/r4');
-const { RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 /**
  * This class manages queries for security tags
@@ -133,24 +132,6 @@ class SecurityTagManager {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({ query, andQuery: securityTagQuery });
         }
         return query;
-    }
-
-    /**
-     * checks if passed resource have restricted security tag
-     * @param {import('mongodb').Document} resource
-     * @return {boolean}
-     */
-    isResourceRestricted({ resource }) {
-        if (
-            resource.meta?.security?.some(
-                (s) =>
-                    s.system === RESOURCE_RESTRICTION_TAG.SYSTEM &&
-                    s.code === RESOURCE_RESTRICTION_TAG.CODE
-            )
-        ) {
-            return true;
-        }
-        return false;
     }
 }
 

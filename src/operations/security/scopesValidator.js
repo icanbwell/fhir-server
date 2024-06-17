@@ -6,7 +6,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientScopeManager } = require('./patientScopeManager');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
-const { SecurityTagManager } = require('../common/securityTagManager');
+const { RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 class ScopesValidator {
     /**
@@ -16,15 +16,13 @@ class ScopesValidator {
      * @param {ConfigManager} configManager
      * @param {PatientScopeManager} patientScopeManager
      * @param {PreSaveManager} preSaveManager
-     * @param {SecurityTagManager} securityTagManager
      */
     constructor ({
         scopesManager,
         fhirLoggingManager,
         configManager,
         patientScopeManager,
-        preSaveManager,
-        securityTagManager
+        preSaveManager
     }) {
         /**
          * @type {ScopesManager}
@@ -51,11 +49,6 @@ class ScopesValidator {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-        /**
-         * @type {SecurityTagManager}
-         */
-        this.securityTagManager = securityTagManager;
-        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -234,7 +227,11 @@ class ScopesValidator {
         const { isUser, user, scope } = requestInfo
         if (
             isUser &&
-            this.securityTagManager.isResourceRestricted({ resource })
+            resource.meta?.security?.some(
+                (s) =>
+                    s.system === RESOURCE_RESTRICTION_TAG.SYSTEM &&
+                    s.code === RESOURCE_RESTRICTION_TAG.CODE
+            )
         ) {
             throw new ForbiddenError(
                 `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
