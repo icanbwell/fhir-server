@@ -1,0 +1,42 @@
+{
+    "id": "06bb89e6-4570-4cc5-94c0-e2039cc1c75a",
+    "_uuid": "06bb89e6-4570-4cc5-94c0-e2039cc1c75a",
+    "resourceType": "ExportStatus",
+    "meta": {
+        "versionId": "1",
+        "source": "Test",
+        "lastUpdated": "2024-01-01T14:43:15.000+00:00",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "06bb89e6-4570-4cc5-94c0-e2039cc1c75a"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "06bb89e6-4570-4cc5-94c0-e2039cc1c75a"
+        }
+    ],
+    "status": "in-progress",
+    "request": "http://localhost:3000/4_0_0/$export",
+    "requiresAccessToken": false,
+    "scope": "user/*.* access/*.*",
+    "user": "imran",
+    "transactionTime": "2024-06-11T10:26:28.685Z"
+}

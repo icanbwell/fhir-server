@@ -7,10 +7,12 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
+const { EnrichmentManager } = require('../../../enrich/enrich');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { SecurityTagManager } = require('../../common/securityTagManager');
 const { S3Client } = require('../../../utils/s3Client');
@@ -31,9 +33,13 @@ class BulkDataExportRunner {
      * @property {SecurityTagManager} securityTagManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
+     * @property {EnrichmentManager} enrichmentManager
+     * @property {R4ArgsParser} r4ArgsParser
      * @property {string} exportStatusId
      * @property {number} batchSize
      * @property {S3Client} s3Client
+     * @property {number} uploadPartSize
+     * @property {number} minUploadBatchSize
      *
      * @param {ConstructorParams}
      */
@@ -45,9 +51,13 @@ class BulkDataExportRunner {
         securityTagManager,
         r4SearchQueryCreator,
         patientQueryCreator,
+        enrichmentManager,
+        r4ArgsParser,
         exportStatusId,
         batchSize,
-        s3Client
+        s3Client,
+        uploadPartSize,
+        minUploadBatchSize
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -92,6 +102,18 @@ class BulkDataExportRunner {
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
 
         /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
          * @type {S3Client}
          */
         this.s3Client = s3Client;
@@ -112,6 +134,16 @@ class BulkDataExportRunner {
          * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
          */
         this.exportStatusResource = null;
+
+        /**
+         * @type {number}
+         */
+        this.uploadPartSize = uploadPartSize;
+
+        /**
+         * @type {number}
+         */
+        this.minUploadBatchSize = minUploadBatchSize;
     }
 
     /**
@@ -260,11 +292,13 @@ class BulkDataExportRunner {
             }
         }
 
+        // do not allow auditEvent exoprt
+        allowedResources = allowedResources.filter(r => r !== 'AuditEvent');
+
         if (searchParams.has('_type')) {
             const requestResources = searchParams.get('_type').split(',');
 
             let errors = '';
-
             allowedResources = requestResources.filter((resource) => {
                 if (allowedResources.includes(resource)) {
                     return true;
@@ -302,9 +336,6 @@ class BulkDataExportRunner {
                         url: this.s3Client.getPublicS3FilePath(filePath)
                     })
                 );
-                await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: this.exportStatusResource
-                });
             }
         }
 
@@ -469,7 +500,8 @@ class BulkDataExportRunner {
      * @param {ProcessResourceAsyncParams}
      */
     async processResourceAsync({ resourceType, query, batchNumber }) {
-        let uploadId, filePath;
+        const filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
+        let uploadId;
         try {
             logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -477,66 +509,92 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
+            // generate parsed args for enriching the resource
+            const parsedArgs = this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: {
+                    base_version: '4_0_0'
+                }
+            });
+            parsedArgs.headers = {};
+
             const totalCount = await databaseQueryManager.exactDocumentCountAsync({ query });
             logInfo(`Exporting ${totalCount} resources for ${resourceType} resource`);
 
-            const totalBatches = Math.ceil(totalCount / this.batchSize);
-
-            const cursor = await databaseQueryManager.findAsync({ query });
-
-            filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
-
-            uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
-            if (!uploadId) {
-                return;
-            }
-            logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
-
-            let count = 0;
-            let batch = '';
-            while (await cursor.hasNext()) {
-                const resource = await cursor.next();
-
-                await this.databaseAttachmentManager.transformAttachments({
-                    resource,
-                    operation: GRIDFS.RETRIEVE
-                });
-                count++;
-                batch += `${JSON.stringify(resource)}\n`;
-                if (count % this.batchSize === 0) {
-                    const currBatchNumber = Math.floor(count/this.batchSize);
-                    logInfo(`Uploading batch ${currBatchNumber} for ${resourceType} using uploadId: ${uploadId}`);
-                    await this.s3Client.uploadPartAsync({
-                        data: batch,
-                        partNumber: currBatchNumber,
-                        uploadId,
-                        filePath: filePath.replace('.ndjson', `_${currBatchNumber}.ndjson`)
-                    });
-                    logInfo(`${resourceType} batch exported: ${currBatchNumber}/${totalBatches}`);
-                    batch = '';
+            if (totalCount === 0) {
+                // Upload an empty file as we cannot upload empty file using multipart upload
+                await this.s3Client.uploadAsync({ filePath, data: '' });
+            } else {
+                // start multipart upload
+                uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
+                if (!uploadId) {
+                    return;
                 }
-            }
-            if (batch) {
-                await this.s3Client.uploadPartAsync({
-                    data: batch,
-                    partNumber: totalBatches,
-                    uploadId,
-                    filePath: filePath.replace('.ndjson', `_${totalBatches}.ndjson`)
-                });
-                logInfo(`${resourceType} batch exported: ${totalBatches}/${totalBatches}`);
-            }
+                logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
+                const multipartUploadParts = [];
 
-            await this.s3Client.completeMultiPartUploadAsync({ filePath, uploadId });
-            // add filename to ExportStatus resource and update in database
+                // TODO: add logic to use toArray from cursor and use batchSize to load batches
+                const cursor = await databaseQueryManager.findAsync({
+                    query
+                });
+
+                let buffer = '', readCount = 0, currentPartNumber = 1, fileSize = 0;
+                while(await cursor.hasNext()) {
+                    const currentBatch = [];
+
+                    while(await cursor.hasNext() && currentBatch.length < this.minUploadBatchSize) {
+                        currentBatch.push(await cursor.next());
+                    }
+
+                    await this.enrichmentManager.enrichAsync({
+                        resources: currentBatch,
+                        parsedArgs
+                    });
+                    for (const resource of currentBatch) {
+                        readCount++;
+
+                        await this.databaseAttachmentManager.transformAttachments({
+                            resource,
+                            operation: GRIDFS.RETRIEVE
+                        });
+
+                        const resourceString = `${JSON.stringify(resource)}\n`;
+                        buffer += resourceString;
+                        fileSize += resourceString.length * 2;
+                    }
+                    logInfo(`${resourceType} resource read: ${readCount}/${totalCount}`);
+
+                    if (fileSize > this.uploadPartSize || readCount >= totalCount) {
+                        // Upload the file to s3
+                        logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
+                        multipartUploadParts.push(
+                            await this.s3Client.uploadPartAsync({
+                                data: buffer,
+                                partNumber: currentPartNumber,
+                                uploadId,
+                                filePath
+                            })
+                        );
+                        logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${uploadId}`);
+
+                        currentPartNumber++;
+                        buffer = '';
+                        fileSize = 0;
+                    }
+                }
+
+                // finish multipart upload
+                await this.s3Client.completeMultiPartUploadAsync({
+                    filePath, uploadId, multipartUploadParts
+                });
+            }
+            // add filename to ExportStatus resource
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
                     url: this.s3Client.getPublicS3FilePath(filePath)
                 })
             );
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
 
             logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {

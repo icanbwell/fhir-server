@@ -22,6 +22,7 @@ const { FilterParameters } = require('./filters/filterParameters');
 const { UrlParser } = require('../../utils/urlParser');
 const { FilterByQuantity } = require('./filters/quantity');
 const { OPERATIONS: { DELETE } } = require('../../constants');
+const { isTrue } = require('../../utils/isTrue');
 
 class R4SearchQueryCreator {
     /**
@@ -145,7 +146,13 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        if (!parsedArgs.id && operation !== DELETE && !useHistoryTable) {
+        // Handling case of 'hidden' tag in meta
+        if (
+            !parsedArgs.id &&
+            !isTrue(parsedArgs._includeHidden) &&
+            operation !== DELETE &&
+            !useHistoryTable
+        ) {
             query.$and = query.$and || [];
             query.$and.push({
                 'meta.tag': {

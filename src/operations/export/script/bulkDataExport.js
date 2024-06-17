@@ -1,18 +1,8 @@
-if (process.argv.includes('--dotenv')) {
-    const path = require('path');
-    const dotenv = require('dotenv');
-    const pathToEnv = path.resolve(__dirname, '.env');
-    dotenv.config({
-        path: pathToEnv
-    });
-    console.log(`Reading config from ${pathToEnv}`);
-}
-console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../../createContainer');
 const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
 const { BulkDataExportRunner } = require('./bulkDataExportRunner');
 const { S3Client } = require('../../../utils/s3Client');
-const { logInfo } = require('../../common/logging');
+const { logInfo, logError } = require('../../common/logging');
 
 /**
  * main function
@@ -34,6 +24,10 @@ async function main() {
     }
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
+
+    const minUploadBatchSize = parameters.minUploadBatchSize || 10000;
+
+    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100);
 
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
@@ -60,8 +54,12 @@ async function main() {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 securityTagManager: c.securityTagManager,
                 patientQueryCreator: c.patientQueryCreator,
+                enrichmentManager: c.enrichmentManager,
+                r4ArgsParser: c.r4ArgsParser,
                 exportStatusId,
                 batchSize,
+                minUploadBatchSize,
+                uploadPartSize,
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
                     region: awsRegion
@@ -82,9 +80,10 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
+ * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --minUploadBatchSize 100000 --uploadPartSize 1024
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
-    console.error(reason);
+    logError(reason);
+    process.exit(1);
 });

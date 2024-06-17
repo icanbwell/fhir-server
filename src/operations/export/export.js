@@ -12,7 +12,6 @@ const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
 
-
 class ExportOperation {
     /**
      * @typedef {Object} ConstructorParams

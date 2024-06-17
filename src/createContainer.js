@@ -105,7 +105,6 @@ const { SearchParametersManager } = require('./searchParameters/searchParameters
 const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
 const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
-const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
 const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
 const { READ } = require('./constants').OPERATIONS;

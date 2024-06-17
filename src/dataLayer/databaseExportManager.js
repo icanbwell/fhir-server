@@ -1,3 +1,4 @@
+const moment = require('moment-timezone');
 const ExportStatus = require('../fhir/classes/4_0_0/custom_resources/exportStatus');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { RethrownError } = require('../utils/rethrownError');
@@ -68,6 +69,10 @@ class DatabaseExportManager {
     async insertExportStatusAsync({ exportStatusResource }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
+            // Update meta.lastUpdated
+            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.version = '1';
+
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'
@@ -92,6 +97,10 @@ class DatabaseExportManager {
     async updateExportStatusAsync({ exportStatusResource }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
+            // Update meta.lastUpdated
+            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.versionId = `${parseInt(exportStatusResource.meta.versionId) + 1}`;
+
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'ExportStatus',
                 base_version: '4_0_0'

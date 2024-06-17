@@ -22,7 +22,7 @@ class S3Client {
          * @type {string}
          */
         this.region = region;
-        assertIsValid(bucketName, 'Cannot initialize S3Client without region');
+        assertIsValid(region, 'Cannot initialize S3Client without region');
 
         /**
          * @type {S3}
@@ -35,7 +35,7 @@ class S3Client {
      * @param {string} filePath
      */
     getPublicS3FilePath(filePath) {
-        return `https://${this.bucketName}.s3.amazonaws.com/${filePath}`;
+        return `s3://${this.bucketName}/${filePath}`;
     }
 
     /**
@@ -79,15 +79,15 @@ class S3Client {
         assertIsValid(filePath, 'Cannot start multi-part upload without a filePath');
         try {
             for (let retry = 0; retry < 3; retry++) {
-                const resp = await this.client.send(
+                const { UploadId } = await this.client.send(
                     new CreateMultipartUploadCommand({
                         Bucket: this.bucketName,
                         Key: filePath
                     })
                 );
 
-                if (resp.UploadId) {
-                    return resp.UploadId;
+                if (UploadId) {
+                    return UploadId;
                 }
             }
             logError(`Unable to start multi-part upload for file: ${filePath}`);
@@ -113,19 +113,24 @@ class S3Client {
      *
      * @param {UploadPartAsyncParams}
      */
-    async uploadPartAsync({ filePath, uploadId, data, partNumber }) {
+    async uploadPartAsync({ filePath, uploadId, data, partNumber: PartNumber }) {
         assertIsValid(filePath, 'Cannot upload without filePath');
         assertIsValid(uploadId, 'UploadId is required to upload part of a file');
         try {
-            await this.client.send(
+            const { ETag } = await this.client.send(
                 new UploadPartCommand({
                     Bucket: this.bucketName,
                     Key: filePath,
                     UploadId: uploadId,
                     Body: data,
-                    PartNumber: partNumber
+                    PartNumber
                 })
             );
+
+            return {
+                ETag,
+                PartNumber
+            };
         } catch (err) {
             throw new RethrownError({
                 message: `Error in uploadPartAsync: ${err.message}`,
@@ -143,10 +148,11 @@ class S3Client {
      * @typedef {Object} CompleteMultiPartUploadAsyncParams
      * @property {string} filePath
      * @property {string} uploadId
+     * @property {{ ETag: string, PartNumber: number}[]} multipartUploadParts
      *
      * @param {CompleteMultiPartUploadAsyncParams}
      */
-    async completeMultiPartUploadAsync({ filePath, uploadId }) {
+    async completeMultiPartUploadAsync({ filePath, uploadId, multipartUploadParts }) {
         assertIsValid(filePath, 'Cannot complete multi-part upload without a filePath');
         assertIsValid(uploadId, 'UploadId is required to complete multi-part upload');
         try {
@@ -154,7 +160,10 @@ class S3Client {
                 new CompleteMultipartUploadCommand({
                     Bucket: this.bucketName,
                     Key: filePath,
-                    UploadId: uploadId
+                    UploadId: uploadId,
+                    MultipartUpload: {
+                        Parts: multipartUploadParts
+                    }
                 })
             );
         } catch (err) {
