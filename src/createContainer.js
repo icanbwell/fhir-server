@@ -108,7 +108,6 @@ const { ExportManager } = require('./operations/export/exportManager');
 const { BulkDataExportRunner } = require('./operations/export/script/bulkDataExportRunner');
 const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
-const { AdminLogger } = require('../src/admin/adminLogger')
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -819,7 +818,7 @@ const createContainer = function () {
         exportManager: c.exportManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        databaseExportManager: c.databaseExportManager,
+        databaseExportManager: c.databaseExportManager
     }));
 
     container.register('exportManager', (c) => new ExportManager({
@@ -844,8 +843,7 @@ const createContainer = function () {
         configManager: c.configManager,
         k8sClient: c.k8sClient,
         exportManager: c.exportManager,
-        scopesValidator: c.scopesValidator,
-        adminLogger: new AdminLogger()
+        scopesValidator: c.scopesValidator
     }));
 
     return container;

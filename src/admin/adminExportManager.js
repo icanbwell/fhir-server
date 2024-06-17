@@ -15,8 +15,8 @@ const { get_all_args } = require('../../src/operations/common/get_all_args');
 const { ExportManager } = require('../operations/export/exportManager');
 const { ScopesValidator } = require('../operations/security/scopesValidator');
 const { NotFoundError } = require("../utils/httpErrors");
-const { AdminLogger } = require('./adminLogger');
 const { WRITE } = require('../constants').OPERATIONS;
+const { logError } = require('../operations/common/logging');
 
 class AdminExportManager {
     /**
@@ -29,10 +29,9 @@ class AdminExportManager {
      * @property {configManager} configManager
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
-     * @property {AdminLogger} adminLogger
      */
     constructor({
-        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager, scopesValidator, adminLogger
+        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager, scopesValidator
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -79,11 +78,6 @@ class AdminExportManager {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-        /**
-         * @type {AdminLogger}
-         */
-        this.adminLogger = adminLogger;
-        assertTypeEquals(adminLogger, AdminLogger);
     }
 
     /**
@@ -123,7 +117,7 @@ class AdminExportManager {
             }
         }
         catch (error) {
-            this.adminLogger.logError(`Error in getExportStatus ${error.message}`);
+            logError(`Error in getExportStatus ${error.message}`);
             return error;
         }
         finally {
@@ -191,7 +185,7 @@ class AdminExportManager {
             return exportResource
         }
         catch (error) {
-            this.adminLogger.logError(`Error in getExportStatus ${error.message}`);
+            logError(`Error in getExportStatus ${error.message}`);
             return error;
         }
         finally {
@@ -239,7 +233,7 @@ class AdminExportManager {
 
             return this.exportManager.triggerExportJob({ exportStatusId })
         } catch (error) {
-            this.adminLogger.logError(`Error in triggerExportJob ${error.message}`);
+            logError(`Error in triggerExportJob ${error.message}`);
             return error;
         }
     }

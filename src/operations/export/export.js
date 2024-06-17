@@ -35,7 +35,7 @@ class ExportOperation {
         exportManager,
         postRequestProcessor,
         auditLogger,
-        databaseExportManager,
+        databaseExportManager
     }) {
         /**
          * @type {ScopesManager}
