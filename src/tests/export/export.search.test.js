@@ -119,9 +119,9 @@ describe('Export Tests', () => {
             let exportStatusResponse2 = await request
                 .get(`/admin/ExportStatus?id=${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
-                .expect(404)
+                .expect(200)
 
-            expect(exportStatusResponse2).toHaveResponse(
+            expect(JSON.parse(exportStatusResponse2.text)).toStrictEqual(
                 {
                     resourceType: "OperationOutcome",
                     issue: [

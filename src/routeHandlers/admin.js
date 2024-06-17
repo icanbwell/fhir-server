@@ -215,7 +215,7 @@ async function handleAdminGet (
                 )
             ]
         });
-        return res.status(e.statusCode || 500).json(operationOutcome);
+        return res.end(JSON.stringify(operationOutcome));
     }
 }
 
