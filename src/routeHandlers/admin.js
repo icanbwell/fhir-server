@@ -366,7 +366,7 @@ async function handleAdminPost (
                         message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
                     });
                 }
-                case 'exportData': {
+                case 'triggerExport': {
                     if (req.query.id) {
                         return res.json(await adminExportManager.triggerExportJob({ req, res }));
                     }

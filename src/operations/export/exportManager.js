@@ -137,13 +137,14 @@ class ExportManager {
     }
     async triggerExportJob({ exportStatusId }) {
         try {
-            await this.k8sClient.createJob(
+            const jobResult = await this.k8sClient.createJob(
                 'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
                 `--exportStatusId ${exportStatusId} ` +
                 `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
                 `--awsRegion ${this.configManager.awsRegion}`
             );
             logInfo(`Successfully triggered k8sclient Job for ${exportStatusId}`);
+            return jobResult;
         }
         catch (error) {
             logError(`Error in ExportManager triggerExportJob ${error.message}`);

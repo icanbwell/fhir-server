@@ -2,11 +2,10 @@ const { logInfo, logError } = require('../../common/logging');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('../../../utils/assertType');
-const { ConfigManager } = require('../../../utils/configManager');
-const { K8sClient } = require('../../../utils/k8sClient');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManager');
 const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
+const { ExportManager } = require('../exportManager');
 
 class CronJobRunner {
     /**
@@ -14,16 +13,13 @@ class CronJobRunner {
 
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseExportManager} databaseExportManager
-     * @property {K8sClient} k8sClient
-     * @property {ConfigManager} configManager
-     *
+     * @property {ExportManager} exportManager
      * @param {ConstructorParams}
      */
     constructor({
         databaseQueryFactory,
         databaseExportManager,
-        k8sClient,
-        configManager
+        exportManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -38,16 +34,10 @@ class CronJobRunner {
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
 
         /**
-         * @type {K8sClient}
+         * @type {ExportManager}
          */
-        this.k8sClient = k8sClient;
-        assertTypeEquals(k8sClient, K8sClient);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
+        this.exportManager = exportManager;
+        assertTypeEquals(exportManager, ExportManager);
     }
 
     /**
@@ -97,12 +87,7 @@ class CronJobRunner {
                 );
 
                 // Trigger k8s job to export data
-                const jobResult = await this.k8sClient.createJob(
-                    'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
-                        `--exportStatusId ${exportStatusData._uuid} ` +
-                        `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
-                        `--awsRegion ${this.configManager.awsRegion}`
-                );
+                const jobResult = await this.exportManager.triggerExportJob({exportStatusId: exportStatusData._uuid});
 
                 // Break the loop if the job limit is exceeded
                 if (!jobResult) {
