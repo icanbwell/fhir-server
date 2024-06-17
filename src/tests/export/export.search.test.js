@@ -25,9 +25,9 @@ describe('Export Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Patient Export tests', () => {
+    describe('Get ExportStatus tests', () => {
 
-        test('Test Get ExportStatus', async () => {
+        test('Test Get ExportStatus Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -50,18 +50,6 @@ describe('Export Tests', () => {
 
             expect(resp.headers['x-progress']).toEqual('accepted');
 
-            // Get Export Status via patient scope
-            let exportStatusResponseViaPatientScope = await request
-                .get(`/admin/ExportStatus?id=${exportStatusId}`)
-                .set(getHeaders('patient/*.*'))
-                .expect(403);
-
-            expect(exportStatusResponseViaPatientScope).toHaveResponse(
-                {
-                    message: "Missing scopes for admin/*.read in patient/*.*"
-                }
-            );
-
             // Get Export Status
             let exportStatusResponse = await request
                 .get(`/admin/ExportStatus?id=${exportStatusId}`)
@@ -74,9 +62,59 @@ describe('Export Tests', () => {
             delete exportStatusResponse.body.identifier[1].value;
 
             expect(exportStatusResponse).toHaveResponse(expectedExportStatusResponse);
+        });
 
-            // Get Export Status which is not present
+        test('Test Get ExportStatus Via Patient Scope', async () => {
+            const request = await createTestRequest((c) => {
 
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            let exportStatusResponseViaPatientScope = await request
+                .get(`/admin/ExportStatus?id=${exportStatusId}`)
+                .set(getHeaders('patient/*.*'))
+                .expect(403);
+
+            expect(exportStatusResponseViaPatientScope).toHaveResponse(
+                {
+                    message: "Missing scopes for admin/*.read in patient/*.*"
+                }
+            );
+        });
+
+        test('Test Get ExportStatus Not Present', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            resp = await request
+                .get(`/4_0_0/$export/${exportStatusId}`)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['x-progress']).toEqual('accepted');
             const randomUUID = generateUUID()
             let exportStatusResponse2 = await request
                 .get(`/admin/ExportStatus?id=${randomUUID}`)
@@ -85,11 +123,13 @@ describe('Export Tests', () => {
             expect(exportStatusResponse2).toHaveMergeResponse({ message: `Resource not found: ExportStatus/${randomUUID}` })
             expect(exportStatusResponse2).toHaveMergeResponse({ name: "NotFound" })
             expect(exportStatusResponse2).toHaveMergeResponse({ statusCode: 404 })
-
         });
 
+    });
 
-        test('Test Fetch ExportStatus List', async () => {
+    describe('Test Fetch ExportStatus List', () => {
+
+        test('Test Fetch ExportStatus List Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -128,6 +168,23 @@ describe('Export Tests', () => {
             delete exportStatusResponseList.body.entry[0].resource.identifier[1].value;
 
             expect(exportStatusResponseList).toHaveResponse(expectedExportStatusResponseList)
+        });
+
+        test('Test Get ExportStatus List via Patient Scope', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
 
             // Get Export Status List Via Patient Scope
             let exportStatusResponseListViaPatientScope = await request
@@ -140,8 +197,11 @@ describe('Export Tests', () => {
                     message: "Missing scopes for admin/*.read in patient/*.*"
                 });
         });
+    });
 
-        test('Test Update ExportStatus', async () => {
+    describe('Test Update ExportStatus', () => {
+
+        test('Test Update ExportStatus Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -182,6 +242,62 @@ describe('Export Tests', () => {
 
             expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
 
+        });
+
+        test('Update ExportStatus which is not present', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+
+            const expectedExportStatusResponseCopy = deepcopy(expectedExportStatusResponse[0]);
+            expectedExportStatusResponseCopy.status = "in-progress";
+
+            // Update ExportStatus Request which is not present
+            const randomUUID = generateUUID();
+            let exportStatusNotPresentPutResponse = await request
+                .put(`/admin/ExportStatus?id=${randomUUID}`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
+                .send(expectedExportStatusResponseCopy)
+                .expect(200);
+
+            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ message: `ExportStatus resoure with id ${randomUUID} doesn't exists` });
+            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ name: "NotFound" });
+            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ statusCode: 404 });
+
+        });
+
+
+        test('Update ExportStatus Via Patient Scope', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            const expectedExportStatusResponseCopy = deepcopy(expectedExportStatusResponse[0]);
+            expectedExportStatusResponseCopy.status = "in-progress";
+
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
                 .put(`/admin/ExportStatus?id=${exportStatusId}`)
@@ -194,19 +310,24 @@ describe('Export Tests', () => {
                     message: "Missing scopes for admin/*.read in patient/*.*"
                 }
             );
+        });
 
-            // Update ExportStatus Request which is not present
-            const randomUUID = generateUUID();
-            let exportStatusNotPresentPutResponse = await request
-                .put(`/admin/ExportStatus?id=${randomUUID}`)
-                .set(getHeaders('admin/*.* user/*.* access/*.*'))
-                .send(expectedExportStatusResponseCopy)
-                .expect(200);
+        test('Update ExportStatus with no changes', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
 
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ message: `Resource not found: ExportStatus/${randomUUID}` });
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ name: "NotFound" });
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ statusCode: 404 });
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .send(parameters1Resource)
+                .set(getHeaders())
+                .expect(202);
 
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
             // Update ExportStatus with No changes
 
             const expectedExportStatusResponseCopy2 = deepcopy(expectedExportStatusResponse[0]);
@@ -221,7 +342,6 @@ describe('Export Tests', () => {
             delete exportStatusNoChangesPutResponse.body.identifier[0].value;
             delete exportStatusNoChangesPutResponse.body.identifier[1].value;
             expect(exportStatusNoChangesPutResponse).toHaveResponse(expectedExportStatusResponse3)
-
         });
     });
 });

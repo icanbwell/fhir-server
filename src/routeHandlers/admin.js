@@ -367,12 +367,11 @@ async function handleAdminPost (
                     });
                 }
                 case 'exportData': {
-                    const exportStatusId = req.query.id
-                    if (exportStatusId) {
+                    if (req.query.id) {
                         return res.json(await adminExportManager.triggerExportJob({ req, res }));
                     }
                     else {
-                        return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                        return res.status(400).json({ message: 'ExportStatusId was not passed' });
                     }
                 }
                 default: {

@@ -6,7 +6,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { K8sClient } = require('../../utils/k8sClient');
-const { logError } = require('../../operations/common/logging');
+const { logError, logInfo } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ConfigManager } = require('../../utils/configManager');
 
@@ -142,6 +142,7 @@ class ExportManager {
                 `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
                 `--awsRegion ${this.configManager.awsRegion}`
             );
+            logInfo(`Successfully triggered k8sclient Job for ${exportStatusId}`);
         }
         catch (error) {
             logError(`Error in ExportManager triggerExportJob ${error.message}`);

@@ -11,8 +11,12 @@ const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { DatabaseExportManager } = require('../dataLayer/databaseExportManager');
 const { ConfigManager } = require('../utils/configManager');
 const { K8sClient } = require('../utils/k8sClient');
-const { logError } = require('../operations/common/logging');
+const { get_all_args } = require('../../src/operations/common/get_all_args');
 const { ExportManager } = require('../operations/export/exportManager');
+const { ScopesValidator } = require('../operations/security/scopesValidator');
+const { NotFoundError } = require("../utils/httpErrors");
+const { AdminLogger } = require('./adminLogger');
+const { WRITE } = require('../constants').OPERATIONS;
 
 class AdminExportManager {
     /**
@@ -24,9 +28,11 @@ class AdminExportManager {
      * @property {K8sClient} k8sClient
      * @property {configManager} configManager
      * @property {ExportManager} exportManager
+     * @property {ScopesValidator} scopesValidator
+     * @property {AdminLogger} adminLogger
      */
     constructor({
-        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager
+        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager, scopesValidator, adminLogger
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -68,6 +74,16 @@ class AdminExportManager {
          */
         this.exportManager = exportManager;
         assertTypeEquals(exportManager, ExportManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+        /**
+         * @type {AdminLogger}
+         */
+        this.adminLogger = adminLogger;
+        assertTypeEquals(adminLogger, AdminLogger);
     }
 
     /**
@@ -107,7 +123,7 @@ class AdminExportManager {
             }
         }
         catch (error) {
-            logError(`Error in getExportStatus ${error.message}`);
+            this.adminLogger.logError(`Error in getExportStatus ${error.message}`);
             return error;
         }
         finally {
@@ -125,23 +141,42 @@ class AdminExportManager {
     async updateExportStatus({ req, res }) {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         httpContext.set('requestId', req.id);
+
+        const exportStatusId = req.query.id;
+        const resourceType = 'ExportStatus'
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req)
+        const args = {
+            base_version: VERSIONS['4_0_0']
+        };
+
+        const combined_args = get_all_args(req, args);
+
+        const parsedArgs = await this.fhirOperationsManager.getParsedArgsAsync({
+            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE
+        });
 
         try {
-            const exportStatusResource = await this.fhirOperationsManager.searchById(
-                {
-                    base_version: VERSIONS['4_0_0']
-                },
-                {
-                    req,
-                    res
-                },
-                'ExportStatus');
+            await this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo: requestInfo,
+                parsedArgs: parsedArgs,
+                resourceType: resourceType,
+                startTime: Date.now(),
+                action: 'updateExportStatus',
+                accessRequested: 'write'
+            });
 
-            const exportResource = FhirResourceCreator.createByResourceType(req.body, 'ExportStatus');
+            const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
+                exportStatusId: exportStatusId
+            });
+
+            if (!exportStatusResource) {
+                throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
+            }
+
+            const exportResource = FhirResourceCreator.createByResourceType(req.body, resourceType);
 
             let { updatedResource } = await this.resourceMerger.mergeResourceAsync({
-                base_version: '4_0_0',
+                base_version: VERSIONS['4_0_0'],
                 requestInfo: requestInfo,
                 currentResource: exportStatusResource,
                 resourceToMerge: exportResource,
@@ -156,7 +191,7 @@ class AdminExportManager {
             return exportResource
         }
         catch (error) {
-            logError(`Error in getExportStatus ${error.message}`);
+            this.adminLogger.logError(`Error in getExportStatus ${error.message}`);
             return error;
         }
         finally {
@@ -172,20 +207,39 @@ class AdminExportManager {
      * @param {import('express').Response} res - Express response object
      */
     async triggerExportJob({ req, res }) {
-        const exportStatusId = req.query.id
+        const args = {
+            base_version: VERSIONS['4_0_0']
+        };
+        const exportStatusId = req.query.id;
+        const resourceType = 'ExportStatus';
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req)
+
+        const combined_args = get_all_args(req, args);
+
+        const parsedArgs = await this.fhirOperationsManager.getParsedArgsAsync({
+            args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE
+        });
+
         try {
-            await this.fhirOperationsManager.searchById(
-                {
-                    base_version: VERSIONS['4_0_0']
-                },
-                {
-                    req,
-                    res
-                },
-                'ExportStatus');
+            await this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo: requestInfo,
+                parsedArgs: parsedArgs,
+                resourceType: resourceType,
+                startTime: Date.now(),
+                action: 'triggerExportJob',
+                accessRequested: 'write'
+            });
+            const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
+                exportStatusId: exportStatusId
+            });
+
+            if (!exportStatusResource) {
+                throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
+            }
+
             return this.exportManager.triggerExportJob({ exportStatusId })
         } catch (error) {
-            logError(`Error in getExportStatus ${error.message}`);
+            this.adminLogger.logError(`Error in triggerExportJob ${error.message}`);
             return error;
         }
     }

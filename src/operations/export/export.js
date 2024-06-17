@@ -5,14 +5,12 @@ const { DatabaseExportManager } = require('../../dataLayer/databaseExportManager
 const { ExportManager } = require('./exportManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
-const { K8sClient } = require('../../utils/k8sClient');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
-const { ConfigManager } = require('../../utils/configManager');
 
 
 class ExportOperation {
@@ -26,8 +24,6 @@ class ExportOperation {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {AuditLogger} auditLogger
      * @property {DatabaseExportManager} databaseExportManager
-     * @property {K8sClient} k8sClient
-     * @property {ConfigManager} configManager
      *
      * @param {ConstructorParams}
      */
@@ -40,8 +36,6 @@ class ExportOperation {
         postRequestProcessor,
         auditLogger,
         databaseExportManager,
-        k8sClient,
-        configManager
     }) {
         /**
          * @type {ScopesManager}
@@ -90,18 +84,6 @@ class ExportOperation {
          */
         this.databaseExportManager = databaseExportManager;
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
-
-        /**
-         * @type {K8sClient}
-         */
-        this.k8sClient = k8sClient;
-        assertTypeEquals(k8sClient, K8sClient);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -188,12 +170,7 @@ class ExportOperation {
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
 
             // Trigger k8s job to export data
-            await this.k8sClient.createJob(
-                'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
-                `--exportStatusId ${exportStatusResource.id} ` +
-                `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
-                `--awsRegion ${this.configManager.awsRegion}`
-            );
+            await this.exportManager.triggerExportJob({ exportStatusId: exportStatusResource.id });
 
             // Logic to add auditEvent
             this.postRequestProcessor.add({
