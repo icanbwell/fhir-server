@@ -98,8 +98,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'AuditEvent', args })
             });
-            expect(result.query.$and['1'].$and['1'].recorded.$gte).toStrictEqual(new Date('2021-09-19T00:00:00.000Z'));
-            expect(result.query.$and['1'].$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.00Z'));
+            expect(result.query.$and['1'].recorded.$gte).toStrictEqual(new Date('2021-09-19T00:00:00Z'));
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });
         test('r4 works with accessIndex', async () => {
@@ -133,7 +133,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'AuditEvent', args })
             });
-            expect(result.query.$and['1'].$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']).toStrictEqual({ '_access.client': 1 });
         });
         test('r4 works with Task and subject', async () => {
@@ -903,24 +903,21 @@ describe('r4 search Tests', () => {
                     {
                       effectiveDateTime: {
                         $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/,
-                        $options: 'i',
-                        $type: 'string'
+                        $options: 'i'
                       }
                     },
                     {
                       $and: [
                         {
                           'effectivePeriod.start': {
-                            $lte: '2019-10-16T22:12:29+00:00',
-                            $type: 'string'
+                            $lte: '2019-10-16T22:12:29+00:00'
                           }
                         },
                         {
                           $or: [
                             {
                               'effectivePeriod.end': {
-                                $gte: '2019-10-16T22:12:29+00:00',
-                                $type: 'string'
+                                $gte: '2019-10-16T22:12:29+00:00'
                               }
                             },
                             {
@@ -932,15 +929,13 @@ describe('r4 search Tests', () => {
                     },
                     {
                       'effectiveTiming.event': {
-                          $lte: '2019-10-16T22:12:29+00:00',
-                          $type: 'string'
+                          $lte: '2019-10-16T22:12:29+00:00'
                       }
                     },
                     {
                       effectiveInstant: {
                         $gte: '2019-10-16T00:00:00.000Z',
-                        $lte: '2019-10-16T23:59:59.999Z',
-                        $type: 'date'
+                        $lte: '2019-10-16T23:59:59.999Z'
                       }
                     }
                   ]

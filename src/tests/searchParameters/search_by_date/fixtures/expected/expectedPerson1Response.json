@@ -19,7 +19,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Person_4_0_0.find({'$and':[{'meta.lastUpdated':{'$not':{'$gte':ISODate('2024-01-01T00:00:00.000Z'),'$lte':ISODate('2024-01-01T23:59:59.999Z')},'$type':'date'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
+        "display": "db.Person_4_0_0.find({'$and':[{'meta.lastUpdated':{'$not':{'$gte':ISODate('2024-01-01T00:00:00.000Z'),'$lte':ISODate('2024-01-01T23:59:59.999Z')}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

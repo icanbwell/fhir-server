@@ -901,7 +901,6 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
-    startQuery.$type = 'string';
     startQuery = { [`${fieldName}.start`]: startQuery };
 
     // Build query for period.end
@@ -932,12 +931,6 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                 })
             };
             break;
-    }
-    if (endQuery[`${fieldName}.end`]) {
-        endQuery[`${fieldName}.end`].$type = 'string';
-    }
-    if (endQuery.$or) {
-        endQuery.$or[0][`${fieldName}.end`].$type = 'string';
     }
     return [startQuery, endQuery];
 };
@@ -983,7 +976,6 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
-    timingQuery.$type = 'string';
     timingQuery = { [`${fieldName}.event`]: timingQuery };
 
     return timingQuery;

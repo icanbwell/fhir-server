@@ -513,7 +513,7 @@
   "meta": {
     "tag": [
       {
-         "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'recorded':{'$gt':ISODate('2021-08-02T00:00:00.000Z'),'$type':'date'}},{'recorded':{'$lt':ISODate('2021-10-02T00:00:00.000Z'),'$type':'date'}}]}, {}).sort({'_uuid':1}).limit(100)",
+         "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$gt':ISODate('2021-08-02T00:00:00.000Z'),'$lt':ISODate('2021-10-02T00:00:00.000Z')}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

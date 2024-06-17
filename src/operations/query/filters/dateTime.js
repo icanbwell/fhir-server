@@ -55,9 +55,6 @@ class FilterByDateTime extends BaseFilter {
                             date: value, type: this.propertyObj.type
                         })
                     };
-                    if (strQuery) {
-                        strQuery[`${fieldName}`].$type = 'string';
-                    }
                 }
             }
            return strQuery;
@@ -74,9 +71,6 @@ class FilterByDateTime extends BaseFilter {
                         }
                     )
                 };
-                if (dateQuery) {
-                    dateQuery[`${fieldName}`].$type = 'date';
-                 }
             }
             return dateQuery;
         }
