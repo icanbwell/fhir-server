@@ -212,7 +212,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // make sure restricted resources are not deleted using patient scope
             resp = await request.delete('/4_0_0/Observation/2').set(headers).expect(204);
-
+            // checking that the document is not deleted
             await request.get('/4_0_0/Observation/2').set(getHeaders()).expect(200);
         });
     });

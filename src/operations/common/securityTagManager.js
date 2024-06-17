@@ -142,8 +142,7 @@ class SecurityTagManager {
      */
     isResourceRestricted({ resource }) {
         if (
-            resource.meta?.security &&
-            resource.meta.security.some(
+            resource.meta?.security?.some(
                 (s) =>
                     s.system === RESOURCE_RESTRICTION_TAG.SYSTEM &&
                     s.code === RESOURCE_RESTRICTION_TAG.CODE
