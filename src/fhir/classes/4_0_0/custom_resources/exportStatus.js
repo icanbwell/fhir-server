@@ -400,7 +400,8 @@ class ExportStatus extends Resource {
         scope,
         user,
         transactionTime,
-        output
+        output,
+        errors
     }){
         return new ExportStatus({
             id,
@@ -412,7 +413,8 @@ class ExportStatus extends Resource {
             scope,
             user,
             transactionTime,
-            output
+            output,
+            errors
         })
     }
 
