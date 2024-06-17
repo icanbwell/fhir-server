@@ -119,10 +119,20 @@ describe('Export Tests', () => {
             let exportStatusResponse2 = await request
                 .get(`/admin/ExportStatus?id=${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
+                .expect(404)
 
-            expect(exportStatusResponse2).toHaveMergeResponse({ message: `Resource not found: ExportStatus/${randomUUID}` })
-            expect(exportStatusResponse2).toHaveMergeResponse({ name: "NotFound" })
-            expect(exportStatusResponse2).toHaveMergeResponse({ statusCode: 404 })
+            expect(exportStatusResponse2).toHaveResponse(
+                {
+                    resourceType: "OperationOutcome",
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            diagnostics: `Resource not found: ExportStatus/${randomUUID}`
+                        }
+                    ]
+                }
+            );
         });
 
     });
@@ -269,11 +279,20 @@ describe('Export Tests', () => {
                 .put(`/admin/ExportStatus?id=${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
-                .expect(200);
+                .expect(404);
 
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ message: `ExportStatus resoure with id ${randomUUID} doesn't exists` });
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ name: "NotFound" });
-            expect(exportStatusNotPresentPutResponse).toHaveMergeResponse({ statusCode: 404 });
+            expect(exportStatusNotPresentPutResponse).toHaveResponse(
+                {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            diagnostics: `ExportStatus resoure with id ${randomUUID} doesn't exists`
+                        }
+                    ]
+                }
+            );
 
         });
 
