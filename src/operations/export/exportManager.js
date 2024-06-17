@@ -7,7 +7,8 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { K8sClient } = require('../../utils/k8sClient');
 const { logError, logInfo } = require('../../operations/common/logging');
-const { RethrownError } = require('../../utils/rethrownError');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { ConfigManager } = require('../../utils/configManager');
 
 class ExportManager {
@@ -146,10 +147,17 @@ class ExportManager {
         }
         catch (error) {
             logError(`Error in ExportManager triggerExportJob ${error.message}`);
-            throw new RethrownError({
-                message: 'Error in ExportManager triggerExportJob',
-                error: error
-            })
+            throw new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        diagnostics: error.message,
+                        error: error
+                    }
+                    )
+                ]
+            }
+            )
         }
     }
 }

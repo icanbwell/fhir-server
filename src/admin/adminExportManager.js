@@ -233,7 +233,7 @@ class AdminExportManager {
                 throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
             }
 
-            return this.exportManager.triggerExportJob({ exportStatusId })
+            return await this.exportManager.triggerExportJob({ exportStatusId })
         } catch (error) {
             logError(`Error in triggerExportJob ${error.message}`);
             return error;
