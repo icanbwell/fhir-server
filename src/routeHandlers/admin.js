@@ -215,7 +215,7 @@ async function handleAdminGet (
                 )
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(e.statusCode || 500).json(operationOutcome);
     }
 }
 
@@ -395,7 +395,7 @@ async function handleAdminPost (
                 )
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(e.statusCode || 500).json(operationOutcome);
     }
 }
 
@@ -410,51 +410,69 @@ async function handleAdminPut(
     req,
     res
 ) {
-    req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-    httpContext.set('requestId', req.id);
-    const operation = req.params.op;
-    logInfo(`op=${operation}`, {});
-    // set up all the standard services in the container
-    /**
-     * @type {SimpleContainer}
-     */
-    const container = fnGetContainer();
-    /**
-     * @type {AdminExportManager}
-     */
-    const adminExportManager = container.adminExportManager;
-    /**
-     * @type {ScopesManager}
-     */
-    const scopesManager = container.scopesManager;
-    /**
-     * @type {string|undefined}
-     */
-    const scope = scopesManager.getScopeFromRequest({ req });
-    /**
-     * @type {string[]}
-     */
-    const adminScopes = scopesManager.getAdminScopes({ scope });
+    try {
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
+        const operation = req.params.op;
+        logInfo(`op=${operation}`, {});
+        // set up all the standard services in the container
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = fnGetContainer();
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({ req });
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({ scope });
 
-    if (adminScopes.length > 0) {
-        switch (operation) {
-            case 'ExportStatus': {
-                logInfo('', { 'req.query': req.query });
-                if (req.query.id) {
-                    return res.json(await adminExportManager.updateExportStatus({ req, res }));
+        if (adminScopes.length > 0) {
+            switch (operation) {
+                case 'ExportStatus': {
+                    logInfo('', { 'req.query': req.query });
+                    if (req.query.id) {
+                        return res.json(await adminExportManager.updateExportStatus({ req, res }));
+                    }
+                    else {
+                        return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                    }
                 }
-                else {
-                    return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                default: {
+                    return res.json({ message: 'Invalid Path' });
                 }
             }
-            default: {
-                return res.json({ message: 'Invalid Path' });
-            }
+        } else {
+            return res.status(403).json({
+                message: `Missing scopes for admin/*.read in ${scope}`
+            });
         }
-    } else {
-        return res.status(403).json({
-            message: `Missing scopes for admin/*.read in ${scope}`
+    }
+    catch (e) {
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
         });
+
+        return res.status(e.statusCode || 500).json(operationOutcome);
+
     }
 }
 

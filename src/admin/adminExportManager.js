@@ -118,7 +118,7 @@ class AdminExportManager {
         }
         catch (error) {
             logError(`Error in getExportStatus ${error.message}`);
-            return error;
+            throw error;
         }
         finally {
             const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
@@ -188,7 +188,7 @@ class AdminExportManager {
         }
         catch (error) {
             logError(`Error in getExportStatus ${error.message}`);
-            return error;
+            throw error;
         }
         finally {
             const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
@@ -236,7 +236,7 @@ class AdminExportManager {
             return await this.exportManager.triggerExportJob({ exportStatusId })
         } catch (error) {
             logError(`Error in triggerExportJob ${error.message}`);
-            return error;
+            throw error;
         }
     }
 }

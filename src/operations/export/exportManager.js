@@ -6,9 +6,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { K8sClient } = require('../../utils/k8sClient');
-const { logError, logInfo } = require('../../operations/common/logging');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { logInfo } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
 
 class ExportManager {
@@ -136,30 +134,14 @@ class ExportManager {
         }
     }
     async triggerExportJob({ exportStatusId }) {
-        try {
-            const jobResult = await this.k8sClient.createJob(
-                'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
-                `--exportStatusId ${exportStatusId} ` +
-                `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
-                `--awsRegion ${this.configManager.awsRegion}`
-            );
-            logInfo(`Successfully triggered k8sclient Job for ${exportStatusId}`);
-            return jobResult;
-        }
-        catch (error) {
-            logError(`Error in ExportManager triggerExportJob ${error.message}`);
-            throw new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        diagnostics: error.message,
-                        error: error
-                    }
-                    )
-                ]
-            }
-            )
-        }
+        const jobResult = await this.k8sClient.createJob(
+            'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
+            `--exportStatusId ${exportStatusId} ` +
+            `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
+            `--awsRegion ${this.configManager.awsRegion}`
+        );
+        logInfo(`Successfully triggered k8sclient Job for ${exportStatusId}`);
+        return jobResult;
     }
 }
 
