@@ -177,10 +177,12 @@ class AdminExportManager {
                 smartMerge: false,
                 incrementVersion: false
             });
+
             if (updatedResource) {
                 await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: exportResource
+                    exportStatusResource: updatedResource
                 });
+                return updatedResource;
             }
             return exportResource
         }
