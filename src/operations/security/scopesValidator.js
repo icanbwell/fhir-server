@@ -6,6 +6,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { PatientScopeManager } = require('./patientScopeManager');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { SecurityTagManager } = require('../common/securityTagManager');
 
 class ScopesValidator {
     /**
@@ -15,13 +16,15 @@ class ScopesValidator {
      * @param {ConfigManager} configManager
      * @param {PatientScopeManager} patientScopeManager
      * @param {PreSaveManager} preSaveManager
+     * @param {SecurityTagManager} securityTagManager
      */
     constructor ({
         scopesManager,
         fhirLoggingManager,
         configManager,
         patientScopeManager,
-        preSaveManager
+        preSaveManager,
+        securityTagManager
     }) {
         /**
          * @type {ScopesManager}
@@ -48,6 +51,11 @@ class ScopesValidator {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -214,6 +222,28 @@ class ScopesValidator {
     }
 
     /**
+     * Throws forbidden error when access through patient scope and resource is restricted
+     * @typedef {Object} IsAccessToResourceRestrictedForPatientScopeParams
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @property {Resource} resource
+     * @property {string} accessRequested
+     *
+     * @param {IsAccessToResourceRestrictedForPatientScopeParams}
+     */
+    isAccessToResourceRestrictedForPatientScope({ requestInfo, resource, accessRequested = 'write' }) {
+        const { isUser, user, scope } = requestInfo
+        if (
+            isUser &&
+            this.securityTagManager.isResourceRestricted({ resource })
+        ) {
+            throw new ForbiddenError(
+                `user ${user} with scopes [${scope}] has no ${accessRequested} access ` +
+                `to resource ${resource.resourceType} with id ${resource.id}`
+            );
+        }
+    }
+
+    /**
      * Throws forbidden error when access through patient scope or access scope is not allowed
      * @typedef {Object} IsAccessToResourceAllowedByAccessAndPatientScopesParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
@@ -235,6 +265,8 @@ class ScopesValidator {
             resource = await this.preSaveManager.preSaveAsync({ resource });
             // validate access scopes for resource
             this.isAccessToResourceAllowedByAccessScopes({ requestInfo, resource, accessRequested });
+            // validate if resource being accessed is restricted for patient
+            this.isAccessToResourceRestrictedForPatientScope({ requestInfo, resource, accessRequested });
             // validate patient scopes for resource
             await this.isAccessToResourceAllowedByPatientScopes({ requestInfo, resource, base_version });
         } catch (e) {

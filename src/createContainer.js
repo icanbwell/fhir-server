@@ -177,7 +177,8 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         configManager: c.configManager,
         patientScopeManager: c.patientScopeManager,
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        securityTagManager: c.securityTagManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 

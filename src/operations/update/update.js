@@ -23,6 +23,7 @@ const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { logInfo } = require('../common/logging');
+const { isUuid } = require('../../utils/uid.util');
 
 /**
  * Update Operation
@@ -202,29 +203,35 @@ class UpdateOperation {
 
         try {
             /**
-             * @type {boolean}
+             * @type {import('mongodb').Document}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
+            let query;
+            if (isUuid(rawId)) {
+                query = { _uuid: rawId };
+            } else {
+                /**
+                 * @type {boolean}
+                 */
+                const useAccessIndex =
+                    this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex);
 
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
-            const {
-                /** @type {import('mongodb').Document}**/
-                query
-                // /** @type {Set} **/
-                // columns
-            } = await this.searchManager.constructQueryAsync({
-                user,
-                scope,
-                isUser,
-                resourceType,
-                useAccessIndex,
-                personIdFromJwtToken,
-                parsedArgs,
-                operation: WRITE,
-                accessRequested: 'write'
-            });
+                /**
+                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+                 */
+                (
+                    { query } = await this.searchManager.constructQueryAsync({
+                        user,
+                        scope,
+                        isUser,
+                        resourceType,
+                        useAccessIndex,
+                        personIdFromJwtToken,
+                        parsedArgs,
+                        operation: WRITE,
+                        accessRequested: 'write'
+                    })
+                );
+            }
 
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

@@ -198,6 +198,10 @@ module.exports = {
         SYSTEM: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
         CODE: 'AUT'
     },
+    RESOURCE_RESTRICTION_TAG: {
+        SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+        CODE: 'R'
+    },
     CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
     EXTERNAL_REQUEST_RETRY_COUNT: 3,
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,

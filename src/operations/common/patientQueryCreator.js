@@ -7,7 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const querystring = require('querystring');
-const {OPERATIONS} = require('../../constants');
+const { OPERATIONS, RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 class PatientQueryCreator {
     /**
@@ -289,6 +289,19 @@ class PatientQueryCreator {
         if (patientAndPersonQuery) {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({query, andQuery: patientAndPersonQuery});
         }
+
+        // apply filter to exclude resources with restricted security
+        query.$and = query.$and || [];
+        query.$and.push({
+            'meta.security': {
+                $not: {
+                    $elemMatch: {
+                        system: RESOURCE_RESTRICTION_TAG.SYSTEM,
+                        code: RESOURCE_RESTRICTION_TAG.CODE
+                    }
+                }
+            }
+        });
         return query;
     }
 }
