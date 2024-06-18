@@ -11,6 +11,7 @@ const { assertIsValid } = require('../utils/assertType');
 const { generateUUID } = require('../utils/uid.util');
 const { logInfo } = require('../operations/common/logging');
 const { REQUEST_ID_HEADER } = require('../constants');
+const { AdminExportManager } = require('../admin/adminExportManager');
 
 /**
  * shows indexes
@@ -92,6 +93,11 @@ async function handleAdminGet (
          * @type {ScopesManager}
          */
         const scopesManager = container.scopesManager;
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
+        /**
         /**
          * @type {string|undefined}
          */
@@ -183,6 +189,11 @@ async function handleAdminGet (
                     return res.json(json);
                 }
 
+                case 'ExportStatus': {
+                    logInfo('', { 'req.query': req.query });
+                    return res.json(await adminExportManager.getExportStatus({ req, res }))
+                }
+
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -234,6 +245,10 @@ async function handleAdminPost (
          * @type {ScopesManager}
          */
         const scopesManager = container.scopesManager;
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
         /**
          * @type {string|undefined}
          */
@@ -351,7 +366,14 @@ async function handleAdminPost (
                         message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
                     });
                 }
-
+                case 'triggerExport': {
+                    if (req.query.id) {
+                        return res.json(await adminExportManager.triggerExportJob({ req, res }));
+                    }
+                    else {
+                        return res.status(400).json({ message: 'ExportStatusId was not passed' });
+                    }
+                }
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -373,7 +395,84 @@ async function handleAdminPost (
                 )
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(e.statusCode || 500).json(operationOutcome);
+    }
+}
+
+/**
+ * Handles admin put routes
+ * @param {function (): SimpleContainer} fnGetContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ */
+async function handleAdminPut(
+    fnGetContainer,
+    req,
+    res
+) {
+    try {
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
+        const operation = req.params.op;
+        logInfo(`op=${operation}`, {});
+        // set up all the standard services in the container
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = fnGetContainer();
+        /**
+         * @type {AdminExportManager}
+         */
+        const adminExportManager = container.adminExportManager;
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({ req });
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({ scope });
+
+        if (adminScopes.length > 0) {
+            switch (operation) {
+                case 'ExportStatus': {
+                    logInfo('', { 'req.query': req.query });
+                    if (req.query.id) {
+                        return res.json(await adminExportManager.updateExportStatus({ req, res }));
+                    }
+                    else {
+                        return res.status(400).json({ message: 'ExportStatusId was not passed' })
+                    }
+                }
+                default: {
+                    return res.json({ message: 'Invalid Path' });
+                }
+            }
+        } else {
+            return res.status(403).json({
+                message: `Missing scopes for admin/*.read in ${scope}`
+            });
+        }
+    }
+    catch (e) {
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
+        });
+
+        return res.status(e.statusCode || 500).json(operationOutcome);
+
     }
 }
 
@@ -588,5 +687,6 @@ async function handleAdminDelete (
 module.exports = {
     handleAdminGet,
     handleAdminPost,
-    handleAdminDelete
+    handleAdminDelete,
+    handleAdminPut
 };

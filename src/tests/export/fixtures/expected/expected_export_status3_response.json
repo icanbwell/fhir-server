@@ -1,0 +1,40 @@
+[
+    {
+        "resourceType": "ExportStatus",
+        "meta": {
+            "versionId": "2",
+            "lastUpdated": "2024-06-09T19: 58: 37.000Z",
+            "source": "test",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "client"
+                },
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "client1"
+                }
+            ]
+        },
+        "identifier": [
+            {
+                "id": "sourceId",
+                "system": "https://www.icanbwell.com/sourceId"
+            },
+            {
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid"
+            }
+        ],
+        "status": "accepted",
+        "requiresAccessToken": false,
+        "scope": "user/*.read user/*.write access/*.*",
+        "user": "imran",
+        "output": [],
+        "errors": []
+    }
+]

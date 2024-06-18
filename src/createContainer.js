@@ -106,6 +106,7 @@ const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
 const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { ExportByIdOperation } = require('./operations/export/exportById');
+const { AdminExportManager } = require('./admin/adminExportManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -816,20 +817,32 @@ const createContainer = function () {
         exportManager: c.exportManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        databaseExportManager: c.databaseExportManager,
-        k8sClient: c.k8sClient,
-        configManager: c.configManager
+        databaseExportManager: c.databaseExportManager
     }));
 
     container.register('exportManager', (c) => new ExportManager({
         securityTagManager: c.securityTagManager,
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        configManager: c.configManager,
+        k8sClient: c.k8sClient
     }));
 
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
         databaseExportManager: c.databaseExportManager
+    }));
+
+    container.register('adminExportManager', (c) => new AdminExportManager({
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache,
+        fhirOperationsManager: c.fhirOperationsManager,
+        databaseExportManager: c.databaseExportManager,
+        resourceMerger: c.resourceMerger,
+        configManager: c.configManager,
+        k8sClient: c.k8sClient,
+        exportManager: c.exportManager,
+        scopesValidator: c.scopesValidator
     }));
 
     return container;

@@ -375,6 +375,49 @@ class ExportStatus extends Resource {
         });
     }
 
+
+    /**
+     * @description Create a blank new resource
+     * @param {String} [id]
+     * @param {import('../complex_types/meta.js')} [meta]
+     * @param {import('../complex_types/identifier.js')} [identifier]
+     * @param {code} status
+     * @param {url} request
+     * @param {boolean} requiresAccessToken
+     * @param {string} scope
+     * @param {string} user
+     * @param {date} transactionTime
+     * @param {import('./exportStatusEntry.js')[]} [output]
+     * @param {import('./exportStatusEntry.js')[]} [errors]
+     */
+    create({
+        id,
+        meta,
+        identifier,
+        status,
+        request,
+        requiresAccessToken,
+        scope,
+        user,
+        transactionTime,
+        output,
+        errors
+    }){
+        return new ExportStatus({
+            id,
+            meta,
+            identifier,
+            status,
+            request,
+            requiresAccessToken,
+            scope,
+            user,
+            transactionTime,
+            output,
+            errors
+        })
+    }
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

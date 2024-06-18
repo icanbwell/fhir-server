@@ -5,16 +5,20 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { K8sClient } = require('../../utils/k8sClient');
+const { logInfo } = require('../../operations/common/logging');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ExportManager {
     /**
      * @typedef {Object} ConstructorParams
      * @property {SecurityTagManager} securityTagManager
      * @property {PreSaveManager} preSaveManager
-     *
+     * @property {ConfigManager} configManager
+     * @property {K8sClient} k8sClient
      * @param {ConstructorParams}
      */
-    constructor({ securityTagManager, preSaveManager }) {
+    constructor({ securityTagManager, preSaveManager, configManager, k8sClient }) {
         /**
          * @type {SecurityTagManager}
          */
@@ -26,6 +30,16 @@ class ExportManager {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {K8sClient}
+         */
+        this.k8sClient = k8sClient;
+        assertTypeEquals(k8sClient, K8sClient);
     }
 
     /**
@@ -118,6 +132,16 @@ class ExportManager {
                 `User ${user} cannot trigger Bulk Export with owner tag: ${ownerCode}`
             );
         }
+    }
+    async triggerExportJob({ exportStatusId }) {
+        const jobResult = await this.k8sClient.createJob(
+            'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
+            `--exportStatusId ${exportStatusId} ` +
+            `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
+            `--awsRegion ${this.configManager.awsRegion}`
+        );
+        logInfo(`Successfully triggered k8sclient Job for ${exportStatusId}`);
+        return jobResult;
     }
 }
 

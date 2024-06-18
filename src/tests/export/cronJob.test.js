@@ -83,8 +83,7 @@ describe('Cron Job Tests', () => {
                     new CronJobRunner({
                         databaseQueryFactory: c.databaseQueryFactory,
                         databaseExportManager: c.databaseExportManager,
-                        k8sClient: c.k8sClient,
-                        configManager: c.configManager,
+                        exportManager: c.exportManager,
                         batchSize: 100
                     })
             );
