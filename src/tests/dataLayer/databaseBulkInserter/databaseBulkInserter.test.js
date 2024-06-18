@@ -853,6 +853,13 @@ describe('databaseBulkInserter Tests', () => {
                                         diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
                                         severity: 'information'
                                     }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        severity: 'information',
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}'
+                                    }
                                 )
                             ],
                             resourceType: 'OperationOutcome'
@@ -867,7 +874,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.identifier[1].value = actualCodeSystemHistoryEntry.resource.identifier[1].value;
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
-
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
@@ -1323,7 +1329,7 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.identifier[1].value = actualCodeSystemHistoryEntry.resource.identifier[1].value;
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
-
+            actualCodeSystemHistoryEntry.response.outcome.issue.splice(2,1); // remove date update
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {

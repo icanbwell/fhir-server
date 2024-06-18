@@ -64,7 +64,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$and['2'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['1'].$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
@@ -892,64 +892,66 @@ describe('r4 search Tests', () => {
                 resourceType: 'Observation',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Observation', args })
             });
+            // need to convert dates to strings to make match work
+            result.query.$and['0'].$or['3'].effectiveInstant.$gte = result.query.$and['0'].$or['3'].effectiveInstant.$gte.toISOString();
+            result.query.$and['0'].$or['3'].effectiveInstant.$lte = result.query.$and['0'].$or['3'].effectiveInstant.$lte.toISOString();
             expect(result.query).toStrictEqual(
                 {
-                    $and: [
+              $and: [
+                {
+                  $or: [
+                    {
+                      effectiveDateTime: {
+                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/,
+                        $options: 'i'
+                      }
+                    },
+                    {
+                      $and: [
                         {
-                            $or: [
-                                {
-                                    effectiveDateTime: {
-                                        $options: 'i',
-                                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/
-                                    }
-                                },
-                                {
-                                    $and: [
-                                        {
-                                            'effectivePeriod.start': {
-                                                $lte: '2019-10-16T22:12:29+00:00'
-                                            }
-                                        },
-                                        {
-                                            $or: [
-                                                {
-                                                    'effectivePeriod.end': {
-                                                        $gte: '2019-10-16T22:12:29+00:00'
-                                                    }
-                                                },
-                                                {
-                                                    'effectivePeriod.end': null
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    effectiveTiming: {
-                                        $options: 'i',
-                                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/
-                                    }
-                                },
-                                {
-                                    effectiveInstant: {
-                                        $options: 'i',
-                                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/
-                                    }
-                                }
-                            ]
+                          'effectivePeriod.start': {
+                            $lte: '2019-10-16T22:12:29+00:00'
+                          }
                         },
                         {
-                            'meta.tag': {
-                                $not: {
-                                    $elemMatch: {
-                                        code: 'hidden',
-                                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior'
-                                    }
-                                }
+                          $or: [
+                            {
+                              'effectivePeriod.end': {
+                                $gte: '2019-10-16T22:12:29+00:00'
+                              }
+                            },
+                            {
+                              'effectivePeriod.end': null
                             }
+                          ]
                         }
-                    ]
-                });
+                      ]
+                    },
+                    {
+                      'effectiveTiming.event': {
+                          $lte: '2019-10-16T22:12:29+00:00'
+                      }
+                    },
+                    {
+                      effectiveInstant: {
+                        $gte: '2019-10-16T00:00:00.000Z',
+                        $lte: '2019-10-16T23:59:59.999Z'
+                      }
+                    }
+                  ]
+                },
+                {
+                  'meta.tag': {
+                    $not: {
+                      $elemMatch: {
+                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                        code: 'hidden'
+                      }
+                    }
+                  }
+                }
+              ]
+            });
         });
         test.skip('r4 works with date with microseconds in Observation', async () => {
             // TODO: Fix dateQueryBuilder() first

@@ -58,7 +58,7 @@ describe('Person Tests', () => {
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
             const personCollection = fhirDb.collection('Person_4_0_0');
-            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
+            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0, birthDate: 0 }).toArray();
             expectedPersonsInDatabase.forEach(a => delete a.meta.lastUpdated);
             expect(persons).toStrictEqual(expectedPersonsInDatabase);
 
@@ -77,7 +77,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const patientCollection = fhirDb.collection('Patient_4_0_0');
-            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
+            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0, birthDate: 0 }).toArray();
             expectedPatientsInDatabase.forEach(a => delete a.meta.lastUpdated);
             expect(patients).toStrictEqual(expectedPatientsInDatabase);
 
@@ -132,7 +132,7 @@ describe('Person Tests', () => {
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
             const personCollection = fhirDb.collection('Person_4_0_0');
-            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
+            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0, birthDate: 0 }).toArray();
             expectedPersonsInDatabaseWithoutSourceAssigningAuthority.forEach(a => delete a.meta.lastUpdated);
             expect(persons).toStrictEqual(expectedPersonsInDatabaseWithoutSourceAssigningAuthority);
 
@@ -151,8 +151,9 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const patientCollection = fhirDb.collection('Patient_4_0_0');
-            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
+            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0, birthDate: 0 }).toArray();
             expectedPatientsInDatabaseWithoutSourceAssigningAuthority.forEach(a => delete a.meta.lastUpdated);
+            expectedPatientsInDatabaseWithoutSourceAssigningAuthority.forEach(a => delete a.birthDate);
             expect(patients).toStrictEqual(expectedPatientsInDatabaseWithoutSourceAssigningAuthority);
 
             // add tasks

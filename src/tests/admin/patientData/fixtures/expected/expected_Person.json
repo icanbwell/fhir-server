@@ -54,7 +54,7 @@
                 "value": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3"
               }
             ],
-            "issued": "2021-01-01T12:00:00Z",
+            "issued": "2021-01-01T12:00:00.000Z",
             "meta": {
               "security": [
                 {

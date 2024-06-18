@@ -802,13 +802,25 @@ const dateQueryBuilder = function ({ date, type, path }) {
 // noinspection JSUnusedLocalSymbols
 
 const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
+    let date = null;
+    let operation = null;
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     if (!matches) {
-        throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
+        if (!moment.utc(dateSearchParameter).isValid()) {
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
+        }
+        date = moment.utc(dateSearchParameter).toDate();
+    } else {
+        operation = matches[1];
+        if (!moment.utc(matches[2]).isValid()) {
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${matches[2]}`));
+        }
+        date = moment.utc(matches[2]).toDate();
     }
-    const operation = matches[1];
-    const date = moment.utc(matches[2]).toDate();
+    if (!operation) {
+        operation = 'eq';
+    }
     const query = {};
     // from http://hl7.org/fhir/r4/search.html#date
     switch (operation) {
@@ -901,8 +913,8 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                 $or: [
                     {
                         [`${fieldName}.end`]: dateQueryBuilder({
-                            date: `ge${date}`,
-                            type: 'date'
+                        date: `ge${date}`,
+                        type: 'date'
                         })
                     },
                     {
@@ -920,8 +932,53 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
-
     return [startQuery, endQuery];
+};
+
+/**
+ * filters by date for a Timing field
+ * https://www.hl7.org/fhir/search.html#date
+ * https://www.hl7.org/fhir/search.html#prefix
+ * @param {string} dateQueryItem
+ * @param {string} fieldName
+ * @returns {Object[]}
+ */
+const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
+    const regex = /([a-z]+)(.+)/;
+    const match = dateQueryItem.match(regex);
+
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
+
+    // Build query for timing.event
+    let timingQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'le':
+        case 'lt':
+            timingQuery = dateQueryBuilder({
+                date: `le${date}`,
+                type: 'date'
+            });
+            break;
+        case 'sa':
+            timingQuery = dateQueryBuilder({
+                date: `ge${date}`,
+                type: 'date'
+            });
+            break;
+        case 'ge':
+        case 'gt':
+        case 'eb':
+            timingQuery = {
+                $ne: null
+            };
+            break;
+    }
+    timingQuery = { [`${fieldName}.event`]: timingQuery };
+
+    return timingQuery;
 };
 
 /**
@@ -1198,6 +1255,7 @@ module.exports = {
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
+    datetimeTimingQueryBuilder,
     partialTextQueryBuilder,
     exactMatchQueryBuilder,
     tokenQueryContainsBuilder,

@@ -41,7 +41,6 @@ async function setupDatabaseAsync (mongoDatabaseManager, explanationOfBenefitRes
     delete resource._id;
 
     explanationOfBenefitResource.meta.lastUpdated = resource.meta.lastUpdated;
-
     expect(resource).toStrictEqual(expectedExplanationInDatabase);
     return collection;
 }
@@ -117,6 +116,7 @@ describe('ExplanationOfBenefit Tests', () => {
             expectedExplanationOfBenefit1DatabaseAfterRun.identifier
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = explanationOfBenefit1._uuid;
+
             expect(explanationOfBenefit1).toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun);
         });
     });

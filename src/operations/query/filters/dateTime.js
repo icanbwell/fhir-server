@@ -1,13 +1,19 @@
 const {
     dateQueryBuilder,
     dateQueryBuilderNative,
-    datetimePeriodQueryBuilder
+    datetimePeriodQueryBuilder,
+    datetimeTimingQueryBuilder
 } = require('../../../utils/querybuilder.util');
-const { isColumnDateType } = require('../../common/isColumnDateType');
+const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
 
 function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
+}
+
+function isTimingField (fieldString) {
+    const pattern = /timing/i;
+    return pattern.test(fieldString);
 }
 
 /**
@@ -15,44 +21,61 @@ function isPeriodField (fieldString) {
  * https://www.hl7.org/fhir/search.html#date
  */
 class FilterByDateTime extends BaseFilter {
-    /**
+   /**
      * @param {string} field
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem (field, value) {
         // prettier-ignore
+        let strQuery;
+        let dateQuery;
+        const fieldName = this.fieldMapper.getFieldName(field);
         const isDateSearchingPeriod = isPeriodField(field);
-        if (isDateSearchingPeriod) {
-            return datetimePeriodQueryBuilder(
-                {
-                    dateQueryItem: value,
-                    fieldName: this.fieldMapper.getFieldName(field)
-                }
-            );
-        } else if (
-            field === 'meta.lastUpdated' ||
-            isColumnDateType(this.resourceType, this.fieldMapper.getFieldName(field))
-        ) {
-            // if this of native Date type
-            // this field stores the date as a native date, so we can do faster queries
-            return {
-                [this.fieldMapper.getFieldName(field)]: dateQueryBuilderNative(
+        const isDateSearchingTiming = isTimingField(field);
+        if (this.filterType === 'string') {
+            if (isDateSearchingPeriod) {
+                strQuery = datetimePeriodQueryBuilder(
                     {
-                        dateSearchParameter: value,
-                        type: this.propertyObj.type
+                        dateQueryItem: value,
+                        fieldName
                     }
-                )
-            };
-        } else {
-            // if this is date as a string
-            return {
-                [this.fieldMapper.getFieldName(field)]: dateQueryBuilder({
-                    date: value, type: this.propertyObj.type
-                })
-            };
+                );
+            } else if (isDateSearchingTiming) {
+                strQuery = datetimeTimingQueryBuilder({
+                        dateQueryItem: value,
+                        fieldName
+                    }
+                );
+            } else {
+                // if this is date as a string
+                if (!isColumnDateTimeType(this.resourceType, fieldName)) {
+                    strQuery = {
+                        [fieldName]: dateQueryBuilder({
+                            date: value, type: this.propertyObj.type
+                        })
+                    };
+                }
+            }
+           return strQuery;
         }
-    }
+        // if this of native Date type
+        // this field stores the date as a native date, so we can do faster queries
+        if (this.filterType === 'date') {
+            if (isColumnDateTimeType(this.resourceType, fieldName)) {
+                dateQuery = {
+                    [fieldName]: dateQueryBuilderNative(
+                        {
+                            dateSearchParameter: value,
+                            type: this.propertyObj.type
+                        }
+                    )
+                };
+            }
+            return dateQuery;
+        }
+      return null;
+}
 
     /**
      * filter function that calls filterByItem for each field and each value supplied
@@ -65,13 +88,29 @@ class FilterByDateTime extends BaseFilter {
         const and_segments = [];
 
         if (this.parsedArg.queryParameterValue.values) {
+            this.filterType = 'string';
             and_segments.push({
                     $or: this.propertyObj.fields.flatMap((field) => {
-                            return this.filterByField(field, this.parsedArg.queryParameterValue);
+                            const sq = this.filterByField(field, this.parsedArg.queryParameterValue);
+                            if (sq[this.parsedArg.queryParameterValue.operator][0]) {
+                                return sq;
+                            }
                         }
                     )
                 }
             );
+            this.filterType = 'date';
+            const dateSegments =
+                this.propertyObj.fields.flatMap((field) => {
+                        const dq = this.filterByField(field, this.parsedArg.queryParameterValue);
+                        if (dq[this.parsedArg.queryParameterValue.operator][0]) {
+                            return dq;
+                        }
+                    }
+            );
+            if (dateSegments && dateSegments.length > 0) {
+                and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
+            }
         }
 
         return and_segments;
@@ -91,10 +130,8 @@ class FilterByDateTime extends BaseFilter {
             [queryParameterValue.operator]: childQueries
         };
 
-        if (
-            field === 'meta.lastUpdated' ||
-            isColumnDateType(this.resourceType, this.fieldMapper.getFieldName(field))
-        ) {
+        if (isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field)) &&
+            this.filterType === 'date') {
             const simplifiedRangeQuery = {};
             const newChildQueries = [];
             // correct the query

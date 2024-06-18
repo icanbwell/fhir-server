@@ -17,7 +17,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
-const { isColumnDateType } = require('./isColumnDateType');
+const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const { logError } = require('./logging');
 const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
@@ -180,17 +180,11 @@ class ResourceValidator {
             currentResource
         }
     ) {
+        const dateColumnHandler = new DateColumnHandler();
+        dateColumnHandler.setFlag(true);
+        resourceToValidate = await dateColumnHandler.preSaveAsync({ resource: resourceToValidate });
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
-
-        // Convert date fields to string for validation
-        for (const [fieldName, field] of Object.entries(resourceToValidateJson)) {
-            if (isColumnDateType(resourceToValidateJson.resourceType, fieldName)) {
-                if (field instanceof Date && field) {
-                    resourceToValidateJson[`${fieldName}`] = field.toISOString();
-                }
-            }
-        }
         /**
          * @type {OperationOutcome | null}
          */

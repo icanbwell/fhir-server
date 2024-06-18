@@ -1,13 +1,13 @@
 // test file
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
-const patient3Resource = require('./fixtures/Patient/patient3.json')
+const patient3Resource = require('./fixtures/Patient/patient3.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 const observation3Resource = require('./fixtures/Observation/observation3.json');
 const personResource = require('./fixtures/Person/person.json');
-const personResource2 = require('./fixtures/Person/person2.json')
-const personResource3 = require('./fixtures/Person/person3.json')
+const personResource2 = require('./fixtures/Person/person2.json');
+const personResource3 = require('./fixtures/Person/person3.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
 // expected
@@ -534,14 +534,14 @@ describe('Patient Tests', () => {
             const observationResponse = await request
                 .get(`/4_0_0/Observation?patient=person.${person2.body.uuid}`)
                 .set(getHeaders())
-                .expect(200)
+                .expect(200);
 
-            expect(observationResponse).toHaveResponse(expectedObservationResponse)
+            expect(observationResponse).toHaveResponse(expectedObservationResponse);
 
             const observationResponse2 = await request
                 .get(`/4_0_0/Observation?patient=person.${person3.body.uuid}`)
                 .set(getHeaders())
-                .expect(200)
+                .expect(200);
 
             expect(observationResponse2).toHaveResponse(expectedObservationResponse)
         });

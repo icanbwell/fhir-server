@@ -45,6 +45,8 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
 
+            // update date value for no-change case
+            expectedActivityDefinitionResources.approvalDate = expectedActivityDefinitionResources.approvalDate.substring(0, 10);
             // update the resources
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')

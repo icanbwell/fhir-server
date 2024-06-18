@@ -10,6 +10,7 @@ const { isUuid } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
@@ -349,7 +350,7 @@ class ResourceMerger {
             return { updatedResource: null, patches: null };
         }
 
-        const currentResourceWithAttachmentData = currentResource.clone();
+        let currentResourceWithAttachmentData = currentResource.clone();
         if (databaseAttachmentManager) {
             await databaseAttachmentManager.transformAttachments(
                 currentResourceWithAttachmentData, RETRIEVE
@@ -359,15 +360,20 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        const mergedObject = smartMerge
+        let mergedObject;
+        mergedObject = smartMerge
             ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
             : resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
         /**
-         * @type {import('fast-json-patch').Operation[]}
+         * @type {DateColumnHandler}
          */
+        const dateColumnHandler = new DateColumnHandler();
+        dateColumnHandler.setFlag(true);
+        currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
+        mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData.toJSON(),
             mergedObject,

@@ -1,0 +1,49 @@
+{
+	"_id" : "661fe856b98ff97540518dc7",
+  "created" : "bad date",
+	"activity" : [
+		{
+			"detail" : {
+				"status" : "cancelled",
+				"scheduledString": "2023-10-06"
+			}
+		},
+		{
+			"detail" : {
+				"status" : "cancelled",
+				"scheduledPeriod" : {
+					"start": "Jan 1, 2023",
+					"end": "02/28/2023"
+				}
+			}
+		},
+		{
+			"detail" : {
+				"status" : "completed",
+				"scheduledString": "2022/05/21"
+			}
+		}
+	],
+	"id" : "85sZ7XIlYkx1up",
+	"meta" : {
+		"versionId" : "1",
+		"lastUpdated" : "2024-04-17T08:18:45.000-07:00",
+		"source" : "https://icanbwell.com/test",
+		"security" : [
+			{
+				"system" : "https://www.icanbwell.com/owner",
+				"code" : "bwell"
+			},
+			{
+				"system" : "https://www.icanbwell.com/access",
+				"code" : "bwell"
+			},
+			{
+				"system" : "https://www.icanbwell.com/sourceAssigningAuthority",
+				"code" : "bwell"
+			}
+		]
+	},
+	"resourceType" : "CarePlan"
+}
+

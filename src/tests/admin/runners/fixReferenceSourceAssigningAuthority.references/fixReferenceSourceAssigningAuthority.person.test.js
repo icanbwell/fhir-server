@@ -50,7 +50,6 @@ async function setupDatabaseAsync (mongoDatabaseManager, personResource, expecte
     delete resource._id;
 
     personResource.meta.lastUpdated = resource.meta.lastUpdated;
-
     expect(resource).toStrictEqual(expectedPersonInDatabase);
     return collection;
 }

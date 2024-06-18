@@ -24,6 +24,7 @@ const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../c
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { logInfo } = require('../common/logging');
+const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 
 class PatchOperation {
     /**
@@ -321,6 +322,9 @@ class PatchOperation {
                 });
                 throw new NotValidatedError(validationOperationOutcome);
             }
+            const dateColumnHandler = new DateColumnHandler();
+            dateColumnHandler.setFlag(true);
+            foundResource = await dateColumnHandler.preSaveAsync({ resource: foundResource });
 
             const appliedPatchContent = this.resourceMerger.compareObjects({
                 currentObject: foundResource.toJSON(),

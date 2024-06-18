@@ -84,6 +84,8 @@ describe('Observation Tests', () => {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
             }
+            expectedObservationsInDatabase[0].issued = new Date(expectedObservationsInDatabase[0].issued);
+            expectedObservationsInDatabase[1].issued = new Date(expectedObservationsInDatabase[1].issued);
             expect(results).toStrictEqual(expectedObservationsInDatabase);
 
             // ACT & ASSERT
