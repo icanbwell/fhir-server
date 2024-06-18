@@ -1,0 +1,46 @@
+{
+    "meta": {
+        "source": "http://clienthealth.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "category": [
+        {
+            "coding": [
+                {
+                    "code": "vital-signs",
+                    "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                }
+            ]
+        }
+    ],
+    "code": {
+        "coding": [
+            {
+                "code": "8302-2",
+                "display": "Body height",
+                "system": "http://loinc.org"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/patient1"
+    },
+    "id": "1",
+    "resourceType": "Observation",
+    "status": "final",
+    "valueQuantity": {
+        "code": "[in_i]",
+        "system": "http://unitsofmeasure.org",
+        "unit": "inch",
+        "value": 70.00000000000001
+    }
+}

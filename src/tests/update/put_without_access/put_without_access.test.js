@@ -4,6 +4,9 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const expectedPatient1 = require('./fixtures/expected/expectedPatient1.json');
 const expectedPatient2 = require('./fixtures/expected/expectedPatient2.json');
 
+const observation1Resource = require('./fixtures/Observation/observation1.json');
+const observation2Resource = require('./fixtures/Observation/observation2.json');
+
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -163,6 +166,37 @@ describe('Patient Tests', () => {
                         },
                         diagnostics:
                             'user imran with scopes [access/access.* user/*.*] has no write access to resource Patient with id 1',
+                        severity: 'error'
+                    }
+                ],
+                resourceType: 'OperationOutcome'
+            });
+        });
+
+        test('Resource access tag is not updated if no acccess to resource', async () => {
+            const request = await createTestRequest();
+            // Create api hit with valid resource
+
+            let createResp = await request
+                .post('/4_0_0/Observation/$merge')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            let resp = await request
+                .put('/4_0_0/Observation/' + createResp._body.uuid)
+                .send(observation2Resource)
+                .set(getHeaders('access/access.* user/*.*'))
+
+            expect(resp).toHaveResponse({
+                issue: [
+                    {
+                        code: 'forbidden',
+                        details: {
+                            text: 'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1'
+                        },
+                        diagnostics:
+                            'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1',
                         severity: 'error'
                     }
                 ],
