@@ -4,6 +4,7 @@
 const express = require('express');
 const httpContext = require('express-http-context');
 const { fhirServerConfig } = require('./config');
+const contentType = require('content-type');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
@@ -286,7 +287,7 @@ function createApp ({ fnGetContainer }) {
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
-        { fnGetContainer, req, res }
+            { fnGetContainer, req, res }
         ));
     }
 
@@ -308,17 +309,31 @@ function createApp ({ fnGetContainer }) {
     adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+
+    const validateContentType = (req, res, next) => {
+        const contentTypeHeader = contentType.parse(req.headers['content-type']);
+        if (!allowedContentTypes.includes(contentTypeHeader.type)) {
+            return res.status(400).json(
+                {
+                    message: `Content Type ${req.headers['content-type']} is not supported. ` +
+                        `Please use one of: ${allowedContentTypes.join(',')}`
+                }
+            );
+        }
+        next();
+    };
+
     adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
     adminRouter.post(
         '/admin/:op?',
-        express.json({ type: allowedContentTypes }),
+        validateContentType,
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
     adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
     adminRouter.put(
         '/admin/:op?',
-         express.json({ type: allowedContentTypes }),
-         (req, res) => handleAdminPut(fnGetContainer, req, res));
+        validateContentType,
+        (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use(adminRouter);
 
