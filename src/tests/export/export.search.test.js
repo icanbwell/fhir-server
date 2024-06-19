@@ -284,7 +284,7 @@ describe('Export Tests', () => {
             // Update ExportStatus Request
 
             const headers = getHeaders('admin/*.* user/*.* access/*.*');
-            headers['Content-Type'] = 'application/json'
+            headers['Content-Type'] = 'application/json';
 
             let exportStatusPutResponse = await request
                 .put(`/admin/ExportStatus?id=${exportStatusId}`)
