@@ -206,8 +206,8 @@ async function handleAdminGet (
         }
     } catch (error) {
         logError(`Error in handleAdminGet`, {
-            message: error.message, 
-            stack: error.stack, 
+            message: error.message,
+            stack: error.stack,
             source: 'handleAdminGet'
         });
         const operationOutcome = new OperationOutcome({
@@ -391,8 +391,8 @@ async function handleAdminPost (
         }
     } catch (error) {
         logError(`Error in handleAdminPost`, {
-            message: error.message, 
-            stack: error.stack, 
+            message: error.message,
+            stack: error.stack,
             source: 'handleAdminPost'
         });
         const operationOutcome = new OperationOutcome({
@@ -471,8 +471,8 @@ async function handleAdminPut(
     }
     catch (error) {
         logError(`Error in handleAdminPut`, {
-            message: error.message, 
-            stack: error.stack, 
+            message: error.message,
+            stack: error.stack,
             source: 'handleAdminPut'
         });
         const operationOutcome = new OperationOutcome({
@@ -686,8 +686,8 @@ async function handleAdminDelete (
         }
     } catch (error) {
         logError(`Error in handleAdminDelete`, {
-            message: error.message, 
-            stack: error.stack, 
+            message: error.message,
+            stack: error.stack,
             source: 'handleAdminDelete'
         });
         const operationOutcome = new OperationOutcome({
