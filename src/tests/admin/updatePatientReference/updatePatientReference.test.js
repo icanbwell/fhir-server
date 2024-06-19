@@ -409,7 +409,7 @@ describe('Patient reference tests', () => {
                 .expect(400);
 
             expect(resp).toHaveResponse({
-                message: "Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir",
+                message: "Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir"
             });
         });
     });
