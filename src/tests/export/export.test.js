@@ -1,6 +1,4 @@
 // test file
-const parameters1Resource = require('./fixtures/parameters/parameters1.json');
-const parameters2Resource = require('./fixtures/parameters/parameters2.json');
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
 const person1Resource = require('./fixtures/person/person1.json');
@@ -39,7 +37,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -121,7 +118,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -208,7 +204,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders('access/*.* user/Person.*'))
                 .expect(202);
 
@@ -289,7 +284,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=AuditEvent')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -360,64 +354,6 @@ describe('Export Tests', () => {
             expect(resp.body.errors[0].url.split('/').pop()).toEqual('OperationOutcome.ndjson');
         });
 
-        test('Export cannot be triggered with invalid access tags', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('k8sClient', (c) => new MockK8sClient({
-                    configManager: c.configManager
-                }));
-                return c;
-            });
-
-            const resp = await request
-                .post('/4_0_0/$export')
-                .send(parameters1Resource)
-                .set(getHeaders('access/client1.*'))
-                .expect(403);
-
-            expect(resp).toHaveResponse({
-                issue: [
-                    {
-                        code: "forbidden",
-                        details: {
-                            text: "User imran cannot trigger Bulk Export with access tags: client"
-                        },
-                        diagnostics: "User imran cannot trigger Bulk Export with access tags: client",
-                        severity: "error"
-                    }
-                ],
-                resourceType: "OperationOutcome"
-            });
-        });
-
-        test('Export cannot be triggered with invalid owner tag', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('k8sClient', (c) => new MockK8sClient({
-                    configManager: c.configManager
-                }));
-                return c;
-            });
-
-            const resp = await request
-                .post('/4_0_0/$export')
-                .send(parameters1Resource)
-                .set(getHeaders('access/client.*'))
-                .expect(403);
-
-            expect(resp).toHaveResponse({
-                issue: [
-                    {
-                        code: "forbidden",
-                        details: {
-                            text: "User imran cannot trigger Bulk Export with owner tag: client1"
-                        },
-                        diagnostics: "User imran cannot trigger Bulk Export with owner tag: client1",
-                        severity: "error"
-                    }
-                ],
-                resourceType: "OperationOutcome"
-            });
-        });
-
         test('Export triggering for Patient works with access scopes from JWT', async () => {
             const request = await createTestRequest((c) => {
                 c.register(
@@ -440,7 +376,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
-                .send(parameters2Resource)
                 .set(getHeaders('access/client.* access/client1.* user/*.*'))
                 .expect(202);
 
@@ -449,10 +384,10 @@ describe('Export Tests', () => {
 
             const exportStatusResource = await collection.find({}).toArray();
             expect(exportStatusResource[0].meta.security).toEqual([
-                { code: 'client1', system: 'https://www.icanbwell.com/owner' },
-                { code: 'client1', system: 'https://www.icanbwell.com/sourceAssigningAuthority' },
+                { code: 'bwell', system: 'https://www.icanbwell.com/owner' },
                 { code: 'client', system: 'https://www.icanbwell.com/access' },
-                { code: 'client1', system: 'https://www.icanbwell.com/access' }
+                { code: 'client1', system: 'https://www.icanbwell.com/access' },
+                { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
 
             resp = await request

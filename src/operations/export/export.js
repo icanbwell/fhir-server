@@ -1,16 +1,13 @@
-const moment = require('moment-timezone');
 const { AuditLogger } = require('../../utils/auditLogger');
-const { BadRequestError, ForbiddenError, NotValidatedError } = require('../../utils/httpErrors');
+const { ForbiddenError } = require('../../utils/httpErrors');
 const { DatabaseExportManager } = require('../../dataLayer/databaseExportManager');
 const { ExportManager } = require('./exportManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { generateUUID } = require('../../utils/uid.util');
 
 class ExportOperation {
     /**
@@ -104,20 +101,9 @@ class ExportOperation {
         const {
             /** @type {string} */
             requestId,
-            /** @type {Object | null} */
-            body: incomingResource,
             /** @type {string} */
-            user,
-            /** @type {string} */
-            scope,
-            /** @type {string} */
-            path
+            scope
         } = requestInfo;
-
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
 
         const { base_version } = args;
 
@@ -128,40 +114,8 @@ class ExportOperation {
         }
 
         try {
-            if (!incomingResource || incomingResource.resourceType !== 'Parameters') {
-                throw new BadRequestError(
-                    new Error('Bulk request requires Parameters resource in the body')
-                );
-            }
-
-            // generate uuid to avoid conflict
-            incomingResource.id = generateUUID();
-
-            const parametersResource = FhirResourceCreator.create(incomingResource);
-
-            // validate parameter resource in body
-            const validationOperationOutcome =
-                this.resourceValidator.validateResourceMetaSync(parametersResource) ||
-                (await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: parametersResource.id,
-                    resourceType: parametersResource.resourceType,
-                    resourceToValidate: incomingResource,
-                    path,
-                    currentDate
-                }));
-
-            if (validationOperationOutcome) {
-                throw new NotValidatedError(validationOperationOutcome);
-            }
-            await this.preSaveManager.preSaveAsync({ resource: parametersResource });
-
-            this.exportManager.validateSecurityTags({ user, scope, parametersResource });
-
             // Create ExportStatus resource
             const exportStatusResource = await this.exportManager.generateExportStatusResourceAsync({
-                parametersResource,
                 requestInfo
             });
 

@@ -17,19 +17,14 @@
                 "meta": {
                     "security": [
                         {
-                            "code": "client",
-                            "system": "https://www.icanbwell.com/access"
-                        },
-                        {
-                            "code": "client1",
+                            "code": "bwell",
                             "system": "https://www.icanbwell.com/owner"
                         },
                         {
-                            "code": "client1",
+                            "code": "bwell",
                             "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                         }
                     ],
-                    "source": "test",
                     "versionId": "1"
                 },
                 "output": [],
