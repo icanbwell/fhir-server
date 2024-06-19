@@ -117,7 +117,11 @@ class AdminExportManager {
             }
         }
         catch (error) {
-            logError(`Error in getExportStatus ${error.message}`);
+            logError(`Error in getExportStatus`, {
+                message: error.message,
+                stack: error.stack,
+                source: 'AdminExportManager getExportStatus'
+            });
             throw error;
         }
         finally {
@@ -187,7 +191,11 @@ class AdminExportManager {
             return exportResource
         }
         catch (error) {
-            logError(`Error in getExportStatus ${error.message}`);
+            logError(`Error in updateExportStatus`, {
+                message: error.message,
+                stack: error.stack,
+                source: 'AdminExportManager updateExportStatus'
+            });
             throw error;
         }
         finally {
@@ -235,7 +243,11 @@ class AdminExportManager {
 
             return await this.exportManager.triggerExportJob({ exportStatusId })
         } catch (error) {
-            logError(`Error in triggerExportJob ${error.message}`);
+            logError(`Error in triggerExportJob`, {
+                message: error.message,
+                stack: error.stack,
+                source: 'AdminExportManager triggerExportJob'
+            });
             throw error;
         }
     }
