@@ -16,7 +16,7 @@ const { ExportManager } = require('../operations/export/exportManager');
 const { ScopesValidator } = require('../operations/security/scopesValidator');
 const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
-const { logError } = require('../operations/common/logging');
+const { logError, logInfo } = require('../operations/common/logging');
 
 class AdminExportManager {
     /**
@@ -153,6 +153,11 @@ class AdminExportManager {
             args: combined_args, resourceType: resourceType, headers: req.headers, operation: WRITE
         });
 
+        logInfo('2.', {
+            combined_args: combined_args,
+            exportStatusId: exportStatusId
+        });
+
         try {
             await this.scopesValidator.verifyHasValidScopesAsync({
                 requestInfo: requestInfo,
@@ -167,11 +172,25 @@ class AdminExportManager {
                 exportStatusId: exportStatusId
             });
 
+            logInfo('3.', {
+                exportStatusResource: exportStatusResource
+            });
+
             if (!exportStatusResource) {
                 throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
             }
 
+            logInfo('4.', {
+                message: req.body,
+            });
+
             const exportResource = FhirResourceCreator.createByResourceType(req.body, resourceType);
+
+            logInfo('5.', {
+                message: req.body,
+                exportResource: exportResource,
+            });
+
 
             let { updatedResource } = await this.resourceMerger.mergeResourceAsync({
                 base_version: VERSIONS['4_0_0'],
@@ -180,6 +199,10 @@ class AdminExportManager {
                 resourceToMerge: exportResource,
                 smartMerge: false,
                 incrementVersion: false
+            });
+
+            logInfo('6.', {
+                updatedResource: updatedResource,
             });
 
             if (updatedResource) {

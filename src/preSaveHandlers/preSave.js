@@ -1,5 +1,6 @@
 const { assertTypeEquals } = require('../utils/assertType');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const { logInfo } = require('../operations/common/logging');
 
 class PreSaveManager {
     /**
@@ -23,6 +24,10 @@ class PreSaveManager {
      */
     async preSaveAsync ({ resource }) {
         assertTypeEquals(resource, Resource);
+
+        logInfo('7.', {
+            resource: resource,
+        });
 
         for (const preSaveHandler of this.preSaveHandlers) {
             resource = await preSaveHandler.preSaveAsync({ resource });

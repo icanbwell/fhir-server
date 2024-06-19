@@ -452,6 +452,11 @@ async function handleAdminPut(
             switch (operation) {
                 case 'ExportStatus': {
                     logInfo('', { 'req.query': req.query });
+
+                    logInfo('0.', {
+                        requestBody: req.body
+                    });
+
                     if (req.query.id) {
                         return res.json(await adminExportManager.updateExportStatus({ req, res }));
                     }

@@ -12,6 +12,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
+const { logInfo } = require('../../operations/common/logging');
 
 /**
  * @typedef {object} MergePatchEntry
@@ -330,9 +331,17 @@ class ResourceMerger {
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
+
+        logInfo('6.', {
+            currentResource: currentResource,
+            resourceToMerge: resourceToMerge
+        });
         // confirm the resource has been run through preSave
         if (!resourceToMerge._uuid) {
             resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+            logInfo('9.', {
+                resourceToMerge: resourceToMerge
+            });
         }
         assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
