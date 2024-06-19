@@ -26,7 +26,7 @@ class PreSaveManager {
         assertTypeEquals(resource, Resource);
 
         logInfo('7.', {
-            resource: resource,
+            resource: resource
         });
 
         for (const preSaveHandler of this.preSaveHandlers) {

@@ -181,14 +181,14 @@ class AdminExportManager {
             }
 
             logInfo('4.', {
-                message: req.body,
+                message: req.body
             });
 
             const exportResource = FhirResourceCreator.createByResourceType(req.body, resourceType);
 
             logInfo('5.', {
                 message: req.body,
-                exportResource: exportResource,
+                exportResource: exportResource
             });
 
 
@@ -202,7 +202,7 @@ class AdminExportManager {
             });
 
             logInfo('6.', {
-                updatedResource: updatedResource,
+                updatedResource: updatedResource
             });
 
             if (updatedResource) {
