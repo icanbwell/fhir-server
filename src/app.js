@@ -327,12 +327,14 @@ function createApp ({ fnGetContainer }) {
     adminRouter.post(
         '/admin/:op?',
         validateContentType,
+        express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
     adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
     adminRouter.put(
         '/admin/:op?',
         validateContentType,
+        express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use(adminRouter);
