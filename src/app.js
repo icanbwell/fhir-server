@@ -287,7 +287,7 @@ function createApp ({ fnGetContainer }) {
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
-            { fnGetContainer, req, res }
+        { fnGetContainer, req, res }
         ));
     }
 
