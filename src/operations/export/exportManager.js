@@ -73,18 +73,25 @@ class ExportManager {
             'ExportStatus'
         );
 
-        // If access tag is not present in the resource then copy owner tag to access tag
+        // If access tag is not present in the resource then copy access tags from scope
         if (
             !exportStatusResource.meta.security.some((s) => s.system === SecurityTagSystem.access)
         ) {
-            exportStatusResource.meta.security.push(
-                new Coding({
-                    system: SecurityTagSystem.access,
-                    code: exportStatusResource.meta.security.find(
-                        (s) => s.system === SecurityTagSystem.owner
-                    ).code
-                })
-            );
+            // Get access tags from scope
+            const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
+                user,
+                scope,
+                accessRequested: 'read'
+            });
+
+            accessCodesFromScopes.forEach((code) => {
+                exportStatusResource.meta.security.push(
+                    new Coding({
+                        system: SecurityTagSystem.access,
+                        code: code
+                    })
+                );
+            });
         }
 
         await this.preSaveManager.preSaveAsync({ resource: exportStatusResource });
