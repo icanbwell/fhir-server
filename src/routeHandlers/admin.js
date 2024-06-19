@@ -12,6 +12,7 @@ const { generateUUID } = require('../utils/uid.util');
 const { logInfo } = require('../operations/common/logging');
 const { REQUEST_ID_HEADER } = require('../constants');
 const { AdminExportManager } = require('../admin/adminExportManager');
+const { logError } = require('../operations/common/logging');
 
 /**
  * shows indexes
@@ -203,14 +204,19 @@ async function handleAdminGet (
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-    } catch (e) {
+    } catch (error) {
+        logError(`Error in handleAdminGet`, {
+            message: error.message,
+            stack: error.stack,
+            source: 'handleAdminGet'
+        });
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
                     {
                         severity: 'error',
                         code: 'exception',
-                        diagnostics: e.message
+                        diagnostics: error.message
                     }
                 )
             ]
@@ -383,19 +389,24 @@ async function handleAdminPost (
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-    } catch (e) {
+    } catch (error) {
+        logError(`Error in handleAdminPost`, {
+            message: error.message,
+            stack: error.stack,
+            source: 'handleAdminPost'
+        });
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
                     {
                         severity: 'error',
                         code: 'exception',
-                        diagnostics: e.message
+                        diagnostics: error.message
                     }
                 )
             ]
         });
-        return res.status(e.statusCode || 500).json(operationOutcome);
+        return res.status(error.statusCode || 500).json(operationOutcome);
     }
 }
 
@@ -458,20 +469,25 @@ async function handleAdminPut(
             });
         }
     }
-    catch (e) {
+    catch (error) {
+        logError(`Error in handleAdminPut`, {
+            message: error.message,
+            stack: error.stack,
+            source: 'handleAdminPut'
+        });
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
                     {
                         severity: 'error',
                         code: 'exception',
-                        diagnostics: e.message
+                        diagnostics: error.message
                     }
                 )
             ]
         });
 
-        return res.status(e.statusCode || 500).json(operationOutcome);
+        return res.status(error.statusCode || 500).json(operationOutcome);
 
     }
 }
@@ -668,14 +684,19 @@ async function handleAdminDelete (
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-    } catch (e) {
+    } catch (error) {
+        logError(`Error in handleAdminDelete`, {
+            message: error.message,
+            stack: error.stack,
+            source: 'handleAdminDelete'
+        });
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue(
                     {
                         severity: 'error',
                         code: 'exception',
-                        diagnostics: e.message
+                        diagnostics: error.message
                     }
                 )
             ]
