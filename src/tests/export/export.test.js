@@ -457,5 +457,109 @@ describe('Export Tests', () => {
 
             expect(resp.body.errors).toHaveLength(0);
         });
+
+        test('Export triggering for Patient takes only read access scopes from JWT', async () => {
+            const request = await createTestRequest((c) => {
+                c.register(
+                    'k8sClient',
+                    (c) =>
+                        new MockK8sClient({
+                            configManager: c.configManager
+                        })
+                );
+                return c;
+            });
+            const container = getTestContainer();
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collection = fhirDb.collection('ExportStatus_4_0_0');
+
+            let resp = await request
+                .post('/4_0_0/$export?_type=Patient')
+                .set(getHeaders('access/client.* access/client1.write access/client2.read user/*.*'))
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            const exportStatusResource = await collection.find({}).toArray();
+            expect(exportStatusResource[0].meta.security).toEqual([
+                { code: 'bwell', system: 'https://www.icanbwell.com/owner' },
+                { code: 'client', system: 'https://www.icanbwell.com/access' },
+                { code: 'client2', system: 'https://www.icanbwell.com/access' },
+                { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
+            ]);
+
+            resp = await request
+                .get(`/4_0_0/$export/${exportStatusId}`)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['x-progress']).toEqual('accepted');
+
+            // create patients to export
+            resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patient2Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Update the status of ExportStatus resource to completed
+
+            container.register(
+                'bulkDataExportRunner',
+                (c) =>
+                    new BulkDataExportRunner({
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        databaseExportManager: c.databaseExportManager,
+                        patientFilterManager: c.patientFilterManager,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        r4SearchQueryCreator: c.r4SearchQueryCreator,
+                        securityTagManager: c.securityTagManager,
+                        patientQueryCreator: c.patientQueryCreator,
+                        enrichmentManager: c.enrichmentManager,
+                        r4ArgsParser: c.r4ArgsParser,
+                        exportStatusId,
+                        batchSize: 1000,
+                        minUploadBatchSize: 1000,
+                        logAfterReads: 1000,
+                        uploadPartSize: 1024 * 1024,
+                        s3Client: new MockS3Client({
+                            bucketName: 'test',
+                            region: 'test'
+                        })
+                    })
+            );
+
+            const bulkDataExportRunner = container.bulkDataExportRunner;
+
+            await bulkDataExportRunner.processAsync();
+
+            // Query again to check the status
+            resp = await request
+                .get(`/4_0_0/$export/${exportStatusId}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.output).toHaveLength(1);
+            expect(resp.body.output[0].type).toEqual('Patient');
+            expect(resp.body.output[0].url.split('/').pop()).toEqual('Patient.ndjson');
+
+            expect(resp.body.errors).toHaveLength(0);
+        });
     });
 });
