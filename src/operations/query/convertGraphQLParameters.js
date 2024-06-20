@@ -1,11 +1,9 @@
 /**
  * converts graphql parameters to standard FHIR parameters
  * @param {string | string[] | Object} queryParameterValue
- * @param {Object} args
- * @param {string} queryParameter
  * @return {Object}
  */
-function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
+function convertGraphQLParameters(queryParameterValue) {
     let notQueryParameterValue;
     if (queryParameterValue) {
         // un-bundle any objects coming from graphql
@@ -22,20 +20,30 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                         const notEqualsObject = queryParameterValue.notEquals;
                         notQueryParameterValue = notEqualsObject.value || notEqualsObject.values;
                         queryParameterValue = [];
+                    } else if ('missing' in queryParameterValue) {
+                        // noinspection JSValidateTypes
+                        queryParameterValue = `${queryParameterValue.missing}`;
                     } else {
                         // handle SearchString
-                        queryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                        queryParameterValue =
+                            queryParameterValue.value || queryParameterValue.values;
                     }
                     break;
                 case 'token':
+                    queryParameterValue.values = queryParameterValue.values || [];
                     if (queryParameterValue.value) {
                         // noinspection JSValidateTypes
-                        queryParameterValue.values = [queryParameterValue.value];
+                        queryParameterValue.values.push(queryParameterValue.value);
                     }
                     if (queryParameterValue.notEquals) {
                         // noinspection JSValidateTypes
-                        queryParameterValue.values = [queryParameterValue.notEquals];
+                        queryParameterValue.values.push(queryParameterValue.notEquals);
                         useNotEquals = true;
+                    }
+                    if ('missing' in queryParameterValue) {
+                        // noinspection JSValidateTypes
+                        queryParameterValue.values = queryParameterValue.values || [];
+                        queryParameterValue.values.push({ missing: queryParameterValue.missing });
                     }
                     // eslint-disable-next-line no-case-declarations
                     const newQueryParameterValue = [];
@@ -57,6 +65,9 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                             }
                             if (tokenToProcess.value) {
                                 tokenString += tokenToProcess.value;
+                            }
+                            if ('missing' in tokenToProcess) {
+                                tokenString += tokenToProcess.missing;
                             }
                             if (tokenString) {
                                 if (useNotEquals || innerNotEquals) {
@@ -88,6 +99,9 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     if (queryParameterValue.value) {
                         referenceText += queryParameterValue.value;
                     }
+                    if ('missing' in queryParameterValue) {
+                        referenceText += queryParameterValue.missing;
+                    }
                     if (useNotEquals) {
                         notQueryParameterValue = referenceText;
                         queryParameterValue = [];
@@ -100,13 +114,16 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     let quantityString = '';
                     if (queryParameterValue.notEquals) {
                         const notEqualsObject = queryParameterValue.notEquals;
-                        Object.keys(notEqualsObject).forEach(key => {
+                        Object.keys(notEqualsObject).forEach((key) => {
                             queryParameterValue[key] = notEqualsObject[key];
                         });
                         useNotEquals = true;
                     }
                     if (queryParameterValue.prefix) {
                         quantityString += queryParameterValue.prefix;
+                    }
+                    if ('missing' in queryParameterValue) {
+                        quantityString += queryParameterValue.missing;
                     }
                     if (queryParameterValue.value) {
                         quantityString += queryParameterValue.value;
@@ -174,9 +191,6 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     break;
                 default:
                     break;
-            }
-            if (queryParameterValue.missing) {
-                args[`${queryParameter}:missing`] = queryParameterValue.missing;
             }
         }
     }
