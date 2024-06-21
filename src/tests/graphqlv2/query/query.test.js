@@ -1,6 +1,7 @@
 // test file
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
+const observation3Resource = require('./fixtures/observation/observation3.json');
 const patientBundleResource = require('./fixtures/patient/patient1.json');
 const personBundleResource = require('./fixtures/person/person1.json');
 const condition1Resource = require('./fixtures/condition/condition1.json');
@@ -11,12 +12,22 @@ const expectedResponse2 = require('./fixtures/expected/expected_response2.json')
 const expectedResponse3 = require('./fixtures/expected/expected_response3.json');
 const expectedResponse4 = require('./fixtures/expected/expected_response4.json');
 const expectedResponse5 = require('./fixtures/expected/expected_response5.json');
+const expectedResponse6 = require('./fixtures/expected/expected_response6.json');
+const expectedResponse7 = require('./fixtures/expected/expected_response7.json');
 
 const fs = require('fs');
 const path = require('path');
 
 const searchTokenQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/searchTokenQuery.graphql'),
+    'utf8'
+);
+const searchTokenQuery1 = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/searchTokenQuery1.graphql'),
+    'utf8'
+);
+const searchTokenQuery2 = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/searchTokenQuery2.graphql'),
     'utf8'
 );
 const searchTokenQueryMissing = fs.readFileSync(
@@ -55,6 +66,77 @@ describe('GraphQL Input Tests', () => {
     });
 
     describe('GraphQL Input queries Tests', () => {
+        test('GraphQL SearchToken Test on missing modifier only', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/2/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/3/$merge?validate=true')
+                .send(observation3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const graphqlQueryText1 = searchTokenQuery1.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText1
+                })
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResponse6);
+
+            const graphqlQueryText2 = searchTokenQuery2.replace(/\\n/g, '');
+            resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText2
+                })
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResponse7);
+        });
+
         test('GraphQL SearchToken Test', async () => {
             const request = await createTestRequest();
             // ARRANGE

@@ -239,19 +239,18 @@ query {
 
 Pass the header `handling=strict` to enable strict variable validation. The FHIR Server will return a validation error if the query variables present in the GraphQL query do not have corresponding values in the request. Default value of the header is `lenient` skipping this validation. This is in addition to [Enabling Strict Validation in Search Requests](https://github.com/icanbwell/fhir-server/blob/master/cheatsheet.md#18-enabling-strict-validation).
 
-### Modifiers in Graphql queries
+### Modifier Priority in SearchToken Queries
 
-In case of `SearchToken` modifier used to query fields, as described below, if `notEquals` is provided, then the data present in `value` & `values` will not be considered in the final query. And if only `value` is present, then `values` will be ignored.
+#### 1. `notEquals` Preference Over All Other Modifiers
+When using the `SearchToken` modifier in queries, if the `notEquals` modifier is provided, the values present in `value` and `values` will be ignored in the final query. This ensures that the `notEquals` condition takes precedence.
 
-Graphql Query Example:
 ```
 query {
   observation(
     status: {
-        values: [{ value: "final" }],
-        value: { value: "completed" },
-        missing:false,
-        notEquals: { value: "invalid" }
+      notEquals: { value: "invalid" },
+      value: { value: "completed" },
+      values: [{ value: "final" }]
     }
   ) {
     entry {
@@ -265,23 +264,32 @@ query {
   }
 }
 ```
+In this example, only the notEquals condition is considered, and the value and values fields are ignored.
 
-Actual Query made for above graphql query [`value` & `values` not considered]:
+#### 2. `value` Preference Over `values`
+When the value modifier is present and notEquals is not provided, the values modifier will be ignored. This ensures that the value condition takes precedence over values.
+
 ```
-{
-    "$and": [
-        { "status": { "$ne": null } },
-        { "$nor": [{ "status": "invalid" }] },
-        {
-            "meta.tag": {
-                "$not": {
-                    "$elemMatch": {
-                        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
-                        "code": "hidden"
-                    }
-                }
-            }
+query {
+  observation(
+    status: {
+      value: { value: "completed" },
+      values: [{ value: "final" }]
+    }
+  ) {
+    entry {
+      resource {
+        id
+        meta {
+          source
         }
-    ]
+      }
+    }
+  }
 }
 ```
+In this example, only the value condition is considered, and the values field is ignored.
+
+#### 3. `missing` Modifier Usage
+When using the `missing` modifier, it is advised to use this modifier alone for the desired result.
+If `missing = true` is provided, the value, values, and notEquals conditions will not be considered to ensure the missing condition is applied correctly.
