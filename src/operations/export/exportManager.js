@@ -1,6 +1,5 @@
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
-const { ForbiddenError } = require('../../utils/httpErrors');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -8,6 +7,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { K8sClient } = require('../../utils/k8sClient');
 const { logInfo } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
+const { generateUUID } = require('../../utils/uid.util');
 
 class ExportManager {
     /**
@@ -44,12 +44,11 @@ class ExportManager {
 
     /**
      * @typedef {Object} GenerateExportStatusResourceAsyncParams
-     * @property {import('../../fhir/classes/4_0_0/resources/parameters')} parametersResource
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      *
      * @param {GenerateExportStatusResourceAsyncParams}
      */
-    async generateExportStatusResourceAsync({ parametersResource, requestInfo }) {
+    async generateExportStatusResourceAsync({ requestInfo }) {
         const { scope, user, originalUrl, host } = requestInfo;
 
         // Create ExportStatus resource
@@ -58,9 +57,16 @@ class ExportManager {
          */
         const exportStatusResource = FhirResourceCreator.createByResourceType(
             {
-                id: parametersResource.id,
+                id: generateUUID(),
                 resourceType: 'ExportStatus',
-                meta: parametersResource.meta.toJSONInternal(),
+                meta: {
+                    security: [
+                        {
+                            system: "https://www.icanbwell.com/owner",
+                            code: "bwell"
+                        }
+                    ]
+                },
                 scope,
                 user,
                 transactionTime: new Date().toISOString(),
@@ -73,66 +79,27 @@ class ExportManager {
             'ExportStatus'
         );
 
-        // If access tag is not present in the resource then copy owner tag to access tag
-        if (
-            !exportStatusResource.meta.security.some((s) => s.system === SecurityTagSystem.access)
-        ) {
-            exportStatusResource.meta.security.push(
-                new Coding({
-                    system: SecurityTagSystem.access,
-                    code: exportStatusResource.meta.security.find(
-                        (s) => s.system === SecurityTagSystem.owner
-                    ).code
-                })
-            );
-        }
-
-        await this.preSaveManager.preSaveAsync({ resource: exportStatusResource });
-
-        return exportStatusResource;
-    }
-
-    /**
-     * @typedef {Object} ValidateSecurityTagsParams
-     * @property {string} user
-     * @property {string} scope
-     * @property {import('../../fhir/classes/4_0_0/resources/parameters')} parametersResource
-     *
-     * @param {ValidateSecurityTagsParams}
-     */
-    validateSecurityTags({ user, scope, parametersResource }) {
-        // check if all the access tags and owner tag have codes from the access codes present in scope
+        // Copy access tags from scope
         const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
             user,
             scope,
             accessRequested: 'read'
         });
 
-        // if access is present as * then skip this check
-        if (accessCodesFromScopes.length === 0) {
-            return;
-        }
-
-        // validate access codes in security tag
-        const accessCodesFromSecurityTags = parametersResource.meta.security
-            .filter((s) => s.system === SecurityTagSystem.access)
-            .map((s) => s.code);
-
-        const invalidAccessCodes = accessCodesFromSecurityTags
-            .filter(code => !accessCodesFromScopes.includes(code));
-
-        if (invalidAccessCodes.length > 0) {
-            throw new ForbiddenError(`User ${user} cannot trigger Bulk Export with access tags: ${invalidAccessCodes}`);
-        }
-
-        // validate owner tag present in security
-        const ownerCode = parametersResource.meta.security.find(s => s.system === SecurityTagSystem.owner).code;
-        if (!accessCodesFromScopes.includes(ownerCode)) {
-            throw new ForbiddenError(
-                `User ${user} cannot trigger Bulk Export with owner tag: ${ownerCode}`
+        accessCodesFromScopes.forEach((code) => {
+            exportStatusResource.meta.security.push(
+                new Coding({
+                    system: SecurityTagSystem.access,
+                    code: code
+                })
             );
-        }
+        });
+
+        await this.preSaveManager.preSaveAsync({ resource: exportStatusResource });
+
+        return exportStatusResource;
     }
+
     async triggerExportJob({ exportStatusId }) {
         const jobResult = await this.k8sClient.createJob(
             'node /srv/src/src/operations/export/script/bulkDataExport.js ' +

@@ -7,8 +7,6 @@ const deepcopy = require('deepcopy');
 const env = require('var');
 const { generateUUID } = require('../../../src/utils/uid.util');
 
-const parameters1Resource = require('./fixtures/parameters/parameters1.json');
-
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { MockK8sClient } = require('./mocks/k8sClient');
@@ -36,7 +34,6 @@ describe('Export Tests', () => {
             });
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -74,7 +71,6 @@ describe('Export Tests', () => {
             });
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -102,7 +98,6 @@ describe('Export Tests', () => {
             });
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -149,7 +144,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -190,7 +184,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -221,7 +214,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -264,7 +256,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -307,7 +298,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
@@ -341,7 +331,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 

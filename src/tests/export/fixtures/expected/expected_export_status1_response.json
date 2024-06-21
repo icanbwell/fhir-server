@@ -4,19 +4,14 @@
         "meta": {
             "versionId": "1",
             "lastUpdated": "2024-06-09T19: 58: 37.000Z",
-            "source": "test",
             "security": [
                 {
-                    "system": "https://www.icanbwell.com/access",
-                    "code": "client"
-                },
-                {
                     "system": "https://www.icanbwell.com/owner",
-                    "code": "client1"
+                    "code": "bwell"
                 },
                 {
                     "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "code": "client1"
+                    "code": "bwell"
                 }
             ]
         },

@@ -14,13 +14,13 @@ const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
-const { SecurityTagManager } = require('../../common/securityTagManager');
 const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
 const { logInfo, logError } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
+const { SearchManager } = require('../../search/searchManager');
 
 class BulkDataExportRunner {
     /**
@@ -30,11 +30,11 @@ class BulkDataExportRunner {
      * @property {DatabaseExportManager} databaseExportManager
      * @property {PatientFilterManager} patientFilterManager
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
-     * @property {SecurityTagManager} securityTagManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
+     * @property {SearchManager} searchManager
      * @property {string} exportStatusId
      * @property {number} batchSize
      * @property {S3Client} s3Client
@@ -48,11 +48,11 @@ class BulkDataExportRunner {
         databaseExportManager,
         patientFilterManager,
         databaseAttachmentManager,
-        securityTagManager,
         r4SearchQueryCreator,
         patientQueryCreator,
         enrichmentManager,
         r4ArgsParser,
+        searchManager,
         exportStatusId,
         batchSize,
         s3Client,
@@ -82,12 +82,6 @@ class BulkDataExportRunner {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {SecurityTagManager}
-         */
-        this.securityTagManager = securityTagManager;
-        assertTypeEquals(securityTagManager, SecurityTagManager);
 
         /**
          * @type {R4SearchQueryCreator}
@@ -144,6 +138,12 @@ class BulkDataExportRunner {
          * @type {number}
          */
         this.minUploadBatchSize = minUploadBatchSize;
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -174,7 +174,12 @@ class BulkDataExportRunner {
 
             const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
-            let query = this.getQueryForExport({
+            // to be used while making query
+            searchParams.append('base_version', pathname.split('/')[1])
+
+            let query = await this.getQueryForExport({
+                user: this.exportStatusResource.user,
+                scope: this.exportStatusResource.scope,
                 searchParams
             });
 
@@ -226,22 +231,29 @@ class BulkDataExportRunner {
 
     /**
      * @typedef {Object} GetQueryForExportParams
+     * @param {string} user
+     * @param {string} scope
      * @property {URLSearchParams} searchParams
      *
      * @param {GetQueryForExportParams}
      */
-    getQueryForExport({ searchParams }) {
+    async getQueryForExport({ user, scope, searchParams }) {
         let query = {};
 
-        const securityTags = this.exportStatusResource.meta.security
-            .filter(s => s.system === SecurityTagSystem.access)
-            .map(s => s.code);
-
-        query = this.securityTagManager.getQueryWithSecurityTags({
-            securityTags,
-            query
+        const parsedArgs = this.r4ArgsParser.parseArgs({
+            resourceType: 'ExportStatus',
+            args: Object.fromEntries(searchParams)
         });
-
+        ({
+            /** @type {import('mongodb').Document}**/
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user,
+            scope,
+            isUser: false,
+            resourceType: 'ExportStatus',
+            parsedArgs: parsedArgs
+        }));
         if (searchParams.has('_since')) {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({
                 query,
