@@ -1,7 +1,7 @@
 const contentType = require('content-type');
 
 /**
- * @description Middleware for validating the content type if it matches the 
+ * @description Middleware for validating the content type if it matches the
  * allowedContentTypes
  * @param {List} allowedContentTypes - List of content types which are allowed.
  * @return {function} valid express middleware
