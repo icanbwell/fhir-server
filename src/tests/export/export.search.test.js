@@ -256,7 +256,6 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
-                .send(parameters1Resource)
                 .set(getHeaders())
                 .expect(202);
 
