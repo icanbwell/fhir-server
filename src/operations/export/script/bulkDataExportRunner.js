@@ -169,8 +169,13 @@ class BulkDataExportRunner {
             });
 
             // compute base folder where data will be upload in s3
-            const ownerTag = this.exportStatusResource.meta.security.find(s => s.system === SecurityTagSystem.owner).code;
-            this.baseS3Folder = `exports/${ownerTag}/${this.exportStatusId}`;
+            const accessTags = this.exportStatusResource.meta.security
+                .filter(s => s.system === SecurityTagSystem.access)
+                .map(s => s.code);
+            if (accessTags.length === 0) {
+                accessTags.push('bwell');
+            }
+            this.baseS3Folder = `exports/${accessTags.join('_')}/${this.exportStatusId}`;
 
             const { pathname, searchParams } = new URL(this.exportStatusResource.request);
 
