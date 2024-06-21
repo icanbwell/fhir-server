@@ -268,6 +268,16 @@ function splitQuery(query) {
             });
             keys = keys.filter(key => key !== "value" && key !== "target");
         }
+
+        // Handle special conditions for 'token' searchType for backward compatibility
+        if (query.searchType === 'token') {
+            if (Object.hasOwn(query, 'notEquals')) {
+                keys = keys.filter(key => key !== 'value' && key !== 'values');
+            } else if (Object.hasOwn(query, 'value')) {
+                keys = keys.filter(key => key !== 'values');
+            }
+        }
+
         keys.forEach(key => {
             if (Object.prototype.hasOwnProperty.call(query, key)) {
                 queries.push({

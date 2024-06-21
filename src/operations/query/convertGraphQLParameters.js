@@ -30,14 +30,13 @@ function convertGraphQLParameters(queryParameterValue) {
                     }
                     break;
                 case 'token':
-                    queryParameterValue.values = queryParameterValue.values || [];
                     if (queryParameterValue.value) {
                         // noinspection JSValidateTypes
-                        queryParameterValue.values.push(queryParameterValue.value);
+                        queryParameterValue.values = [queryParameterValue.value];
                     }
                     if (queryParameterValue.notEquals) {
                         // noinspection JSValidateTypes
-                        queryParameterValue.values.push(queryParameterValue.notEquals);
+                        queryParameterValue.values = [queryParameterValue.notEquals];
                         useNotEquals = true;
                     }
                     if (Object.hasOwn(queryParameterValue, 'missing')) {

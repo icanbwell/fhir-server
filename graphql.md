@@ -238,3 +238,50 @@ query {
 ### Enable Strict variable validation
 
 Pass the header `handling=strict` to enable strict variable validation. The FHIR Server will return a validation error if the query variables present in the GraphQL query do not have corresponding values in the request. Default value of the header is `lenient` skipping this validation. This is in addition to [Enabling Strict Validation in Search Requests](https://github.com/icanbwell/fhir-server/blob/master/cheatsheet.md#18-enabling-strict-validation).
+
+### Modifiers in Graphql queries
+
+In case of `SearchToken` modifier used to query fields, as described below, if `notEquals` is provided, then the data present in `value` & `values` will not be considered in the final query. And if only `value` is present, then `values` will be ignored.
+
+Graphql Query Example:
+```
+query {
+  observation(
+    status: {
+        values: [{ value: "final" }],
+        value: { value: "completed" },
+        missing:false,
+        notEquals: { value: "invalid" }
+    }
+  ) {
+    entry {
+      resource {
+        id
+        meta {
+          source
+        }
+      }
+    }
+  }
+}
+```
+
+Actual Query made for above graphql query [`value` & `values` not considered]:
+```
+{
+    "$and": [
+        { "status": { "$ne": null } },
+        { "$nor": [{ "status": "invalid" }] },
+        {
+            "meta.tag": {
+                "$not": {
+                    "$elemMatch": {
+                        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
+                        "code": "hidden"
+                    }
+                }
+            }
+        }
+    ]
+}
+```
