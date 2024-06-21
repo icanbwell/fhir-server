@@ -393,5 +393,24 @@ describe('Patient reference tests', () => {
                 message: 'ResourceType Test not supported'
             });
         });
+
+        test('Updating invalid resource doesn\'t work without allowed Content Type', async () => {
+            const request = await createTestRequest();
+            const headers = getHeadersWithCustomToken('user/*.* access/*.* admin/*.*');
+            headers['Content-Type'] = 'application/json';
+            const resp = await request
+                .post('/admin/updatePatientReference')
+                .send({
+                    patientId: '1',
+                    resourceType: 'Test',
+                    resourceId: '1'
+                })
+                .set(headers)
+                .expect(400);
+
+            expect(resp).toHaveResponse({
+                message: "Content Type application/json is not supported. Allowed content-types are: application/fhir+json,application/json+fhir"
+            });
+        });
     });
 });
