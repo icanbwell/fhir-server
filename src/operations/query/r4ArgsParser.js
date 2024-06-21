@@ -177,9 +177,8 @@ class R4ArgsParser {
                     )
                 ) {
                     const newModifiers = deepcopy(modifiers);
-                    const modifier = findModifier(originalGraphQLQuery);
-                    if (modifier) {
-                        newModifiers.push(modifier);
+                    if (originalGraphQLQuery.modifier) {
+                        newModifiers.push(originalGraphQLQuery.modifier);
                     }
                     parseArgItems.push(
                         new ParsedArgsItem({
@@ -264,7 +263,8 @@ function splitQuery(query) {
             queries.push({
                 searchType: query.searchType,
                 target: query.target,
-                value: query.value
+                value: query.value,
+                modifier: "value"
             });
             keys = keys.filter(key => key !== "value" && key !== "target");
         }
@@ -272,7 +272,8 @@ function splitQuery(query) {
             if (Object.prototype.hasOwnProperty.call(query, key)) {
                 queries.push({
                     searchType: query.searchType,
-                    [key]: query[key]
+                    [key]: query[key],
+                    modifier: key != "values" ? key : null
                 });
             }
         });
@@ -281,21 +282,6 @@ function splitQuery(query) {
     return queries;
 }
 
-
-/**
- * Finds and returns the first key in the query object that matches one of the specified modifiers.
- *
- * @param {Object} query - The query object to search for modifiers.
- * @returns {string|undefined} - The name of the first matching key if found, otherwise undefined.
- */
-function findModifier(query) {
-    const keys = ["value", "missing", "prefix", "target"];
-    for (const key of keys) {
-        if (key in query) {
-            return key;
-        }
-    }
-}
 
 module.exports = {
     R4ArgsParser
