@@ -282,7 +282,6 @@ function splitQuery(query) {
     return queries;
 }
 
-
 module.exports = {
     R4ArgsParser
 };

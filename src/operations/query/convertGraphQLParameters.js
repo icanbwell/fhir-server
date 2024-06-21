@@ -20,7 +20,7 @@ function convertGraphQLParameters(queryParameterValue) {
                         const notEqualsObject = queryParameterValue.notEquals;
                         notQueryParameterValue = notEqualsObject.value || notEqualsObject.values;
                         queryParameterValue = [];
-                    } else if ('missing' in queryParameterValue) {
+                    } else if (Object.hasOwn(queryParameterValue, 'missing')) {
                         // noinspection JSValidateTypes
                         queryParameterValue = `${queryParameterValue.missing}`;
                     } else {
@@ -40,7 +40,7 @@ function convertGraphQLParameters(queryParameterValue) {
                         queryParameterValue.values.push(queryParameterValue.notEquals);
                         useNotEquals = true;
                     }
-                    if ('missing' in queryParameterValue) {
+                    if (Object.hasOwn(queryParameterValue, 'missing')) {
                         // noinspection JSValidateTypes
                         queryParameterValue.values = queryParameterValue.values || [];
                         queryParameterValue.values.push({ missing: queryParameterValue.missing });
@@ -66,7 +66,7 @@ function convertGraphQLParameters(queryParameterValue) {
                             if (tokenToProcess.value) {
                                 tokenString += tokenToProcess.value;
                             }
-                            if ('missing' in tokenToProcess) {
+                            if (Object.hasOwn(tokenToProcess, 'missing')) {
                                 tokenString += tokenToProcess.missing;
                             }
                             if (tokenString) {
@@ -99,7 +99,7 @@ function convertGraphQLParameters(queryParameterValue) {
                     if (queryParameterValue.value) {
                         referenceText += queryParameterValue.value;
                     }
-                    if ('missing' in queryParameterValue) {
+                    if (Object.hasOwn(queryParameterValue, 'missing')) {
                         referenceText += queryParameterValue.missing;
                     }
                     if (useNotEquals) {
@@ -122,7 +122,7 @@ function convertGraphQLParameters(queryParameterValue) {
                     if (queryParameterValue.prefix) {
                         quantityString += queryParameterValue.prefix;
                     }
-                    if ('missing' in queryParameterValue) {
+                    if (Object.hasOwn(queryParameterValue, 'missing')) {
                         quantityString += queryParameterValue.missing;
                     }
                     if (queryParameterValue.value) {
