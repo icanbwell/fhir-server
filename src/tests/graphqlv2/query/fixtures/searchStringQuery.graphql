@@ -1,0 +1,15 @@
+query {
+  person(
+    _debug: true,
+    name: { value: "Family", missing:false, notEquals: { value: "hi"} }
+  ) {
+    entry {
+      resource {
+        id
+        meta {
+          source
+        }
+      }
+    }
+  }
+}

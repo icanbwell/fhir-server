@@ -1,0 +1,19 @@
+query OnSubject {
+  observation(
+    _debug: true,
+    category: {
+      missing: false
+    }
+  ){
+    entry {
+      resource {
+        id
+        category {
+          coding {
+            code
+          }
+        }
+      }
+    }
+  }
+}

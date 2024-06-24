@@ -164,16 +164,61 @@ class R4ArgsParser {
                 ) : null;
 
             let notQueryParameterValue;
-            ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
-                queryParameterValue,
-                args,
-                queryParameter
-            ));
+
+            // Splitting the given query parameter value to be considered separately
+            const splitQueries = splitQuery(queryParameterValue);
+            splitQueries.forEach((graphqlQuery)=>{
+                const originalGraphQLQuery = deepcopy(graphqlQuery);
+                ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(graphqlQuery));
+
+                if (queryParameterValue && (
+                        !Array.isArray(queryParameterValue) ||
+                        queryParameterValue.filter(v => v).length > 0
+                    )
+                ) {
+                    const newModifiers = deepcopy(modifiers);
+                    if (originalGraphQLQuery.modifier) {
+                        newModifiers.push(originalGraphQLQuery.modifier);
+                    }
+                    parseArgItems.push(
+                        new ParsedArgsItem({
+                            queryParameter,
+                            queryParameterValue: new QueryParameterValue({
+                                value: queryParameterValue,
+                                operator: useOrFilterForArrays ? '$or' : '$and'
+                            }),
+                            propertyObj,
+                            modifiers: newModifiers
+                        })
+                    );
+                }
+
+                if (notQueryParameterValue && (
+                        !Array.isArray(notQueryParameterValue) ||
+                        notQueryParameterValue.filter(v => v).length > 0
+                    )
+                ) {
+                    const newModifiers = deepcopy(modifiers);
+                    newModifiers.push('not');
+                    parseArgItems.push(
+                        new ParsedArgsItem({
+                            queryParameter,
+                            queryParameterValue: new QueryParameterValue({
+                                value: notQueryParameterValue,
+                                operator: useOrFilterForArrays ? '$or' : '$and'
+                            }),
+                            propertyObj,
+                            modifiers: newModifiers
+                        })
+                    );
+                }
+                queryParameterValue = null;
+            });
 
             if (queryParameterValue && (
-                    !Array.isArray(queryParameterValue) ||
-                    queryParameterValue.filter(v => v).length > 0
-                )
+                !Array.isArray(queryParameterValue) ||
+                queryParameterValue.filter(v => v).length > 0
+            )
             ) {
                 parseArgItems.push(
                     new ParsedArgsItem({
@@ -184,26 +229,6 @@ class R4ArgsParser {
                         }),
                         propertyObj,
                         modifiers
-                    })
-                );
-            }
-
-            if (notQueryParameterValue && (
-                    !Array.isArray(notQueryParameterValue) ||
-                    notQueryParameterValue.filter(v => v).length > 0
-                )
-            ) {
-                const newModifiers = deepcopy(modifiers);
-                newModifiers.push('not');
-                parseArgItems.push(
-                    new ParsedArgsItem({
-                        queryParameter,
-                        queryParameterValue: new QueryParameterValue({
-                            value: notQueryParameterValue,
-                            operator: useOrFilterForArrays ? '$or' : '$and'
-                        }),
-                        propertyObj,
-                        modifiers: newModifiers
                     })
                 );
             }
@@ -219,6 +244,52 @@ class R4ArgsParser {
         );
         return parsedArgs;
     }
+}
+
+/**
+ * Splits a query object into multiple queries based on its properties.
+ *
+ * @param {Object} query - The query object to split.
+ * @returns {Array} - An array of query objects.
+ */
+function splitQuery(query) {
+    const queries = [];
+    let keys = ["value", "values", "missing", "target", "notEquals", "prefix"];
+
+    // Ensure query is an object and not null or undefined
+    if (query && typeof query === 'object') {
+        // Case for reference where target and value are to be considered together
+        if (query.target && query.value) {
+            queries.push({
+                searchType: query.searchType,
+                target: query.target,
+                value: query.value,
+                modifier: "value"
+            });
+            keys = keys.filter(key => key !== "value" && key !== "target");
+        }
+
+        // Handle special conditions for 'token' searchType for backward compatibility
+        if (query.searchType === 'token') {
+            if (Object.hasOwn(query, 'notEquals')) {
+                keys = keys.filter(key => key !== 'value' && key !== 'values');
+            } else if (Object.hasOwn(query, 'value')) {
+                keys = keys.filter(key => key !== 'values');
+            }
+        }
+
+        keys.forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(query, key)) {
+                queries.push({
+                    searchType: query.searchType,
+                    [key]: query[key],
+                    modifier: key != "values" ? key : null
+                });
+            }
+        });
+    }
+
+    return queries;
 }
 
 module.exports = {
