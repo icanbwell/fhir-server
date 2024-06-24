@@ -439,6 +439,7 @@ describe('Export Tests', () => {
 
             expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
 
+            // Get ExportStatus List with status in-progress
             let exportStatusResponse = await request
                 .get(`/admin/ExportStatus?status=in-progress&_debug=1&_bundle=1`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
@@ -453,6 +454,7 @@ describe('Export Tests', () => {
             expect(exportStatusResponse.body.entry).toHaveLength(1);
             expect(exportStatusResponse).toHaveResponse(expectedExportStatusSearchResponse);
 
+            // Get ExportStatus List with status accepted
             let exportStatusResponse2 = await request
                 .get(`/admin/ExportStatus?status=accepted`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))

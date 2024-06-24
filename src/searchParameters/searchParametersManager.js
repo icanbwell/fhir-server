@@ -28,7 +28,7 @@ class SearchParametersManager {
             },
             ExportStatus: {
                 status: new SearchParameterDefinition({
-                    description: 'The current status for ExportStatus',
+                    description: 'The status for ExportStatus',
                     type: 'token',
                     field: 'status'
                 })
