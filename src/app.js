@@ -17,6 +17,7 @@ const { strategy } = require('./strategies/jwt.bearer.strategy');
 
 const { handleAlert } = require('./routeHandlers/alert');
 const { MyFHIRServer } = require('./routeHandlers/fhirServer');
+const  validateContentTypeMiddleware  = require('./middleware/contentType-validation.middleware.js')
 const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHandlers/contentSecurityPolicy');
 const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
 const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
@@ -311,14 +312,16 @@ function createApp ({ fnGetContainer }) {
     adminRouter.get('/admin/:op?', (req, res) => handleAdminGet(fnGetContainer, req, res));
     adminRouter.post(
         '/admin/:op?',
-        express.json({ type: allowedContentTypes }),
+        validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
+        express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
     adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
     adminRouter.put(
         '/admin/:op?',
-         express.json({ type: allowedContentTypes }),
-         (req, res) => handleAdminPut(fnGetContainer, req, res));
+        validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
+        express.json({type: allowedContentTypes}),
+        (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use(adminRouter);
 

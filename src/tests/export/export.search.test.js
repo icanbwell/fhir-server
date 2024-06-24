@@ -246,6 +246,51 @@ describe('Export Tests', () => {
 
         });
 
+        test('Test Update ExportStatus without allowed Content Types', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            resp = await request
+                .get(`/4_0_0/$export/${exportStatusId}`)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['x-progress']).toEqual('accepted');
+
+            const expectedExportStatusResponseCopy = deepcopy(expectedExportStatusResponse[0]);
+            expectedExportStatusResponseCopy.status = "in-progress";
+
+            // Update ExportStatus Request
+
+            const headers = getHeaders('admin/*.* user/*.* access/*.*');
+            headers['Content-Type'] = 'application/json';
+
+            let exportStatusPutResponse = await request
+                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .set(headers)
+                .send(expectedExportStatusResponseCopy)
+                .expect(400);
+
+            expect(exportStatusPutResponse).toHaveResponse(
+                {
+                    message: 'Content Type application/json is not supported. Allowed content-types are: application/fhir+json,application/json+fhir'
+                }
+            );
+
+        });
+
         test('Update ExportStatus which is not present', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
