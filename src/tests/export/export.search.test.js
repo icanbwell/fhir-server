@@ -1,5 +1,7 @@
 const expectedExportStatusResponse = require('./fixtures/expected/expected_export_status1_response.json');
 const expectedExportStatusResponse2 = require('./fixtures/expected/expected_export_status2_response.json');
+const expectedExportStatusSearchResponse = require('./fixtures/expected/expected_export_status_search_response.json');
+const expectedExportStatusSearchResponse2 = require('./fixtures/expected/expected_export_status_search_response2.json');
 const expectedExportStatusResponse3 = require('./fixtures/expected/expected_export_status3_response.json');
 const expectedExportStatusResponseList = require('./fixtures/expected/expected_export_status_list.json');
 
@@ -395,6 +397,69 @@ describe('Export Tests', () => {
             delete exportStatusNoChangesPutResponse.body.identifier[0].value;
             delete exportStatusNoChangesPutResponse.body.identifier[1].value;
             expect(exportStatusNoChangesPutResponse).toHaveResponse(expectedExportStatusResponse3)
+        });
+
+        test('Test status searchParameter for ExportStatus', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('k8sClient', (c) => new MockK8sClient({
+                    configManager: c.configManager
+                }));
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['content-location']).toBeDefined();
+            const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            resp = await request
+                .get(`/4_0_0/$export/${exportStatusId}`)
+                .set(getHeaders())
+                .expect(202);
+
+            expect(resp.headers['x-progress']).toEqual('accepted');
+
+            const exportStatus1Copy = deepcopy(expectedExportStatusResponse[0]);
+            exportStatus1Copy.status = "in-progress";
+
+            // Update ExportStatus Request
+            let exportStatusPutResponse = await request
+                .put(`/admin/ExportStatus/${exportStatusId}`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
+                .send(exportStatus1Copy)
+                .expect(200);
+
+            delete exportStatusPutResponse.body.transactionTime;
+            delete exportStatusPutResponse.body.id;
+            delete exportStatusPutResponse.body.identifier[0].value;
+            delete exportStatusPutResponse.body.identifier[1].value;
+
+            expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
+
+            let exportStatusResponse = await request
+                .get(`/admin/ExportStatus?status=in-progress&_debug=1&_bundle=1`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
+                .expect(200);
+
+            delete exportStatusResponse.body.entry[0].id;
+            delete exportStatusResponse.body.entry[0].resource.transactionTime;
+            delete exportStatusResponse.body.entry[0].resource.id;
+            delete exportStatusResponse.body.entry[0].resource.identifier[0].value;
+            delete exportStatusResponse.body.entry[0].resource.identifier[1].value;
+
+            expect(exportStatusResponse.body.entry).toHaveLength(1);
+            expect(exportStatusResponse).toHaveResponse(expectedExportStatusSearchResponse);
+
+            let exportStatusResponse2 = await request
+                .get(`/admin/ExportStatus?status=accepted`)
+                .set(getHeaders('admin/*.* user/*.* access/*.*'))
+                .expect(200);
+
+            expect(exportStatusResponse2).toHaveResponse(expectedExportStatusSearchResponse2);
+
         });
     });
 });
