@@ -7,7 +7,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.ExportStatus_4_0_0.find({'$and':[{'status':'in-progress|accepted'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+                "display": "db.ExportStatus_4_0_0.find({'$and':[{'status':{'$in':['accepted','on-hold']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -63,7 +63,32 @@
                         }
                     ]
                 },
-                "status": "in-progress|accepted",
+                "status": "on-hold",
+                "requiresAccessToken": false,
+                "scope": "user/*.read user/*.write access/*.*",
+                "user": "imran",
+                "output": [],
+                "errors": []
+            }
+        }, 
+        {
+            "resource": {
+                "resourceType": "ExportStatus",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-06-09T19: 58: 37.000Z",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "status": "accepted",
                 "requiresAccessToken": false,
                 "scope": "user/*.read user/*.write access/*.*",
                 "user": "imran",

@@ -476,15 +476,15 @@ describe('Export Tests', () => {
             expect(resp.headers['content-location']).toBeDefined();
             const exportStatusId = resp.headers['content-location'].split('/').pop();
 
-            resp = await request
-                .get(`/4_0_0/$export/${exportStatusId}`)
+            let resp2 = await request
+                .post('/4_0_0/Patient/$export?_type=Patient')
                 .set(getHeaders())
                 .expect(202);
 
-            expect(resp.headers['x-progress']).toEqual('accepted');
+            expect(resp2.headers['content-location']).toBeDefined();
 
             const exportStatus1Copy = deepcopy(expectedExportStatusResponse[0]);
-            exportStatus1Copy.status = "in-progress|accepted";
+            exportStatus1Copy.status = "on-hold";
 
             // Update ExportStatus Request
             await request
@@ -495,14 +495,18 @@ describe('Export Tests', () => {
 
             // Get ExportStatus List with status - in-progress & completed
             let exportStatusResponse3 = await request
-                .get(`/admin/ExportStatus?status=in-progress|accepted&_debug=1&_bundle=1`)
+                .get(`/admin/ExportStatus?status=accepted,on-hold&_debug=1&_bundle=1`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200);
 
             delete exportStatusResponse3.body.entry[0].id;
+            delete exportStatusResponse3.body.entry[1].id;
             delete exportStatusResponse3.body.entry[0].resource.id;
+            delete exportStatusResponse3.body.entry[1].resource.id;
             delete exportStatusResponse3.body.entry[0].resource.transactionTime;
+            delete exportStatusResponse3.body.entry[1].resource.transactionTime;
             delete exportStatusResponse3.body.entry[0].resource.identifier;
+            delete exportStatusResponse3.body.entry[1].resource.identifier;
 
             expect(exportStatusResponse3).toHaveResponse(expectedExportStatusSearchResponse3);
         });
