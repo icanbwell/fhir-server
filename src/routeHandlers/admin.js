@@ -191,7 +191,7 @@ async function handleAdminGet (
                 }
 
                 case 'ExportStatus': {
-                    logInfo('', { 'req.query': req.query });
+                    logInfo('', { 'req.query': req.query, 'req.params.id': req.params.id });
                     return res.json(await adminExportManager.getExportStatus({ req, res }))
                 }
 
@@ -373,7 +373,7 @@ async function handleAdminPost (
                     });
                 }
                 case 'triggerExport': {
-                    if (req.query.id) {
+                    if (req.params.id) {
                         return res.json(await adminExportManager.triggerExportJob({ req, res }));
                     }
                     else {
@@ -451,8 +451,8 @@ async function handleAdminPut(
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'ExportStatus': {
-                    logInfo('', { 'req.query': req.query });
-                    if (req.query.id) {
+                    logInfo('', { 'req.query': req.query, 'req.param.id': req.params.id });
+                    if (req.params.id) {
                         return res.json(await adminExportManager.updateExportStatus({ req, res }));
                     }
                     else {

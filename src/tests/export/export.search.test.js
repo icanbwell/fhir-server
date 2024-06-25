@@ -49,7 +49,7 @@ describe('Export Tests', () => {
 
             // Get Export Status
             let exportStatusResponse = await request
-                .get(`/admin/ExportStatus?id=${exportStatusId}`)
+                .get(`/admin/ExportStatus/${exportStatusId}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200);
 
@@ -78,7 +78,7 @@ describe('Export Tests', () => {
             const exportStatusId = resp.headers['content-location'].split('/').pop();
 
             let exportStatusResponseViaPatientScope = await request
-                .get(`/admin/ExportStatus?id=${exportStatusId}`)
+                .get(`/admin/ExportStatus/${exportStatusId}`)
                 .set(getHeaders('patient/*.*'))
                 .expect(403);
 
@@ -112,7 +112,7 @@ describe('Export Tests', () => {
             expect(resp.headers['x-progress']).toEqual('accepted');
             const randomUUID = generateUUID()
             let exportStatusResponse2 = await request
-                .get(`/admin/ExportStatus?id=${randomUUID}`)
+                .get(`/admin/ExportStatus/${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200)
 
@@ -232,7 +232,7 @@ describe('Export Tests', () => {
 
             // Update ExportStatus Request
             let exportStatusPutResponse = await request
-                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .put(`/admin/ExportStatus/${exportStatusId}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
                 .expect(200);
@@ -312,7 +312,7 @@ describe('Export Tests', () => {
             // Update ExportStatus Request which is not present
             const randomUUID = generateUUID();
             let exportStatusNotPresentPutResponse = await request
-                .put(`/admin/ExportStatus?id=${randomUUID}`)
+                .put(`/admin/ExportStatus/${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
                 .expect(404);
@@ -354,7 +354,7 @@ describe('Export Tests', () => {
 
             // Update ExportStatus Request Via Patient Scope
             let exportStatusPutResponseViaPatientScope = await request
-                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .put(`/admin/ExportStatus/${exportStatusId}`)
                 .send(expectedExportStatusResponseCopy)
                 .set(getHeaders('patient/*.*'))
                 .expect(403);
@@ -385,7 +385,7 @@ describe('Export Tests', () => {
 
             const expectedExportStatusResponseCopy2 = deepcopy(expectedExportStatusResponse[0]);
             let exportStatusNoChangesPutResponse = await request
-                .put(`/admin/ExportStatus?id=${exportStatusId}`)
+                .put(`/admin/ExportStatus/${exportStatusId}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy2)
                 .expect(200);

@@ -94,7 +94,8 @@ class AdminExportManager {
                 base_version: VERSIONS['4_0_0']
             }
 
-            if (req.query.id) {
+            if (req.params.id) {
+                args['id'] = req.params.id;
                 const exportStatusResource = await this.fhirOperationsManager.searchById(
                     args,
                     {
@@ -140,7 +141,7 @@ class AdminExportManager {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         httpContext.set('requestId', req.id);
 
-        const exportStatusId = req.query.id;
+        const exportStatusId = req.params.id;
         const resourceType = 'ExportStatus'
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req)
         const args = {
@@ -214,7 +215,7 @@ class AdminExportManager {
         const args = {
             base_version: VERSIONS['4_0_0']
         };
-        const exportStatusId = req.query.id;
+        const exportStatusId = req.params.id;
         const resourceType = 'ExportStatus';
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req)
 
