@@ -459,16 +459,6 @@
                         }
                     ]
                 },
-                "identifier": [
-                    {
-                        "id": "sourceId",
-                        "system": "https://www.icanbwell.com/sourceId"
-                    },
-                    {
-                        "id": "uuid",
-                        "system": "https://www.icanbwell.com/uuid"
-                    }
-                ],
                 "status": "in-progress",
                 "requiresAccessToken": false,
                 "scope": "user/*.read user/*.write access/*.*",

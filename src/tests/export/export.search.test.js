@@ -434,8 +434,7 @@ describe('Export Tests', () => {
 
             delete exportStatusPutResponse.body.transactionTime;
             delete exportStatusPutResponse.body.id;
-            delete exportStatusPutResponse.body.identifier[0].value;
-            delete exportStatusPutResponse.body.identifier[1].value;
+            delete exportStatusPutResponse.body.identifier;
 
             expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
 
@@ -448,8 +447,7 @@ describe('Export Tests', () => {
             delete exportStatusResponse.body.entry[0].id;
             delete exportStatusResponse.body.entry[0].resource.transactionTime;
             delete exportStatusResponse.body.entry[0].resource.id;
-            delete exportStatusResponse.body.entry[0].resource.identifier[0].value;
-            delete exportStatusResponse.body.entry[0].resource.identifier[1].value;
+            delete exportStatusResponse.body.entry[0].resource.identifier;
 
             expect(exportStatusResponse.body.entry).toHaveLength(1);
             expect(exportStatusResponse).toHaveResponse(expectedExportStatusSearchResponse);
