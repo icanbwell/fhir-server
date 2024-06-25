@@ -241,8 +241,7 @@ describe('Export Tests', () => {
 
             delete exportStatusPutResponse.body.transactionTime;
             delete exportStatusPutResponse.body.id;
-            delete exportStatusPutResponse.body.identifier[0].value;
-            delete exportStatusPutResponse.body.identifier[1].value;
+            delete exportStatusPutResponse.body.identifier;
 
             expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
 
