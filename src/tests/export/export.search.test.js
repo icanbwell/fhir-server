@@ -394,8 +394,7 @@ describe('Export Tests', () => {
 
             delete exportStatusNoChangesPutResponse.body.transactionTime;
             delete exportStatusNoChangesPutResponse.body.id;
-            delete exportStatusNoChangesPutResponse.body.identifier[0].value;
-            delete exportStatusNoChangesPutResponse.body.identifier[1].value;
+            delete exportStatusNoChangesPutResponse.body.identifier;
             expect(exportStatusNoChangesPutResponse).toHaveResponse(expectedExportStatusResponse3)
         });
 
