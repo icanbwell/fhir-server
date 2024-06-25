@@ -1,0 +1,25 @@
+query OnSubject {
+  observation(
+    _debug: true,
+    category: {
+      values: [
+        { value: "vital-signs"},
+        {
+          notEquals: { value: "laboratory"}
+        }
+      ],
+      missing: false
+    }
+  ){
+    entry {
+      resource {
+        id
+        category {
+          coding {
+            code
+          }
+        }
+      }
+    }
+  }
+}

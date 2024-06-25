@@ -1,0 +1,45 @@
+{
+    "data": {
+        "observation": {
+            "entry": [
+                { "resource": { "id": "2", "category": null } },
+                {
+                    "resource": {
+                        "id": "exs2hLRJfViSgT3bVra9fQ-Kby.uXxCNtphbSgs6mos56m",
+                        "category": [{ "coding": [{ "code": "vital-signs" }] }]
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.Observation_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'subject':{'$ne':null}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'subject._uuid':{'$in':['Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454','Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['subject._uuid','subject','meta.tag.system','meta.tag.code','meta.security.system','meta.security.code','_uuid']]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryTime", "display": "[0.027]" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Observation_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"subject\":{\"$not\":{\"$eq\":null}}}]},\"queryHash\":\"4D8A7AA9\",\"planCacheKey\":\"8D89346E\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"subject\":{\"$not\":{\"$eq\":null}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":6,\"advanced\":2,\"needTime\":3,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":8959,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"subject\":{\"$not\":{\"$eq\":null}}}]},\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":2,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":2}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Observation_4_0_0\",\"filter\":{\"$and\":[{\"subject._uuid\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"},{\"subject\":{\"$ne\":null}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"subject._uuid\":{\"$in\":[\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\",\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\",\"code\":\"R\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":40276,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7383004152818827299\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7383004152818827299\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"subject\":{\"$not\":{\"$eq\":null}}}]},\"docsExamined\":2,\"nReturned\":2,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":2},\"query\":\"db.Observation_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'subject':{'$ne':null}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'subject._uuid':{'$in':['Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454','Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}
