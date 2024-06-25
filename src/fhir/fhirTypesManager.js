@@ -14,9 +14,7 @@ const customDataElementsMap = new Map([
     [
         'ExportStatus.status',
         {
-            code: 'code',
-            min: 0,
-            max: 1
+            code: 'code'
         }
     ]
 ]);
