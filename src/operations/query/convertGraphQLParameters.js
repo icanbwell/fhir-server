@@ -141,7 +141,17 @@ function convertGraphQLParameters(queryParameterValue) {
                     }
                     break;
                 case 'date':
+                    if (queryParameterValue && Object.hasOwn(queryParameterValue, 'missing')) {
+                        queryParameterValue = null;
+                        break;
+                    }
+                    // fall through
                 case 'dateTime':
+                    if (queryParameterValue && Object.hasOwn(queryParameterValue, 'missing')) {
+                        queryParameterValue = null;
+                        break;
+                    }
+                    // fall through
                 case 'number':
                     if (queryParameterValue.value) {
                         // noinspection JSValidateTypes
