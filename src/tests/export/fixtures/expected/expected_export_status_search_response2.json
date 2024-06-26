@@ -1,0 +1,12 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2024-06-24T04:04:55.5555Z",
+    "total": 0,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/admin/ExportStatus?status=accepted"
+        }
+    ]
+}

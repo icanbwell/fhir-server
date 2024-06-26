@@ -10,6 +10,14 @@ const dataElementMap = new Map(dataElementsJson.entry.map(i =>
         ]
     )
 );
+const customDataElementsMap = new Map([
+    [
+        'ExportStatus.status',
+        {
+            code: 'code'
+        }
+    ]
+]);
 
 class FhirTypesManager {
     /**
@@ -23,7 +31,8 @@ class FhirTypesManager {
      */
     getTypeForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
-        const dataType = dataElementMap.get(resourceAndField);
+        const combinedDataElementsMap = new Map([...dataElementMap, ...customDataElementsMap]);
+        const dataType = combinedDataElementsMap.get(resourceAndField);
         return dataType && dataType.code;
     }
 

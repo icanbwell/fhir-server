@@ -1,0 +1,100 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2024-06-24T04:04:55.5555Z",
+    "total": 0,
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.ExportStatus_4_0_0.find({'$and':[{'status':{'$in':['accepted','on-hold']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": ""
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['status','meta.tag.system','meta.tag.code','_uuid']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.007"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.ExportStatus_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"status\":{\"$eq\":\"in-progress\"}},{\"status\":{\"$eq\":\"completed\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"4A034B8E\",\"planCacheKey\":\"D1BF2172\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"status\":{\"$eq\":\"in-progress\"}},{\"status\":{\"$eq\":\"completed\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"status\":{\"$eq\":\"in-progress\"}},{\"status\":{\"$eq\":\"completed\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"ExportStatus_4_0_0\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"status\":\"in-progress\"},{\"status\":\"completed\"}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00059-jtg-ooo\",\"port\":55719,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7384450328436932635\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7384450328436932635\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"status\":{\"$eq\":\"in-progress\"}},{\"status\":{\"$eq\":\"completed\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.ExportStatus_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'status':'in-progress'},{'status':'completed'}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    },
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/admin/ExportStatus?status=in-progress&status=completed&_debug=1&_bundle=1"
+        }
+    ],
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "ExportStatus",
+                "meta": {
+                    "versionId": "2",
+                    "lastUpdated": "2024-06-09T19: 58: 37.000Z",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "status": "on-hold",
+                "requiresAccessToken": false,
+                "scope": "user/*.read user/*.write access/*.*",
+                "user": "imran",
+                "output": [],
+                "errors": []
+            }
+        }, 
+        {
+            "resource": {
+                "resourceType": "ExportStatus",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-06-09T19: 58: 37.000Z",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "status": "accepted",
+                "requiresAccessToken": false,
+                "scope": "user/*.read user/*.write access/*.*",
+                "user": "imran",
+                "output": [],
+                "errors": []
+            }
+        }
+    ]
+}

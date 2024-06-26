@@ -25,6 +25,13 @@ class SearchParametersManager {
                     field: 'subscription',
                     target: ['Subscription']
                 })
+            },
+            ExportStatus: {
+                status: new SearchParameterDefinition({
+                    description: 'The status for ExportStatus',
+                    type: 'token',
+                    field: 'status'
+                })
             }
         };
         /**
