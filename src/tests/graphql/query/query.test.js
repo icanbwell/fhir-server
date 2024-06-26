@@ -5,6 +5,7 @@ const observation3Resource = require('./fixtures/observation/observation3.json')
 const patientBundleResource = require('./fixtures/patient/patient1.json');
 const personBundleResource = require('./fixtures/person/person1.json');
 const condition1Resource = require('./fixtures/condition/condition1.json');
+const procedure1Resource = require('./fixtures/procedure/procedure1.json');
 
 // expected
 const expectedResponse1 = require('./fixtures/expected/expected_response1.json');
@@ -14,6 +15,7 @@ const expectedResponse4 = require('./fixtures/expected/expected_response4.json')
 const expectedResponse5 = require('./fixtures/expected/expected_response5.json');
 const expectedResponse6 = require('./fixtures/expected/expected_response6.json');
 const expectedResponse7 = require('./fixtures/expected/expected_response7.json');
+const expectedResponse8 = require('./fixtures/expected/expected_response8.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -44,6 +46,10 @@ const searchReferenceQuery = fs.readFileSync(
 );
 const searchQuantityQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/searchQuantityQuery.graphql'),
+    'utf8'
+);
+const searchDateQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/searchDateQuery.graphql'),
     'utf8'
 );
 
@@ -304,6 +310,41 @@ describe('GraphQL Input Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse4);
+        });
+
+        test('GraphQL SearchDate Test', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Procedure/1/$merge?validate=true')
+                .send(procedure1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const graphqlQueryText = searchDateQuery.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResponse8);
         });
     });
 });

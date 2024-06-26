@@ -1,0 +1,15 @@
+query {
+  procedure(
+    _debug: true,
+    date: { value: {greaterThan: "2024-01-01"}, missing: false}
+  ) {
+    entry {
+      resource {
+        id
+        meta {
+          source
+        }
+      }
+    }
+  }
+}

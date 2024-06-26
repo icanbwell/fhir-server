@@ -1,0 +1,103 @@
+{
+    "resourceType": "Procedure",
+    "id": "efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+    "meta": {
+        "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Procedure/efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "aetna_sandbox"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "aetna_sandbox"
+            },
+            {
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "aetna_sandbox"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "use": "usual",
+            "type": {
+                "text": "ORL"
+            },
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798276",
+            "value": "516464"
+        },
+        {
+            "use": "usual",
+            "type": {
+                "text": "OPE"
+            },
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798069",
+            "value": "32416"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5da8ccf6-420d-5e64-892e-6635ed95bb19"
+        }
+    ],
+    "status": "completed",
+    "category": {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "387713003",
+                "display": "Surgical procedure"
+            }
+        ],
+        "text": "Surgical Procedures"
+    },
+    "code": {
+        "text": "Surgery"
+    },
+    "encounter": {
+        "reference": "Encounter/evIJBKsHljAsrkzdOutjBcg3",
+        "display": "Surgery"
+    },
+    "performedPeriod": {
+        "start": "2019-12-13T21:31:00+00:00",
+        "end": "2019-12-13T21:49:00+00:00"
+    },
+    "recorder": {
+        "reference": "Practitioner/e1eu4t47exP7VZqWjBIcJiZltEq7ZcluhvuY-gmqF5jk3",
+        "type": "Practitioner",
+        "display": "Derraill A. Miller"
+    },
+    "performer": [
+        {
+            "actor": {
+                "reference": "Practitioner/pract15117",
+                "type": "Practitioner",
+                "display": "Jonathan R. Snyder"
+            }
+        }
+    ],
+    "location": {
+        "reference": "Location/edMS9htyoUh5jjmzy1SZq6qaCN1sV-5DG77B1f6JktvQ3",
+        "display": "LIBERTY HOSPITAL"
+    },
+    "reasonCode": [
+        {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/sid/icd-9-cm/diagnosis",
+                    "code": "565.0",
+                    "display": "Anal fissure, unspecified"
+                }
+            ],
+            "text": "Anal fissure, unspecified"
+        }
+    ],
+    "subject": {
+        "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+    }
+}
