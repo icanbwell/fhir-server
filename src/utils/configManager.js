@@ -114,6 +114,12 @@ class ConfigManager {
                     .map((col) => col.trim())
             ) || []
         );
+        indexList = indexList.concat(
+            (
+                env.ACCESS_TAGS_INDEXED_PRACTITIONER && env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',')
+                    .map((col) => col.trim())
+            ) || []
+        );
         return indexList;
     }
 
