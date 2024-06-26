@@ -46,6 +46,11 @@ extend type Query {
         Tags applied to this resource
         """
         _tag: SearchToken
+        """
+        extension (FHIR type: extension)
+        Extensions applied to this resource
+        """
+        extension: SearchExtension
 
         # search parameters for List
         """

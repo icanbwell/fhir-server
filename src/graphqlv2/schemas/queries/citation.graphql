@@ -15,16 +15,11 @@ extend type Query {
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
+        ids to retrieve.
         """
-        id: [String]
+        id: SearchString
 
         # search parameters for all resources
-        """
-        _id (FHIR type: token)
-        Logical id of this artifact
-        """
-        _id: SearchString
         """
         _lastUpdated (FHIR type: date)
         When the resource version last changed
@@ -50,6 +45,11 @@ extend type Query {
         Tags applied to this resource
         """
         _tag: SearchToken
+        """
+        extension (FHIR type: extension)
+        Extensions applied to this resource
+        """
+        extension: SearchExtension
 
         # search parameters for Citation
         """

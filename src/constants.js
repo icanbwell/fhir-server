@@ -155,7 +155,7 @@ module.exports = {
     SPECIFIED_QUERY_PARAMS: [
         '_explain', '_debug', '_validate', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',
-        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization',
+        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization', 'extension',
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',

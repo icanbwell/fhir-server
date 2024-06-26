@@ -1,0 +1,28 @@
+query OnObservation {
+  observation(
+    _debug: true,
+    extension: {
+      values: [
+        {
+          url: "http://hl7.org/fhir/StructureDefinition/observation-bodyPosition", 
+          valueString: "sitting"
+        },
+        {
+          url: "http://hl7.org/fhir/StructureDefinition/observation-deviceCode", 
+          valueString: "XS-2983"
+        }
+      ]
+    }
+  ){
+    entry {
+      resource {
+        id
+        category {
+          coding {
+            code
+          }
+        }
+      }
+    }
+  }
+}
