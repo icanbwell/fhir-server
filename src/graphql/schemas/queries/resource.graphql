@@ -15,11 +15,6 @@ extend type Query {
         id: [String]
 
         # search parameters for all resources
-        """
-        extension (FHIR type: extension)
-        Extensions applied to this resource
-        """
-        extension: SearchExtension
 
         # search parameters for Resource
         """

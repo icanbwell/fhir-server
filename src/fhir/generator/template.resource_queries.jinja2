@@ -54,11 +54,6 @@ extend type Query {
         ERROR: {{ search_parameter_name.replace("-", "_") }} has invalid type {{ search_parameter.type }}
         {% endif %}
     {%  endfor %}
-        """
-        extension (FHIR type: extension)
-        Extensions applied to this resource
-        """
-        extension: SearchExtension
 
         # search parameters for {{fhir_entity.fhir_name}}
     {% for search_parameter_name, search_parameter in search_parameters_for_current_resource.items() %}
