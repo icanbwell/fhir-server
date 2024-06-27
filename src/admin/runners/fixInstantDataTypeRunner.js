@@ -129,7 +129,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
              * @type {Resource}
              */
             let resource = FhirResourceCreator.create(doc);
-
             /**
              * @type {Resource}
              */
@@ -191,10 +190,14 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
             for (const collectionName of this.collections) {
                 const startFromIdContainer = this.createStartFromIdContainer();
 
-                const uuids = await this.getResourceUuidsWithMultipleOwnerTagsAsync({
+                const dateTimeFields = await this.getDateTimeFields({
                     collectionName
                 });
-
+                if (dateTimeFields.length === 0) {
+                    this.adminLogger.logInfo(`${collectionName} has no dateTime fields. Skipping`);
+                    continue;
+                }
+                const uuids = [];
                 while (uuids.length > 0) {
                     const query = { _uuid: { $in: uuids.splice(0, this.batchSize) } };
 
@@ -225,7 +228,7 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
                             args: {
                                 query
                             },
-                            source: 'FixDuplicateOwnerTagsRunner.processAsync'
+                            source: 'FixInstantDataType.processAsync'
                         });
                     }
                 }
@@ -237,53 +240,11 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
         }
     }
 
-    async getResourceUuidsWithMultipleOwnerTagsAsync ({ collectionName }) {
-        const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
-
+    async getDateTimeFields ({ collectionName }) {
         this.adminLogger.logInfo(`Processing ${collectionName} collection`);
-        const { collection, client, session } = await this.createSingeConnectionAsync({
-            mongoConfig,
-            collectionName
-        });
-        try {
-            const cursorDuplicate = collection.aggregate([
-                { $unwind: '$meta.security' },
-                {
-                    $group: {
-                        _id: {
-                            _uuid: '$_uuid',
-                            system: '$meta.security.system',
-                            code: '$meta.security.code'
-                        },
-                        count: { $sum: 1 }
-                    }
-                },
-                { $match: { count: { $gt: 1 }, '_id.system': SecurityTagSystem.owner } },
-                { $group: { _id: { _uuid: '$_id._uuid' } } }
-            ]);
-
-            const uuids = [];
-            while (await cursorDuplicate.hasNext()) {
-                const data = await cursorDuplicate.next();
-                uuids.push(data._id._uuid);
-            }
-            return uuids;
-        } catch (err) {
-            this.adminLogger.logError(
-                `Error in getResourceUuidsWithMultipleOwnerTags: ${err.message}`,
-                {
-                    stack: err.stack
-                }
-            );
-
-            throw new RethrownError({
-                message: err.message,
-                error: err
-            });
-        } finally {
-            await session.endSession();
-            await client.close();
-        }
+        const resourceType = collectionName.substring(0, collectionName.indexOf('_'));
+        const dateTimeFields = resourcesWithDateTimeFields(resourceType);
+        return dateTimeFields;
     }
 }
 
