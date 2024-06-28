@@ -25,6 +25,8 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
+    const fetchResourceBatchSize = parameters.fetchResourceBatchSize || 1000;
+
     const minUploadBatchSize = parameters.minUploadBatchSize || 10000;
 
     const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100);
@@ -54,10 +56,12 @@ async function main() {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 patientQueryCreator: c.patientQueryCreator,
                 enrichmentManager: c.enrichmentManager,
+                resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
                 batchSize,
+                fetchResourceBatchSize,
                 minUploadBatchSize,
                 uploadPartSize,
                 s3Client: new S3Client({

@@ -21,6 +21,10 @@ const { logInfo, logError } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
+const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
+const BundleEntry = require('../../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
+const { ResourceLocator } = require('../../common/resourceLocator');
 
 class BulkDataExportRunner {
     /**
@@ -33,10 +37,12 @@ class BulkDataExportRunner {
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {EnrichmentManager} enrichmentManager
+     * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
      * @property {string} exportStatusId
      * @property {number} batchSize
+     * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
      * @property {number} minUploadBatchSize
@@ -51,10 +57,12 @@ class BulkDataExportRunner {
         r4SearchQueryCreator,
         patientQueryCreator,
         enrichmentManager,
+        resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
         exportStatusId,
         batchSize,
+        fetchResourceBatchSize,
         s3Client,
         uploadPartSize,
         minUploadBatchSize
@@ -102,6 +110,12 @@ class BulkDataExportRunner {
         assertTypeEquals(enrichmentManager, EnrichmentManager);
 
         /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
          * @type {R4ArgsParser}
          */
         this.r4ArgsParser = r4ArgsParser;
@@ -123,6 +137,11 @@ class BulkDataExportRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {number}
+         */
+        this.fetchResourceBatchSize = fetchResourceBatchSize;
 
         /**
          * @type {import('../../../fhir/classes/4_0_0/custom_resources/exportStatus')|null}
@@ -309,7 +328,7 @@ class BulkDataExportRunner {
             }
         }
 
-        // do not allow auditEvent exoprt
+        // do not allow auditEvent export
         allowedResources = allowedResources.filter(r => r !== 'AuditEvent');
 
         if (searchParams.has('_type')) {
@@ -429,21 +448,46 @@ class BulkDataExportRunner {
                 resourceType: 'Patient'
             });
 
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            /**
+             * @type {ResourceLocator}
+             */
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
                 resourceType: 'Patient',
                 base_version: '4_0_0'
             });
 
-            const patientCursor = await databaseQueryManager.findAsync({
-                query: patientQuery,
-                options: { projection: { _uuid: 1 } }
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
+             */
+            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query: patientQuery
             });
+
+            const options = { projection: { _uuid: 1 }, batchSize: this.fetchResourceBatchSize };
+            const patientCursor = collections[0].find(patientQuery, options);
 
             let patientReferences = [];
             let batchNumber = 1;
             while (await patientCursor.hasNext()) {
-                const data = await patientCursor.nextRaw();
-                patientReferences.push(`Patient/${data._uuid}`);
+                let result = await patientCursor.next();
+                if (result !== null) {
+                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || 'Patient';
+                    try {
+                        if (resourceType === 'BundleEntry') {
+                            // noinspection JSCheckFunctionSignatures
+                            result = new BundleEntry(result);
+                        }
+                    } catch (e) {
+                        throw new RethrownError({
+                            message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
+                            collection: 'Patient_4_0_0',
+                            error: e,
+                            query: patientQuery,
+                            id: result.id
+                        });
+                    }
+                    patientReferences.push(`Patient/${result._uuid}`);
+                }
 
                 if (patientReferences.length === this.batchSize) {
                     await this.exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber });
@@ -550,17 +594,49 @@ class BulkDataExportRunner {
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
                 const multipartUploadParts = [];
 
-                // TODO: add logic to use toArray from cursor and use batchSize to load batches
-                const cursor = await databaseQueryManager.findAsync({
+                /**
+                 * @type {ResourceLocator}
+                 */
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+                    resourceType,
+                    base_version: '4_0_0'
+                });
+
+                /**
+                 * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
+                 */
+                const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
                     query
                 });
+
+                const options = { batchSize: this.fetchResourceBatchSize };
+                const cursor = collections[0].find(query, options);
 
                 let buffer = '', readCount = 0, currentPartNumber = 1, fileSize = 0;
                 while(await cursor.hasNext()) {
                     const currentBatch = [];
 
                     while(await cursor.hasNext() && currentBatch.length < this.minUploadBatchSize) {
-                        currentBatch.push(await cursor.next());
+                        let doc = await cursor.next();
+                        if (doc !== null) {
+                            const currentResourceType = doc.resource ? 'BundleEntry' : doc.resourceType || resourceType;
+                            try {
+                                if (currentResourceType === 'BundleEntry') {
+                                    // noinspection JSCheckFunctionSignatures
+                                    doc = new BundleEntry(doc);
+                                }
+                                doc = FhirResourceCreator.createByResourceType(doc, currentResourceType);
+                            } catch (e) {
+                                throw new RethrownError({
+                                    message: `Error hydrating resource from database: ${currentResourceType}/${doc.id}`,
+                                    collection: `${currentResourceType}_4_0_0`,
+                                    error: e,
+                                    query: query,
+                                    id: doc.id
+                                });
+                            }
+                            currentBatch.push(doc);
+                        }
                     }
 
                     await this.enrichmentManager.enrichAsync({
