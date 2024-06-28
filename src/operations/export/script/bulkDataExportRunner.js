@@ -45,7 +45,6 @@ class BulkDataExportRunner {
      * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
-     * @property {number} minUploadBatchSize
      *
      * @param {ConstructorParams}
      */
@@ -64,8 +63,7 @@ class BulkDataExportRunner {
         batchSize,
         fetchResourceBatchSize,
         s3Client,
-        uploadPartSize,
-        minUploadBatchSize
+        uploadPartSize
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -152,11 +150,6 @@ class BulkDataExportRunner {
          * @type {number}
          */
         this.uploadPartSize = uploadPartSize;
-
-        /**
-         * @type {number}
-         */
-        this.minUploadBatchSize = minUploadBatchSize;
 
         /**
          * @type {SearchManager}
@@ -595,7 +588,7 @@ class BulkDataExportRunner {
             const options = { batchSize: this.fetchResourceBatchSize };
             const cursor = collections[0].find(query, options);
 
-            let buffer = '', readCount = 0, currentPartNumber = 1, fileSize = 0;
+            let readCount = 0, currentPartNumber = 1, minUploadBatchSize;
 
             // start multipart upload
             const multipartUploadParts = [];
@@ -606,7 +599,7 @@ class BulkDataExportRunner {
                 }
                 const currentBatch = [];
 
-                while(await cursor.hasNext() && currentBatch.length < this.minUploadBatchSize) {
+                while(await cursor.hasNext() && (!minUploadBatchSize || currentBatch.length < minUploadBatchSize)) {
                     let doc = await cursor.next();
                     if (doc !== null) {
                         const currentResourceType = doc.resource ? 'BundleEntry' : doc.resourceType || resourceType;
@@ -616,6 +609,10 @@ class BulkDataExportRunner {
                                 doc = new BundleEntry(doc);
                             }
                             doc = FhirResourceCreator.createByResourceType(doc, currentResourceType);
+                            if (!minUploadBatchSize) {
+                                const currentResourceSize = `${JSON.stringify(doc)}`.length * 2;
+                                minUploadBatchSize = Math.floor(this.uploadPartSize / currentResourceSize);
+                            }
                         } catch (e) {
                             throw new RethrownError({
                                 message: `Error hydrating resource from database: ${currentResourceType}/${doc.id}`,
@@ -633,37 +630,33 @@ class BulkDataExportRunner {
                     resources: currentBatch,
                     parsedArgs
                 });
-                for (const resource of currentBatch) {
-                    readCount++;
 
+                const bufferArray = [];
+                for (const resource of currentBatch) {
                     await this.databaseAttachmentManager.transformAttachments({
                         resource,
                         operation: GRIDFS.RETRIEVE
                     });
-
-                    const resourceString = `${JSON.stringify(resource)}\n`;
-                    buffer += resourceString;
-                    fileSize += resourceString.length * 2;
+                    bufferArray.push(JSON.stringify(resource) + '\n');
                 }
+                const buffer = bufferArray.join('');
+
+                readCount += currentBatch.length;
                 logInfo(`${resourceType} resource read: ${readCount}`);
+                logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
 
-                if (fileSize > this.uploadPartSize) {
-                    // Upload the file to s3
-                    logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${uploadId}`);
-                    multipartUploadParts.push(
-                        await this.s3Client.uploadPartAsync({
-                            data: buffer,
-                            partNumber: currentPartNumber,
-                            uploadId,
-                            filePath
-                        })
-                    );
-                    logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${uploadId}`);
+                // Upload the file to s3
+                multipartUploadParts.push(
+                    await this.s3Client.uploadPartAsync({
+                        data: buffer,
+                        partNumber: currentPartNumber,
+                        uploadId,
+                        filePath
+                    })
+                );
+                currentPartNumber++;
 
-                    currentPartNumber++;
-                    buffer = '';
-                    fileSize = 0;
-                }
+                logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${uploadId}`);
             }
 
             if (uploadId) {
@@ -673,7 +666,7 @@ class BulkDataExportRunner {
                 });
             } else {
                 // Upload an empty file as we cannot upload empty file using multipart upload if no data present to be uploaded
-                await this.s3Client.uploadAsync({ filePath, data: '' });
+                await this.s3Client.uploadAsync({ filePath, data: 'NA' });
             }
 
             // add filename to ExportStatus resource
