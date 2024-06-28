@@ -115,14 +115,6 @@ class ConfigManager {
                     ) || []
                 );
                 break;
-            case 'PractitionerRole':
-                indexList = indexList.concat(
-                    (
-                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
-                            .map((col) => col.trim())
-                    ) || []
-                );
-                break;
             case 'Organization':
                 indexList = indexList.concat(
                     (
@@ -135,6 +127,14 @@ class ConfigManager {
                 indexList = indexList.concat(
                     (
                         env.ACCESS_TAGS_INDEXED_PRACTITIONER && env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+            case 'PractitionerRole':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
                             .map((col) => col.trim())
                     ) || []
                 );
