@@ -79,6 +79,7 @@ module.exports = {
                     },
                     exclude: [
                         'AuditEvent_4_0_0',
+                        'Organization_4_0_0',
                         'Practitioner_4_0_0',
                         ACCESS_LOGS_COLLECTION_NAME
                     ]
@@ -775,7 +776,21 @@ module.exports = {
                 options: {
                     name: 'identifierSystemValue_sourceId_uuid'
                 }
-            }
+            },
+            ...(
+                    (
+                        env.ACCESS_TAGS_INDEXED_ORGANIZATION &&
+                        env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _uuid: 1
+                    },
+                    options: {
+                        name: `_access_${client}_1._uuid_1`
+                    }
+            }))
         ],
         OrganizationAffiliation_4_0_0: [
             {

@@ -110,13 +110,19 @@ class ConfigManager {
         );
         indexList = indexList.concat(
             (
-                env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
+                env.ACCESS_TAGS_INDEXED_ORGANIZATION && env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',')
                     .map((col) => col.trim())
             ) || []
         );
         indexList = indexList.concat(
             (
                 env.ACCESS_TAGS_INDEXED_PRACTITIONER && env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',')
+                    .map((col) => col.trim())
+            ) || []
+        );
+        indexList = indexList.concat(
+            (
+                env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
                     .map((col) => col.trim())
             ) || []
         );
