@@ -89,43 +89,57 @@ class ConfigManager {
     }
 
     /**
+     * @param {string} resourceType
      * @returns {string[]}
      */
-    get accessTagsIndexed () {
+    accessTagsIndexed (resourceType) {
         let indexList = (
             env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
                 .map((col) => col.trim())
         ) || [];
-        indexList = indexList.concat(
-            (
-                env.ACCESS_TAGS_INDEXED_ENCOUNTER && env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',')
-                    .map((col) => col.trim())
-            ) || []
-        );
-        indexList = indexList.concat(
-            (
-                env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT && env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',')
-                    .map((col) => col.trim())
-            ) || []
-        );
-        indexList = indexList.concat(
-            (
-                env.ACCESS_TAGS_INDEXED_ORGANIZATION && env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',')
-                    .map((col) => col.trim())
-            ) || []
-        );
-        indexList = indexList.concat(
-            (
-                env.ACCESS_TAGS_INDEXED_PRACTITIONER && env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',')
-                    .map((col) => col.trim())
-            ) || []
-        );
-        indexList = indexList.concat(
-            (
-                env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
-                    .map((col) => col.trim())
-            ) || []
-        );
+
+        switch (resourceType) {
+            case 'Encounter':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_ENCOUNTER && env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+            case 'ExplanationOfBenefit':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT && env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+            case 'Organization':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_ORGANIZATION && env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+            case 'Practitioner':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PRACTITIONER && env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+            case 'PractitionerRole':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE && env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
+        }
         return indexList;
     }
 

@@ -23,24 +23,13 @@ class AccessIndexManager {
     }
 
     /**
-     * whether this collection has access index
+     * whether this collection has access index and there is an index for this accessCode
      * @param {string} resourceType
+     * @param {string[]} accessCodes
      * @returns {boolean}
      */
-    resourceHasAccessIndex ({ resourceType }) {
-        return this.configManager.resourcesWithAccessIndex.includes(resourceType) ||
-            this.configManager.resourcesWithAccessIndex.includes('all');
-    }
-
-        /**
-         * whether this collection has access index and there is an index for this accessCode
-         * @param {string} resourceType
-         * @param {string[]} accessCodes
-         * @returns {boolean}
-         */
     resourceHasAccessIndexForAccessCodes ({ resourceType, accessCodes }) {
-        return this.resourceHasAccessIndex({ resourceType }) &&
-            this.indexProvider.hasIndexForAccessCodes({ accessCodes });
+        return this.indexProvider.hasIndexForAccessCodes({ accessCodes, resourceType });
     }
 }
 
