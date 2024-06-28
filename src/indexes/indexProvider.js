@@ -23,8 +23,8 @@ class IndexProvider {
      * @param string[] accessCodes
      * @returns {boolean}
      */
-    hasIndexForAccessCodes ({ accessCodes }) {
-        const accessCodesWithIndexes = this.configManager.accessTagsIndexed;
+    hasIndexForAccessCodes ({ accessCodes, resourceType }) {
+        const accessCodesWithIndexes = this.configManager.accessTagsIndexed(resourceType);
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }
 }
