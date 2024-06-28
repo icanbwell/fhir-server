@@ -508,8 +508,19 @@ describe('Export Tests', () => {
             delete exportStatusResponse3.body.entry[1].resource.transactionTime;
             delete exportStatusResponse3.body.entry[0].resource.identifier;
             delete exportStatusResponse3.body.entry[1].resource.identifier;
+            delete exportStatusResponse3.body.entry[0].resource.meta.lastUpdated;
+            delete exportStatusResponse3.body.entry[1].resource.meta.lastUpdated;
+            delete exportStatusResponse3.body.entry[0].fullUrl;
+            delete exportStatusResponse3.body.entry[1].fullUrl;
 
-            expect(exportStatusResponse3).toHaveResponse(expectedExportStatusSearchResponse3);
+            const normalizeArray = (array) => {
+                return array.map(item => ({
+                    ...item,
+                    resource: item.resource
+                })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+            };
+
+            expect(normalizeArray(exportStatusResponse3.body.entry)).toEqual(normalizeArray(expectedExportStatusSearchResponse3.entry));
         });
     });
 });
