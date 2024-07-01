@@ -22,7 +22,6 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
-const BundleEntry = require('../../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 
@@ -462,23 +461,8 @@ class BulkDataExportRunner {
             let patientReferences = [];
             let batchNumber = 1;
             while (await patientCursor.hasNext()) {
-                let result = await patientCursor.next();
-                if (result !== null) {
-                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || 'Patient';
-                    try {
-                        if (resourceType === 'BundleEntry') {
-                            // noinspection JSCheckFunctionSignatures
-                            result = new BundleEntry(result);
-                        }
-                    } catch (e) {
-                        throw new RethrownError({
-                            message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
-                            collection: 'Patient_4_0_0',
-                            error: e,
-                            query: patientQuery,
-                            id: result.id
-                        });
-                    }
+                const result = await patientCursor.next();
+                if (result) {
                     patientReferences.push(`Patient/${result._uuid}`);
                 }
 
@@ -591,39 +575,26 @@ class BulkDataExportRunner {
             let readCount = 0, currentPartNumber = 1, minUploadBatchSize;
 
             // start multipart upload
+            if (!uploadId && await cursor.hasNext()) {
+                uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
+                logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
+            }
             const multipartUploadParts = [];
             while(await cursor.hasNext()) {
-                if (!uploadId) {
-                    uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
-                    logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
-                }
                 const currentBatch = [];
 
-                while(await cursor.hasNext() && (!minUploadBatchSize || currentBatch.length < minUploadBatchSize)) {
+                if (!minUploadBatchSize && await cursor.hasNext()) {
                     let doc = await cursor.next();
-                    if (doc !== null) {
-                        const currentResourceType = doc.resource ? 'BundleEntry' : doc.resourceType || resourceType;
-                        try {
-                            if (currentResourceType === 'BundleEntry') {
-                                // noinspection JSCheckFunctionSignatures
-                                doc = new BundleEntry(doc);
-                            }
-                            doc = FhirResourceCreator.createByResourceType(doc, currentResourceType);
-                            if (!minUploadBatchSize) {
-                                const currentResourceSize = `${JSON.stringify(doc)}`.length * 2;
-                                minUploadBatchSize = Math.floor(this.uploadPartSize / currentResourceSize);
-                            }
-                        } catch (e) {
-                            throw new RethrownError({
-                                message: `Error hydrating resource from database: ${currentResourceType}/${doc.id}`,
-                                collection: `${currentResourceType}_4_0_0`,
-                                error: e,
-                                query: query,
-                                id: doc.id
-                            });
-                        }
-                        currentBatch.push(doc);
-                    }
+                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    const currentResourceSize = `${JSON.stringify(doc)}`.length * 2;
+                    minUploadBatchSize = Math.floor(this.uploadPartSize / currentResourceSize);
+                    currentBatch.push(doc);
+                }
+
+                while(await cursor.hasNext() && currentBatch.length < minUploadBatchSize) {
+                    let doc = await cursor.next();
+                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    currentBatch.push(doc);
                 }
 
                 await this.enrichmentManager.enrichAsync({
