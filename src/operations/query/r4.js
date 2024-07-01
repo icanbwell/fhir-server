@@ -151,7 +151,8 @@ class R4SearchQueryCreator {
             !parsedArgs.id &&
             !isTrue(parsedArgs._includeHidden) &&
             operation !== DELETE &&
-            !useHistoryTable
+            !useHistoryTable &&
+            resourceType !== 'AuditEvent'
         ) {
             query.$and = query.$and || [];
             query.$and.push({
