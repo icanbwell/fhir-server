@@ -606,9 +606,9 @@ class BulkDataExportRunner {
                         resource,
                         operation: GRIDFS.RETRIEVE
                     });
-                    bufferArray.push(JSON.stringify(resource) + '\n');
+                    bufferArray.push(JSON.stringify(resource));
                 }
-                const buffer = bufferArray.join('');
+                const buffer = bufferArray.join('\n');
 
                 readCount += currentBatch.length;
                 logInfo(`${resourceType} resource read: ${readCount}`);
