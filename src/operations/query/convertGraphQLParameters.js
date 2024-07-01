@@ -58,6 +58,15 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                             if (tokenToProcess.value) {
                                 tokenString += tokenToProcess.value;
                             }
+
+                            // for extension type
+                            if (tokenToProcess.url) {
+                                tokenString = tokenToProcess.url + '|';
+                            }
+                            if (tokenToProcess.valueString) {
+                                tokenString += tokenToProcess.valueString;
+                            }
+
                             if (tokenString) {
                                 if (useNotEquals || innerNotEquals) {
                                     notQueryParameterValue.push(tokenString);
