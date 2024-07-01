@@ -201,13 +201,13 @@ class BulkDataExportRunner {
 
             if (pathname.startsWith('/4_0_0/$export')) {
                 // Get all the requested resources to export
-                const requestResources = await this.getRequestedResourceAsync({
+                const requestedResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
                     allowedResources: Object.values(COLLECTION)
                 });
 
-                for (const resourceType of requestResources) {
+                for (const resourceType of requestedResources) {
                     await this.processResourceAsync({ resourceType, query });
                 }
             } else {
@@ -218,11 +218,13 @@ class BulkDataExportRunner {
                 });
 
                 if (pathname.startsWith('/4_0_0/Patient/$export')) {
-                    await this.handlePatientExportAsync({
-                        searchParams,
-                        query,
-                        requestedResources
-                    });
+                    for (const resourceType of requestedResources) {
+                        await this.handlePatientExportAsync({
+                            searchParams,
+                            query,
+                            resourceType
+                        });
+                    }
                 }
             }
 
@@ -427,11 +429,11 @@ class BulkDataExportRunner {
      * @typedef {Object} HandlePatientExportAsyncParams
      * @property {URLSearchParams} searchParams
      * @property {Object} query
-     * @property {string[]} requestedResources
+     * @property {string} resourceType
      *
      * @param {HandlePatientExportAsyncParams}
      */
-    async handlePatientExportAsync({ searchParams, query, requestedResources }) {
+    async handlePatientExportAsync({ searchParams, query, resourceType }) {
         try {
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
@@ -458,22 +460,56 @@ class BulkDataExportRunner {
             const options = { projection: { _uuid: 1 }, batchSize: this.fetchResourceBatchSize };
             const patientCursor = collections[0].find(patientQuery, options);
 
-            let patientReferences = [];
-            let batchNumber = 1;
+            let patientReferences = [], multipartContext = { uploadId: null, readCount: 0, currentPartNumber: 1 };
+            const multipartUploadParts = [];
+            const filePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
             while (await patientCursor.hasNext()) {
                 const result = await patientCursor.next();
                 patientReferences.push(`Patient/${result._uuid}`);
+                // patientReferences = ['Patient/ff10baf3-df1c-4269-877f-eacf35c84bb1', 'Patient/ff10baf3-df1c-4269-877f-eacf35c84bb1'];
 
                 if (patientReferences.length === this.batchSize) {
-                    await this.exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber });
-                    batchNumber++;
+                    await this.exportPatientDataAsync({
+                        resourceType,
+                        query,
+                        patientReferences,
+                        multipartContext,
+                        filePath,
+                        multipartUploadParts
+                    });
                     patientReferences = [];
                 }
             }
 
             if (patientReferences.length > 0) {
-                await this.exportPatientDataAsync({ requestedResources, query, patientReferences });
+                await this.exportPatientDataAsync({
+                    resourceType,
+                    query,
+                    patientReferences,
+                    multipartContext,
+                    filePath,
+                    multipartUploadParts
+                });
             }
+            if (multipartContext.uploadId) {
+                // finish multipart upload
+                await this.s3Client.completeMultiPartUploadAsync({
+                    filePath, uploadId: multipartContext.uploadId, multipartUploadParts
+                });
+            } else {
+                // Upload an empty file as we cannot upload empty file using multipart upload if no data present to be uploaded
+                await this.s3Client.uploadAsync({ filePath, data: 'NA' });
+            }
+
+            // add filename to ExportStatus resource
+            this.exportStatusResource.output.push(
+                new ExportStatusEntry({
+                    type: resourceType,
+                    url: this.s3Client.getPublicS3FilePath(filePath)
+                })
+            );
+
+            logInfo(`Finished exporting ${resourceType} resource`);
         } catch (err) {
             logError(`Error in handlePatientExportAsync: ${err.message}`, {
                 error: err.stack,
@@ -499,28 +535,105 @@ class BulkDataExportRunner {
      *
      * @param {ExportPatientDataAsyncParams}
      */
-    async exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber }) {
+    async exportPatientDataAsync({ resourceType, query, patientReferences, multipartContext, filePath, multipartUploadParts }) {
+        const resourceQuery = this.addPatientFiltersToQuery({
+            patientReferences,
+            query: deepcopy(query),
+            resourceType
+        });
         try {
-            for (const resourceType of requestedResources) {
-                const resourceQuery = this.addPatientFiltersToQuery({
-                    patientReferences,
-                    query: deepcopy(query),
-                    resourceType
+            logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(resourceQuery)}`);
+
+            // generate parsed args for enriching the resource
+            const parsedArgs = this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: {
+                    base_version: '4_0_0'
+                }
+            });
+            parsedArgs.headers = {};
+
+            logInfo(`Exporting resources for ${resourceType} resource`);
+
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+                resourceType,
+                base_version: '4_0_0'
+            });
+
+            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
+                resourceQuery
+            });
+
+            const options = { batchSize: this.fetchResourceBatchSize };
+            const cursor = collections[0].find(resourceQuery, options);
+
+            let minUploadBatchSize;
+            // start multipart upload
+            if (!multipartContext.uploadId && await cursor.hasNext()) {
+                multipartContext.uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
+                logInfo(`Starting multipart upload for ${resourceType} with uploadId ${multipartContext.uploadId}`);
+            }
+
+            while(await cursor.hasNext()) {
+                const currentBatch = [];
+
+                if (!minUploadBatchSize && await cursor.hasNext()) {
+                    let doc = await cursor.next();
+                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    const currentResourceSize = `${JSON.stringify(doc)}`.length * 2;
+                    minUploadBatchSize = Math.floor(this.uploadPartSize / currentResourceSize);
+                    currentBatch.push(doc);
+                }
+
+                while(await cursor.hasNext() && currentBatch.length < minUploadBatchSize) {
+                    let doc = await cursor.next();
+                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    currentBatch.push(doc);
+                }
+
+                await this.enrichmentManager.enrichAsync({
+                    resources: currentBatch,
+                    parsedArgs
                 });
 
-                await this.processResourceAsync({ resourceType, query: resourceQuery, batchNumber });
+                const bufferArray = [];
+                for (const resource of currentBatch) {
+                    await this.databaseAttachmentManager.transformAttachments({
+                        resource,
+                        operation: GRIDFS.RETRIEVE
+                    });
+                    bufferArray.push(JSON.stringify(resource));
+                }
+                const buffer = bufferArray.join('\n');
+
+                multipartContext.readCount += currentBatch.length;
+                logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
+                logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+
+                // Upload the file to s3
+                multipartUploadParts.push(
+                    await this.s3Client.uploadPartAsync({
+                        data: buffer,
+                        partNumber: multipartContext.currentPartNumber,
+                        uploadId: multipartContext.uploadId,
+                        filePath
+                    })
+                );
+                multipartContext.currentPartNumber++;
+
+                logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
             }
         } catch (err) {
             logError(`Error in exportPatientDataAsync: ${err.message}`, {
                 error: err.stack,
-                query
+                resourceQuery
             });
             throw new RethrownError({
                 message: err.message,
                 source: 'BulkDataExportRunner.exportPatientDataAsync',
                 error: err,
                 args: {
-                    query
+                    resourceQuery
                 }
             });
         }
