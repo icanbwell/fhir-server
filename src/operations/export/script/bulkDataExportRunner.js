@@ -462,9 +462,7 @@ class BulkDataExportRunner {
             let batchNumber = 1;
             while (await patientCursor.hasNext()) {
                 const result = await patientCursor.next();
-                if (result) {
-                    patientReferences.push(`Patient/${result._uuid}`);
-                }
+                patientReferences.push(`Patient/${result._uuid}`);
 
                 if (patientReferences.length === this.batchSize) {
                     await this.exportPatientDataAsync({ requestedResources, query, patientReferences, batchNumber });
@@ -575,7 +573,7 @@ class BulkDataExportRunner {
             let readCount = 0, currentPartNumber = 1, minUploadBatchSize;
 
             // start multipart upload
-            if (!uploadId && await cursor.hasNext()) {
+            if (await cursor.hasNext()) {
                 uploadId = await this.s3Client.createMultiPartUploadAsync({ filePath });
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
             }
