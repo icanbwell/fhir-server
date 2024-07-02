@@ -578,6 +578,9 @@ class BulkDataExportRunner {
                     resourceQuery
                 });
                 multipartContext[resourceType].collection = collections[0];
+                const db = await resourceLocator.getDatabaseConnectionAsync();
+                const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
+                multipartContext[resourceType].averageDocumentSize = stats.avgObjSize;
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
@@ -597,8 +600,7 @@ class BulkDataExportRunner {
                 if (!minUploadBatchSize && await cursor.hasNext()) {
                     let doc = await cursor.next();
                     doc = FhirResourceCreator.createByResourceType(doc, resourceType);
-                    const currentResourceSize = `${JSON.stringify(doc)}`.length * 2;
-                    minUploadBatchSize = Math.floor(this.uploadPartSize / currentResourceSize);
+                    minUploadBatchSize = Math.floor(this.uploadPartSize / multipartContext[resourceType].averageDocumentSize);
                     currentBatch.push(doc);
                 }
 
