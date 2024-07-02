@@ -467,11 +467,6 @@ class BulkDataExportRunner {
 
                 if (patientReferences.length === this.batchSize) {
                     for (const resourceType of requestedResources) {
-                        if (!Object.hasOwn(multipartContext, resourceType)) {
-                            multipartContext[resourceType] = new S3MultiPartContext({
-                                resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
-                            });
-                        }
                         await this.exportPatientDataAsync({
                             resourceType,
                             query,
@@ -485,11 +480,6 @@ class BulkDataExportRunner {
 
             if (patientReferences.length > 0) {
                 for (const resourceType of requestedResources) {
-                    if (!Object.hasOwn(multipartContext, resourceType)) {
-                        multipartContext[resourceType] = new S3MultiPartContext({
-                            resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
-                        });
-                    }
                     await this.exportPatientDataAsync({
                         resourceType,
                         query,
@@ -556,13 +546,18 @@ class BulkDataExportRunner {
         patientReferences,
         multipartContext
     }) {
+        if (!Object.hasOwn(multipartContext, resourceType)) {
+            multipartContext[resourceType] = new S3MultiPartContext({
+                resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
+            });
+        }
         const resourceQuery = this.addPatientFiltersToQuery({
             patientReferences,
             query: deepcopy(query),
             resourceType
         });
         try {
-            logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(resourceQuery)}`);
+            logInfo(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
 
             // generate parsed args for enriching the resource
             const parsedArgs = this.r4ArgsParser.parseArgs({
@@ -572,8 +567,6 @@ class BulkDataExportRunner {
                 }
             });
             parsedArgs.headers = {};
-
-            logInfo(`Exporting resources for ${resourceType} resource`);
 
             if (!multipartContext[resourceType].collection) {
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
