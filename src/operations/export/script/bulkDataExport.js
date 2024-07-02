@@ -27,7 +27,7 @@ async function main() {
 
     const fetchResourceBatchSize = parameters.fetchResourceBatchSize || 1000;
 
-    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100); // 100 mb
+    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 4); // 100 mb
 
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
