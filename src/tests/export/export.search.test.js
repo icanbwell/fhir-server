@@ -460,8 +460,7 @@ describe('Export Tests', () => {
             expect(exportStatusResponse2).toHaveResponse(expectedExportStatusSearchResponse2);
         });
 
-        // TODO: Fix this testcase
-        test.skip('Test Multiple status for ExportStatus', async () => {
+        test('Test Multiple status for ExportStatus', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -508,8 +507,19 @@ describe('Export Tests', () => {
             delete exportStatusResponse3.body.entry[1].resource.transactionTime;
             delete exportStatusResponse3.body.entry[0].resource.identifier;
             delete exportStatusResponse3.body.entry[1].resource.identifier;
+            delete exportStatusResponse3.body.entry[0].resource.meta.lastUpdated;
+            delete exportStatusResponse3.body.entry[1].resource.meta.lastUpdated;
+            delete exportStatusResponse3.body.entry[0].fullUrl;
+            delete exportStatusResponse3.body.entry[1].fullUrl;
 
-            expect(exportStatusResponse3).toHaveResponse(expectedExportStatusSearchResponse3);
+            const normalizeArray = (array) => {
+                return array.map(item => ({
+                    ...item,
+                    resource: item.resource
+                })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+            };
+
+            expect(normalizeArray(exportStatusResponse3.body.entry)).toEqual(normalizeArray(expectedExportStatusSearchResponse3.entry));
         });
     });
 });

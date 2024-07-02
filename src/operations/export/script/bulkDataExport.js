@@ -25,9 +25,9 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 1000;
 
-    const minUploadBatchSize = parameters.minUploadBatchSize || 10000;
+    const fetchResourceBatchSize = parameters.fetchResourceBatchSize || 1000;
 
-    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 100);
+    const uploadPartSize = parameters.uploadPartSize || (1024 * 1024 * 500); // 500 mb
 
     const bulkExportS3BucketName = parameters.bulkExportS3BucketName;
 
@@ -54,11 +54,12 @@ async function main() {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 patientQueryCreator: c.patientQueryCreator,
                 enrichmentManager: c.enrichmentManager,
+                resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
                 batchSize,
-                minUploadBatchSize,
+                fetchResourceBatchSize,
                 uploadPartSize,
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
@@ -80,7 +81,7 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --minUploadBatchSize 100000 --uploadPartSize 1024
+ * node src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket --uploadPartSize 1024
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/bulkDataExport.js --exportStatusId=abee1b6a-90ee-4523-8429-f320e5da2886 --bulkExportS3BucketName s3Bucket
  */
 main().catch((reason) => {
