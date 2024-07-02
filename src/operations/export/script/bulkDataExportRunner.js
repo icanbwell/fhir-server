@@ -501,7 +501,6 @@ class BulkDataExportRunner {
 
             for (const resourceType of requestedResources) {
                 if (multipartContext[resourceType].uploadId) {
-                    console.log('FINAL IFFF');
                     // finish multipart upload
                     await this.s3Client.completeMultiPartUploadAsync({
                         filePath: multipartContext[resourceType].resourceFilePath,
@@ -509,7 +508,6 @@ class BulkDataExportRunner {
                         multipartUploadParts: multipartContext[resourceType].multipartUploadParts
                     });
                 } else {
-                    console.log('FINAL ELSEEE');
                     // Upload an empty file as we cannot upload empty file using multipart upload if no data present to be uploaded
                     await this.s3Client.uploadAsync({
                         filePath: multipartContext[resourceType].resourceFilePath,
@@ -591,11 +589,9 @@ class BulkDataExportRunner {
 
             const options = { batchSize: this.fetchResourceBatchSize };
             const cursor = multipartContext[resourceType].collection.find(resourceQuery, options);
-            console.log('VALUEEEEEEE', await cursor.hasNext());
             let minUploadBatchSize;
             // start multipart upload
             if (!multipartContext[resourceType].uploadId && await cursor.hasNext()) {
-                console.log('INSIDE IFF_------------------');
                 multipartContext[resourceType].uploadId = await this.s3Client.createMultiPartUploadAsync({
                     filePath: multipartContext[resourceType].resourceFilePath
                 });
