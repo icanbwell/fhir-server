@@ -488,6 +488,23 @@ class BulkDataExportRunner {
                 });
             }
 
+            if (multipartContext.previousBuffer) {
+                logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
+                logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+
+                // Upload the file to s3
+                multipartContext.multipartUploadParts.push(
+                    await this.s3Client.uploadPartAsync({
+                        data: multipartContext.previousBuffer,
+                        partNumber: multipartContext.multipartUploadParts.length + 1,
+                        uploadId: multipartContext.uploadId,
+                        filePath: multipartContext.resourceFilePath
+                    })
+                );
+
+                logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+            }
+
             if (multipartContext.uploadId) {
                 // finish multipart upload
                 await this.s3Client.completeMultiPartUploadAsync({
@@ -601,24 +618,33 @@ class BulkDataExportRunner {
                     });
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
-
-                const buffer = currentBatch.slice(0, currentBatchSize).join('\n');
-
+                let buffer = currentBatch.slice(0, currentBatchSize).join('\n');
+                if (multipartContext.previousBuffer) {
+                    buffer = multipartContext.previousBuffer + '\n' + buffer;
+                    currentBatchSize += multipartContext.previousBatchSize;
+                    multipartContext.previousBuffer = null;
+                    multipartContext.previousBatchSize = null;
+                }
                 multipartContext.readCount += currentBatchSize;
-                logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
-                logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+                if (currentBatchSize >= minUploadBatchSize) {
+                    logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
+                    logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
 
-                // Upload the file to s3
-                multipartContext.multipartUploadParts.push(
-                    await this.s3Client.uploadPartAsync({
-                        data: buffer,
-                        partNumber: multipartContext.multipartUploadParts.length + 1,
-                        uploadId: multipartContext.uploadId,
-                        filePath: multipartContext.resourceFilePath
-                    })
-                );
+                    // Upload the file to s3
+                    multipartContext.multipartUploadParts.push(
+                        await this.s3Client.uploadPartAsync({
+                            data: buffer,
+                            partNumber: multipartContext.multipartUploadParts.length + 1,
+                            uploadId: multipartContext.uploadId,
+                            filePath: multipartContext.resourceFilePath
+                        })
+                    );
 
-                logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+                    logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
+                } else {
+                    multipartContext.previousBuffer = buffer;
+                    multipartContext.previousBatchSize = currentBatchSize;
+                }
             }
         } catch (err) {
             logError(`Error in exportPatientDataAsync: ${err.message}`, {

@@ -8,6 +8,8 @@ class S3MultiPartContext {
      * @param {number} readCount
      * @param {string | null} resourceFilePath
      * @param {string | null} collection
+     * @param {string | null} previousBuffer
+     * @param {number | null} previousBatchSize
      * @param {number | null} averageDocumentSize
      * @param {[]} multipartUploadParts
      */
@@ -17,6 +19,8 @@ class S3MultiPartContext {
             readCount,
             resourceFilePath,
             collection,
+            previousBuffer,
+            previousBatchSize,
             multipartUploadParts,
             averageDocumentSize
         }
@@ -37,6 +41,14 @@ class S3MultiPartContext {
          * @type {string|null}
          */
         this.collection = collection;
+        /**
+         * @type {string|null}
+         */
+        this.previousBuffer = previousBuffer;
+        /**
+         * @type {number|null}
+         */
+        this.previousBatchSize = previousBatchSize;
         /**
          * @type {number|null}
          */
