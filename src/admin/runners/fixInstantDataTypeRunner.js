@@ -177,6 +177,7 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo(`${collectionName} has no dateTime fields. Skipping`);
                     continue;
                 }
+                this.adminLogger.logInfo(`Processing ${collectionName}`);
                 const uuids = [];
                 while (uuids.length > 0) {
                     const query = { _uuid: { $in: uuids.splice(0, this.batchSize) } };
