@@ -6,7 +6,6 @@ class S3MultiPartContext {
      * class that holds info about s3 multi part upload
      * @param {string | null} uploadId
      * @param {number} readCount
-     * @param {number} currentPartNumber
      * @param {string | null} resourceFilePath
      * @param {string | null} collection
      * @param {number | null} averageDocumentSize
@@ -16,7 +15,6 @@ class S3MultiPartContext {
         {
             uploadId,
             readCount,
-            currentPartNumber,
             resourceFilePath,
             collection,
             multipartUploadParts,
@@ -31,10 +29,6 @@ class S3MultiPartContext {
          * @type {number}
          */
         this.readCount = readCount || 0;
-        /**
-         * @type {number}
-         */
-        this.currentPartNumber = currentPartNumber || 1;
         /**
          * @type {string|null}
          */

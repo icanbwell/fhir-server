@@ -1,4 +1,5 @@
 const { S3Client: S3, PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, AbortMultipartUploadCommand, CompleteMultipartUploadCommand } = require('@aws-sdk/client-s3');
+const { Upload } = require('@aws-sdk/lib-storage');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
 const { logError } = require('../operations/common/logging');
@@ -131,6 +132,38 @@ class S3Client {
                 ETag,
                 PartNumber
             };
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in uploadPartAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
+            })
+        }
+    }
+
+    /**
+     * Upload an empty file to S3
+     * @typedef {Object} UploadEmptyFileAsyncParams
+     * @property {string} filePath
+     *
+     * @param {UploadEmptyFileAsyncParams}
+     */
+    async uploadEmptyFileAsync({ filePath }) {
+        assertIsValid(filePath, 'Cannot upload without filePath');
+        try {
+            const upload = new Upload({
+                client: this.client,
+                params: {
+                    Bucket: this.bucketName,
+                    Key: filePath,
+                    Body: ''
+                }
+            });
+
+            await upload.done();
         } catch (err) {
             throw new RethrownError({
                 message: `Error in uploadPartAsync: ${err.message}`,

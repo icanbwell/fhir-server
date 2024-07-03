@@ -65,7 +65,8 @@ class ExportManager {
                             system: "https://www.icanbwell.com/owner",
                             code: "bwell"
                         }
-                    ]
+                    ],
+                    source: "https://www.icanbwell.com/fhir-server"
                 },
                 scope,
                 user,
