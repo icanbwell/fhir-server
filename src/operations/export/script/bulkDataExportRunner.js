@@ -603,10 +603,8 @@ class BulkDataExportRunner {
             while (await cursor.hasNext()) {
                 const currentBatch = new Array(minUploadBatchSize);
                 let currentBatchSize = 0;
-                for await (let doc of cursor) {
-                    if (currentBatchSize >= minUploadBatchSize) {
-                        break;
-                    }
+                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
+                    let doc = await cursor.next();
                     doc = FhirResourceCreator.createByResourceType(doc, resourceType);
                     await this.enrichmentManager.enrichAsync({
                         resources: [doc],
@@ -721,10 +719,8 @@ class BulkDataExportRunner {
                 const currentBatch = new Array(minUploadBatchSize);
                 let currentBatchSize = 0;
 
-                for await (let doc of cursor) {
-                    if (currentBatchSize >= minUploadBatchSize) {
-                        break;
-                    }
+                while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
+                    let doc = await cursor.next();
                     doc = FhirResourceCreator.createByResourceType(doc, resourceType);
                     await this.enrichmentManager.enrichAsync({
                         resources: [doc],
