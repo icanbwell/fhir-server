@@ -1,9 +1,9 @@
 const deepEqual = require('fast-deep-equal');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { resourcesWithDateTimeFields } = require('../utils/resourcesWithDateTimeFields')
+const {DateColumnHandler} = require("../../preSaveHandlers/handlers/dateColumnHandler");
 class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
     /**
      * constructor
@@ -98,26 +98,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Removes duplicate owner tags from the resource
-     */
-    removeDuplicateOwnerTags (resource) {
-        const ownerCodes = [];
-        if (resource?.meta?.security) {
-            resource.meta.security = resource.meta.security.filter(s => {
-                if (s.system !== SecurityTagSystem.owner) {
-                    return true;
-                }
-                if (ownerCodes.includes(s?.code)) {
-                    return false;
-                }
-                ownerCodes.push(s?.code);
-                return true;
-            });
-        }
-        return resource;
-    }
-
-    /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
@@ -134,7 +114,9 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
              */
             const currentResource = resource.clone();
 
-            resource = this.removeDuplicateOwnerTags(resource);
+            const dateColumnHandler = new DateColumnHandler();
+            dateColumnHandler.setFlag(true);
+            resource = await dateColumnHandler.preSaveAsync({ resource: resource });
 
             // for speed, first check if the incoming resource is exactly the same
             const updatedResourceJsonInternal = resource.toJSONInternal();
@@ -161,7 +143,7 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
                     args: {
                         resource: doc
                     },
-                    source: 'FixDuplicateOwnerTagsRunner.processRecordAsync'
+                    source: 'FixInstantDataTypeRunner.processRecordAsync'
                 }
             );
         }
@@ -190,10 +172,8 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
             for (const collectionName of this.collections) {
                 const startFromIdContainer = this.createStartFromIdContainer();
 
-                const dateTimeFields = await this.getDateTimeFields({
-                    collectionName
-                });
-                if (dateTimeFields.length === 0) {
+                const resource = collectionName.substring(0, collectionName.indexOf('_'));
+                if (!(resourcesWithDateTimeFields(resource))) {
                     this.adminLogger.logInfo(`${collectionName} has no dateTime fields. Skipping`);
                     continue;
                 }
