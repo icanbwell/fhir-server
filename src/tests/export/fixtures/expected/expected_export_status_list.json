@@ -25,7 +25,8 @@
                             "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                         }
                     ],
-                    "versionId": "1"
+                    "versionId": "1",
+                    "source": "https://www.icanbwell.com/fhir-server"
                 },
                 "output": [],
                 "requiresAccessToken": false,

@@ -60,7 +60,8 @@
                             "system": "https://www.icanbwell.com/sourceAssigningAuthority",
                             "code": "bwell"
                         }
-                    ]
+                    ],
+                    "source": "https://www.icanbwell.com/fhir-server"
                 },
                 "status": "on-hold",
                 "requiresAccessToken": false,
@@ -84,7 +85,8 @@
                             "system": "https://www.icanbwell.com/sourceAssigningAuthority",
                             "code": "bwell"
                         }
-                    ]
+                    ],
+                    "source": "https://www.icanbwell.com/fhir-server"
                 },
                 "status": "accepted",
                 "requiresAccessToken": false,

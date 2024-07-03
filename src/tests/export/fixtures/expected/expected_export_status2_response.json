@@ -13,7 +13,8 @@
                     "system": "https://www.icanbwell.com/sourceAssigningAuthority",
                     "code": "bwell"
                 }
-            ]
+            ],
+            "source": "https://www.icanbwell.com/fhir-server"
         },
         "status": "in-progress",
         "requiresAccessToken": false,
