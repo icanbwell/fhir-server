@@ -150,7 +150,7 @@ class AccessLogger {
         /**
          * @type {string[]}
          */
-        const accessCodes = requestInfo.scope
+        const accessCodes = requestInfo.scope && requestInfo.user
             ? this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
             : [];
         /**

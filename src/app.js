@@ -111,7 +111,9 @@ function createApp ({ fnGetContainer }) {
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
+        if (!ignoredUrls.some(url => reqPath.startsWith(url))) {
+            logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        }
         const startTime = new Date().getTime();
         res.on('finish', () => {
             const finishTime = new Date().getTime();
@@ -136,10 +138,10 @@ function createApp ({ fnGetContainer }) {
                     username
                 });
                 // Debug log added for logging authentication token
-                if (req.headers.authorization) {
+                if (req.headers.authorization && !ignoredUrls.some(url => reqPath.startsWith(url))) {
                     logDebug(
-                        'Request Completed',
-                        { authenticationToken: req.headers.authorization }
+                        'Request Completed with Auth Token',
+                        {authenticationToken: req.headers.authorization}
                     );
                 }
             }
@@ -155,7 +157,9 @@ function createApp ({ fnGetContainer }) {
                     startTime
                 });
             }
-            logInfo('Request Completed', logData);
+            if (!ignoredUrls.some(url => reqPath.startsWith(url))) {
+                logInfo('Request Completed', logData);
+            }
         });
         next();
     });
@@ -330,6 +334,7 @@ function createApp ({ fnGetContainer }) {
 
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
+        logDebug('GraphQL Middleware Enabled', { enableGraphQL: env.ENABLE_GRAPHQL, enableGraphQLV2: configManager.enableGraphQLV2 });
         app.use(cors(fhirServerConfig.server.corsOptions));
 
         const router = express.Router();
@@ -407,6 +412,7 @@ function createApp ({ fnGetContainer }) {
                 app.use('/\\$graphql', router);
             }
             if(graphqlV2Middleware) {
+                logDebug('GraphQL V2 Middleware Enabled', {});
                 routerv2.use(graphqlV2Middleware);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }

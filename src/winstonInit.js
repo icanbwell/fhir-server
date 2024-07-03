@@ -3,8 +3,9 @@ const {
     format,
     transports
 } = require('winston');
-const { json, combine, timestamp } = format;
-const { getImageVersion } = require('./utils/getImageVersion');
+const {json, combine, timestamp, simple} = format;
+const {getImageVersion} = require('./utils/getImageVersion');
+
 
 /**
  * Features
@@ -21,14 +22,65 @@ const { getImageVersion } = require('./utils/getImageVersion');
  */
 const container = new Container();
 
+
+const safeJson = format((info, opts) => {
+    const toLimitedLengthJSON = (obj, maxLength) => {
+        try {
+
+            // Helper function to safely convert a key-value pair to JSON
+            const toJSONString = (key, value) => {
+                return `"${key}":${JSON.stringify(value)}`;
+            };
+
+            // Initialize the JSON string components
+            let jsonString = '{';
+            let isFirstProperty = true;
+
+            for (const [key, value] of Object.entries(obj)) {
+                // Convert the key-value pair to a JSON string
+                const jsonEntry = toJSONString(key, value);
+
+                // Check if adding this entry would exceed the max length
+                if (jsonString.length + jsonEntry.length + 1 > maxLength) { // +1 for the closing brace
+                    // noinspection BreakStatementJS
+                    break; // Stop adding new properties
+                }
+
+                // Add a comma if it's not the first property
+                if (isFirstProperty) {
+                    isFirstProperty = false;
+                } else {
+                    jsonString += ',';
+                }
+
+                // Add the key-value pair to the JSON string
+                jsonString += jsonEntry;
+            }
+
+            // Close the JSON string
+            jsonString += '}';
+
+            return jsonString;
+        } catch (e) {
+            return `${e}`;
+        }
+    };
+
+    info["message"] = toLimitedLengthJSON(info, opts.maximumStringLength);
+    return info;
+});
+
 /**
  * @description Default configuration for logger
  */
 const defaultConfig = {
     level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
     format: combine(
-        timestamp({ format: 'YYYY-MM-DDTHH:mm:ssZ' }),
+        timestamp({format: 'YYYY-MM-DDTHH:mm:ssZ'}),
+        // json({maximumBreadth: 1, maximumDepth: 1}),
+        // safeJson({maximumStringLength: 1000})
         json()
+        // simple()
     ),
     defaultMeta: {
         logger: 'default',
@@ -36,7 +88,8 @@ const defaultConfig = {
     },
     colorize: true,
     silent: (process.env.LOGLEVEL?.toLocaleLowerCase() === 'silent'),
-    transports: [new transports.Console({ level: 'debug' })]
+    transports: [new transports.Console({level: 'debug'})],
+    exitOnError: false
 };
 
 /**
@@ -62,7 +115,7 @@ const initialize = () => {
         const logger = container.get('default'); // Only add the console logger if none is present
 
         if (logger.transports.length === 0) {
-            logger.configure({ transports: defaultConfig.transports });
+            logger.configure({transports: defaultConfig.transports});
         }
     } else {
         container.add('default', defaultConfig);

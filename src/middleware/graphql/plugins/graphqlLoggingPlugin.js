@@ -107,6 +107,20 @@ class MyApolloServerLoggingPlugin /* extends ApolloServerPlugin */ {
                         }
                     }
                 };
+            },
+            async didEncounterErrors(requestContext) {
+                const errors = requestContext.errors;
+                if (errors) {
+                    await async.forEach(
+                        errors,
+                        async (err) => {
+                            logError(`GraphQL Request Error: ${err.message}`, {
+                                error: err.message,
+                                source: 'GraphQL'
+                            });
+                        }
+                    );
+                }
             }
         };
     }
