@@ -14,6 +14,10 @@ class MockS3Client extends S3Client {
         // do nothing
     }
 
+    async uploadEmptyFileAsync() {
+        // do nothing
+    }
+
     async completeMultiPartUploadAsync() {
         // do nothing
     }
