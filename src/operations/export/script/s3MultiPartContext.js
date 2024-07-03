@@ -9,6 +9,7 @@ class S3MultiPartContext {
      * @param {number} currentPartNumber
      * @param {string | null} resourceFilePath
      * @param {string | null} collection
+     * @param {number | null} averageDocumentSize
      * @param {[]} multipartUploadParts
      */
     constructor (
@@ -18,7 +19,8 @@ class S3MultiPartContext {
             currentPartNumber,
             resourceFilePath,
             collection,
-            multipartUploadParts
+            multipartUploadParts,
+            averageDocumentSize
         }
     ) {
         /**
@@ -41,6 +43,10 @@ class S3MultiPartContext {
          * @type {string|null}
          */
         this.collection = collection;
+        /**
+         * @type {number|null}
+         */
+        this.averageDocumentSize = averageDocumentSize;
 
         this.multipartUploadParts = multipartUploadParts || [];
     }
