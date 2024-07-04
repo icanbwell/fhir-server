@@ -107,6 +107,11 @@ class BaseScriptRunner {
         // exclude history tables since we always search by id on those
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));
+        } else if (!useAuditDatabase && !useAccessLogsDatabase) {
+            const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+            collectionNames = collectionNames.concat(
+                await this.mongoCollectionManager.getAllCollectionNames({ db: resourceHistoryDb })
+            );
         }
         await this.mongoDatabaseManager.disconnectClientAsync(client);
         return collectionNames;
