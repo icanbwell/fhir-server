@@ -17,7 +17,7 @@ const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
-const { logInfo, logError } = require('../../common/logging');
+const { logInfo, logError, logDebug } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
@@ -436,12 +436,18 @@ class BulkDataExportRunner {
      */
     async handlePatientExportAsync({ searchParams, query, resourceType }) {
         try {
+            logInfo(`Starting export for resource: ${resourceType}`);
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
                 patientReferences: searchParams.get('patient')?.split(','),
                 query: deepcopy(query),
                 resourceType: 'Patient'
             });
+
+            if (resourceType === 'Patient') {
+                await this.processResourceAsync({ resourceType, query: patientQuery });
+                return;
+            }
 
             /**
              * @type {ResourceLocator}
@@ -504,7 +510,6 @@ class BulkDataExportRunner {
 
                 logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
             }
-
             if (multipartContext.uploadId) {
                 // finish multipart upload
                 await this.s3Client.completeMultiPartUploadAsync({
@@ -563,7 +568,7 @@ class BulkDataExportRunner {
             resourceType
         });
         try {
-            logInfo(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
+            logDebug(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
 
             // generate parsed args for enriching the resource
             const parsedArgs = this.r4ArgsParser.parseArgs({
@@ -579,12 +584,8 @@ class BulkDataExportRunner {
                     resourceType,
                     base_version: '4_0_0'
                 });
-
-                const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                    resourceQuery
-                });
-                multipartContext.collection = collections[0];
                 const db = await resourceLocator.getDatabaseConnectionAsync();
+                multipartContext.collection = db.collection(`${resourceType}_4_0_0`);
                 const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
                 multipartContext.averageDocumentSize = stats.avgObjSize;
             }
@@ -617,13 +618,11 @@ class BulkDataExportRunner {
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
                 let buffer = currentBatch.slice(0, currentBatchSize).join('\n');
+                multipartContext.readCount += currentBatchSize;
                 if (multipartContext.previousBuffer) {
                     buffer = multipartContext.previousBuffer + '\n' + buffer;
                     currentBatchSize += multipartContext.previousBatchSize;
-                    multipartContext.previousBuffer = null;
-                    multipartContext.previousBatchSize = null;
                 }
-                multipartContext.readCount += currentBatchSize;
                 if (currentBatchSize >= minUploadBatchSize) {
                     logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                     logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
@@ -637,6 +636,8 @@ class BulkDataExportRunner {
                             filePath: multipartContext.resourceFilePath
                         })
                     );
+                    multipartContext.previousBuffer = null;
+                    multipartContext.previousBatchSize = null;
 
                     logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
                 } else {
@@ -673,7 +674,7 @@ class BulkDataExportRunner {
         const filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
         let uploadId;
         try {
-            logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
+            logDebug(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
 
             // generate parsed args for enriching the resource
             const parsedArgs = this.r4ArgsParser.parseArgs({
@@ -694,15 +695,9 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-
+            const db = await resourceLocator.getDatabaseConnectionAsync();
             const options = { batchSize: this.fetchResourceBatchSize };
-            const cursor = collections[0].find(query, options);
+            const cursor = db.collection(`${resourceType}_4_0_0`).find(query, options);
 
             let readCount = 0;
 
@@ -712,7 +707,7 @@ class BulkDataExportRunner {
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
             }
             const multipartUploadParts = [];
-            const db = await resourceLocator.getDatabaseConnectionAsync();
+
             const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
             const minUploadBatchSize = Math.floor(this.uploadPartSize / stats.avgObjSize);
             while (await cursor.hasNext()) {
