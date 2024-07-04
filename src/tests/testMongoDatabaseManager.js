@@ -38,6 +38,15 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
+    async getResourceHistoryConfigAsync () {
+        const mongoUrl = await getMongoUrlAsync();
+        return {
+            connection: mongoUrl,
+            db_name: 'resource-history',
+            options: {}
+        };
+    }
+
     async dropDatabasesAsync () {
         const db = await this.getClientDbAsync();
         await db.dropDatabase();
@@ -47,6 +56,9 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
 
         const accessLogsDbDb = await this.getAccessLogsDbAsync();
         await accessLogsDbDb.dropDatabase();
+
+        const resourceHistoryDb = await this.getResourceHistoryDbAsync();
+        await resourceHistoryDb.dropDatabase();
 
         // check if database is done
         const clientConfig = await this.getClientConfigAsync();
@@ -80,6 +92,17 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         const accessLogsDatabasesResult = await accessLogsClient.db().admin().listDatabases();
         const accessLogsDatabases = accessLogsDatabasesResult.databases;
         while (accessLogsDatabases.some(d => d.db_name === accessLogsConfig.db_name)) { /* empty */
+        }
+
+        // check if resource history database is gone
+        const resourceHistoryConfig = await this.getResourceHistoryConfigAsync();
+        const resourceHistoryClient = await this.createClientAsync(resourceHistoryConfig);
+        /**
+         * @type {import('mongo').ListDatabasesResult}
+         */
+        const resourceHistoryDatabasesResult = await resourceHistoryClient.db().admin().listDatabases();
+        const resourceHistoryDatabases = resourceHistoryDatabasesResult.databases;
+        while (resourceHistoryDatabases.some(d => d.db_name === resourceHistoryConfig.db_name)) { /* empty */
         }
     }
 }
