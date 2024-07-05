@@ -85,6 +85,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
     ) {
         try {
+            if (sourceCollectionName.includes('_History') ){
+                config = await this.mongoDatabaseManager.getResourceHistoryConfigAsync();
+            }
+
             let lastCheckedId = '';
             const {
                 sourceClient,

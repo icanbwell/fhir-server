@@ -800,13 +800,16 @@ args: {
                 collections.includes(indexProblem.collectionName)) {
                 // synchronize the name of the indexes first to avoid creating indexes with same config
                 let { indexConfigsCreated, indexConfigsDropped } = await this.renameIndexes({ indexProblem, db });
-
+                let resourceHistoryIndexConfigsCreated = [];
+                let resourceHistoryIndexConfigsDropped = [];
                 if (!audit && !accessLogs) {
-                    let { resourceHistoryIndexConfigsCreated, resourceHistoryIndexConfigsDropped } =
+                    let { indexConfigsCreated, indexConfigsDropped } =
                         await this.renameIndexes({ indexProblem, db: resourceHistoryDb });
-                    indexConfigsCreated.push(resourceHistoryIndexConfigsCreated);
-                    indexConfigsDropped.push(resourceHistoryIndexConfigsDropped);
+                    resourceHistoryIndexConfigsCreated = indexConfigsCreated;
+                    resourceHistoryIndexConfigsDropped = indexConfigsDropped;
                 }
+                indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
+                indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
 
                 // missing indexes needs to be created
                 const createdIndexes = await this.addMissingIndexesAsync({ audit, accessLogs, collections: [indexProblem.collectionName] });

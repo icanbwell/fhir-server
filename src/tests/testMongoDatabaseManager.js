@@ -39,12 +39,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
     }
 
     async getResourceHistoryConfigAsync () {
-        const mongoUrl = await getMongoUrlAsync();
-        return {
-            connection: mongoUrl,
-            db_name: 'resource-history',
-            options: {}
-        };
+        return getClientConfigAsync();
     }
 
     async dropDatabasesAsync () {

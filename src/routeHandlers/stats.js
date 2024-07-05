@@ -47,9 +47,17 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
          * @type {import('mongodb').Db}
          */
         const db = await mongoDatabaseManager.getClientDbAsync();
+        const resourceHistoryDb = await mongoDatabaseManager.getResourceHistoryDbAsync();
         let collection_names = [];
 
         for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
+            {}, { nameOnly: true })) {
+            if (collection.name.indexOf('system.') === -1) {
+                collection_names.push(collection.name);
+            }
+        }
+        // for resource history collections
+        for await (const /** @type {{name: string, type: string}} */ collection of resourceHistoryDb.listCollections(
             {}, { nameOnly: true })) {
             if (collection.name.indexOf('system.') === -1) {
                 collection_names.push(collection.name);
@@ -60,7 +68,11 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
         logInfo(`Collection_names: ${collection_names}`, {});
         const collection_stats = await async.map(
             collection_names,
-            async (collection_name) => await getStatsForCollectionAsync(collection_name, db)
+            async (collection_name) =>
+                await getStatsForCollectionAsync(
+                    collection_name,
+                    collection_name.includes('_History') ? resourceHistoryDb : db
+                )
         );
         const mongoConfig = await mongoDatabaseManager.getClientConfigAsync();
         res.status(200).json({
