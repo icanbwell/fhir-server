@@ -163,6 +163,7 @@ class BulkDataExportRunner {
      */
     async processAsync() {
         try {
+            const startTime = Date.now();
             this.exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
                     exportStatusId: this.exportStatusId
                 });
@@ -179,6 +180,7 @@ class BulkDataExportRunner {
             await this.databaseExportManager.updateExportStatusAsync({
                 exportStatusResource: this.exportStatusResource
             });
+            logInfo(`ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`);
 
             // compute base folder where data will be upload in s3
             const accessTags = this.exportStatusResource.meta.security
@@ -234,6 +236,10 @@ class BulkDataExportRunner {
             await this.databaseExportManager.updateExportStatusAsync({
                 exportStatusResource: this.exportStatusResource
             });
+
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+            logInfo(`ExportStatus resource marked as completed with Id: ${this.exportStatusId}. Time taken: ${formatTime(elapsedTime)}`);
         } catch (err) {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
@@ -241,11 +247,24 @@ class BulkDataExportRunner {
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: this.exportStatusResource
                 });
+                logInfo(`ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`);
             }
             logError(`ERROR: ${err.message}`, {
                 error: err.stack
             });
         }
+    }
+
+    /**
+     * Function to format time in milliseconds to human readable format
+     * @param {*} milliseconds number of milliseconds
+     * @returns human readable format time
+     */
+    formatTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours, ${minutes % 60} minutes, ${seconds % 60} seconds`;
     }
 
     /**

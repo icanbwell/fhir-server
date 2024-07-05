@@ -133,9 +133,7 @@ class CronJobRunner {
             // Setting status to 'entered-in-error' for the above fetched resources
             while (await exportStatusCursor.hasNext()) {
                 const exportStatusResource = await exportStatusCursor.next();
-                logInfo(
-                    `Updating status to 'entered-in-error' for ExportStatus resource with id: ${exportStatusResource._uuid}`
-                );
+                logInfo(`ExportStatus resource marked as entered-in-error with Id: ${exportStatusResource._uuid}`);
                 exportStatusResource.status = 'entered-in-error';
                 await this.databaseExportManager.updateExportStatusAsync({ exportStatusResource });
             }
