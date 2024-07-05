@@ -39,7 +39,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
     }
 
     async getResourceHistoryConfigAsync () {
-        return getClientConfigAsync();
+        return await this.getClientConfigAsync();
     }
 
     async dropDatabasesAsync () {
