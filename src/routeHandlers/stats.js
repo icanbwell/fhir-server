@@ -64,7 +64,8 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
             }
         }
 
-        collection_names = collection_names.sort((a, b) => a.localeCompare(b));
+        // for backward compatability in case clientDB and resourceHistoryDB are same
+        collection_names = new Set(collection_names.sort((a, b) => a.localeCompare(b)));
         logInfo(`Collection_names: ${collection_names}`, {});
         const collection_stats = await async.map(
             collection_names,

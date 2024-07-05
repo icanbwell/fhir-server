@@ -526,18 +526,21 @@ args: {
 
         const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
 
-        const collection_names = [];
+        // for backward compatability in case clientDB and resourceHistoryDB are same
+        const collection_names = new Set();
 
         for await (const collection of db.listCollections({ type: { $ne: 'view' } })) {
             if (this.isNotSystemCollection(collection.name)) {
-                collection_names.push(collection.name);
+                collection_names.add(collection.name);
             }
         }
 
-        if ( !audit && !accessLogs ) {
-            for await (const collection of resourceHistoryDb.listCollections({ type: { $ne: 'view' } })) {
+        if (!audit && !accessLogs) {
+            for await (const collection of resourceHistoryDb.listCollections({
+                type: { $ne: 'view' }
+            })) {
                 if (this.isNotSystemCollection(collection.name)) {
-                    collection_names.push(collection.name);
+                    collection_names.add(collection.name);
                 }
             }
         }

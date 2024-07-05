@@ -109,8 +109,13 @@ class BaseScriptRunner {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));
         } else if (!useAuditDatabase && !useAccessLogsDatabase) {
             const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
-            collectionNames = collectionNames.concat(
-                await this.mongoCollectionManager.getAllCollectionNames({ db: resourceHistoryDb })
+            // for backward compatability in case clientDB and resourceHistoryDB are same
+            collectionNames = new Set(
+                collectionNames.concat(
+                    await this.mongoCollectionManager.getAllCollectionNames({
+                        db: resourceHistoryDb
+                    })
+                )
             );
         }
         await this.mongoDatabaseManager.disconnectClientAsync(client);
