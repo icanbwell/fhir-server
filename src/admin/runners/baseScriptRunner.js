@@ -119,7 +119,7 @@ class BaseScriptRunner {
             );
         }
         await this.mongoDatabaseManager.disconnectClientAsync(client);
-        return collectionNames;
+        return Array.from(collectionNames);
     }
 }
 
