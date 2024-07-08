@@ -298,6 +298,10 @@ class PartitioningManager {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+
+        if (resourceType === 'AuditEvent') {
+            return [];
+        }
         const partitions = await this.getPartitionNamesByQueryAsync(
             {
                 resourceType,
