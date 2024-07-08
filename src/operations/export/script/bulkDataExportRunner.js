@@ -513,14 +513,14 @@ class BulkDataExportRunner {
                 });
             }
 
-            if (multipartContext.previousBuffer) {
+            if (multipartContext.previousBuffer?.length) {
                 logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                 logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
 
                 // Upload the file to s3
                 multipartContext.multipartUploadParts.push(
                     await this.s3Client.uploadPartAsync({
-                        data: multipartContext.previousBuffer,
+                        data: multipartContext.previousBuffer.join('\n').trim(),
                         partNumber: multipartContext.multipartUploadParts.length + 1,
                         uploadId: multipartContext.uploadId,
                         filePath: multipartContext.resourceFilePath
@@ -606,7 +606,7 @@ class BulkDataExportRunner {
                 const db = await resourceLocator.getDatabaseConnectionAsync();
                 multipartContext.collection = db.collection(`${resourceType}_4_0_0`);
                 const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-                multipartContext.averageDocumentSize = stats.avgObjSize;
+                multipartContext.averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
@@ -636,10 +636,10 @@ class BulkDataExportRunner {
                     });
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
-                let buffer = currentBatch.slice(0, currentBatchSize).join('\n');
+
                 multipartContext.readCount += currentBatchSize;
-                if (multipartContext.previousBuffer) {
-                    buffer = multipartContext.previousBuffer + '\n' + buffer;
+                if (multipartContext.previousBuffer?.length) {
+                    currentBatch.concat(multipartContext.previousBuffer);
                     currentBatchSize += multipartContext.previousBatchSize;
                 }
                 if (currentBatchSize >= minUploadBatchSize) {
@@ -649,7 +649,7 @@ class BulkDataExportRunner {
                     // Upload the file to s3
                     multipartContext.multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: buffer,
+                            data: currentBatch.slice(0, currentBatchSize).join('\n'),
                             partNumber: multipartContext.multipartUploadParts.length + 1,
                             uploadId: multipartContext.uploadId,
                             filePath: multipartContext.resourceFilePath
@@ -660,7 +660,7 @@ class BulkDataExportRunner {
 
                     logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
                 } else {
-                    multipartContext.previousBuffer = buffer;
+                    multipartContext.previousBuffer = currentBatch;
                     multipartContext.previousBatchSize = currentBatchSize;
                 }
             }
