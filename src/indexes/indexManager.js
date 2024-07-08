@@ -815,8 +815,8 @@ args: {
                 if (!audit && !accessLogs) {
                     let { indexConfigsCreated: resourceHistoryIndexConfigsCreated, indexConfigsDropped: resourceHistoryIndexConfigsDropped } =
                         await this.renameIndexes({ indexProblem, db: resourceHistoryDb });
-                        indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
-                        indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
+                    indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
+                    indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
                 }
 
                 // missing indexes needs to be created
