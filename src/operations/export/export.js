@@ -8,6 +8,7 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { logInfo } = require('../common/logging');
 
 class ExportOperation {
     /**
@@ -121,6 +122,8 @@ class ExportOperation {
 
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
+
+            logInfo(`Created ExportStatus resource with Id: ${exportStatusResource.id}`);
 
             // Trigger k8s job to export data
             await this.exportManager.triggerExportJob({ exportStatusId: exportStatusResource.id });
