@@ -77,7 +77,7 @@ describe('AuditEvent History Collection Tests', () => {
 
         auditEventCollections = await auditEventDb.listCollections().toArray();
         auditEventCollectionsNames = auditEventCollections.map((collection) => collection.name);
-        // verify that AuditEvent collection is not created while querying for history
+        // verify that AuditEvent history collection is not created while querying for history
         expect(auditEventCollectionsNames).toEqual([mongoCollectionName]);
     });
 });
