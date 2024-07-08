@@ -182,6 +182,47 @@ accessLogsMongoConfig.options = {
 // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
 delete accessLogsMongoConfig.options.compressors;
 
+/**
+ * @name mongoConfig
+ * @summary Configurations for our Mongo instance
+ * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let resourceHistoryMongoConfig;
+
+if (env.RESOURCE_HISTORY_MONGO_URL) {
+    let resourceHistoryMongoUrl = env.RESOURCE_HISTORY_MONGO_URL;
+    if (env.RESOURCE_HISTORY_MONGO_USERNAME !== undefined) {
+        resourceHistoryMongoUrl = resourceHistoryMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.RESOURCE_HISTORY_MONGO_USERNAME}:${env.RESOURCE_HISTORY_MONGO_PASSWORD}@`
+        );
+        resourceHistoryMongoUrl = resourceHistoryMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.RESOURCE_HISTORY_MONGO_USERNAME}:${env.RESOURCE_HISTORY_MONGO_PASSWORD}@`
+        );
+    }
+// url-encode the url
+    resourceHistoryMongoUrl = resourceHistoryMongoUrl ? encodeURI(resourceHistoryMongoUrl) : resourceHistoryMongoUrl;
+    const resourceHistoryQueryParams = getQueryParams(resourceHistoryMongoUrl);
+    const resourceHistoryWriteConcern = resourceHistoryQueryParams.w ?? 'majority';
+    delete resourceHistoryQueryParams.w;
+    resourceHistoryMongoConfig = {
+        connection: resourceHistoryMongoUrl,
+        db_name: String(env.RESOURCE_HISTORY_MONGO_DB_NAME),
+        options: {
+            ...options,
+            ...resourceHistoryQueryParams,
+            minPoolSize: env.RESOURCE_HISTORY_MIN_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MIN_POOL_SIZE) : options.minPoolSize,
+            maxPoolSize: env.RESOURCE_HISTORY_MAX_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MAX_POOL_SIZE) : options.maxPoolSize,
+            writeConcern: {
+                w: resourceHistoryWriteConcern
+            }
+        }
+    };
+} else {
+    resourceHistoryMongoConfig = mongoConfig;
+}
+
 // Set up whitelist
 const whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
 
@@ -269,5 +310,6 @@ module.exports = {
     mongoConfig,
     auditEventMongoConfig,
     auditEventReadOnlyMongoConfig,
-    accessLogsMongoConfig
+    accessLogsMongoConfig,
+    resourceHistoryMongoConfig
 };

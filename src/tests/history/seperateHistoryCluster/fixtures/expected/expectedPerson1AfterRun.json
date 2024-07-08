@@ -1,0 +1,84 @@
+{
+    "id": "1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+        }
+    ],
+    "link": [
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/2"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/941f082a-39a9-5f55-9630-5839a010e1bc"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ],
+                "reference": "Person/2"
+            }
+        },
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ],
+                "reference": "Patient/1"
+            }
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "client",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "client",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "client",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
+}

@@ -211,6 +211,8 @@ args: {
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
     async indexAllCollectionsAsync ({ collectionRegex } = {}) {
+        let result = [];
+
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -222,12 +224,40 @@ args: {
          */
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
-            return await this.indexAllCollectionsInDatabaseAsync({
-                db, collectionRegex
+            result = await this.indexAllCollectionsInDatabaseAsync({
+                db,
+                collectionRegex
             });
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
+
+        if (
+            (!collectionRegex || collectionRegex.includes('_History')) &&
+            result.every((indexResult) => !indexResult.collectionName.includes('_History'))
+        ) {
+            /**
+             * @type {import('mongodb').MongoClient}
+             */
+            const resourceHistoryClient = await this.mongoDatabaseManager.createClientAsync(
+                await this.mongoDatabaseManager.getResourceHistoryConfigAsync()
+            );
+            /**
+             * @type {import('mongodb').Db}
+             */
+            const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+            try {
+                result = result.concat(
+                    await this.indexAllCollectionsInDatabaseAsync({
+                        db: resourceHistoryDb,
+                        collectionRegex
+                    })
+                );
+            } finally {
+                await this.mongoDatabaseManager.disconnectClientAsync(resourceHistoryClient);
+            }
+        }
+        return result;
     }
 
     /**
@@ -451,11 +481,17 @@ args: {
              * @type {import('mongodb').Db}
              */
             const db = await this.mongoDatabaseManager.getClientDbAsync();
-            const collection_names = [];
+            const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+            const collection_names = new Set();
 
             for await (const collection of db.listCollections()) {
                 if (this.isNotSystemCollection(collection.name)) {
-                    collection_names.push(collection.name);
+                    collection_names.add(collection.name);
+                }
+            }
+            for await (const collection of resourceHistoryDb.listCollections()) {
+                if (this.isNotSystemCollection(collection.name)) {
+                    collection_names.add(collection.name);
                 }
             }
             // now add indices on id column for every collection
@@ -497,11 +533,24 @@ args: {
             : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
             : await this.mongoDatabaseManager.getClientDbAsync();
 
-        const collection_names = [];
+        const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+
+        // for backward compatability in case clientDB and resourceHistoryDB are same
+        const collection_names = new Set();
 
         for await (const collection of db.listCollections({ type: { $ne: 'view' } })) {
             if (this.isNotSystemCollection(collection.name)) {
-                collection_names.push(collection.name);
+                collection_names.add(collection.name);
+            }
+        }
+
+        if (!audit && !accessLogs) {
+            for await (const collection of resourceHistoryDb.listCollections({
+                type: { $ne: 'view' }
+            })) {
+                if (this.isNotSystemCollection(collection.name)) {
+                    collection_names.add(collection.name);
+                }
             }
         }
         // now add indices on id column for every collection
@@ -513,7 +562,7 @@ args: {
             async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
                 {
                     collectionName,
-                    db,
+                    db: collectionName.includes('_History') ? resourceHistoryDb : db,
                     filterToProblems
                 })
         );
@@ -543,6 +592,23 @@ args: {
             await this.deleteIndexesInAllCollectionsInDatabaseAsync({ db, collectionRegex });
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(client);
+        }
+
+        if (!collectionRegex || collectionRegex.includes('_History')) {
+            /**
+             * @type {import('mongodb').MongoClient}
+             */
+            const resourceHistoryClient = await this.mongoDatabaseManager.createClientAsync(
+                await this.mongoDatabaseManager.getResourceHistoryConfigAsync());
+            /**
+             * @type {import('mongodb').Db}
+             */
+            const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+            try {
+                await this.deleteIndexesInAllCollectionsInDatabaseAsync({ db: resourceHistoryDb, collectionRegex });
+            } finally {
+                await this.mongoDatabaseManager.disconnectClientAsync(resourceHistoryClient);
+            }
         }
     }
 
@@ -725,6 +791,8 @@ args: {
             : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
             : await this.mongoDatabaseManager.getClientDbAsync();
 
+        const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
@@ -744,6 +812,12 @@ args: {
                 collections.includes(indexProblem.collectionName)) {
                 // synchronize the name of the indexes first to avoid creating indexes with same config
                 let { indexConfigsCreated, indexConfigsDropped } = await this.renameIndexes({ indexProblem, db });
+                if (!audit && !accessLogs) {
+                    let { indexConfigsCreated: resourceHistoryIndexConfigsCreated, indexConfigsDropped: resourceHistoryIndexConfigsDropped } =
+                        await this.renameIndexes({ indexProblem, db: resourceHistoryDb });
+                    indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
+                    indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
+                }
 
                 // missing indexes needs to be created
                 const createdIndexes = await this.addMissingIndexesAsync({ audit, accessLogs, collections: [indexProblem.collectionName] });
@@ -767,7 +841,7 @@ args: {
                         await this.deleteIndexInCollectionAsync({
                             collectionName: indexProblem.collectionName,
                             indexName: index.indexConfig.options.name,
-                            db
+                            db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                         });
 
                         indexConfigsDropped.push(index.indexConfig);
@@ -775,7 +849,7 @@ args: {
                         await this.createIndexIfNotExistsAsync({
                             collectionName: indexProblem.collectionName,
                             indexConfig: index.indexConfig,
-                            db
+                            db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                         });
 
                         indexConfigsCreated.push(index.indexConfig);
@@ -825,6 +899,8 @@ args: {
             : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
             : await this.mongoDatabaseManager.getClientDbAsync();
 
+        const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
@@ -842,7 +918,10 @@ args: {
 
             if ((collections.length > 0 && collections[0] === 'all') ||
                 collections.includes(indexProblem.collectionName)) {
-                const indexConfigsCreated = await this.createCollectionIndexAsync({ indexProblem, db });
+                const indexConfigsCreated = await this.createCollectionIndexAsync({
+                    indexProblem,
+                    db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                });
 
                 if (indexConfigsCreated.length) {
                     collectionIndexesCreated.push({
@@ -879,6 +958,8 @@ args: {
             : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
             : await this.mongoDatabaseManager.getClientDbAsync();
 
+        const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
@@ -896,7 +977,10 @@ args: {
 
             if ((collections.length > 0 && collections[0] === 'all') ||
                 collections.includes(indexProblem.collectionName)) {
-                const indexConfigsDropped = await this.dropCollectionIndexAsync({ indexProblem, db });
+                const indexConfigsDropped = await this.dropCollectionIndexAsync({
+                    indexProblem,
+                    db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                });
 
                 if (indexConfigsDropped.length) {
                     collectionIndexesDropped.push({
