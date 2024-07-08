@@ -239,6 +239,7 @@ class BulkDataExportRunner {
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
+            throw new RethrownError({message: 'testing', error: 'error'});
             logInfo(`ExportStatus resource marked as completed with Id: ${this.exportStatusId}. Time taken: ${this.formatTime(elapsedTime)}`);
         } catch (err) {
             if (this.exportStatusResource) {
