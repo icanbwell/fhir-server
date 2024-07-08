@@ -232,7 +232,10 @@ args: {
             await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
 
-        if (!collectionRegex || collectionRegex.includes('_History')) {
+        if (
+            (!collectionRegex || collectionRegex.includes('_History')) &&
+            result.every((indexResult) => !indexResult.collectionName.includes('_History'))
+        ) {
             /**
              * @type {import('mongodb').MongoClient}
              */
@@ -478,11 +481,17 @@ args: {
              * @type {import('mongodb').Db}
              */
             const db = await this.mongoDatabaseManager.getClientDbAsync();
-            const collection_names = [];
+            const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
+            const collection_names = new Set();
 
             for await (const collection of db.listCollections()) {
                 if (this.isNotSystemCollection(collection.name)) {
-                    collection_names.push(collection.name);
+                    collection_names.add(collection.name);
+                }
+            }
+            for await (const collection of resourceHistoryDb.listCollections()) {
+                if (this.isNotSystemCollection(collection.name)) {
+                    collection_names.add(collection.name);
                 }
             }
             // now add indices on id column for every collection
@@ -803,16 +812,12 @@ args: {
                 collections.includes(indexProblem.collectionName)) {
                 // synchronize the name of the indexes first to avoid creating indexes with same config
                 let { indexConfigsCreated, indexConfigsDropped } = await this.renameIndexes({ indexProblem, db });
-                let resourceHistoryIndexConfigsCreated = [];
-                let resourceHistoryIndexConfigsDropped = [];
                 if (!audit && !accessLogs) {
-                    let { indexConfigsCreated, indexConfigsDropped } =
+                    let { indexConfigsCreated: resourceHistoryIndexConfigsCreated, indexConfigsDropped: resourceHistoryIndexConfigsDropped } =
                         await this.renameIndexes({ indexProblem, db: resourceHistoryDb });
-                    resourceHistoryIndexConfigsCreated = indexConfigsCreated;
-                    resourceHistoryIndexConfigsDropped = indexConfigsDropped;
+                        indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
+                        indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
                 }
-                indexConfigsCreated = indexConfigsCreated.concat(resourceHistoryIndexConfigsCreated);
-                indexConfigsDropped = indexConfigsDropped.concat(resourceHistoryIndexConfigsDropped);
 
                 // missing indexes needs to be created
                 const createdIndexes = await this.addMissingIndexesAsync({ audit, accessLogs, collections: [indexProblem.collectionName] });

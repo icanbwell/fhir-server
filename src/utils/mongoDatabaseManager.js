@@ -134,10 +134,7 @@ class MongoDatabaseManager {
                 return await this.getAuditReadOnlyDbAsync();
             }
             return await this.getAuditDbAsync();
-        } else if (
-            extraInfo.isHistoryQuery ||
-            (resourceType && resourceType.endsWith('_History'))
-        ) {
+        } else if (extraInfo.isHistoryQuery || resourceType?.endsWith('_History')) {
             return await this.getResourceHistoryDbAsync();
         }
         return await this.getClientDbAsync();
