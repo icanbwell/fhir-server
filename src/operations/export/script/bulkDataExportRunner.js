@@ -243,8 +243,8 @@ class BulkDataExportRunner {
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
             logInfo(
-                `ExportStatus resource marked as completed with Id: ${this.exportStatusId}. Time taken: ${this.formatTime(elapsedTime)}.`,
-                { exportStatusId: this.exportStatusId }
+                `ExportStatus resource marked as completed with Id: ${this.exportStatusId}`,
+                { exportStatusId: this.exportStatusId, timeTaken: this.formatTime(elapsedTime) }
             );
         } catch (err) {
             if (this.exportStatusResource) {
