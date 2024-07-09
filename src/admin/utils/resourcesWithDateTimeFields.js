@@ -23,7 +23,7 @@ function resourcesWithDateTimeFields (resourceType) {
         , 'SubscriptionStatus'
         , 'Substance'
         , 'Task'];
-    return resources.contains(resourceType);
+    return resources.includes(resourceType);
 }
 
 module.exports = {
