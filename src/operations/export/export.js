@@ -123,7 +123,10 @@ class ExportOperation {
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
 
-            logInfo(`Created ExportStatus resource with Id: ${exportStatusResource.id}`);
+            logInfo(
+                `Created ExportStatus resource with Id: ${exportStatusResource.id}`,
+                { exportStatusId: exportStatusResource.id }
+            );
 
             // Trigger k8s job to export data
             await this.exportManager.triggerExportJob({ exportStatusId: exportStatusResource.id });

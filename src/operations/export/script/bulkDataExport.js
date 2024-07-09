@@ -36,7 +36,8 @@ async function main() {
     const currentDateTime = new Date();
 
     logInfo(
-        `[${currentDateTime}] Running Bulk data export script for ${exportStatusId}`
+        `[${currentDateTime}] Running Bulk data export script`,
+        { exportStatusId: exportStatusId }
     );
 
     // set up all the standard services in the container

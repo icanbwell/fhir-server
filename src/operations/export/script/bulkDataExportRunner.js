@@ -180,7 +180,10 @@ class BulkDataExportRunner {
             await this.databaseExportManager.updateExportStatusAsync({
                 exportStatusResource: this.exportStatusResource
             });
-            logInfo(`ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`);
+            logInfo(
+                `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
+                { exportStatusId: this.exportStatusId }
+            );
 
             // compute base folder where data will be upload in s3
             const accessTags = this.exportStatusResource.meta.security
@@ -239,7 +242,10 @@ class BulkDataExportRunner {
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
-            logInfo(`ExportStatus resource marked as completed with Id: ${this.exportStatusId}. Time taken: ${this.formatTime(elapsedTime)}`);
+            logInfo(
+                `ExportStatus resource marked as completed with Id: ${this.exportStatusId}. Time taken: ${this.formatTime(elapsedTime)}.`,
+                { exportStatusId: this.exportStatusId }
+            );
         } catch (err) {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
@@ -247,7 +253,10 @@ class BulkDataExportRunner {
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: this.exportStatusResource
                 });
-                logInfo(`ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`);
+                logInfo(
+                    `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,
+                    { exportStatusId: this.exportStatusId }
+                );
             }
             logError(`ERROR: ${err.message}`, {
                 error: err.stack
