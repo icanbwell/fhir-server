@@ -3,7 +3,8 @@ const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { resourcesWithDateTimeFields } = require('../utils/resourcesWithDateTimeFields')
-const {DateColumnHandler} = require("../../preSaveHandlers/handlers/dateColumnHandler");
+const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
+
 class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
     /**
      * constructor
@@ -71,33 +72,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * gets all collection names
-     * @returns {Promise<string[]>}
-     */
-    async getAllCollectionNamesAsync () {
-        const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
-
-        const { db, client, session } = await this.createSingeConnectionAsync({ mongoConfig });
-
-        try {
-            const collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db });
-            return collectionNames.filter((c) => !c.includes('_History'));
-        } catch (err) {
-            this.adminLogger.logError(`Error in getAllCollectionNamesAsync: ${err.message}`, {
-                stack: err.stack
-            });
-
-            throw new RethrownError({
-                message: err.message,
-                error: err
-            });
-        } finally {
-            await session.endSession();
-            await client.close();
-        }
-    }
-
-    /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
@@ -159,7 +133,8 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {string[]}
                  */
-                this.collections = await this.getAllCollectionNamesAsync();
+                this.collections = await this.getAllCollectionNamesAsync ({ useAuditDatabase: false,
+                    useAccessLogsDatabase: false, includeHistoryCollections: false })
                 this.collections = this.collections.sort();
                 if (this.startFromCollection) {
                     this.collections = this.collections.filter(
@@ -177,8 +152,9 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo(`${collectionName} has no dateTime fields. Skipping`);
                     continue;
                 }
-                this.adminLogger.logInfo(`Processing ${collectionName}`);
-                const uuids = [];
+                const uuids = await this.getResourceUuidsAsync({
+                    collectionName
+                });
                 while (uuids.length > 0) {
                     const query = { _uuid: { $in: uuids.splice(0, this.batchSize) } };
 
@@ -221,11 +197,38 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
         }
     }
 
-    async getDateTimeFields ({ collectionName }) {
+    async getResourceUuidsAsync ({ collectionName }) {
+        const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
+
         this.adminLogger.logInfo(`Processing ${collectionName} collection`);
-        const resourceType = collectionName.substring(0, collectionName.indexOf('_'));
-        const dateTimeFields = resourcesWithDateTimeFields(resourceType);
-        return dateTimeFields;
+        const { collection, client, session } = await this.createSingeConnectionAsync({
+            mongoConfig,
+            collectionName
+        });
+        try {
+            const cursorFind = collection.find({ });
+            const uuids = [];
+            while (await cursorFind.hasNext()) {
+                const data = await cursorFind.next();
+                uuids.push(data._id._uuid);
+            }
+            return uuids;
+        } catch (err) {
+            this.adminLogger.logError(
+                `Error in getResourceUuids: ${err.message}`,
+                {
+                    stack: err.stack
+                }
+            );
+
+            throw new RethrownError({
+                message: err.message,
+                error: err
+            });
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
     }
 }
 
