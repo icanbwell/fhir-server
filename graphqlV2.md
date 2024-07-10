@@ -270,6 +270,8 @@ In this example PatientInfo is reused in two queries without needing to repeat t
 ## Upgrading from graphqlv1 to graphqlv2
 
 ### In GraphQLv2, the reference resources are now returned inside a reference object.
+Earlier in Graphqlv1, we were directly returning resource intead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
+To overcome this we updated the schema to return resource inside reference type object.
 
 GraphQLv1:
 
@@ -316,7 +318,7 @@ query OnObservation {
 }
 ```
 
-### In GraphQLv2, '\_id' is removed from querying and 'id' now follows implementation like '\_id'.
+### In GraphQLv2, '\_id' is removed from querying and 'id' now follows SearchString input schema.
 
 GraphQLv1:
 
