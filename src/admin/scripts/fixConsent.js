@@ -84,15 +84,9 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixConsent.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --collections=Consent_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --before 2023-10-28
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --after 2023-10-28
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --dotenv
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --before 2023-10-28 --dotenv
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --after 2023-10-28 --dotenv
  */
 console.log('Running main');
 main().catch((reason) => {
