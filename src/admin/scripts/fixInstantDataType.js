@@ -10,7 +10,7 @@ console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
-const { FixInstantDataTypeRunner } = require('../runners/FixInstantDataTypeRunner');
+const { FixInstantDataTypeRunner } = require('../runners/fixInstantDataTypeRunner');
 
 /**
  * main function

@@ -89,7 +89,7 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
             const currentResource = resource.clone();
 
             const dateColumnHandler = new DateColumnHandler();
-            dateColumnHandler.setFlag(true);
+            dateColumnHandler.setFlag(false);
             resource = await dateColumnHandler.preSaveAsync({ resource: resource });
 
             // for speed, first check if the incoming resource is exactly the same
@@ -210,7 +210,7 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
             const uuids = [];
             while (await cursorFind.hasNext()) {
                 const data = await cursorFind.next();
-                uuids.push(data._id._uuid);
+                uuids.push(data._uuid);
             }
             return uuids;
         } catch (err) {
