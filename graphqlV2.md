@@ -164,22 +164,24 @@ Querying union types require the following syntax (https://www.apollographql.com
 
 ```
 provider {
-            __typename
-            ... on Organization {
-                id
-                identifier {
-                    system
-                    value
-                }
-            }
-            ... on Practitioner {
-                id
-                name {
-                    family
-                    given
-                }
+    reference {
+        __typename
+        ... on Organization {
+            id
+            identifier {
+                system
+                value
             }
         }
+        ... on Practitioner {
+            id
+            name {
+                family
+                given
+            }
+        }
+    }
+}
 ```
 
 ### GraphQL Server Implementation
@@ -228,7 +230,7 @@ To add a new enrichment provider:
 
 ## Fragments in Graphql
 
-In GraphQL, fragments are just a reusable part of the query. Within the area of GraphQL, it’s common to meet scenarios where identical fields are queried across multiple requests. Recognizing this repetition can lead to the combining of these fields into reusable components known as fragments.
+In GraphQL, fragments are reusable components that combine identical fields queried across multiple requests to avoid repetition. This results in shorter and easier to understand queries.
 
 ```graphql
 fragment PatientInfo on Patient {
@@ -350,7 +352,7 @@ query OnObservation {
 
 ## Upcoming support for missing search parameter types, modifiers and prefixes
 
--   Number search parameter along with prefixes (greaterThan, greaterThanOrEqualTo, lessThan, lessThanOrEqualTo, approximately)
+-   Support for querying on fields of Number type, like probability in riskAssessment.
 
 ```graphql
 query getriskAssessment {
@@ -364,7 +366,7 @@ query getriskAssessment {
 }
 ```
 
--   Quantity search parameter along with prefixes (gt, ge, lt, le, ap)
+-   Support for querying on fields of Quantity type, like value_quantity in observation.
 
 ```graphql
 query getObservation {
@@ -378,11 +380,39 @@ query getObservation {
 }
 ```
 
--   Modifiers in String search paramters: exact and contains
+-   Support for modifiers in String search paramters: exact and contains
 
 ```graphql
 query getobservationDefinition {
     observationDefinition(_count: 10, _debug: true, name: { contains: "abc" }) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   Support for modifiers in Token search paramters: text, in, not-in, of-type, above & below
+
+```graphql
+query getCondition {
+    condition(_count: 10, _debug: true, code: { text: "headache" }) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   Fix 'missing' modifier which is not working in graphqlv1
+
+```graphql
+query getObservation {
+    observation(_count: 10, _debug: true, specimen: { missing: true }) {
         entry {
             resource {
                 id
