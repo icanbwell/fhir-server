@@ -83,8 +83,7 @@ describe('Cron Job Tests', () => {
                     new CronJobRunner({
                         databaseQueryFactory: c.databaseQueryFactory,
                         databaseExportManager: c.databaseExportManager,
-                        exportManager: c.exportManager,
-                        batchSize: 100
+                        exportManager: c.exportManager
                     })
             );
             const cronJobRunner = container.cronJobRunner;
@@ -112,10 +111,14 @@ describe('Cron Job Tests', () => {
             // with 'accepted' status only
             expect(mockK8sCreateJob).toHaveBeenCalledTimes(2);
             expect(mockK8sCreateJob).toHaveBeenCalledWith(
-                expect.stringContaining(`${exportStatus1Resource.id}`)
+                expect.objectContaining({
+                    scriptCommand: expect.stringContaining(`${exportStatus1Resource.id}`)
+                })
             );
             expect(mockK8sCreateJob).toHaveBeenCalledWith(
-                expect.stringContaining(`${exportStatus2Resource.id}`)
+                expect.objectContaining({
+                    scriptCommand: expect.stringContaining(`${exportStatus2Resource.id}`)
+                })
             );
         });
     });

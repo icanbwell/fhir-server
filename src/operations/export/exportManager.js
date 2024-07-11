@@ -84,7 +84,7 @@ class ExportManager {
                     .filter(([key]) => !ignoredParams.includes(key))
                     .map(([key, value]) => ({
                         id: key,
-                        url: key,
+                        url: `https://icanbwell.com/codes/${key}`,
                         valueString: value
                     })),
                 scope,
@@ -124,17 +124,17 @@ class ExportManager {
         const context = exportStatusResource.extension?.reduce((dict, currentValue) => {
             dict[currentValue.id] = currentValue.valueString;
             return dict;
-        }, {});
+        }, {}) || {};
 
         let scriptCommand =
             'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
-            `--exportStatusId ${exportStatusResource.id} ` +
+            `--exportStatusId ${exportStatusResource._uuid} ` +
             `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
             `--awsRegion ${this.configManager.awsRegion}`;
 
         const possibleScriptParams = ['patientReferenceBatchSize', 'fetchResourceBatchSize', 'uploadPartSize'];
         possibleScriptParams.forEach(param => {
-            if (context?.param) {
+            if (context[param]) {
                 scriptCommand += ` --${param} ${context[param]}`;
             }
         });
@@ -143,7 +143,7 @@ class ExportManager {
             scriptCommand,
             context
         });
-        logInfo(`Successfully triggered k8sclient Job for ${exportStatusResource.id}`);
+        logInfo(`Successfully triggered k8sclient Job for ${exportStatusResource._uuid}`);
         return jobResult;
     }
 }
