@@ -208,7 +208,14 @@ function createApp ({ fnGetContainer }) {
 
     app.use(handleSecurityPolicy);
 
-    // noinspection SpellCheckingInspection
+    // disable browser caching
+    app.use((req, res, next) => {
+        res.set('Cache-Control', 'no-store, no-cache');
+        res.set('Pragma', 'no-cache');
+        next();
+    });
+
+     // noinspection SpellCheckingInspection
     const options = {
         explorer: true,
         swaggerOptions: {
