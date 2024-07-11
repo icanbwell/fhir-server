@@ -6,6 +6,7 @@ class ExportStatus extends Resource {
      * @property {String} [id]
      * @property {import('../complex_types/meta.js')} [meta]
      * @property {import('../complex_types/identifier.js')} [identifier]
+     * @param {Extension[]|undefined} [extension],
      * @property {code} status
      * @property {url} request
      * @property {boolean} requiresAccessToken
@@ -21,6 +22,7 @@ class ExportStatus extends Resource {
         id,
         meta,
         identifier,
+        extension,
         status,
         request,
         requiresAccessToken,
@@ -96,6 +98,30 @@ class ExportStatus extends Resource {
                 const Identifier = require('../complex_types/identifier.js');
                 const { FhirResourceCreator } = require('../../../fhirResourceCreator.js');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
+            }
+        });
+
+        /**
+         * @description May be used to represent additional information that is not part of the basic
+        definition of the resource. To make the use of extensions safe and manageable,
+        there is a strict set of governance  applied to the definition and use of
+        extensions. Though any implementer can define an extension, there is a set of
+        requirements that SHALL be met as part of the definition of the extension.
+         * @property {Extension[]|undefined}
+         */
+        Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.extension,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
+                    return;
+                }
+                const Extension = require('../complex_types/extension.js');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -326,6 +352,7 @@ class ExportStatus extends Resource {
             id,
             meta,
             identifier,
+            extension,
             status,
             request,
             requiresAccessToken,
@@ -364,6 +391,7 @@ class ExportStatus extends Resource {
             resourceType: this.resourceType,
             meta: this.meta && this.meta.toJSON(),
             identifier: this.identifier && this.identifier.map(o => o && o.toJSON()),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             status: this.status,
             requestUrl: this.requestUrl,
             requiresAccessToken: this.requiresAccessToken,
@@ -381,6 +409,7 @@ class ExportStatus extends Resource {
      * @param {String} [id]
      * @param {import('../complex_types/meta.js')} [meta]
      * @param {import('../complex_types/identifier.js')} [identifier]
+     * @param {Extension[]|undefined} [extension],
      * @param {code} status
      * @param {url} request
      * @param {boolean} requiresAccessToken
@@ -394,6 +423,7 @@ class ExportStatus extends Resource {
         id,
         meta,
         identifier,
+        extension,
         status,
         request,
         requiresAccessToken,
@@ -407,6 +437,7 @@ class ExportStatus extends Resource {
             id,
             meta,
             identifier,
+            extension,
             status,
             request,
             requiresAccessToken,
@@ -430,6 +461,7 @@ class ExportStatus extends Resource {
             resourceType: this.resourceType,
             meta: this.meta && this.meta.toJSONInternal(),
             identifier: this.identifier && this.identifier.map(o => o && o.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             status: this.status,
             request: this.request,
             requiresAccessToken: this.requiresAccessToken,

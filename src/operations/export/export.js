@@ -117,7 +117,8 @@ class ExportOperation {
         try {
             // Create ExportStatus resource
             const exportStatusResource = await this.exportManager.generateExportStatusResourceAsync({
-                requestInfo
+                requestInfo,
+                args
             });
 
             // Insert ExportStatus resource in database
@@ -129,7 +130,7 @@ class ExportOperation {
             );
 
             // Trigger k8s job to export data
-            await this.exportManager.triggerExportJob({ exportStatusId: exportStatusResource.id });
+            await this.exportManager.triggerExportJob({ exportStatusResource });
 
             // Logic to add auditEvent
             this.postRequestProcessor.add({
