@@ -4,17 +4,11 @@ This FHIR server implements support for querying FHIR data using GraphQL(https:/
 
 ### Playground
 
-You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., <base_url>/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
+You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., <base_url>/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground. Here all the GraphQL entities and properties have inline documentation based on the FHIR specifications.
 
 ### Making GraphQL calls to the server
 
-The URL for GraphQL has been changed in GraphQL V2 from <base_url>/$graphql to <base_url>/4_0_0/$graphqlv2
-
 You can use the standard GraphQL client libraries or Postman and access the <base_url>/4_0_0/$graphqlv2 url. You will need to pass the OAuth token as a Bearer token to authenticate. See https://github.com/icanbwell/fhir-server/blob/master/security.md for details.
-
-### Documentation
-
-All the GraphQL entities and properties have inline documentation from FHIR specifications
 
 ### Sample GraphQLv2 query
 
@@ -206,6 +200,11 @@ Variables json
 ```
 
 ## Upgrading from graphqlv1 to graphqlv2
+
+### API endpoint update
+
+-   In GraphQL V1 the endpoint to access was `<base_url>/$graphql`
+-   In GraphQL V2 it is updated to `<base_url>/4_0_0/$graphqlv2`
 
 ### In GraphQLv2, the reference resources are now returned inside a reference object.
 
