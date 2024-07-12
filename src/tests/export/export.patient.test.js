@@ -81,9 +81,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -171,9 +169,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -250,9 +246,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -331,9 +325,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',

@@ -82,9 +82,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -113,7 +111,7 @@ describe('Export Tests', () => {
             expect(resp.body.errors).toHaveLength(0);
         });
 
-        test('S3 path is constructed by concatinating access tags', async () => {
+        test('S3 path is constructed by concatenating access tags', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
                     configManager: c.configManager
@@ -168,9 +166,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -262,9 +258,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -341,9 +335,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -422,9 +414,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 exportStatusId,
-                batchSize: 1000,
-                minUploadBatchSize: 1000,
-                logAfterReads: 1000,
+                patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
@@ -525,9 +515,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         exportStatusId,
-                        batchSize: 1000,
-                        minUploadBatchSize: 1000,
-                        logAfterReads: 1000,
+                        patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
@@ -660,9 +648,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         exportStatusId,
-                        batchSize: 1000,
-                        minUploadBatchSize: 1000,
-                        logAfterReads: 1000,
+                        patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
@@ -700,6 +686,7 @@ describe('Export Tests', () => {
                 return c;
             });
             const container = getTestContainer();
+            const mockK8sCreateJob = jest.spyOn(container.k8sClient, 'createJob');
 
             /**
              * @type {MongoDatabaseManager}
@@ -710,7 +697,9 @@ describe('Export Tests', () => {
 
             let resp = await request
                 .post(
-                    '/4_0_0/$export?_type=Patient,Person&_since=2023-10-10&patient=patient/1,2&_includeHidden=1'
+                    `/4_0_0/$export?_type=Patient,Person&_since=2023-10-10&patient=patient/1,2&_includeHidden=1&` +
+                    `loglevel=debug&requestsMemory=3&ttlsecondsAfterFinished=5&patientReferenceBatchSize=20&` +
+                    `fetchResourceBatchSize=30&uploadPartSize=40&ram=2G`
                 )
                 .set(getHeaders('access/client.* access/client1.* user/*.*'))
                 .expect(202);
@@ -725,6 +714,42 @@ describe('Export Tests', () => {
                 { code: 'client1', system: 'https://www.icanbwell.com/access' },
                 { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
+
+            // Check if extension is created as expected
+            expect(exportStatusResource[0].extension).toEqual([
+                {
+                    id: '_includeHidden',
+                    url: 'https://icanbwell.com/codes/_includeHidden',
+                    valueString: '1'
+                },
+                { id: 'loglevel', url: 'https://icanbwell.com/codes/loglevel', valueString: 'debug' },
+                {
+                    id: 'requestsMemory',
+                    url: 'https://icanbwell.com/codes/requestsMemory',
+                    valueString: '3'
+                },
+                {
+                    id: 'ttlsecondsAfterFinished',
+                    url: 'https://icanbwell.com/codes/ttlsecondsAfterFinished',
+                    valueString: '5'
+                },
+                {
+                    id: 'patientReferenceBatchSize',
+                    url: 'https://icanbwell.com/codes/patientReferenceBatchSize',
+                    valueString: '20'
+                },
+                {
+                    id: 'fetchResourceBatchSize',
+                    url: 'https://icanbwell.com/codes/fetchResourceBatchSize',
+                    valueString: '30'
+                },
+                {
+                    id: 'uploadPartSize',
+                    url: 'https://icanbwell.com/codes/uploadPartSize',
+                    valueString: '40'
+                },
+                { id: 'ram', url: 'https://icanbwell.com/codes/ram', valueString: '2G' }
+            ])
 
             resp = await request
                 .get(`/4_0_0/$export/${exportStatusId}`)
@@ -767,9 +792,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         exportStatusId,
-                        batchSize: 1000,
-                        minUploadBatchSize: 1000,
-                        logAfterReads: 1000,
+                        patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
@@ -849,6 +872,19 @@ describe('Export Tests', () => {
             expect(resp.body.output[1].url.split('/').pop()).toEqual('Person.ndjson');
 
             expect(resp.body.errors).toHaveLength(0);
+
+            // extension present in exportStatus resource is not fetched in body when fetched with non-admin endpoint
+            expect(resp.body.extension).toEqual(undefined);
+
+            // Check if 'createJob' function is called and with correct params
+            expect(mockK8sCreateJob).toHaveBeenCalledTimes(1);
+            expect(mockK8sCreateJob).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    scriptCommand: expect.stringContaining(
+                        '--patientReferenceBatchSize 20 --fetchResourceBatchSize 30 --uploadPartSize 40'
+                    )
+                })
+            );
         });
     });
 });
