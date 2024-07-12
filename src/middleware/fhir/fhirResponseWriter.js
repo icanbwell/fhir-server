@@ -256,8 +256,7 @@ class FhirResponseWriter {
                 requiresAccessToken: result.requiresAccessToken,
                 request: result.request,
                 output: result.output,
-                errors: result.errors,
-                extension: result.extension
+                errors: result.errors
             });
         }
     }

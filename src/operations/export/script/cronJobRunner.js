@@ -81,14 +81,14 @@ class CronJobRunner {
             const exportStatusCursor = await databaseQueryManager.findAsync(query);
 
             while (await exportStatusCursor.hasNext()) {
-                const exportStatusData = await exportStatusCursor.next();
+                const exportStatusResource = await exportStatusCursor.next();
                 logInfo(
-                    `Triggering k8 job for ExportStatus resource with id: ${exportStatusData._uuid}`,
-                    { exportStatusId: exportStatusData._uuid }
+                    `Triggering k8 job for ExportStatus resource with id: ${exportStatusResource._uuid}`,
+                    { exportStatusId: exportStatusResource._uuid }
                 );
 
                 // Trigger k8s job to export data
-                const jobResult = await this.exportManager.triggerExportJob({exportStatusId: exportStatusData._uuid});
+                const jobResult = await this.exportManager.triggerExportJob({ exportStatusResource });
 
                 // Break the loop if the job limit is exceeded
                 if (!jobResult) {

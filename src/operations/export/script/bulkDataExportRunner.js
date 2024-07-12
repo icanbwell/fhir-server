@@ -41,7 +41,7 @@ class BulkDataExportRunner {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
      * @property {string} exportStatusId
-     * @property {number} batchSize
+     * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
@@ -60,7 +60,7 @@ class BulkDataExportRunner {
         r4ArgsParser,
         searchManager,
         exportStatusId,
-        batchSize,
+        patientReferenceBatchSize,
         fetchResourceBatchSize,
         s3Client,
         uploadPartSize
@@ -134,7 +134,7 @@ class BulkDataExportRunner {
         /**
          * @type {number}
          */
-        this.batchSize = batchSize;
+        this.patientReferenceBatchSize = patientReferenceBatchSize;
 
         /**
          * @type {number}
@@ -502,7 +502,7 @@ class BulkDataExportRunner {
             for await (const result of patientCursor) {
                 patientReferences.push(`Patient/${result._uuid}`);
 
-                if (patientReferences.length === this.batchSize) {
+                if (patientReferences.length === this.patientReferenceBatchSize) {
                     await this.exportPatientDataAsync({
                         resourceType,
                         query,
