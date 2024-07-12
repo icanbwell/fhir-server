@@ -2,17 +2,15 @@
 
 This FHIR server implements support for querying FHIR data using GraphQL(https://graphql.org/).
 
-### High Level Sequence
-
-[![](https://mermaid.ink/img/eyJjb2RlIjoic2VxdWVuY2VEaWFncmFtXG4gICAgQnJvd3Nlci0-PitBV1NDb2duaXRvOiBBdXRoZW50aWNhdGVcbiAgICBBV1NDb2duaXRvLT4-K0Jyb3dzZXI6IFNlbmQgYmVhcmVyIHRva2VuXG4gICAgQnJvd3Nlci0-PitGSElSU2VydmVyOiBHcmFwaFFMIFJlcXVlc3RcbiAgICBGSElSU2VydmVyLT4-K0NvbW1vbkNvZGU6IEF1dGhvcml6ZSAmIFJlcXVlc3QgZGF0YVxuICAgIENvbW1vbkNvZGUtPj4rTW9uZ29EYjogU2VuZCBxdWVyeVxuICAgIE1vbmdvREItPj4rQ29tbW9uQ29kZTogUmV0dXJuIGRhdGFcbiAgICBDb21tb25Db2RlLT4-K0ZISVJTZXJ2ZXI6IFJldHVybiBkYXRhXG4gICAgRkhJUlNlcnZlci0-PitCcm93c2VyOiBSZXR1cm4gZGF0YVxuXG4gICAgICAgICAgICAiLCJtZXJtYWlkIjp7InRoZW1lIjoiZGFyayJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)](https://mermaid.live/edit#eyJjb2RlIjoic2VxdWVuY2VEaWFncmFtXG4gICAgQnJvd3Nlci0-PitBV1NDb2duaXRvOiBBdXRoZW50aWNhdGVcbiAgICBBV1NDb2duaXRvLT4-K0Jyb3dzZXI6IFNlbmQgYmVhcmVyIHRva2VuXG4gICAgQnJvd3Nlci0-PitGSElSU2VydmVyOiBHcmFwaFFMIFJlcXVlc3RcbiAgICBGSElSU2VydmVyLT4-K0NvbW1vbkNvZGU6IEF1dGhvcml6ZSAmIFJlcXVlc3QgZGF0YVxuICAgIENvbW1vbkNvZGUtPj4rTW9uZ29EYjogU2VuZCBxdWVyeVxuICAgIE1vbmdvREItPj4rQ29tbW9uQ29kZTogUmV0dXJuIGRhdGFcbiAgICBDb21tb25Db2RlLT4-K0ZISVJTZXJ2ZXI6IFJldHVybiBkYXRhXG4gICAgRkhJUlNlcnZlci0-PitCcm93c2VyOiBSZXR1cm4gZGF0YVxuXG4gICAgICAgICAgICAiLCJtZXJtYWlkIjoie1xuICBcInRoZW1lXCI6IFwiZGFya1wiXG59IiwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
-
 ### Playground
 
-You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., http://fhir.dev.bwell.zone/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
+You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., <base_url>/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
 
 ### Making GraphQL calls to the server
 
-You can use the standard GraphQL client libraries or Postman and access the /$graphqlv2 url. You will need to pass the OAuth token as a Bearer token to authenticate. See https://github.com/icanbwell/fhir-server/blob/master/security.md for details.
+The URL for GraphQL has been changed in GraphQL V2 from <base_url>/$graphql to <base_url>/4_0_0/$graphqlv2
+
+You can use the standard GraphQL client libraries or Postman and access the <base_url>/4_0_0/$graphqlv2 url. You will need to pass the OAuth token as a Bearer token to authenticate. See https://github.com/icanbwell/fhir-server/blob/master/security.md for details.
 
 ### Documentation
 
@@ -21,8 +19,12 @@ All the GraphQL entities and properties have inline documentation from FHIR spec
 ### Sample GraphQLv2 query
 
 ```graphql
-query {
-    practitionerRole {
+query getPractitionerRole {
+    practitionerRole(
+        _security: { value: { system: "https://www.icanbwell.com/owner", code: "bwell" } }
+        _debug: true
+        _setIndexHint: "uuid"
+    ) {
         entry {
             resource {
                 id
@@ -53,131 +55,36 @@ query {
         }
     }
 }
-```
-
-### Sample Python Code
-
-```python
-import requests
-
-url = "https://fhir.dev.bwell.zone/4_0_0/$graphqlv2"
-
-payload="{\"query\":\"query {\\n practitionerRole {\\n entry {\\n resource  {\\n    id\\n    practitioner {\\n   reference {   name {\\n        family\\n        given\\n      }\\n  }  }\\n    organization {\\n   reference {   name\\n  }  }\\n    healthcareService {\\n   reference {   name\\n  }  }\\n    location {\\n   reference {   name\\n  }  }\\n  }\\n}\\n}\\n}\",\"variables\":{}}"
-
-headers = {
-  'Authorization': 'Bearer {put token here}',
-  'Content-Type': 'application/json'
-}
-
-response = requests.request("POST", url, headers=headers, data=payload)
-
-print(response.text)
-```
-
-### Sample Node.js code
-
-```javascript
-var https = require('follow-redirects').https;
-var fs = require('fs');
-
-var options = {
-    method: 'POST',
-    hostname: 'fhir.dev.bwell.zone',
-    path: '/4_0_0/$graphqlv2',
-    headers: {
-        Authorization: 'Bearer {put token here}',
-        'Content-Type': 'application/json'
-    },
-    maxRedirects: 20
-};
-
-var req = https.request(options, function (res) {
-    var chunks = [];
-
-    res.on('data', function (chunk) {
-        chunks.push(chunk);
-    });
-
-    res.on('end', function (chunk) {
-        var body = Buffer.concat(chunks);
-        console.log(body.toString());
-    });
-
-    res.on('error', function (error) {
-        console.error(error);
-    });
-});
-
-var postData = JSON.stringify({
-    query: `query {
-    practitionerRole {
-        entry {
-            resource {
-                id
-                practitioner {
-                    reference {
-                        name {
-                            family
-                            given
-                        }
-                    }
-                }
-                organization {
-                    reference {
-                        name
-                    }
-                }
-                healthcareService {
-                    reference {
-                        name
-                    }
-                }
-                location {
-                    reference {
-                        name
-                    }
-                }
-            }
-        }
-    }
-}`,
-    variables: {}
-});
-
-req.write(postData);
-
-req.end();
-```
-
-### Sample cUrl Code
-
-```shell
-curl 'https://fhir.dev.bwell.zone/4_0_0/$graphqlv2' \
-  -H 'Authorization: Bearer {put token here}' \
-  -H 'content-type: application/json' \
-  --data-raw '{"query":"{\n  practitionerRole {\n    entry {\n      resource {\n        id\n        practitioner {\n          reference {\n            name {\n              family\n              given\n            }\n          }\n        }\n        organization {\n          reference {\n            name\n          }\n        }\n        healthcareService {\n          reference {\n            name\n          }\n        }\n        location {\n          reference {\n            name\n          }\n        }\n      }\n    }\n  }\n}"}'
 ```
 
 ### Querying union types
 
 Querying union types require the following syntax (https://www.apollographql.com/docs/apollo-server/schema/unions-interfaces/#querying-a-union):
 
-```
-provider {
-    reference {
-        __typename
-        ... on Organization {
-            id
-            identifier {
-                system
-                value
-            }
-        }
-        ... on Practitioner {
-            id
-            name {
-                family
-                given
+```graphql
+query claim {
+    claim(_lastUpdated: { value: { equals: "2024-04-04" } }) {
+        entry {
+            resource {
+                provider {
+                    reference {
+                        __typename
+                        ... on Organization {
+                            id
+                            identifier {
+                                system
+                                value
+                            }
+                        }
+                        ... on Practitioner {
+                            id
+                            name {
+                                family
+                                given
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -245,8 +152,8 @@ fragment PatientInfo on Patient {
     }
 }
 
-query getObservtaionsAndPatients {
-    observation {
+query getObservationsAndPatients {
+    observation(patient: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
         entry {
             resource {
                 id
@@ -258,7 +165,7 @@ query getObservtaionsAndPatients {
             }
         }
     }
-    patient {
+    patient(id: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
         entry {
             resource {
                 ...PatientInfo
@@ -267,12 +174,42 @@ query getObservtaionsAndPatients {
     }
 }
 ```
+
 In this example PatientInfo is reused in two queries without needing to repeat the fields and making the query more easier to understand.
+
+## Variables in Graphql
+
+Variables can be used in graphql to make dynamic queries. Multiple variables can be defined for a single query and default values for variables can also be given.
+
+```graphql
+query getCondition($FHIR_DEFAULT_COUNT: Int, $withMeta: Boolean! = false) {
+    condition(_count: $FHIR_DEFAULT_COUNT, _debug: true) {
+        entry {
+            resource {
+                id
+                meta @include(if: $withMeta) {
+                    id
+                }
+            }
+        }
+    }
+}
+```
+
+Variables json
+
+```json
+{
+    "FHIR_DEFAULT_COUNT": 10,
+    "withMeta": true
+}
+```
 
 ## Upgrading from graphqlv1 to graphqlv2
 
 ### In GraphQLv2, the reference resources are now returned inside a reference object.
-Earlier in Graphqlv1, we were directly returning resource intead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
+
+Earlier in Graphqlv1, we were directly returning resource instead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
 To overcome this we updated the schema to return resource inside reference type object.
 
 GraphQLv1:
@@ -380,7 +317,7 @@ query getObservation {
 }
 ```
 
--   Support for modifiers in String search paramters: exact and contains
+-   Support for modifiers in String search parameters: exact and contains
 
 ```graphql
 query getobservationDefinition {
@@ -394,7 +331,7 @@ query getobservationDefinition {
 }
 ```
 
--   Support for modifiers in Token search paramters: text, in, not-in, of-type, above & below
+-   Support for modifiers in Token search parameters: text, in, not-in, of-type, above & below
 
 ```graphql
 query getCondition {
