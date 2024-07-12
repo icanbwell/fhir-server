@@ -12,12 +12,12 @@ You can use the standard GraphQL client libraries or Postman and access the <bas
 
 ### Sample GraphQLv2 query
 
+Query to fetch practitionerRole whose owner is set to bwell.
+
 ```graphql
 query getPractitionerRole {
     practitionerRole(
         _security: { value: { system: "https://www.icanbwell.com/owner", code: "bwell" } }
-        _debug: true
-        _setIndexHint: "uuid"
     ) {
         entry {
             resource {
@@ -51,13 +51,46 @@ query getPractitionerRole {
 }
 ```
 
+### Addition of reference fields in GraphQL V2
+
+Earlier in Graphqlv1, we were directly returning resource instead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
+To overcome this we updated the schema to return resource inside reference type object. Allowing us to access following fields of reference: type, identifier, id, display, extension,
+
+Eg- Query to fetch Observations along with data of subject of observation
+
+```graphql
+query OnObservation {
+    observation {
+        entry {
+            resource {
+                id
+                subject {
+                    type
+                    identifier {
+                        id
+                    }
+                    display
+                    reference {
+                        ... on Patient {
+                            id
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ### Querying union types
 
 Querying union types require the following syntax (https://www.apollographql.com/docs/apollo-server/schema/unions-interfaces/#querying-a-union):
 
+Eg- Query to fetch claims that are created after 4 April 2024 along with info of Organizations and Practitioners it refers to.
+
 ```graphql
 query claim {
-    claim(_lastUpdated: { value: { equals: "2024-04-04" } }) {
+    claim(created: { value: { greaterThan: "2024-04-04" } }) {
         entry {
             resource {
                 provider {
@@ -133,6 +166,8 @@ To add a new enrichment provider:
 
 In GraphQL, fragments are reusable components that combine identical fields queried across multiple requests to avoid repetition. This results in shorter and easier to understand queries.
 
+Eg- Query to fetch Patient data along with their Observations where patient's uuid is 'd0554652-cd35-55b7-aa90-ef4bca7479ae'
+
 ```graphql
 fragment PatientInfo on Patient {
     id
@@ -175,9 +210,11 @@ In this example PatientInfo is reused in two queries without needing to repeat t
 
 Variables can be used in graphql to make dynamic queries. Multiple variables can be defined for a single query and default values for variables can also be given.
 
+Eg- Query to get 10 conditions
+
 ```graphql
 query getCondition($FHIR_DEFAULT_COUNT: Int, $withMeta: Boolean! = false) {
-    condition(_count: $FHIR_DEFAULT_COUNT, _debug: true) {
+    condition(_count: $FHIR_DEFAULT_COUNT) {
         entry {
             resource {
                 id
@@ -199,6 +236,109 @@ Variables json
 }
 ```
 
+## Additional Query parameters
+
+-   \_total: return total number of records that satisfies this query
+
+```graphql
+query OnObservation {
+    observation(
+        _total: accurate
+        _security: { value: { system: "https://www.icanbwell.com/owner", code: "bwell" } }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_sort: sort records by these fields. The fields can be nested fields. Prepend with "-" to indicate descending sort.
+
+```graphql
+query OnObservation {
+    observation(_sort: ["id", "-meta.lastUpdated"]) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_count: limit number of records to this count in result. Default is 10
+
+```graphql
+query OnObservation {
+    observation(_count: 5) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_getpagesoffset: page number to retrieve
+
+```graphql
+query OnObservation {
+    observation(_getpagesoffset: 2) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_debug: include debugging information with the result
+
+```graphql
+query OnObservation {
+    observation(_debug: true) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_explain: explain query but not run it
+
+```graphql
+query OnObservation {
+    observation(_explain: true) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+-   \_setIndexHint: allows to set index to be used if query is running slow
+
+```graphql
+query OnObservation {
+    observation(_setIndexHint: "uuid") {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
 ## Upgrading from graphqlv1 to graphqlv2
 
 ### API endpoint update
@@ -208,10 +348,9 @@ Variables json
 
 ### In GraphQLv2, the reference resources are now returned inside a reference object.
 
-Earlier in Graphqlv1, we were directly returning resource instead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
-To overcome this we updated the schema to return resource inside reference type object.
-
 GraphQLv1:
+
+Eg- Query to fetch Observations along with data of subject of observation
 
 ```graphql
 query OnObservation {
@@ -231,6 +370,8 @@ query OnObservation {
 ```
 
 Graphqlv2:
+
+Eg- Query to fetch Observations along with data of subject of observation
 
 ```graphql
 query OnObservation {
@@ -260,6 +401,8 @@ query OnObservation {
 
 GraphQLv1:
 
+Eg- Query to fetch observation with id '001'
+
 ```graphql
 query OnObservation {
     observation(id: "001", _id: { value: "001" }) {
@@ -273,6 +416,8 @@ query OnObservation {
 ```
 
 Graphqlv2:
+
+Eg- Query to fetch observation with id '001'
 
 ```graphql
 query OnObservation {
@@ -290,9 +435,11 @@ query OnObservation {
 
 -   Support for querying on fields of Number type, like probability in riskAssessment.
 
+Eg- Query to get riskAssessment whose probability is greater than 100
+
 ```graphql
 query getriskAssessment {
-    riskAssessment(_count: 10, _debug: true, probability: { value: { greaterThan: 100 } }) {
+    riskAssessment(probability: { value: { greaterThan: 100 } }) {
         entry {
             resource {
                 id
@@ -304,9 +451,11 @@ query getriskAssessment {
 
 -   Support for querying on fields of Quantity type, like value_quantity in observation.
 
+Eg- Query to get Observations where value of observation is less than 5.4
+
 ```graphql
 query getObservation {
-    observation(_count: 10, _debug: true, value_quantity: { value: 5.4, prefix: "lt" }) {
+    observation(value_quantity: { value: 5.4, prefix: "lt" }) {
         entry {
             resource {
                 id
@@ -318,9 +467,11 @@ query getObservation {
 
 -   Support for modifiers in String search parameters: exact and contains
 
+Eg- Query to get Accounts where name contains 'abc'
+
 ```graphql
-query getobservationDefinition {
-    observationDefinition(_count: 10, _debug: true, name: { contains: "abc" }) {
+query getAccount {
+    account(name: { contains: "abc" }) {
         entry {
             resource {
                 id
@@ -332,9 +483,11 @@ query getobservationDefinition {
 
 -   Support for modifiers in Token search parameters: text, in, not-in, of-type, above & below
 
+Eg- Query to get conditions where text portion of a CodeableConcept or the display portion contains text 'headache'
+
 ```graphql
 query getCondition {
-    condition(_count: 10, _debug: true, code: { text: "headache" }) {
+    condition(code: { text: "headache" }) {
         entry {
             resource {
                 id
@@ -346,9 +499,11 @@ query getCondition {
 
 -   Fix 'missing' modifier which is not working in graphqlv1
 
+Eg- Query to get observations where specimen field is missing
+
 ```graphql
 query getObservation {
-    observation(_count: 10, _debug: true, specimen: { missing: true }) {
+    observation(specimen: { missing: true }) {
         entry {
             resource {
                 id
