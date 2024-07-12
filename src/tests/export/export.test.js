@@ -698,8 +698,8 @@ describe('Export Tests', () => {
             let resp = await request
                 .post(
                     `/4_0_0/$export?_type=Patient,Person&_since=2023-10-10&patient=patient/1,2&_includeHidden=1&` +
-                    `loglevel=debug&requestsMemory=3&ttlsecondsAfterFinished=5&patientReferenceBatchSize=20&` +
-                    `fetchResourceBatchSize=30&uploadPartSize=40&ram=2G`
+                    `loglevel=debug&requestsMemory=2G&ttlsecondsAfterFinished=5&patientReferenceBatchSize=20&` +
+                    `fetchResourceBatchSize=30&uploadPartSize=40&ram=2`
                 )
                 .set(getHeaders('access/client.* access/client1.* user/*.*'))
                 .expect(202);
@@ -726,7 +726,7 @@ describe('Export Tests', () => {
                 {
                     id: 'requestsMemory',
                     url: 'https://icanbwell.com/codes/requestsMemory',
-                    valueString: '3'
+                    valueString: '2G'
                 },
                 {
                     id: 'ttlsecondsAfterFinished',
@@ -748,7 +748,7 @@ describe('Export Tests', () => {
                     url: 'https://icanbwell.com/codes/uploadPartSize',
                     valueString: '40'
                 },
-                { id: 'ram', url: 'https://icanbwell.com/codes/ram', valueString: '2G' }
+                { id: 'ram', url: 'https://icanbwell.com/codes/ram', valueString: '2' }
             ])
 
             resp = await request
