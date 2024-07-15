@@ -35,7 +35,7 @@ Note: It will be allowed for non-patient REST requests only.
 
 | Param | use | description |
 |-------|-----|-------------|
-| `loglevel` | `?loglevel=debug`| This parameter sets the corresponding environment variable for log level within the pod |
+| `loglevel` | `?loglevel=DEBUG`| This parameter sets the corresponding environment variable for log level within the pod |
 | `requestsMemory` | `?requestsMemory=2G` | This parameter sets the memory request (in GB) for the pod running the bulk data export script |
 | `ram` | `?ram=1` | This parameter sets the ram (in GB) for the pod running the bulk data export script |
 | `limitsMemory` | `?limitsMemory=8G` | This parameter sets the memory limit (in GB) for the pod running the bulk data export script |
