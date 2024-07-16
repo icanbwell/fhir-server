@@ -116,7 +116,8 @@ const graphqlV2 = async (fnGetContainer) => {
                     requestInfo: fhirRequestInfo,
                     searchBundleOperation: container.searchBundleOperation,
                     r4ArgsParser: container.r4ArgsParser,
-                    queryRewriterManager: container.queryRewriterManager
+                    queryRewriterManager: container.queryRewriterManager,
+                    configManager: container.configManager
                 }
             ),
             container
