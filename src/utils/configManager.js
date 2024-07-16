@@ -459,6 +459,14 @@ class ConfigManager {
     }
 
     /**
+     * returns the batch size used in dataloader to fetch resources
+     * @returns {number}
+     */
+    get graphQLFetchResourceBatchSize () {
+        return parseInt(env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE) || 50;
+    }
+
+    /**
      * whether to read audit event data from archive
      * @returns {boolean}
      */
