@@ -1,0 +1,71 @@
+{
+    "data": {
+        "carePlan": {
+            "entry": [
+                {
+                    "resource": {
+                        "id": "8dea4e52-5e76-35a7-0bf9-0f07b83a7e7f",
+                        "period": { "start": "2020-02-29T20:33:52-05:00" },
+                        "category": [
+                            { "text": null },
+                            { "text": "Infectious disease care plan (record artifact)" }
+                        ],
+                        "activity": [
+                            {
+                                "detail": {
+                                    "code": { "text": "Airborne precautions (procedure)" }
+                                },
+                                "outcomeReference": [{ "id": null, "reference": null }]
+                            },
+                            {
+                                "detail": {
+                                    "code": {
+                                        "text": "Personal protective equipment (physical object)"
+                                    }
+                                },
+                                "outcomeReference": null
+                            }
+                        ],
+                        "encounter": { "reference": null },
+                        "author": null,
+                        "careTeam": [
+                            { "reference": null },
+                            { "reference": null },
+                            { "reference": null }
+                        ]
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.CarePlan_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.CareTeam_4_0_0.find({'_uuid':{'$in':['cd288a66-25f7-96f3-1300-73e158934c81','cd288a66-25f7-96f3-1300-73e158934c82','cd288a66-25f7-96f3-1300-73e158934c83']}}, {}).sort({'_uuid':1}).limit(1000)]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':1000,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['subject._uuid','meta.tag.system','meta.tag.code','_uuid'],['_uuid']]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryTime", "display": "[0.008,0.008]" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.CarePlan_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"94F5A504\",\"planCacheKey\":\"8560223A\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":1,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":5687,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":1}},\"allPlansExecution\":[]},\"command\":{\"find\":\"CarePlan_4_0_0\",\"filter\":{\"$and\":[{\"subject._uuid\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":20982,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7392186788602707972\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7392186788602707972\"}}],[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.CareTeam_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"_uuid\":{\"$in\":[\"cd288a66-25f7-96f3-1300-73e158934c81\",\"cd288a66-25f7-96f3-1300-73e158934c82\",\"cd288a66-25f7-96f3-1300-73e158934c83\"]}},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"EOF\"},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":0,\"executionStages\":{\"stage\":\"EOF\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1},\"allPlansExecution\":[]},\"command\":{\"find\":\"CareTeam_4_0_0\",\"filter\":{\"_uuid\":{\"$in\":[\"cd288a66-25f7-96f3-1300-73e158934c81\",\"cd288a66-25f7-96f3-1300-73e158934c82\",\"cd288a66-25f7-96f3-1300-73e158934c83\"]}},\"sort\":{\"_uuid\":1},\"limit\":1000,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":20982,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7392186788602707972\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7392186788602707972\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1},\"query\":\"db.CarePlan_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}],[{\"step\":{\"step\":{\"stepNo\":1,\"stage\":\"EOF\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":0},\"query\":\"db.CareTeam_4_0_0.find({'_uuid':{'$in':['cd288a66-25f7-96f3-1300-73e158934c81','cd288a66-25f7-96f3-1300-73e158934c82','cd288a66-25f7-96f3-1300-73e158934c83']}}, {}).sort({'_uuid':1}).limit(1000)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}
