@@ -1063,7 +1063,7 @@ module.exports = {
                     _uuid: 1
                 },
                 options: {
-                    name: 'identifierSystemValue_uuid'
+                    name: 'identifier_system.identifier_value._uuid'
                 }
             },
             ...(
