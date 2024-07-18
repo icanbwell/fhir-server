@@ -1056,6 +1056,16 @@ module.exports = {
                     name: 'metaSecuritySystemCodeId_uuid_sourceId'
                 }
             },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'identifierSystemValue_uuid'
+                }
+            },
             ...(
                     (
                         env.ACCESS_TAGS_INDEXED_PRACTITIONER &&
