@@ -1,0 +1,77 @@
+{
+  "entry": [
+    {
+      "id": "1275501447-UHG-MMMA-existing",
+      "resource": {
+        "end": "2021-11-04T06:00:00.000Z",
+        "id": "1275501447-UHG-MMMA-existing",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1275501447-UHG-MMMA-existing"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "19831aec-491e-5c74-b377-ba86ac183504"
+          }
+        ],
+        "meta": {
+          "source": "client",
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "versionId": "1"
+        },
+        "resourceType": "Slot",
+        "status": "busy",
+        "schedule": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Schedule/1275501447-UHG-MMMA"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Schedule/7967a931-2cbe-58b8-9c8d-7be14edd1440"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Schedule/1275501447-UHG-MMMA"
+        },
+        "serviceType": [
+          {
+            "coding": [
+              {
+                "code": "EXISTING",
+                "system": "http://clienthealth.org"
+              }
+            ]
+          }
+        ],
+        "start": "2021-11-04T06:00:00.000Z"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 1,
+  "type": "searchset"
+}

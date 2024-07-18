@@ -10,6 +10,7 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
+const deepcopy = require('deepcopy');
 
 class EverythingOperation {
     /**
@@ -121,7 +122,7 @@ class EverythingOperation {
         });
 
         try {
-            const { id } = parsedArgs;
+            const { id, _type: resourceFilter } = parsedArgs;
             const supportLegacyId = false;
 
             const query = {};
@@ -130,77 +131,47 @@ class EverythingOperation {
             switch (resourceType) {
                 case 'Practitioner': {
                     parsedArgs.resource = practitionerEverythingGraph;
-                    const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
-                    });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return result;
+                    break;
                 }
                 case 'Organization': {
                     parsedArgs.resource = organizationEverythingGraph;
-                    const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
-                    });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return result;
+                    break;
                 }
                 case 'Slot': {
                     parsedArgs.resource = slotEverythingGraph;
-                    const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
-                    });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return result;
+                    break;
                 }
                 case 'Person': {
                     parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
-                    const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
-                    });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return result;
+                    break;
                 }
                 case 'Patient': {
                     parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
-                    const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
-                    });
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return result;
+                    break;
                 }
                 default:
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
+
+            if (resourceFilter) {
+                // _type and contained parameter are not supported together
+                parsedArgs.contained = 0;
+                let resourceFilterList = resourceFilter.split(',');
+                parsedArgs.resourceFilterList = resourceFilterList;
+                parsedArgs.resource = this.filterResources(parsedArgs.resource, resourceFilterList);
+            }
+
+            const result = await this.graphOperation.graph({
+                requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
+            });
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+            return result;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -212,6 +183,38 @@ class EverythingOperation {
             });
             throw err;
         }
+    }
+
+    /**
+     * filters resources to be fetched based on the list provided
+     * @param {Object} resourceEverythingGraph
+     * @param {Array} resourceFilterList
+     * @return {Object}
+     */
+    filterResources(resourceEverythingGraph, resourceFilterList) {
+        let result = deepcopy(resourceEverythingGraph);
+        result['link'] = [];
+
+        resourceEverythingGraph.link.forEach((link) => {
+            let linksList = [];
+            link.target.forEach((target) => {
+                let targetCopy = target;
+                if (Object.hasOwn(target, 'link')) {
+                    targetCopy = this.filterResources(target, resourceFilterList);
+                }
+                if (targetCopy['link'] || resourceFilterList.includes(targetCopy['type'])) {
+                    linksList.push(targetCopy);
+                }
+            });
+            if (linksList.length > 0) {
+                link.target = linksList;
+                result['link'] = result['link'].concat(link);
+            }
+        });
+        if (result['link'].length === 0) {
+            delete result['link'];
+        }
+        return result;
     }
 }
 

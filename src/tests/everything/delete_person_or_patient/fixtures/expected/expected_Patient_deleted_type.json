@@ -1,0 +1,18 @@
+{
+  "entry": [
+    {
+      "id": "person1",
+      "request": {
+        "method": "DELETE",
+        "url": "/4_0_0/Person/person1"
+      },
+      "resource": {
+        "id": "person1",
+        "resourceType": "Person"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 1,
+  "type": "batch-response"
+}

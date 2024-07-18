@@ -1473,6 +1473,17 @@ containedEntries: []
                 //     )
                 // );
 
+                if (parsedArgs.resourceFilterList) {
+                    // filter resources that were used for link to requested resources
+                    let resourceFilterList = parsedArgs.resourceFilterList;
+                    bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                        (entry) => resourceFilterList.includes(entry.resource.resourceType)
+                    );
+                    entries = entries.filter((entry) =>
+                        resourceFilterList.includes(entry.resource.resourceType)
+                    );
+                }
+
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                         const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
@@ -1611,6 +1622,7 @@ containedEntries: []
             for (const /** @type {string[]} */ idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;
+                parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
                 /**
                  * @type {ProcessMultipleIdsAsyncResult}
                  */
