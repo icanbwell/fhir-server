@@ -2,7 +2,7 @@
 
 The FHIR server supports the $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/resource-operation-graph.html). This operation is used to retrieve all resources related to the provided resource. The $everything operation internally uses graphs to fetch or delete all the resources. Here are the graphs that $everything uses underneath: https://github.com/icanbwell/fhir-server/tree/main/src/graphs
 
-It is mandatory to provide `id` either in query parameter or in path parameter.
+It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
 -   <base_url>/4_0_0/Patient/<patient1>/$everything
@@ -105,18 +105,18 @@ URL: <base_url>/4_0_0/Patient/<patient_id>/$everything
 Resources returned/deleted:
 Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, List, MeasureReport, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
-## Supported query parameters
+## Supported search query parameters
 
 ### id
 
-It can be used if data related to more than one resource provided needs to be fetched. If `id` query param is passed, then the path param is ignored.
+It can be used if data related to more than one resource provided needs to be fetched. If `id` search query parameter is passed, then the path parameter is ignored.
 
 For example: <base_url>/4_0_0/Patient/$everything?id=patient1,patient2
 
 ### contained
 
 By default, the FHIR returns all the related resources in the top level bundle.  
-However if you pass in the `contained` query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
+However if you pass the `contained` search query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
 
 For example: <base_url>/4_0_0/Patient/<patient1>/$everything?contained=true
 
@@ -188,7 +188,7 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?\_debug=true
 
 ### \_explain
 
-The `_explain` parameter is used explain the query made by everything operation. When `_explain` param is passes, all resources are not returned but one of each type of resource is returned.
+The `_explain` parameter is used to explain the query made by everything operation. When `_explain` parameter is passed, all resources are not returned but one of each type of resource is returned.
 
 For example: <base_url>/4_0_0/Organization/<organization1>/$everything?\_explain=true
 
