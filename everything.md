@@ -62,7 +62,7 @@ Sample $everything result for patient
   "link": [
     {
       "relation": "self",
-      "url": "http://localhost:3000/4_0_0/Patient/patient1/$everything"
+      "url": "<base_url>/4_0_0/Patient/patient1/$everything"
     }
   ]
 }
@@ -91,6 +91,66 @@ However if you pass in the `contained` query parameter then the FHIR server will
 
 For example: <base_url>/4_0_0/Patient/patient1/$everything?contained=true
 
+```
+{
+    "entry": [
+        {
+            "id": "patient1",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "patient1",
+                // <rest of resource fields>
+                "contained": [
+                    {
+                        "id": "example",
+                        "resource": {
+                            "resourceType": "Account",
+                            "id": "example"
+                            // <rest of resource fields>
+                        }
+                    },
+                    {
+                        "id": "2354-InAgeCohort",
+                        "resource": {
+                            "resourceType": "Observation",
+                            "id": "2354-InAgeCohort"
+                            // <rest of resource fields>
+                        }
+                    },
+                    {
+                        "id": "person2",
+                        "resource": {
+                            "resourceType": "Person",
+                            "id": "person2"
+                            // <rest of resource fields>
+                        }
+                    },
+                    {
+                        "id": "personTopLevel",
+                        "resource": {
+                            "resourceType": "Person",
+                            "id": "personTopLevel"
+                            // <rest of resource fields>
+                        }
+                    }
+                    // rest of resources
+                ]
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2023-12-20T03:31:07.077Z",
+    "total": 4,
+    "link": [
+        {
+            "relation": "self",
+            "url": "<base_url>/4_0_0/Patient/patient1/$everything?contained=true"
+        }
+    ]
+}
+```
+
 ### \_debug
 
 The `_debug` parameter is used to get debugging information with the result.
@@ -105,6 +165,10 @@ For example: <base_url>/4_0_0/Organization/organization1/$everything?\_explain=t
 
 ### \_type
 
-This parameter can be used to narrow down the result of resources to the provided list of resources. When `_type` parameter is used then the `contained` parameter is ignored.
+This parameter can be used to narrow down the result of resources to the provided list of resources.
 
 For example: <base_url>/4_0_0/Patient/patient1/$everything?\_type=Person,Account,Observation
+
+## Note
+
+When `_type` parameter is used then the `contained` parameter is ignored.
