@@ -494,7 +494,7 @@ const quantityQueryBuilder = function ({ target, field }) {
         qB[`${field}.code`] = code;
     }
 
-    if (Number.isNaN(num)) {
+    if (isNaN(num)) {
         // with prefixes
         const prefix = num.substring(0, 2);
         num = Number(num.substring(2));
