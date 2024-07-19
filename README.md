@@ -47,7 +47,7 @@ For example:
 
 [Streaming](streaming.md)
 
-## (WIP) Bulk Export functionality
+## Bulk Export functionality
 
 [Bulk Export](export.md)
 
