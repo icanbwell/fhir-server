@@ -4,13 +4,11 @@ The Helix FHIR Server supports the Bulk Export functionality of FHIR Specificati
 
 ## Api Overview:
 
-Bulk data export can be triggered by POST request using below 3 endpoints:
+Bulk data export can be triggered by POST request using below 2 endpoints:
 
 1. `/$export` - This endpoint will allow data export for all the resources accessible via provided jwt scopes.
 
 2. `/Patient/$export` - This endpoint will allow data export for all the patients data accessible via provided jwt scopes.
-
-3. `/Group/:id/$export` - This endpoint will allow data export for resources related to the members of the provided group which are accessible via provided jwt scopes.
 
 Note: It will be allowed for non-patient REST requests only.
 

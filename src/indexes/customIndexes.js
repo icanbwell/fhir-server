@@ -643,9 +643,9 @@ module.exports = {
         Observation_4_0_0: [
             {
                 keys: {
+                    'subject._sourceId': 1,
                     effectiveDateTime: -1,
-                    _uuid: 1,
-                    'subject._sourceId': 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_1'
@@ -663,9 +663,9 @@ module.exports = {
             },
             {
                 keys: {
+                    'subject._uuid': 1,
                     effectiveDateTime: -1,
-                    _uuid: 1,
-                    'subject._uuid': 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_1'
@@ -703,12 +703,12 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
+                    'meta.lastUpdated': 1,
                     _uuid: 1
                 },
                 options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                    name: '_access.bwell_1_meta.lastUpdated_1__uuid_1'
                 }
             }
         ],
@@ -1291,7 +1291,6 @@ module.exports = {
                 keys: {
                     'category.coding.code': 1,
                     'subject._uuid': 1,
-                    'subject.sourceId': 1,
                     effectiveDateTime: -1,
                     _uuid: 1
                 },
