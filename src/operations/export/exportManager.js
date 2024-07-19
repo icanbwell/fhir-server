@@ -59,8 +59,7 @@ class ExportManager {
             'handling',
             '_type',
             'patient',
-            '_since',
-            '_outputFormat'
+            '_since'
         ];
 
         // Create ExportStatus resource

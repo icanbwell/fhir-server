@@ -17,7 +17,6 @@ Note: It will be allowed for non-patient REST requests only.
 | Param | use | description |
 |-------|-----|-------------|
 | `_since` | `?_since=2023-10-10`| This accepts a date value and indicates that all the resource which were created/modified after this date needs to be exported |
-| `_outputFormat` | `?_outputFormat=ndjson` | This params is used to specify the format in which data should be exported. Currently, FHIR Server supports only ndjson format, so by default it will be set to ndjson |
 | `patient` | `?patient=patient/1,2` | This param takes comma separated patient references and only data related to the provided patients will be exported |
 | `_type` | `?_type=Patient,Person` | This param takes resource types to be exported, other resourceTypes will be ignored |
 
