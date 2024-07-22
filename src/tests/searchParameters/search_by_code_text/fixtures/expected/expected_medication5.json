@@ -1,0 +1,53 @@
+{
+    "entry": [],
+    "resourceType": "Bundle",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Medication_4_0_0.find({'$and':[{'$or':[{'code.text':{'$regex':'^(Record)'}},{'code.coding.display':{'$regex':'^(Record)','$options':'i'}},{'identifier.type.text':{'$regex':'^(Record)','$options':'i'}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Medication_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['code.text','code.coding.display','identifier.type.text','meta.tag.system','meta.tag.code','_uuid']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.007"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Medication_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"$or\":[{\"code.coding.display\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}},{\"code.text\":{\"$regex\":\"^(Record)\"}},{\"identifier.type.text\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"B745C7AF\",\"planCacheKey\":\"DE04656A\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"$or\":[{\"code.coding.display\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}},{\"code.text\":{\"$regex\":\"^(Record)\"}},{\"identifier.type.text\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":0,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"$or\":[{\"code.coding.display\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}},{\"code.text\":{\"$regex\":\"^(Record)\"}},{\"identifier.type.text\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":1}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Medication_4_0_0\",\"filter\":{\"$and\":[{\"$or\":[{\"code.text\":{\"$regex\":\"/^(Record)/\"}},{\"code.coding.display\":{\"$regex\":\"/^(Record)/\",\"$options\":\"i\"}},{\"identifier.type.text\":{\"$regex\":\"/^(Record)/\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00059-jtg-ooo\",\"port\":25435,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7394434418003148803\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7394434418003148802\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"$and\":[{\"$or\":[{\"code.coding.display\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}},{\"code.text\":{\"$regex\":\"^(Record)\"}},{\"identifier.type.text\":{\"$regex\":\"^(Record)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":1},\"query\":\"db.Medication_4_0_0.find({'$and':[{'$or':[{'code.text':{'$regex':'^(Record)'}},{'code.coding.display':{'$regex':'^(Record)','$options':'i'}},{'identifier.type.text':{'$regex':'^(Record)','$options':'i'}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    },
+    "type": "searchset",
+    "timestamp": "2024-07-22T12:22:05.055Z",
+    "total": 0,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Medication?code:text=Record&_debug=1&_bundle=1"
+        }
+    ]
+}
