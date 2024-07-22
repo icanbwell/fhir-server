@@ -519,7 +519,7 @@ const quantityQueryBuilder = function ({ target, field }) {
         }
     } else {
         // no prefixes
-        qB[`${field}.value`] = Number(num);
+        qB[`${field}.value`] = { $gt: 0.99 * num, $lt: 1.01 * num };
     }
 
     return qB;
