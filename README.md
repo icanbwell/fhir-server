@@ -43,6 +43,10 @@ For example:
 
 [Merge](merge.md)
 
+## $everything functionality
+
+[Everything](everything.md)
+
 ## Streaming functionality
 
 [Streaming](streaming.md)
