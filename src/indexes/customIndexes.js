@@ -653,32 +653,12 @@ module.exports = {
             },
             {
                 keys: {
-                    'subject._sourceId': 1,
-                    effectiveDateTime: -1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'reverse_helix_observation_effective_2'
-                }
-            },
-            {
-                keys: {
                     'subject._uuid': 1,
                     effectiveDateTime: -1,
                     _uuid: 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_1'
-                }
-            },
-            {
-                keys: {
-                    'subject._uuid': 1,
-                    effectiveDateTime: -1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'reverse_helix_observation_effective_uuid_2'
                 }
             },
             {
