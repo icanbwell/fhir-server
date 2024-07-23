@@ -207,7 +207,7 @@ const createContainer = function () {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
             bwellPersonFinder: c.bwellPersonFinder,
             configManager: c.configManager
         }
@@ -806,7 +806,9 @@ const createContainer = function () {
 
     container.register('databaseExportManager', (c) => new DatabaseExportManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        postRequestProcessor: c.postRequestProcessor,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('exportOperation', (c) => new ExportOperation({
@@ -824,7 +826,9 @@ const createContainer = function () {
         securityTagManager: c.securityTagManager,
         preSaveManager: c.preSaveManager,
         configManager: c.configManager,
-        k8sClient: c.k8sClient
+        k8sClient: c.k8sClient,
+        postRequestProcessor: c.postRequestProcessor,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({

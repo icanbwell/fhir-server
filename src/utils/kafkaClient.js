@@ -46,11 +46,8 @@ class KafkaClient {
         const sasl = this.configManager.kafkaUseSasl ? {
             // https://kafka.js.org/docs/configuration#sasl
             mechanism: this.configManager.kafkaAuthMechanism,
-            authorizationIdentity: this.configManager.kafkaIdentity, // UserId or RoleId
             username: this.configManager.kafkaUserName || null,
-            password: this.configManager.kafkaPassword || null,
-            accessKeyId: this.configManager.kafkaAccessKeyId || null,
-            secretAccessKey: this.configManager.kafkaAccessKeySecret || null
+            password: this.configManager.kafkaPassword || null
         } : null;
         if (this.configManager.kafkaUseSasl) {
             if (!this.userName || !this.password) {

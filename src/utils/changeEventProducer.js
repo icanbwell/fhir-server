@@ -30,7 +30,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @property {KafkaClient} kafkaClient
      * @property {ResourceManager} resourceManager
      * @property {string} patientChangeTopic
-     * @property {string} consentChangeTopic
+     * @property {string} fhirResourceChangeTopic
      * @property {BwellPersonFinder} bwellPersonFinder
      * @property {ConfigManager} configManager
      *
@@ -40,7 +40,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
         kafkaClient,
         resourceManager,
         patientChangeTopic,
-        consentChangeTopic,
+        fhirResourceChangeTopic,
         bwellPersonFinder,
         configManager
     }) {
@@ -63,8 +63,8 @@ class ChangeEventProducer extends BasePostSaveHandler {
         /**
          * @type {string}
          */
-        this.consentChangeTopic = consentChangeTopic;
-        assertIsValid(consentChangeTopic);
+        this.fhirResourceChangeTopic = fhirResourceChangeTopic;
+        assertIsValid(fhirResourceChangeTopic);
         /**
          * @type {BwellPersonFinder}
          */
@@ -83,7 +83,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
         /**
          * @type {Map}
          */
-        this.consentMessageMap = new Map();
+        this.fhirResourceMessageMap = new Map();
     }
 
     /**
@@ -95,11 +95,11 @@ class ChangeEventProducer extends BasePostSaveHandler {
     }
 
     /**
-     * This map stores an entry per consent id
+     * This map stores an entry per resource id
      * @return {Map<string, Object>} id, resource
      */
-    getConsentMessageMap () {
-        return this.consentMessageMap;
+    getFhirResourceMessageMap () {
+        return this.fhirResourceMessageMap;
     }
 
     /**
@@ -115,14 +115,14 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @private
      */
     _createMessage ({
-                       requestId,
-                       id,
-                       timestamp,
-                       isCreate,
-                       resourceType,
-                       eventName,
-                       sourceType
-                   }
+            requestId,
+            id,
+            timestamp,
+            isCreate,
+            resourceType,
+            eventName,
+            sourceType
+        }
     ) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         const auditEvent = new AuditEvent(
@@ -212,9 +212,9 @@ class ChangeEventProducer extends BasePostSaveHandler {
         const resourceType = 'Patient';
         const messageJson = this._createMessage({
             requestId,
-id: patientId,
-timestamp,
-isCreate,
+            id: patientId,
+            timestamp,
+            isCreate,
             resourceType,
             eventName: 'Patient Change',
             sourceType
@@ -230,7 +230,7 @@ isCreate,
     }
 
     /**
-     * Fire event for consent create
+     * Fire event for fhir resource create
      * @param {string} requestId
      * @param {string} id
      * @param {string} resourceType
@@ -238,7 +238,7 @@ isCreate,
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentCreateAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
+    async onResourceCreateAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -247,15 +247,15 @@ isCreate,
             timestamp,
             isCreate,
             resourceType,
-            eventName: 'Consent Create',
+            eventName: `${resourceType} Create`,
             sourceType
         });
         const key = `${id}`;
-        this.getConsentMessageMap().set(key, messageJson);
+        this.getFhirResourceMessageMap().set(key, messageJson);
     }
 
     /**
-     * Fire event for consent change
+     * Fire event for fhir resource change
      * @param {string} requestId
      * @param {string} id
      * @param {string} resourceType
@@ -263,7 +263,7 @@ isCreate,
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentChangeAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
+    async onResourceChangeAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -272,16 +272,16 @@ isCreate,
             timestamp,
             isCreate,
             resourceType,
-            eventName: 'Consent Change',
+            eventName: `${resourceType} Change`,
             sourceType
         });
 
         const key = `${id}`;
-        const consentMessageMap = this.getConsentMessageMap();
-        const existingMessageEntry = consentMessageMap.get(key);
+        const fhirResourceMessageMap = this.getFhirResourceMessageMap();
+        const existingMessageEntry = fhirResourceMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
-            consentMessageMap.set(key, messageJson);
+            fhirResourceMessageMap.set(key, messageJson);
         }
     }
 
@@ -358,18 +358,21 @@ isCreate,
                     );
                 }
             }
-            if (resourceType === 'Consent') {
+            if (this.configManager.kafkaEnabledResources.includes(resourceType)) {
                 if (eventType === 'C') {
-                    await this.onConsentCreateAsync({
+                    await this.onResourceCreateAsync({
                         requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                     });
                 } else {
-                    await this.onConsentChangeAsync({
+                    await this.onResourceChangeAsync({
                         requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                     });
                 }
             }
-            if (this.getPatientMessageMap().size >= this.configManager.postRequestBatchSize) {
+            if (
+                this.getPatientMessageMap().size >= this.configManager.postRequestBatchSize ||
+                this.getFhirResourceMessageMap().size >= this.configManager.postRequestBatchSize
+            ) {
                 await this.flushAsync();
             }
         } catch (e) {
@@ -389,19 +392,20 @@ isCreate,
      */
     async flushAsync () {
         const patientMessageMap = this.getPatientMessageMap();
+        const fhirResourceMessageMap = this.getFhirResourceMessageMap();
         if (!env.ENABLE_EVENTS_KAFKA) {
             patientMessageMap.clear();
+            fhirResourceMessageMap.clear();
             return;
         }
-        if (patientMessageMap.size === 0) {
+        if (patientMessageMap.size === 0 && fhirResourceMessageMap.size === 0) {
             return;
         }
 
         // find unique events
         const fhirVersion = 'R4';
         await mutex.runExclusive(async () => {
-                const consentMessageMap = this.getConsentMessageMap();
-                const numberOfMessagesBefore = patientMessageMap.size + consentMessageMap.size;
+                const numberOfMessagesBefore = patientMessageMap.size + fhirResourceMessageMap.size;
 
                 const createKafkaClientMessageFn = ([id, /** @type {Object} */ messageJson]) => {
                     return {
@@ -424,17 +428,17 @@ isCreate,
 
                     patientMessageMap.clear();
 
-                    // --- Process Consent events ---
+                    // --- Process other resources events ---
                     /**
                      * @type {KafkaClientMessage[]}
                      */
-                    const consentMessages = Array.from(
-                        consentMessageMap.entries(), createKafkaClientMessageFn
+                    const resourceMessages = Array.from(
+                        fhirResourceMessageMap.entries(), createKafkaClientMessageFn
                     );
 
-                    await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
+                    await this.kafkaClient.sendMessagesAsync(this.fhirResourceChangeTopic, resourceMessages);
 
-                    consentMessageMap.clear();
+                    fhirResourceMessageMap.clear();
 
                     if (numberOfMessagesBefore > 0) {
                         await logTraceSystemEventAsync(
@@ -443,9 +447,9 @@ isCreate,
                                 message: 'Finished',
                                 args: {
                                     numberOfMessagesBefore,
-                                    numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
+                                    numberOfMessagesAfter: patientMessageMap.size + fhirResourceMessageMap.size,
                                     patientTopic: this.patientChangeTopic,
-                                    consentTopic: this.consentChangeTopic
+                                    resourceTopic: this.fhirResourceChangeTopic
                                 }
                             }
                         );

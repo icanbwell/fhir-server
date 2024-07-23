@@ -65,7 +65,8 @@ async function main() {
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
                     region: awsRegion
-                })
+                }),
+                requestId: parameters.requestId
             })
     );
 

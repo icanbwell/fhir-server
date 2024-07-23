@@ -45,6 +45,7 @@ class BulkDataExportRunner {
      * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
+     * @property {string} requestId
      *
      * @param {ConstructorParams}
      */
@@ -63,7 +64,8 @@ class BulkDataExportRunner {
         patientReferenceBatchSize,
         fetchResourceBatchSize,
         s3Client,
-        uploadPartSize
+        uploadPartSize,
+        requestId
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -156,6 +158,11 @@ class BulkDataExportRunner {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
     }
 
     /**
@@ -178,7 +185,8 @@ class BulkDataExportRunner {
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
             await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
+                exportStatusResource: this.exportStatusResource,
+                requestId: this.requestId
             });
             logInfo(
                 `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
@@ -237,7 +245,8 @@ class BulkDataExportRunner {
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
             await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
+                exportStatusResource: this.exportStatusResource,
+                requestId: this.requestId
             });
 
             const endTime = Date.now();
@@ -251,7 +260,8 @@ class BulkDataExportRunner {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
                 await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: this.exportStatusResource
+                    exportStatusResource: this.exportStatusResource,
+                    requestId: this.requestId
                 });
                 logInfo(
                     `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,

@@ -8,6 +8,8 @@ const { K8sClient } = require('../../utils/k8sClient');
 const { logInfo } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
 const { generateUUID } = require('../../utils/uid.util');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class ExportManager {
     /**
@@ -16,9 +18,18 @@ class ExportManager {
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
      * @property {K8sClient} k8sClient
+     * @property {PostRequestProcessor} postRequestProcessor
+     * @property {PostSaveProcessor} postSaveProcessor
      * @param {ConstructorParams}
      */
-    constructor({ securityTagManager, preSaveManager, configManager, k8sClient }) {
+    constructor({
+        securityTagManager,
+        preSaveManager,
+        configManager,
+        k8sClient,
+        postRequestProcessor,
+        postSaveProcessor
+    }) {
         /**
          * @type {SecurityTagManager}
          */
@@ -40,6 +51,18 @@ class ExportManager {
          */
         this.k8sClient = k8sClient;
         assertTypeEquals(k8sClient, K8sClient);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -50,7 +73,7 @@ class ExportManager {
      * @param {GenerateExportStatusResourceAsyncParams}
      */
     async generateExportStatusResourceAsync({ requestInfo, args }) {
-        const { scope, user, originalUrl, host } = requestInfo;
+        const { scope, user, originalUrl, host, requestId } = requestInfo;
 
         const ignoredParams = [
             'id',
@@ -116,10 +139,20 @@ class ExportManager {
 
         await this.preSaveManager.preSaveAsync({ resource: exportStatusResource });
 
+        this.postRequestProcessor.add({
+            requestId,
+            fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
+                requestId,
+                eventType: 'C',
+                resourceType: 'ExportStatus',
+                doc: exportStatusResource
+            })
+        });
+
         return exportStatusResource;
     }
 
-    async triggerExportJob({ exportStatusResource }) {
+    async triggerExportJob({ exportStatusResource, requestId }) {
         const context = exportStatusResource.extension?.reduce((dict, currentValue) => {
             dict[currentValue.id] = currentValue.valueString;
             return dict;
@@ -129,6 +162,7 @@ class ExportManager {
             'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
             `--exportStatusId ${exportStatusResource._uuid} ` +
             `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
+            `--requestId ${requestId} ` +
             `--awsRegion ${this.configManager.awsRegion}`;
 
         const possibleScriptParams = ['patientReferenceBatchSize', 'fetchResourceBatchSize', 'uploadPartSize'];

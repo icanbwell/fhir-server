@@ -5,16 +5,20 @@ const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { isUuid } = require('../utils/uid.util');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
+const { PostRequestProcessor } = require('../utils/postRequestProcessor');
+const { PostSaveProcessor } = require('./postSaveProcessor');
 
 class DatabaseExportManager {
     /**
      * @typedef {Object} ConstructorParams
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
+     * @property {PostRequestProcessor} postRequestProcessor
+     * @property {PostSaveProcessor} postSaveProcessor
      *
      * @param {ConstructorParams}
      */
-    constructor({ databaseQueryFactory, databaseUpdateFactory }) {
+    constructor({ databaseQueryFactory, databaseUpdateFactory, postRequestProcessor, postSaveProcessor }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -26,6 +30,18 @@ class DatabaseExportManager {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -63,10 +79,11 @@ class DatabaseExportManager {
     /**
      * @typedef {Object} InsertExportStatusAsyncParams
      * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
+     * @property {string} requestId
      *
      * @param {InsertExportStatusAsyncParams}
      */
-    async insertExportStatusAsync({ exportStatusResource }) {
+    async insertExportStatusAsync({ exportStatusResource, requestId }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
             // Update meta.lastUpdated
@@ -79,6 +96,15 @@ class DatabaseExportManager {
             });
 
             await databaseUpdateManager.insertOneAsync({ doc: exportStatusResource });
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
+                    requestId,
+                    eventType: 'C',
+                    resourceType: 'ExportStatus',
+                    doc: exportStatusResource
+                })
+            });
         } catch (err) {
             throw new RethrownError({
                 message: `Error in insertExportStatusAsync: ${err.message}`,
@@ -91,10 +117,11 @@ class DatabaseExportManager {
     /**
      * @typedef {Object} UpdateExportStatusAsyncParams
      * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
+     * @property {string} requestId
      *
      * @param {UpdateExportStatusAsyncParams}
      */
-    async updateExportStatusAsync({ exportStatusResource }) {
+    async updateExportStatusAsync({ exportStatusResource, requestId }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
             // Update meta.lastUpdated
@@ -107,6 +134,15 @@ class DatabaseExportManager {
             });
 
             await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
+                    requestId,
+                    eventType: 'U',
+                    resourceType: 'ExportStatus',
+                    doc: exportStatusResource
+                })
+            });
         } catch (err) {
             throw new RethrownError({
                 message: `Error in updateExportStatusAsync: ${err.message}`,

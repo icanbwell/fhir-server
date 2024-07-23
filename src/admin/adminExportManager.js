@@ -185,7 +185,8 @@ class AdminExportManager {
 
             if (updatedResource) {
                 await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: updatedResource
+                    exportStatusResource: updatedResource,
+                    requestId: req.id
                 });
                 return updatedResource;
             }
@@ -242,7 +243,7 @@ class AdminExportManager {
                 throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
             }
 
-            return await this.exportManager.triggerExportJob({ exportStatusResource })
+            return await this.exportManager.triggerExportJob({ exportStatusResource, requestId: requestInfo.requestId })
         } catch (error) {
             logError(`Error in triggerExportJob`, {
                 message: error.message,

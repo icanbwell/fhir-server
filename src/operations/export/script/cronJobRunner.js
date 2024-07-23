@@ -6,6 +6,7 @@ const { RethrownError } = require('../../../utils/rethrownError');
 const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManager');
 const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
 const { ExportManager } = require('../exportManager');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class CronJobRunner {
     /**
@@ -14,12 +15,14 @@ class CronJobRunner {
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseExportManager} databaseExportManager
      * @property {ExportManager} exportManager
+     * @property {ConfigManager} configManager
      * @param {ConstructorParams}
      */
     constructor({
         databaseQueryFactory,
         databaseExportManager,
-        exportManager
+        exportManager,
+        configManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -38,6 +41,12 @@ class CronJobRunner {
          */
         this.exportManager = exportManager;
         assertTypeEquals(exportManager, ExportManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(this.configManager, ConfigManager);
     }
 
     /**
@@ -88,7 +97,10 @@ class CronJobRunner {
                 );
 
                 // Trigger k8s job to export data
-                const jobResult = await this.exportManager.triggerExportJob({ exportStatusResource });
+                const jobResult = await this.exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: this.configManager.hostnameValue
+                });
 
                 // Break the loop if the job limit is exceeded
                 if (!jobResult) {
@@ -139,7 +151,10 @@ class CronJobRunner {
                     { exportStatusId: exportStatusResource._uuid }
                 );
                 exportStatusResource.status = 'entered-in-error';
-                await this.databaseExportManager.updateExportStatusAsync({ exportStatusResource });
+                await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource,
+                    requestId: this.configManager.hostnameValue
+                });
             }
             logInfo(
                 `Successfully finished updating status to 'entered-in-error' for the fetched ExportStatus resources`
