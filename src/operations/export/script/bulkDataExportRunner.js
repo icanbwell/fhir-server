@@ -194,7 +194,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
-            await this.updateExportStatusResource({ requestId });
+            await this.updateExportStatusResource();
             logInfo(
                 `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
                 { exportStatusId: this.exportStatusId }
@@ -327,17 +327,14 @@ class BulkDataExportRunner {
     }
 
     /**
-     * @typedef {Object} UpdateExportStatusResourceParams
-     * @property {string} requestId
-     *
-     * @param {UpdateExportStatusResourceParams}
+     * Function to update export status resource
      */
-    async updateExportStatusResource({ requestId }) {
+    async updateExportStatusResource() {
         await this.databaseExportManager.updateExportStatusAsync({
             exportStatusResource: this.exportStatusResource
         });
         await this.postSaveProcessor.afterSaveAsync({
-            requestId,
+            requestId: this.requestId,
             eventType: 'U',
             resourceType: 'ExportStatus',
             doc: this.exportStatusResource
