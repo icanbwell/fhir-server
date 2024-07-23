@@ -7,6 +7,7 @@ const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManage
 const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
 const { ExportManager } = require('../exportManager');
 const { ConfigManager } = require('../../../utils/configManager');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 class CronJobRunner {
     /**
@@ -16,13 +17,15 @@ class CronJobRunner {
      * @property {DatabaseExportManager} databaseExportManager
      * @property {ExportManager} exportManager
      * @property {ConfigManager} configManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @param {ConstructorParams}
      */
     constructor({
         databaseQueryFactory,
         databaseExportManager,
         exportManager,
-        configManager
+        configManager,
+        postSaveProcessor
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -46,7 +49,13 @@ class CronJobRunner {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
-        assertTypeEquals(this.configManager, ConfigManager);
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -152,8 +161,13 @@ class CronJobRunner {
                 );
                 exportStatusResource.status = 'entered-in-error';
                 await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource,
-                    requestId: this.configManager.hostnameValue
+                    exportStatusResource
+                });
+                await this.postSaveProcessor.afterSaveAsync({
+                    requestId: this.configManager.hostnameValue,
+                    eventType: 'U',
+                    resourceType: 'ExportStatus',
+                    doc: exportStatusResource
                 });
             }
             logInfo(

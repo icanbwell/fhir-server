@@ -17,6 +17,7 @@ const { ScopesValidator } = require('../operations/security/scopesValidator');
 const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
+const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 
 class AdminExportManager {
     /**
@@ -29,6 +30,7 @@ class AdminExportManager {
      * @property {configManager} configManager
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
+     * @property {PostSaveProcessor} postSaveProcessor
      */
     constructor({
         postRequestProcessor,
@@ -39,7 +41,8 @@ class AdminExportManager {
         k8sClient,
         configManager,
         exportManager,
-        scopesValidator
+        scopesValidator,
+        postSaveProcessor
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -86,6 +89,12 @@ class AdminExportManager {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -193,8 +202,16 @@ class AdminExportManager {
 
             if (updatedResource) {
                 await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: updatedResource,
-                    requestId: req.id
+                    exportStatusResource: updatedResource
+                });
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
+                        requestId: req.id,
+                        eventType: 'U',
+                        resourceType: 'ExportStatus',
+                        doc: updatedResource
+                    })
                 });
                 return updatedResource;
             }

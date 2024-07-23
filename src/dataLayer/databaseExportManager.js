@@ -117,11 +117,10 @@ class DatabaseExportManager {
     /**
      * @typedef {Object} UpdateExportStatusAsyncParams
      * @property {import('../fhir/classes/4_0_0/custom_resources/exportStatus')} exportStatusResource
-     * @property {string} requestId
      *
      * @param {UpdateExportStatusAsyncParams}
      */
-    async updateExportStatusAsync({ exportStatusResource, requestId }) {
+    async updateExportStatusAsync({ exportStatusResource }) {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
             // Update meta.lastUpdated
@@ -134,15 +133,6 @@ class DatabaseExportManager {
             });
 
             await databaseUpdateManager.updateOneAsync({ doc: exportStatusResource });
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
-                    requestId,
-                    eventType: 'U',
-                    resourceType: 'ExportStatus',
-                    doc: exportStatusResource
-                })
-            });
         } catch (err) {
             throw new RethrownError({
                 message: `Error in updateExportStatusAsync: ${err.message}`,

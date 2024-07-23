@@ -844,7 +844,8 @@ const createContainer = function () {
         configManager: c.configManager,
         k8sClient: c.k8sClient,
         exportManager: c.exportManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     return container;

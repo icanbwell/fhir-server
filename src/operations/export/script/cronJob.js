@@ -24,7 +24,8 @@ async function main() {
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
                 exportManager: c.exportManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                postSaveProcessor: c.postSaveProcessor
             })
     );
 

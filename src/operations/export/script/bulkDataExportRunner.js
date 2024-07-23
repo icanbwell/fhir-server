@@ -25,6 +25,7 @@ const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory'
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 class BulkDataExportRunner {
     /**
@@ -40,6 +41,7 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -60,6 +62,7 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
+        postSaveProcessor,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -160,9 +163,16 @@ class BulkDataExportRunner {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
          * @type {string}
          */
         this.requestId = requestId;
+        assertIsValid(requestId, 'Invalid request id.');
     }
 
     /**
@@ -185,6 +195,9 @@ class BulkDataExportRunner {
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
             await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
+            await this.triggerKafkaEvent({
                 exportStatusResource: this.exportStatusResource,
                 requestId: this.requestId
             });
@@ -245,6 +258,9 @@ class BulkDataExportRunner {
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
             await this.databaseExportManager.updateExportStatusAsync({
+                exportStatusResource: this.exportStatusResource
+            });
+            await this.triggerKafkaEvent({
                 exportStatusResource: this.exportStatusResource,
                 requestId: this.requestId
             });
@@ -260,6 +276,9 @@ class BulkDataExportRunner {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
                 await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource: this.exportStatusResource
+                });
+                await this.triggerKafkaEvent({
                     exportStatusResource: this.exportStatusResource,
                     requestId: this.requestId
                 });
@@ -323,6 +342,23 @@ class BulkDataExportRunner {
         }
 
         return query;
+    }
+
+    /**
+     * @typedef {Object} TriggerKafkaEventParams
+     * @property {string} requestId
+     * @property {ExportStatus} exportStatusResource
+     *
+     * Function to trigger kafka event for the export status resource
+     * @param {TriggerKafkaEventParams}
+     */
+    async triggerKafkaEvent({ exportStatusResource, requestId }) {
+        await this.postSaveProcessor.afterSaveAsync({
+            requestId,
+            eventType: 'U',
+            resourceType: 'ExportStatus',
+            doc: exportStatusResource
+        });
     }
 
     /**
