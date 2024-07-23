@@ -251,7 +251,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
-            await this.updateExportStatusResource({ requestId });
+            await this.updateExportStatusResource();
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
@@ -263,7 +263,7 @@ class BulkDataExportRunner {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
-                await this.updateExportStatusResource({ requestId });
+                await this.updateExportStatusResource();
                 logInfo(
                     `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,
                     { exportStatusId: this.exportStatusId }
