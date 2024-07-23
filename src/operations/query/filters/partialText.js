@@ -16,38 +16,45 @@ class FilterByText extends BaseFilter {
                     return {
                         [this.parsedArg.queryParameterValue.operator]:
                             this.parsedArg.queryParameterValue.values.flatMap(v => {
-                                return {
-                                    $or: [
-                                        // 1. search in text field
-                                        textQueryBuilder(
-                                            {
-                                                field: this.fieldMapper.getFieldName(`${field}.text`),
-                                                text: this.parsedArg.queryParameterValue.value,
-                                                ignoreCase: false
-                                            }
-                                        ),
-                                        // 2. search in display field for every coding
-                                        textQueryBuilder(
-                                            {
-                                                field: this.fieldMapper.getFieldName(`${field}.coding.display`),
-                                                text: this.parsedArg.queryParameterValue.value,
-                                                ignoreCase: true
-                                            }
-                                        ),
-                                        // 3. search in identifier.type.text
-                                        textQueryBuilder(
-                                            {
-                                                field: this.fieldMapper.getFieldName(`identifier.type.text`),
-                                                text: this.parsedArg.queryParameterValue.value,
-                                                ignoreCase: true
-                                            }
-                                        )
-                                    ]
-                                };
+                                if (field === 'code') {
+                                    return {
+                                        $or: [
+                                            // search in code text field
+                                            textQueryBuilder(
+                                                {
+                                                    field: this.fieldMapper.getFieldName(`${field}.text`),
+                                                    text: this.parsedArg.queryParameterValue.value,
+                                                    ignoreCase: true
+                                                }
+                                            ),
+                                            // search in code display field for every coding
+                                            textQueryBuilder(
+                                                {
+                                                    field: this.fieldMapper.getFieldName(`${field}.coding.display`),
+                                                    text: this.parsedArg.queryParameterValue.value,
+                                                    ignoreCase: true
+                                                }
+                                            )
+                                        ]
+                                    };
+                                }
+                                if (field === 'identifier') {
+                                    return {
+                                        $or: [
+                                            // search in identifier type text
+                                            textQueryBuilder(
+                                                {
+                                                    field: this.fieldMapper.getFieldName(`${field}.type.text`),
+                                                    text: this.parsedArg.queryParameterValue.value,
+                                                    ignoreCase: true
+                                                }
+                                            )
+                                        ]
+                                    };
+                                }
                             })
                     };
-                }
-                )
+                })
             }
             );
         }

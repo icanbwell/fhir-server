@@ -1148,7 +1148,7 @@ const textQueryBuilder = function ({ field, text, ignoreCase }) {
      * @type {RegExp}
      */
 
-    const regexObject = new RegExp(`^(${text.split(',').map(text => text.trim()).filter(text => text.length > 0).join('|')})`);
+    const regexObject = new RegExp(`^(${text.split(',').map(text => escapeRegExp(text.trim())).filter(text => text.length > 0).join('|')})`);
     if (ignoreCase) {
         queryBuilder[`${field}`] = { $regex: regexObject, $options: 'i' };
     } else {
