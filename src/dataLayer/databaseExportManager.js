@@ -5,7 +5,6 @@ const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { isUuid } = require('../utils/uid.util');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
-const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 
 class DatabaseExportManager {
@@ -13,12 +12,11 @@ class DatabaseExportManager {
      * @typedef {Object} ConstructorParams
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
-     * @property {PostRequestProcessor} postRequestProcessor
      * @property {PostSaveProcessor} postSaveProcessor
      *
      * @param {ConstructorParams}
      */
-    constructor({ databaseQueryFactory, databaseUpdateFactory, postRequestProcessor, postSaveProcessor }) {
+    constructor({ databaseQueryFactory, databaseUpdateFactory, postSaveProcessor }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -30,12 +28,6 @@ class DatabaseExportManager {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        /**
-         * @type {PostRequestProcessor}
-         */
-        this.postRequestProcessor = postRequestProcessor;
-        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
         /**
          * @type {PostSaveProcessor}
@@ -96,14 +88,11 @@ class DatabaseExportManager {
             });
 
             await databaseUpdateManager.insertOneAsync({ doc: exportStatusResource });
-            this.postRequestProcessor.add({
+            await this.postSaveProcessor.afterSaveAsync({
                 requestId,
-                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
-                    requestId,
-                    eventType: 'C',
-                    resourceType: 'ExportStatus',
-                    doc: exportStatusResource
-                })
+                eventType: 'C',
+                resourceType: 'ExportStatus',
+                doc: exportStatusResource
             });
         } catch (err) {
             throw new RethrownError({

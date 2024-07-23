@@ -807,7 +807,6 @@ const createContainer = function () {
     container.register('databaseExportManager', (c) => new DatabaseExportManager({
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
-        postRequestProcessor: c.postRequestProcessor,
         postSaveProcessor: c.postSaveProcessor
     }));
 

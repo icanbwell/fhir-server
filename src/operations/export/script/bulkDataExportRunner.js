@@ -194,13 +194,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
-            await this.triggerKafkaEvent({
-                exportStatusResource: this.exportStatusResource,
-                requestId: this.requestId
-            });
+            await this.updateExportStatusResource({ requestId });
             logInfo(
                 `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
                 { exportStatusId: this.exportStatusId }
@@ -257,13 +251,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
-            await this.triggerKafkaEvent({
-                exportStatusResource: this.exportStatusResource,
-                requestId: this.requestId
-            });
+            await this.updateExportStatusResource({ requestId });
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
@@ -275,13 +263,7 @@ class BulkDataExportRunner {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
-                await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: this.exportStatusResource
-                });
-                await this.triggerKafkaEvent({
-                    exportStatusResource: this.exportStatusResource,
-                    requestId: this.requestId
-                });
+                await this.updateExportStatusResource({ requestId });
                 logInfo(
                     `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,
                     { exportStatusId: this.exportStatusId }
@@ -345,20 +327,22 @@ class BulkDataExportRunner {
     }
 
     /**
-     * @typedef {Object} TriggerKafkaEventParams
+     * @typedef {Object} UpdateExportStatusResourceParams
      * @property {string} requestId
-     * @property {ExportStatus} exportStatusResource
      *
-     * Function to trigger kafka event for the export status resource
-     * @param {TriggerKafkaEventParams}
+     * @param {UpdateExportStatusResourceParams}
      */
-    async triggerKafkaEvent({ exportStatusResource, requestId }) {
+    async updateExportStatusResource({ requestId }) {
+        await this.databaseExportManager.updateExportStatusAsync({
+            exportStatusResource: this.exportStatusResource
+        });
         await this.postSaveProcessor.afterSaveAsync({
             requestId,
             eventType: 'U',
             resourceType: 'ExportStatus',
-            doc: exportStatusResource
+            doc: this.exportStatusResource
         });
+        await this.postSaveProcessor.flushAsync();
     }
 
     /**
