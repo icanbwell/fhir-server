@@ -826,9 +826,7 @@ const createContainer = function () {
         securityTagManager: c.securityTagManager,
         preSaveManager: c.preSaveManager,
         configManager: c.configManager,
-        k8sClient: c.k8sClient,
-        postRequestProcessor: c.postRequestProcessor,
-        postSaveProcessor: c.postSaveProcessor
+        k8sClient: c.k8sClient
     }));
 
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({

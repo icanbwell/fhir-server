@@ -31,7 +31,15 @@ class AdminExportManager {
      * @property {ScopesValidator} scopesValidator
      */
     constructor({
-        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager, scopesValidator
+        postRequestProcessor,
+        requestSpecificCache,
+        fhirOperationsManager,
+        databaseExportManager,
+        resourceMerger,
+        k8sClient,
+        configManager,
+        exportManager,
+        scopesValidator
     }) {
         /**
         *  @type {PostRequestProcessor}
