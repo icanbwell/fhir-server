@@ -205,7 +205,7 @@ class AdminExportManager {
                     exportStatusResource: updatedResource
                 });
                 this.postRequestProcessor.add({
-                    requestId,
+                    requestId: req.id,
                     fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
                         requestId: req.id,
                         eventType: 'U',
