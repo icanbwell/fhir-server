@@ -70,7 +70,8 @@ describe('Export Trigger Tests', () => {
                 new CronJobRunner({
                     databaseQueryFactory: c.databaseQueryFactory,
                     databaseExportManager: c.databaseExportManager,
-                    exportManager: c.exportManager
+                    exportManager: c.exportManager,
+                    configManager: c.configManager
                 })
         );
 
@@ -84,6 +85,11 @@ describe('Export Trigger Tests', () => {
         expect(mockK8sCreateJob).toHaveBeenCalledWith(
             expect.objectContaining({
                 scriptCommand: expect.stringContaining(`${exportStatus1Resource.id}`)
+            })
+        );
+        expect(mockK8sCreateJob).toHaveBeenCalledWith(
+            expect.objectContaining({
+                scriptCommand: expect.stringContaining(`--requestId`)
             })
         );
     });
@@ -110,7 +116,7 @@ describe('Export Trigger Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     databaseExportManager: c.databaseExportManager,
                     exportManager: c.exportManager,
-                    batchSize: 100
+                    configManager: c.configManager
                 })
         );
 
