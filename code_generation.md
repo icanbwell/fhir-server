@@ -99,6 +99,15 @@ This reads the `src/searchParameters/search-parameters.json` file and generates 
 1. `src/searchParameters/searchParameters.js`
 2. `src/fhir/generator/search_parameters.py`
 
+### 6. Resources Non-clinical fields in `src/graphs/patient`
+
+This is run by the command `make nonClinicalResourceFields`.
+
+This runs `src/fhir/generator/generate_non_clinical_fields.py` and makes a list of fields for each resources which contains reference to non-clinical resources, which is used by everything operation for finding linked non-clinical resources.
+
+This reads the `src/graphs/patient/everything.json` file and generates the following file:
+`src/graphs/patient/non_clinical_resources_fields.json`
+
 ## FHIR Schema files used
 
 The generator uses the following files:
