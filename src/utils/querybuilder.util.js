@@ -494,6 +494,7 @@ const quantityQueryBuilder = function ({ target, field }) {
         qB[`${field}.code`] = code;
     }
 
+    let offset = 0;
     if (isNaN(num)) {
         // with prefixes
         const prefix = num.substring(0, 2);
@@ -514,16 +515,49 @@ const quantityQueryBuilder = function ({ target, field }) {
                 qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                qB[`${field}.value`] = { $ne: num };
+                offset = calcRange(num);
+                num = Number(num);
+                qB[`${field}.value`] = { $ne: { $gt: num - offset, $lt: num + offset }};
                 break;
         }
     } else {
         // no prefixes
-        qB[`${field}.value`] = { $gt: 0.99 * num, $lt: 1.01 * num };
+        offset = calcRange(num);
+        num = Number(num);
+        qB[`${field}.value`] = { $gt: num - offset, $lt: num + offset };
     }
 
     return qB;
 };
+// return value of range offset
+function calcRange(numStr) {
+    const n = Number(numStr);
+    if (n === 0) return 0.5;
+
+    // Remove leading and trailing zeros, and the decimal point
+    if (numStr.indexOf('.') !== -1) {
+        // Floating-point number
+        numStr = numStr.replace(/^0+/g, ''); // Remove leading zeros
+        numStr = numStr.replace('.', ''); // Remove the decimal point
+    } else {
+        // Integer number
+        numStr = numStr.replace(/^0+/, ''); // Remove leading zeros only
+    }
+    let numIntDigits = 0;
+    let beforePoint = Math.trunc(n);
+    if (beforePoint !== 0) {
+        beforePoint = beforePoint.toString();
+        numIntDigits = beforePoint.length;
+    }
+    let offset = '0.';
+    for (let i = 0; i < numStr.length; i++) {
+        offset = offset + '0';
+    }
+    offset = offset + '5';
+    offset = Number(offset) * Math.pow(10, numIntDigits);
+
+    return offset;
+}
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
 function mod (n, m) {
