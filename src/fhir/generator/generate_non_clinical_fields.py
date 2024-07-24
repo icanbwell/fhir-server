@@ -36,11 +36,11 @@ def get_non_clinical_resources_fields(resources_to_exclude=[]):
     """
     Add field for each resource which contains reference to any non-clinical resource
     """
-    
+
     result = {}
     for reference_type in reference_type_list:
         resource = reference_type.path.split(".", 1)[0]
-        path = (reference_type.path.split(".", 1)[1]).replace('[x]', '')
+        path = (reference_type.path.split(".", 1)[1]).replace("[x]", "Reference")
         if path.endswith("V2"):
             path = path[:-2]
 
@@ -66,15 +66,19 @@ def main():
         patient_everything_graph = json.load(json_file)
 
     clinical_resources = get_clinical_resources(patient_everything_graph)
+
+    json_file_path = patient_graphs.joinpath("clinical_resources.json")
+    with open(json_file_path, "w") as json_file:
+        json.dump({"clinicalResources": clinical_resources}, json_file, indent=2)
+        json_file.write("\n")
+
     # to prevent duplicate fields where reference type is 'Resource' as we have V2 with list of all resources
     # src/fhir/generator/fhir_xml_schema_parser.py (line 985)
-    clinical_resources.append('Resource')
+    clinical_resources.append("Resource")
 
     non_clinical_resource_fields_list = get_non_clinical_resources_fields(
         clinical_resources
     )
-
-    non_clinical_resource_fields_list["clinicalResources"] = clinical_resources
 
     json_file_path = patient_graphs.joinpath("non_clinical_resources_fields.json")
     with open(json_file_path, "w") as json_file:

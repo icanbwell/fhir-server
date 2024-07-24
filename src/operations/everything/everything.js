@@ -153,19 +153,19 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
 
-            if (parsedArgs.includeNonClinicalItems) {
+            if (parsedArgs.includeNonClinicalResources) {
                 if (!['Person', 'Patient'].includes(resourceType)) {
                     throw new Error(
-                        'includeNonClinicalItems parameter can only be used with Person and Patient resource type'
+                        'includeNonClinicalResources parameter can only be used with Person and Patient resource type'
                     );
                 }
 
                 if (
-                    parsedArgs.nonClinicalItemsDepth &&
-                    (parsedArgs.nonClinicalItemsDepth > 3 || parsedArgs.nonClinicalItemsDepth < 1)
+                    parsedArgs.nonClinicalResourcesDepth > 3 ||
+                    parsedArgs.nonClinicalResourcesDepth < 1
                 ) {
                     throw new Error(
-                        'nonClinicalItemsDepth: Depth for linked non-clinical resources must be between 1 and 3'
+                        'nonClinicalResourcesDepth: Depth for linked non-clinical resources must be between 1 and 3'
                     );
                 }
             }
@@ -185,8 +185,8 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer,
                 supportLegacyId,
-                includeNonClinicalItems: parsedArgs.includeNonClinicalItems,
-                nonClinicalItemsDepth: parsedArgs.nonClinicalItemsDepth ?? 1
+                includeNonClinicalResources: parsedArgs.includeNonClinicalResources,
+                nonClinicalResourcesDepth: parsedArgs.nonClinicalResourcesDepth ?? 1
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

@@ -6,7 +6,7 @@
   ],
   "ActivityDefinition": [
     "location.reference",
-    "product.reference",
+    "productReference.reference",
     "specimenRequirement.reference",
     "observationRequirement.reference",
     "observationResultRequirement.reference"
@@ -66,7 +66,7 @@
     "activity.outcomeReference.reference",
     "activity.detail.location.reference",
     "activity.detail.performer.reference",
-    "activity.detail.product.reference"
+    "activity.detail.productReference.reference"
   ],
   "CareTeam": [
     "participant.member.reference",
@@ -83,17 +83,17 @@
     "requestingOrganization.reference",
     "costCenter.reference",
     "enterer.reference",
-    "product.reference",
+    "productReference.reference",
     "supportingInformation.reference"
   ],
   "ChargeItemDefinition": [
     "instance.reference"
   ],
   "Citation": [
-    "relatesTo.target.reference",
+    "relatesTo.targetReference.reference",
     "citedArtifact.version.baseCitation.reference",
     "citedArtifact.part.baseCitation.reference",
-    "citedArtifact.relatesTo.target.reference",
+    "citedArtifact.relatesTo.targetReference.reference",
     "citedArtifact.publicationForm.publishedIn.publisher.reference",
     "citedArtifact.classification.whoClassified.person.reference",
     "citedArtifact.classification.whoClassified.organization.reference",
@@ -106,15 +106,15 @@
     "payee.party.reference",
     "facility.reference",
     "careTeam.provider.reference",
-    "supportingInfo.value.reference",
-    "accident.location.reference",
-    "item.location.reference"
+    "supportingInfo.valueReference.reference",
+    "accident.locationReference.reference",
+    "item.locationReference.reference"
   ],
   "ClaimResponse": [
     "insurer.reference",
     "requestor.reference",
     "addItem.provider.reference",
-    "addItem.location.reference"
+    "addItem.locationReference.reference"
   ],
   "ClinicalImpression": [
     "assessor.reference",
@@ -132,7 +132,7 @@
     "indication.comorbidity.reference",
     "indication.intendedEffect.reference",
     "indication.undesirableEffect.reference",
-    "interaction.interactant.item.reference",
+    "interaction.interactant.itemReference.reference",
     "interaction.effect.reference",
     "undesirableEffect.symptomConditionEffect.reference"
   ],
@@ -142,12 +142,12 @@
     "about.reference",
     "recipient.reference",
     "sender.reference",
-    "payload.content.reference"
+    "payload.contentReference.reference"
   ],
   "CommunicationRequest": [
     "basedOn.reference",
     "about.reference",
-    "payload.content.reference",
+    "payload.contentReference.reference",
     "requester.reference",
     "recipient.reference",
     "sender.reference"
@@ -179,15 +179,15 @@
     "domain.reference",
     "site.reference",
     "author.reference",
-    "topic.reference",
+    "topicReference.reference",
     "contentDefinition.publisher.reference",
-    "term.topic.reference",
+    "term.topicReference.reference",
     "term.offer.party.reference.reference",
     "term.offer.topic.reference",
-    "term.offer.answer.value.reference",
+    "term.offer.answer.valueReference.reference",
     "term.asset.typeReference.reference",
     "term.asset.context.reference.reference",
-    "term.asset.valuedItem.entity.reference",
+    "term.asset.valuedItem.entityReference.reference",
     "term.asset.valuedItem.responsible.reference",
     "term.asset.valuedItem.recipient.reference",
     "term.action.subject.reference.reference",
@@ -228,7 +228,7 @@
     "location.reference"
   ],
   "DeviceDefinition": [
-    "manufacturer.reference",
+    "manufacturerReference.reference",
     "owner.reference",
     "parentDevice.reference"
   ],
@@ -285,21 +285,21 @@
     "careManager.reference"
   ],
   "Evidence": [
-    "citeAs.reference",
+    "citeAsReference.reference",
     "variableDefinition.observed.reference",
     "variableDefinition.intended.reference",
     "statistic.modelCharacteristic.variable.variableDefinition.reference"
   ],
   "EvidenceReport": [
-    "citeAs.reference",
-    "subject.characteristic.value.reference",
-    "relatesTo.target.reference",
+    "citeAsReference.reference",
+    "subject.characteristic.valueReference.reference",
+    "relatesTo.targetReference.reference",
     "section.focusReference.reference",
     "section.author.reference",
     "section.entryReference.reference"
   ],
   "EvidenceVariable": [
-    "characteristic.definition.reference",
+    "characteristic.definitionReference.reference",
     "characteristic.device.reference"
   ],
   "ExplanationOfBenefit": [
@@ -309,11 +309,11 @@
     "payee.party.reference",
     "facility.reference",
     "careTeam.provider.reference",
-    "supportingInfo.value.reference",
-    "accident.location.reference",
-    "item.location.reference",
+    "supportingInfo.valueReference.reference",
+    "accident.locationReference.reference",
+    "item.locationReference.reference",
     "addItem.provider.reference",
-    "addItem.location.reference"
+    "addItem.locationReference.reference"
   ],
   "Flag": [
     "subject.reference",
@@ -360,7 +360,7 @@
   ],
   "ImplementationGuide": [
     "definition.resource.reference.reference",
-    "definition.page.name.reference",
+    "definition.page.nameReference.reference",
     "manifest.resource.reference.reference"
   ],
   "Ingredient": [
@@ -414,15 +414,15 @@
   ],
   "Medication": [
     "manufacturer.reference",
-    "ingredient.item.reference"
+    "ingredient.itemReference.reference"
   ],
   "MedicationAdministration": [
-    "medication.reference",
+    "medicationReference.reference",
     "supportingInformation.reference",
     "performer.actor.reference"
   ],
   "MedicationDispense": [
-    "medication.reference",
+    "medicationReference.reference",
     "supportingInformation.reference",
     "performer.actor.reference",
     "location.reference",
@@ -434,13 +434,13 @@
     "manufacturer.reference",
     "relatedMedicationKnowledge.reference.reference",
     "associatedMedication.reference",
-    "ingredient.item.reference",
-    "administrationGuidelines.indication.reference",
+    "ingredient.itemReference.reference",
+    "administrationGuidelines.indicationReference.reference",
     "regulatory.regulatoryAuthority.reference"
   ],
   "MedicationRequest": [
-    "reported.reference",
-    "medication.reference",
+    "reportedReference.reference",
+    "medicationReference.reference",
     "supportingInformation.reference",
     "requester.reference",
     "performer.reference",
@@ -448,7 +448,7 @@
     "dispenseRequest.performer.reference"
   ],
   "MedicationStatement": [
-    "medication.reference",
+    "medicationReference.reference",
     "informationSource.reference",
     "derivedFrom.reference"
   ],
@@ -563,15 +563,15 @@
     "entity.what.reference"
   ],
   "Questionnaire": [
-    "item.enableWhen.answer.reference",
-    "item.answerOption.value.reference",
-    "item.initial.value.reference"
+    "item.enableWhen.answerReference.reference",
+    "item.answerOption.valueReference.reference",
+    "item.initial.valueReference.reference"
   ],
   "QuestionnaireResponse": [
     "subject.reference",
     "author.reference",
     "source.reference",
-    "item.answer.value.reference"
+    "item.answer.valueReference.reference"
   ],
   "RegulatedAuthorization": [
     "subject.reference",
@@ -622,10 +622,10 @@
     "subject.reference",
     "collection.collector.reference",
     "processing.additive.reference",
-    "container.additive.reference"
+    "container.additiveReference.reference"
   ],
   "SpecimenDefinition": [
-    "typeTested.container.additive.additive.reference"
+    "typeTested.container.additive.additiveReference.reference"
   ],
   "SubscriptionStatus": [
     "notificationEvent.focus.reference",
@@ -633,22 +633,22 @@
     "subscription.reference"
   ],
   "Substance": [
-    "ingredient.substance.reference"
+    "ingredient.substanceReference.reference"
   ],
   "SubstanceDefinition": [
     "informationSource.reference",
     "manufacturer.reference",
     "supplier.reference",
-    "relationship.substanceDefinition.reference"
+    "relationship.substanceDefinitionReference.reference"
   ],
   "SupplyDelivery": [
-    "suppliedItem.item.reference",
+    "suppliedItem.itemReference.reference",
     "supplier.reference",
     "destination.reference",
     "receiver.reference"
   ],
   "SupplyRequest": [
-    "item.reference",
+    "itemReference.reference",
     "requester.reference",
     "supplier.reference",
     "deliverFrom.reference",
@@ -680,79 +680,5 @@
   ],
   "VisionPrescription": [
     "prescriber.reference"
-  ],
-  "clinicalResources": [
-    "Patient",
-    "Account",
-    "AdverseEvent",
-    "AllergyIntolerance",
-    "Appointment",
-    "AppointmentResponse",
-    "Basic",
-    "BodyStructure",
-    "CarePlan",
-    "CareTeam",
-    "ChargeItem",
-    "Claim",
-    "ClaimResponse",
-    "ClinicalImpression",
-    "Communication",
-    "CommunicationRequest",
-    "Composition",
-    "Condition",
-    "Consent",
-    "Contract",
-    "Coverage",
-    "CoverageEligibilityRequest",
-    "CoverageEligibilityResponse",
-    "DetectedIssue",
-    "Device",
-    "DeviceRequest",
-    "DeviceUseStatement",
-    "DiagnosticReport",
-    "DocumentManifest",
-    "DocumentReference",
-    "Encounter",
-    "EnrollmentRequest",
-    "EpisodeOfCare",
-    "ExplanationOfBenefit",
-    "FamilyMemberHistory",
-    "Flag",
-    "Goal",
-    "Group",
-    "GuidanceResponse",
-    "ImagingStudy",
-    "Immunization",
-    "ImmunizationEvaluation",
-    "ImmunizationRecommendation",
-    "Invoice",
-    "List",
-    "MeasureReport",
-    "Media",
-    "MedicationAdministration",
-    "MedicationDispense",
-    "MedicationRequest",
-    "MedicationStatement",
-    "MolecularSequence",
-    "NutritionOrder",
-    "Observation",
-    "Patient",
-    "Person",
-    "Person",
-    "Procedure",
-    "Provenance",
-    "QuestionnaireResponse",
-    "RelatedPerson",
-    "RequestGroup",
-    "ResearchSubject",
-    "RiskAssessment",
-    "Schedule",
-    "ServiceRequest",
-    "Specimen",
-    "SupplyDelivery",
-    "SupplyRequest",
-    "Task",
-    "VisionPrescription",
-    "Resource"
   ]
 }

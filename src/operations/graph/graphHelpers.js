@@ -40,6 +40,7 @@ const { SearchParametersManager } = require('../../searchParameters/searchParame
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/non_clinical_resources_fields.json');
+const clinicalResources = require('../../graphs/patient/clinical_resources.json')['clinicalResources'];
 
 /**
  * This class helps with creating graph responses
@@ -1409,8 +1410,8 @@ containedEntries: []
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceIdentifier[]} idsAlreadyProcessed
      * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalItems
-     * @param {number} nonClinicalItemsDepth
+     * @param {boolean} includeNonClinicalResources
+     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync (
@@ -1426,8 +1427,8 @@ containedEntries: []
             responseStreamer,
             idsAlreadyProcessed,
             supportLegacyId = true,
-            includeNonClinicalItems = false,
-            nonClinicalItemsDepth = 1
+            includeNonClinicalResources = false,
+            nonClinicalResourcesDepth = 1
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1660,16 +1661,14 @@ containedEntries: []
                     );
                 }
 
-                if (includeNonClinicalItems) {
-                    let resourceTypesToExclude = nonClinicalDataFields['clinicalResources'];
-                    let resourcesList = [];
+                if (includeNonClinicalResources) {
+                    let resourceTypesToExclude = clinicalResources;
+                    let resourcesList = bundleEntriesForTopLevelResource.map((e) => e.resource);
                     if (contained) {
                         resourcesList = [resourcesList[0], ...resourcesList[0].contained];
-                    } else {
-                        resourcesList = bundleEntriesForTopLevelResource.map((e) => e.resource);
                     }
 
-                    for (let i = 0; i < nonClinicalItemsDepth; i++) {
+                    for (let i = 0; i < nonClinicalResourcesDepth; i++) {
                         // finding non clinical resources in depth using previous result as input
                         let { entities, queryItems } = await this.getLinkedNonClinicalResources(
                             requestInfo,
@@ -1706,6 +1705,7 @@ containedEntries: []
                             }
                         }
 
+                        // in case of explain, currently we are fetching one document of each resource type
                         if (explain) {
                             let resourceTypes = resourcesList.map((e) => e.resourceType);
                             resourceTypesToExclude = resourceTypesToExclude.concat(resourceTypes);
@@ -1786,8 +1786,8 @@ containedEntries: []
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalItems
-     * @param {number} nonClinicalItemsDepth
+     * @param {boolean} includeNonClinicalResources
+     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
      */
     async processGraphAsync (
@@ -1800,8 +1800,8 @@ containedEntries: []
             responseStreamer,
             parsedArgs,
             supportLegacyId = true,
-            includeNonClinicalItems = false,
-            nonClinicalItemsDepth = 1
+            includeNonClinicalResources = false,
+            nonClinicalResourcesDepth = 1
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1878,8 +1878,8 @@ containedEntries: []
                         responseStreamer,
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
-                        includeNonClinicalItems,
-                        nonClinicalItemsDepth
+                        includeNonClinicalResources,
+                        nonClinicalResourcesDepth
                     }
                 );
                 entries = entries.concat(entries1);
