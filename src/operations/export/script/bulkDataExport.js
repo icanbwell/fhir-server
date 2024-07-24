@@ -58,6 +58,7 @@ async function main() {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize,
                 fetchResourceBatchSize,
@@ -65,7 +66,8 @@ async function main() {
                 s3Client: new S3Client({
                     bucketName: bulkExportS3BucketName,
                     region: awsRegion
-                })
+                }),
+                requestId: parameters.requestId
             })
     );
 

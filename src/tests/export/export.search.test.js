@@ -10,9 +10,11 @@ const deepcopy = require('deepcopy');
 const env = require('var');
 const { generateUUID } = require('../../../src/utils/uid.util');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { MockK8sClient } = require('./mocks/k8sClient');
+const { MockKafkaClient } = require('../mocks/mockKafkaClient');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 
 describe('Export Tests', () => {
@@ -27,7 +29,6 @@ describe('Export Tests', () => {
     });
 
     describe('Get ExportStatus tests', () => {
-
         test('Test Get ExportStatus Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
@@ -35,6 +36,12 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /*
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
+            const mockKafkaClient = getTestContainer().kafkaClient;
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
                 .set(getHeaders())
@@ -55,6 +62,10 @@ describe('Export Tests', () => {
                 .get(`/admin/ExportStatus/${exportStatusId}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .expect(200);
+
+            await postSaveProcessor.flushAsync();
+            const messages = mockKafkaClient.getMessages();
+            expect(messages.length).toBe(1);
 
             delete exportStatusResponse.body.transactionTime;
             delete exportStatusResponse.body.id;
@@ -132,11 +143,9 @@ describe('Export Tests', () => {
                 }
             );
         });
-
     });
 
     describe('Test Fetch ExportStatus List', () => {
-
         test('Test Fetch ExportStatus List Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
@@ -206,7 +215,6 @@ describe('Export Tests', () => {
     });
 
     describe('Test Update ExportStatus', () => {
-
         test('Test Update ExportStatus Successful', async () => {
             const request = await createTestRequest((c) => {
                 c.register('k8sClient', (c) => new MockK8sClient({
@@ -245,7 +253,6 @@ describe('Export Tests', () => {
             delete exportStatusPutResponse.body.identifier;
 
             expect(exportStatusPutResponse).toHaveResponse(expectedExportStatusResponse2);
-
         });
 
         test('Test Update ExportStatus without allowed Content Types', async () => {
@@ -290,7 +297,6 @@ describe('Export Tests', () => {
                     message: 'Content Type application/json is not supported. Allowed content-types are: application/fhir+json,application/json+fhir'
                 }
             );
-
         });
 
         test('Update ExportStatus which is not present', async () => {
@@ -331,9 +337,7 @@ describe('Export Tests', () => {
                     ]
                 }
             );
-
         });
-
 
         test('Update ExportStatus Via Patient Scope', async () => {
             const request = await createTestRequest((c) => {

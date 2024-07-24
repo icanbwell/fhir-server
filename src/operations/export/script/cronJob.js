@@ -1,5 +1,4 @@
 const { createContainer } = require('../../../createContainer');
-const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
 const { CronJobRunner } = require('./cronJobRunner');
 const { logInfo, logError } = require('../../common/logging');
 
@@ -8,11 +7,6 @@ const { logInfo, logError } = require('../../common/logging');
  * @returns {Promise<void>}
  */
 async function main() {
-    /**
-     * @type {Object}
-     */
-    const parameters = CommandLineParser.parseCommandLine();
-
     const currentDateTime = new Date();
 
     logInfo(
@@ -29,7 +23,9 @@ async function main() {
             new CronJobRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
                 databaseExportManager: c.databaseExportManager,
-                exportManager: c.exportManager
+                exportManager: c.exportManager,
+                configManager: c.configManager,
+                postSaveProcessor: c.postSaveProcessor
             })
     );
 

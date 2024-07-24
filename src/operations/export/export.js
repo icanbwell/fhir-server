@@ -122,7 +122,7 @@ class ExportOperation {
             });
 
             // Insert ExportStatus resource in database
-            await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource });
+            await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource, requestId });
 
             logInfo(
                 `Created ExportStatus resource with Id: ${exportStatusResource.id}`,
@@ -130,7 +130,7 @@ class ExportOperation {
             );
 
             // Trigger k8s job to export data
-            await this.exportManager.triggerExportJob({ exportStatusResource });
+            await this.exportManager.triggerExportJob({ exportStatusResource, requestId });
 
             // Logic to add auditEvent
             this.postRequestProcessor.add({

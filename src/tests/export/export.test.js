@@ -10,6 +10,9 @@ const { BulkDataExportRunner } = require('../../operations/export/script/bulkDat
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockS3Client } = require('./mocks/s3Client');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
+const { generateUUID } = require('../../utils/uid.util');
 
 describe('Export Tests', () => {
     beforeEach(async () => {
@@ -34,6 +37,14 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
@@ -69,6 +80,7 @@ describe('Export Tests', () => {
 
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -81,18 +93,23 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
-                })
+                }),
+                requestId
             }));
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -118,6 +135,14 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
@@ -153,6 +178,7 @@ describe('Export Tests', () => {
 
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -165,18 +191,23 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
-                })
+                }),
+                requestId
             }));
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -202,6 +233,14 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export')
@@ -245,6 +284,7 @@ describe('Export Tests', () => {
 
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -257,18 +297,23 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
-                })
+                }),
+                requestId
             }));
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -287,6 +332,14 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export?_type=Patient')
@@ -322,6 +375,7 @@ describe('Export Tests', () => {
 
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -334,18 +388,23 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
-                })
+                }),
+                requestId
             }));
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -366,6 +425,14 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export?_type=AuditEvent')
@@ -401,6 +468,7 @@ describe('Export Tests', () => {
 
             // Update the status of ExportStatus resource to completed
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -413,18 +481,23 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
                 s3Client: new MockS3Client({
                     bucketName: 'test',
                     region: 'test'
-                })
+                }),
+                requestId
             }));
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -449,7 +522,16 @@ describe('Export Tests', () => {
                 );
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             /**
              * @type {MongoDatabaseManager}
@@ -514,13 +596,15 @@ describe('Export Tests', () => {
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
+                        postSaveProcessor: c.postSaveProcessor,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
                             region: 'test'
-                        })
+                        }),
+                        requestId
                     })
             );
 
@@ -529,6 +613,9 @@ describe('Export Tests', () => {
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Verifying processResourceAsync is called correct number of times with proper query and resource
             expect(mockProcessResourceAsync).toHaveBeenCalledTimes(1);
@@ -582,7 +669,16 @@ describe('Export Tests', () => {
                 );
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             const container = getTestContainer();
+            const requestId = generateUUID();
 
             /**
              * @type {MongoDatabaseManager}
@@ -647,19 +743,24 @@ describe('Export Tests', () => {
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
+                        postSaveProcessor: c.postSaveProcessor,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
                             region: 'test'
-                        })
+                        }),
+                        requestId
                     })
             );
 
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -685,7 +786,16 @@ describe('Export Tests', () => {
                 );
                 return c;
             });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             const container = getTestContainer();
+            const requestId = generateUUID();
             const mockK8sCreateJob = jest.spyOn(container.k8sClient, 'createJob');
 
             /**
@@ -791,13 +901,15 @@ describe('Export Tests', () => {
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
+                        postSaveProcessor: c.postSaveProcessor,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
                         s3Client: new MockS3Client({
                             bucketName: 'test',
                             region: 'test'
-                        })
+                        }),
+                        requestId
                     })
             );
 
@@ -809,6 +921,9 @@ describe('Export Tests', () => {
             const bulkDataExportRunner = container.bulkDataExportRunner;
 
             await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Verifying processResourceAsync is called correct number of times with proper query and resource
             expect(mockProcessResourceAsync).toHaveBeenCalledTimes(2);

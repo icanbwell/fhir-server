@@ -25,6 +25,7 @@ const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory'
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 class BulkDataExportRunner {
     /**
@@ -40,11 +41,13 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
+     * @property {string} requestId
      *
      * @param {ConstructorParams}
      */
@@ -59,11 +62,13 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
+        postSaveProcessor,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
         s3Client,
-        uploadPartSize
+        uploadPartSize,
+        requestId
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -156,6 +161,18 @@ class BulkDataExportRunner {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
+        assertIsValid(requestId, 'Invalid request id.');
     }
 
     /**
@@ -177,9 +194,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
+            await this.updateExportStatusResource();
             logInfo(
                 `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
                 { exportStatusId: this.exportStatusId }
@@ -236,9 +251,7 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
+            await this.updateExportStatusResource();
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
@@ -250,9 +263,7 @@ class BulkDataExportRunner {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
-                await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: this.exportStatusResource
-                });
+                await this.updateExportStatusResource();
                 logInfo(
                     `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,
                     { exportStatusId: this.exportStatusId }
@@ -313,6 +324,22 @@ class BulkDataExportRunner {
         }
 
         return query;
+    }
+
+    /**
+     * Function to update export status resource
+     */
+    async updateExportStatusResource() {
+        await this.databaseExportManager.updateExportStatusAsync({
+            exportStatusResource: this.exportStatusResource
+        });
+        await this.postSaveProcessor.afterSaveAsync({
+            requestId: this.requestId,
+            eventType: 'U',
+            resourceType: 'ExportStatus',
+            doc: this.exportStatusResource
+        });
+        await this.postSaveProcessor.flushAsync();
     }
 
     /**

@@ -119,7 +119,7 @@ class ExportManager {
         return exportStatusResource;
     }
 
-    async triggerExportJob({ exportStatusResource }) {
+    async triggerExportJob({ exportStatusResource, requestId }) {
         const context = exportStatusResource.extension?.reduce((dict, currentValue) => {
             dict[currentValue.id] = currentValue.valueString;
             return dict;
@@ -129,6 +129,7 @@ class ExportManager {
             'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
             `--exportStatusId ${exportStatusResource._uuid} ` +
             `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
+            `--requestId ${requestId} ` +
             `--awsRegion ${this.configManager.awsRegion}`;
 
         const possibleScriptParams = ['patientReferenceBatchSize', 'fetchResourceBatchSize', 'uploadPartSize'];

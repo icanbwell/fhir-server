@@ -12,6 +12,9 @@ This functionality can be enabled by setting the following environment variables
 
 Note that KAFKA_URLS can be a comma separated list.
 
+Use the mentioned environment variable to enable kafka events for more Fhir resources: ```KAFKA_ENABLED_RESOURCES```
+[NOTE: Default value is: "Consent,ExportStatus"]
+
 ## Format of change events
 
 Change events follow the FHIR Audit Event Schema.
@@ -20,6 +23,11 @@ Change events follow the FHIR Audit Event Schema.
 
 business.events:
 (new user registered, new user added, onboarding, new client added, Patient Change Event, etc..)
+
+Topic name can be changed using the below environment variables:-
+1. ```KAFKA_PATIENT_CHANGE_TOPIC```: Used to set topic name for events created for Patient/Person resource
+2. ```KAFKA_RESOURCE_CHANGE_TOPIC```: Used to set topic name for events created for kafka enabled Fhir resources
+Note: Default values for both above variables is set to: ```business.events```
 
 ### Header of event
 

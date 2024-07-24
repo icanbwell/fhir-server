@@ -168,30 +168,6 @@ class ConfigManager {
     }
 
     /**
-     * sasl identity for kafka auth (UserId or RoleId)
-     * @return {string|undefined}
-     */
-    get kafkaIdentity () {
-        return env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null;
-    }
-
-    /**
-     * access key for kafka auth
-     * @return {string|undefined}
-     */
-    get kafkaAccessKeyId () {
-        return env.KAFKA_SASL_ACCESS_KEY_ID;
-    }
-
-    /**
-     * access key secret for kafka auth
-     * @return {string|undefined}
-     */
-    get kafkaAccessKeySecret () {
-        return env.KAFKA_SASL_ACCESS_KEY_SECRET;
-    }
-
-    /**
      * client id for kafka auth
      * @return {string|undefined}
      */
@@ -229,6 +205,19 @@ class ConfigManager {
      */
     get kafkaEnableEvents () {
         return isTrue(env.ENABLE_EVENTS_KAFKA);
+    }
+
+    /**
+     * list of resources for which kafka events are enabled
+     * @return {boolean}
+     */
+    get kafkaEnabledResources() {
+        return (
+            (
+                env.KAFKA_ENABLED_RESOURCES && env.KAFKA_ENABLED_RESOURCES.split(',')
+                    .map((col) => col.trim())
+            ) || ['Consent', 'ExportStatus']
+        );
     }
 
     /**
