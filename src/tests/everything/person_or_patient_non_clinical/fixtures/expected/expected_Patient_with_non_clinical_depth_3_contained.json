@@ -264,198 +264,6 @@
                         
                     },
                     {
-                            "resourceType": "Patient",
-                            "id": "patient3",
-                            "meta": {
-                                "versionId": "1",
-                                "lastUpdated": "2023-12-20T03:30:50.000Z",
-                                "source": "http://healthsystem1health.org/provider",
-                                "security": [
-                                    {
-                                        "system": "https://www.icanbwell.com/access",
-                                        "code": "healthsystem1"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/owner",
-                                        "code": "healthsystem1"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                        "code": "healthsystem1"
-                                    }
-                                ]
-                            },
-                            "identifier": [
-                                {
-                                    "id": "sourceId",
-                                    "system": "https://www.icanbwell.com/sourceId",
-                                    "value": "patient3"
-                                },
-                                {
-                                    "id": "uuid",
-                                    "system": "https://www.icanbwell.com/uuid",
-                                    "value": "7b45e610-8adb-540e-947a-fe449987f8a9"
-                                }
-                            ],
-                            "name": [
-                                {
-                                    "use": "usual",
-                                    "text": "t",
-                                    "family": "PATIENT1",
-                                    "given": ["SHYLA"]
-                                }
-                            ],
-                            "gender": "female",
-                            "birthDate": "2017-01-01",
-                            "link": [
-                                {
-                                    "other": {
-                                        "extension": [
-                                            {
-                                                "id": "sourceId",
-                                                "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Patient/patient1"
-                                            },
-                                            {
-                                                "id": "uuid",
-                                                "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
-                                            },
-                                            {
-                                                "id": "sourceAssigningAuthority",
-                                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "healthsystem1"
-                                            }
-                                        ],
-                                        "reference": "Patient/patient1|healthsystem1"
-                                    },
-                                    "type": "seealso"
-                                }
-                            ]
-                        
-                    },
-                    {
-                            "resourceType": "Person",
-                            "id": "person2",
-                            "meta": {
-                                "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-                                "versionId": "1",
-                                "lastUpdated": "2023-12-20T03:30:49.000Z",
-                                "source": "https://www.icanbwell.com",
-                                "security": [
-                                    {
-                                        "system": "https://www.icanbwell.com/owner",
-                                        "code": "bwell"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/access",
-                                        "code": "bwell"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                        "code": "bwell"
-                                    }
-                                ]
-                            },
-                            "identifier": [
-                                {
-                                    "system": "http://www.client.com/profileid",
-                                    "value": "1000000-a-02"
-                                },
-                                {
-                                    "id": "sourceId",
-                                    "system": "https://www.icanbwell.com/sourceId",
-                                    "value": "person2"
-                                },
-                                {
-                                    "id": "uuid",
-                                    "system": "https://www.icanbwell.com/uuid",
-                                    "value": "0eb80391-0f61-5ce6-b221-a5428f2f38a7"
-                                }
-                            ],
-                            "name": [
-                                {
-                                    "use": "nickname",
-                                    "family": "Azamar",
-                                    "given": ["Daniel"]
-                                }
-                            ],
-                            "telecom": [
-                                {
-                                    "id": "2011-10-05T14:48:00.000Z",
-                                    "system": "phone",
-                                    "value": "+52123456789",
-                                    "use": "home"
-                                }
-                            ],
-                            "gender": "male",
-                            "address": [
-                                {
-                                    "id": "2011-10-05T14:48:00.000Z",
-                                    "line": ["301 W, in a yellow submarine"],
-                                    "city": "Austin",
-                                    "state": "Texas",
-                                    "postalCode": "78701",
-                                    "country": "Some country",
-                                    "period": {
-                                        "id": "2011-10-05T14:48:00.000Z"
-                                    }
-                                }
-                            ],
-                            "active": true,
-                            "link": [
-                                {
-                                    "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
-                                    "target": {
-                                        "extension": [
-                                            {
-                                                "id": "sourceId",
-                                                "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Patient/patient1"
-                                            },
-                                            {
-                                                "id": "uuid",
-                                                "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
-                                            },
-                                            {
-                                                "id": "sourceAssigningAuthority",
-                                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "healthsystem1"
-                                            }
-                                        ],
-                                        "reference": "Patient/patient1|healthsystem1"
-                                    },
-                                    "assurance": "level4"
-                                },
-                                {
-                                    "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
-                                    "target": {
-                                        "extension": [
-                                            {
-                                                "id": "sourceId",
-                                                "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Patient/patient2"
-                                            },
-                                            {
-                                                "id": "uuid",
-                                                "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Patient/dc1946f6-aed3-599f-8f8d-dd543a094589"
-                                            },
-                                            {
-                                                "id": "sourceAssigningAuthority",
-                                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "healthsystem2"
-                                            }
-                                        ],
-                                        "reference": "Patient/patient2|healthsystem2"
-                                    },
-                                    "assurance": "level4"
-                                }
-                            ]
-                        
-                    },
-                    {
                             "resourceType": "Person",
                             "id": "personTopLevel",
                             "meta": {
@@ -532,20 +340,20 @@
                                             {
                                                 "id": "sourceId",
                                                 "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Patient/patient1"
+                                                "valueString": "Patient/patient3"
                                             },
                                             {
                                                 "id": "uuid",
                                                 "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                                                "valueString": "Patient/82d3a1a5-f036-522a-90ce-62b3d9bdc039"
                                             },
                                             {
                                                 "id": "sourceAssigningAuthority",
                                                 "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "healthsystem1"
+                                                "valueString": "bwell"
                                             }
                                         ],
-                                        "reference": "Patient/patient1|healthsystem1"
+                                        "reference": "Patient/patient3|bwell"
                                     },
                                     "assurance": "level4"
                                 },
@@ -561,15 +369,15 @@
                                             {
                                                 "id": "uuid",
                                                 "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Person/7b99904f-2f85-51a3-9398-e2eed6854639"
+                                                "valueString": "Person/5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
                                             },
                                             {
                                                 "id": "sourceAssigningAuthority",
                                                 "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "client"
+                                                "valueString": "healthsystem1"
                                             }
                                         ],
-                                        "reference": "Person/person1|client"
+                                        "reference": "Person/person1|healthsystem1"
                                     },
                                     "assurance": "level4"
                                 }
@@ -582,19 +390,19 @@
                             "meta": {
                                 "versionId": "1",
                                 "lastUpdated": "2023-12-20T03:30:49.000Z",
-                                "source": "client",
+                                "source": "healthsystem1",
                                 "security": [
                                     {
                                         "system": "https://www.icanbwell.com/access",
-                                        "code": "client"
+                                        "code": "healthsystem1"
                                     },
                                     {
                                         "system": "https://www.icanbwell.com/owner",
-                                        "code": "client"
+                                        "code": "healthsystem1"
                                     },
                                     {
                                         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                        "code": "client"
+                                        "code": "healthsystem1"
                                     }
                                 ]
                             },
@@ -607,14 +415,14 @@
                                 {
                                     "id": "uuid",
                                     "system": "https://www.icanbwell.com/uuid",
-                                    "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+                                    "value": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
                                 }
                             ],
                             "name": [
                                 {
                                     "use": "usual",
                                     "text": "t",
-                                    "family": "PATIENT2",
+                                    "family": "person1",
                                     "given": ["OTHER"]
                                 }
                             ],
@@ -875,127 +683,6 @@
                                 ],
                                 "reference": "Practitioner/aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
                             }
-                        
-                    },
-                    {
-                            "resourceType": "Person",
-                            "id": "personTopLevel",
-                            "meta": {
-                                "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-                                "versionId": "1",
-                                "lastUpdated": "2023-12-20T03:30:49.000Z",
-                                "source": "https://www.icanbwell.com",
-                                "security": [
-                                    {
-                                        "system": "https://www.icanbwell.com/owner",
-                                        "code": "bwell"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/access",
-                                        "code": "bwell"
-                                    },
-                                    {
-                                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                        "code": "bwell"
-                                    }
-                                ]
-                            },
-                            "identifier": [
-                                {
-                                    "system": "http://www.client.com/profileid",
-                                    "value": "1000000-a-02"
-                                },
-                                {
-                                    "id": "sourceId",
-                                    "system": "https://www.icanbwell.com/sourceId",
-                                    "value": "personTopLevel"
-                                },
-                                {
-                                    "id": "uuid",
-                                    "system": "https://www.icanbwell.com/uuid",
-                                    "value": "9168d18f-8ad4-5f07-8ace-dd2979455b4e"
-                                }
-                            ],
-                            "name": [
-                                {
-                                    "use": "nickname",
-                                    "family": "Azamar",
-                                    "given": ["Daniel"]
-                                }
-                            ],
-                            "telecom": [
-                                {
-                                    "id": "2011-10-05T14:48:00.000Z",
-                                    "system": "phone",
-                                    "value": "+52123456789",
-                                    "use": "home"
-                                }
-                            ],
-                            "gender": "male",
-                            "address": [
-                                {
-                                    "id": "2011-10-05T14:48:00.000Z",
-                                    "line": ["301 W, in a yellow submarine"],
-                                    "city": "Austin",
-                                    "state": "Texas",
-                                    "postalCode": "78701",
-                                    "country": "Some country",
-                                    "period": {
-                                        "id": "2011-10-05T14:48:00.000Z"
-                                    }
-                                }
-                            ],
-                            "active": true,
-                            "link": [
-                                {
-                                    "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
-                                    "target": {
-                                        "extension": [
-                                            {
-                                                "id": "sourceId",
-                                                "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Patient/patient1"
-                                            },
-                                            {
-                                                "id": "uuid",
-                                                "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
-                                            },
-                                            {
-                                                "id": "sourceAssigningAuthority",
-                                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "healthsystem1"
-                                            }
-                                        ],
-                                        "reference": "Patient/patient1|healthsystem1"
-                                    },
-                                    "assurance": "level4"
-                                },
-                                {
-                                    "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
-                                    "target": {
-                                        "extension": [
-                                            {
-                                                "id": "sourceId",
-                                                "url": "https://www.icanbwell.com/sourceId",
-                                                "valueString": "Person/person1"
-                                            },
-                                            {
-                                                "id": "uuid",
-                                                "url": "https://www.icanbwell.com/uuid",
-                                                "valueString": "Person/7b99904f-2f85-51a3-9398-e2eed6854639"
-                                            },
-                                            {
-                                                "id": "sourceAssigningAuthority",
-                                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                                                "valueString": "client"
-                                            }
-                                        ],
-                                        "reference": "Person/person1|client"
-                                    },
-                                    "assurance": "level4"
-                                }
-                            ]
                         
                     },
                     {

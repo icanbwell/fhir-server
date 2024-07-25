@@ -6,11 +6,11 @@
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "healthsystem1"
+                "code": "bwell"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "healthsystem1"
+                "code": "bwell"
             }
         ]
     },
@@ -26,14 +26,6 @@
             ],
             "prefix": [],
             "suffix": []
-        }
-    ],
-    "link": [
-        {
-            "other": {
-                "reference": "Patient/patient1|healthsystem1"
-            },
-            "type": "seealso"
         }
     ]
 }

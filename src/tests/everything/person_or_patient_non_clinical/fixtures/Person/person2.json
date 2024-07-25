@@ -9,11 +9,11 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "bwell"
+        "code": "healthsystem2"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "bwell"
+        "code": "healthsystem2"
       }
     ]
   },
@@ -58,13 +58,6 @@
   ],
   "active": true,
   "link": [
-    {
-      "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
-      "target": {
-        "reference": "Patient/patient1|healthsystem1"
-      },
-      "assurance": "level4"
-    },
     {
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
