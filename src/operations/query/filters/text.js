@@ -30,28 +30,26 @@ class FilterByText extends BaseFilter {
                                         ]
                                     };
                                 }
-                                else {
-                                    return {
-                                        $or: [
-                                            // search in code text field
-                                            textQueryBuilder(
-                                                {
-                                                    field: this.fieldMapper.getFieldName(`${field}.text`),
-                                                    text: this.parsedArg.queryParameterValue.value,
-                                                    ignoreCase: true
-                                                }
-                                            ),
-                                            // search in code display field for every coding
-                                            textQueryBuilder(
-                                                {
-                                                    field: this.fieldMapper.getFieldName(`${field}.coding.display`),
-                                                    text: this.parsedArg.queryParameterValue.value,
-                                                    ignoreCase: true
-                                                }
-                                            )
-                                        ]
-                                    };
-                                }
+                                return {
+                                    $or: [
+                                        // search in code text field
+                                        textQueryBuilder(
+                                            {
+                                                field: this.fieldMapper.getFieldName(`${field}.text`),
+                                                text: this.parsedArg.queryParameterValue.value,
+                                                ignoreCase: true
+                                            }
+                                        ),
+                                        // search in code display field for every coding
+                                        textQueryBuilder(
+                                            {
+                                                field: this.fieldMapper.getFieldName(`${field}.coding.display`),
+                                                text: this.parsedArg.queryParameterValue.value,
+                                                ignoreCase: true
+                                            }
+                                        )
+                                    ]
+                                };
                             })
                     };
                 })

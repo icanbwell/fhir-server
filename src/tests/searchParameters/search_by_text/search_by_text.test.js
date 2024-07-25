@@ -4,9 +4,12 @@ const medication2Resource = require('./fixtures/Medication/medication2.json');
 const medication3Resource = require('./fixtures/Medication/medication3.json');
 const medication4Resource = require('./fixtures/Medication/medication4.json');
 const medication5Resource = require('./fixtures/Medication/medication5.json');
+const compositionResource1 = require('./fixtures/Composition/composition1.json');
 
 // expected
-const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
+const expectedCompositionResources1 = require('./fixtures/expected/expected_composition1.json');
+const expectedCompositionResources2 = require('./fixtures/expected/expected_composition2.json');
+const expectedMedicationResources1 = require('./fixtures/expected/expected_medication1.json');
 const expectedMedicationResources2 = require('./fixtures/expected/expected_medication2.json');
 const expectedMedicationResources3 = require('./fixtures/expected/expected_medication3.json');
 const expectedMedicationResources4 = require('./fixtures/expected/expected_medication4.json');
@@ -27,7 +30,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('Medication Tests', () => {
+describe('Search By Text', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -36,8 +39,8 @@ describe('Medication Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Medication search_by_code_text Tests', () => {
-        test('search_by_code_text works', async () => {
+    describe('Search By Code Tests', () => {
+        test('Search By Code works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -68,7 +71,7 @@ describe('Medication Tests', () => {
                 .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMedicationResources);
+            expect(resp).toHaveResponse(expectedMedicationResources1);
         });
 
         test('Search By Code Text for multiple comma separated texts', async () => {
@@ -161,7 +164,50 @@ describe('Medication Tests', () => {
         });
     });
 
-    describe('Medication Seach By Identifier Tests', () => {
+    describe('Search By Fields', () => {
+        test('Search By Section Text in Composition', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            resp = await request
+                .post('/4_0_0/Composition/$merge?validate=true')
+                .send(compositionResource1)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            resp = await request
+                .get('/4_0_0/Composition?section:text=Appointment&_debug=1&_bundle=1')
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedCompositionResources1);
+        });
+
+        test('Search By Section Text and Identifier Text in Composition', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            resp = await request
+                .post('/4_0_0/Composition/$merge?validate=true')
+                .send(compositionResource1)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            resp = await request
+                .get('/4_0_0/Composition?section:text=Appointment&identifier:text=abc&_debug=1&_bundle=1')
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedCompositionResources2);
+        });
+
+    })
+
+    describe('Seach By Identifier Tests', () => {
 
         test('Search By Indentifier Text via identifier.type.text field', async () => {
             const request = await createTestRequest();
@@ -276,7 +322,7 @@ describe('Medication Tests', () => {
         });
     });
 
-    describe('Medication Search by Code and Identifier Test', () => {
+    describe('Search by Code and Identifier Test', () => {
         test('Search By Identifier Text and Code Text when both works', async () => {
             const request = await createTestRequest();
             // ARRANGE
