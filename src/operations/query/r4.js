@@ -15,7 +15,7 @@ const { FieldMapper } = require('./filters/fieldMapper');
 const { FilterByMissing } = require('./filters/missing');
 const { FilterByContains } = require('./filters/contains');
 const { FilterByAbove, FilterByBelow } = require('./filters/aboveAndBelow');
-const { FilterByPartialText } = require('./filters/partialText');
+const { FilterByText } = require('./filters/text');
 const { FilterById } = require('./filters/id');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { FilterParameters } = require('./filters/filterParameters');
@@ -120,7 +120,7 @@ class R4SearchQueryCreator {
                 } else if (parsedArg.modifiers.includes('below')) {
                     andSegments = new FilterByBelow(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('text')) {
-                    andSegments = new FilterByPartialText(filterParameters).filter();
+                    andSegments = new FilterByText(filterParameters).filterText();
                 }
 
                 // apply negation according to not modifier and add to final collection
