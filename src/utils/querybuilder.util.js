@@ -537,6 +537,16 @@ function calcRange(numStr) {
     const n = Number(numStr);
     if (n === 0) return 0.5;
 
+    // check for scientific notation
+    let precn = 0;
+    let numIntDigits = 0;
+    const exp = numStr.indexOf('e');
+    if (exp > 0) {
+        numIntDigits = Number(numStr.substring(exp + 1));
+        numStr = numStr.substring(0, exp);
+        precn = numIntDigits + numStr.length;
+    }
+
     // Remove leading zeros, and the decimal point
     if (numStr.indexOf('.') !== -1) {
         // Floating-point number
@@ -546,11 +556,13 @@ function calcRange(numStr) {
         // Integer number
         numStr = numStr.replace(/^0+/, ''); // Remove leading zeros only
     }
-    let numIntDigits = 0;
-    let beforePoint = Math.trunc(n);
-    if (beforePoint !== 0) {
-        beforePoint = beforePoint.toString();
-        numIntDigits = beforePoint.length;
+
+    if (numIntDigits === 0) {
+        let beforePoint = Math.trunc(n);
+        if (beforePoint !== 0) {
+            beforePoint = beforePoint.toString();
+            numIntDigits = beforePoint.length;
+        }
     }
     let offset = '0.';
     for (let i = 0; i < numStr.length; i++) {
@@ -559,7 +571,10 @@ function calcRange(numStr) {
     offset = offset + '5';
     offset = Number(offset) * Math.pow(10, numIntDigits);
 
-    return { offset : offset, precn: (numStr.length + 1)};
+    if (precn === 0) {
+        precn = numStr.length + 1;
+    }
+    return { offset, precn};
 }
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
