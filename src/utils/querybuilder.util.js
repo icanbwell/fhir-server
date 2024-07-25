@@ -494,11 +494,12 @@ const quantityQueryBuilder = function ({ target, field }) {
         qB[`${field}.code`] = code;
     }
 
-    let offset = 0;
-    if (isNaN(num)) {
+    let range = {};
+   if (isNaN(num)) {
         // with prefixes
         const prefix = num.substring(0, 2);
-        num = Number(num.substring(2));
+        const strNum = num.substring(2);
+        num = Number(strNum);
 
         // Missing eq(default), sa, eb, and ap prefixes
         switch (prefix) {
@@ -515,16 +516,18 @@ const quantityQueryBuilder = function ({ target, field }) {
                 qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                offset = calcRange(num);
+                range  = calcRange(strNum);
                 num = Number(num);
-                qB[`${field}.value`] = { $ne: { $gt: num - offset, $lt: num + offset }};
+                qB[`${field}.value`] = { $ne: { $gte: Number((num - range.offset).toPrecision(range.precn)),
+                        $lt: Number((num + range.offset).toPrecision(range.precn)) }};
                 break;
         }
     } else {
         // no prefixes
-        offset = calcRange(num);
+        range = calcRange(num);
         num = Number(num);
-        qB[`${field}.value`] = { $gt: num - offset, $lt: num + offset };
+        qB[`${field}.value`] = { $gte: Number((num - range.offset).toPrecision(range.precn)),
+                        $lt: Number((num + range.offset).toPrecision(range.precn)) }
     }
 
     return qB;
@@ -534,7 +537,7 @@ function calcRange(numStr) {
     const n = Number(numStr);
     if (n === 0) return 0.5;
 
-    // Remove leading and trailing zeros, and the decimal point
+    // Remove leading zeros, and the decimal point
     if (numStr.indexOf('.') !== -1) {
         // Floating-point number
         numStr = numStr.replace(/^0+/g, ''); // Remove leading zeros
@@ -556,7 +559,7 @@ function calcRange(numStr) {
     offset = offset + '5';
     offset = Number(offset) * Math.pow(10, numIntDigits);
 
-    return offset;
+    return { offset : offset, precn: (numStr.length + 1)};
 }
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
