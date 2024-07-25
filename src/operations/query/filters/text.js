@@ -16,7 +16,21 @@ class FilterByText extends BaseFilter {
                     return {
                         [this.parsedArg.queryParameterValue.operator]:
                             this.parsedArg.queryParameterValue.values.flatMap(v => {
-                                if (field === 'code') {
+                                if (field === 'identifier') {
+                                    return {
+                                        $or: [
+                                            // search in identifier type text
+                                            textQueryBuilder(
+                                                {
+                                                    field: this.fieldMapper.getFieldName(`${field}.type.text`),
+                                                    text: this.parsedArg.queryParameterValue.value,
+                                                    ignoreCase: true
+                                                }
+                                            )
+                                        ]
+                                    };
+                                }
+                                else {
                                     return {
                                         $or: [
                                             // search in code text field
@@ -31,20 +45,6 @@ class FilterByText extends BaseFilter {
                                             textQueryBuilder(
                                                 {
                                                     field: this.fieldMapper.getFieldName(`${field}.coding.display`),
-                                                    text: this.parsedArg.queryParameterValue.value,
-                                                    ignoreCase: true
-                                                }
-                                            )
-                                        ]
-                                    };
-                                }
-                                if (field === 'identifier') {
-                                    return {
-                                        $or: [
-                                            // search in identifier type text
-                                            textQueryBuilder(
-                                                {
-                                                    field: this.fieldMapper.getFieldName(`${field}.type.text`),
                                                     text: this.parsedArg.queryParameterValue.value,
                                                     ignoreCase: true
                                                 }
