@@ -32,7 +32,7 @@ class FilterByText extends BaseFilter {
                                 }
                                 return {
                                     $or: [
-                                        // search in code text field
+                                        // search in Coding text field
                                         textQueryBuilder(
                                             {
                                                 field: this.fieldMapper.getFieldName(`${field}.text`),
