@@ -644,21 +644,21 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    effectiveDateTime: -1,
-                    _uuid: 1
+                    _uuid: 1,
+                    effectiveDateTime: -1
                 },
                 options: {
-                    name: 'reverse_helix_observation_effective_1'
+                    name: 'subject__sourceId._uuid.effectiveDateTime-1'
                 }
             },
             {
                 keys: {
                     'subject._uuid': 1,
-                    effectiveDateTime: -1,
-                    _uuid: 1
+                    _uuid: 1,
+                    effectiveDateTime: -1
                 },
                 options: {
-                    name: 'reverse_helix_observation_effective_uuid_1'
+                    name: 'subject__uuid._uuid.effectiveDateTime-1'
                 }
             },
             {
