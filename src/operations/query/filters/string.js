@@ -19,10 +19,10 @@ class FilterByString extends BaseFilter {
             return { $or: ors };
         } else if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'address') {
             // If the field is address, use address query builder to apply the search in all address attributes
-            const ors = addressQueryBuilder({target: value, useStringSearch: useStringSearch});
+            const ors = addressQueryBuilder({ target: value, useStringSearch: useStringSearch });
             return { $or: ors };
         } else {
-            return useStringSearch ? { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value.trim() }) } : { [this.fieldMapper.getFieldName(field)]: value };
+            return useStringSearch ? { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value }) } : { [this.fieldMapper.getFieldName(field)]: value };
         }
     }
 }
