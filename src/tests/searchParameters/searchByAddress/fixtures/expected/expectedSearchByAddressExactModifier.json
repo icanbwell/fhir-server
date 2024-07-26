@@ -1,0 +1,385 @@
+{
+      "entry": [
+            {
+                  "resource": {
+                        "resourceType": "Person",
+                        "id": "2",
+                        "meta": {
+                              "versionId": "1",
+                              "lastUpdated": "2024-07-26T14:08:59.000Z",
+                              "source": "client",
+                              "security": [
+                                    {
+                                          "system": "https://www.icanbwell.com/access",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/owner",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                          "code": "client"
+                                    }
+                              ]
+                        },
+                        "identifier": [
+                              {
+                                    "type": {
+                                          "coding": [
+                                                {
+                                                      "system": "https://www.icanbwell.com",
+                                                      "code": "FHIR_id",
+                                                      "display": "bWell FHIR id"
+                                                }
+                                          ]
+                                    },
+                                    "system": "https://www.icanbwell.com",
+                                    "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
+                              },
+                              {
+                                    "id": "sourceId",
+                                    "system": "https://www.icanbwell.com/sourceId",
+                                    "value": "2"
+                              },
+                              {
+                                    "id": "uuid",
+                                    "system": "https://www.icanbwell.com/uuid",
+                                    "value": "941f082a-39a9-5f55-9630-5839a010e1bc"
+                              }
+                        ],
+                        "name": [
+                              {
+                                    "use": "official",
+                                    "family": "Test1",
+                                    "given": [
+                                          "singhal"
+                                    ]
+                              }
+                        ],
+                        "telecom": [
+                              {
+                                    "system": "phone",
+                                    "value": "+14435705277",
+                                    "use": "home"
+                              },
+                              {
+                                    "system": "email",
+                                    "value": "yelena+stageuph200@icanbwell.com",
+                                    "use": "home"
+                              }
+                        ],
+                        "gender": "female",
+                        "birthDate": "1950-10-10",
+                        "address": [
+                              {
+                                    "line": [
+                                          "1 Main St."
+                                    ],
+                                    "city": "Berea",
+                                    "state": "IA",
+                                    "postalCode": "50002"
+                              }
+                        ],
+                        "link": [
+                              {
+                                    "target": {
+                                          "extension": [
+                                                {
+                                                      "id": "sourceId",
+                                                      "url": "https://www.icanbwell.com/sourceId",
+                                                      "valueString": "Patient/xxx"
+                                                },
+                                                {
+                                                      "id": "uuid",
+                                                      "url": "https://www.icanbwell.com/uuid",
+                                                      "valueString": "Patient/d656717e-a9e8-5539-8488-2c5bddfd279d"
+                                                },
+                                                {
+                                                      "id": "sourceAssigningAuthority",
+                                                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                                      "valueString": "client"
+                                                }
+                                          ],
+                                          "reference": "Patient/xxx",
+                                          "type": "Patient"
+                                    },
+                                    "assurance": "level4"
+                              }
+                        ]
+                  }
+            },
+            {
+                  "resource": {
+                        "resourceType": "Person",
+                        "id": "3",
+                        "meta": {
+                              "versionId": "1",
+                              "lastUpdated": "2024-07-26T14:08:59.000Z",
+                              "source": "client",
+                              "security": [
+                                    {
+                                          "system": "https://www.icanbwell.com/access",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/owner",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                          "code": "client"
+                                    }
+                              ]
+                        },
+                        "identifier": [
+                              {
+                                    "type": {
+                                          "coding": [
+                                                {
+                                                      "system": "https://www.icanbwell.com",
+                                                      "code": "FHIR_id",
+                                                      "display": "bWell FHIR id"
+                                                }
+                                          ]
+                                    },
+                                    "system": "https://www.icanbwell.com",
+                                    "value": "bwell-xxx"
+                              },
+                              {
+                                    "id": "sourceId",
+                                    "system": "https://www.icanbwell.com/sourceId",
+                                    "value": "3"
+                              },
+                              {
+                                    "id": "uuid",
+                                    "system": "https://www.icanbwell.com/uuid",
+                                    "value": "aef217d8-2f34-56f7-b748-b24a120b2654"
+                              }
+                        ],
+                        "name": [
+                              {
+                                    "use": "official",
+                                    "family": "Test1",
+                                    "given": [
+                                          "Test1"
+                                    ]
+                              }
+                        ],
+                        "telecom": [
+                              {
+                                    "system": "phone",
+                                    "value": "+14435705277",
+                                    "use": "home"
+                              },
+                              {
+                                    "system": "email",
+                                    "value": "yelena+stageuph200@icanbwell.com",
+                                    "use": "home"
+                              }
+                        ],
+                        "gender": "female",
+                        "birthDate": "1950-10-10",
+                        "address": [
+                              {
+                                    "line": [
+                                          "3 Truning Street."
+                                    ],
+                                    "city": "Berea",
+                                    "state": "IA",
+                                    "postalCode": "50003"
+                              }
+                        ],
+                        "link": [
+                              {
+                                    "target": {
+                                          "extension": [
+                                                {
+                                                      "id": "sourceId",
+                                                      "url": "https://www.icanbwell.com/sourceId",
+                                                      "valueString": "Patient/xxx"
+                                                },
+                                                {
+                                                      "id": "uuid",
+                                                      "url": "https://www.icanbwell.com/uuid",
+                                                      "valueString": "Patient/d656717e-a9e8-5539-8488-2c5bddfd279d"
+                                                },
+                                                {
+                                                      "id": "sourceAssigningAuthority",
+                                                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                                      "valueString": "client"
+                                                }
+                                          ],
+                                          "reference": "Patient/xxx",
+                                          "type": "Patient"
+                                    },
+                                    "assurance": "level4"
+                              }
+                        ]
+                  }
+            },
+            {
+                  "resource": {
+                        "resourceType": "Person",
+                        "id": "1",
+                        "meta": {
+                              "versionId": "1",
+                              "lastUpdated": "2024-07-26T14:08:59.000Z",
+                              "source": "client",
+                              "security": [
+                                    {
+                                          "system": "https://www.icanbwell.com/access",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/owner",
+                                          "code": "client"
+                                    },
+                                    {
+                                          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                          "code": "client"
+                                    }
+                              ]
+                        },
+                        "identifier": [
+                              {
+                                    "type": {
+                                          "coding": [
+                                                {
+                                                      "system": "https://www.icanbwell.com",
+                                                      "code": "FHIR_id",
+                                                      "display": "bWell FHIR id"
+                                                }
+                                          ]
+                                    },
+                                    "system": "https://www.icanbwell.com",
+                                    "value": "bwell-xxx"
+                              },
+                              {
+                                    "id": "sourceId",
+                                    "system": "https://www.icanbwell.com/sourceId",
+                                    "value": "1"
+                              },
+                              {
+                                    "id": "uuid",
+                                    "system": "https://www.icanbwell.com/uuid",
+                                    "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+                              }
+                        ],
+                        "name": [
+                              {
+                                    "use": "official",
+                                    "family": "singhal",
+                                    "given": [
+                                          "Test1"
+                                    ]
+                              }
+                        ],
+                        "telecom": [
+                              {
+                                    "system": "phone",
+                                    "value": "+14435705277",
+                                    "use": "home"
+                              },
+                              {
+                                    "system": "email",
+                                    "value": "yelena+stageuph200@icanbwell.com",
+                                    "use": "home"
+                              }
+                        ],
+                        "gender": "female",
+                        "birthDate": "1950-10-10",
+                        "address": [
+                              {
+                                    "line": [
+                                          "1 Main St."
+                                    ],
+                                    "city": "Berea",
+                                    "state": "IA",
+                                    "postalCode": "50001"
+                              }
+                        ],
+                        "link": [
+                              {
+                                    "target": {
+                                          "extension": [
+                                                {
+                                                      "id": "sourceId",
+                                                      "url": "https://www.icanbwell.com/sourceId",
+                                                      "valueString": "Patient/xxx"
+                                                },
+                                                {
+                                                      "id": "uuid",
+                                                      "url": "https://www.icanbwell.com/uuid",
+                                                      "valueString": "Patient/d656717e-a9e8-5539-8488-2c5bddfd279d"
+                                                },
+                                                {
+                                                      "id": "sourceAssigningAuthority",
+                                                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                                      "valueString": "client"
+                                                }
+                                          ],
+                                          "reference": "Patient/xxx",
+                                          "type": "Patient"
+                                    },
+                                    "assurance": "level4"
+                              }
+                        ]
+                  }
+            }
+      ],
+      "resourceType": "Bundle",
+      "meta": {
+            "tag": [
+                  {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "db.Person_4_0_0.find({'$and':[{'$or':[{'address.line':'Berea'},{'address.city':'Berea'},{'address.district':'Berea'},{'address.state':'Berea'},{'address.postalCode':'Berea'},{'address.country':'Berea'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryCollection",
+                        "code": "Person_4_0_0"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "{'limit':100,'sort':{'_uuid':1}}"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "['address.line','address.city','address.district','address.state','address.postalCode','address.country','meta.tag.system','meta.tag.code','_uuid']"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryTime",
+                        "display": "0.088"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "{'useTwoStepSearchOptimization':undefined}"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryDatabase",
+                        "code": "fhir"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Person_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"$or\":[{\"address.city\":{\"$eq\":\"Berea\"}},{\"address.country\":{\"$eq\":\"Berea\"}},{\"address.district\":{\"$eq\":\"Berea\"}},{\"address.line\":{\"$eq\":\"Berea\"}},{\"address.postalCode\":{\"$eq\":\"Berea\"}},{\"address.state\":{\"$eq\":\"Berea\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"C9E3544A\",\"planCacheKey\":\"693B197F\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"address.city\":{\"$eq\":\"Berea\"}},{\"address.country\":{\"$eq\":\"Berea\"}},{\"address.district\":{\"$eq\":\"Berea\"}},{\"address.line\":{\"$eq\":\"Berea\"}},{\"address.postalCode\":{\"$eq\":\"Berea\"}},{\"address.state\":{\"$eq\":\"Berea\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":3,\"executionTimeMillis\":0,\"totalKeysExamined\":3,\"totalDocsExamined\":3,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":3,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":3,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"address.city\":{\"$eq\":\"Berea\"}},{\"address.country\":{\"$eq\":\"Berea\"}},{\"address.district\":{\"$eq\":\"Berea\"}},{\"address.line\":{\"$eq\":\"Berea\"}},{\"address.postalCode\":{\"$eq\":\"Berea\"}},{\"address.state\":{\"$eq\":\"Berea\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":3,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":3,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":3,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":3,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":3,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":3,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Person_4_0_0\",\"filter\":{\"$and\":[{\"$or\":[{\"address.line\":\"Berea\"},{\"address.city\":\"Berea\"},{\"address.district\":\"Berea\"},{\"address.state\":\"Berea\"},{\"address.postalCode\":\"Berea\"},{\"address.country\":\"Berea\"}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00059-jtg-ooo\",\"port\":57614,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7395946306620882954\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7395946306620882954\"}}]"
+                  },
+                  {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":3,\"nReturned\":3,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"$or\":[{\"address.city\":{\"$eq\":\"Berea\"}},{\"address.country\":{\"$eq\":\"Berea\"}},{\"address.district\":{\"$eq\":\"Berea\"}},{\"address.line\":{\"$eq\":\"Berea\"}},{\"address.postalCode\":{\"$eq\":\"Berea\"}},{\"address.state\":{\"$eq\":\"Berea\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":3,\"nReturned\":3,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":3,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":3,\"executionTimeMillis\":0,\"totalKeysExamined\":3,\"totalDocsExamined\":3},\"query\":\"db.Person_4_0_0.find({'$and':[{'$or':[{'address.line':'Berea'},{'address.city':'Berea'},{'address.district':'Berea'},{'address.state':'Berea'},{'address.postalCode':'Berea'},{'address.country':'Berea'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+                  }
+            ]
+      },
+      "type": "searchset",
+      "timestamp": "2024-07-26T02:08:59.5959Z",
+      "total": 0,
+      "link": [
+            {
+                  "relation": "self",
+                  "url": "http://localhost:3000/4_0_0/Person/?address:exact=Berea&_debug=1&_bundle=1"
+            },
+            {
+                  "relation": "next",
+                  "url": "http://localhost:3000/4_0_0/Person/?address%3Aexact=Berea&_debug=1&_bundle=1&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+            }
+      ]
+}

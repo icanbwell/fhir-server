@@ -1082,10 +1082,14 @@ describe('r4 search Tests', () => {
                 {
                     $and: [
                         {
-                            'name.given': 'DONOTUSE'
+                            'name.given': {
+                                $regex: /^DONOTUSE/i
+                            }
                         },
                         {
-                            'name.family': 'HIEMASTERONE'
+                            'name.family': {
+                                $regex: /^HIEMASTERONE/i
+                            }
                         },
                         {
                             'meta.tag': {
