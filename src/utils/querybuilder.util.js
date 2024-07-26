@@ -538,14 +538,24 @@ function calcRange(numStr) {
     if (n === 0) return 0.5;
 
     // check for scientific notation
-    let precn = 0;
-    let numIntDigits = 0;
+    let pow10 = 0;
+    let expDigits = 0;
     const exp = numStr.indexOf('e');
     if (exp > 0) {
-        numIntDigits = Number(numStr.substring(exp + 1));
-        numStr = numStr.substring(0, exp);
-        precn = numIntDigits + numStr.length;
+        pow10 = Number(numStr.substring(exp + 1));
+        expDigits = numStr.substring(0, exp);
+        if (expDigits.indexOf('.') !== -1) {
+            // Floating-point number
+            expDigits = expDigits.replace(/^0+/g, ''); // Remove leading zeros
+            expDigits = expDigits.replace('.', ''); // Remove the decimal point
+        } else {
+            // Integer number
+            expDigits = expDigits.replace(/^0+/, ''); // Remove leading zeros only
+        }
+        expDigits = expDigits.length;
     }
+
+    numStr = n.toString();
 
     // Remove leading zeros, and the decimal point
     if (numStr.indexOf('.') !== -1) {
@@ -557,21 +567,29 @@ function calcRange(numStr) {
         numStr = numStr.replace(/^0+/, ''); // Remove leading zeros only
     }
 
-    if (numIntDigits === 0) {
-        let beforePoint = Math.trunc(n);
-        if (beforePoint !== 0) {
-            beforePoint = beforePoint.toString();
-            numIntDigits = beforePoint.length;
-        }
+    let numIntDigits = 0;
+    let beforePoint = Math.trunc(n);
+    if (beforePoint !== 0) {
+        beforePoint = beforePoint.toString();
+        numIntDigits = beforePoint.length;
+    }
+    let offsetLen;
+    if (expDigits > 0) {
+        offsetLen = expDigits - 1;
+    } else {
+        offsetLen = numStr.length;
     }
     let offset = '0.';
-    for (let i = 0; i < numStr.length; i++) {
+    for (let i = 0; i < offsetLen; i++) {
         offset = offset + '0';
     }
     offset = offset + '5';
+    numIntDigits -= pow10;
     offset = Number(offset) * Math.pow(10, numIntDigits);
-
-    if (precn === 0) {
+    let precn;
+    if (pow10 !== 0) {
+        precn = expDigits + pow10;
+    } else {
         precn = numStr.length + 1;
     }
     return { offset, precn};
