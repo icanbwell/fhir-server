@@ -11,6 +11,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
+const { isTrue } = require('../../utils/isTrue');
 
 class EverythingOperation {
     /**
@@ -153,19 +154,20 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
 
-            if (parsedArgs.includeNonClinicalResources) {
+            if (isTrue(parsedArgs.includeNonClinicalResources)) {
                 if (!['Person', 'Patient'].includes(resourceType)) {
                     throw new Error(
                         'includeNonClinicalResources parameter can only be used with Person and Patient resource type'
                     );
                 }
-
                 if (
-                    parsedArgs.nonClinicalResourcesDepth > 3 ||
-                    parsedArgs.nonClinicalResourcesDepth < 1
+                    parsedArgs.nonClinicalResourcesDepth &&
+                    (isNaN(Number(parsedArgs.nonClinicalResourcesDepth)) ||
+                        parsedArgs.nonClinicalResourcesDepth > 3 ||
+                        parsedArgs.nonClinicalResourcesDepth < 1)
                 ) {
                     throw new Error(
-                        'nonClinicalResourcesDepth: Depth for linked non-clinical resources must be between 1 and 3'
+                        'nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
                     );
                 }
             }
@@ -175,7 +177,10 @@ class EverythingOperation {
                 parsedArgs.contained = 0;
                 let resourceFilterList = resourceFilter.split(',');
                 parsedArgs.resourceFilterList = resourceFilterList;
-                parsedArgs.resource = this.filterResources(parsedArgs.resource, resourceFilterList);
+                parsedArgs.resource = this.filterResources(
+                    deepcopy(parsedArgs.resource),
+                    resourceFilterList
+                );
             }
 
             const result = await this.graphOperation.graph({
@@ -185,8 +190,8 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer,
                 supportLegacyId,
-                includeNonClinicalResources: parsedArgs.includeNonClinicalResources,
-                nonClinicalResourcesDepth: parsedArgs.nonClinicalResourcesDepth ?? 1
+                includeNonClinicalResources: isTrue(parsedArgs.includeNonClinicalResources),
+                nonClinicalResourcesDepth: parsedArgs.nonClinicalResourcesDepth
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

@@ -1668,7 +1668,7 @@ containedEntries: []
                         resourcesList = [resourcesList[0], ...resourcesList[0].contained];
                     }
 
-                    for (let i = 0; i < nonClinicalResourcesDepth; i++) {
+                    for (let i = 1; i <= nonClinicalResourcesDepth; i++) {
                         // finding non clinical resources in depth using previous result as input
                         let { entities, queryItems } = await this.getLinkedNonClinicalResources(
                             requestInfo,
