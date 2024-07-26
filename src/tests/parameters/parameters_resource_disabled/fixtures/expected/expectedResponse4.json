@@ -1,0 +1,15 @@
+[
+    {
+        "id": "validationfail",
+        "issue": [
+            {
+                "code": "structure",
+                "details": {
+                    "text": "Parameters resource with id 11984437-eee9-462d-938d-d040b4e27008 is not allowed"
+                },
+                "severity": "error"
+            }
+        ],
+        "resourceType": "OperationOutcome"
+    }
+]

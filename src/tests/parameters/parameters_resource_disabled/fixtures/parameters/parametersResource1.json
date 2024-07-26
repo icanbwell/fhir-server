@@ -1,0 +1,23 @@
+{
+    "id": "81673f07-0b70-494d-9903-c391c24c73b1",
+    "resourceType": "Parameters",
+    "meta": {
+        "versionId": "154",
+        "lastUpdated": "2024-06-25T06:51:22.000Z",
+        "source": "Test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            }
+        ]
+    }
+}

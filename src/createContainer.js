@@ -371,10 +371,10 @@ const createContainer = function () {
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
-                new ParametersResourceValidator(),
                 new BundleResourceValidator({
                     resourceValidator: c.resourceValidator
                 }),
+                new ParametersResourceValidator(),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,

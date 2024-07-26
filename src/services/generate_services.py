@@ -22,7 +22,7 @@ def main() -> int:
         'MedicationRequest', 'MedicationStatement', 'MedicinalProductDefinition', 'MessageDefinition',
         'MessageHeader', 'MolecularSequence', 'NamingSystem', 'NutritionOrder', 'NutritionProduct',
         'Observation', 'ObservationDefinition', 'OperationDefinition', 'OperationOutcome', 'Organization',
-        'OrganizationAffiliation', 'PackagedProductDefinition', 'Parameters', 'Patient', 'PaymentNotice',
+        'OrganizationAffiliation', 'PackagedProductDefinition', 'Patient', 'PaymentNotice',
         'PaymentReconciliation', 'Person', 'PlanDefinition', 'Practitioner', 'PractitionerRole', 'Procedure',
         'Provenance', 'Questionnaire', 'QuestionnaireResponse', 'RegulatedAuthorization', 'RelatedPerson',
         'RequestGroup', 'ResearchDefinition', 'ResearchElementDefinition', 'ResearchStudy', 'ResearchSubject',
