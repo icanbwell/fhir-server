@@ -56,7 +56,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedPersonExact);
         });
 
-        test('search_by_family is case sensitive', async () => {
+        test('search_by_family is case sensitive with exact modifier', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -75,17 +75,17 @@ describe('Person Tests', () => {
 
             // ACT & ASSERT
             // search by family name is case sensitive
-            resp = await request.get('/4_0_0/Person?family=doe&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?family:exact=doe&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(emptyPersonResponse);
 
             // search by family name is case sensitive
-            resp = await request.get('/4_0_0/Person?family=User&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?family:exact=User&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonCaseSensitive1);
 
             // search by family name is case sensitive
-            resp = await request.get('/4_0_0/Person?family=user&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person?family:exact=user&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonCaseSensitive2);
         });
@@ -108,7 +108,7 @@ describe('Person Tests', () => {
             ]);
 
             // ACT & ASSERT
-            // search by family name is case sensitive
+            // search by family name
             resp = await request.get('/4_0_0/Person?family=Test1&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonSameName);
