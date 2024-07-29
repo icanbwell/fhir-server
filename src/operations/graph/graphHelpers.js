@@ -39,7 +39,7 @@ const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const nonClinicalDataFields = require('../../graphs/patient/non_clinical_resources_fields.json');
+const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const clinicalResources = require('../../graphs/patient/clinical_resources.json')['clinicalResources'];
 
 /**

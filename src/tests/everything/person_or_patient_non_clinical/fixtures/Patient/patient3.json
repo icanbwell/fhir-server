@@ -21,9 +21,7 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": [
-                "SHYLA"
-            ],
+            "given": ["SHYLA"],
             "prefix": [],
             "suffix": []
         }

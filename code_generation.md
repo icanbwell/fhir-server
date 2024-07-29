@@ -106,7 +106,7 @@ This is run by the command `make nonClinicalResourceFields`.
 This runs `src/fhir/generator/generate_non_clinical_fields.py` and makes a list of fields for each resources which contains reference to non-clinical resources, which is used by everything operation for finding linked non-clinical resources.
 
 This reads the `src/graphs/patient/everything.json` file and generates the following file:
-`src/graphs/patient/non_clinical_resources_fields.json`
+`src/graphs/patient/generated.non_clinical_resources_fields.json`
 
 ## FHIR Schema files used
 
