@@ -10,7 +10,6 @@ const expectedParametersResource1 = require('./fixtures/expected/expectedRespons
 const expectedParametersResource2 = require('./fixtures/expected/expectedResponse2.json');
 const expectedParametersResource3 = require('./fixtures/expected/expectedResponse3.json');
 const expectedParametersResource4 = require('./fixtures/expected/expectedResponse4.json');
-const expectedParametersResource5 = require('./fixtures/expected/expectedResponse5.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getGraphQLHeaders } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -111,7 +110,7 @@ describe('Parameters resource Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp.body).toStrictEqual(expectedParametersResource1);
+            expect(resp.body).toStrictEqual(expectedParametersResource4);
 
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
@@ -119,7 +118,7 @@ describe('Parameters resource Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp.body).toStrictEqual(expectedParametersResource3);
+            expect(resp.body).toStrictEqual(expectedParametersResource4);
 
             resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
@@ -135,7 +134,6 @@ describe('Parameters resource Tests', () => {
                 .set(getHeaders())
                 .expect(404);
 
-
             // Testing parameter resource in graphql & graphqlv2
             const parametersQueryText = parametersQuery.replace(/\\n/g, '');
             const guidanceResponseQueryText = guidanceResponseQuery.replace(/\\n/g, '');
@@ -150,7 +148,7 @@ describe('Parameters resource Tests', () => {
                     query: parametersQueryText
                 })
                 .set(getGraphQLHeaders());
-            expect(resp).toHaveResponse(expectedParametersResource5);
+            expect(resp).toHaveResponse(expectedParametersResource3);
 
             resp = await request
                 .post('/$graphql')
@@ -160,7 +158,7 @@ describe('Parameters resource Tests', () => {
                     query: guidanceResponseQueryText
                 })
                 .set(getGraphQLHeaders());
-            expect(resp).toHaveResponse(expectedParametersResource5);
+            expect(resp).toHaveResponse(expectedParametersResource3);
 
             // Graphqlv2
             resp = await request
@@ -171,7 +169,7 @@ describe('Parameters resource Tests', () => {
                     query: parametersQueryText
                 })
                 .set(getGraphQLHeaders());
-            expect(resp).toHaveResponse(expectedParametersResource5);
+            expect(resp).toHaveResponse(expectedParametersResource3);
 
             resp = await request
                 .post('/4_0_0/$graphqlv2')
@@ -181,7 +179,7 @@ describe('Parameters resource Tests', () => {
                     query: guidanceResponseQueryV2Text
                 })
                 .set(getGraphQLHeaders());
-            expect(resp).toHaveResponse(expectedParametersResource5);
+            expect(resp).toHaveResponse(expectedParametersResource3);
 
             // Checking if no new collection is made for Parameters after all the above requests
             collections = await db.listCollections().toArray();

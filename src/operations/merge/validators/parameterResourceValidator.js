@@ -3,8 +3,6 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
-const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const ParametersParameter = require('../../../fhir/classes/4_0_0/backbone_elements/parametersParameter');
 
 class ParametersResourceValidator extends BaseValidator {
     /**
@@ -17,114 +15,99 @@ class ParametersResourceValidator extends BaseValidator {
      */
     async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         /**
-         * @type {Resource[]}
-         */
-        let resources = [];
-        /**
          * @type {MergeResultEntry[]}
          */
         let errors = [];
-        /**
-         * @type {boolean}
-         */
-        let wasIncomingAList = Array.isArray(incomingResources);
-        if (!wasIncomingAList) {
-            incomingResources = [incomingResources];
-        }
-        for (const /** @type {Resource} */ incomingResource of incomingResources) {
-            // see if the resources were passed as parameters
-            if (incomingResource.resourceType === 'Parameters') {
+        // see if the resources were passed as parameters
+        if (incomingResources.resourceType === 'Parameters') {
+            // Unfortunately our FHIR schema resource creator does not support Parameters
+            // const ParametersResourceCreator = getResource(base_version, 'Parameters');
+            // const parametersResource = new ParametersResourceCreator(resource_incoming);
+            /**
+             * @type {Object}
+             */
+            const incomingObject = incomingResources;
+            /**
+             * @type {Parameters}
+             */
+            const parametersResource = new Parameters(incomingObject);
+            if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
-                 * @type {Object}
+                 * @type {OperationOutcome}
                  */
-                const incomingObject = incomingResource;
-                /**
-                 * @type {Parameters}
-                 */
-                const parametersResource = new Parameters(incomingObject);
-                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    const validationOperationOutcome = [
-                        new OperationOutcome({
-                            id: 'validationfail',
-                            resourceType: 'OperationOutcome',
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'structure',
-                                    details: new CodeableConcept({
-                                        text: 'Invalid parameter list'
-                                    })
-                                }
-                                )
-                            ]
-                        })
-                    ];
-                    errors.push(validationOperationOutcome);
-                }
-                // find the actual resources in the parameter field
-                /**
-                 * @type {ParametersParameter[]}
-                 */
-                const resourceParameters = parametersResource.parameter?.filter(p => p.resource);
-                if (resourceParameters?.length === 0) {
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    const validationOperationOutcome = [
-                        new OperationOutcome({
-                            id: 'validationfail',
-                            resourceType: 'OperationOutcome',
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'structure',
-                                    details: new CodeableConcept({
-                                        text: 'Invalid parameter list'
-                                    })
+                const validationOperationOutcome = [
+                    new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'structure',
+                                details: new CodeableConcept({
+                                    text: 'Invalid parameter list'
                                 })
-                            ]
-                        })
-                    ];
-                    errors.push(validationOperationOutcome);
-                }
-                // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
-                resourceParameters?.forEach(p => {
-                    if (p.resource.resourceType === 'Parameters') {
-                        errors.push(new OperationOutcome({
-                            id: 'validationfail',
-                            resourceType: 'OperationOutcome',
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'structure',
-                                    details: new CodeableConcept({
-                                        text: `Parameters resource with id ${p.resource.id} is not allowed`
-                                    })
-                                })
-                            ]
-                        }));
-                    } else {
-                        resources.push(p.resource);
-                    }
-                });
-            } else {
-                resources.push(incomingResource);
+                            }
+                            )
+                        ]
+                    })
+                ];
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
+            // find the actual resource in the parameter called resource
+            /**
+             * @type {ParametersParameter[]}
+             */
+            const resourceParameters = parametersResource.parameter.filter(p => p.resource);
+            if (resourceParameters.length === 0) {
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const validationOperationOutcome = [
+                    new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'structure',
+                                details: new CodeableConcept({
+                                    text: 'Invalid parameter list'
+                                })
+                            })
+                        ]
+                    })
+                ];
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
+            }
+            incomingResources = resourceParameters.map(r => r.resource);
         }
-        let resourcesLeft = false;
-        if (resources.length === 0) {
-            resourcesLeft = true;
-            wasIncomingAList = true;
+        const wasAList = Array.isArray(incomingResources);
+        if (wasAList) {
+            let resources = [];
+            // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
+            incomingResources?.forEach(p => {
+                if (p.resourceType === 'Parameters') {
+                    errors.push(new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'structure',
+                                details: new CodeableConcept({
+                                    text: `Parameters resource with id ${p.id} is not allowed`
+                                })
+                            })
+                        ]
+                    }));
+                } else {
+                    resources.push(p);
+                }
+            });
+            incomingResources = resources;
         }
 
-        return {
-            validatedObjects: resourcesLeft ? [] : wasIncomingAList ? resources : resources[0],
-            preCheckErrors: errors,
-            wasAList: wasIncomingAList
-        };
+        return { validatedObjects: incomingResources, preCheckErrors: errors, wasAList };
     }
 }
 
