@@ -3,6 +3,7 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class ParametersResourceValidator extends BaseValidator {
     /**
@@ -87,19 +88,28 @@ class ParametersResourceValidator extends BaseValidator {
             // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
             incomingResources?.forEach(p => {
                 if (p.resourceType === 'Parameters') {
-                    errors.push(new OperationOutcome({
+                    const operationOutcomeIssue = new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'structure',
+                        details: new CodeableConcept({
+                        text: 'Invalid resource type: Parameters'
+                        })
+                    });
+                    const operationOutcome = new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'structure',
-                                details: new CodeableConcept({
-                                    text: `Parameters resource with id ${p.id} is not allowed`
-                                })
-                            })
-                        ]
-                    }));
+                        issue: [operationOutcomeIssue]
+                    })
+                    errors.push(new MergeResultEntry(
+                        {
+                            id: p.id,
+                            created: false,
+                            updated: false,
+                            issue: operationOutcomeIssue,
+                            operationOutcome: operationOutcome,
+                            resourceType: p.resourceType
+                        }
+                    ));
                 } else {
                     resources.push(p);
                 }

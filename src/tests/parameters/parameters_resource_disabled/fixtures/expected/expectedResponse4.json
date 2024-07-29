@@ -1,15 +1,24 @@
 [
     {
-        "id": "validationfail",
-        "issue": [
-            {
-                "code": "structure",
-                "details": {
-                    "text": "Parameters resource with id 81673f07-0b70-494d-9903-c391c24c73b1 is not allowed"
-                },
-                "severity": "error"
-            }
-        ],
-        "resourceType": "OperationOutcome"
+        "operationOutcome": {
+            "resourceType": "OperationOutcome",
+            "id": "validationfail",
+            "issue": [
+                {
+                    "severity": "error",
+                    "code": "structure",
+                    "details": { "text": "Invalid resource type: Parameters" }
+                }
+            ]
+        },
+        "issue": {
+            "severity": "error",
+            "code": "structure",
+            "details": { "text": "Invalid resource type: Parameters" }
+        },
+        "created": false,
+        "id": "81673f07-0b70-494d-9903-c391c24c73b1",
+        "resourceType": "Parameters",
+        "updated": false
     }
 ]
