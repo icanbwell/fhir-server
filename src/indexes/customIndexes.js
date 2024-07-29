@@ -47,7 +47,6 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0',
                     ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
@@ -975,17 +974,6 @@ module.exports = {
                 },
                 options: {
                     name: 'sourceAssigningAuthority'
-                }
-            },
-            {
-                keys: {
-                    'meta.security.system': 1,
-                    'meta.security.code': 1,
-                    id: 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'metaSecuritySystemCodeId_uuid'
                 }
             },
             {
