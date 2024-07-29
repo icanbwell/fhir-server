@@ -24,7 +24,11 @@ class ParametersResourceValidator extends BaseValidator {
          * @type {MergeResultEntry[]}
          */
         let errors = [];
-        if (!Array.isArray(incomingResources)) {
+        /**
+         * @type {boolean}
+         */
+        let wasIncomingAList = Array.isArray(incomingResources);
+        if (!wasIncomingAList) {
             incomingResources = [incomingResources];
         }
         for (const /** @type {Resource} */ incomingResource of incomingResources) {
@@ -110,8 +114,13 @@ class ParametersResourceValidator extends BaseValidator {
                 resources.push(incomingResource);
             }
         }
+        let no = false;
+        if (resources.length === 0) {
+            no = true;
+            wasIncomingAList = true;
+        }
 
-        return { validatedObjects: resources, preCheckErrors: errors, wasAList: true };
+        return { validatedObjects: no ? [] : wasIncomingAList ? resources : resources[0] , preCheckErrors: errors, wasAList: wasIncomingAList };
     }
 }
 

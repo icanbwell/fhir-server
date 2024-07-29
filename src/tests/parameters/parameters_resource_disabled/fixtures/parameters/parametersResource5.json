@@ -21,7 +21,8 @@
                 }
             ]
         },
-        "parameter": {
+        "parameter": [{
+            "name": "test",
             "resource": {
                 "resourceType": "Parameters",
                 "id": "11984437-eee9-462d-938d-d040b4e27008",
@@ -58,6 +59,6 @@
                     }
                 ]
             }
-        }
+        }]
     }
 ]
