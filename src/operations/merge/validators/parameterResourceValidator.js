@@ -114,13 +114,17 @@ class ParametersResourceValidator extends BaseValidator {
                 resources.push(incomingResource);
             }
         }
-        let no = false;
+        let resourcesLeft = false;
         if (resources.length === 0) {
-            no = true;
+            resourcesLeft = true;
             wasIncomingAList = true;
         }
 
-        return { validatedObjects: no ? [] : wasIncomingAList ? resources : resources[0] , preCheckErrors: errors, wasAList: wasIncomingAList };
+        return {
+            validatedObjects: resourcesLeft ? [] : wasIncomingAList ? resources : resources[0],
+            preCheckErrors: errors,
+            wasAList: wasIncomingAList
+        };
     }
 }
 

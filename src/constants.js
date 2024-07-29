@@ -107,7 +107,6 @@ module.exports = {
         ORGANIZATION: 'Organization',
         ORGANIZATIONAFFILIATION: 'OrganizationAffiliation',
         PACKAGEDPRODUCTDEFINITION: 'PackagedProductDefinition',
-        PARAMETERS: 'Parameters',
         PATIENT: 'Patient',
         PAYMENTNOTICE: 'PaymentNotice',
         PAYMENTRECONCILIATION: 'PaymentReconciliation',
