@@ -23,6 +23,10 @@ const {getImageVersion} = require('./utils/getImageVersion');
 const container = new Container();
 
 
+/**
+ * @description Safe JSON formatter that limits the length of the JSON string
+ * @type {*}
+ */
 const safeJson = format((info, opts) => {
     const toLimitedLengthJSON = (obj, maxLength) => {
         try {
@@ -78,8 +82,8 @@ const defaultConfig = {
     format: combine(
         timestamp({format: 'YYYY-MM-DDTHH:mm:ssZ'}),
         // json({maximumBreadth: 1, maximumDepth: 1}),
-        // safeJson({maximumStringLength: 1000})
-        json()
+        safeJson({maximumStringLength: 1000})
+        // json()
         // simple()
     ),
     defaultMeta: {

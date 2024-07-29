@@ -2,15 +2,15 @@
  * This file implements the Passport strategy that reads a JWT token and decrypts it using the public key of the OAuth Provider
  */
 
-const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
+const { ExtractJwt, Strategy: JwtStrategy } = require('passport-jwt');
 const async = require('async');
 const env = require('var');
 const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
 
-const {EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
-const {isTrue} = require('../utils/isTrue');
-const {logDebug} = require('../operations/common/logging');
+const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
+const { isTrue } = require('../utils/isTrue');
+const { logDebug } = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
@@ -80,9 +80,9 @@ const cookieExtractor = function (req) {
     let token = null;
     if (req && req.cookies) {
         token = req.cookies.jwt;
-        logDebug('Found cookie jwt', {user: '', args: {token}});
+        logDebug('Found cookie jwt', { user: '', args: { token } });
     } else {
-        logDebug('No cookies found', {user: ''});
+        logDebug('No cookies found', { user: '' });
     }
     return token;
 };
@@ -107,7 +107,7 @@ const cookieExtractor = function (req) {
  * @param {string|null} scope
  * @return {Object}
  */
-function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, done, client_id, scope }) {
     const context = {};
     if (username) {
         context.username = username;
@@ -135,7 +135,7 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
         context.clientPersonIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId];
     }
 
-   return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
+    return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
@@ -204,7 +204,7 @@ const verify = (_request, jwt_payload, done) => {
  *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
-    authenticate(req, options) {
+    authenticate (req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);
         // can't just urlencode per https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
@@ -224,7 +224,7 @@ class MyJwtStrategy extends JwtStrategy {
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
                 `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
                 `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-            logDebug('Redirecting', {user: '', args: {redirect: redirectUrl}});
+            logDebug('Redirecting', { user: '', args: { redirect: redirectUrl } });
             return self.redirect(redirectUrl);
         }
 
@@ -256,7 +256,7 @@ module.exports.strategy = new MyJwtStrategy(
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    logDebug('No Signing Key found!', {user: ''});
+                    logDebug('No Signing Key found!', { user: '' });
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);

@@ -3,9 +3,9 @@
  */
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const {ApolloServer} = require('@apollo/server');
-const {buildSubgraphSchema} = require('@apollo/subgraph');
-const {expressMiddleware} = require('@apollo/server/express4');
+const { ApolloServer } = require('@apollo/server');
+const { buildSubgraphSchema } = require('@apollo/subgraph');
+const { expressMiddleware } = require('@apollo/server/express4');
 const {
     ApolloServerPluginLandingPageDisabled,
     ApolloServerPluginInlineTraceDisabled
@@ -14,19 +14,19 @@ const {
     ApolloServerPluginLandingPageLocalDefault
     // ApolloServerPluginLandingPageProductionDefault
 } = require('@apollo/server/plugin/landingPage/default');
-const {loadFilesSync} = require('@graphql-tools/load-files');
-const {mergeTypeDefs} = require('@graphql-tools/merge');
-const {join} = require('path');
+const { loadFilesSync } = require('@graphql-tools/load-files');
+const { mergeTypeDefs } = require('@graphql-tools/merge');
+const { join } = require('path');
 
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {FhirDataSource} = require('../../graphqlv2/dataSource');
-const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
-const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
-const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
-const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
-const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
-const {removeNullFromArray} = require('../../utils/nullRemover');
+const { FhirDataSource } = require('../../graphqlv2/dataSource');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin');
+const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
+const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
+const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
+const { removeNullFromArray } = require('../../utils/nullRemover');
 const resolvers = require('../../graphqlv2/resolvers');
 const {REQUEST_ID_TYPE} = require('../../constants');
 const {logInfo, logDebug} = require('../../operations/common/logging');
@@ -36,7 +36,7 @@ const {logInfo, logDebug} = require('../../operations/common/logging');
  * @return {Promise<e.Router>}
  */
 const graphqlV2 = async (fnGetContainer) => {
-    const typesArray = loadFilesSync(join(__dirname, '../../graphqlv2/schemas/'), {recursive: true});
+    const typesArray = loadFilesSync(join(__dirname, '../../graphqlv2/schemas/'), { recursive: true });
     const typeDefs = mergeTypeDefs(typesArray);
 
     /**
@@ -77,7 +77,7 @@ const graphqlV2 = async (fnGetContainer) => {
      * @param {import('http').ServerResponse} res
      * @return {Promise<GraphQLContext>}
      */
-    async function getContext({req, res}) {
+    async function getContext ({ req, res }) {
         /**
          * @type {import('content-type').ContentType}
          */
@@ -129,7 +129,7 @@ const graphqlV2 = async (fnGetContainer) => {
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
-            schema: buildSubgraphSchema({typeDefs, resolvers}),
+            schema: buildSubgraphSchema({ typeDefs, resolvers }),
             // typeDefs: typeDefs,
             // resolvers: resolvers,
             introspection: configManagerInstance.enableGraphQLV2Playground,
@@ -153,7 +153,7 @@ const graphqlV2 = async (fnGetContainer) => {
                             new OperationOutcomeIssue({
                                 severity: 'error',
                                 code: 'not-found',
-                                details: {text: 'Page not found'}
+                                details: { text: 'Page not found' }
                             })
                         ]
                     }).toJSON();
@@ -171,7 +171,7 @@ const graphqlV2 = async (fnGetContainer) => {
     await server.start();
 
     return expressMiddleware(server, {
-        context: async ({req, res}) => await getContext({req, res})
+        context: async ({ req, res }) => await getContext({ req, res })
     });
 };
 
