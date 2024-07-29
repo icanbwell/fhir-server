@@ -516,7 +516,11 @@ const quantityQueryBuilder = function ({ target, field }) {
                 qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                range  = calcRange(strNum);
+                if (strNum.indexOf('e') > 0) {
+                    range = calcRangeSN(numStr);
+                } else {
+                    range = calcRange(strNum);
+                }
                 num = Number(num);
                 qB[`${field}.value`] = { $ne: { $gte: Number((num - range.offset).toPrecision(range.precn)),
                         $lt: Number((num + range.offset).toPrecision(range.precn)) }};
@@ -524,40 +528,25 @@ const quantityQueryBuilder = function ({ target, field }) {
         }
     } else {
         // no prefixes
-        range = calcRange(num);
-        num = Number(num);
-        qB[`${field}.value`] = { $gte: Number((num - range.offset).toPrecision(range.precn)),
+       if (num.indexOf('e') > 0) {
+           range = calcRangeSN(num);
+       } else {
+           range = calcRange(num);
+       }
+       num = Number(num);
+       qB[`${field}.value`] = { $gte: Number((num - range.offset).toPrecision(range.precn)),
                         $lt: Number((num + range.offset).toPrecision(range.precn)) }
     }
 
     return qB;
 };
-// return value of range offset
+
+// return value of range offset and precision
 function calcRange(numStr) {
     const n = Number(numStr);
     if (n === 0) return 0.5;
 
-    // check for scientific notation
-    let pow10 = 0;
-    let expDigits = 0;
-    const exp = numStr.indexOf('e');
-    if (exp > 0) {
-        pow10 = Number(numStr.substring(exp + 1));
-        expDigits = numStr.substring(0, exp);
-        if (expDigits.indexOf('.') !== -1) {
-            // Floating-point number
-            expDigits = expDigits.replace(/^0+/g, ''); // Remove leading zeros
-            expDigits = expDigits.replace('.', ''); // Remove the decimal point
-        } else {
-            // Integer number
-            expDigits = expDigits.replace(/^0+/, ''); // Remove leading zeros only
-        }
-        expDigits = expDigits.length;
-    }
-
-    numStr = n.toString();
-
-    // Remove leading zeros, and the decimal point
+    // Remove leading zeros and the decimal point
     if (numStr.indexOf('.') !== -1) {
         // Floating-point number
         numStr = numStr.replace(/^0+/g, ''); // Remove leading zeros
@@ -573,25 +562,49 @@ function calcRange(numStr) {
         beforePoint = beforePoint.toString();
         numIntDigits = beforePoint.length;
     }
-    let offsetLen;
-    if (expDigits > 0) {
-        offsetLen = expDigits - 1;
-    } else {
-        offsetLen = numStr.length;
-    }
+
+    const offsetLen = numStr.length;
     let offset = '0.';
     for (let i = 0; i < offsetLen; i++) {
         offset = offset + '0';
     }
     offset = offset + '5';
-    numIntDigits -= pow10;
     offset = Number(offset) * Math.pow(10, numIntDigits);
-    let precn;
-    if (pow10 !== 0) {
-        precn = expDigits + pow10;
-    } else {
-        precn = numStr.length + 1;
+    const precn  = numStr.length + 1;
+    return { offset, precn};
+}
+
+
+// return value of range offset for scientific notation numbers
+function calcRangeSN(numStr) {
+    const n = Number(numStr);
+    if (n === 0) return 0.5;
+    let pow10 = 0;
+    let expDigits;
+
+    const exp = numStr.indexOf('e');
+    if (exp > 0) {
+        pow10 = Number(numStr.substring(exp + 1));
+        expDigits = numStr.substring(0, exp);
+        if (expDigits.indexOf('.') !== -1) {
+            // Floating-point number
+            expDigits = expDigits.replace(/^0+/g, ''); // Remove leading zeros
+            expDigits = expDigits.replace('.', ''); // Remove the decimal point
+        } else {
+            // Integer number
+            expDigits = expDigits.replace(/^0+/, ''); // Remove leading zeros only
+        }
+        expDigits = expDigits.length;
     }
+
+    const offsetLen = expDigits - 1;
+    let offset = '0.';
+    for (let i = 0; i < offsetLen; i++) {
+        offset = offset + '0';
+    }
+    offset = offset + '5';
+    offset = Number(offset) * Math.pow(10, pow10);
+    const precn = expDigits + Math.abs(pow10);
     return { offset, precn};
 }
 
