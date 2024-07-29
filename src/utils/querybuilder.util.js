@@ -247,6 +247,34 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
     }
     return queryBuilder;
 };
+
+const tokenIdentifierOfTypeQueryBuilder = function ({ target, field }) {
+    let queryBuilder = {};
+
+    let targetArray = target.split('|').filter((t) => t !== '');
+    if (targetArray.length !== 3) {
+        return queryBuilder;
+    }
+
+    let [system, code, value] = targetArray;
+
+    queryBuilder = {
+        $and: [
+            {
+                [`${field}`]: {
+                    $elemMatch: {
+                        'type.coding.system': system,
+                        'type.coding.code': code
+                    }
+                }
+            },
+            { [`${field}.value`]: value }
+        ]
+    };
+
+    return queryBuilder;
+};
+
 /**
  * @name exactMatchQueryBuilder
  * @param {string|boolean|null} target what we are searching for
@@ -1260,5 +1288,6 @@ module.exports = {
     textQueryBuilder,
     exactMatchQueryBuilder,
     tokenQueryContainsBuilder,
+    tokenIdentifierOfTypeQueryBuilder,
     extensionQueryBuilder
 };
