@@ -341,7 +341,6 @@ function createApp ({ fnGetContainer }) {
 
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
-        logDebug('GraphQL Middleware Enabled', { enableGraphQL: env.ENABLE_GRAPHQL, enableGraphQLV2: configManager.enableGraphQLV2 });
         app.use(cors(fhirServerConfig.server.corsOptions));
 
         const router = express.Router();
@@ -419,7 +418,6 @@ function createApp ({ fnGetContainer }) {
                 app.use('/\\$graphql', router);
             }
             if(graphqlV2Middleware) {
-                logDebug('GraphQL V2 Middleware Enabled', {});
                 routerv2.use(graphqlV2Middleware);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }

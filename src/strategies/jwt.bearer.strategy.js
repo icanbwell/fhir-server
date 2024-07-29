@@ -40,7 +40,6 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
      * @type {Object}
      */
     const jsonResponse = JSON.parse(res.text);
-    logDebug(`getExternalJwksByUrlAsync: ${jwksUrl}`, jsonResponse);
     return jsonResponse.keys;
 };
 
@@ -110,7 +109,6 @@ const cookieExtractor = function (req) {
  */
 function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
     const context = {};
-    logDebug('parseUserInfoFromPayload start', {username, subject, isUser, jwt_payload, client_id, scope});
     if (username) {
         context.username = username;
     }
@@ -128,7 +126,6 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
             }
         });
         if (!validInput) {
-            logDebug('Invalid input', {jwt_payload});
             return done(null, false);
         }
         context.personIdFromJwtToken = jwt_payload[env.USE_CLIENT_FHIR_PERSON_ID ?
@@ -138,8 +135,7 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
         context.clientPersonIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId];
     }
 
-    logDebug('parseUserInfoFromPayload end', {id: client_id, isUser, name: username, username, scope, context});
-    return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
+   return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
@@ -151,7 +147,6 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
  * @return {*}
  */
 const verify = (_request, jwt_payload, done) => {
-    logDebug('verify start', {jwt_payload});
     if (jwt_payload) {
         // Calculate scopes from jwt_payload
         /**
@@ -189,7 +184,6 @@ const verify = (_request, jwt_payload, done) => {
          */
         const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
 
-        logDebug("Calling parseUserInfoFromPayload", {jwt_payload, isUser, done, scope});
         return parseUserInfoFromPayload({
             username: jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'],
             subject: jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT],
@@ -217,7 +211,6 @@ class MyJwtStrategy extends JwtStrategy {
         // "You can't set the value of a state parameter to a URL-encoded JSON string. To pass a string that matches
         // this format in a state parameter, encode the string to Base64, then decode it in your app.
         const resourceUrl = req.originalUrl ? Buffer.from(req.originalUrl).toString('base64') : '';
-        logDebug('MyJwtStrategy authenticate start', {token, resourceUrl});
         if (
             !token &&
             req.useragent &&
