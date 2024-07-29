@@ -8,7 +8,6 @@ from fhir_xml_schema_parser import FhirXmlSchemaParser
 patient_graphs: Path = Path(__file__).parent.joinpath("./../../graphs/patient")
 
 reference_type_list = FhirXmlSchemaParser.get_types_for_references()
-all_resources_list = FhirXmlSchemaParser.get_list_of_resources()
 
 
 def get_clinical_resources(obj, field_names=None):
@@ -44,18 +43,12 @@ def get_non_clinical_resources_fields(resources_to_exclude=[]):
         if path.endswith("V2"):
             path = path[:-2]
 
-        targets = []
         for type in reference_type.target_resources:
             if not type in resources_to_exclude:
-                targets.append(type)
+                x = result.get(resource, [])
+                x.append(path + ".reference")
+                result[resource] = x
                 break
-
-        if targets:
-            x = result.get(resource)
-            if not x:
-                x = []
-            x.append(path + ".reference")
-            result[resource] = x
 
     return result
 

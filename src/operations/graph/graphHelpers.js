@@ -1279,11 +1279,13 @@ containedEntries: []
                             if (!resourcesToExclude.includes(referenceResourceType)) {
                                 if (nestedResourceReferences[referenceResourceType]) {
                                     nestedResourceReferences[referenceResourceType] =
-                                        nestedResourceReferences[referenceResourceType].concat([
+                                        nestedResourceReferences[referenceResourceType].add(
                                             referenceId
-                                        ]);
+                                        );
                                 } else {
-                                    nestedResourceReferences[referenceResourceType] = [referenceId];
+                                    nestedResourceReferences[referenceResourceType] = new Set([
+                                        referenceId
+                                    ]);
                                 }
                             }
                         }
@@ -1292,9 +1294,7 @@ containedEntries: []
             }
 
             for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
-                let referenceIds = Array.from(new Set(ids));
-
-                const args = Object.assign({ base_version }, { id: referenceIds.join(',') });
+                const args = { base_version: base_version, id: Array.from(ids).join(',') };
                 const childParseArgs = this.r4ArgsParser.parseArgs({
                     resourceType,
                     args
