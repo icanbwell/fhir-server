@@ -43,11 +43,15 @@ For example:
 
 [Merge](merge.md)
 
+## $everything functionality
+
+[Everything](everything.md)
+
 ## Streaming functionality
 
 [Streaming](streaming.md)
 
-## (WIP) Bulk Export functionality
+## Bulk Export functionality
 
 [Bulk Export](export.md)
 

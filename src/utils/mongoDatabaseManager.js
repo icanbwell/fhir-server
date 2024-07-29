@@ -1,4 +1,4 @@
-const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig } = require('../config');
+const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig, resourceHistoryMongoConfig } = require('../config');
 const { isTrue } = require('./isTrue');
 const env = require('var');
 const { logInfo, logError } = require('../operations/common/logging');
@@ -35,6 +35,12 @@ let auditReadOnlyClientDb = null;
  * @type {import('mongodb').Db}
  */
 let accessLogsDb = null;
+
+/**
+ * resource history db
+ * @type {import('mongodb').Db}
+ */
+let resourceHistoryDb = null;
 
 /**
  * gridFs bucket
@@ -105,6 +111,17 @@ class MongoDatabaseManager {
     }
 
     /**
+     * Gets resource history db
+     * @returns {Promise<import('mongodb').Db>}
+     */
+    async getResourceHistoryDbAsync () {
+        if (!resourceHistoryDb) {
+            await this.connectAsync();
+        }
+        return resourceHistoryDb;
+    }
+
+    /**
      * Gets db for resource type
      * @param {string} resourceType
      * @param {Object} extraInfo
@@ -117,6 +134,8 @@ class MongoDatabaseManager {
                 return await this.getAuditReadOnlyDbAsync();
             }
             return await this.getAuditDbAsync();
+        } else if (extraInfo.isHistoryQuery || resourceType?.endsWith('_History')) {
+            return await this.getResourceHistoryDbAsync();
         }
         return await this.getClientDbAsync();
     }
@@ -134,6 +153,10 @@ class MongoDatabaseManager {
 
     async getClientConfigAsync () {
         return mongoConfig;
+    }
+
+    async getResourceHistoryConfigAsync () {
+        return resourceHistoryMongoConfig;
     }
 
     async getAuditConfigAsync () {
@@ -234,6 +257,10 @@ class MongoDatabaseManager {
         const accessLogsConfig = await this.getAccessLogsConfigAsync();
         const accessLogsClient = await this.createClientAsync(accessLogsConfig);
         accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
+
+        const resourceHistoryConfig = await this.getResourceHistoryConfigAsync();
+        const resourceHistoryClient = await this.createClientAsync(resourceHistoryConfig);
+        resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
     }
 
     /**

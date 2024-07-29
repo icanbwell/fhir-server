@@ -25,21 +25,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.lastUpdated': -1,
-                    _sourceId: 1
-                },
-                options: {
-                    name: 'reverse_meta.lastUpdated_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
-            {
-                keys: {
                     'meta.source': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'meta.source_1'
@@ -53,7 +40,7 @@ module.exports = {
                 keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'security.system_code_1'
@@ -84,20 +71,6 @@ module.exports = {
                         ACCESS_LOGS_COLLECTION_NAME
                     ]
             })),
-            {
-                keys: {
-                    _sourceId: 1,
-                    _sourceAssigningAuthority: 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'sourceId._sourceAssigningAuthority'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
             {
                 keys: {
                     'subject._uuid': 1,
@@ -364,7 +337,7 @@ module.exports = {
         ],
         ChargeItem_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -376,7 +349,7 @@ module.exports = {
         ],
         CodeSystem_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -388,7 +361,7 @@ module.exports = {
         ],
         Communication_4_0_0: [
             {
-               keys: {
+                keys: {
                     status: 1,
                     'category.coding.system': 1,
                     'category.coding.code': 1,
@@ -402,7 +375,7 @@ module.exports = {
         ],
         Condition_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -416,7 +389,7 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'helix_coverage_1'
@@ -425,14 +398,14 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'helix_coverage_uuid'
                 }
             },
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -444,7 +417,7 @@ module.exports = {
         ],
         DocumentReference_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -517,17 +490,7 @@ module.exports = {
                     options: {
                         name: `_access_${client}_1._uuid_1.meta_lastUpdated_1`
                     }
-            })),
-            {
-                keys: {
-                    'meta.security.system': 1,
-                    'meta.security.code': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'security.system_code_uuid_1'
-                }
-            }
+            }))
         ],
         Group_4_0_0: [
             {
@@ -553,7 +516,7 @@ module.exports = {
             {
                 keys: {
                     'providedBy._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'providedBy.reference_1'
@@ -561,17 +524,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'providedBy._uuid': 1,
-                    'providedBy._sourceId': 1,
+                    'location._uuid': 1,
                     _uuid: 1
-                },
-                options: {
-                    name: 'providedBy_uuid_sourceId_uuid'
-                }
-            },
-             {
-                keys: {
-                    'location._uuid': 1
                 },
                 options: {
                     name: 'location._uuid_1'
@@ -579,7 +533,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'location._sourceId': 1
+                    'location._sourceId': 1,
+                    _uuid: 1
                 },
                 options: {
                     name: 'location._sourceId_1'
@@ -587,7 +542,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'providedBy._sourceId': 1
+                    'providedBy._sourceId': 1,
+                    _uuid: 1
                 },
                 options: {
                     name: 'providedBy._sourceId'
@@ -596,7 +552,7 @@ module.exports = {
         ],
         Library_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -620,7 +576,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'managingOrganization.reference_1'
@@ -629,7 +585,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
@@ -638,7 +594,7 @@ module.exports = {
         ],
         Measure_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -650,7 +606,7 @@ module.exports = {
         ],
         MeasureReport_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -662,7 +618,7 @@ module.exports = {
         ],
         MedicationDispense_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -674,7 +630,7 @@ module.exports = {
         ],
         MedicationRequest_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -687,42 +643,22 @@ module.exports = {
         Observation_4_0_0: [
             {
                 keys: {
-                    effectiveDateTime: -1,
-                    _sourceId: 1,
-                    'subject._sourceId': 1
-                },
-                options: {
-                    name: 'reverse_helix_observation_effective_1'
-                }
-            },
-            {
-                keys: {
                     'subject._sourceId': 1,
-                    effectiveDateTime: -1,
-                    _sourceId: 1
+                    _uuid: 1,
+                    effectiveDateTime: -1
                 },
                 options: {
-                    name: 'reverse_helix_observation_effective_2'
-                }
-            },
-            {
-                keys: {
-                    effectiveDateTime: -1,
-                    _sourceId: 1,
-                    'subject._uuid': 1
-                },
-                options: {
-                    name: 'reverse_helix_observation_effective_uuid_1'
+                    name: 'subject__sourceId._uuid.effectiveDateTime-1'
                 }
             },
             {
                 keys: {
                     'subject._uuid': 1,
-                    effectiveDateTime: -1,
-                    _sourceId: 1
+                    _uuid: 1,
+                    effectiveDateTime: -1
                 },
                 options: {
-                    name: 'reverse_helix_observation_effective_uuid_2'
+                    name: 'subject__uuid._uuid.effectiveDateTime-1'
                 }
             },
             {
@@ -746,13 +682,13 @@ module.exports = {
                 }
             },
             {
-               keys: {
-                    'meta.lastUpdated': 1,
+                keys: {
                     '_access.bwell': 1,
+                    'meta.lastUpdated': 1,
                     _uuid: 1
                 },
                 options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                    name: '_access.bwell_1_meta.lastUpdated_1__uuid_1'
                 }
             }
         ],
@@ -770,11 +706,10 @@ module.exports = {
                 keys: {
                     'identifier.system': 1,
                     'identifier.value': 1,
-                    _sourceId: 1,
                     _uuid: 1
                 },
                 options: {
-                    name: 'identifierSystemValue_sourceId_uuid'
+                    name: 'identifierSystemValue_uuid'
                 }
             },
             ...(
@@ -796,7 +731,7 @@ module.exports = {
             {
                 keys: {
                     'participatingOrganization._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'helix_organization_reference_1'
@@ -805,7 +740,7 @@ module.exports = {
             {
                 keys: {
                     'participatingOrganization._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'helix_organization_reference_uuid'
@@ -842,7 +777,7 @@ module.exports = {
                 }
             },
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -971,21 +906,19 @@ module.exports = {
             {
                 keys: {
                     '_access.bwell': 1,
-                    _uuid: 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
-                    name: 'bwell.uuid.sourceId'
+                    name: 'bwell.uuid'
                 }
             },
             {
                 keys: {
                     'meta.security.code': 1,
-                    _uuid: 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
-                    name: 'meta_security_code.uuid.sourceId'
+                    name: 'meta_security_code.uuid'
                 }
             },
             {
@@ -1007,7 +940,7 @@ module.exports = {
                 }
             },
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1049,11 +982,20 @@ module.exports = {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
                     id: 1,
-                    _uuid: 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
-                    name: 'metaSecuritySystemCodeId_uuid_sourceId'
+                    name: 'metaSecuritySystemCodeId_uuid'
+                }
+            },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'identifier_system.identifier_value._uuid'
                 }
             },
             ...(
@@ -1075,7 +1017,7 @@ module.exports = {
             {
                 keys: {
                     'practitioner._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'practitioner.reference_1'
@@ -1084,7 +1026,7 @@ module.exports = {
             {
                 keys: {
                     'practitioner._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'practitioner.reference_uuid'
@@ -1093,7 +1035,7 @@ module.exports = {
             {
                 keys: {
                     'organization._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'organization.reference_1'
@@ -1102,7 +1044,7 @@ module.exports = {
             {
                 keys: {
                     'organization._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'organization.reference_uuid'
@@ -1111,7 +1053,7 @@ module.exports = {
             {
                 keys: {
                     'location._sourceId': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'location.reference_1'
@@ -1120,7 +1062,7 @@ module.exports = {
             {
                 keys: {
                     'location._uuid': 1,
-                    _sourceId: 1
+                    _uuid: 1
                 },
                 options: {
                     name: 'location.reference_uuid'
@@ -1143,7 +1085,7 @@ module.exports = {
         ],
         Procedure_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1175,7 +1117,7 @@ module.exports = {
         ],
         Questionaire_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1211,7 +1153,7 @@ module.exports = {
                 }
             },
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1312,7 +1254,7 @@ module.exports = {
                 }
             },
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1324,7 +1266,7 @@ module.exports = {
         ],
         ValueSet_4_0_0: [
             {
-               keys: {
+                keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1339,7 +1281,6 @@ module.exports = {
                 keys: {
                     'category.coding.code': 1,
                     'subject._uuid': 1,
-                    'subject.sourceId': 1,
                     effectiveDateTime: -1,
                     _uuid: 1
                 },

@@ -1,16 +1,14 @@
-# (WIP) FHIR $export endpoint
+# FHIR $export endpoint
 
 The Helix FHIR Server supports the Bulk Export functionality of FHIR Specification [https://build.fhir.org/ig/HL7/bulk-data/export.html].
 
 ## Api Overview:
 
-Bulk data export can be triggered by POST request using below 3 endpoints:
+Bulk data export can be triggered by POST request using below 2 endpoints:
 
 1. `/$export` - This endpoint will allow data export for all the resources accessible via provided jwt scopes.
 
 2. `/Patient/$export` - This endpoint will allow data export for all the patients data accessible via provided jwt scopes.
-
-3. `/Group/:id/$export` - This endpoint will allow data export for resources related to the members of the provided group which are accessible via provided jwt scopes.
 
 Note: It will be allowed for non-patient REST requests only.
 
@@ -19,9 +17,28 @@ Note: It will be allowed for non-patient REST requests only.
 | Param | use | description |
 |-------|-----|-------------|
 | `_since` | `?_since=2023-10-10`| This accepts a date value and indicates that all the resource which were created/modified after this date needs to be exported |
-| `_outputFormat` | `?_outputFormat=ndjson` | This params is used to specify the format in which data should be exported. Currently, FHIR Server supports only ndjson format, so by default it will be set to ndjson |
 | `patient` | `?patient=patient/1,2` | This param takes comma separated patient references and only data related to the provided patients will be exported |
 | `_type` | `?_type=Patient,Person` | This param takes resource types to be exported, other resourceTypes will be ignored |
+
+### Query Params passed as Arguments in Bulk Export Script:
+
+| Param | use | description |
+|-------|-----|-------------|
+| `patientReferenceBatchSize` | `?patientReferenceBatchSize=100`| This parameter specifies the batch size for patient references that will be passed to the bulk export script |
+| `fetchResourceBatchSize` | `?fetchResourceBatchSize=1000` | This parameter sets the batch size for fetching resources from the database in the bulk export script |
+| `uploadPartSize` | `?uploadPartSize=104857600` | This parameter sets the upload part size (in bytes) of a single multi-part upload for the bulk export script |
+
+### Query Params used to update Job's Pod Configuration:
+
+| Param | use | description |
+|-------|-----|-------------|
+| `loglevel` | `?loglevel=DEBUG`| This parameter sets the corresponding environment variable for log level within the pod |
+| `requestsMemory` | `?requestsMemory=2G` | This parameter sets the memory request (in GB) for the pod running the bulk data export script |
+| `ram` | `?ram=1` | This parameter sets the ram (in GB) for the pod running the bulk data export script |
+| `limitsMemory` | `?limitsMemory=8G` | This parameter sets the memory limit (in GB) for the pod running the bulk data export script |
+| `ttlSecondsAfterFinished` | `?ttlSecondsAfterFinished=30` | This parameter sets the time-to-live (in seconds) after the pod finishes running the bulk data export script |
+
+NOTE: Make sure you provide the correct values for above parameters or pod creation could fail
 
 ## Example Flow:
 

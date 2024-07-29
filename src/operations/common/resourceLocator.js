@@ -175,7 +175,7 @@ class ResourceLocator {
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync();
+        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: collectionName.endsWith('_History')});
         return await this.mongoCollectionManager.getOrCreateCollectionAsync(
             { db, collectionName });
     }
@@ -263,7 +263,7 @@ class ResourceLocator {
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync();
+        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: true});
         return async.map(collectionNames,
             async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
                 { db, collectionName }));
@@ -283,7 +283,7 @@ class ResourceLocator {
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync();
+        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: true});
         return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
     }
 }

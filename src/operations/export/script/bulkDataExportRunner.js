@@ -17,7 +17,7 @@ const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { isUuid } = require('../../../utils/uid.util');
-const { logInfo, logError } = require('../../common/logging');
+const { logInfo, logError, logDebug } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { COLLECTION, GRIDFS } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
@@ -25,6 +25,7 @@ const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory'
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 class BulkDataExportRunner {
     /**
@@ -40,11 +41,13 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @property {string} exportStatusId
-     * @property {number} batchSize
+     * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
      * @property {S3Client} s3Client
      * @property {number} uploadPartSize
+     * @property {string} requestId
      *
      * @param {ConstructorParams}
      */
@@ -59,11 +62,13 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
+        postSaveProcessor,
         exportStatusId,
-        batchSize,
+        patientReferenceBatchSize,
         fetchResourceBatchSize,
         s3Client,
-        uploadPartSize
+        uploadPartSize,
+        requestId
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -134,7 +139,7 @@ class BulkDataExportRunner {
         /**
          * @type {number}
          */
-        this.batchSize = batchSize;
+        this.patientReferenceBatchSize = patientReferenceBatchSize;
 
         /**
          * @type {number}
@@ -156,6 +161,18 @@ class BulkDataExportRunner {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
+        assertIsValid(requestId, 'Invalid request id.');
     }
 
     /**
@@ -163,6 +180,7 @@ class BulkDataExportRunner {
      */
     async processAsync() {
         try {
+            const startTime = Date.now();
             this.exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
                     exportStatusId: this.exportStatusId
                 });
@@ -176,9 +194,11 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
+            await this.updateExportStatusResource();
+            logInfo(
+                `ExportStatus resource marked as in-progress with Id: ${this.exportStatusId}`,
+                { exportStatusId: this.exportStatusId }
+            );
 
             // compute base folder where data will be upload in s3
             const accessTags = this.exportStatusResource.meta.security
@@ -231,21 +251,40 @@ class BulkDataExportRunner {
 
             // Update status of ExportStatus resource to completed and add output and error
             this.exportStatusResource.status = 'completed';
-            await this.databaseExportManager.updateExportStatusAsync({
-                exportStatusResource: this.exportStatusResource
-            });
+            await this.updateExportStatusResource();
+
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+            logInfo(
+                `ExportStatus resource marked as completed with Id: ${this.exportStatusId}`,
+                { exportStatusId: this.exportStatusId, timeTaken: this.formatTime(elapsedTime) }
+            );
         } catch (err) {
             if (this.exportStatusResource) {
                 // Update status of ExportStatus resource to failed if ExportStatus resource exists
                 this.exportStatusResource.status = 'entered-in-error';
-                await this.databaseExportManager.updateExportStatusAsync({
-                    exportStatusResource: this.exportStatusResource
-                });
+                await this.updateExportStatusResource();
+                logInfo(
+                    `ExportStatus resource marked as entered-in-error with Id: ${this.exportStatusId}`,
+                    { exportStatusId: this.exportStatusId }
+                );
             }
             logError(`ERROR: ${err.message}`, {
                 error: err.stack
             });
         }
+    }
+
+    /**
+     * Function to format time in milliseconds to human readable format
+     * @param {*} milliseconds number of milliseconds
+     * @returns human readable format time
+     */
+    formatTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours, ${minutes % 60} minutes, ${seconds % 60} seconds`;
     }
 
     /**
@@ -285,6 +324,22 @@ class BulkDataExportRunner {
         }
 
         return query;
+    }
+
+    /**
+     * Function to update export status resource
+     */
+    async updateExportStatusResource() {
+        await this.databaseExportManager.updateExportStatusAsync({
+            exportStatusResource: this.exportStatusResource
+        });
+        await this.postSaveProcessor.afterSaveAsync({
+            requestId: this.requestId,
+            eventType: 'U',
+            resourceType: 'ExportStatus',
+            doc: this.exportStatusResource
+        });
+        await this.postSaveProcessor.flushAsync();
     }
 
     /**
@@ -436,12 +491,18 @@ class BulkDataExportRunner {
      */
     async handlePatientExportAsync({ searchParams, query, resourceType }) {
         try {
+            logInfo(`Starting export for resource: ${resourceType}`);
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
                 patientReferences: searchParams.get('patient')?.split(','),
                 query: deepcopy(query),
                 resourceType: 'Patient'
             });
+
+            if (resourceType === 'Patient') {
+                await this.processResourceAsync({ resourceType, query: patientQuery });
+                return;
+            }
 
             /**
              * @type {ResourceLocator}
@@ -468,7 +529,7 @@ class BulkDataExportRunner {
             for await (const result of patientCursor) {
                 patientReferences.push(`Patient/${result._uuid}`);
 
-                if (patientReferences.length === this.batchSize) {
+                if (patientReferences.length === this.patientReferenceBatchSize) {
                     await this.exportPatientDataAsync({
                         resourceType,
                         query,
@@ -488,14 +549,14 @@ class BulkDataExportRunner {
                 });
             }
 
-            if (multipartContext.previousBuffer) {
+            if (multipartContext.previousBuffer?.length) {
                 logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                 logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
 
                 // Upload the file to s3
                 multipartContext.multipartUploadParts.push(
                     await this.s3Client.uploadPartAsync({
-                        data: multipartContext.previousBuffer,
+                        data: multipartContext.previousBuffer.join('\n').trim(),
                         partNumber: multipartContext.multipartUploadParts.length + 1,
                         uploadId: multipartContext.uploadId,
                         filePath: multipartContext.resourceFilePath
@@ -504,7 +565,6 @@ class BulkDataExportRunner {
 
                 logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
             }
-
             if (multipartContext.uploadId) {
                 // finish multipart upload
                 await this.s3Client.completeMultiPartUploadAsync({
@@ -563,7 +623,7 @@ class BulkDataExportRunner {
             resourceType
         });
         try {
-            logInfo(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
+            logDebug(`Exporting ${resourceType} resources with query: ${JSON.stringify(resourceQuery)}`);
 
             // generate parsed args for enriching the resource
             const parsedArgs = this.r4ArgsParser.parseArgs({
@@ -579,14 +639,10 @@ class BulkDataExportRunner {
                     resourceType,
                     base_version: '4_0_0'
                 });
-
-                const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                    resourceQuery
-                });
-                multipartContext.collection = collections[0];
                 const db = await resourceLocator.getDatabaseConnectionAsync();
+                multipartContext.collection = db.collection(`${resourceType}_4_0_0`);
                 const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
-                multipartContext.averageDocumentSize = stats.avgObjSize;
+                multipartContext.averageDocumentSize = stats.avgObjSize > 0 ? stats.avgObjSize : 2000;
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
@@ -616,14 +672,12 @@ class BulkDataExportRunner {
                     });
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
-                let buffer = currentBatch.slice(0, currentBatchSize).join('\n');
-                if (multipartContext.previousBuffer) {
-                    buffer = multipartContext.previousBuffer + '\n' + buffer;
-                    currentBatchSize += multipartContext.previousBatchSize;
-                    multipartContext.previousBuffer = null;
-                    multipartContext.previousBatchSize = null;
-                }
+
                 multipartContext.readCount += currentBatchSize;
+                if (multipartContext.previousBuffer?.length) {
+                    currentBatch.concat(multipartContext.previousBuffer);
+                    currentBatchSize += multipartContext.previousBatchSize;
+                }
                 if (currentBatchSize >= minUploadBatchSize) {
                     logInfo(`${resourceType} resource read: ${multipartContext.readCount}`);
                     logInfo(`Uploading part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
@@ -631,16 +685,18 @@ class BulkDataExportRunner {
                     // Upload the file to s3
                     multipartContext.multipartUploadParts.push(
                         await this.s3Client.uploadPartAsync({
-                            data: buffer,
+                            data: currentBatch.slice(0, currentBatchSize).join('\n'),
                             partNumber: multipartContext.multipartUploadParts.length + 1,
                             uploadId: multipartContext.uploadId,
                             filePath: multipartContext.resourceFilePath
                         })
                     );
+                    multipartContext.previousBuffer = null;
+                    multipartContext.previousBatchSize = null;
 
                     logInfo(`Uploaded part to S3 for ${resourceType} using uploadId: ${multipartContext.uploadId}`);
                 } else {
-                    multipartContext.previousBuffer = buffer;
+                    multipartContext.previousBuffer = currentBatch;
                     multipartContext.previousBatchSize = currentBatchSize;
                 }
             }
@@ -673,7 +729,7 @@ class BulkDataExportRunner {
         const filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
         let uploadId;
         try {
-            logInfo(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
+            logDebug(`Exporting ${resourceType} resource with query: ${JSON.stringify(query)}`);
 
             // generate parsed args for enriching the resource
             const parsedArgs = this.r4ArgsParser.parseArgs({
@@ -694,15 +750,9 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-
+            const db = await resourceLocator.getDatabaseConnectionAsync();
             const options = { batchSize: this.fetchResourceBatchSize };
-            const cursor = collections[0].find(query, options);
+            const cursor = db.collection(`${resourceType}_4_0_0`).find(query, options);
 
             let readCount = 0;
 
@@ -712,7 +762,7 @@ class BulkDataExportRunner {
                 logInfo(`Starting multipart upload for ${resourceType} with uploadId ${uploadId}`);
             }
             const multipartUploadParts = [];
-            const db = await resourceLocator.getDatabaseConnectionAsync();
+
             const stats = await db.command({ collStats: `${resourceType}_4_0_0` });
             const minUploadBatchSize = Math.floor(this.uploadPartSize / stats.avgObjSize);
             while (await cursor.hasNext()) {

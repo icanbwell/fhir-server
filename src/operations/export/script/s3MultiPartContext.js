@@ -8,7 +8,7 @@ class S3MultiPartContext {
      * @param {number} readCount
      * @param {string | null} resourceFilePath
      * @param {string | null} collection
-     * @param {string | null} previousBuffer
+     * @param {string[] | null} previousBuffer
      * @param {number | null} previousBatchSize
      * @param {number | null} averageDocumentSize
      * @param {[]} multipartUploadParts

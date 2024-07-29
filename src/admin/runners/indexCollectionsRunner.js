@@ -126,6 +126,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                     }
                 );
             } else {
+                const resourceHistoryDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
                 if (this.collections.length > 0 && this.collections[0] === 'all') {
                     this.collections = await this.getAllCollectionNamesAsync(
                         {
@@ -138,12 +139,12 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 for (const collectionName of this.collections) {
                     if (this.dropIndexes) {
                         await this.indexManager.deleteIndexesInAllCollectionsInDatabaseAsync({
-                            db,
+                            db: collectionName.includes('_History') ? resourceHistoryDb : db,
                             collectionRegex: collectionName
                         });
                     }
                     await this.indexManager.indexAllCollectionsInDatabaseAsync({
-                        db,
+                        db: collectionName.includes('_History') ? resourceHistoryDb : db,
                         collectionRegex: collectionName
                     });
                 }

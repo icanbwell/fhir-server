@@ -1,0 +1,295 @@
+{
+  "entry": [
+    {
+      "id": "1275501447-UHG-MMMA",
+      "resource": {
+        "actor": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "PractitionerRole/1275501447-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "PractitionerRole/7967a931-2cbe-58b8-9c8d-7be14edd1440"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "PractitionerRole/1275501447-UHG-MMMA"
+          }
+        ],
+        "id": "1275501447-UHG-MMMA",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1275501447-UHG-MMMA"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7967a931-2cbe-58b8-9c8d-7be14edd1440"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://clienthealth.org/provider_appointment_type",
+          "versionId": "1"
+        },
+        "resourceType": "Schedule",
+        "serviceType": [
+          {
+            "coding": [
+              {
+                "code": "LNG",
+                "display": "LNG",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "code": "EV4",
+                "display": "EV4",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "code": "SHT",
+                "display": "SHT",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "code": "ERN",
+                "display": "ERN",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "code": "PHN",
+                "display": "PHN",
+                "system": "http://clienthealth.org/appointment-type"
+              }
+            ],
+            "text": "Client Appointment Type"
+          },
+          {
+            "coding": [
+              {
+                "code": "PrimaryCare",
+                "display": "PrimaryCare",
+                "system": "http://clienthealth.org/protocol"
+              }
+            ],
+            "text": "Client Protocol Departments"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1275501447-UHG-MMMA",
+      "resource": {
+        "code": [
+          {
+            "coding": [
+              {
+                "code": "doctor",
+                "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "code": "doctor",
+                "display": "Doctor",
+                "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
+              }
+            ],
+            "text": "Doctor"
+          }
+        ],
+        "healthcareService": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "HealthcareService/1275501447-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "HealthcareService/7967a931-2cbe-58b8-9c8d-7be14edd1440"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "HealthcareService/1275501447-UHG-MMMA"
+          }
+        ],
+        "id": "1275501447-UHG-MMMA",
+        "identifier": [
+          {
+            "system": "http://clienthealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "Client Provider-Protocol",
+                  "display": "Client Provider-Protocol",
+                  "system": "http://clienthealth.org"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "1275501447-UHG-MMMA"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1275501447-UHG-MMMA"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7967a931-2cbe-58b8-9c8d-7be14edd1440"
+          }
+        ],
+        "location": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Location/Client-Alias-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Location/7eda3b8b-16ac-5b12-bc15-d43b28e47512"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "Location/Client-Alias-UHG-MMMA"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://clienthealth.org/provider",
+          "versionId": "1"
+        },
+        "organization": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/Client-Alias-UHG-MMMA"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Organization/7eda3b8b-16ac-5b12-bc15-d43b28e47512"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Organization/Client-Alias-UHG-MMMA"
+        },
+        "practitioner": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Practitioner/1275501447"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Practitioner/48765a7f-5686-5e7a-9851-ed6a1d09d736"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Practitioner/1275501447"
+        },
+        "resourceType": "PractitionerRole",
+        "specialty": [
+          {
+            "coding": [
+              {
+                "code": "261QP2300X",
+                "display": "Primary Care",
+                "system": "http://nucc.org/provider-taxonomy"
+              }
+            ],
+            "text": "Primary Care Flag"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 2,
+  "type": "searchset"
+}

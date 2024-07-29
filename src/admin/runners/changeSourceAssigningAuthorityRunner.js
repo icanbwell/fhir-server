@@ -154,7 +154,8 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                     const query = this.getQueryForResource(isHistoryCollection);
 
                     if (isHistoryCollection) {
-                        await this.addIndexesToCollection({ collectionName, mongoConfig });
+                        const resourceHistoryMongoConfig = await this.mongoDatabaseManager.getResourceHistoryConfigAsync();
+                        await this.addIndexesToCollection({ collectionName, mongoConfig: resourceHistoryMongoConfig });
                     }
 
                     const startFromIdContainer = this.createStartFromIdContainer();

@@ -1,3 +1,4 @@
+const env = require('var');
 const k8s = require('@kubernetes/client-node');
 const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
@@ -49,9 +50,10 @@ class K8sClient {
      * Generates the body for creating a Kubernetes Job based on the provided script command.
      *
      * @param {string} scriptCommand - The command to execute in the Job container.
+     * @param {Object.<string, string>} context - Context for creating pod for export job
      * @returns {Object} - The body object for creating a Kubernetes Job.
      */
-    async createJobBody(scriptCommand) {
+    async createJobBody({ scriptCommand, context }) {
         try {
             const currentNamespace = `fhir-server-${this.configManager.environmentValue}`;
 
@@ -71,6 +73,15 @@ class K8sClient {
                 return envVar;
             });
 
+            // Check if LOGLEVEL exists in context
+            if (Object.hasOwn(context, 'loglevel')) {
+                const envVar = new k8s.V1EnvVar();
+                envVar.name = 'LOGLEVEL';
+                envVar.value = context['loglevel'];
+
+                envVars.push(envVar);
+            }
+
             // Extract secretEvn
             const secretEnvSource = new k8s.V1SecretEnvSource();
             secretEnvSource.name = currentContainer.envFrom[0].secretRef.name;
@@ -85,7 +96,10 @@ class K8sClient {
             // Set Job name
             const metadata = new k8s.V1ObjectMeta();
             metadata.name = `fhir-server-job-${generateUUID().slice(-10)}`;
-            metadata.labels = { app: 'fhir-server' };
+            metadata.labels = {
+                app: 'fhir-server',
+                'app.kubernetes.io/version': env.DOCKER_IMAGE_VERSION
+            };
             job.metadata = metadata;
 
             // We need to add container config to the pod as well as to which container we want to start inside the Pod
@@ -96,11 +110,11 @@ class K8sClient {
             container.envFrom = [envFromSource];
             const resourceRequirements = new k8s.V1ResourceRequirements();
             resourceRequirements.requests = {
-                cpu: '1',
-                memory: '2G'
+                cpu: context?.ram ?? '1',
+                memory: context?.requestsMemory ?? '2G'
             };
             resourceRequirements.limits = {
-                memory: '8G'
+                memory: context?.limitsMemory ?? '8G'
             };
             container.resources = resourceRequirements;
             container.args = scriptCommand.split(' ');
@@ -122,7 +136,7 @@ class K8sClient {
             const jobSpec = new k8s.V1JobSpec();
             jobSpec.template = template;
             jobSpec.backoffLimit = 0;
-            jobSpec.ttlSecondsAfterFinished = 60;
+            jobSpec.ttlSecondsAfterFinished = context?.ttlSecondsAfterFinished ?? 60;
             job.spec = jobSpec;
 
             return job;
@@ -135,13 +149,14 @@ class K8sClient {
      * Creates a Kubernetes Job based on the provided script command.
      *
      * @param {string} scriptCommand - The command to execute in the Job container.
+     * @param {Object.<string, string>} context - Context for creating pod for export job
      * @returns {Promise<boolean>} - True if the job is created successfully, false if the maximum quota is reached,
      * otherwise throws an error.
      */
-    async createJob(scriptCommand) {
+    async createJob({ scriptCommand, context }) {
         try {
             const namespace = `fhir-server-${this.configManager.environmentValue}`;
-            const body = await this.createJobBody(scriptCommand);
+            const body = await this.createJobBody({ scriptCommand, context });
             const param = {
                 namespace,
                 body

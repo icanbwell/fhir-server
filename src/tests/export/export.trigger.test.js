@@ -71,7 +71,7 @@ describe('Export Trigger Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     databaseExportManager: c.databaseExportManager,
                     exportManager: c.exportManager,
-                    batchSize: 100
+                    configManager: c.configManager
                 })
         );
 
@@ -83,7 +83,14 @@ describe('Export Trigger Tests', () => {
         // Verifying if createJob function is called with correct id
         expect(mockK8sCreateJob).toHaveBeenCalledTimes(1);
         expect(mockK8sCreateJob).toHaveBeenCalledWith(
-            expect.stringContaining(`${exportStatus1Resource.id}`)
+            expect.objectContaining({
+                scriptCommand: expect.stringContaining(`${exportStatus1Resource.id}`)
+            })
+        );
+        expect(mockK8sCreateJob).toHaveBeenCalledWith(
+            expect.objectContaining({
+                scriptCommand: expect.stringContaining(`--requestId`)
+            })
         );
     });
 
@@ -109,7 +116,7 @@ describe('Export Trigger Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     databaseExportManager: c.databaseExportManager,
                     exportManager: c.exportManager,
-                    batchSize: 100
+                    configManager: c.configManager
                 })
         );
 

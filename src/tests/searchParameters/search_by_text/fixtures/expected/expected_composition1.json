@@ -1,0 +1,371 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "Composition",
+                "id": "{{$randomUUID}}",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-07-25T09:26:15.000Z",
+                    "source": "https://www.icanbwell.com/intelligence-layer-pipeline",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "text": {
+                    "status": "generated",
+                    "div": "Encounter Summary Grouped by Encounter Class and Type"
+                },
+                "identifier": {
+                    "system": "https://www.icanbwell.com/intelligence-layer-pipeline/version",
+                    "value": "1.0"
+                },
+                "status": "preliminary",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+                            "code": "encounter_summary_document",
+                            "display": "b.Well Encounter Summary Composition Document"
+                        },
+                        {
+                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+                            "code": "encounter_group_class_and_type",
+                            "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
+                        },
+                        {
+                            "system": "https://hl7.org/fhir/allergyintolerance",
+                            "code": "Encounter",
+                            "display": "FHIR resource type"
+                        }
+                    ],
+                    "text": "Encounter Summary Composition Document"
+                },
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0",
+                    "type": "Patient"
+                },
+                "date": "2024-03-14T16:52:11Z",
+                "author": [
+                    {
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "bwell"
+                            }
+                        ],
+                        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+                        "type": "Organization",
+                        "display": "bwell Connected Health"
+                    }
+                ],
+                "title": "Encounter Summary Grouped by Encounter Class and Type",
+                "section": [
+                    {
+                        "id": "770500bd-1eb1-55a9-874c-b96abb5dd97c",
+                        "title": "Hov - outpatient",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
+                                    "code": "4",
+                                    "display": "HOV"
+                                },
+                                {
+                                    "system": "urn:oid:1.2.840.114350.1.13.300.2.7.10.698084.10110",
+                                    "code": "102",
+                                    "display": "Outpatient"
+                                }
+                            ]
+                        },
+                        "mode": "working",
+                        "orderedBy": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                                    "code": "event-date",
+                                    "display": "Sorted by Event Date"
+                                }
+                            ],
+                            "text": "Sorted by period.start DESC"
+                        },
+                        "entry": [
+                            {
+                                "id": "cfc6ef87-c267-5d61-9d3f-8f55366dfe63",
+                                "extension": [
+                                    {
+                                        "id": "sourceId",
+                                        "url": "https://www.icanbwell.com/sourceId",
+                                        "valueString": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec"
+                                    },
+                                    {
+                                        "id": "uuid",
+                                        "url": "https://www.icanbwell.com/uuid",
+                                        "valueString": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec"
+                                    },
+                                    {
+                                        "id": "sourceAssigningAuthority",
+                                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                        "valueString": "bwell"
+                                    }
+                                ],
+                                "reference": "Encounter/1343b1a3-f6b7-5559-9f63-ff5a2ab037ec",
+                                "type": "Encounter"
+                            }
+                        ],
+                        "section": [
+                            {
+                                "id": "f69bf24e-c309-5bef-b1db-91731b0bd74d",
+                                "title": "Visit Name",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Hov - outpatient"
+                                }
+                            },
+                            {
+                                "id": "0e19a6f5-72dc-5838-96ea-bcc527fb411e",
+                                "title": "class",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Hov"
+                                }
+                            },
+                            {
+                                "id": "14d71fbc-c3b7-5376-a56e-eed0d1ce8667",
+                                "title": "type",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Outpatient"
+                                }
+                            },
+                            {
+                                "id": "18aa1c7b-f46c-5314-a80c-b5eb740cba12",
+                                "title": "Source",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Ucla_medical_center"
+                                }
+                            },
+                            {
+                                "id": "125c6490-273f-51f6-8336-ba454963de7c",
+                                "title": "Date",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "2020-04-17T00:49:21Z"
+                                }
+                            },
+                            {
+                                "id": "792debe2-a7db-5309-8a0c-a9e66475d857",
+                                "title": "Practitioner",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Joseph P. Luftman"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "377beddd-028f-529e-922d-9c797efe4f06",
+                        "title": "Appointment - office visit",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
+                                    "code": "5",
+                                    "display": "Appointment"
+                                },
+                                {
+                                    "system": "urn:oid:1.2.840.114350.1.13.300.2.7.10.698084.30",
+                                    "code": "101",
+                                    "display": "Office Visit"
+                                }
+                            ]
+                        },
+                        "mode": "working",
+                        "orderedBy": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                                    "code": "event-date",
+                                    "display": "Sorted by Event Date"
+                                }
+                            ],
+                            "text": "Sorted by period.start DESC"
+                        },
+                        "entry": [
+                            {
+                                "id": "6809677f-79aa-55f3-8faa-4601958c7c7b",
+                                "extension": [
+                                    {
+                                        "id": "sourceId",
+                                        "url": "https://www.icanbwell.com/sourceId",
+                                        "valueString": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961"
+                                    },
+                                    {
+                                        "id": "uuid",
+                                        "url": "https://www.icanbwell.com/uuid",
+                                        "valueString": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961"
+                                    },
+                                    {
+                                        "id": "sourceAssigningAuthority",
+                                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                        "valueString": "bwell"
+                                    }
+                                ],
+                                "reference": "Encounter/ab7f657f-f88e-557b-8ada-2c64a2dd7961",
+                                "type": "Encounter"
+                            }
+                        ],
+                        "section": [
+                            {
+                                "id": "5247d36c-1450-5d0e-9c5c-222d36e43f4b",
+                                "title": "Visit Name",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Appointment - office visit"
+                                }
+                            },
+                            {
+                                "id": "6546294f-c7e3-5e97-aac2-0a7b0365aa9a",
+                                "title": "class",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Appointment"
+                                }
+                            },
+                            {
+                                "id": "935fd8d1-30df-5427-a230-16dc71f5d4a5",
+                                "title": "type",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Office visit"
+                                }
+                            },
+                            {
+                                "id": "7e3eb9c5-f76c-5c40-aff6-505934e7bd10",
+                                "title": "Source",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Ucla_medical_center"
+                                }
+                            },
+                            {
+                                "id": "abeaa1a3-7c6d-5efd-a7e7-59bbba7cb66f",
+                                "title": "Date",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "2020-04-17T01:00:00Z"
+                                }
+                            },
+                            {
+                                "id": "6e82a98b-f3db-5eec-819d-1ebace56b019",
+                                "title": "Practitioner",
+                                "text": {
+                                    "status": "generated",
+                                    "div": "Joseph P. Luftman"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Composition_4_0_0.find({'$and':[{'$or':[{'section.code.text':{'$regex':'^(Appointment)','$options':'i'}},{'section.code.coding.display':{'$regex':'^(Appointment)','$options':'i'}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Composition_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['section.code.text','section.code.coding.display','meta.tag.system','meta.tag.code','_uuid']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.365"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Composition_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"$or\":[{\"section.code.coding.display\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}},{\"section.code.text\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"0E5076A1\",\"planCacheKey\":\"5933B1C1\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"section.code.coding.display\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}},{\"section.code.text\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"section.code.coding.display\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}},{\"section.code.text\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Composition_4_0_0\",\"filter\":{\"$and\":[{\"$or\":[{\"section.code.text\":{\"$regex\":\"/^(Appointment)/\",\"$options\":\"i\"}},{\"section.code.coding.display\":{\"$regex\":\"/^(Appointment)/\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00059-jtg-ooo\",\"port\":41524,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7395502365916266520\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7395502365916266520\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"$or\":[{\"section.code.coding.display\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}},{\"section.code.text\":{\"$regex\":\"^(Appointment)\",\"$options\":\"i\"}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Composition_4_0_0.find({'$and':[{'$or':[{'section.code.text':{'$regex':'^(Appointment)','$options':'i'}},{'section.code.coding.display':{'$regex':'^(Appointment)','$options':'i'}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    },
+    "type": "searchset",
+    "timestamp": "2024-07-25T09:26:16.1616Z",
+    "total": 0,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Composition?section:text=Appointment&_debug=1&_bundle=1"
+        },
+        {
+            "relation": "next",
+            "url": "http://localhost:3000/4_0_0/Composition?section%3Atext=Appointment&_debug=1&_bundle=1&id%3Aabove=202485a8-1859-5f84-b7de-1804666deddb"
+        }
+    ]
+}

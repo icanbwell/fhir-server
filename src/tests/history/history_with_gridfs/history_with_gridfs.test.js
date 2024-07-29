@@ -1,4 +1,12 @@
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getHeaders,
+    getTestContainer,
+    getRequestId
+} = require('../../common');
 const documentReferenceData = require('./fixtures/document_reference/document_reference.json');
 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -15,6 +23,12 @@ describe('GridFS history tests', () => {
     describe('GridFS history works', () => {
         test('history tests', async () => {
             const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
@@ -23,6 +37,9 @@ describe('GridFS history tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+
+            // wait for post request processing to finish
+            await postRequestProcessor.waitTillDoneAsync({ requestId: getRequestId(resp) });
 
             resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
@@ -48,6 +65,12 @@ describe('GridFS history tests', () => {
 
         test('historyById tests', async () => {
             const request = await createTestRequest();
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
@@ -56,6 +79,9 @@ describe('GridFS history tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+
+            // wait for post request processing to finish
+            await postRequestProcessor.waitTillDoneAsync({ requestId: getRequestId(resp) });
 
             resp = await request
                 .post('/4_0_0/DocumentReference/$merge')

@@ -6,6 +6,8 @@ const { RethrownError } = require('../../../utils/rethrownError');
 const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManager');
 const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
 const { ExportManager } = require('../exportManager');
+const { ConfigManager } = require('../../../utils/configManager');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 class CronJobRunner {
     /**
@@ -14,12 +16,16 @@ class CronJobRunner {
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseExportManager} databaseExportManager
      * @property {ExportManager} exportManager
+     * @property {ConfigManager} configManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @param {ConstructorParams}
      */
     constructor({
         databaseQueryFactory,
         databaseExportManager,
-        exportManager
+        exportManager,
+        configManager,
+        postSaveProcessor
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -38,6 +44,18 @@ class CronJobRunner {
          */
         this.exportManager = exportManager;
         assertTypeEquals(exportManager, ExportManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -81,13 +99,17 @@ class CronJobRunner {
             const exportStatusCursor = await databaseQueryManager.findAsync(query);
 
             while (await exportStatusCursor.hasNext()) {
-                const exportStatusData = await exportStatusCursor.next();
+                const exportStatusResource = await exportStatusCursor.next();
                 logInfo(
-                    `Triggering k8 job for ExportStatus resource with id: ${exportStatusData._uuid}`
+                    `Triggering k8 job for ExportStatus resource with id: ${exportStatusResource._uuid}`,
+                    { exportStatusId: exportStatusResource._uuid }
                 );
 
                 // Trigger k8s job to export data
-                const jobResult = await this.exportManager.triggerExportJob({exportStatusId: exportStatusData._uuid});
+                const jobResult = await this.exportManager.triggerExportJob({
+                    exportStatusResource,
+                    requestId: this.configManager.hostnameValue
+                });
 
                 // Break the loop if the job limit is exceeded
                 if (!jobResult) {
@@ -134,10 +156,19 @@ class CronJobRunner {
             while (await exportStatusCursor.hasNext()) {
                 const exportStatusResource = await exportStatusCursor.next();
                 logInfo(
-                    `Updating status to 'entered-in-error' for ExportStatus resource with id: ${exportStatusResource._uuid}`
+                    `ExportStatus resource marked as entered-in-error with Id: ${exportStatusResource._uuid}`,
+                    { exportStatusId: exportStatusResource._uuid }
                 );
                 exportStatusResource.status = 'entered-in-error';
-                await this.databaseExportManager.updateExportStatusAsync({ exportStatusResource });
+                await this.databaseExportManager.updateExportStatusAsync({
+                    exportStatusResource
+                });
+                await this.postSaveProcessor.afterSaveAsync({
+                    requestId: this.configManager.hostnameValue,
+                    eventType: 'U',
+                    resourceType: 'ExportStatus',
+                    doc: exportStatusResource
+                });
             }
             logInfo(
                 `Successfully finished updating status to 'entered-in-error' for the fetched ExportStatus resources`

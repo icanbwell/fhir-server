@@ -12,6 +12,9 @@ const unlinkedObservationResource = require('./fixtures/Observation/unlinked_obs
 
 // expected
 const expectedPatientDeletedResources = require('./fixtures/expected/expected_Patient_deleted.json');
+const expectedPatientDeletedResourcesType = require('./fixtures/expected/expected_Patient_deleted_type.json');
+const expectedPersonDeletedResourcesType = require('./fixtures/expected/expected_Person_deleted_type.json');
+const expectedPatientEverythingAfterTypeDelete = require('./fixtures/expected/expected_Patient_everything_after_type_delete.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -113,6 +116,82 @@ describe('Delete Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
+        });
+
+        test('Delete Person and Patient $everything works with _type', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            // Test delete person only
+            resp = await request
+                .delete('/4_0_0/Patient/patient1/$everything?_type=Person')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientDeletedResourcesType);
+
+            // verify other data is still present for patient
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientEverythingAfterTypeDelete);
+
+            // Test delete Patient and observation
+            resp = await request
+                .delete('/4_0_0/Person/person2/$everything?_type=Patient,Observation')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonDeletedResourcesType);
         });
     });
 });

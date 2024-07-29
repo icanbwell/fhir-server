@@ -3,7 +3,7 @@
     {
       "code": "invalid",
       "details": {
-        "text": "Multiple resources found with id 1.  Please either specify the owner/sourceAssigningAuthority tag: 1|A or 1|C OR use uuid to query."
+        "text": "Multiple resources found with id 1.  Please either specify the owner/sourceAssigningAuthority tag: 1|C or 1|A OR use uuid to query."
       },
       "severity": "error"
     }

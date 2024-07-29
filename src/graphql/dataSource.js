@@ -9,6 +9,7 @@ const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager
 const { ResourceWithId } = require('./resourceWithId');
 const { isValidResource } = require('../utils/validResourceCheck');
 const { ReferenceParser } = require('../utils/referenceParser');
+const { ConfigManager } = require('../utils/configManager');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -19,13 +20,15 @@ class FhirDataSource {
      * @param {SearchBundleOperation} searchBundleOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
             requestInfo,
             searchBundleOperation,
             r4ArgsParser,
-            queryRewriterManager
+            queryRewriterManager,
+            configManager
         }
     ) {
         assertIsValid(requestInfo !== undefined);
@@ -58,6 +61,12 @@ class FhirDataSource {
          */
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(this.configManager, ConfigManager);
 
         /**
          * whether the caller has requested debug mode
@@ -153,32 +162,42 @@ class FhirDataSource {
                     const idsOfReference = references
                         .map((r) => ResourceWithId.getIdFromReference(r))
                         .filter((r) => r !== null);
-                    const args1 = {
-                        base_version: '4_0_0',
-                        id: idsOfReference.join(','),
-                        _bundle: '1',
-                        ...args
-                    };
-                    // if _debug is not set and we are in debug mode, set it
-                    if (!args1._debug && this.debugMode) {
-                        args1._debug = true;
-                    }
-                    const bundle = await this.searchBundleOperation.searchBundleAsync(
-                        {
+
+                    // Initialize an array to hold the combined results from all batches
+                    let combinedResults = [];
+                    const batchSize = this.configManager.graphQLFetchResourceBatchSize;
+
+                    // Process the IDs in batches
+                    for (let i = 0; i < idsOfReference.length; i += batchSize) {
+                        const batch = idsOfReference.slice(i, i + batchSize);
+
+                        const args1 = {
+                            base_version: '4_0_0',
+                            id: batch.join(','),
+                            _bundle: '1',
+                            ...args
+                        };
+
+                        if (!args1._debug && this.debugMode) {
+                            args1._debug = true;
+                        }
+
+                        const bundle = await this.searchBundleOperation.searchBundleAsync({
                             requestInfo,
                             resourceType,
-                            parsedArgs: await this.getParsedArgsAsync(
-                                {
-                                    args: args1,
-                                    resourceType,
-                                    headers: requestInfo.headers
-                                }
-                            ),
+                            parsedArgs: await this.getParsedArgsAsync({
+                                args: args1,
+                                resourceType,
+                                headers: requestInfo.headers
+                            }),
                             useAggregationPipeline: false
-                        }
-                    );
+                        });
 
-                    return this.unBundle(bundle);
+                        // Add results from this batch to the combined results array
+                        combinedResults.push(bundle);
+                    }
+
+                    return combinedResults.flatMap((result) => this.unBundle(result));
                 }
             ),
             keys
@@ -471,7 +490,7 @@ class FhirDataSource {
                     {
                         keys,
                         requestInfo: this.requestInfo,
-                        args: { // these args should appy to every nested property
+                        args: { // these args should apply to every nested property
                             _debug: args._debug,
                             _explain: args._explain
                         }

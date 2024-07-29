@@ -37,7 +37,7 @@ function isColumnDateTimeType (resourceType, columnName) {
             }
             break;
         case 'Bundle':
-            if (columnName === 'timeStamp' ||
+            if (columnName === 'timestamp' ||
                 columnName === 'signature.when' ||
                 columnName === 'entry.request.ifModifiedSince' ||
                 columnName === 'entry.response.lastModified') {

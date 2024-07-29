@@ -494,7 +494,7 @@ const quantityQueryBuilder = function ({ target, field }) {
         qB[`${field}.code`] = code;
     }
 
-    if (Number.isNaN(num)) {
+    if (isNaN(num)) {
         // with prefixes
         const prefix = num.substring(0, 2);
         num = Number(num.substring(2));
@@ -1136,18 +1136,19 @@ const compositeQueryBuilder = function ({ target, field1, field2, resourceType }
 };
 
 /**
- * @name partialTextQueryBuilder
+ * @name textQueryBuilder
  * @param {string} field
- * @param {string} partialText
+ * @param {string} text
  * @param {boolean} ignoreCase
  * @return {JSON} queryBuilder
  */
-const partialTextQueryBuilder = function ({ field, partialText, ignoreCase }) {
+const textQueryBuilder = function ({ field, text, ignoreCase }) {
     const queryBuilder = {};
     /**
      * @type {RegExp}
      */
-    const regexObject = new RegExp(escapeRegExp(`${partialText}`));
+
+    const regexObject = new RegExp(`^(${text.split(',').map(text => escapeRegExp(text.trim())).filter(text => text.length > 0).join('|')})`);
     if (ignoreCase) {
         queryBuilder[`${field}`] = { $regex: regexObject, $options: 'i' };
     } else {
@@ -1256,7 +1257,7 @@ module.exports = {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
     datetimeTimingQueryBuilder,
-    partialTextQueryBuilder,
+    textQueryBuilder,
     exactMatchQueryBuilder,
     tokenQueryContainsBuilder,
     extensionQueryBuilder

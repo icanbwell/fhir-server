@@ -17,6 +17,7 @@ const { ScopesValidator } = require('../operations/security/scopesValidator');
 const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
+const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 
 class AdminExportManager {
     /**
@@ -29,9 +30,19 @@ class AdminExportManager {
      * @property {configManager} configManager
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
+     * @property {PostSaveProcessor} postSaveProcessor
      */
     constructor({
-        postRequestProcessor, requestSpecificCache, fhirOperationsManager, databaseExportManager, resourceMerger, k8sClient, configManager, exportManager, scopesValidator
+        postRequestProcessor,
+        requestSpecificCache,
+        fhirOperationsManager,
+        databaseExportManager,
+        resourceMerger,
+        k8sClient,
+        configManager,
+        exportManager,
+        scopesValidator,
+        postSaveProcessor
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -78,6 +89,12 @@ class AdminExportManager {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -187,6 +204,15 @@ class AdminExportManager {
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: updatedResource
                 });
+                this.postRequestProcessor.add({
+                    requestId: req.id,
+                    fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
+                        requestId: req.id,
+                        eventType: 'U',
+                        resourceType: 'ExportStatus',
+                        doc: updatedResource
+                    })
+                });
                 return updatedResource;
             }
             return exportResource
@@ -242,7 +268,7 @@ class AdminExportManager {
                 throw new NotFoundError(`ExportStatus resoure with id ${exportStatusId} doesn't exists`);
             }
 
-            return await this.exportManager.triggerExportJob({ exportStatusId })
+            return await this.exportManager.triggerExportJob({ exportStatusResource, requestId: requestInfo.requestId })
         } catch (error) {
             logError(`Error in triggerExportJob`, {
                 message: error.message,

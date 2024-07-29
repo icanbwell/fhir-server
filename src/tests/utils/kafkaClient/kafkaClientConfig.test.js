@@ -55,11 +55,8 @@ describe('kafkaClientConfig Tests', () => {
                 ssl: true,
                 sasl: {
                     mechanism: 'aws',
-                    authorizationIdentity: null,
                     username: 'msk_user_dev_ue1',
-                    password: 'foo;ar',
-                    accessKeyId: null,
-                    secretAccessKey: null
+                    password: 'foo;ar'
                 }
             });
         });
