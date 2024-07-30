@@ -14,10 +14,10 @@ const { logDebug } = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
-    clientFhirPersonId: 'http://test.com/clientFhirPersonId',
-    clientFhirPatientId: 'http://test.com/clientFhirPatientId',
-    bwellFhirPersonId: 'http://test.com/bwellFhirPersonId',
-    bwellFhirPatientId: 'http://test.com/bwellFhirPatientId'
+    clientFhirPersonId: 'clientFhirPersonId',
+    clientFhirPatientId: 'clientFhirPatientId',
+    bwellFhirPersonId: 'bwellFhirPersonId',
+    bwellFhirPatientId: 'bwellFhirPatientId'
 };
 
 /**
@@ -148,10 +148,10 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
  */
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-        // // Case when provided token is not access token
-        // if (jwt_payload.token_use !== 'access') {
-        //     return done(null, false);
-        // }
+        // Case when provided token is not access token
+        if (jwt_payload.token_use !== 'access') {
+            return done(null, false);
+        }
 
         // Calculate scopes from jwt_payload
         /**

@@ -19,12 +19,9 @@ services:
       AUTH_SERVER_URI: http://myauthzserver.com
       CLIENT_ID: client
       CLIENT_SECRET: secret
-      # AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
-      AUTH_CONFIGURATION_URI: https://dev-bzr47r0dvw0o88wh.us.auth0.com/.well-known/openid-configuration
-      # AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
-      AUTH_JWKS_URL: https://dev-bzr47r0dvw0o88wh.us.auth0.com/.well-known/jwks.json
-      # AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
-      AUTH_CODE_FLOW_URL: https://dev-bzr47r0dvw0o88wh.us.auth0.com
+      AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
+      AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
+      AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
       REDIRECT_TO_LOGIN: 1
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
@@ -32,7 +29,7 @@ services:
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: ''
+      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1
@@ -48,15 +45,13 @@ services:
       KAFKA_MAX_RETRY: 3
       PARTITION_RESOURCES: 'AuditEvent'
       AUTH_CUSTOM_GROUP: "cognito:groups"
-      AUTH_CUSTOM_SCOPE: "http://test.com/scope"
+      AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
       WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
-      ENABLE_GRAPHQLV2_PLAYGROUND: '1'
-      ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
@@ -129,14 +124,14 @@ services:
           '--list',
         ]
 
-  #  kafkaUI:
-     #    image: obsidiandynamics/kafdrop:4.0.1
-     #    ports:
-       #      - '9000:9000'
-     #    environment:
-       #      - KAFKA_BROKERCONNECT=kafka:9092
-       #      - 'JVM_OPTS=-Xms32M -Xmx64M'
-       #      - SERVER_SERVLET_CONTEXTPATH=/
+#  kafkaUI:
+  #    image: obsidiandynamics/kafdrop:4.0.1
+  #    ports:
+  #      - '9000:9000'
+  #    environment:
+  #      - KAFKA_BROKERCONNECT=kafka:9092
+  #      - 'JVM_OPTS=-Xms32M -Xmx64M'
+  #      - SERVER_SERVLET_CONTEXTPATH=/
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1

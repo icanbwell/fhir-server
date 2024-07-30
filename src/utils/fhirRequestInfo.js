@@ -46,7 +46,6 @@ class FhirRequestInfo {
             contentTypeFromHeader
         }
     ) {
-        user = 'test';
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         /**
          * @type {string|null}
