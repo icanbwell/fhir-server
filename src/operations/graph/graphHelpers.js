@@ -40,6 +40,7 @@ const { SearchParametersManager } = require('../../searchParameters/searchParame
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
+const { SearchBundleOperation } = require('../search/searchBundle');
 const clinicalResources = require('../../graphs/patient/clinical_resources.json')['clinicalResources'];
 
 /**
@@ -60,6 +61,7 @@ class GraphHelper {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
+     * @param {SearchBundleOperation} searchParametersOperation
      */
     constructor ({
                     databaseQueryFactory,
@@ -74,7 +76,8 @@ class GraphHelper {
                     enrichmentManager,
                     r4ArgsParser,
                     databaseAttachmentManager,
-                    searchParametersManager
+                    searchParametersManager,
+                    searchBundleOperation
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -150,6 +153,12 @@ class GraphHelper {
          */
         this.searchParametersManager = searchParametersManager;
         assertTypeEquals(searchParametersManager, SearchParametersManager);
+
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = searchBundleOperation;
+        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
     }
 
     /**
@@ -1237,7 +1246,6 @@ containedEntries: []
      * @param {string} base_version
      * @param {boolean} explain
      * @param {boolean} debug
-     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} queryOptions
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
      */
     async getLinkedNonClinicalResources(
@@ -1247,8 +1255,7 @@ containedEntries: []
         parsedArgs,
         base_version,
         explain,
-        debug,
-        queryOptions
+        debug
     ) {
         try {
             /**
@@ -1294,82 +1301,58 @@ containedEntries: []
             }
 
             for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
-                const args = { base_version: base_version, id: Array.from(ids).join(',') };
+                const args = {
+                    base_version: base_version,
+                    id: Array.from(ids).join(','),
+                    _debug: debug
+                };
+                if (explain) {
+                    args['_count'] = 1;
+                }
+
                 const childParseArgs = this.r4ArgsParser.parseArgs({
                     resourceType,
                     args
                 });
 
-                const {
-                    /** @type {import('mongodb').Document}**/
-                    query // /** @type {Set} **/
-                    // columns
-                } = await this.searchManager.constructQueryAsync({
-                    user: requestInfo.user,
-                    scope: requestInfo.scope,
-                    isUser: requestInfo.isUser,
+                const bundle = await this.searchBundleOperation.searchBundleAsync({
+                    requestInfo,
                     resourceType,
-                    useAccessIndex: this.configManager.useAccessIndex,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                    requestId: requestInfo.requestId,
                     parsedArgs: childParseArgs,
-                    operation: READ
+                    useAggregationPipeline: false
                 });
 
-                /**
-                 * @type {number}
-                 */
-                const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
-                const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                    resourceType,
-                    base_version
-                });
-                /**
-                 * mongo db cursor
-                 * @type {DatabasePartitionedCursor}
-                 */
-                let cursor = await databaseQueryManager.findAsync({ query, queryOptions });
-
-                /**
-                 * @type {import('mongodb').Document[]}
-                 */
-                const explanations = explain || debug ? await cursor.explainAsync() : [];
-                if (explain) {
-                    cursor = cursor.limit(1);
+                for (let entry of bundle.entry || []) {
+                    const resourceBundleEntry = new BundleEntry({
+                        id: entry.id,
+                        resource: entry.resource
+                    });
+                    entities.push(resourceBundleEntry);
                 }
 
-                cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-                const collectionName = cursor.getFirstCollection();
-
-                while (await cursor.hasNext()) {
-                    /**
-                     * @type {Resource|null}
-                     */
-                    let relatedResource = await cursor.next();
-
-                    if (relatedResource) {
-                        /**
-                         * @type {BundleEntry}
-                         */
-                        relatedResource = await this.databaseAttachmentManager.transformAttachments(
-                            relatedResource,
-                            RETRIEVE
-                        );
-                        const resourceBundleEntry = new BundleEntry({
-                            id: relatedResource.id,
-                            resource: relatedResource
-                        });
-                        entities.push(resourceBundleEntry);
-
-                        queryItems.push(
-                            new QueryItem({
-                                query,
-                                resourceType,
-                                collectionName,
-                                explanations
-                            })
-                        );
-                    }
+                if (debug || explain) {
+                    // making query items from meta of bundle
+                    let collectionName = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('queryCollection');
+                    }).code;
+                    let query = bundle.meta.tag
+                        .find((obj) => {
+                            return obj.system.endsWith('query');
+                        })
+                        .display.split('.find(')[1]
+                        .split(', {}')[0];
+                    query = JSON.parse(query.replace(/'/g, '"'));
+                    let explanations = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('queryExplain');
+                    }).system;
+                    queryItems.push(
+                        new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName,
+                            explanations
+                        })
+                    );
                 }
             }
 
@@ -1386,12 +1369,12 @@ containedEntries: []
                 error: e,
                 args: {
                     requestInfo,
-                    entries,
+                    resourceList,
                     resourcesToExclude,
+                    parsedArgs,
                     base_version,
                     explain,
-                    debug,
-                    queryOptions
+                    debug
                 }
             });
         }
@@ -1677,8 +1660,7 @@ containedEntries: []
                             parsedArgs,
                             base_version,
                             explain,
-                            debug,
-                            options
+                            debug
                         );
 
                         if (contained) {

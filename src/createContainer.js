@@ -449,7 +449,8 @@ const createContainer = function () {
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                searchParametersManager: c.searchParametersManager
+                searchParametersManager: c.searchParametersManager,
+                searchBundleOperation: c.searchBundleOperation
             }
         )
     );

@@ -154,20 +154,20 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
 
-            if (isTrue(parsedArgs.includeNonClinicalResources)) {
+            if (isTrue(parsedArgs._includeNonClinicalResources)) {
                 if (!['Person', 'Patient'].includes(resourceType)) {
                     throw new Error(
-                        'includeNonClinicalResources parameter can only be used with Person and Patient resource type'
+                        '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
                     );
                 }
                 if (
-                    parsedArgs.nonClinicalResourcesDepth &&
-                    (isNaN(Number(parsedArgs.nonClinicalResourcesDepth)) ||
-                        parsedArgs.nonClinicalResourcesDepth > 3 ||
-                        parsedArgs.nonClinicalResourcesDepth < 1)
+                    parsedArgs._nonClinicalResourcesDepth &&
+                    (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
+                        parsedArgs._nonClinicalResourcesDepth > 3 ||
+                        parsedArgs._nonClinicalResourcesDepth < 1)
                 ) {
                     throw new Error(
-                        'nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
+                        '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
                     );
                 }
             }
@@ -190,8 +190,8 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer,
                 supportLegacyId,
-                includeNonClinicalResources: isTrue(parsedArgs.includeNonClinicalResources),
-                nonClinicalResourcesDepth: parsedArgs.nonClinicalResourcesDepth
+                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
+                nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

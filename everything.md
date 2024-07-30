@@ -201,15 +201,15 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?\_type=Person,Accou
 Note:
 When `_type` parameter is used then the `contained` parameter is ignored.
 
-### includeNonClinicalResources
+### \_includeNonClinicalResources
 
-This parameter is used to find all linked non-clinical resources. It can only be used with Patient and Person resources and in GET request only. Default depth for which linked non-clinical resources can be fetched is 1 and it can be configured using `nonClinicalResourcesDepth` parameter.
+This parameter is used to find all linked non-clinical resources. It can only be used with Patient and Person resources and in GET request only. Default depth for which linked non-clinical resources can be fetched is 1 and it can be configured using `_nonClinicalResourcesDepth` parameter.
 When used along with `_type`, the result of only top level resources will be narrowed and it will not affect linked non-clinical resources.
 
-For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?includeNonClinicalResources=true
+For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true
 
-### nonClinicalResourcesDepth
+### \_nonClinicalResourcesDepth
 
 This parameter is used to define depth for which linked non-clinical resources needs to be fetched. The parameter is optional with default value of 1. And its maximum value can be 3 as more depth will make request very slow.
 
-For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?includeNonClinicalResources=true&nonClinicalResourcesDepth=3
+For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true&\_nonClinicalResourcesDepth=3

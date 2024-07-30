@@ -36,7 +36,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('everything includeNonClinicalResources Tests', () => {
+describe('everything _includeNonClinicalResources Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -45,7 +45,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         await commonAfterEach();
     });
 
-    test('Person and Patient $everything with includeNonClinicalResources', async () => {
+    test('Person and Patient $everything with _includeNonClinicalResources', async () => {
         const request = await createTestRequest();
         // ARRANGE
         // add the resources to FHIR server
@@ -158,7 +158,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // First get patient everything with depth 3
         resp = await request
             .get(
-                '/4_0_0/Patient/patient1/$everything?_debug=true&includeNonClinicalResources=true&nonClinicalResourcesDepth=3'
+                '/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=true&_nonClinicalResourcesDepth=3'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -200,7 +200,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get patient everything with non-clinical resources upto depth 3 when contained param is true
         resp = await request
             .get(
-                '/4_0_0/Patient/patient1/$everything?includeNonClinicalResources=true&nonClinicalResourcesDepth=3&contained=true'
+                '/4_0_0/Patient/patient1/$everything?_includeNonClinicalResources=true&_nonClinicalResourcesDepth=3&contained=true'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -209,7 +209,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get person everything with non-clinical resources upto depth 2
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?includeNonClinicalResources=true&nonClinicalResourcesDepth=2'
+                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_nonClinicalResourcesDepth=2'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -218,7 +218,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get person everything with non-clinical resources upto default depth 1 with _type param as CarePlan
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?includeNonClinicalResources=true&_type=CarePlan'
+                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_type=CarePlan'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -227,7 +227,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get person everything with non-clinical resources upto default depth 1
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?includeNonClinicalResources=true'
+                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -236,7 +236,7 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get person everything without non-clinical resources
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?includeNonClinicalResources=false'
+                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=false'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -245,22 +245,22 @@ describe('everything includeNonClinicalResources Tests', () => {
         // get person everything without non-clinical resources when only depth param is ignored
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?nonClinicalResourcesDepth=2'
+                '/4_0_0/Person/person1/$everything?_nonClinicalResourcesDepth=2'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPersonResourcesWithoutNonClinical);
 
 
-        // get person everything when nonClinicalResourcesDepth is invalid
+        // get person everything when _nonClinicalResourcesDepth is invalid
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?includeNonClinicalResources=true&nonClinicalResourcesDepth=abc'
+                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_nonClinicalResourcesDepth=abc'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp.body.entry[0].resource.issue[0].details.text).toEqual(
-            'Unexpected Error: nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
+            'Unexpected Error: _nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
         );
     });
 });
