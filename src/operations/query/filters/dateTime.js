@@ -33,6 +33,11 @@ class FilterByDateTime extends BaseFilter {
         const fieldName = this.fieldMapper.getFieldName(field);
         const isDateSearchingPeriod = isPeriodField(field);
         const isDateSearchingTiming = isTimingField(field);
+
+        // In case of missing modifiers the value could be true/false
+        if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false'){
+            return null;
+        }
         if (this.filterType === 'string') {
             if (isDateSearchingPeriod) {
                 strQuery = datetimePeriodQueryBuilder(
