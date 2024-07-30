@@ -22,7 +22,7 @@ class FilterByString extends BaseFilter {
             const ors = addressQueryBuilder({ target: value, useExactSearch: useExactSearch });
             return { $or: ors };
         } else {
-            return useExactSearch ? { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value }) } : { [this.fieldMapper.getFieldName(field)]: value };
+            return useExactSearch ? { [this.fieldMapper.getFieldName(field)]: value } : { [`${this.fieldMapper.getFieldName(field)}`]: stringQueryBuilder({ target: value }) };
         }
     }
 }
