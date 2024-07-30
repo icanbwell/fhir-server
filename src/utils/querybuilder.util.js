@@ -26,11 +26,11 @@ const stringQueryBuilder = function ({ target }) {
  * at least 1 part of the address field using regexs. Ignores case
  * @typedef {Object} AddressQueryBuilderProps
  * @property {string} target what we are searching for
- * @property {string} useStringSearch use normal string search or not
+ * @property {string} useExactSearch use exact search or not
  * @param {AddressQueryBuilderProps}
  * @return {array} ors
  */
-const addressQueryBuilder = function ({ target, useStringSearch }) {
+const addressQueryBuilder = function ({ target, useExactSearch }) {
     // Tokenize the input as mush as possible
     const totalSplit = target.split(/[\s,]+/);
     const ors = [];
@@ -42,20 +42,7 @@ const addressQueryBuilder = function ({ target, useStringSearch }) {
         /**
          * @type {RegExp}
          */
-        if (useStringSearch) {
-            const regExpObject = new RegExp('^' + escapeRegExp(value), 'i');
-            ors.push({
-                $or: [
-                    { 'address.line': { $regex: regExpObject } },
-                    { 'address.city': { $regex: regExpObject } },
-                    { 'address.district': { $regex: regExpObject } },
-                    { 'address.state': { $regex: regExpObject } },
-                    { 'address.postalCode': { $regex: regExpObject } },
-                    { 'address.country': { $regex: regExpObject } }
-                ]
-            });
-        }
-        else {
+        if (useExactSearch) {
             ors.push({
                 $or: [
                     { 'address.line': value },
@@ -64,6 +51,19 @@ const addressQueryBuilder = function ({ target, useStringSearch }) {
                     { 'address.state': value },
                     { 'address.postalCode': value },
                     { 'address.country': value }
+                ]
+            });
+        }
+        else {
+            const regex = stringQueryBuilder({target: value});
+            ors.push({
+                $or: [
+                    { 'address.line': regex },
+                    { 'address.city': regex },
+                    { 'address.district': regex },
+                    { 'address.state': regex },
+                    { 'address.postalCode': regex },
+                    { 'address.country': regex }
                 ]
             });
         }
@@ -77,11 +77,11 @@ const addressQueryBuilder = function ({ target, useStringSearch }) {
  * at least 1 part of the name field using regexs. Ignores case
  * @typedef {Object} NameQueryBuilderProps
  * @property {string} target what are we searching for
- * @property {boolean} useStringSearch use normal string search or nor
+ * @property {boolean} useExactSearch use exact search or not
  * @param {NameQueryBuilderProps}
  * @return {array} ors
  */
-const nameQueryBuilder = function ({ target, useStringSearch }) {
+const nameQueryBuilder = function ({ target, useExactSearch }) {
     const split = target.split(/[\s.,]+/);
     const ors = [];
 
@@ -90,19 +90,7 @@ const nameQueryBuilder = function ({ target, useStringSearch }) {
          * @type {RegExp}
          */
         const value = split[`${i}`];
-        if (useStringSearch) {
-            const regExpObject = new RegExp(`^${escapeRegExp(value)}`, 'i')
-            ors.push({
-                $or: [
-                    { 'name.text': { $regex: regExpObject } },
-                    { 'name.family': { $regex: regExpObject } },
-                    { 'name.given': { $regex: regExpObject } },
-                    { 'name.suffix': { $regex: regExpObject } },
-                    { 'name.prefix': { $regex: regExpObject } }
-                ]
-            });
-        }
-        else {
+        if (useExactSearch) {
             ors.push({
                 $or: [
                     { 'name.text': value },
@@ -110,6 +98,18 @@ const nameQueryBuilder = function ({ target, useStringSearch }) {
                     { 'name.given': value },
                     { 'name.suffix': value },
                     { 'name.prefix': value }
+                ]
+            });
+        }
+        else {
+            const regex = stringQueryBuilder({target: value});
+            ors.push({
+                $or: [
+                    { 'name.text': regex },
+                    { 'name.family': regex },
+                    { 'name.given': regex },
+                    { 'name.suffix': regex },
+                    { 'name.prefix': regex }
                 ]
             });
         }
