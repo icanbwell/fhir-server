@@ -596,7 +596,12 @@ function calcRangeSN(numStr) {
         }
         expDigits = expDigits.length;
     }
-
+    /* The R4B spec has an incorrect example for numbers of the format 1e2, e.g.
+       This has been corrected in the R5 spec, but for now, putting in this kludge
+     */
+    if (expDigits === 1) {
+        expDigits = 2;
+    }
     const offsetLen = expDigits - 1;
     let offset = '0.';
     for (let i = 0; i < offsetLen; i++) {
