@@ -3,6 +3,7 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class ParametersResourceValidator extends BaseValidator {
     /**
@@ -14,6 +15,10 @@ class ParametersResourceValidator extends BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
+        /**
+         * @type {MergeResultEntry[]}
+         */
+        let errors = [];
         // see if the resources were passed as parameters
         if (incomingResources.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
@@ -77,8 +82,42 @@ class ParametersResourceValidator extends BaseValidator {
             }
             incomingResources = resourceParameters.map(r => r.resource);
         }
+        const wasAList = Array.isArray(incomingResources);
+        if (wasAList) {
+            let resources = [];
+            // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
+            incomingResources?.forEach(p => {
+                if (p.resourceType === 'Parameters') {
+                    const operationOutcomeIssue = new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'structure',
+                        details: new CodeableConcept({
+                        text: 'Invalid resource type: Parameters'
+                        })
+                    });
+                    const operationOutcome = new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [operationOutcomeIssue]
+                    })
+                    errors.push(new MergeResultEntry(
+                        {
+                            id: p.id,
+                            created: false,
+                            updated: false,
+                            issue: operationOutcomeIssue,
+                            operationOutcome: operationOutcome,
+                            resourceType: p.resourceType
+                        }
+                    ));
+                } else {
+                    resources.push(p);
+                }
+            });
+            incomingResources = resources;
+        }
 
-        return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };
+        return { validatedObjects: incomingResources, preCheckErrors: errors, wasAList };
     }
 }
 

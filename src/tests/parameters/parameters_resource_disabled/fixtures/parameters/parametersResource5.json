@@ -1,0 +1,64 @@
+[
+    {
+        "id": "81673f07-0b70-494d-9903-c391c24c73b1",
+        "resourceType": "Parameters",
+        "meta": {
+            "versionId": "154",
+            "lastUpdated": "2024-06-25T06:51:22.000Z",
+            "source": "Test",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client"
+                },
+                {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "client"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "client"
+                }
+            ]
+        },
+        "parameter": [{
+            "name": "test",
+            "resource": {
+                "resourceType": "Parameters",
+                "id": "11984437-eee9-462d-938d-d040b4e27008",
+                "gender": "male",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2024-02-16T12:39:18.000Z",
+                    "source": "test",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "proa"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "proa"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "11984437-eee9-462d-938d-d040b4e27008"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "11984437-eee9-462d-938d-d040b4e27008"
+                    }
+                ]
+            }
+        }]
+    }
+]

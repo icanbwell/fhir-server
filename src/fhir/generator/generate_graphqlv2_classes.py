@@ -108,7 +108,8 @@ def main() -> int:
     os.mkdir(value_sets_folder)
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
-    total_resources_count = len(FhirXmlSchemaParser.get_list_of_resources())
+    resource_list = FhirXmlSchemaParser.get_list_of_resources()
+    total_resources_count = len(resource_list)
 
     # generate schema.graphql
     with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
@@ -131,7 +132,6 @@ def main() -> int:
         resource_name: str = fhir_entity.cleaned_name
         entity_file_name = fhir_entity.name_snake_case
 
-        resource_list = FhirXmlSchemaParser.get_list_of_resources()
         if fhir_entity.is_value_set:  # valueset
             pass
 

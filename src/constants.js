@@ -107,7 +107,6 @@ module.exports = {
         ORGANIZATION: 'Organization',
         ORGANIZATIONAFFILIATION: 'OrganizationAffiliation',
         PACKAGEDPRODUCTDEFINITION: 'PackagedProductDefinition',
-        PARAMETERS: 'Parameters',
         PATIENT: 'Patient',
         PAYMENTNOTICE: 'PaymentNotice',
         PAYMENTRECONCILIATION: 'PaymentReconciliation',
@@ -210,5 +209,6 @@ module.exports = {
         WRITE: 'WRITE',
         DELETE: 'DELETE'
     },
-    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000 // 24hrs
+    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000, // 24hrs
+    DISABLED_COLLECTIONS: ['Parameters_4_0_0']
 };
