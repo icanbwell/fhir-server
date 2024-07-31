@@ -24,10 +24,13 @@ const stringQueryBuilder = function ({ target }) {
  * @name addressQueryBuilder
  * @description brute force method of matching addresses. Splits the input and checks to see if every piece matches to
  * at least 1 part of the address field using regexs. Ignores case
- * @param {string} target
+ * @typedef {Object} AddressQueryBuilderProps
+ * @property {string} target what we are searching for
+ * @property {string} useExactSearch use exact search or not
+ * @param {AddressQueryBuilderProps}
  * @return {array} ors
  */
-const addressQueryBuilder = function ({ target }) {
+const addressQueryBuilder = function ({ target, useExactSearch }) {
     // Tokenize the input as mush as possible
     const totalSplit = target.split(/[\s,]+/);
     const ors = [];
@@ -35,21 +38,35 @@ const addressQueryBuilder = function ({ target }) {
         /**
          * @type {string}
          */
-        const regExPattern = totalSplit[`${index}`];
+        const value = totalSplit[`${index}`];
         /**
          * @type {RegExp}
          */
-        const regExpObject = new RegExp(escapeRegExp(regExPattern), 'i');
-        ors.push({
-            $or: [
-                { 'address.line': { $regex: regExpObject } },
-                { 'address.city': { $regex: regExpObject } },
-                { 'address.district': { $regex: regExpObject } },
-                { 'address.state': { $regex: regExpObject } },
-                { 'address.postalCode': { $regex: regExpObject } },
-                { 'address.country': { $regex: regExpObject } }
-            ]
-        });
+        if (useExactSearch) {
+            ors.push({
+                $or: [
+                    { 'address.line': value },
+                    { 'address.city': value },
+                    { 'address.district': value },
+                    { 'address.state': value },
+                    { 'address.postalCode': value },
+                    { 'address.country': value }
+                ]
+            });
+        }
+        else {
+            const regex = stringQueryBuilder({target: value});
+            ors.push({
+                $or: [
+                    { 'address.line': regex },
+                    { 'address.city': regex },
+                    { 'address.district': regex },
+                    { 'address.state': regex },
+                    { 'address.postalCode': regex },
+                    { 'address.country': regex }
+                ]
+            });
+        }
     }
     return ors;
 };
@@ -58,10 +75,13 @@ const addressQueryBuilder = function ({ target }) {
  * @name nameQueryBuilder
  * @description brute force method of matching human names. Splits the input and checks to see if every piece matches to
  * at least 1 part of the name field using regexs. Ignores case
- * @param {string} target
+ * @typedef {Object} NameQueryBuilderProps
+ * @property {string} target what are we searching for
+ * @property {boolean} useExactSearch use exact search or not
+ * @param {NameQueryBuilderProps}
  * @return {array} ors
  */
-const nameQueryBuilder = function ({ target }) {
+const nameQueryBuilder = function ({ target, useExactSearch }) {
     const split = target.split(/[\s.,]+/);
     const ors = [];
 
@@ -69,16 +89,30 @@ const nameQueryBuilder = function ({ target }) {
         /**
          * @type {RegExp}
          */
-        const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
-        ors.push({
-            $or: [
-                { 'name.text': { $regex: regExpObject, $options: 'i' } },
-                { 'name.family': { $regex: regExpObject, $options: 'i' } },
-                { 'name.given': { $regex: regExpObject, $options: 'i' } },
-                { 'name.suffix': { $regex: regExpObject, $options: 'i' } },
-                { 'name.prefix': { $regex: regExpObject, $options: 'i' } }
-            ]
-        });
+        const value = split[`${i}`];
+        if (useExactSearch) {
+            ors.push({
+                $or: [
+                    { 'name.text': value },
+                    { 'name.family': value },
+                    { 'name.given': value },
+                    { 'name.suffix': value },
+                    { 'name.prefix': value }
+                ]
+            });
+        }
+        else {
+            const regex = stringQueryBuilder({target: value});
+            ors.push({
+                $or: [
+                    { 'name.text': regex },
+                    { 'name.family': regex },
+                    { 'name.given': regex },
+                    { 'name.suffix': regex },
+                    { 'name.prefix': regex }
+                ]
+            });
+        }
     }
     return ors;
 };
@@ -941,8 +975,8 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                 $or: [
                     {
                         [`${fieldName}.end`]: dateQueryBuilder({
-                        date: `ge${date}`,
-                        type: 'date'
+                            date: `ge${date}`,
+                            type: 'date'
                         })
                     },
                     {
