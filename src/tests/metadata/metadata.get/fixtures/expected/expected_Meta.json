@@ -9354,39 +9354,6 @@
                     ]
                 },
                 {
-                    "type": "Parameters",
-                    "profile": {
-                        "reference": "http://hl7.org/fhir/Parameters.html"
-                    },
-                    "interaction": [
-                        {
-                            "code": "search-type"
-                        },
-                        {
-                            "code": "read"
-                        },
-                        {
-                            "code": "vread"
-                        },
-                        {
-                            "code": "create"
-                        },
-                        {
-                            "code": "update"
-                        },
-                        {
-                            "code": "delete"
-                        },
-                        {
-                            "code": "history-type"
-                        },
-                        {
-                            "code": "history-instance"
-                        }
-                    ],
-                    "conditionalDelete": "not-supported"
-                },
-                {
                     "type": "Patient",
                     "profile": {
                         "reference": "http://hl7.org/fhir/Patient.html"
@@ -13276,90 +13243,6 @@
                 }
             ],
             "operation": [
-                {
-                    "name": "everything",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "everything",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "everything",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "everything",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "merge",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "merge",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "validate",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
-                    }
-                },
-                {
-                    "name": "validate",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
-                    }
-                },
-                {
-                    "name": "graph",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
-                    }
-                },
-                {
-                    "name": "graph",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
-                    }
-                },
-                {
-                    "name": "graph",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
-                    }
-                },
-                {
-                    "name": "graph",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
-                    }
-                },
-                {
-                    "name": "expand",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
-                {
-                    "name": "remove_by_query",
-                    "definition": {
-                        "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
-                    }
-                },
                 {
                     "name": "everything",
                     "definition": {

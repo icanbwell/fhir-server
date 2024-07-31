@@ -11,6 +11,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
+const { isTrue } = require('../../utils/isTrue');
 
 class EverythingOperation {
     /**
@@ -153,16 +154,44 @@ class EverythingOperation {
                     throw new Error('$everything is not supported for resource: ' + resourceType);
             }
 
+            if (isTrue(parsedArgs._includeNonClinicalResources)) {
+                if (!['Person', 'Patient'].includes(resourceType)) {
+                    throw new Error(
+                        '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
+                    );
+                }
+                if (
+                    parsedArgs._nonClinicalResourcesDepth &&
+                    (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
+                        parsedArgs._nonClinicalResourcesDepth > 3 ||
+                        parsedArgs._nonClinicalResourcesDepth < 1)
+                ) {
+                    throw new Error(
+                        '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
+                    );
+                }
+            }
+
             if (resourceFilter) {
                 // _type and contained parameter are not supported together
                 parsedArgs.contained = 0;
                 let resourceFilterList = resourceFilter.split(',');
                 parsedArgs.resourceFilterList = resourceFilterList;
-                parsedArgs.resource = this.filterResources(parsedArgs.resource, resourceFilterList);
+                parsedArgs.resource = this.filterResources(
+                    deepcopy(parsedArgs.resource),
+                    resourceFilterList
+                );
             }
 
             const result = await this.graphOperation.graph({
-                requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
+                requestInfo,
+                res,
+                parsedArgs,
+                resourceType,
+                responseStreamer,
+                supportLegacyId,
+                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
+                nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

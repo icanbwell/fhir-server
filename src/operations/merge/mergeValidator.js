@@ -4,9 +4,7 @@ class MergeValidator {
     /**
      * @param {BaseValidator[]} validators
      */
-    constructor ({
-                    validators
-                }) {
+    constructor ({ validators }) {
         /**
          * @type {BaseValidator[]}
          */
@@ -23,13 +21,13 @@ class MergeValidator {
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
     async validateAsync ({
-                       base_version,
-                       currentDate,
-                       currentOperationName,
-                       incomingObjects,
-                       resourceType,
-                       requestInfo
-                   }) {
+        base_version,
+        currentDate,
+        currentOperationName,
+        incomingObjects,
+        resourceType,
+        requestInfo
+    }) {
         /**
          * @type {MergeResultEntry[]}
          */

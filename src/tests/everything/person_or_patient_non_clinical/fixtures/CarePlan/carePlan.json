@@ -1,0 +1,124 @@
+{
+    "activity": [
+        {
+            "detail": {
+                "code": {
+                    "coding": [
+                        {
+                            "code": "160670007",
+                            "display": "Diabetic diet",
+                            "system": "http://snomed.info/sct"
+                        }
+                    ],
+                    "text": "Diabetic diet"
+                },
+                "status": "in-progress"
+            }
+        },
+        {
+            "detail": {
+                "productReference": {
+                    "reference": "Medication/b0e0113d-23a0-5742-a054-c8afe008010b"
+                },
+                "code": {
+                    "coding": [
+                        {
+                            "code": "229065009",
+                            "display": "Exercise therapy",
+                            "system": "http://snomed.info/sct"
+                        }
+                    ],
+                    "text": "Exercise therapy"
+                },
+                "status": "in-progress"
+            }
+        }
+    ],
+    "category": [
+        {
+            "coding": [
+                {
+                    "code": "assess-plan",
+                    "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category"
+                }
+            ]
+        },
+        {
+            "coding": [
+                {
+                    "code": "698360004",
+                    "display": "Diabetes self management plan",
+                    "system": "http://terminology.hl7.org/NamingSystem/mddid"
+                }
+            ],
+            "text": "Diabetes self management plan"
+        }
+    ],
+    "id": "care-plan-1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "e8c1b4a5-f998-5793-8fbe-f9fea31c00ab"
+        }
+    ],
+    "intent": "order",
+    "meta": {
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "B"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "B"
+            }
+        ],
+        "source": "https://www.icanbwell.com",
+        "versionId": "1"
+    },
+    "period": {
+        "end": "2013-03-03T01:45:51+00:00",
+        "start": "2012-03-03T01:45:51+00:00"
+    },
+    "resourceType": "CarePlan",
+    "status": "active",
+    "subject": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/e8c1b4a5-f998-5793-8fbe-f9fea31c00ab"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "humanapi"
+            }
+        ],
+        "reference": "Patient/patient1"
+    },
+    "text": {
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>",
+        "status": "generated"
+    },
+    "title": "Diabetes self management plan"
+}

@@ -321,7 +321,7 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp.body.output).toHaveLength(140);
+            expect(resp.body.output).toHaveLength(139);
             expect(resp.body.errors).toHaveLength(0);
         });
 

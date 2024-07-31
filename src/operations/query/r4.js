@@ -23,6 +23,7 @@ const { UrlParser } = require('../../utils/urlParser');
 const { FilterByQuantity } = require('./filters/quantity');
 const { OPERATIONS: { DELETE } } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
+const { FilterByOfType } = require('./filters/ofType');
 
 class R4SearchQueryCreator {
     /**
@@ -121,6 +122,8 @@ class R4SearchQueryCreator {
                     andSegments = new FilterByBelow(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('text')) {
                     andSegments = new FilterByText(filterParameters).filterText();
+                } else if (parsedArg.modifiers.includes('of-type')) {
+                    andSegments = new FilterByOfType(filterParameters).filter();
                 }
 
                 // apply negation according to not modifier and add to final collection

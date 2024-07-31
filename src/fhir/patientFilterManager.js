@@ -5,8 +5,6 @@ class PatientFilterManager {
          * @type {Object}
          */
         this.patientFilterMapping = {
-            Annotation: 'authorReference.reference',
-            Signature: 'who.reference',
             Account: 'subject.reference',
             AdverseEvent: 'subject.reference',
             AllergyIntolerance: 'patient.reference',

@@ -1,0 +1,194 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "1679033641",
+        "identifier": [
+          {
+            "system": "http://clienthealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "client",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          },
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "NAJJAR  MD, SAMER S.",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Organization/Stanford_Medical_School"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Organization/e72e1b5c-00ca-5961-acb4-2aa7a435c3e5"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client"
+                }
+              ],
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          },
+          {
+            "system": "phone",
+            "use": "work",
+            "value": "1234567890"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Practitioner_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'identifier':{'$elemMatch':{'type.coding.system':'http://terminology.hl7.org/CodeSystem/v2-0203','type.coding.code':'PRN'}}},{'identifier.value':'4657'}]}, {}).sort({'_uuid':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Practitioner_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['meta.tag.system','meta.tag.code','identifier.type.coding.system','identifier.type.coding.code','identifier.value','_uuid']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

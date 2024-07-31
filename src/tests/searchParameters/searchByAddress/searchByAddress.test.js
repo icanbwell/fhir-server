@@ -6,6 +6,7 @@ const expectedPersonResources1 = require('./fixtures/expected/expectedSearchByAd
 const expectedPersonResources2 = require('./fixtures/expected/expectedSearchByAddressCity.json');
 const expectedPersonResources3 = require('./fixtures/expected/expectedSearchByAddressPostalCode.json');
 const expectedPersonResources4 = require('./fixtures/expected/expectedSearchByWrongAddress.json');
+const expectedPersonResources5 = require('./fixtures/expected/expectedSearchByAddressExactModifier.json');
 
 const {
     commonBeforeEach,
@@ -38,7 +39,7 @@ describe('Person Tests', () => {
 
             // search by address, were address line has been passed as address query parameter
             resp = await request
-                .get('/4_0_0/Person/?address=1%20Main%20St.&_bundle=1')
+                .get('/4_0_0/Person/?address=1%20Main%20St.&_debug=1&_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources1);
@@ -56,7 +57,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
             // search by address, were country name has been passed as address query parameter
-            resp = await request.get('/4_0_0/Person/?address=Berea&_bundle=1').set(getHeaders());
+            resp = await request.get('/4_0_0/Person/?address=Berea&_debug=1&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources2);
         });
@@ -93,6 +94,23 @@ describe('Person Tests', () => {
             resp = await request.get('/4_0_0/Person/?address=Venice&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources4);
+        });
+
+        test('search_by_address with Exact Modifier', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
+
+            // search by address, were [postal code] has been passed as address query parameter
+            resp = await request.get('/4_0_0/Person?address:exact=Berea&_debug=1&_bundle=1').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources5);
         });
     });
 });

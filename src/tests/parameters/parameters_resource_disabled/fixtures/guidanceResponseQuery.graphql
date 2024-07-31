@@ -1,0 +1,19 @@
+query {
+    guidanceResponse{
+        entry{
+            resource {
+                id
+                meta {
+                    source
+                }
+                outputParameters {
+                    id
+                    resourceType
+                    parameter {
+                        id
+                    }
+                }
+            }
+        }
+    }
+}

@@ -96,14 +96,14 @@ Slot, Schedule, PractitionerRole, Practitioner
 URL: <base_url>/4_0_0/Person/<person_id>/$everything
 
 Resources returned/deleted:
-Person, Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, List, MeasureReport, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription
+Person, Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
 ### Patient
 
 URL: <base_url>/4_0_0/Patient/<patient_id>/$everything
 
 Resources returned/deleted:
-Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, List, MeasureReport, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription
+Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
 ## Supported search query parameters
 
@@ -200,3 +200,16 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?\_type=Person,Accou
 
 Note:
 When `_type` parameter is used then the `contained` parameter is ignored.
+
+### \_includeNonClinicalResources
+
+This parameter is used to find all linked non-clinical resources. It can only be used with Patient and Person resources and in GET request only. Default depth for which linked non-clinical resources can be fetched is 1 and it can be configured using `_nonClinicalResourcesDepth` parameter.
+When used along with `_type`, the result of only top level resources will be narrowed and it will not affect linked non-clinical resources.
+
+For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true
+
+### \_nonClinicalResourcesDepth
+
+This parameter is used to define depth for which linked non-clinical resources needs to be fetched. The parameter is optional with default value of 1. And its maximum value can be 3 as more depth will make request very slow.
+
+For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true&\_nonClinicalResourcesDepth=3

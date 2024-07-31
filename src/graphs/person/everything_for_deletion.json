@@ -374,6 +374,14 @@
             {
               "target": [
                 {
+                  "type": "Media",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
                   "type": "MedicationAdministration",
                   "params": "patient={ref}"
                 }

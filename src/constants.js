@@ -107,7 +107,6 @@ module.exports = {
         ORGANIZATION: 'Organization',
         ORGANIZATIONAFFILIATION: 'OrganizationAffiliation',
         PACKAGEDPRODUCTDEFINITION: 'PackagedProductDefinition',
-        PARAMETERS: 'Parameters',
         PATIENT: 'Patient',
         PAYMENTNOTICE: 'PaymentNotice',
         PAYMENTRECONCILIATION: 'PaymentReconciliation',
@@ -159,7 +158,8 @@ module.exports = {
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
-        'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI'
+        'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
+        '_includeNonClinicalResources', '_nonClinicalResourcesDepth'
     ],
     REQUEST_ID_HEADER: 'x-request-id',
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
@@ -210,5 +210,6 @@ module.exports = {
         WRITE: 'WRITE',
         DELETE: 'DELETE'
     },
-    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000 // 24hrs
+    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000, // 24hrs
+    DISABLED_COLLECTIONS: ['Parameters_4_0_0']
 };

@@ -11,6 +11,7 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { MongoDatabaseManager } = require('./mongoDatabaseManager');
 const { logInfo } = require('../operations/common/logging');
+const { DISABLED_COLLECTIONS } = require('../constants');
 
 class MongoCollectionManager {
     /**
@@ -84,7 +85,7 @@ class MongoCollectionManager {
                     }
                 }
                 const collectionExists = await db.listCollections({ name: collectionName }, { nameOnly: true }).hasNext();
-                if (!collectionExists) {
+                if (!collectionExists && !DISABLED_COLLECTIONS.includes(collectionName)) {
                     await db.createCollection(collectionName);
                     if (this.configManager.createIndexOnCollectionCreation) {
                         // and index it
