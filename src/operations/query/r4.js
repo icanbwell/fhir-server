@@ -24,6 +24,7 @@ const { FilterByQuantity } = require('./filters/quantity');
 const { OPERATIONS: { DELETE } } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { FilterByOfType } = require('./filters/ofType');
+const { FilterByNumber } = require('./filters/number');
 
 class R4SearchQueryCreator {
     /**
@@ -244,6 +245,9 @@ class R4SearchQueryCreator {
                     break;
                 case fhirFilterTypes.quantity:
                     andSegments = new FilterByQuantity(filterParameters).filter();
+                    break;
+                case fhirFilterTypes.number:
+                    andSegments = new FilterByNumber(filterParameters).filter();
                     break;
                 default:
                     throw new Error('Unknown type=' + propertyObj.type);

@@ -494,48 +494,63 @@ const referenceQueryBuilderOptimized = function (
  * @description takes in number query and returns a mongo query. The target parameter can have a 2 constter prefix to
  *              specify a specific kind of query. Else, an approximation query will be returned.
  * @param {string} target
+ * @param {string} field path to specific field in the resource
  * @returns {Object} a mongo query
  */
-const numberQueryBuilder = function ({ target }) {
+const numberQueryBuilder = function ({ target, field }) {
+    let query;
     let prefix = '';
-    let number;
-    let sigfigs;
+    let range = {};
+    let numStr = target;
+    let number = Number(target);
 
     // Check if there is a prefix
-    if (Number.isNaN(target)) {
+    if (isNaN(target)) {
         prefix = target.substring(0, 2);
-        number = parseFloat(target.substring(2));
-        sigfigs = target.substring(2);
+        numStr = target.substring(2);
+        number = Number(numStr);
+        switch (prefix) {
+            case 'lt':
+                query = { $lt: number };
+                break;
+            case 'le':
+                query = { $lte: number };
+                break;
+            case 'gt':
+                query = { $gt: number };
+                break;
+            case 'ge':
+                query = { $gte: number };
+                break;
+            case 'ne':
+                if (numStr.indexOf('e') > 0) {
+                    range = calcRangeSN(numStr);
+                } else {
+                    range = calcRange(numStr);
+                }
+                query = {
+                    $exists: true,
+                    $not: {
+                        $gte: Number((number - range.offset).toPrecision(range.precn)),
+                        $lt: Number((number + range.offset).toPrecision(range.precn))
+                    }
+                };
+                break;
+            default:
+                return {};
+        }
     } else {
-        number = parseFloat(target);
-        sigfigs = target;
+        if (numStr.indexOf('e') > 0) {
+            range = calcRangeSN(numStr);
+        } else {
+            range = calcRange(numStr);
+        }
+        query = {
+            $gte: Number((number - range.offset).toPrecision(range.precn)),
+            $lt: Number((number + range.offset).toPrecision(range.precn))
+        };
     }
-
-    // Check for prefix and return the appropriate query
-    // Missing eq(default), sa, eb, and ap prefixes
-    switch (prefix) {
-        case 'lt':
-            return { $lt: number };
-        case 'le':
-            return { $lte: number };
-        case 'gt':
-            return { $gt: number };
-        case 'ge':
-            return { $gte: number };
-        case 'ne':
-            return { $ne: number };
-    }
-
-    // Return an approximation query
-    let decimals = sigfigs.split('.')[1];
-    if (decimals) {
-        decimals = decimals.length + 1;
-    } else {
-        decimals = 1;
-    }
-    const aprox = (1 / 10 ** decimals) * 5;
-
-    return { $gte: number - aprox, $lt: number + aprox };
+    return { [`${field}`]: query };
 };
 
 /**
