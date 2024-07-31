@@ -1,0 +1,70 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment QuantityFields on Quantity {
+    value
+    unit
+    code
+    comparator
+}
+
+query Vitals{
+    observation(
+        value_quantity: {
+          value: "5.40e-3"
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+                __typename
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                component {
+                    code {
+                        text
+                    }
+                    valueQuantity {
+                        ...QuantityFields
+                    }
+                    valueCodeableConcept {
+                        text
+                        coding {
+                            code
+                            display
+                        }
+                    }
+                    valueString
+                    valueBoolean
+                    valueInteger
+                    valueTime
+                    valueDateTime
+                    valuePeriod {
+                        start
+                        end
+                    }
+                    interpretation {
+                        text
+                    }
+                }
+                valueQuantity {
+                    ...QuantityFields
+                }
+            }
+        }
+    }
+}

@@ -556,10 +556,12 @@ const quantityQueryBuilder = function ({ target, field }) {
         qB[`${field}.code`] = code;
     }
 
-    if (isNaN(num)) {
+    let range = {};
+   if (isNaN(num)) {
         // with prefixes
         const prefix = num.substring(0, 2);
-        num = Number(num.substring(2));
+        const strNum = num.substring(2);
+        num = Number(strNum);
 
         // Missing eq(default), sa, eb, and ap prefixes
         switch (prefix) {
@@ -576,16 +578,102 @@ const quantityQueryBuilder = function ({ target, field }) {
                 qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                qB[`${field}.value`] = { $ne: num };
+                if (strNum.indexOf('e') > 0) {
+                    range = calcRangeSN(numStr);
+                } else {
+                    range = calcRange(strNum);
+                }
+                num = Number(num);
+                qB[`${field}.value`] = { $ne: { $gte: Number((num - range.offset).toPrecision(range.precn)),
+                        $lt: Number((num + range.offset).toPrecision(range.precn)) }};
                 break;
         }
     } else {
         // no prefixes
-        qB[`${field}.value`] = Number(num);
+       if (num.indexOf('e') > 0) {
+           range = calcRangeSN(num);
+       } else {
+           range = calcRange(num);
+       }
+       num = Number(num);
+       qB[`${field}.value`] = { $gte: Number((num - range.offset).toPrecision(range.precn)),
+                        $lt: Number((num + range.offset).toPrecision(range.precn)) }
     }
 
     return qB;
 };
+
+// return value of range offset and precision
+function calcRange(numStr) {
+    const n = Number(numStr);
+    if (n === 0) return 0.5;
+
+    // Remove leading zeros and the decimal point
+    if (numStr.indexOf('.') !== -1) {
+        // Floating-point number
+        numStr = numStr.replace(/^0+/g, ''); // Remove leading zeros
+        numStr = numStr.replace('.', ''); // Remove the decimal point
+    } else {
+        // Integer number
+        numStr = numStr.replace(/^0+/, ''); // Remove leading zeros only
+    }
+
+    let numIntDigits = 0;
+    let beforePoint = Math.trunc(n);
+    if (beforePoint !== 0) {
+        beforePoint = beforePoint.toString();
+        numIntDigits = beforePoint.length;
+    }
+
+    const offsetLen = numStr.length;
+    let offset = '0.';
+    for (let i = 0; i < offsetLen; i++) {
+        offset = offset + '0';
+    }
+    offset = offset + '5';
+    offset = Number(offset) * Math.pow(10, numIntDigits);
+    const precn  = numStr.length + 1;
+    return { offset, precn};
+}
+
+
+// return value of range offset for scientific notation numbers
+function calcRangeSN(numStr) {
+    const n = Number(numStr);
+    if (n === 0) return 0.5;
+    let pow10 = 0;
+    let expDigits;
+
+    const exp = numStr.indexOf('e');
+    if (exp > 0) {
+        pow10 = Number(numStr.substring(exp + 1));
+        expDigits = numStr.substring(0, exp);
+        if (expDigits.indexOf('.') !== -1) {
+            // Floating-point number
+            expDigits = expDigits.replace(/^0+/g, ''); // Remove leading zeros
+            expDigits = expDigits.replace('.', ''); // Remove the decimal point
+        } else {
+            // Integer number
+            expDigits = expDigits.replace(/^0+/, ''); // Remove leading zeros only
+        }
+        expDigits = expDigits.length;
+    }
+    /* The R4B spec has an incorrect example for numbers of the format 1e2, e.g.
+       This has been corrected in the R5 spec, but for now, putting in this kludge
+     */
+    if (expDigits === 1) {
+        expDigits = 2;
+    }
+    const offsetLen = expDigits - 1;
+    let offset = '0.';
+    for (let i = 0; i < offsetLen; i++) {
+        offset = offset + '0';
+    }
+    offset = offset + '5';
+    offset = Number(offset) * Math.pow(10, pow10);
+    const precn = expDigits + Math.abs(pow10);
+    return { offset, precn};
+}
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
 function mod (n, m) {
