@@ -60,7 +60,7 @@ def main():
 
     clinical_resources = get_clinical_resources(patient_everything_graph)
 
-    json_file_path = patient_graphs.joinpath("clinical_resources.json")
+    json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")
     with open(json_file_path, "w") as json_file:
         json.dump({"clinicalResources": clinical_resources}, json_file, indent=2)
         json_file.write("\n")

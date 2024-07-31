@@ -41,7 +41,7 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const { SearchBundleOperation } = require('../search/searchBundle');
-const clinicalResources = require('../../graphs/patient/clinical_resources.json')['clinicalResources'];
+const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
  * This class helps with creating graph responses
