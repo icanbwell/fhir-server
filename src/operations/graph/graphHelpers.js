@@ -1332,15 +1332,11 @@ containedEntries: []
 
                 if (debug || explain) {
                     // making query items from meta of bundle
-                    let collectionName = bundle.meta.tag.find((obj) => {
-                        return obj.system.endsWith('queryCollection');
-                    }).code;
-                    let query = bundle.meta.tag
-                        .find((obj) => {
-                            return obj.system.endsWith('query');
-                        })
-                        .display.split('.find(')[1]
-                        .split(', {}')[0];
+                    let query = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('query');
+                    }).display;
+                    let collectionName = query.split('.')[1];
+                    query = query.split('.find(')[1].split(', {}')[0];
                     query = JSON.parse(query.replace(/'/g, '"'));
                     let explanations = bundle.meta.tag.find((obj) => {
                         return obj.system.endsWith('queryExplain');
