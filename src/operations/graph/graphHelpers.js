@@ -37,6 +37,11 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
+const { SearchBundleOperation } = require('../search/searchBundle');
+const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
  * This class helps with creating graph responses
@@ -56,6 +61,7 @@ class GraphHelper {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
+     * @param {SearchBundleOperation} searchParametersOperation
      */
     constructor ({
                     databaseQueryFactory,
@@ -70,7 +76,8 @@ class GraphHelper {
                     enrichmentManager,
                     r4ArgsParser,
                     databaseAttachmentManager,
-                    searchParametersManager
+                    searchParametersManager,
+                    searchBundleOperation
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -146,6 +153,12 @@ class GraphHelper {
          */
         this.searchParametersManager = searchParametersManager;
         assertTypeEquals(searchParametersManager, SearchParametersManager);
+
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = searchBundleOperation;
+        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
     }
 
     /**
@@ -1225,6 +1238,145 @@ containedEntries: []
     }
 
     /**
+     * get all the non-clinical resources whose references are in the provided entity list
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource[]} resourceList
+     * @param {string[]} resourcesToExclude
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} base_version
+     * @param {boolean} explain
+     * @param {boolean} debug
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
+     */
+    async getLinkedNonClinicalResources(
+        requestInfo,
+        resourceList,
+        resourcesToExclude,
+        parsedArgs,
+        base_version,
+        explain,
+        debug
+    ) {
+        try {
+            /**
+             * @type {BundleEntry[]}
+             */
+            let entities = [];
+            /**
+             * @type {QueryItem[]}
+             */
+            let queryItems = [];
+
+            let nestedResourceReferences = {};
+
+            for (const resource of resourceList) {
+                let resourceNonClinicalDataFields = nonClinicalDataFields[resource.resourceType];
+                for (const path of resourceNonClinicalDataFields) {
+                    let references = NestedPropertyReader.getNestedProperty({
+                        obj: resource,
+                        path: path
+                    });
+                    if (references) {
+                        if (!Array.isArray(references)) {
+                            references = [references];
+                        }
+                        for (const reference of references) {
+                            const { id: referenceId, resourceType: referenceResourceType } =
+                                ReferenceParser.parseReference(reference);
+                            if (!resourcesToExclude.includes(referenceResourceType)) {
+                                if (nestedResourceReferences[referenceResourceType]) {
+                                    nestedResourceReferences[referenceResourceType] =
+                                        nestedResourceReferences[referenceResourceType].add(
+                                            referenceId
+                                        );
+                                } else {
+                                    nestedResourceReferences[referenceResourceType] = new Set([
+                                        referenceId
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
+                const args = {
+                    base_version: base_version,
+                    id: Array.from(ids).join(','),
+                    _debug: debug
+                };
+                if (explain) {
+                    args['_count'] = 1;
+                }
+
+                const childParseArgs = this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args
+                });
+
+                const bundle = await this.searchBundleOperation.searchBundleAsync({
+                    requestInfo,
+                    resourceType,
+                    parsedArgs: childParseArgs,
+                    useAggregationPipeline: false
+                });
+
+                for (let entry of bundle.entry || []) {
+                    const resourceBundleEntry = new BundleEntry({
+                        id: entry.id,
+                        resource: entry.resource
+                    });
+                    entities.push(resourceBundleEntry);
+                }
+
+                if (debug || explain) {
+                    // making query items from meta of bundle
+                    let query = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('query');
+                    }).display;
+                    let collectionName = query.split('.')[1];
+                    query = query.split('.find(')[1].split(', {}')[0];
+                    query = JSON.parse(query.replace(/'/g, '"'));
+                    let explanations = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('queryExplain');
+                    }).system;
+                    queryItems.push(
+                        new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName,
+                            explanations
+                        })
+                    );
+                }
+            }
+
+            entities = await this.enrichmentManager.enrichBundleEntriesAsync({
+                entries: entities,
+                parsedArgs
+            });
+
+            return { entities, queryItems };
+        } catch (e) {
+            logError(`Error in getLinkedNonClinicalResources(): ${e.message}`, { error: e });
+            throw new RethrownError({
+                message: `Error in getLinkedNonClinicalResources()`,
+                error: e,
+                args: {
+                    requestInfo,
+                    resourceList,
+                    resourcesToExclude,
+                    parsedArgs,
+                    base_version,
+                    explain,
+                    debug
+                }
+            });
+        }
+    }
+
+    /**
      * processing multiple ids
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -1237,6 +1389,8 @@ containedEntries: []
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceIdentifier[]} idsAlreadyProcessed
      * @param {boolean} supportLegacyId
+     * @param {boolean} includeNonClinicalResources
+     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync (
@@ -1251,7 +1405,9 @@ containedEntries: []
             parsedArgs,
             responseStreamer,
             idsAlreadyProcessed,
-            supportLegacyId = true
+            supportLegacyId = true,
+            includeNonClinicalResources = false,
+            nonClinicalResourcesDepth = 1
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1484,6 +1640,57 @@ containedEntries: []
                     );
                 }
 
+                if (includeNonClinicalResources) {
+                    let resourceTypesToExclude = clinicalResources;
+                    let resourcesList = bundleEntriesForTopLevelResource.map((e) => e.resource);
+                    if (contained) {
+                        resourcesList = [resourcesList[0], ...resourcesList[0].contained];
+                    }
+
+                    for (let i = 1; i <= nonClinicalResourcesDepth; i++) {
+                        // finding non clinical resources in depth using previous result as input
+                        let { entities, queryItems } = await this.getLinkedNonClinicalResources(
+                            requestInfo,
+                            resourcesList,
+                            resourceTypesToExclude,
+                            parsedArgs,
+                            base_version,
+                            explain,
+                            debug
+                        );
+
+                        if (contained) {
+                            bundleEntriesForTopLevelResource[0].resource.contained =
+                                bundleEntriesForTopLevelResource[0].resource.contained.concat(
+                                    entities.flatMap((c) => c.resource)
+                                );
+                        } else {
+                            bundleEntriesForTopLevelResource =
+                                bundleEntriesForTopLevelResource.concat(entities);
+                        }
+
+                        // will be used for next depth
+                        resourcesList = entities.map((e) => e.resource);
+
+                        for (const q of queryItems) {
+                            if (q) {
+                                queries.push(q);
+                            }
+                            if (q.explanations) {
+                                for (const e of q.explanations) {
+                                    explanations.push(e);
+                                }
+                            }
+                        }
+
+                        // in case of explain, currently we are fetching one document of each resource type
+                        if (explain) {
+                            let resourceTypes = resourcesList.map((e) => e.resourceType);
+                            resourceTypesToExclude = resourceTypesToExclude.concat(resourceTypes);
+                        }
+                    }
+                }
+
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                         const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
@@ -1557,6 +1764,8 @@ containedEntries: []
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {boolean} includeNonClinicalResources
+     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
      */
     async processGraphAsync (
@@ -1568,7 +1777,9 @@ containedEntries: []
             contained,
             responseStreamer,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            includeNonClinicalResources = false,
+            nonClinicalResourcesDepth = 1
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1644,7 +1855,9 @@ containedEntries: []
                         parsedArgs: parsedArgsForChunk,
                         responseStreamer,
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
-                        supportLegacyId
+                        supportLegacyId,
+                        includeNonClinicalResources,
+                        nonClinicalResourcesDepth
                     }
                 );
                 entries = entries.concat(entries1);
