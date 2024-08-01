@@ -62,7 +62,11 @@ const fhirFilterTypes = {
     /**
      * usage: ?param=<lt...>number|system|code
      */
-    quantity: 'quantity'
+    quantity: 'quantity',
+    /**
+     * usage: ?param=<lt...>number
+     */
+    number: 'number'
 };
 /**
  Try to keep this in list in alphabetical order to make it easier to search
