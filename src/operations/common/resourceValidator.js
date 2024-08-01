@@ -112,10 +112,6 @@ class ResourceValidator {
                 if (!isUser) {
                     return null;
                 }
-                // Feature flag to enable the validation for patient scope
-                if (!this.configManager.useClientFhirPersonId) {
-                    return null;
-                }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {
                     currentValue.sort();
                     newValue.sort();

@@ -128,10 +128,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (!validInput) {
             return done(null, false);
         }
-        context.personIdFromJwtToken = jwt_payload[env.USE_CLIENT_FHIR_PERSON_ID ?
-            requiredJWTFields.clientFhirPersonId:
-            requiredJWTFields.bwellFhirPersonId
-        ]
+        context.personIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId]
         context.clientPersonIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId];
     }
 
