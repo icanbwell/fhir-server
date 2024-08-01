@@ -95,7 +95,7 @@ describe('Remove with Proxy Patient', () => {
             const person_payload = {
                 scope: 'patient/*.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                clientFhirPersonId: person2.body.uuid,
+                clientFhirPersonId: person1.body.uuid,
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: person1.body.uuid,
                 bwellFhirPatientId: 'bwellFhirPatient',
@@ -208,7 +208,7 @@ describe('Remove with Proxy Patient', () => {
             const person_payload = {
                 scope: 'patient/*.* user/*.* access/*.*',
                 username: 'patient-123@example.com',
-                clientFhirPersonId: person2.body.uuid,
+                clientFhirPersonId: person1.body.uuid,
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: person1.body.uuid,
                 bwellFhirPatientId: 'bwellFhirPatient',
