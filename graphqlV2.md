@@ -340,147 +340,34 @@ query OnObservation {
 ```
 
 ## Examples for querying different types of search modifiers
-- SearchToken
+
+### SearchToken
+- `value` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `notEquals`]
+```
+query {
+  observation(
+    status: {
+        value: {
+            value: "completed"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `values` [List format of `value`]
 ```graphql
 query {
   observation(
     status: {
         values: [
-            {code: "testing1"},
-            {system: "https://www.icanbwell1.com"},
-            {value: "final"}
-        ],
-        value: {
-            code: "testing2",
-            system: "https://www.icanbwell2.com",
-            value: "completed"
-        },
-        missing:false,
-        notEquals: {
-            code: "testing3",
-            system: "https://www.icanbwell3.com",
-            value: "testing4",
-            values: [
-                {value: "testing5"}
-            ]
-        }
-    }
-  ) {
-    entry {
-      resource {
-        id
-      }
-    }
-  }
-}
-```
-- SearchString
-```graphql
-query {
-  person(
-    name: {
-        value: "test",
-        values: ["testing1", "testing2"],
-        missing: false
-        notEquals: {
-            value: "testing3",
-            values: ["testing4", "testing5"]
-        },
-        above: true,
-        below: false,
-    }
-  ) {
-    entry {
-      resource {
-        id
-      }
-    }
-  }
-}
-```
-- SearchReference
-```graphql
-query {
-  procedure(
-    encounter: {
-        missing: false,
-        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73",
-        notEquals: {
-            value: "1",
-            target: "patient"
-        },
-        target: "encounter"
-    }
-  ) {
-    entry {
-      resource {
-        id
-      }
-    }
-  }
-}
-```
-- SearchDate/SearchDateTime
-```graphql
-query {
-    immunization(
-        date: {
-            value: { greaterThan: "2021-01-01" },
-            values: [
-                { lessThanOrEqualTo: "2024-01-01" }
-                { greaterThan: "2021-01-01" }
-            ],
-            missing: false
-        }
-    ) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-- SearchQuantity
-```graphql
-query {
-  condition(
-    onset_age: {
-        value: 1.1,
-        missing:false,
-        notEquals: {
-            value: 2,
-            prefix: "4",
-            code: "test1",
-            system: "https://www.icanbwell1.com"
-        },
-        prefix: "3",
-        code: "test",
-        system: "https://www.icanbwell.com"
-    }
-  ) {
-    entry {
-      resource {
-        id
-      }
-    }
-  }
-}
-```
-- SearchNumber
-```graphql
-query {
-  riskAssessment(
-    probability: {
-        missing: false,
-        value: {
-            lessThanOrEqualTo: 3,
-            greaterThanOrEqualTo: 1
-        },
-        values: [
             {
-                lessThan: 4,
-                greaterThan: 0
+                value: "completed"
             }
         ]
     }
@@ -491,6 +378,166 @@ query {
       }
     }
   }
+}
+```
+- `notEquals` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `value`]
+```graphql
+query {
+  observation(
+    status: {
+        notEquals: {
+            value: "completed"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchString
+- `value`
+```graphql
+query {
+  person(
+    name: {
+        value: "test"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `values`
+```graphql
+query {
+  person(
+    name: {
+        values: ["test1", "test2"]
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `notEquals` [Below example uses nested `value` field. Other nested option is: `values` which is just list of `value`]
+```graphql
+query {
+  person(
+    name: {
+        notEquals: {
+            value: "testing"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchReference
+- `value`
+```graphql
+query {
+  procedure(
+    encounter: {
+        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `target` [To be used with `value`]
+```graphql
+query {
+  procedure(
+    encounter: {
+        target: "Encounter",
+        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `notEquals` [Also supports `target` inside `notEquals`]
+```graphql
+query {
+  procedure(
+    encounter: {
+        notEquals: {
+            value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchDate/SearchDateTime
+- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`, `startsAfter`, `endsBefore`, `approximately`]
+```graphql
+query {
+    immunization(
+        date: {
+            value: { greaterThan: "2021-01-01" }
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `values` [List format of `value`]
+```graphql
+query {
+    immunization(
+        date: {
+            values: [
+                { lessThanOrEqualTo: "2024-01-01" }
+                { greaterThan: "2021-01-01" }
+            ]
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
 }
 ```
 
