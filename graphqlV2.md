@@ -505,7 +505,7 @@ query {
 ```
 
 ### SearchDate/SearchDateTime
-- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`, `startsAfter`, `endsBefore`, `approximately`]
+- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
 ```graphql
 query {
     immunization(
@@ -530,6 +530,67 @@ query {
                 { lessThanOrEqualTo: "2024-01-01" }
                 { greaterThan: "2021-01-01" }
             ]
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+### SearchExtension
+- `value` [Also supports `notEquals` along with `url` and `valueString`]
+```graphql
+query {
+    condition(
+        extension: {
+            value: {
+                url: "https://www.icanbwell.com",
+                valueString: "test"
+            }
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `values` [List format of `value`]
+```graphql
+query {
+    condition(
+        extension: {
+            value: [
+                {
+                    url: "https://www.icanbwell.com",
+                    valueString: "test"
+                }
+            ]
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `notEquals` [Also supports `values` along with `url` and `valueString`]
+```graphql
+query {
+    condition(
+        extension: {
+            notEquals: {
+                url: "https://www.icanbwell.com",
+                valueString: "test"
+            }
         }
     ) {
         entry {

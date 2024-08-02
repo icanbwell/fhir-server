@@ -376,7 +376,7 @@ query {
 ```
 
 ### SearchDate/SearchDateTime
-- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`, `startsAfter`, `endsBefore`, `approximately`]
+- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
 ```graphql
 query {
     immunization(
