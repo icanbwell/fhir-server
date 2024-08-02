@@ -566,7 +566,7 @@ query {
 query {
     condition(
         extension: {
-            value: [
+            values: [
                 {
                     url: "https://www.icanbwell.com",
                     valueString: "test"
