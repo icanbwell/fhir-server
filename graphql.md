@@ -210,6 +210,161 @@ To add a new enrichment provider:
 2. Register your new provider in https://github.com/icanbwell/fhir-server/tree/master/src/createContainer.js
    Now this enrichment provider will be run for every resource and can add additional properties. These properties are available both when accessing the server via REST or GraphQL.
 
+### Examples for querying different types of search modifiers
+- SearchToken
+```graphql
+query {
+  observation(
+    status: {
+        values: [
+            {code: "testing1"},
+            {system: "https://www.icanbwell1.com"},
+            {value: "final"}
+        ],
+        value: {
+            code: "testing2",
+            system: "https://www.icanbwell2.com",
+            value: "completed"
+        },
+        missing:false,
+        notEquals: {
+            code: "testing3",
+            system: "https://www.icanbwell3.com",
+            value: "testing4",
+            values: [
+                {value: "testing5"}
+            ]
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- SearchString
+```graphql
+query {
+  person(
+    name: {
+        value: "test",
+        values: ["testing1", "testing2"],
+        missing: false
+        notEquals: {
+            value: "testing3",
+            values: ["testing4", "testing5"]
+        },
+        above: true,
+        below: false,
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- SearchReference
+```graphql
+query {
+  procedure(
+    encounter: {
+        missing: false,
+        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73",
+        notEquals: {
+            value: "1",
+            target: "patient"
+        },
+        target: "encounter"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- SearchDate/SearchDateTime
+```graphql
+query {
+    immunization(
+        date: {
+            value: { greaterThan: "2021-01-01" },
+            values: [
+                { lessThanOrEqualTo: "2024-01-01" }
+                { greaterThan: "2021-01-01" }
+            ],
+            missing: false
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- SearchQuantity
+```graphql
+query {
+  condition(
+    onset_age: {
+        value: 1.1,
+        missing:false,
+        notEquals: {
+            value: 2,
+            prefix: "4",
+            code: "test1",
+            system: "https://www.icanbwell1.com"
+        },
+        prefix: "3",
+        code: "test",
+        system: "https://www.icanbwell.com"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- SearchNumber
+```graphql
+query {
+  riskAssessment(
+    probability: {
+        missing: false,
+        value: {
+            lessThanOrEqualTo: 3,
+            greaterThanOrEqualTo: 1
+        },
+        values: [
+            {
+                lessThan: 4,
+                greaterThan: 0
+            }
+        ]
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
 ### Upgrading from graphqlv1 to graphqlv2
 In GraphQLv2, the resources are now returned as a FHIR Bundle.
 
