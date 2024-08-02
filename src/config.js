@@ -29,7 +29,6 @@ delete queryParams.w;
  */
 const options = {
     ...queryParams,
-    // appName: 'fhir',
     connectTimeoutMS: env.MONGO_CONNECT_TIMEOUT ? parseInt(env.MONGO_CONNECT_TIMEOUT) : 60 * 60 * 1000,
     socketTimeoutMS: env.MONGO_SOCKET_TIMEOUT ? parseInt(env.MONGO_SOCKET_TIMEOUT) : 60 * 60 * 1000,
     retryReads: true,
