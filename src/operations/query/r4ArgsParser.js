@@ -164,11 +164,16 @@ class R4ArgsParser {
                 ) : null;
 
             let notQueryParameterValue;
-            ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
+            let newModifiers = [];
+            ({ queryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             ));
+
+            if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
+                modifiers = modifiers.concat(newModifiers);
+            }
 
             if (queryParameterValue && (
                     !Array.isArray(queryParameterValue) ||

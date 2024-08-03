@@ -561,6 +561,9 @@ const numberQueryBuilder = function ({ target, field }) {
  */
 const quantityQueryBuilder = function ({ target, field }) {
     const qB = {};
+    if (!target || !(typeof target === 'string') || target.length === 0) {
+        return qB;
+    }
     // split by the two pipes
     let [num, system, code] = target.split('|');
 
@@ -594,7 +597,7 @@ const quantityQueryBuilder = function ({ target, field }) {
                 break;
             case 'ne':
                 if (strNum.indexOf('e') > 0) {
-                    range = calcRangeSN(numStr);
+                    range = calcRangeSN(strNum);
                 } else {
                     range = calcRange(strNum);
                 }
