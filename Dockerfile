@@ -1,4 +1,4 @@
-FROM node:20.13.1-bookworm-slim as build
+FROM node:20.16.0-bookworm-slim as build
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -17,7 +17,7 @@ COPY yarn.lock /srv/src/yarn.lock
 RUN echo "$NODE_ENV"
 RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && yarn install --no-optional; else echo 'building production' && cd /srv/src && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 
-FROM node:20.13.1-bookworm-slim
+FROM node:20.16.0-bookworm-slim
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
