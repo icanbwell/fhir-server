@@ -404,7 +404,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -526,7 +527,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -538,14 +540,14 @@ class FhirOperationsManager {
         const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
             const responseStreamer = requestInfo.accept && requestInfo.accept.includes(fhirContentTypes.ndJson) ?
-            new FhirResponseNdJsonStreamer({
+                new FhirResponseNdJsonStreamer({
+                        response: res,
+                        requestId: req.id
+                    }
+                ) : new FhirResponseStreamer({
                     response: res,
                     requestId: req.id
-                }
-            ) : new FhirResponseStreamer({
-                response: res,
-                requestId: req.id
-            });
+                });
             await responseStreamer.startAsync();
 
             try {
@@ -605,7 +607,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -633,7 +636,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -661,8 +665,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -690,8 +694,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -720,8 +724,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -749,8 +753,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -777,8 +781,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -807,7 +811,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -906,7 +911,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {FhirRequestInfo}
          */
@@ -926,7 +932,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {FhirRequestInfo}
          */

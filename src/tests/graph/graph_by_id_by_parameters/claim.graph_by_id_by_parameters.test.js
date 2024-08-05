@@ -5,6 +5,7 @@ const organizationResource = require('./fixtures/claim/organization.json');
 
 // graph
 const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
+const graphDefinitionWithIdResource = require('./fixtures/graph/my_graph_with_id.json');
 
 // expected
 const expectedResource_230916613368 = require('./fixtures/expected/expected-WPS-Claim-230916613368.json');
@@ -76,6 +77,56 @@ describe('Claim Graph By Id Contained Tests', () => {
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$graph?contained=true')
                 .set(getHeaders())
                 .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource_230916613369);
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/$graph?contained=true')
+                .set(getHeaders())
+                .send(graphDefinitionWithIdResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource_230916613369);
+        });
+        test('Graph contained with multiple targets works properly with id as a parameter', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .get('/4_0_0/ExplanationOfBenefit')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1376656959/$merge')
+                .send(practitionerResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Organization/1407857790/$merge')
+                .send(organizationResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$merge')
+                .send(claimResource[0])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$merge')
+                .send(claimResource[1])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/$graph?contained=true')
+                .set(getHeaders())
+                .send(graphDefinitionWithIdResource);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource_230916613369);
         });
