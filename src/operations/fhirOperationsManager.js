@@ -539,8 +539,7 @@ class FhirOperationsManager {
 
         const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
-            const responseStreamer = requestInfo.accept
-            && fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
+            const responseStreamer = fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
                 new FhirResponseNdJsonStreamer({
                         response: res,
                         requestId: req.id
@@ -830,8 +829,7 @@ class FhirOperationsManager {
         /**
          * @type {BaseResponseStreamer}
          */
-        const responseStreamer = requestInfo.accept
-        && fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
+        const responseStreamer = fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
             new FhirResponseNdJsonStreamer({
                     response: res,
                     requestId: req.id
