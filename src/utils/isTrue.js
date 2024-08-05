@@ -1,5 +1,5 @@
 /**
- * returns whether the parameter is false or a string "false"
+ * returns whether the parameter is true or a string "true"
  * @param {string | boolean | null} s
  * @returns {boolean}
  */
