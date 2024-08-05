@@ -111,7 +111,9 @@ function createApp ({ fnGetContainer }) {
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
+        if (!ignoredUrls.some(url => reqPath.startsWith(url))) {
+            logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        }
         const startTime = new Date().getTime();
         res.on('finish', () => {
             const finishTime = new Date().getTime();
@@ -136,10 +138,10 @@ function createApp ({ fnGetContainer }) {
                     username
                 });
                 // Debug log added for logging authentication token
-                if (req.headers.authorization) {
+                if (req.headers.authorization && !ignoredUrls.some(url => reqPath.startsWith(url))) {
                     logDebug(
-                        'Request Completed',
-                        { authenticationToken: req.headers.authorization }
+                        'Request Completed with Auth Token',
+                        {authenticationToken: req.headers.authorization}
                     );
                 }
             }
@@ -155,7 +157,9 @@ function createApp ({ fnGetContainer }) {
                     startTime
                 });
             }
-            logInfo('Request Completed', logData);
+            if (!ignoredUrls.some(url => reqPath.startsWith(url))) {
+                logInfo('Request Completed', logData);
+            }
         });
         next();
     });

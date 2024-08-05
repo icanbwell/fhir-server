@@ -121,7 +121,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         let validInput = true;
         Object.values(requiredJWTFields).forEach((field) => {
             if (!jwt_payload[field]) {
-                logDebug(`Error: ${field} field is missing`, { user: '' });
+                logDebug(`Error: ${field} field is missing`, {jwt_payload});
                 validInput = false;
             }
         });
@@ -129,9 +129,9 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
             return done(null, false);
         }
         context.personIdFromJwtToken = jwt_payload[env.USE_CLIENT_FHIR_PERSON_ID ?
-            requiredJWTFields.clientFhirPersonId:
+            requiredJWTFields.clientFhirPersonId :
             requiredJWTFields.bwellFhirPersonId
-        ]
+            ];
         context.clientPersonIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId];
     }
 
@@ -148,21 +148,26 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
  */
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-        // Case when provided token is not access token
-        if (jwt_payload.token_use !== 'access') {
-            return done(null, false);
-        }
-
         // Calculate scopes from jwt_payload
         /**
          * @type {string}
          */
         let scope = jwt_payload.scope ? jwt_payload.scope : jwt_payload[env.AUTH_CUSTOM_SCOPE];
+        // Case when provided token is not access token
+        if (jwt_payload.token_use !== 'access' && !scope) {
+            logDebug('Token is not access token', {jwt_payload});
+            return done(null, false);
+        }
 
+        const jwtCustomGroup = jwt_payload[env.AUTH_CUSTOM_GROUP];
         /**
          * @type {string[]}
          */
-        const groups = jwt_payload[env.AUTH_CUSTOM_GROUP] ? jwt_payload[env.AUTH_CUSTOM_GROUP] : [];
+        const groups = jwtCustomGroup ?
+            typeof jwtCustomGroup === 'string' ?
+                jwtCustomGroup.split(' ') :
+                jwtCustomGroup
+            : [];
 
         if (groups.length > 0) {
             scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
