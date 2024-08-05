@@ -104,7 +104,7 @@ describe('Patient Tests', () => {
             const person_payload = {
                 scope: 'patient/*.read',
                 username: 'patient-123@example.com',
-                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPersonId: 'bwellPerson1',
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: 'bwellPerson1',
                 bwellFhirPatientId: 'bwellFhirPatient',

@@ -17,7 +17,7 @@ const { COLLECTION } = require('../../../constants');
 const person_payload = {
     scope: 'patient/Condition.write',
     username: 'patient-123@example.com',
-    clientFhirPersonId: 'clientFhirPerson',
+    clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
     bwellFhirPersonId: 'person1',
     bwellFhirPatientId: 'bwellFhirPatient',

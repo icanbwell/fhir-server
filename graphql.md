@@ -210,6 +210,208 @@ To add a new enrichment provider:
 2. Register your new provider in https://github.com/icanbwell/fhir-server/tree/master/src/createContainer.js
    Now this enrichment provider will be run for every resource and can add additional properties. These properties are available both when accessing the server via REST or GraphQL.
 
+### Examples for querying different types of search modifiers
+
+### SearchToken
+- `value` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `notEquals`]
+```
+query {
+  observation(
+    status: {
+        value: {
+            value: "completed"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `values` [List format of `value`]
+```graphql
+query {
+  observation(
+    status: {
+        values: [
+            {
+                value: "completed"
+            }
+        ]
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `notEquals` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `value`]
+```graphql
+query {
+  observation(
+    status: {
+        notEquals: {
+            value: "completed"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchString
+- `value`
+```graphql
+query {
+  person(
+    name: {
+        value: "test"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `values`
+```graphql
+query {
+  person(
+    name: {
+        values: ["test1", "test2"]
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `notEquals` [Below example uses nested `value` field. Other nested option is: `values` which is just list of `value`]
+```graphql
+query {
+  person(
+    name: {
+        notEquals: {
+            value: "testing"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchReference
+- `value`
+```graphql
+query {
+  procedure(
+    encounter: {
+        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `target` [To be used with `value`]
+```graphql
+query {
+  procedure(
+    encounter: {
+        target: "Encounter",
+        value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `notEquals` [Also supports `target` inside `notEquals`]
+```graphql
+query {
+  procedure(
+    encounter: {
+        notEquals: {
+            value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
+        }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+
+### SearchDate/SearchDateTime
+- `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
+```graphql
+query {
+    immunization(
+        date: {
+            value: { greaterThan: "2021-01-01" }
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `values` [List format of `value`]
+```graphql
+query {
+    immunization(
+        date: {
+            values: [
+                { lessThanOrEqualTo: "2024-01-01" }
+                { greaterThan: "2021-01-01" }
+            ]
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
 ### Upgrading from graphqlv1 to graphqlv2
 In GraphQLv2, the resources are now returned as a FHIR Bundle.
 

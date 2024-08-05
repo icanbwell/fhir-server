@@ -123,8 +123,6 @@ class SearchStreamingOperation {
             host,
             /** @type {string} */
             personIdFromJwtToken,
-            /** @type {string} */
-            clientPersonIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -175,7 +173,6 @@ class SearchStreamingOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
-                    clientPersonIdFromJwtToken,
                     parsedArgs,
                     operation: READ
                 }));

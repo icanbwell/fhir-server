@@ -520,17 +520,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to use clientFhirPersonId from jwt token & raise validation error
-     * if patient references in form of lists are updated for patient scope
-     */
-    get useClientFhirPersonId () {
-        if (env.USE_CLIENT_FHIR_PERSON_ID === null || env.USE_CLIENT_FHIR_PERSON_ID === undefined) {
-            return false;
-        }
-        return isTrue(env.USE_CLIENT_FHIR_PERSON_ID);
-    }
-
-    /**
      * S3 bucket name to export data to S3
      */
     get bulkExportS3BucketName () {
