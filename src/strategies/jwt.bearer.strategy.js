@@ -154,7 +154,7 @@ const verify = (_request, jwt_payload, done) => {
          */
         let scope = jwt_payload.scope ? jwt_payload.scope : jwt_payload[env.AUTH_CUSTOM_SCOPE];
         // Case when provided token is not access token
-        if (jwt_payload.token_use !== 'access' && !scope) {
+        if (jwt_payload.token_use !== 'access' || !scope) {
             logDebug('Token is not access token', {jwt_payload});
             return done(null, false);
         }
