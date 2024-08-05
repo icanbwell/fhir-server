@@ -278,7 +278,7 @@ class SearchStreamingOperation {
             /**
              * @type {boolean}
              */
-            const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
+            const useNdJson = fhirContentTypes.hasNdJsonContentType(requestInfo.accept);
 
             /**
              * @type {string[]}
