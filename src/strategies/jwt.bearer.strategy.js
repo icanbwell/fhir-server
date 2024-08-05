@@ -155,10 +155,10 @@ const verify = (_request, jwt_payload, done) => {
             return done(null, false);
         }
 
-        if (!scope) {
-            logDebug('No scope was provided in access token', {jwt_payload});
-            return done(null, false);
-        }
+        // if (!scope) {
+        //     logDebug('No scope was provided in access token', {jwt_payload});
+        //     return done(null, false);
+        // }
 
         const jwtCustomGroup = jwt_payload[env.AUTH_CUSTOM_GROUP];
         /**
