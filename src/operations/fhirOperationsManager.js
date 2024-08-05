@@ -28,7 +28,7 @@ const {R4ArgsParser} = require('./query/r4ArgsParser');
 const {REQUEST_ID_TYPE} = require('../constants');
 const {shouldStreamResponse} = require('../utils/requestHelpers');
 const {ParametersBodyParser} = require('./common/parametersBodyParser');
-const {fhirContentTypes} = require('../utils/contentTypes');
+const {fhirContentTypes, hasNdJsonContentType} = require('../utils/contentTypes');
 const {ExportByIdOperation} = require('./export/exportById');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
@@ -539,7 +539,7 @@ class FhirOperationsManager {
 
         const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
-            const responseStreamer = fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
+            const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
                 new FhirResponseNdJsonStreamer({
                         response: res,
                         requestId: req.id
@@ -829,7 +829,7 @@ class FhirOperationsManager {
         /**
          * @type {BaseResponseStreamer}
          */
-        const responseStreamer = fhirContentTypes.hasNdJsonContentType(requestInfo.accept) ?
+        const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
             new FhirResponseNdJsonStreamer({
                     response: res,
                     requestId: req.id
