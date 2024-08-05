@@ -136,8 +136,9 @@ class GraphOperation {
             // 1. Resource is sent in the body
             // 2. Resource is sent inside a Parameters resource in the body
 
+           // noinspection JSValidateTypes
             /**
-             * @type {Object|null}
+             * @type {{id: string,resourceType: string, parameter: Object[]}|null}
              */
             let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0
                 ? parsedArgs.resource : body;
