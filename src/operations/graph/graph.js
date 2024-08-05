@@ -1,17 +1,17 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const { logDebug } = require('../common/logging');
-const { isTrue } = require('../../utils/isTrue');
-const { BadRequestError, NotValidatedError } = require('../../utils/httpErrors');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { GraphHelper } = require('./graphHelpers');
-const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ScopesValidator } = require('../security/scopesValidator');
-const { getFirstElementOrNull } = require('../../utils/list.util');
-const { ResourceValidator } = require('../common/resourceValidator');
+const {logDebug} = require('../common/logging');
+const {isTrue} = require('../../utils/isTrue');
+const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {GraphHelper} = require('./graphHelpers');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {getFirstElementOrNull} = require('../../utils/list.util');
+const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
-const { ParsedArgs } = require('../query/parsedArgs');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class GraphOperation {
     /**
@@ -21,7 +21,7 @@ class GraphOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor (
+    constructor(
         {
             graphHelper,
             fhirLoggingManager,
@@ -72,15 +72,15 @@ class GraphOperation {
      * @return {Promise<Bundle>}
      */
     async graph({
-        requestInfo,
-        res,
-        parsedArgs,
-        resourceType,
-        responseStreamer,
-        supportLegacyId = true,
-        includeNonClinicalResources = false,
-        nonClinicalResourcesDepth = 1
-    }) {
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer,
+                    supportLegacyId = true,
+                    includeNonClinicalResources = false,
+                    nonClinicalResourcesDepth = 1
+                }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -117,7 +117,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            const { base_version, id } = parsedArgs;
+            const {base_version, id} = parsedArgs;
 
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));
@@ -142,19 +142,21 @@ class GraphOperation {
             let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0
                 ? parsedArgs.resource : body;
 
-            // check if this is a Parameters resourceType
-            if (graphDefinitionRaw.resourceType === 'Parameters') {
+            if (parsedArgs.get("graph")) {
+                graphDefinitionRaw = parsedArgs.graph;
+            } else if (graphDefinitionRaw.resourceType === 'Parameters') {
+                // check if this is a Parameters resourceType
                 // Unfortunately our FHIR schema resource creator does not support Parameters
                 // const ParametersResourceCreator = getResource(base_version, 'Parameters');
                 // const parametersResource = new ParametersResourceCreator(resource_incoming);
                 const parametersResource = graphDefinitionRaw;
                 if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
-                    throw new BadRequestError({ message: 'Invalid parameter field in resource' });
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
                 }
                 // find the actual resource in the parameter called resource
                 const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
                 if (!resourceParameter || !resourceParameter.resource) {
-                    throw new BadRequestError({ message: 'Invalid parameter field in resource' });
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
                 }
                 graphDefinitionRaw = resourceParameter.resource;
             }
@@ -174,7 +176,7 @@ class GraphOperation {
                 }
             );
             if (validationOperationOutcome) {
-                logDebug('GraphDefinition schema failed validation', { user });
+                logDebug('GraphDefinition schema failed validation', {user});
                 throw new NotValidatedError(validationOperationOutcome);
             }
             /**

@@ -5,7 +5,7 @@ class ParametersBodyParser {
      * @param {Object} args
      * @returns {Object}
      */
-    parseParametersResource ({ body, args }) {
+    parseParametersResource({body, args}) {
         const parameterArgs = {};
         if (body &&
             typeof body === 'object' &&
@@ -13,8 +13,11 @@ class ParametersBodyParser {
             body.parameter &&
             Array.isArray(body.parameter)
         ) {
+            // https://hl7.org/fhir/R4B/parameters.html
             for (const parameter of body.parameter) {
-                parameterArgs[parameter.name] = parameter.valueString;
+                if (parameter.name && (parameter.valueString || parameter.resource)) {
+                    parameterArgs[parameter.name] = parameter.valueString || parameter.resource;
+                }
             }
         }
         return Object.assign({}, args, parameterArgs);
@@ -26,7 +29,7 @@ class ParametersBodyParser {
      * @param {Object} args
      * @returns {Object}
      */
-    parseFormUrlEncoded ({ body, args }) {
+    parseFormUrlEncoded({body, args}) {
         const parameterArgs = {};
         if (body && typeof body === 'object') {
             for (const key of Object.keys(body)) {
