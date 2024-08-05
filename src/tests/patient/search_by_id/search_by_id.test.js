@@ -86,5 +86,38 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
         });
+        test('search by single id works by POST', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
+            let resp = await request
+                .get('/4_0_0/Patient')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/_search')
+                .send("id=00100000000")
+                .set(getHeadersFormUrlEncoded());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
+
+            // resp = await request
+            //     .post('/4_0_0/Patient/')
+            //     .send("id=00100000000")
+            //     .set(getHeadersFormUrlEncoded());
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedSinglePatientResource);
+        });
     });
 });
