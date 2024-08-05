@@ -2009,7 +2009,7 @@ containedEntries: []
                     resource: FhirResourceCreator.create({
                         id: resource.id,
                         _uuid: resource._uuid,
-                        [resourceType]: resultResourceType
+                        resourceType: resultResourceType
                     }, ResourceContainer),
                     request: new BundleRequest(
                         {
