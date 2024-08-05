@@ -1,13 +1,13 @@
-const { validateResource } = require('../utils/validator.util');
-const { assertFail, assertIsValid } = require('../utils/assertType');
-const { diff } = require('jest-diff');
+const {validateResource} = require('../utils/validator.util');
+const {assertFail, assertIsValid} = require('../utils/assertType');
+const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
-const { expect } = require('@jest/globals');
+const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
-const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner');
-const { ndjsonToJsonText } = require('ndjson-to-json-text');
-const { fhirContentTypes } = require('../utils/contentTypes');
-const { csv2json } = require('csv42');
+const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
+const {ndjsonToJsonText} = require('ndjson-to-json-text');
+const {fhirContentTypes} = require('../utils/contentTypes');
+const {csv2json} = require('csv42');
 
 /**
  * @typedef JestUtils
@@ -17,14 +17,14 @@ const { csv2json } = require('csv42');
  * @property {function(Object): string} printReceived
  */
 
-function cleanMeta (resource) {
+function cleanMeta(resource) {
     assertIsValid(resource, 'resource is null');
     const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
     /**
      * @type {string}
      */
     const auditCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-        { fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0' }
+        {fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0'}
     );
 
     if (resource.meta && resource.meta.tag) {
@@ -50,6 +50,12 @@ function cleanMeta (resource) {
         delete resource.meta.lastUpdated;
     }
 
+    if (resource.contained) {
+        resource.contained.forEach((containedElement) => {
+            cleanMeta(containedElement);
+        });
+    }
+
     return resource;
 }
 
@@ -57,7 +63,7 @@ function cleanMeta (resource) {
  * cleans request Id
  * @param {Object} request
  */
-function cleanRequestId (request) {
+function cleanRequestId(request) {
     if (request && request.id) {
         delete request.id;
     }
@@ -71,7 +77,7 @@ function cleanRequestId (request) {
  * @param {boolean} ignoreMetaTags
  * @returns {boolean}
  */
-function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
+function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
     // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -160,17 +166,17 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
  * @param [fnCleanResource]
  * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
  */
-function checkContent ({ actual, expected, utils, options, expand, fnCleanResource }) {
+function checkContent({actual, expected, utils, options, expand, fnCleanResource}) {
     let pass = false;
     if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
         if (!Array.isArray(expected)) {
-            pass = compareBundles({ body: actual, expected, fnCleanResource });
+            pass = compareBundles({body: actual, expected, fnCleanResource});
         } else {
             pass = deepEqual(actual.entry.map(e => e.resource), expected);
         }
     } else if (!(Array.isArray(expected)) && expected.resourceType === 'Bundle') {
         if (!Array.isArray(actual)) {
-            pass = compareBundles({ body: actual, expected, fnCleanResource });
+            pass = compareBundles({body: actual, expected, fnCleanResource});
         } else {
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
@@ -207,7 +213,7 @@ function checkContent ({ actual, expected, utils, options, expand, fnCleanResour
                         `Received: ${utils.printReceived(actual)}`))
             );
         };
-    return { actual, expected, message, pass };
+    return {actual, expected, message, pass};
 }
 
 /**
@@ -215,7 +221,7 @@ function checkContent ({ actual, expected, utils, options, expand, fnCleanResour
  * @param {Object[]} entries Array of entries to be sorted
  * @returns {Object[]} Sorted array of entries
  */
-function sortEntriesByUUID (entries) {
+function sortEntriesByUUID(entries) {
     entries?.sort((a, b) => {
         // Consider uuid or id of resource
         const getUUID = (resource) => {
@@ -250,7 +256,7 @@ function sortEntriesByUUID (entries) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveResponse (resp, expectedIn, fnCleanResource) {
+function toHaveResponse(resp, expectedIn, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
@@ -303,7 +309,7 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return { resource: e };
+                    return {resource: e};
                 })
             };
         }
@@ -417,7 +423,7 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
+function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
@@ -443,7 +449,7 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return { resource: e };
+                    return {resource: e};
                 })
             };
         }
@@ -551,19 +557,19 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expectedStatusCode
  */
-function toHaveStatusCode (resp, expectedStatusCode) {
+function toHaveStatusCode(resp, expectedStatusCode) {
     const pass = resp.status === expectedStatusCode;
     const message = pass ? () =>
             `Status Code did match: ${resp.text}`
         : () => `Status Code did not match: ${resp.text}`;
-    return { actual: resp.status, expected: expectedStatusCode, message, pass };
+    return {actual: resp.status, expected: expectedStatusCode, message, pass};
 }
 
 /**
  *
  * @param {import('http').ServerResponse} resp
  */
-function toHaveStatusOk (resp) {
+function toHaveStatusOk(resp) {
     return toHaveStatusCode(resp, 200);
 }
 
@@ -572,7 +578,7 @@ function toHaveStatusOk (resp) {
  * @param {import('http').ServerResponse} resp
  * @param {Object[]|Object} checks
  */
-function toHaveMergeResponse (resp, checks) {
+function toHaveMergeResponse(resp, checks) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
@@ -600,7 +606,7 @@ function toHaveMergeResponse (resp, checks) {
     } catch (e) {
         const pass = false;
         const message = () => `Merge failed: ${JSON.stringify(resp.body)} ${e}`;
-        return { actual: resp.body, expected: checks, message, pass };
+        return {actual: resp.body, expected: checks, message, pass};
     }
     return {
         pass: true,
@@ -613,7 +619,7 @@ function toHaveMergeResponse (resp, checks) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expected
  */
-function toHaveResourceCount (resp, expected) {
+function toHaveResourceCount(resp, expected) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
@@ -640,7 +646,7 @@ function toHaveResourceCount (resp, expected) {
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return { actual: count, expected, message, pass };
+    return {actual: count, expected, message, pass};
 }
 
 // NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js
