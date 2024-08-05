@@ -543,6 +543,22 @@ class ConfigManager {
     get awsRegion () {
         return env.AWS_REGION;
     }
+
+    /**
+     * number of objects to put in each batch for streaming
+     * @return {number|number}
+     */
+    get streamingBatchCount() {
+        return Number(env.STREAMING_BATCH_COUNT) || 1;
+    }
+
+    /**
+     * the timeout to set for mongo operations
+     * @return {number}
+     */
+    get mongoTimeout(){
+        return env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000
+    }
 }
 
 module.exports = {

@@ -200,7 +200,7 @@ class SearchStreamingOperation {
         /**
          * @type {number}
          */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
         /**
          * @type {ResourceLocator}
          */
@@ -287,7 +287,7 @@ class SearchStreamingOperation {
             /**
              * @type {number}
              */
-            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+            const batchObjectCount = this.configManager.streamingBatchCount;
 
             /**
              * @type {import('mongodb').Document[]}
