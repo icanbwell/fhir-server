@@ -29,7 +29,7 @@ class MockConfigManager extends ConfigManager {
 const person_payload = {
     scope: 'patient/Observation.read user/*.* access/*.*',
     username: 'patient-123@example.com',
-    clientFhirPersonId: 'clientFhirPerson',
+    clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
     bwellFhirPersonId: 'person1',
     bwellFhirPatientId: 'bwellFhirPatient',

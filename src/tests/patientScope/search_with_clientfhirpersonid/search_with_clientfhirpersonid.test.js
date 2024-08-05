@@ -1,6 +1,4 @@
 // test file
-const env = require('var');
-
 const masterPersonResource = require('./fixtures/person/masterperson.json');
 const masterPatientResource = require('./fixtures/patient/masterpatient.json');
 
@@ -84,9 +82,6 @@ describe('Observation Tests', () => {
             };
             let headers = getHeadersWithCustomPayload(jwt_payload);
 
-            let oldValue = env.USE_CLIENT_FHIR_PERSON_ID;
-            env.USE_CLIENT_FHIR_PERSON_ID = '1';
-
             // Observations linked to client person are returned
             resp = await request
                 .get('/4_0_0/Observation?_debug=1')
@@ -103,8 +98,6 @@ describe('Observation Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse3);
-
-            env.USE_CLIENT_FHIR_PERSON_ID = oldValue;
         });
     });
 });

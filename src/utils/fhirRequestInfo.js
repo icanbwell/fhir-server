@@ -20,7 +20,6 @@ class FhirRequestInfo {
      * @param {string | null} [accept]
      * @param {boolean | null} [isUser]
      * @param {string | null} [personIdFromJwtToken]
-     * @param {string | null} [clientPersonIdFromJwtToken]
      * @param {Object} headers
      * @param {string} method
      * @param {import('content-type').ContentType|null} contentTypeFromHeader
@@ -40,7 +39,6 @@ class FhirRequestInfo {
             accept,
             isUser,
             personIdFromJwtToken,
-            clientPersonIdFromJwtToken,
             headers,
             method,
             contentTypeFromHeader
@@ -99,10 +97,6 @@ class FhirRequestInfo {
          * @type {string | null}
          */
         this.personIdFromJwtToken = personIdFromJwtToken;
-        /**
-         * @type {string | null}
-         */
-        this.clientPersonIdFromJwtToken = clientPersonIdFromJwtToken;
         /**
          * @type {Object}
          */

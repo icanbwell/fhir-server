@@ -16,7 +16,7 @@ const env = require('var');
 const person_payload = {
     scope: 'patient/Condition.*',
     username: 'patient-123@example.com',
-    clientFhirPersonId: 'clientFhirPerson',
+    clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
     bwellFhirPersonId: 'person1',
     bwellFhirPatientId: 'bwellFhirPatient',
