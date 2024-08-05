@@ -2,7 +2,7 @@ const env = require('var');
 const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { isTrue } = require('../../utils/isTrue');
-const { fhirContentTypes } = require('../../utils/contentTypes');
+const { fhirContentTypes, hasNdJsonContentType} = require('../../utils/contentTypes');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SearchManager } = require('./searchManager');
@@ -278,7 +278,7 @@ class SearchStreamingOperation {
             /**
              * @type {boolean}
              */
-            const useNdJson = fhirContentTypes.hasNdJsonContentType(requestInfo.accept);
+            const useNdJson = hasNdJsonContentType(requestInfo.accept);
 
             /**
              * @type {string[]}
