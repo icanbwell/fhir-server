@@ -136,7 +136,7 @@ describe('Patient Tests', () => {
             const mps_person_payload = {
                 scope: 'patient/Task.read',
                 username: 'patient-123@example.com',
-                clientFhirPersonId: 'clientFhirPerson',
+                clientFhirPersonId: '41db6857-b989-4617-ac8b-35d853250449',
                 clientFhirPatientId: 'clientFhirPatient',
                 bwellFhirPersonId: '41db6857-b989-4617-ac8b-35d853250449',
                 bwellFhirPatientId: 'bwellFhirPatient',

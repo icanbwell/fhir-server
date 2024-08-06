@@ -162,7 +162,7 @@ describe('Patient scope resource testcases', () => {
         const person1_payload = {
             scope: 'patient/*.*',
             username: 'patient-123@example.com',
-            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPersonId: 'person1',
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'person1',
             bwellFhirPatientId: 'bwellFhirPatient',

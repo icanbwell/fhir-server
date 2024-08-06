@@ -6,6 +6,8 @@ const {
 } = require('../../../utils/querybuilder.util');
 const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
+const { isTrue } = require('../../../utils/isTrue');
+const { isFalse } = require('../../../utils/isFalse');
 
 function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
@@ -33,6 +35,11 @@ class FilterByDateTime extends BaseFilter {
         const fieldName = this.fieldMapper.getFieldName(field);
         const isDateSearchingPeriod = isPeriodField(field);
         const isDateSearchingTiming = isTimingField(field);
+
+        // In case of missing modifiers the value could be true/false
+        if (isTrue(value) || isFalse(value)) {
+            return null;
+        }
         if (this.filterType === 'string') {
             if (isDateSearchingPeriod) {
                 strQuery = datetimePeriodQueryBuilder(

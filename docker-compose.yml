@@ -12,7 +12,7 @@ services:
     environment:
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
-      MONGO_URL: mongodb://mongo:27017
+      MONGO_URL: 'mongodb://mongo:27017?appName=fhir-server'
       AUDIT_EVENT_MONGO_DB_NAME: fhir
       AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
       RESOURCE_SERVER: http://localhost:3000/
