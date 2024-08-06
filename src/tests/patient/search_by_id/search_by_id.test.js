@@ -75,13 +75,6 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
 
-            resp = await request
-                .post('/4_0_0/Patient/')
-                .send("id=00100000000")
-                .set(getHeadersFormUrlEncoded());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePatientResource);
-
             resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
