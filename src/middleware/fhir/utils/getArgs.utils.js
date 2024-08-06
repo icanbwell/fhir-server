@@ -1,3 +1,8 @@
+/**
+ * returns params from the request
+ * @param {import('http').IncomingMessage} req
+ * @returns {Object} request params
+ */
 const parseParams = req => {
     const params = {};
     const isSearch = req.url && req.url.endsWith('_search');
@@ -18,8 +23,8 @@ const parseParams = req => {
 };
 
 /**
+ * middleware to get the args based on request
  * @function getArgsMiddleware
- * @summary returns the args based on request
  */
 
 const getArgsMiddleware = function (config, required) {
