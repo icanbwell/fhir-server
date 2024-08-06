@@ -178,7 +178,8 @@ class R4ArgsParser {
             }
 
             if (typeof queryParameterValue !== 'undefined' &&
-                    queryParameterValue !== null && (
+                    queryParameterValue !== null &&
+                    queryParameterValue !== '' && (
                     !Array.isArray(queryParameterValue) ||
                     queryParameterValue.filter(v => v).length > 0
                 )
