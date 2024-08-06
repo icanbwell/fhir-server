@@ -112,6 +112,13 @@ describe('Search by number tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment8);
+
+            // test for invalid prefix that starts with valid prefix
+            resp = await request
+                .get('/4_0_0/RiskAssessment?probability=gte10&_debug=true&_bundle=true')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedRiskAssessment6);
         });
     });
 });

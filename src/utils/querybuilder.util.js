@@ -509,6 +509,9 @@ const numberQueryBuilder = function ({ target, field }) {
         prefix = target.substring(0, 2);
         numStr = target.substring(2);
         number = Number(numStr);
+        if (isNaN(numStr)) {
+            return {};
+        }
         switch (prefix) {
             case 'lt':
                 query = { $lt: number };

@@ -12,7 +12,7 @@ const parseValue = function (type, value) {
     switch (type) {
         case 'number':
             // noinspection JSUnresolvedFunction
-            if (validator.matches(value, '[a-z]{0,2}\\d{1,}$')) {
+            if (validator.matches(value, '^[a-z]{0,2}\\d{1,}$')) {
                 // regex for validating number with two character prefix
                 result = validator.toFloat(value);
                 if (Number.isNaN(result)) {
