@@ -156,38 +156,7 @@ const findMatchWithName = (name = '', params = {}) => {
 const sanitizeMiddleware = function (config, required) {
     return function (req, res, next) {
         const currentArgs = parseParams(req);
-        const cleanArgs = {}; // filter only ones with version or no version
-
-        const version_specific_params = config ? config.filter(param => {
-            return !param.versions || param.versions === req.params.base_version;
-        }) : []; // Check each argument in the config
-
-        for (let i = 0; i < version_specific_params.length; i++) {
-            const conf = version_specific_params[`${i}`];
-            const {
-                field,
-                value
-            } = findMatchWithName(conf.name, currentArgs); // If the argument is required but not present
-
-            if (!value && conf.required) {
-                return next(errors.invalidParameter(conf.name + ' is required', req.params.base_version));
-            } // Try to cast the type to the correct type, do this first so that if something
-            // returns as NaN we can bail on it
-
-            try {
-                if (value) {
-                    cleanArgs[`${field}`] = Array.isArray(value) ? value.map(v => parseValue(conf.type, v)) : parseValue(conf.type, value);
-                }
-            } catch (err) {
-                return next(errors.invalidParameter(conf.name + ' is invalid', req.params.base_version));
-            } // If we have the arg and the type is wrong, throw invalid arg
-
-            if (cleanArgs[`${field}`] !== undefined && !validateType(conf.type, cleanArgs[`${field}`])) {
-                return next(errors.invalidParameter('Invalid parameter: ' + conf.name, req.params.base_version));
-            }
-        } // Save the cleaned arguments on the request for later use, we must only use these later on
-
-        req.sanitized_args = cleanArgs;
+        req.sanitized_args = currentArgs;
         next();
     };
 };
