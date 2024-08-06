@@ -198,7 +198,8 @@ class R4ArgsParser {
             }
 
             if (typeof notQueryParameterValue !== 'undefined' &&
-                    notQueryParameterValue !== null && (
+                    notQueryParameterValue !== null &&
+                    notQueryParameterValue !== '' && (
                     !Array.isArray(notQueryParameterValue) ||
                     notQueryParameterValue.filter(v => v).length > 0
                 )
