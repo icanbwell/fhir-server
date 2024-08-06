@@ -1,0 +1,35 @@
+[
+  {
+    "allergyIntolerance": [],
+    "birthDate": "2017-01-01",
+    "careTeam": [],
+    "explanationOfBenefit": [
+      {
+        "id": "WPS-Claim-429017018331",
+        "identifier": [
+          {
+            "system": "https://www.wpshealth.com/",
+            "value": "429017018331"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-429017018331"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "6df8ebde-886b-5033-b053-57274a1bfb3b"
+          }
+        ]
+      }
+    ],
+    "id": "WPS-5458231534",
+    "name": [
+      {
+        "family": "PATIENT2",
+        "given": [
+          "SHYLA"
+        ]
+      }
+    ]
+  }
+]

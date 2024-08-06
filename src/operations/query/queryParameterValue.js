@@ -38,7 +38,8 @@ class QueryParameterValue {
      * @return {string[]|null}
      */
     parseQueryParameterValueIntoArrayIfNeeded ({ queryParameterValue }) {
-        if (!queryParameterValue) {
+        if (typeof queryParameterValue === 'undefined' ||
+            queryParameterValue === null) {
             return null;
         }
         if (Array.isArray(queryParameterValue)) {

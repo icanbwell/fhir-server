@@ -31,9 +31,12 @@ const stringQueryBuilder = function ({ target }) {
  * @return {array} ors
  */
 const addressQueryBuilder = function ({ target, useExactSearch }) {
-    // Tokenize the input as mush as possible
-    const totalSplit = target.split(/[\s,]+/);
     const ors = [];
+    // Tokenize the input as mush as possible
+    if (typeof target !== 'string') {
+        return ors;
+    }
+    const totalSplit = target.split(/[\s,]+/);
     for (const index in totalSplit) {
         /**
          * @type {string}
@@ -82,8 +85,11 @@ const addressQueryBuilder = function ({ target, useExactSearch }) {
  * @return {array} ors
  */
 const nameQueryBuilder = function ({ target, useExactSearch }) {
-    const split = target.split(/[\s.,]+/);
     const ors = [];
+    if (typeof target !== 'string') {
+        return ors;
+    }
+    const split = target.split(/[\s.,]+/);
 
     for (const i in split) {
         /**

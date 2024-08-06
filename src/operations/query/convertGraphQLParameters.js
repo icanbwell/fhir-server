@@ -25,7 +25,9 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                         queryParameterValue = [];
                     } else {
                         // handle SearchString
-                        queryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                        if (queryParameterValue.value || queryParameterValue.values) {
+                            queryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                        }
                     }
                     break;
                 case 'token':
@@ -189,7 +191,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 default:
                     break;
             }
-            if (queryParameterValue.missing) {
+            if (Object.hasOwn(queryParameterValue, 'missing')) {
                 modifiers.push('missing');
                 queryParameterValue = queryParameterValue.missing;
             }

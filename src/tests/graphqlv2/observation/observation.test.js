@@ -12,6 +12,8 @@ const expectedResultQuantity5sig = require('./fixtures/expected_result_quantity_
 const expectedResultQuantitySN1 = require('./fixtures/expected_result_quantity_SN1.json');
 const expectedResultQuantitySN2 = require('./fixtures/expected_result_quantity_SN2.json');
 const expectedResultQuantitySN3 = require('./fixtures/expected_result_quantity_SN3.json');
+const expectedResultMissing = require('./fixtures/expected_observation_missing.json');
+const expectedResultNotMissing = require('./fixtures/expected_observation_not_missing.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -27,6 +29,8 @@ const observationQuantity5sig = fs.readFileSync(path.resolve(__dirname, './fixtu
 const observationQuantitySN1 = fs.readFileSync(path.resolve(__dirname, './fixtures/query_quantity_SN1.graphql'), 'utf8');
 const observationQuantitySN2 = fs.readFileSync(path.resolve(__dirname, './fixtures/query_quantity_SN2.graphql'), 'utf8');
 const observationQuantitySN3 = fs.readFileSync(path.resolve(__dirname, './fixtures/query_quantity_SN3.graphql'), 'utf8');
+const observationMissing = fs.readFileSync(path.resolve(__dirname, './fixtures/query_derivedFrom_missing.graphql'), 'utf8');
+const observationNotMissing = fs.readFileSync(path.resolve(__dirname, './fixtures/query_derivedFrom_not_missing.graphql'), 'utf8');
 
 const {
     commonBeforeEach,
@@ -433,6 +437,92 @@ describe('GraphQL Observation Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN3, 'observation');
+        });
+        test('GraphQL test derivedFrom missing', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const graphqlQueryText = observationMissing.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                // .get('/4_0_0/$graphqlv2/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText
+                })
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedResultMissing, 'observation');
+        });
+        test('GraphQL test derivedFrom not missing', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const graphqlQueryText = observationNotMissing.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                // .get('/4_0_0/$graphqlv2/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText
+                })
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedResultNotMissing, 'observation');
         });
         //  test('GraphQL ne prefix Quantity value not found', async () => {
         //     const request = await createTestRequest();
