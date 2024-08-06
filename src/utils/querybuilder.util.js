@@ -751,6 +751,13 @@ const getDateFromNum = function (days) {
  */
 const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
+    if (typeof date !== 'string') {
+        return null;
+    }
+    // handle 'missing' modifier
+    if (date === 'true' || date === 'false') {
+        return null;
+    }
     const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
     const match = date.match(regex);
     if (!match) {
