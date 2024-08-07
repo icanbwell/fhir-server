@@ -2,7 +2,7 @@ const env = require('var');
 const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { isTrue } = require('../../utils/isTrue');
-const { fhirContentTypes } = require('../../utils/contentTypes');
+const { fhirContentTypes, hasNdJsonContentType} = require('../../utils/contentTypes');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SearchManager } = require('./searchManager');
@@ -197,7 +197,7 @@ class SearchStreamingOperation {
         /**
          * @type {number}
          */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
         /**
          * @type {ResourceLocator}
          */
@@ -275,7 +275,7 @@ class SearchStreamingOperation {
             /**
              * @type {boolean}
              */
-            const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
+            const useNdJson = hasNdJsonContentType(requestInfo.accept);
 
             /**
              * @type {string[]}
@@ -284,7 +284,7 @@ class SearchStreamingOperation {
             /**
              * @type {number}
              */
-            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+            const batchObjectCount = this.configManager.streamingBatchCount;
 
             /**
              * @type {import('mongodb').Document[]}

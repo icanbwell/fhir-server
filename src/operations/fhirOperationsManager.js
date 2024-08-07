@@ -1,36 +1,37 @@
-const { SearchBundleOperation } = require('./search/searchBundle');
-const { SearchByIdOperation } = require('./searchById/searchById');
-const { ExpandOperation } = require('./expand/expand');
-const { ExportOperation } = require('./export/export');
-const { CreateOperation } = require('./create/create');
-const { UpdateOperation } = require('./update/update');
-const { MergeOperation } = require('./merge/merge');
-const { EverythingOperation } = require('./everything/everything');
-const { RemoveOperation } = require('./remove/remove');
-const { SearchByVersionIdOperation } = require('./searchByVersionId/searchByVersionId');
-const { HistoryOperation } = require('./history/history');
-const { HistoryByIdOperation } = require('./historyById/historyById');
-const { PatchOperation } = require('./patch/patch');
-const { ValidateOperation } = require('./validate/validate');
-const { GraphOperation } = require('./graph/graph');
-const { get_all_args } = require('./common/get_all_args');
-const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { SearchStreamingOperation } = require('./search/searchStreaming');
-const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const {SearchBundleOperation} = require('./search/searchBundle');
+const {SearchByIdOperation} = require('./searchById/searchById');
+const {ExpandOperation} = require('./expand/expand');
+const {ExportOperation} = require('./export/export');
+const {CreateOperation} = require('./create/create');
+const {UpdateOperation} = require('./update/update');
+const {MergeOperation} = require('./merge/merge');
+const {EverythingOperation} = require('./everything/everything');
+const {RemoveOperation} = require('./remove/remove');
+const {SearchByVersionIdOperation} = require('./searchByVersionId/searchByVersionId');
+const {HistoryOperation} = require('./history/history');
+const {HistoryByIdOperation} = require('./historyById/historyById');
+const {PatchOperation} = require('./patch/patch');
+const {ValidateOperation} = require('./validate/validate');
+const {GraphOperation} = require('./graph/graph');
+const {get_all_args} = require('./common/get_all_args');
+const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
+const {SearchStreamingOperation} = require('./search/searchStreaming');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
 const httpContext = require('express-http-context');
-const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const contentType = require('content-type');
-const { QueryRewriterManager } = require('../queryRewriters/queryRewriterManager');
-const { R4ArgsParser } = require('./query/r4ArgsParser');
-const { REQUEST_ID_TYPE } = require('../constants');
-const { shouldStreamResponse } = require('../utils/requestHelpers');
-const { ParametersBodyParser } = require('./common/parametersBodyParser');
-const { fhirContentTypes } = require('../utils/contentTypes');
-const { ExportByIdOperation } = require('./export/exportById');
-const { READ, WRITE } = require('../constants').OPERATIONS;
+const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
+const {R4ArgsParser} = require('./query/r4ArgsParser');
+const {REQUEST_ID_TYPE} = require('../constants');
+const {shouldStreamResponse} = require('../utils/requestHelpers');
+const {ParametersBodyParser} = require('./common/parametersBodyParser');
+const {fhirContentTypes, hasNdJsonContentType} = require('../utils/contentTypes');
+const {ExportByIdOperation} = require('./export/exportById');
+const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
+const {READ, WRITE} = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -57,7 +58,7 @@ class FhirOperationsManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
-    constructor (
+    constructor(
         {
             searchBundleOperation,
             searchStreamingOperation,
@@ -184,7 +185,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @return {FhirRequestInfo}
      */
-    getRequestInfo (req) {
+    getRequestInfo(req) {
         assertIsValid(req, 'req is null');
         /**
          * @type {string | null}
@@ -285,12 +286,12 @@ class FhirOperationsManager {
      * @param {string} operation
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync ({ args, resourceType, headers, operation }) {
-        const { base_version } = args;
+    async getParsedArgsAsync({args, resourceType, headers, operation}) {
+        const {base_version} = args;
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+        let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
@@ -310,13 +311,13 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async search (args, { req }, resourceType) {
+    async search(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({ req, combined_args });
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -341,13 +342,13 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async searchStreaming (args, { req, res }, resourceType) {
+    async searchStreaming(args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({ req, combined_args });
+        combined_args = this.parseParametersFromBody({req, combined_args});
 
         /**
          * @type {ParsedArgs}
@@ -365,7 +366,7 @@ class FhirOperationsManager {
             });
     }
 
-    parseParametersFromBody ({ req, combined_args }) {
+    parseParametersFromBody({req, combined_args}) {
         let args = combined_args;
         if (req.body) {
             if (req.headers['content-type'] === fhirContentTypes.form_urlencoded) {
@@ -393,12 +394,13 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async searchById (args, { req }, resourceType) {
+    async searchById(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -422,7 +424,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create (args, { req }, resourceType) {
+    async create(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -444,7 +446,7 @@ class FhirOperationsManager {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
                 path,
-resourceType
+                resourceType
             }
         );
     }
@@ -456,7 +458,7 @@ resourceType
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async update (args, { req }, resourceType) {
+    async update(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -485,7 +487,7 @@ resourceType
      * @param {string} resourceType
      * @return {Resource | Resource[]}
      */
-    async merge (args, { req }, resourceType) {
+    async merge(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -515,12 +517,13 @@ resourceType
      * @param {string} resourceType
      * @returns {Bundle}
      */
-    async everything (args, { req, res }, resourceType) {
+    async everything(args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -529,11 +532,17 @@ resourceType
             }
         );
 
+        const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
-            const responseStreamer = new FhirResponseStreamer({
-                response: res,
-                requestId: req.id
-            });
+            const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
+                new FhirResponseNdJsonStreamer({
+                        response: res,
+                        requestId: req.id
+                    }
+                ) : new FhirResponseStreamer({
+                    response: res,
+                    requestId: req.id
+                });
             await responseStreamer.startAsync();
 
             try {
@@ -542,7 +551,7 @@ resourceType
                  */
                 const result = await this.everythingOperation.everythingAsync(
                     {
-                        requestInfo: this.getRequestInfo(req),
+                        requestInfo: requestInfo,
                         res,
                         parsedArgs,
                         resourceType,
@@ -555,7 +564,7 @@ resourceType
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = convertErrorToOperationOutcome({ error: err });
+                const operationOutcome = convertErrorToOperationOutcome({error: err});
                 await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: new BundleEntry({
                                 resource: operationOutcome
@@ -563,7 +572,7 @@ resourceType
                         )
                     }
                 );
-                await responseStreamer.setStatusCodeAsync({ statusCode: status });
+                await responseStreamer.setStatusCodeAsync({statusCode: status});
                 await responseStreamer.endAsync();
             }
         } else {
@@ -573,7 +582,7 @@ resourceType
              */
             const result = await this.everythingOperation.everythingAsync(
                 {
-                    requestInfo: this.getRequestInfo(req),
+                    requestInfo: requestInfo,
                     res,
                     parsedArgs,
                     resourceType
@@ -588,12 +597,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async remove (args, { req }, resourceType) {
+    async remove(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -616,12 +626,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async remove_by_query (args, { req }, resourceType) {
+    async remove_by_query(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -644,13 +655,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async searchByVersionId (args, { req }, resourceType) {
+    async searchByVersionId(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -673,13 +684,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async history (args, { req }, resourceType) {
+    async history(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -703,13 +714,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async historyById (args, { req }, resourceType) {
+    async historyById(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -732,13 +743,13 @@ resourceType
      * @param {string} resourceType
      * @return {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch (args, { req }, resourceType) {
+    async patch(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -760,13 +771,13 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async validate (args, { req }, resourceType) {
+    async validate(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
-
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -790,12 +801,13 @@ resourceType
      * @param {string} resourceType
      * @return {Promise<Bundle>}
      */
-    async graph (args, { req, res }, resourceType) {
+    async graph(args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -804,10 +816,23 @@ resourceType
             }
         );
 
-        const responseStreamer = new FhirResponseStreamer({
-            response: res,
-            requestId: req.id
-        });
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        /**
+         * @type {BaseResponseStreamer}
+         */
+        const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
+            new FhirResponseNdJsonStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            ) : new FhirResponseStreamer({
+                response: res,
+                requestId: req.id
+            });
         await responseStreamer.startAsync();
         try {
             /**
@@ -815,7 +840,7 @@ resourceType
              */
             const result = await this.graphOperation.graph(
                 {
-                    requestInfo: this.getRequestInfo(req),
+                    requestInfo: requestInfo,
                     res,
                     parsedArgs,
                     resourceType,
@@ -828,7 +853,7 @@ resourceType
             /**
              * @type {OperationOutcome}
              */
-            const operationOutcome = convertErrorToOperationOutcome({ error: err });
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
             await responseStreamer.writeBundleEntryAsync({
                     bundleEntry: new BundleEntry({
                             resource: operationOutcome
@@ -836,7 +861,7 @@ resourceType
                     )
                 }
             );
-            await responseStreamer.setStatusCodeAsync({ statusCode: status });
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
             await responseStreamer.endAsync();
         }
     }
@@ -847,7 +872,7 @@ resourceType
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async expand (args, { req }, resourceType) {
+    async expand(args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -876,18 +901,19 @@ resourceType
      * @param {{ req: import('http').IncomingMessage }}
      * @return {Resource | Resource[]}
      */
-    async export (args, { req }) {
+    async export(args, {req}) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {FhirRequestInfo}
          */
         const requestInfo = this.getRequestInfo(req);
 
-        return await this.exportOperation.exportAsync({ requestInfo, args: combined_args });
+        return await this.exportOperation.exportAsync({requestInfo, args: combined_args});
     }
 
     /**
@@ -896,18 +922,19 @@ resourceType
      * @param {{ req: import('http').IncomingMessage }}
      * @return {Resource | Resource[]}
      */
-    async exportById (args, { req }) {
+    async exportById(args, {req}) {
         /**
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {FhirRequestInfo}
          */
         const requestInfo = this.getRequestInfo(req);
 
-        return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
+        return await this.exportByIdOperation.exportByIdAsync({requestInfo, args: combined_args});
     }
 }
 

@@ -350,7 +350,7 @@ class GraphHelper {
             /**
              * @type {number}
              */
-            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
             const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
             /**
              * mongo db cursor
@@ -601,7 +601,7 @@ class GraphHelper {
             /**
              * @type {number}
              */
-            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: relatedResourceType,
                 base_version
@@ -1448,7 +1448,7 @@ containedEntries: []
             /**
              * @type {number}
              */
-            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
 
             /**
              * @type {QueryItem[]}

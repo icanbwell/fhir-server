@@ -24,10 +24,10 @@ function generateLogDetail ({ authToken, scope, statusCode, username }) {
                 if (decodedToken.exp < new Date().getTime() / 1000) {
                     logDetail = 'Expired token';
                 } else {
-                    logDetail = 'Invalid token';
+                    logDetail = `Invalid token: ${token}.  scope: ${scope}, username: ${username}, decoded:${JSON.stringify(decodedToken)}`;
                 }
             } catch (error) {
-                logDetail = 'Invalid token';
+                logDetail = `Invalid token with error: ${authHeader}. Error: ${error}`;
             }
         }
     } else if (statusCode === 403) {

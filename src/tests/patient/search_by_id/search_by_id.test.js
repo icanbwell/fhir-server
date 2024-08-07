@@ -8,21 +8,21 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest, getHeadersFormUrlEncoded
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
-    get defaultSortId () {
+    get defaultSortId() {
         return '_uuid';
     }
 
-    get streamResponse () {
+    get streamResponse() {
         return true;
     }
 
-    get enableReturnBundle () {
+    get enableReturnBundle() {
         return true;
     }
 }
@@ -54,7 +54,7 @@ describe('PatientReturnIdTests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -68,9 +68,49 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
 
+            resp = await request
+                .post('/4_0_0/Patient/_search')
+                .send("id=00100000000")
+                .set(getHeadersFormUrlEncoded());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
+
             resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
+        });
+        test('search by single id works by POST', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
+            let resp = await request
+                .get('/4_0_0/Patient')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/_search')
+                .send("id=00100000000")
+                .set(getHeadersFormUrlEncoded());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
+
+            // resp = await request
+            //     .post('/4_0_0/Patient/')
+            //     .send("id=00100000000")
+            //     .set(getHeadersFormUrlEncoded());
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedSinglePatientResource);
         });
     });
 });

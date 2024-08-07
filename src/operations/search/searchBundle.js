@@ -205,7 +205,7 @@ class SearchBundleOperation {
         /**
          * @type {number}
          */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
         /**
          * @type {ResourceLocator}
          */
@@ -268,7 +268,9 @@ class SearchBundleOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            const explanations = (
+                cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')
+            ) ? await cursor.explainAsync() : [];
             if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
