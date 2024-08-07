@@ -14,7 +14,9 @@ class ParametersBodyParser {
             Array.isArray(body.parameter)
         ) {
             for (const parameter of body.parameter) {
-                parameterArgs[parameter.name] = parameter.valueString;
+                if (parameter.name && (parameter.valueString || parameter.resource)) {
+                    parameterArgs[parameter.name] = parameter.valueString || parameter.resource;
+                }
             }
         }
         return Object.assign({}, args, parameterArgs);

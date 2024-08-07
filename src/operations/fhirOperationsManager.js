@@ -28,8 +28,9 @@ const { R4ArgsParser } = require('./query/r4ArgsParser');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
-const { fhirContentTypes } = require('../utils/contentTypes');
+const { fhirContentTypes, hasNdJsonContentType } = require('../utils/contentTypes');
 const { ExportByIdOperation } = require('./export/exportById');
+const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
@@ -398,7 +399,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -427,7 +429,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {string}
          */
@@ -461,7 +464,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -490,7 +494,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -520,7 +525,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -529,11 +535,20 @@ resourceType
             }
         );
 
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
-            const responseStreamer = new FhirResponseStreamer({
-                response: res,
-                requestId: req.id
-            });
+            const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
+                new FhirResponseNdJsonStreamer({
+                        response: res,
+                        requestId: req.id
+                    }
+                ) : new FhirResponseStreamer({
+                    response: res,
+                    requestId: req.id
+                });
             await responseStreamer.startAsync();
 
             try {
@@ -542,7 +557,7 @@ resourceType
                  */
                 const result = await this.everythingOperation.everythingAsync(
                     {
-                        requestInfo: this.getRequestInfo(req),
+                        requestInfo,
                         res,
                         parsedArgs,
                         resourceType,
@@ -573,7 +588,7 @@ resourceType
              */
             const result = await this.everythingOperation.everythingAsync(
                 {
-                    requestInfo: this.getRequestInfo(req),
+                    requestInfo,
                     res,
                     parsedArgs,
                     resourceType
@@ -593,7 +608,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -621,7 +637,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -649,7 +666,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
@@ -678,7 +696,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
@@ -708,7 +727,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
@@ -737,7 +757,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
@@ -765,7 +786,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
@@ -795,7 +817,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -804,10 +827,23 @@ resourceType
             }
         );
 
-        const responseStreamer = new FhirResponseStreamer({
-            response: res,
-            requestId: req.id
-        });
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+
+        /**
+         * @type {BaseResponseStreamer}
+         */
+        const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
+            new FhirResponseNdJsonStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            ) : new FhirResponseStreamer({
+                response: res,
+                requestId: req.id
+            });
         await responseStreamer.startAsync();
         try {
             /**
@@ -815,7 +851,7 @@ resourceType
              */
             const result = await this.graphOperation.graph(
                 {
-                    requestInfo: this.getRequestInfo(req),
+                    requestInfo,
                     res,
                     parsedArgs,
                     resourceType,
@@ -852,7 +888,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -881,7 +918,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {FhirRequestInfo}
          */
@@ -901,7 +939,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {FhirRequestInfo}
          */

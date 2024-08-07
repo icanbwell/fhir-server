@@ -49,6 +49,11 @@ function cleanMeta (resource) {
     if (resource.meta) {
         delete resource.meta.lastUpdated;
     }
+    if (resource.contained) {
+        resource.contained.forEach((containedElement) => {
+            cleanMeta(containedElement);
+        });
+    }
 
     return resource;
 }
