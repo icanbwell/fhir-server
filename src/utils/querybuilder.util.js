@@ -16,6 +16,9 @@ const { FhirTypesManager } = require('../fhir/fhirTypesManager');
  */
 const stringQueryBuilder = function ({ target }) {
     // noinspection RegExpDuplicateCharacterInClass
+    if (typeof target !== 'string') {
+        return {};
+    }
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
