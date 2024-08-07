@@ -10,6 +10,7 @@ const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { ConfigManager } = require('../../utils/configManager');
 
 class PatientScopeManager {
     /**
@@ -18,13 +19,15 @@ class PatientScopeManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {PatientFilterManager} patientFilterManager
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
             databaseQueryFactory,
             personToPatientIdsExpander,
             scopesManager,
-            patientFilterManager
+            patientFilterManager,
+            configManager
         }
     ) {
         /**
@@ -50,6 +53,12 @@ class PatientScopeManager {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -258,6 +267,9 @@ class PatientScopeManager {
         resource,
         scope
     }) {
+        if (!this.configManager.authEnabled) {
+            return true;
+        }
         assertIsValid(scope, 'scope is required');
         assertIsValid(resource, 'resource is required');
         if (!this.scopesManager.isAccessAllowedByPatientScopes({
