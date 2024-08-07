@@ -429,7 +429,8 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {string}
          */
@@ -463,7 +464,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -492,7 +494,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
@@ -885,7 +888,8 @@ resourceType
          * combined args
          * @type {Object}
          */
-        const combined_args = get_all_args(req, args);
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
