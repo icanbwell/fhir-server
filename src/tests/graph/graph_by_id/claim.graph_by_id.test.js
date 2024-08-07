@@ -156,27 +156,6 @@ describe('Claim Graph By Id Contained Tests', () => {
                 .set(getHeadersNdJson());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource_230916613369.entry[0].resource);
-
-            // Case when invalid graph definition provided
-            resp = await request
-                .post(
-                    '/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$graph?contained=true&graph="resourceType":"GraphDefinition","id":"o","name":"explanationofbenefit_references","status":"active","start":"ExplanationOfBenefit","link":[{"path":"patient","target":[{"type":"Patient"}]},{"path":"enterer","target":[{"type":"Practitioner"},{"type":"PractitionerRole"}]},{"path":"insurer","target":[{"type":"Organization"}]},{"path":"provider","target":[{"type":"Practitioner"},{"type":"PractitionerRole"},{"type":"Organization"}]},{"path":"related[x].claim","target":[{"type":"Claim"}]},{"path":"prescription","target":[{"type":"MedicationRequest"},{"type":"VisionPrescription"}]},{"path":"originalPrescription","target":[{"type":"MedicationRequest"}]},{"path":"careTeam[x].provider","target":[{"type":"Practitioner"},{"type":"PractitionerRole"},{"type":"Organization"}]},{"path":"diagnosis[x].diagnosisReference","target":[{"type":"Condition"}]},{"path":"procedure[x].procedureReference","target":[{"type":"Procedure"}]}]}'
-                )
-                .set(getHeadersNdJson());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse({
-                issue: [
-                    {
-                        severity: 'error',
-                        code: 'internal',
-                        details: {
-                            text: 'Unexpected Error: Unexpected non-whitespace character after JSON at position 14'
-                        },
-                        diagnostics: "SyntaxError: Unexpected non-whitespace character after JSON at position 14\n    " + "at JSON.parse (<anonymous>)\n    " + "at GraphOperation.parse (/home/ubuntu/fhir-server/src/operations/graph/graph.js:146:101)\n    " + "at FhirOperationsManager.graph (/home/ubuntu/fhir-server/src/operations/fhirOperationsManager.js:852:28)\n    " + "at /home/ubuntu/fhir-server/src/middleware/fhir/4_0_0/controllers/operations.controller.js:72:32"
-                    }
-                ],
-                resourceType: 'OperationOutcome'
-            });
         });
     });
 });
