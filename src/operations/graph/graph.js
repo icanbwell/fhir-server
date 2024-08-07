@@ -142,8 +142,10 @@ class GraphOperation {
             let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0
                 ? parsedArgs.resource : body;
 
-            // check if this is a Parameters resourceType
-            if (graphDefinitionRaw.resourceType === 'Parameters') {
+            if (parsedArgs.get("graph")) {
+                graphDefinitionRaw = JSON.parse(parsedArgs.graph);
+            } else if (graphDefinitionRaw.resourceType === 'Parameters') {
+                // check if this is a Parameters resourceType
                 // Unfortunately our FHIR schema resource creator does not support Parameters
                 // const ParametersResourceCreator = getResource(base_version, 'Parameters');
                 // const parametersResource = new ParametersResourceCreator(resource_incoming);
