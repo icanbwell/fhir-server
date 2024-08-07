@@ -19,9 +19,7 @@ const {
 
 const hyphenToCamelcase = require('./utils/hyphen-to-camel.utils');
 
-const {
-    sanitizeMiddleware
-} = require('./utils/sanitize.utils');
+const { getArgsMiddleware } = require('./utils/getArgs.utils');
 
 const {
     ControllerUtils
@@ -201,7 +199,7 @@ class FhirRouter {
                 // noinspection JSCheckFunctionSignatures
                 app[route.type]( // We need to allow the $ to exist in these routes
                     operationsRoute, cors(corsOptions), versionValidationMiddleware(profile),
-                    sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]),
+                    getArgsMiddleware(),
                     authenticationMiddleware(config),
                     sofScopeMiddleware({
                         route,
@@ -221,7 +219,7 @@ class FhirRouter {
                 operationRoute,
                 cors(corsOptions),
                 versionValidationMiddleware(profile),
-                sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]),
+                getArgsMiddleware(),
                 authenticationMiddleware(config),
                 sofScopeMiddleware({
                     route,
@@ -270,7 +268,7 @@ class FhirRouter {
                 const metadataPath = baseUrl === '/' ? '/metadata' : `${baseUrl}/metadata`;
                 app.options(metadataPath, cors(corsOptions)); // Enable metadata route
 
-                app.get(metadataPath, cors(corsOptions), sanitizeMiddleware(metadataConfig.args), metadataConfig.controller({
+                app.get(metadataPath, cors(corsOptions), getArgsMiddleware(), metadataConfig.controller({
                     profiles,
                     security,
                     statementGenerator
@@ -282,7 +280,7 @@ class FhirRouter {
             // Enable cors with preflight
             app.options(metadataConfig.path, cors(corsOptions)); // Enable metadata route
 
-            app.get(metadataConfig.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), sanitizeMiddleware(metadataConfig.args), metadataConfig.controller({
+            app.get(metadataConfig.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), getArgsMiddleware(), metadataConfig.controller({
                 profiles,
                 security,
                 statementGenerator
@@ -322,7 +320,7 @@ class FhirRouter {
                 profile.path,
                 cors(corsOptions),
                 versionValidationMiddleware(profile),
-                sanitizeMiddleware(profile.args),
+                getArgsMiddleware(),
                 authenticationMiddleware(config),
                 sofScopeMiddleware({
                     route: profile.path,
@@ -421,7 +419,7 @@ class FhirRouter {
 
                     app.options(profileRoute, cors(corsOptions)); // Enable this operation route
 
-                    app[route.type](profileRoute, cors(corsOptions), sanitizeMiddleware(route.args), authenticationMiddleware(config), sofScopeMiddleware({
+                    app[route.type](profileRoute, cors(corsOptions), getArgsMiddleware(), authenticationMiddleware(config), sofScopeMiddleware({
                         route,
                         auth: config.auth,
                         name: profileName
@@ -435,7 +433,7 @@ class FhirRouter {
                         profileRoute,
                         cors(corsOptions),
                         versionValidationMiddleware(profile),
-                        sanitizeMiddleware(route.args),
+                        getArgsMiddleware(),
                         authenticationMiddleware(config),
                         sofScopeMiddleware({
                             route,
@@ -470,7 +468,7 @@ class FhirRouter {
                 currentRoute.path,
                 cors(corsOptions),
                 versionValidationMiddleware(versionValidationConfiguration),
-                sanitizeMiddleware(currentRoute.args),
+                getArgsMiddleware(),
                 authenticationMiddleware(config),
                 // sofScopeMiddleware({
                 //     route: currentRoute,

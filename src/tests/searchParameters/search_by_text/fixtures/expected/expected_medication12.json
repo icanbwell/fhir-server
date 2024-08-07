@@ -5,7 +5,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Medication_4_0_0.find({'$and':[{'$or':[{'code.text':{'$regex':'^(ABC)','$options':'i'}},{'code.coding.display':{'$regex':'^(ABC)','$options':'i'}}]},{'identifier.type.text':{'$regex':'^(prednisoLONE)','$options':'i'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+                "display": "db.Medication_4_0_0.find({'$and':[{'identifier.type.text':{'$regex':'^(prednisoLONE)','$options':'i'}},{'$or':[{'code.text':{'$regex':'^(ABC)','$options':'i'}},{'code.coding.display':{'$regex':'^(ABC)','$options':'i'}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -17,7 +17,7 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryFields",
-                "display": "['code.text','code.coding.display','identifier.type.text','meta.tag.system','meta.tag.code','_uuid']"
+                "display": "['identifier.type.text','code.text','code.coding.display','meta.tag.system','meta.tag.code','_uuid']"
             },
             {
                 "system": "https://www.icanbwell.com/queryTime",
