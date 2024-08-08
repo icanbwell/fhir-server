@@ -165,30 +165,23 @@ class R4ArgsParser {
                     }
                 ) : null;
 
-            let notQueryParameterValue;
-            let newModifiers = [];
-            ({ queryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
+            let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue;
+            ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             ));
 
-            if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
-                modifiers = modifiers.concat(newModifiers);
-            }
-
-            if (typeof queryParameterValue !== 'undefined' &&
-                    queryParameterValue !== null &&
-                    queryParameterValue !== '' && (
-                    !Array.isArray(queryParameterValue) ||
-                    queryParameterValue.filter(v => v).length > 0
+            if (orQueryParameterValue && (
+                    !Array.isArray(orQueryParameterValue) ||
+                    orQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
                         queryParameterValue: new QueryParameterValue({
-                            value: queryParameterValue,
+                            value: orQueryParameterValue,
                             operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
@@ -197,9 +190,28 @@ class R4ArgsParser {
                 );
             }
 
-            if (typeof notQueryParameterValue !== 'undefined' &&
-                    notQueryParameterValue !== null &&
-                    notQueryParameterValue !== '' && (
+            if (andQueryParameterValue &&
+                Array.isArray(andQueryParameterValue) &&
+                andQueryParameterValue.length > 0
+            ) {
+                andQueryParameterValue.forEach(innerList => {
+                    if (Array.isArray(innerList) && innerList.length > 0) {
+                        parseArgItems.push(
+                            new ParsedArgsItem({
+                                queryParameter,
+                                queryParameterValue: new QueryParameterValue({
+                                    value: innerList,
+                                    operator: '$and'
+                                }),
+                                propertyObj,
+                                modifiers
+                            })
+                        );
+                    }
+                });
+            }
+
+            if (notQueryParameterValue && (
                     !Array.isArray(notQueryParameterValue) ||
                     notQueryParameterValue.filter(v => v).length > 0
                 )
