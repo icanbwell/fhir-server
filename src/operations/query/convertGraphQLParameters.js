@@ -24,7 +24,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     queryParameterValue = [];
                 } else {
                     // handle SearchString
-                    queryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                    orQueryParameterValue = queryParameterValue.value || queryParameterValue.values;
                 }
                 break;
             case 'token':
@@ -76,7 +76,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                         }
                     }
                 }
-                queryParameterValue = newQueryParameterValue;
+                orQueryParameterValue = newQueryParameterValue;
                 break;
             case 'reference':
                 // eslint-disable-next-line no-case-declarations
@@ -101,7 +101,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     notQueryParameterValue = referenceText;
                     queryParameterValue = [];
                 } else {
-                    queryParameterValue = referenceText;
+                    orQueryParameterValue = referenceText;
                 }
                 break;
             case 'quantity':
@@ -130,7 +130,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     notQueryParameterValue = quantityString;
                     queryParameterValue = [];
                 } else {
-                    queryParameterValue = quantityString;
+                    orQueryParameterValue = quantityString;
                 }
                 break;
             case 'date':
@@ -180,11 +180,14 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 }
                 break;
             default:
+                orQueryParameterValue = queryParameterValue;
                 break;
         }
         if (queryParameterValue.missing) {
             args[`${queryParameter}:missing`] = queryParameterValue.missing;
         }
+    } else {
+        orQueryParameterValue = queryParameterValue;
     }
     return { orQueryParameterValue, andQueryParameterValue, notQueryParameterValue };
 }
