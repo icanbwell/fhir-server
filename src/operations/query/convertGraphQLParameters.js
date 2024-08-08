@@ -141,35 +141,39 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     queryParameterValue.values = [queryParameterValue.value];
                 }
                 if (queryParameterValue.values) {
-                    for (const dateValue of queryParameterValue.values) {
-                        queryParameterValue = [];
+                    for (const currentQueryParameterValue of queryParameterValue.values) {
                         const currentValues = [];
-                        if (dateValue.equals) {
-                            currentValues.push('eq' + dateValue.equals);
+                        if (currentQueryParameterValue.equals) {
+                            if (queryParameterValue.searchType === 'number') {
+                                // 'eq' is not supported in number type
+                                currentValues.push(currentQueryParameterValue.equals);
+                            } else {
+                                currentValues.push('eq' + currentQueryParameterValue.equals);
+                            }
                         }
-                        if (dateValue.notEquals) {
-                            currentValues.push('ne' + dateValue.notEquals);
+                        if (currentQueryParameterValue.notEquals) {
+                            currentValues.push('ne' + currentQueryParameterValue.notEquals);
                         }
-                        if (dateValue.greaterThan) {
-                            currentValues.push('gt' + dateValue.greaterThan);
+                        if (currentQueryParameterValue.greaterThan) {
+                            currentValues.push('gt' + currentQueryParameterValue.greaterThan);
                         }
-                        if (dateValue.greaterThanOrEqualTo) {
-                            currentValues.push('ge' + dateValue.greaterThanOrEqualTo);
+                        if (currentQueryParameterValue.greaterThanOrEqualTo) {
+                            currentValues.push('ge' + currentQueryParameterValue.greaterThanOrEqualTo);
                         }
-                        if (dateValue.lessThan) {
-                            currentValues.push('lt' + dateValue.lessThan);
+                        if (currentQueryParameterValue.lessThan) {
+                            currentValues.push('lt' + currentQueryParameterValue.lessThan);
                         }
-                        if (dateValue.lessThanOrEqualTo) {
-                            currentValues.push('le' + dateValue.lessThanOrEqualTo);
+                        if (currentQueryParameterValue.lessThanOrEqualTo) {
+                            currentValues.push('le' + currentQueryParameterValue.lessThanOrEqualTo);
                         }
-                        if (dateValue.startsAfter) {
-                            currentValues.push('sa' + dateValue.startsAfter);
+                        if (currentQueryParameterValue.startsAfter) {
+                            currentValues.push('sa' + currentQueryParameterValue.startsAfter);
                         }
-                        if (dateValue.endsBefore) {
-                            currentValues.push('eb' + dateValue.endsBefore);
+                        if (currentQueryParameterValue.endsBefore) {
+                            currentValues.push('eb' + currentQueryParameterValue.endsBefore);
                         }
-                        if (dateValue.approximately) {
-                            currentValues.push('ap' + dateValue.approximately);
+                        if (currentQueryParameterValue.approximately) {
+                            currentValues.push('ap' + currentQueryParameterValue.approximately);
                         }
                         if (currentValues.length === 1) {
                             orQueryParameterValue = orQueryParameterValue.concat(currentValues);
