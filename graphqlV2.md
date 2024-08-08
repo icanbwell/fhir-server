@@ -510,7 +510,11 @@ query {
 query {
     immunization(
         date: {
-            value: { greaterThan: "2021-01-01" }
+            # Below filter does an AND operation of all items in "value"
+            value: {
+                greaterThan: "2021-01-01",
+                lessThan: "2022-01-01"
+            }
         }
     ) {
         entry {
@@ -526,6 +530,7 @@ query {
 query {
     immunization(
         date: {
+            # Below filters does an OR operation of all items in "values"
             values: [
                 { lessThanOrEqualTo: "2024-01-01" }
                 { greaterThan: "2021-01-01" }

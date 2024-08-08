@@ -85,7 +85,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             resp = await request.get('/4_0_0/AllergyIntolerance/').set(getHeaders()).expect(200);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -97,7 +97,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedAllergyIntolerance1);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -109,7 +109,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedAllergyIntolerance1);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -121,7 +121,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedAllergyIntolerance2);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -144,30 +144,30 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp.body.length).toBe(0);
 
             resp = await request
-                    .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
-                    .send(riskAssessment1Resource)
-                    .set(getHeaders());
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
+                .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
+                .send(riskAssessment1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
 
-                resp = await request
-                    .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
-                    .send(riskAssessment2Resource)
-                    .set(getHeaders());
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
+            resp = await request
+                .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
+                .send(riskAssessment2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
 
-                resp = await request
-                    .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
-                    .send(riskAssessment3Resource)
-                    .set(getHeaders());
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
+            resp = await request
+                .post('/4_0_0/RiskAssessment/1/$merge?validate=true')
+                .send(riskAssessment3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/RiskAssessment/').set(getHeaders()).expect(200);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -179,7 +179,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedRiskAssessment1);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -191,7 +191,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedRiskAssessment1);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -203,7 +203,7 @@ describe('GraphQLV2 Range filters Tests', () => {
             expect(resp).toHaveResponse(expectedRiskAssessment2);
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
