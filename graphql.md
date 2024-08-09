@@ -403,8 +403,8 @@ query {
         date: {
             # Below filters does an OR operation of all items in "values"
             values: [
-                { lessThanOrEqualTo: "2024-01-01" }
-                { greaterThan: "2021-01-01" }
+                { lessThan: "2021-01-01" }
+                { greaterThan: "2022-01-01" }
             ]
         }
     ) {
