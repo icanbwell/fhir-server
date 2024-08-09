@@ -165,14 +165,20 @@ class R4ArgsParser {
                     }
                 ) : null;
 
-            let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue;
-            ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
+            let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers = [];
+            ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             ));
 
-            if (orQueryParameterValue && (
+            if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
+                modifiers = modifiers.concat(newModifiers);
+            }
+
+            if (typeof orQueryParameterValue !== 'undefined' &&
+                    orQueryParameterValue !== null &&
+                    orQueryParameterValue !== '' && (
                     !Array.isArray(orQueryParameterValue) ||
                     orQueryParameterValue.filter(v => v).length > 0
                 )
@@ -190,7 +196,9 @@ class R4ArgsParser {
                 );
             }
 
-            if (andQueryParameterValue &&
+            if (typeof andQueryParameterValue !== 'undefined' &&
+                andQueryParameterValue !== null &&
+                andQueryParameterValue !== '' &&
                 Array.isArray(andQueryParameterValue) &&
                 andQueryParameterValue.length > 0
             ) {
@@ -211,7 +219,9 @@ class R4ArgsParser {
                 });
             }
 
-            if (notQueryParameterValue && (
+            if (typeof notQueryParameterValue !== 'undefined' &&
+                    notQueryParameterValue !== null &&
+                    notQueryParameterValue !== '' && (
                     !Array.isArray(notQueryParameterValue) ||
                     notQueryParameterValue.filter(v => v).length > 0
                 )

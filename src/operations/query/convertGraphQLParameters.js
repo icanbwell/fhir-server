@@ -6,7 +6,7 @@
  * @return {Object}
  */
 function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
-    let notQueryParameterValue, orQueryParameterValue = [], andQueryParameterValue = [];
+    let notQueryParameterValue, orQueryParameterValue = [], andQueryParameterValue = [], modifiers = [];
     // un-bundle any objects coming from graphql
     if (
         queryParameterValue &&
@@ -24,7 +24,9 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     queryParameterValue = [];
                 } else {
                     // handle SearchString
-                    orQueryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                    if (queryParameterValue.value || queryParameterValue.values) {
+                        orQueryParameterValue = queryParameterValue.value || queryParameterValue.values;
+                    }
                 }
                 break;
             case 'token':
@@ -97,11 +99,13 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 if (queryParameterValue.value) {
                     referenceText += queryParameterValue.value;
                 }
-                if (useNotEquals) {
-                    notQueryParameterValue = referenceText;
-                    queryParameterValue = [];
-                } else {
-                    orQueryParameterValue = referenceText;
+                if (referenceText && referenceText.length > 0) {
+                    if (useNotEquals) {
+                        notQueryParameterValue = referenceText;
+                        queryParameterValue = [];
+                    } else {
+                        orQueryParameterValue = referenceText;
+                    }
                 }
                 break;
             case 'quantity':
@@ -126,11 +130,13 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 if (queryParameterValue.code) {
                     quantityString += '|' + queryParameterValue.code;
                 }
-                if (useNotEquals) {
-                    notQueryParameterValue = quantityString;
-                    queryParameterValue = [];
-                } else {
-                    orQueryParameterValue = quantityString;
+                if (quantityString && quantityString.length > 0) {
+                    if (useNotEquals) {
+                        notQueryParameterValue = quantityString;
+                        queryParameterValue = [];
+                    } else {
+                        orQueryParameterValue = quantityString;
+                    }
                 }
                 break;
             case 'date':
@@ -187,13 +193,14 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 orQueryParameterValue = queryParameterValue;
                 break;
         }
-        if (queryParameterValue.missing) {
-            args[`${queryParameter}:missing`] = queryParameterValue.missing;
+        if (Object.hasOwn(queryParameterValue, 'missing')) {
+            modifiers.push('missing');
+            orQueryParameterValue = queryParameterValue.missing;
         }
     } else {
         orQueryParameterValue = queryParameterValue;
     }
-    return { orQueryParameterValue, andQueryParameterValue, notQueryParameterValue };
+    return { orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers: modifiers };
 }
 
 module.exports = {
