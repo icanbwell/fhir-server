@@ -16,6 +16,9 @@ const { FhirTypesManager } = require('../fhir/fhirTypesManager');
  */
 const stringQueryBuilder = function ({ target }) {
     // noinspection RegExpDuplicateCharacterInClass
+    if (typeof target !== 'string') {
+        return {};
+    }
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
@@ -31,9 +34,12 @@ const stringQueryBuilder = function ({ target }) {
  * @return {array} ors
  */
 const addressQueryBuilder = function ({ target, useExactSearch }) {
-    // Tokenize the input as mush as possible
-    const totalSplit = target.split(/[\s,]+/);
     const ors = [];
+    // Tokenize the input as mush as possible
+    if (typeof target !== 'string') {
+        return ors;
+    }
+    const totalSplit = target.split(/[\s,]+/);
     for (const index in totalSplit) {
         /**
          * @type {string}
@@ -82,8 +88,11 @@ const addressQueryBuilder = function ({ target, useExactSearch }) {
  * @return {array} ors
  */
 const nameQueryBuilder = function ({ target, useExactSearch }) {
-    const split = target.split(/[\s.,]+/);
     const ors = [];
+    if (typeof target !== 'string') {
+        return ors;
+    }
+    const split = target.split(/[\s.,]+/);
 
     for (const i in split) {
         /**
@@ -564,6 +573,9 @@ const numberQueryBuilder = function ({ target, field }) {
  */
 const quantityQueryBuilder = function ({ target, field }) {
     const qB = {};
+    if (!target || !(typeof target === 'string') || target.length === 0) {
+        return qB;
+    }
     // split by the two pipes
     let [num, system, code] = target.split('|');
 
@@ -597,7 +609,7 @@ const quantityQueryBuilder = function ({ target, field }) {
                 break;
             case 'ne':
                 if (strNum.indexOf('e') > 0) {
-                    range = calcRangeSN(numStr);
+                    range = calcRangeSN(strNum);
                 } else {
                     range = calcRange(strNum);
                 }
@@ -745,6 +757,13 @@ const getDateFromNum = function (days) {
  */
 const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
+    if (typeof date !== 'string') {
+        return null;
+    }
+    // handle 'missing' modifier
+    if (date === 'true' || date === 'false') {
+        return null;
+    }
     const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
     const match = date.match(regex);
     if (!match) {

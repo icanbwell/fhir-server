@@ -12,6 +12,9 @@ class ReferenceParser {
         if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
             return { id: reference };
         }
+        if (typeof reference !== 'string') {
+             return ('', '', '');
+        }
         const parts = reference.split('/');
         let resourceType;
         let id;

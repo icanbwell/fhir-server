@@ -14,10 +14,10 @@ class FilterByMissing extends BaseFilter {
     filterByItem (field, value) {
         return isTrue(value)
             ? {
-                [this.fieldMapper.getFieldName(field)]: null
+                [this.fieldMapper.getFieldName(field)]: {$exists: false}
             }
             : {
-                [this.fieldMapper.getFieldName(field)]: { $ne: null }
+                [this.fieldMapper.getFieldName(field)]: { $exists: true }
             };
     }
 }

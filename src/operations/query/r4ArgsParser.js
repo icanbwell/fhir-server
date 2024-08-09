@@ -135,7 +135,9 @@ class R4ArgsParser {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
                 if (
-                    (queryParameterValue && queryParameterValue !== '') && (
+                    (typeof queryParameterValue !== 'undefined'
+                        && queryParameterValue !== null
+                        && queryParameterValue !== '') && (
                         !Array.isArray(queryParameterValue) || queryParameterValue.filter(v => v).length > 0
                     )
                 ) {
@@ -164,13 +166,20 @@ class R4ArgsParser {
                 ) : null;
 
             let notQueryParameterValue;
-            ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
+            let newModifiers = [];
+            ({ queryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             ));
 
-            if (queryParameterValue && (
+            if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {
+                modifiers = modifiers.concat(newModifiers);
+            }
+
+            if (typeof queryParameterValue !== 'undefined' &&
+                    queryParameterValue !== null &&
+                    queryParameterValue !== '' && (
                     !Array.isArray(queryParameterValue) ||
                     queryParameterValue.filter(v => v).length > 0
                 )
@@ -188,7 +197,9 @@ class R4ArgsParser {
                 );
             }
 
-            if (notQueryParameterValue && (
+            if (typeof notQueryParameterValue !== 'undefined' &&
+                    notQueryParameterValue !== null &&
+                    notQueryParameterValue !== '' && (
                     !Array.isArray(notQueryParameterValue) ||
                     notQueryParameterValue.filter(v => v).length > 0
                 )
