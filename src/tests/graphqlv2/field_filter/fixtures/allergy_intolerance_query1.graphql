@@ -1,0 +1,18 @@
+query {
+    allergyIntolerance(
+        date: {
+            value: {
+                lessThan: "2004",
+                greaterThan: "2002",
+                equals: "2003"
+            }
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

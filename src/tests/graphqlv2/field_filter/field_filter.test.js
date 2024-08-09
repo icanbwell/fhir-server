@@ -1,10 +1,10 @@
-const expectedGraphQlWithoutFilterResponse = require('./fixtures/expected_graphql_response_without_filter.json');
-const expectedGraphQlWithFilterResponse = require('./fixtures/expected_graphql_response_with_filter.json');
-const expectedGraphQlWithFilterBinaryResponse = require('./fixtures/expected_graphql_response_with_filter_binary.json');
-const expectedGraphQlWithFilterWithVariableErrorResponse = require('./fixtures/expected_graphql_response_with_filter_missing_variable.json');
+const expectedGraphQlWithoutFilterResponse = require('./fixtures/expected/expected_graphql_response_without_filter.json');
+const expectedGraphQlWithFilterResponse = require('./fixtures/expected/expected_graphql_response_with_filter.json');
+const expectedGraphQlWithFilterBinaryResponse = require('./fixtures/expected/expected_graphql_response_with_filter_binary.json');
+const expectedGraphQlWithFilterWithVariableErrorResponse = require('./fixtures/expected/expected_graphql_response_with_filter_missing_variable.json');
 
-const codeSystem1Resource = require('./fixtures/codeSystem1.json');
-const codeSystem1WithBinaryResource = require('./fixtures/codeSystem1WithBinary.json');
+const codeSystem1Resource = require('./fixtures/codeSystem/codeSystem1.json');
+const codeSystem1WithBinaryResource = require('./fixtures/codeSystem/codeSystem1WithBinary.json');
 
 const rootPersonResource = require('./fixtures/person/person.root.json');
 const person123aResource = require('./fixtures/person/person.123a.json');
