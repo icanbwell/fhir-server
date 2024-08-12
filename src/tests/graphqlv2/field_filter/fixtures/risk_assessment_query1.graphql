@@ -2,9 +2,8 @@ query {
     riskAssessment(
         probability: {
             value: {
-                equals: "2003",
-                lessThan: "2004",
-                greaterThan: "2002"
+                greaterThan: "2002",
+                lessThan: "2004"
             }
         },
         _debug: true

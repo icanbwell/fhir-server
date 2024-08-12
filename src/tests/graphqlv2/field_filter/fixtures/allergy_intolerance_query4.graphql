@@ -3,13 +3,10 @@ query {
         date: {
             values: [
                 {
-                    lessThan: "2000"
+                    lessThan: "2004"
                 },
                 {
-                    greaterThan: "2001"
-                },
-                {
-                    equals: "2003"
+                    greaterThan: "2002"
                 }
             ]
         },
