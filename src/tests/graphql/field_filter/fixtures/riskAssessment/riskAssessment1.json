@@ -1,0 +1,17 @@
+{
+    "id": "1",
+    "resourceType": "RiskAssessment",
+    "meta": {
+        "source": "test",
+        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "final",
+    "subject": {
+        "reference": "Patient/1"
+    },
+    "prediction": [
+        {
+            "probabilityDecimal": 149.004
+        }
+    ]
+}

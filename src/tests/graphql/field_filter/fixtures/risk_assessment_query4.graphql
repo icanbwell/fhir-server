@@ -1,0 +1,21 @@
+query {
+    riskAssessment(
+        probability: {
+            values: [
+                {
+                    lessThan: "2004"
+                },
+                {
+                    greaterThan: "2002"
+                }
+            ]
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
