@@ -4,8 +4,7 @@ query {
             values:[
                 {
                     lessThan: "2004",
-                    greaterThan: "2002",
-                    equals: "2003"
+                    greaterThan: "2002"
                 }
             ]
         },

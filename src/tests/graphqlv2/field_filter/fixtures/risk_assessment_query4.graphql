@@ -3,13 +3,10 @@ query {
         probability: {
             values: [
                 {
-                    equals: "2003"
+                    lessThan: "2024"
                 },
                 {
-                    lessThan: "2004"
-                },
-                {
-                    greaterThan: "2002"
+                    notEquals: "2002"
                 }
             ]
         },

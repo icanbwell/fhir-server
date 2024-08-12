@@ -3,8 +3,7 @@ query {
         date: {
             value: {
                 lessThan: "2004",
-                greaterThan: "2002",
-                equals: "2003"
+                greaterThan: "2002"
             }
         },
         _debug: true
