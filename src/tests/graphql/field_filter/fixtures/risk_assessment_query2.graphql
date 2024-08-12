@@ -3,7 +3,6 @@ query {
         probability: {
             values: [
                 {
-                    equals: "2003",
                     lessThan: "2004",
                     greaterThan: "2002"
                 }
