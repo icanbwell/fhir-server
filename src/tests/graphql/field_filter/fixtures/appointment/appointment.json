@@ -1,0 +1,59 @@
+[
+  {
+    "id": "1",
+    "resourceType": "Appointment",
+    "meta": {
+      "source": "bwell",
+      "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "pending",
+    "start" : "2013-12-10T09:00:00Z",
+    "participant": [
+      {
+        "status": "accepted",
+        "actor": {
+          "reference": "Patient/1"
+        }
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "resourceType": "Appointment",
+    "meta": {
+      "source": "bwell1",
+      "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "pending",
+    "start" : "2013-12-10T09:00:00Z",
+    "participant": [
+      {
+        "status": "accepted",
+        "actor": {
+          "reference": "Patient/1"
+        }
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "resourceType": "Appointment",
+    "meta": {
+      "source": "bwell1",
+      "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "pending",
+    "start" : "2013-12-10T09:00:00Z",
+    "participant": [
+      {
+        "status": "accepted",
+        "actor": {
+          "reference": "Patient/1"
+        }
+      }
+    ],
+    "basedOn" : [{
+      "reference" : "ServiceRequest/myringotomy"
+    }]
+  }
+]

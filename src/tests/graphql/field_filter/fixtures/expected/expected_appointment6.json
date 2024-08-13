@@ -1,0 +1,37 @@
+{
+    "data": {
+        "appointment": {
+            "entry": [{ "resource": { "id": "2" } }, { "resource": { "id": "1" } }],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.Appointment_4_0_0.find({'$and':[{'basedOn':{'$exists':false}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['basedOn','meta.tag.system','meta.tag.code','_uuid']]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryTime", "display": "[0.007]" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Appointment_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"basedOn\":{\"$not\":{\"$exists\":true}}}]},\"queryHash\":\"C2EC9D02\",\"planCacheKey\":\"6864FE03\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"basedOn\":{\"$not\":{\"$exists\":true}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":3,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":7,\"advanced\":2,\"needTime\":4,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":2601,\"usedDisk\":false,\"spills\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"basedOn\":{\"$not\":{\"$exists\":true}}}]},\"nReturned\":2,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":2,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":3}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Appointment_4_0_0\",\"filter\":{\"$and\":[{\"basedOn\":{\"$exists\":false}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":25096,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7402575854930231311\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7402575854930231311\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"COLLSCAN\",\"friendlyStage\":\"for a collection scan\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},{\"basedOn\":{\"$not\":{\"$exists\":true}}}]},\"docsExamined\":3,\"nReturned\":2,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":2,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":2,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":3},\"query\":\"db.Appointment_4_0_0.find({'$and':[{'basedOn':{'$exists':false}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}

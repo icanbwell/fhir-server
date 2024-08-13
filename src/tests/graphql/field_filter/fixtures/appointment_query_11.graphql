@@ -1,0 +1,18 @@
+query test {
+    appointment(
+        date: {
+            value: {
+                lessThan: "2024"
+            },
+            missing: false
+        }
+        _debug: true
+    )
+    {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

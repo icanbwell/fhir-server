@@ -1,0 +1,15 @@
+query test {
+    appointment(
+        _source: {
+            value: "bwell"
+        }
+        _debug: true
+    )
+    {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

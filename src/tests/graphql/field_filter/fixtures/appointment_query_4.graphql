@@ -1,0 +1,17 @@
+query test {
+    appointment(
+        status: {
+            value: {
+                value: "pending"
+            }
+        }
+        _debug: true
+    )
+    {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

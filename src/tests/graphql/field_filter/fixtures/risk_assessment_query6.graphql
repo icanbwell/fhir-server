@@ -1,0 +1,14 @@
+query {
+    riskAssessment(
+        probability: {
+            missing: true
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

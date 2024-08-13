@@ -1,0 +1,17 @@
+query {
+  condition(
+    onset_age: {
+        missing: false
+    },
+    _debug: true
+  ) {
+    entry {
+      resource {
+        id
+        meta {
+          source
+        }
+      }
+    }
+  }
+}
