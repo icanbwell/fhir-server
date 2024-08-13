@@ -1,12 +1,10 @@
 /**
  * converts graphql parameters to standard FHIR parameters
  * @param {string | string[] | Object} queryParameterValue
- * @param {Object} args
- * @param {string} queryParameter
  * @return {Object}
  */
-function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
-    let notQueryParameterValue, orQueryParameterValue = [], andQueryParameterValue = [], modifiers = [];
+function convertGraphQLParameters (queryParameterValue) {
+    let notQueryParameterValue, orQueryParameterValue = null, andQueryParameterValue = [], modifiers = [];
     // un-bundle any objects coming from graphql
     if (
         queryParameterValue &&
@@ -77,8 +75,8 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                             }
                         }
                     }
+                    orQueryParameterValue = newQueryParameterValue;
                 }
-                orQueryParameterValue = newQueryParameterValue;
                 break;
             case 'reference':
                 // eslint-disable-next-line no-case-declarations
@@ -147,6 +145,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                     queryParameterValue.values = [queryParameterValue.value];
                 }
                 if (queryParameterValue.values) {
+                    orQueryParameterValue = [];
                     for (const currentQueryParameterValue of queryParameterValue.values) {
                         const currentValues = [];
                         if (currentQueryParameterValue.equals) {
@@ -193,7 +192,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
                 orQueryParameterValue = queryParameterValue;
                 break;
         }
-        if (Object.hasOwn(queryParameterValue, 'missing')) {
+        if (Object.hasOwn(queryParameterValue, 'missing') && orQueryParameterValue === null) {
             modifiers.push('missing');
             orQueryParameterValue = queryParameterValue.missing;
         }

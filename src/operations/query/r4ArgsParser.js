@@ -167,9 +167,7 @@ class R4ArgsParser {
 
             let orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers = [];
             ({ orQueryParameterValue, andQueryParameterValue, notQueryParameterValue, newModifiers } = convertGraphQLParameters(
-                queryParameterValue,
-                args,
-                queryParameter
+                queryParameterValue
             ));
 
             if (newModifiers && Array.isArray(newModifiers) && newModifiers.length) {

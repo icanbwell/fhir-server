@@ -103,13 +103,10 @@ class R4SearchQueryCreator {
                         resourceType
                     });
 
-                let {
-                    /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
-                    andSegments
-                } = this.getColumnsAndSegmentsForParameterType({
-                    parsedArg,
-                    filterParameters
-                });
+                /**
+                 * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
+                 */
+                let andSegments;
 
                 // replace andSegments according to modifiers
                 // noinspection IfStatementWithTooManyBranchesJS
@@ -125,6 +122,11 @@ class R4SearchQueryCreator {
                     andSegments = new FilterByText(filterParameters).filterText();
                 } else if (parsedArg.modifiers.includes('of-type')) {
                     andSegments = new FilterByOfType(filterParameters).filter();
+                } else {
+                    ({ andSegments } = this.getColumnsAndSegmentsForParameterType({
+                        parsedArg,
+                        filterParameters
+                    }));
                 }
 
                 // apply negation according to not modifier and add to final collection
