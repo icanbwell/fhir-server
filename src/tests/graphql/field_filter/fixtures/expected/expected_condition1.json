@@ -1,0 +1,44 @@
+{
+    "data": {
+        "condition": {
+            "entry": [
+                {
+                    "resource": {
+                        "id": "14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f",
+                        "meta": { "source": "/patients" }
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.Condition_4_0_0.find({'$and':[{'$or':[{'onsetAge.value':{'$gte':51.5,'$lt':52.5}},{'onsetRange.value':{'$gte':51.5,'$lt':52.5}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['onsetAge.value','onsetRange.value','meta.tag.system','meta.tag.code','_uuid']]"
+                    },
+                    { "system": "https://www.icanbwell.com/queryTime", "display": "[0.042]" },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Condition_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$and\":[{\"$or\":[{\"$and\":[{\"onsetAge.value\":{\"$lt\":52.5}},{\"onsetAge.value\":{\"$gte\":51.5}}]},{\"$and\":[{\"onsetRange.value\":{\"$lt\":52.5}},{\"onsetRange.value\":{\"$gte\":51.5}}]}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"queryHash\":\"27F5DC2A\",\"planCacheKey\":\"1990ED6F\",\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"$and\":[{\"onsetAge.value\":{\"$lt\":52.5}},{\"onsetAge.value\":{\"$gte\":51.5}}]},{\"$and\":[{\"onsetRange.value\":{\"$lt\":52.5}},{\"onsetRange.value\":{\"$gte\":51.5}}]}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"$and\":[{\"onsetAge.value\":{\"$lt\":52.5}},{\"onsetAge.value\":{\"$gte\":51.5}}]},{\"$and\":[{\"onsetRange.value\":{\"$lt\":52.5}},{\"onsetRange.value\":{\"$gte\":51.5}}]}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Condition_4_0_0\",\"filter\":{\"$and\":[{\"$or\":[{\"onsetAge.value\":{\"$gte\":51.5,\"$lt\":52.5}},{\"onsetRange.value\":{\"$gte\":51.5,\"$lt\":52.5}}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"ubuntu-Latitude-3420\",\"port\":64911,\"version\":\"6.0.14\",\"gitVersion\":\"25225db95574916fecab3af75b184409f8713aef\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7402578951601651730\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7402578951601651730\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"$or\":[{\"$and\":[{\"onsetAge.value\":{\"$lt\":52.5}},{\"onsetAge.value\":{\"$gte\":51.5}}]},{\"$and\":[{\"onsetRange.value\":{\"$lt\":52.5}},{\"onsetRange.value\":{\"$gte\":51.5}}]}]},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Condition_4_0_0.find({'$and':[{'$or':[{'onsetAge.value':{'$gte':51.5,'$lt':52.5}},{'onsetRange.value':{'$gte':51.5,'$lt':52.5}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}

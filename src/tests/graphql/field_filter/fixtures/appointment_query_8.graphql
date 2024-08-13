@@ -1,0 +1,16 @@
+query test {
+    appointment(
+        based_on: {
+            value: "ServiceRequest/myringotomy",
+            missing: false
+        }
+        _debug: true
+    )
+    {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

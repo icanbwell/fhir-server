@@ -31,20 +31,20 @@ const allergyIntoleranceQuery4 = fs.readFileSync(
 );
 
 const riskAssessmentQuery1 = fs.readFileSync(
-  path.resolve(__dirname, './fixtures/risk_assessment_query1.graphql'),
-  'utf8'
+    path.resolve(__dirname, './fixtures/risk_assessment_query1.graphql'),
+    'utf8'
 );
 const riskAssessmentQuery2 = fs.readFileSync(
-  path.resolve(__dirname, './fixtures/risk_assessment_query2.graphql'),
-  'utf8'
+    path.resolve(__dirname, './fixtures/risk_assessment_query2.graphql'),
+    'utf8'
 );
 const riskAssessmentQuery3 = fs.readFileSync(
-  path.resolve(__dirname, './fixtures/risk_assessment_query3.graphql'),
-  'utf8'
+    path.resolve(__dirname, './fixtures/risk_assessment_query3.graphql'),
+    'utf8'
 );
 const riskAssessmentQuery4 = fs.readFileSync(
-  path.resolve(__dirname, './fixtures/risk_assessment_query4.graphql'),
-  'utf8'
+    path.resolve(__dirname, './fixtures/risk_assessment_query4.graphql'),
+    'utf8'
 );
 
 const {
