@@ -205,7 +205,7 @@ module.exports.getHeaders = (scope) => {
 module.exports.getHeadersNdJson = (scope) => {
     return {
         'Content-Type': 'application/fhir+json', // what the data we POST is in
-        Accept: 'application/fhir+ndjson, application/fhir+json; charset=utf-8', // what we want the response to be in
+        Accept: 'application/fhir+ndjson', // what we want the response to be in
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };

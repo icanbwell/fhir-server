@@ -29,7 +29,6 @@ const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlVal
 const { removeNullFromArray } = require('../../utils/nullRemover');
 const resolvers = require('../../graphqlv2/resolvers');
 const { REQUEST_ID_TYPE } = require('../../constants');
-const accepts = require("accepts");
 
 /**
  * @param {function (): SimpleContainer} fnGetContainer
@@ -103,8 +102,7 @@ const graphqlV2 = async (fnGetContainer) => {
                 personIdFromJwtToken: req.authInfo?.context?.personIdFromJwtToken,
                 headers: req.headers,
                 method: req.method,
-                contentTypeFromHeader,
-                accept: accepts(req).types()
+                contentTypeFromHeader
             });
 
         req.container = container;
