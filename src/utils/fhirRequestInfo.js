@@ -17,7 +17,7 @@ class FhirRequestInfo {
      * @param {string | null} [path]
      * @param {string | null} host
      * @param {Object | Object[] | null} [body]
-     * @param {string | null} [accept]
+     * @param {string | string[] | null} [accept]
      * @param {boolean | null} [isUser]
      * @param {string | null} [personIdFromJwtToken]
      * @param {Object} headers
@@ -86,7 +86,7 @@ class FhirRequestInfo {
          */
         this.body = body;
         /**
-         * @type {string[] | null}
+         * @type {string | string[] | null}
          */
         this.accept = accept;
         /**
