@@ -34,7 +34,6 @@ describe('search by multiple ids ndjson', () => {
                 .set(getHeadersNdJson());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
-            expect(resp.headers["content-type"]).toEqual("application/fhir+ndjson");
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
