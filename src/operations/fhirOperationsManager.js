@@ -32,6 +32,7 @@ const { fhirContentTypes, hasNdJsonContentType } = require('../utils/contentType
 const { ExportByIdOperation } = require('./export/exportById');
 const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
+const accepts = require("accepts");
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -222,9 +223,9 @@ class FhirOperationsManager {
          */
         const path = req.path;
         /**
-         * @type {string|null}
+         * @type {string|string[]|null}
          */
-        const accept = req.headers.accept;
+        const accept =  accepts(req).types();
         /**
          * @type {string}
          */
