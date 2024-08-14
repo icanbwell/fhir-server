@@ -480,11 +480,7 @@ class SearchManager {
             cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
         }
 
-        if (isStreaming) {
-            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: 60 * 60 * 1000 }); // if streaming then set time out to an hour
-        } else {
-            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
-        }
+        cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
         // avoid double sorting since Mongo gives you different results
         if (useTwoStepSearchOptimization && !options.sort) {
@@ -760,7 +756,6 @@ class SearchManager {
             const originalQuery = [query];
             const originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
-
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
@@ -954,7 +949,6 @@ class SearchManager {
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {string[]|null} accepts
-     * @param {number} batchObjectCount
      * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
@@ -969,9 +963,8 @@ class SearchManager {
             parsedArgs,
             resourceType,
             accepts,
-
-            batchObjectCount = 1,
-            defaultSortId
+            defaultSortId,
+            params
         }
     ) {
         assertIsValid(requestId);
@@ -1063,12 +1056,13 @@ class SearchManager {
          */
         const readableMongoStream = new MongoReadableStream({
             cursor,
-            signal:
-            ac.signal,
+            signal: ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
+            searchManager: this,
             highWaterMark,
             configManager: this.configManager,
-            response: res
+            response: res,
+            params
         });
 
         try {

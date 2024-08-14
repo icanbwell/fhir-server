@@ -50,3 +50,18 @@ To request the NDJSON format, the client passes in the appropriate Accept header
 ```html
 Accept: application/fhir+ndjson
 ```
+
+### MongoDB Query Timeout Retry Logic
+
+A retry mechanism to handle MongoDB query timeouts using two environment variables:
+- MONGO_TIMEOUT [Time in milliseconds for non streaming requests]
+- MONGO_STREAMING_TIMEOUT [Time in milliseconds for streaming requests]
+1. Initial Query Timeout:
+    - When a request is received, the initial query is subjected to the MONGO_TIMEOUT.
+    - If the first batch of results takes more than the specified time as in MONGO_TIMEOUT to process, a 500 error is returned.
+
+2. Streaming Response Handling:
+    - If the initial query completes within 2 minutes and the request is identified as requiring streaming, the timeout is updated to MONGO_STREAMING_TIMEOUT.
+    - This ensures that the streaming process can continue uninterrupted for an extended period.
+
+This approach balances quick error responses with the ability to handle long-running streaming requests effectively.

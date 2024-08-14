@@ -532,6 +532,22 @@ class ConfigManager {
     get awsRegion () {
         return env.AWS_REGION;
     }
+
+    /**
+     * the timeout to set for mongo operations
+     * @return {number}
+     */
+    get mongoTimeout(){
+        return env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 2 * 60 * 1000;
+    }
+
+    /**
+     * the timeout to set for mongo operations
+     * @return {number}
+     */
+    get mongoStreamingTimeout(){
+        return env.MONGO_STREAMING_TIMEOUT ? parseInt(env.MONGO_STREAMING_TIMEOUT) : 60 * 60 * 1000;
+    }
 }
 
 module.exports = {

@@ -35,7 +35,7 @@ class RethrownError extends Error {
 
         this.nested = error;
 
-        this.statusCode = error.statusCode; // keep same statusCode
+        this.statusCode = error.statusCode || error.code; // keep same statusCode
 
         if (message instanceof Error) {
             error = message;

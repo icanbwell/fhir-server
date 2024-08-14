@@ -193,11 +193,16 @@ class SearchStreamingOperation {
          */
         const options = {};
 
+        /**
+         * @type {Boolean}
+         */
+        const isStreaming = true;
+
         // Query our collection for this observation
         /**
          * @type {number}
          */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
         /**
          * @type {ResourceLocator}
          */
@@ -214,22 +219,23 @@ class SearchStreamingOperation {
         let databaseName = '';
 
         try {
+            const params = {
+                resourceType,
+                base_version,
+                parsedArgs,
+                columns,
+                options,
+                query,
+                maxMongoTimeMS,
+                user,
+                isStreaming,
+                useAccessIndex,
+                extraInfo
+            };
             /** @type {GetCursorResult} **/
-            const __ret = await this.searchManager.getCursorForQueryAsync(
-                {
-                    resourceType,
-                    base_version,
-                    parsedArgs,
-                    columns,
-                    options,
-                    query,
-                    maxMongoTimeMS,
-                    user,
-                    isStreaming: true,
-                    useAccessIndex,
-                    extraInfo
-                }
-            );
+            const __ret = await this.searchManager.getCursorForQueryAsync({
+                ...params
+            });
             /**
              * @type {Set}
              */
@@ -281,10 +287,6 @@ class SearchStreamingOperation {
              * @type {string[]}
              */
             let resourceIds = [];
-            /**
-             * @type {number}
-             */
-            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
 
             /**
              * @type {import('mongodb').Document[]}
@@ -357,9 +359,9 @@ class SearchStreamingOperation {
                         user,
                         parsedArgs,
                         resourceType,
-                        batchObjectCount,
                         defaultSortId,
-                        accepts: requestInfo.accept
+                        accepts: requestInfo.accept,
+                        params
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {

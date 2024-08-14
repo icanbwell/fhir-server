@@ -5,6 +5,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../common/sentry');
+const { SearchManager } = require('../search/searchManager');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -26,9 +27,11 @@ class MongoReadableStream extends Readable {
             cursor,
             signal,
             databaseAttachmentManager,
+            searchManager,
             highWaterMark,
             configManager,
-            response
+            response,
+            params
         }
     ) {
         super({ objectMode: true, highWaterMark });
@@ -62,8 +65,18 @@ class MongoReadableStream extends Readable {
          * @type {import('http').ServerResponse}
          */
         this.response = response;
-    }
 
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        /**
+         * @type {string}
+         */
+        this.lastUUID = null;
+
+        this.params = params;
+    }
 
     async _read (size) {
         // Ensure we are not already fetching data
@@ -83,9 +96,10 @@ class MongoReadableStream extends Readable {
 
     /**
      * @param size
+     * @param hasRetried
      * @returns {Promise<void>}
      */
-    async readAsync (size) {
+    async readCursorAsync({size, hasRetried = false}) {
         let count = 0;
         while (count <= size) {
             try {
@@ -102,6 +116,7 @@ class MongoReadableStream extends Readable {
                      * @type {Resource}
                      */
                     let resource = await this.cursor.next();
+                    this.lastUUID = resource._uuid;
                     if (this.configManager.logStreamSteps) {
                         logInfo(`mongoStreamReader: read ${resource.id}`, { count, size });
                     }
@@ -126,6 +141,39 @@ class MongoReadableStream extends Readable {
                         message: e.message
                     }
                 });
+
+                // Handles operation timeout error in mongodb
+                if (e.statusCode === 50 && !hasRetried && this.lastUUID) {
+                    logInfo(
+                        'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
+                        { e }
+                    );
+
+                    // Increasing maxMongoTimeMS to ensure streaming process to continue for an extended period.
+                    this.params.maxMongoTimeMS = this.configManager.mongoStreamingTimeout;
+
+                    // Update existing query to not fetch resources with already processed uuids
+                    const uuidFromQuery = { _uuid: { $gt: this.lastUUID } };
+                    if (this.params.query.$and) {
+                        this.params.query.$and = [
+                            uuidFromQuery,
+                            ...this.params.query.$and.map((f) => f)
+                        ];
+                    } else {
+                        this.params.query = { $and: [this.params.query, uuidFromQuery] };
+                    }
+
+                    /**
+                     * @type {GetCursorResult}
+                     */
+                    const __ret = await this.searchManager.getCursorForQueryAsync({
+                        ...this.params
+                    });
+                    this.cursor = __ret.cursor;
+                    await this.readCursorAsync({size, hasRetried: true}); // Pass true to indicate that retry has happened
+                    return;
+                }
+
                 // send the error to sentry
                 captureException(error);
                 /**
@@ -134,16 +182,28 @@ class MongoReadableStream extends Readable {
                 const operationOutcome = convertErrorToOperationOutcome({
                     error: {
                         ...error,
-                        message: 'Error occurred while streaming response'
+                        message:
+                            e.statusCode === 50
+                                ? 'Timeout while processing'
+                                : 'Error occurred while streaming response'
                     }
                 });
-                // this is an unexpected error so set statuscode 500
+                // this is an unexpected error so set statusCode 500
                 this.response.statusCode = 500;
                 this.push(operationOutcome);
                 return;
             }
         }
     }
+
+    /**
+     * @param size
+     * @returns {Promise<void>}
+     */
+    async readAsync(size) {
+        await this.readCursorAsync({size});
+    }
+
 }
 
 module.exports = {
