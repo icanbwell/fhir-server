@@ -361,7 +361,8 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
         groups: ['admin/*.*'],
-        token_use: 'access'
+        token_use: 'access',
+        scope: 'admin/*.* user/*.* access/*.*'
     });
 });
 

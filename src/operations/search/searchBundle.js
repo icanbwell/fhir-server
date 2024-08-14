@@ -205,7 +205,7 @@ class SearchBundleOperation {
         /**
          * @type {number}
          */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
         /**
          * @type {ResourceLocator}
          */
