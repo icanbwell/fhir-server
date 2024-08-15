@@ -1,0 +1,17 @@
+query {
+    riskAssessment(
+        probability: {
+            value: {
+                startsAfter: "2002",
+                endsBefore: "2004"
+            }
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
