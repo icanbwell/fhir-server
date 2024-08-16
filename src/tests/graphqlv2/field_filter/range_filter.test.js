@@ -231,29 +231,30 @@ describe('GraphQLV2 Range filters Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment3);
 
-            resp = await request
-                .post('/4_0_0/$graphqlv2')
-                .send({
-                    operationName: null,
-                    variables: {},
-                    query: graphqlQueryText5
-                })
-                .set(getGraphQLHeaders())
-                .expect(200);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedRiskAssessment4);
-
-            resp = await request
-                .post('/4_0_0/$graphqlv2')
-                .send({
-                    operationName: null,
-                    variables: {},
-                    query: graphqlQueryText6
-                })
-                .set(getGraphQLHeaders())
-                .expect(200);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedRiskAssessment4);
+            // Future possible prefixs (sa and eb)
+            // resp = await request
+            //     .post('/4_0_0/$graphqlv2')
+            //     .send({
+            //         operationName: null,
+            //         variables: {},
+            //         query: graphqlQueryText5
+            //     })
+            //     .set(getGraphQLHeaders())
+            //     .expect(200);
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedRiskAssessment4);
+            //
+            // resp = await request
+            //     .post('/4_0_0/$graphqlv2')
+            //     .send({
+            //         operationName: null,
+            //         variables: {},
+            //         query: graphqlQueryText6
+            //     })
+            //     .set(getGraphQLHeaders())
+            //     .expect(200);
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedRiskAssessment4);
 
             resp = await request
                 .post('/4_0_0/$graphqlv2')

@@ -537,12 +537,13 @@ const numberQueryBuilder = function ({ target, field }) {
             case 'ge':
                 query = { $gte: number };
                 break;
-            case 'sa':
-                query = { $gte: number };
-                break;
-            case 'eb':
-                query = { $lte: number };
-                break;
+            // Possible future work
+            // case 'sa':
+            //     query = { $gte: number };
+            //     break;
+            // case 'eb':
+            //     query = { $lte: number };
+            //     break;
             case 'ap':
                 if (numStr.indexOf('e') > 0) {
                     range = calcRangeSN(numStr, true);
