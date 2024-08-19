@@ -158,7 +158,7 @@
     "jwks-rsa": "^3.1.0",
     "kafkajs": "^2.2.4",
     "moment-timezone": "^0.5.45",
-    "mongodb": "^6.6.2",
+    "mongodb": "6.6.2",
     "node-cron": "^3.0.3",
     "object-hash": "^2.2.0, <3",
     "object-sizeof": "^2.6.4",
