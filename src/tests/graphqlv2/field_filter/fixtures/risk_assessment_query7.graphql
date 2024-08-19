@@ -1,0 +1,16 @@
+query {
+    riskAssessment(
+        probability: {
+            value: {
+                approximately: "2003"
+            }
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}

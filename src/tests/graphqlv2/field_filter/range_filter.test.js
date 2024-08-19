@@ -9,6 +9,8 @@ const expectedAllergyIntolerance3 = require('./fixtures/expected/expected_allerg
 const expectedRiskAssessment1 = require('./fixtures/expected/expected_risk_assessment1.json');
 const expectedRiskAssessment2 = require('./fixtures/expected/expected_risk_assessment2.json');
 const expectedRiskAssessment3 = require('./fixtures/expected/expected_risk_assessment3.json');
+const expectedRiskAssessment4 = require('./fixtures/expected/expected_risk_assessment4.json');
+const expectedRiskAssessment5 = require('./fixtures/expected/expected_risk_assessment5.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -44,6 +46,18 @@ const riskAssessmentQuery3 = fs.readFileSync(
 );
 const riskAssessmentQuery4 = fs.readFileSync(
   path.resolve(__dirname, './fixtures/risk_assessment_query4.graphql'),
+  'utf8'
+);
+const riskAssessmentQuery5 = fs.readFileSync(
+  path.resolve(__dirname, './fixtures/risk_assessment_query5.graphql'),
+  'utf8'
+);
+const riskAssessmentQuery6 = fs.readFileSync(
+  path.resolve(__dirname, './fixtures/risk_assessment_query6.graphql'),
+  'utf8'
+);
+const riskAssessmentQuery7 = fs.readFileSync(
+  path.resolve(__dirname, './fixtures/risk_assessment_query7.graphql'),
   'utf8'
 );
 
@@ -139,6 +153,9 @@ describe('GraphQLV2 Range filters Tests', () => {
             const graphqlQueryText2 = riskAssessmentQuery2.replace(/\\n/g, '');
             const graphqlQueryText3 = riskAssessmentQuery3.replace(/\\n/g, '');
             const graphqlQueryText4 = riskAssessmentQuery4.replace(/\\n/g, '');
+            const graphqlQueryText5 = riskAssessmentQuery5.replace(/\\n/g, '');
+            const graphqlQueryText6 = riskAssessmentQuery6.replace(/\\n/g, '');
+            const graphqlQueryText7 = riskAssessmentQuery7.replace(/\\n/g, '');
 
             let resp = await request.get('/4_0_0/RiskAssessment').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
@@ -213,6 +230,43 @@ describe('GraphQLV2 Range filters Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedRiskAssessment3);
+
+            // Future possible prefixs (sa and eb)
+            // resp = await request
+            //     .post('/4_0_0/$graphqlv2')
+            //     .send({
+            //         operationName: null,
+            //         variables: {},
+            //         query: graphqlQueryText5
+            //     })
+            //     .set(getGraphQLHeaders())
+            //     .expect(200);
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedRiskAssessment4);
+            //
+            // resp = await request
+            //     .post('/4_0_0/$graphqlv2')
+            //     .send({
+            //         operationName: null,
+            //         variables: {},
+            //         query: graphqlQueryText6
+            //     })
+            //     .set(getGraphQLHeaders())
+            //     .expect(200);
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedRiskAssessment4);
+
+            resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText7
+                })
+                .set(getGraphQLHeaders())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedRiskAssessment5);
         });
     });
 });

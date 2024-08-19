@@ -507,6 +507,9 @@ const referenceQueryBuilderOptimized = function (
  * @returns {Object} a mongo query
  */
 const numberQueryBuilder = function ({ target, field }) {
+    if (typeof target !== 'string') {
+        return '';
+    }
     let query;
     let prefix = '';
     let range = {};
@@ -534,11 +537,29 @@ const numberQueryBuilder = function ({ target, field }) {
             case 'ge':
                 query = { $gte: number };
                 break;
+            // Possible future work
+            // case 'sa':
+            //     query = { $gte: number };
+            //     break;
+            // case 'eb':
+            //     query = { $lte: number };
+            //     break;
+            case 'ap':
+                if (numStr.indexOf('e') > 0) {
+                    range = calcRangeSN(numStr, true);
+                } else {
+                    range = calcRange(numStr, true);
+                }
+                query = {
+                    $gte: Number((number - range.offset).toPrecision(range.precn)),
+                    $lt: Number((number + range.offset).toPrecision(range.precn))
+                };
+                break;
             case 'ne':
                 if (numStr.indexOf('e') > 0) {
-                    range = calcRangeSN(numStr);
+                    range = calcRangeSN(numStr, false);
                 } else {
-                    range = calcRange(numStr);
+                    range = calcRange(numStr, false);
                 }
                 query = {
                     $exists: true,
@@ -553,9 +574,9 @@ const numberQueryBuilder = function ({ target, field }) {
         }
     } else {
         if (numStr.indexOf('e') > 0) {
-            range = calcRangeSN(numStr);
+            range = calcRangeSN(numStr, false);
         } else {
-            range = calcRange(numStr);
+            range = calcRange(numStr, false);
         }
         query = {
             $gte: Number((number - range.offset).toPrecision(range.precn)),
@@ -634,7 +655,7 @@ const quantityQueryBuilder = function ({ target, field }) {
 };
 
 // return value of range offset and precision
-function calcRange(numStr) {
+function calcRange(numStr, approx) {
     const n = Number(numStr);
     if (n === 0) return 0.5;
 
@@ -655,20 +676,24 @@ function calcRange(numStr) {
         numIntDigits = beforePoint.length;
     }
 
-    const offsetLen = numStr.length;
     let offset = '0.';
-    for (let i = 0; i < offsetLen; i++) {
-        offset = offset + '0';
+    if (approx) {
+        offset = n * 0.1;
+    } else {
+        const offsetLen = numStr.length;
+        for (let i = 0; i < offsetLen; i++) {
+            offset = offset + '0';
+        }
+        offset = offset + '5';
+        offset = Number(offset) * Math.pow(10, numIntDigits);
     }
-    offset = offset + '5';
-    offset = Number(offset) * Math.pow(10, numIntDigits);
     const precn  = numStr.length + 1;
-    return { offset, precn};
+    return { offset, precn };
 }
 
 
 // return value of range offset for scientific notation numbers
-function calcRangeSN(numStr) {
+function calcRangeSN(numStr, approx) {
     const n = Number(numStr);
     if (n === 0) return 0.5;
     let pow10 = 0;
@@ -694,15 +719,19 @@ function calcRangeSN(numStr) {
     if (expDigits === 1) {
         expDigits = 2;
     }
-    const offsetLen = expDigits - 1;
     let offset = '0.';
-    for (let i = 0; i < offsetLen; i++) {
-        offset = offset + '0';
+    if (approx) {
+        offset = n * 0.1;
+    } else {
+        const offsetLen = expDigits - 1;
+        for (let i = 0; i < offsetLen; i++) {
+            offset = offset + '0';
+        }
+        offset = offset + '5';
+        offset = Number(offset) * Math.pow(10, pow10);
     }
-    offset = offset + '5';
-    offset = Number(offset) * Math.pow(10, pow10);
     const precn = expDigits + Math.abs(pow10);
-    return { offset, precn};
+    return { offset, precn };
 }
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
