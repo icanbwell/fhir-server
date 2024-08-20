@@ -19,7 +19,7 @@ const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winst
 const ignoreUrls = ['/health', '/live', '/ready'].concat(
     process.env.OPENTELEMETRY_IGNORE_URLS?.split(',')
 );
-
+``
 const sdk = new opentelemetry.NodeSDK({
     resource: new Resource(),
     traceExporter: new OTLPTraceExporter(),
