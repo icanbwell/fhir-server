@@ -3,7 +3,7 @@
     {
       "resource": {
         "resourceType": "SubscriptionTopic",
-        "id": "subscriptionTopic2",
+        "id": "subscriptionTopic4",
         "meta": {
           "id": "90d8a9a1-ce43-4b2d-9c6a-84d1c5fe1c36",
           "versionId": "3",
@@ -28,7 +28,7 @@
           {
             "id": "ae966c455e1fb4bb45b7c2af6b8b7981d36e90269e6092f5d94af54b99d5a2da",
             "url": "https://icanbwell.com/codes/source_patient_id",
-            "valueString": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+            "valueString": "8ba1017f-0aad-1b91-ff9e-416a96e11f0c"
           }
         ],
         "identifier": [
@@ -40,12 +40,12 @@
           {
             "id": "c608fab680d4b6b0e45ccdc3049b109dc3bba852bf2502511243784c9ac5e1ff",
             "system": "https://icanbwell.com/codes/client_person_id",
-            "value": "35c6fb57-5115-5917-a295-12f4a253973f"
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
           },
           {
             "id": "aea01aa309cb938242b47c911ba047196c5b197446301e44ebe219f82a22bed6",
             "system": "https://icanbwell.com/codes/source_patient_id",
-            "value": "1234"
+            "value": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
           },
           {
             "id": "db27b29dd0097ea9afce165fadd12189d9635d216517f0e7d02dc243ffe6aae3",
@@ -59,7 +59,7 @@
           }
         ],
         "status": "active",
-        "url": "https://fhir-myrecord.cerner.com/r4/5c7467fb-60f9-4172-add4-57667a5dfcfa/",
+        "url": "https://fhir-myrecord.epic.com/r4/5c7467fb-60f9-4172-add4-57667a5dfcfa/",
         "version": "R4",
         "resourceTrigger": [
           {

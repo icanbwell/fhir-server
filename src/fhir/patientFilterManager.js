@@ -88,7 +88,10 @@ class PatientFilterManager {
          * defines the filter query in each resource that links to patient
          * @type {Object}
          */
-        this.patientFilterWithQueryMapping = {};
+        this.patientFilterWithQueryMapping = {
+            SubscriptionTopic: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}',
+            SubscriptionStatus: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
+        };
 
         /**
          * defines the filter in each resource that links to person
