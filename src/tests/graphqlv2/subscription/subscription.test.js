@@ -140,7 +140,6 @@ describe('GraphQL Subscription Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-
             const graphqlQueryText = subscriptionQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
