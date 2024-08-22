@@ -531,19 +531,30 @@ class GraphHelper {
              * @type {import('./entityAndContainedBase').EntityAndContainedBase}
              */
             const uniqueParentEntities = Array.from(new Set(parentEntities));
-            // create comma separated list of ids
+            // create comma separated list of references and ids
             /**
              * @type {string[]}
              */
             let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
+            /**
+             * @type {string[]}
+             */
+            let parentResourceIdList = uniqueParentEntities
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => p.entityUuid);
 
             if (this.configManager.supportLegacyIds && supportLegacyId) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
                     uniqueParentEntities
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
                         .map(p => `${p.resource.resourceType}/${p.entityId}`)
+                );
+                parentResourceIdList = parentResourceIdList.concat(
+                    uniqueParentEntities
+                        .filter(p => p.entityId !== undefined && p.entityId !== null)
+                        .map(p => p.entityId)
                 );
             }
 
@@ -553,7 +564,8 @@ class GraphHelper {
             /**
              * @type {string}
              */
-            const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
             /**
              * @type {ParsedArgs}
              */
@@ -917,7 +929,7 @@ class GraphHelper {
                         const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
                             includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
                             item: c,
-containedEntries: []
+                            containedEntries: []
                         }));
                         childEntries = childEntries.concat(childEntriesForCurrentEntity);
                         parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);

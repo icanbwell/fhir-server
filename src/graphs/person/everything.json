@@ -566,6 +566,30 @@
           ]
         }
       ]
+    },
+    {
+      "target": [
+        {
+          "type": "Subscription",
+          "params": "extension=https://icanbwell.com/codes/client_person_id|{id}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SubscriptionStatus",
+          "params": "extension=https://icanbwell.com/codes/client_person_id|{id}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SubscriptionTopic",
+          "params": "extension=https://icanbwell.com/codes/client_person_id|{id}"
+        }
+      ]
     }
   ]
 }

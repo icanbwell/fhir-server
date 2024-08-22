@@ -88,17 +88,16 @@ class PatientFilterManager {
          * defines the filter query in each resource that links to patient
          * @type {Object}
          */
-        this.patientFilterWithQueryMapping = {
-            SubscriptionTopic: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}',
-            SubscriptionStatus: 'extension=https://icanbwell.com/codes/source_patient_id|{patient}'
-        };
+        this.patientFilterWithQueryMapping = {};
 
         /**
          * defines the filter in each resource that links to person
          * @type {Object}
          */
         this.personFilterWithQueryMapping = {
-            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}'
+            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
+            SubscriptionTopic: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
+            SubscriptionStatus: 'extension=https://icanbwell.com/codes/client_person_id|{person}'
         };
     }
 

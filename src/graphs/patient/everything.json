@@ -538,6 +538,30 @@
     {
       "target": [
         {
+          "type": "Subscription",
+          "params": "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SubscriptionStatus",
+          "params": "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SubscriptionTopic",
+          "params": "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "SupplyDelivery",
           "params": "patient={ref}"
         }
