@@ -1,0 +1,173 @@
+query {
+    explanationOfBenefit(
+        disposition: {
+            contains: "unknown"
+        },
+        _debug: true
+    ) {
+        entry {
+            resource {
+                id
+                identifier {
+                    system
+                    type {
+                        coding {
+                            code
+                            display
+                            system
+                        }
+                        text
+                    }
+                    value
+                }
+                meta {
+                    source
+                    versionId
+                    security {
+                        system
+                        code
+                    }
+                }
+                careTeam {
+                    sequence
+                    provider {
+                        reference {
+                            __typename
+                        }
+                    }
+                }
+                diagnosis {
+                    sequence
+                    diagnosisCodeableConcept {
+                        coding {
+                            system
+                            code
+                            version
+                        }
+                        text
+                    }
+                    packageCode {
+                        coding {
+                            system
+                            version
+                        }
+                    }
+                    type {
+                        coding {
+                            code
+                            system
+                        }
+                    }
+                }
+                insurer {
+                    reference {
+                        id
+                    }
+                }
+                item {
+                    adjudication {
+                        amount {
+                            value
+                        }
+                        category {
+                            coding {
+                                code
+                                display
+                                system
+                            }
+                        }
+                    }
+                    id
+                    locationCodeableConcept {
+                        coding {
+                            code
+                            system
+                        }
+                    }
+                    modifier {
+                        coding {
+                            system
+                            code
+                        }
+                        text
+                    }
+                    productOrService {
+                        coding {
+                            system
+                            code
+                        }
+                        text
+                    }
+                    quantity {
+                        system
+                        code
+                        value
+                    }
+                    revenue {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    servicedPeriod {
+                        start
+                        end
+                    }
+                }
+                outcome
+                payee {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    party {
+                        reference {
+                            __typename
+                        }
+                    }
+                }
+                procedure {
+                    sequence
+                    procedureCodeableConcept {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                }
+                provider {
+                    reference {
+                        __typename
+                        ... on Practitioner {
+                            id
+                            name {
+                                family
+                                given
+                            }
+                        }
+                    }
+                }
+                resourceType
+                status
+                supportingInfo {
+                    sequence
+                    category {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                }
+                type {
+                    coding {
+                        system
+                        code
+                    }
+                    text
+                }
+            }
+        }
+    }
+}

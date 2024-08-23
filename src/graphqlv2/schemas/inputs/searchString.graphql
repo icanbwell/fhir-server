@@ -10,4 +10,5 @@ input SearchString {
     above: Boolean
     below: Boolean
     notEquals: SearchStringValue
+    contains: String
 }
