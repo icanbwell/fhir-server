@@ -555,7 +555,7 @@
       "target": [
         {
           "type": "SubscriptionTopic",
-          "params": "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+          "params": "identifier=https://icanbwell.com/codes/source_patient_id|{id}"
         }
       ]
     },

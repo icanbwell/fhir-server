@@ -269,6 +269,22 @@ query {
   }
 }
 ```
+- `missing`
+```graphql
+query {
+  observation(
+    status: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
 
 ### SearchString
 - `value`
@@ -311,6 +327,22 @@ query {
         notEquals: {
             value: "testing"
         }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `missing`
+```graphql
+query {
+  person(
+    name: {
+        missing: true
     }
   ) {
     entry {
@@ -374,6 +406,22 @@ query {
   }
 }
 ```
+- `missing`
+```graphql
+query {
+  procedure(
+    encounter: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
 
 ### SearchDate/SearchDateTime
 - `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
@@ -414,6 +462,22 @@ query {
             }
         }
     }
+}
+```
+- `missing`
+```graphql
+query {
+  immunization(
+    date: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
 }
 ```
 

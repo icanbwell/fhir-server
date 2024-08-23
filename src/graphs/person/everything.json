@@ -587,7 +587,7 @@
       "target": [
         {
           "type": "SubscriptionTopic",
-          "params": "extension=https://icanbwell.com/codes/client_person_id|{id}"
+          "params": "identifier=https://icanbwell.com/codes/client_person_id|{id}"
         }
       ]
     }
