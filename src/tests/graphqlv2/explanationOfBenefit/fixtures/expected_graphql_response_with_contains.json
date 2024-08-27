@@ -293,7 +293,7 @@
       "meta": {
         "tag": [
           {
-             "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':{'$regex':'unknown'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.Organization_4_0_0.find({'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'}, {}).sort({'_uuid':1}).limit(1000)]",
+            "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':{'$regex':'unknown','$options':'i'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.Organization_4_0_0.find({'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'}, {}).sort({'_uuid':1}).limit(1000)]",
             "system": "https://www.icanbwell.com/query"
           },
           {

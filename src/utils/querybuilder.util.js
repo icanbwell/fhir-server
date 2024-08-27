@@ -20,10 +20,6 @@ const stringQueryBuilder = function ({ target }) {
         return {};
     }
     let t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
-    if (t2.startsWith('contains:')) {
-        t2 = t2.substring(9);
-        return { $regex: new RegExp(escapeRegExp(t2), 'i') };
-    }
     return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
 
