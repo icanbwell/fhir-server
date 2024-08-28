@@ -20,6 +20,9 @@ function convertGraphQLParameters (queryParameterValue) {
                     const notEqualsObject = queryParameterValue.notEquals;
                     notQueryParameterValue = notEqualsObject.value || notEqualsObject.values;
                     queryParameterValue = [];
+                } else if (queryParameterValue.contains) {
+                    orQueryParameterValue = queryParameterValue.contains;
+                    modifiers.push('contains');
                 } else {
                     // handle SearchString
                     if (queryParameterValue.value || queryParameterValue.values) {
