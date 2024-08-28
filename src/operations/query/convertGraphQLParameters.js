@@ -23,6 +23,9 @@ function convertGraphQLParameters (queryParameterValue) {
                 } else if (queryParameterValue.contains) {
                     orQueryParameterValue = queryParameterValue.contains;
                     modifiers.push('contains');
+                } else if (queryParameterValue.exact) {
+                    orQueryParameterValue = queryParameterValue.exact;
+                    modifiers.push('exact');
                 } else {
                     // handle SearchString
                     if (queryParameterValue.value || queryParameterValue.values) {

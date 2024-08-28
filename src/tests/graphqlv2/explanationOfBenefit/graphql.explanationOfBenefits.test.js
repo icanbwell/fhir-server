@@ -2,6 +2,7 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const expectedGraphQLResponse = require('./fixtures/expected_graphql_response.json');
 const expectedGraphQLWithExplainResponse = require('./fixtures/expected_graphql_response_with_explain.json');
 const expectedGraphQLWithContainsResponse = require('./fixtures/expected_graphql_response_with_contains.json');
+const expectedGraphQLWithExactResponse = require('./fixtures/expected_graphql_response_with_exact.json');
 
 const patientBundleResource = require('./fixtures/patients.json');
 const organizationBundleResource = require('./fixtures/organizations.json');
@@ -22,6 +23,11 @@ const explanationOfBenefitWithExplainQuery = fs.readFileSync(
 
 const explanationOfBenefitWithContainsQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_contains.graphql'),
+    'utf8'
+);
+
+const explanationOfBenefitWithExactQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_exact.graphql'),
     'utf8'
 );
 
@@ -232,6 +238,66 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQLWithContainsResponse);
+        });
+
+        test('GraphQL ExplanationOfBenefit with exact', async () => {
+            const request = await createTestRequest();
+            const graphqlQueryText = explanationOfBenefitWithExactQuery.replace(/\\n/g, '');
+            let resp = await request
+                .get('/4_0_0/ExplanationOfBenefit')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Organization/1/$merge')
+                .send(organizationBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Coverage/1/$merge')
+                .send(coverageBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/1/$merge')
+                .send(explanationOfBenefitBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
+                // .get('/$graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQLWithExactResponse);
         });
     });
 });
