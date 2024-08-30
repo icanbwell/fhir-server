@@ -34,7 +34,15 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const {
+    GRIDFS: { RETRIEVE },
+    OPERATIONS: { READ },
+    SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
+    PATIENT_REFERENCE_PREFIX,
+    PERSON_REFERENCE_PREFIX,
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM
+} = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
@@ -684,20 +692,28 @@ class GraphHelper {
                     // for handling case for subscription resources where instead of
                     // reference we only have id of person/patient resource in extension/identifier
                     if (
-                        (references.length == 0) &&
-                        ['identifier', 'extension'].includes(fieldForSearchParameter)
+                        references.length == 0 &&
+                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(fieldForSearchParameter)
                     ) {
-                        let key = 'url';
-                        let value = 'valueString';
-                        if (fieldForSearchParameter === 'identifier') {
-                            key = 'system';
-                            value = 'value';
-                        }
                         properties.flat().map((r) => {
-                            if (r[key] === 'https://icanbwell.com/codes/client_person_id') {
-                                references.push('Person/' + r[value]);
-                            } else if (r[key] === 'https://icanbwell.com/codes/source_patient_id') {
-                                references.push('Patient/' + r[value]);
+                            if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                            ) {
+                                references.push(
+                                    PERSON_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            } else if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
+                            ) {
+                                references.push(
+                                    PATIENT_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
                             }
                         });
                     }

@@ -32,9 +32,42 @@
         "id": "person1",
         "resourceType": "Person"
       }
+    },
+    {
+      "id": "subscription1",
+      "request":  {
+        "method": "DELETE",
+        "url": "/4_0_0/Subscription/subscription1"
+      },
+      "resource":  {
+        "id": "subscription1",
+        "resourceType": "Subscription"
+      }
+    },
+    {
+      "id": "subscriptionStatus1",
+      "request":  {
+        "method": "DELETE",
+        "url": "/4_0_0/SubscriptionStatus/subscriptionStatus1"
+      },
+      "resource":  {
+        "id": "subscriptionStatus1",
+        "resourceType": "SubscriptionStatus"
+      }
+    },
+    {
+      "id": "subscriptionTopic1",
+      "request":  {
+        "method": "DELETE",
+        "url": "/4_0_0/SubscriptionTopic/subscriptionTopic1"
+      },
+      "resource":  {
+        "id": "subscriptionTopic1",
+        "resourceType": "SubscriptionTopic"
+      }
     }
   ],
   "resourceType": "Bundle",
-  "total": 3,
+  "total": 6,
   "type": "batch-response"
 }
