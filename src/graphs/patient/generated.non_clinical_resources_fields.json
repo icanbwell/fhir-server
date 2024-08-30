@@ -629,8 +629,7 @@
   ],
   "SubscriptionStatus": [
     "notificationEvent.focus.reference",
-    "notificationEvent.additionalContext.reference",
-    "subscription.reference"
+    "notificationEvent.additionalContext.reference"
   ],
   "Substance": [
     "ingredient.substanceReference.reference"

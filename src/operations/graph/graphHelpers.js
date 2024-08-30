@@ -677,9 +677,31 @@ class GraphHelper {
                     /**
                      * @type {string[]}
                      */
-                    const references = properties
+                    let references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
+
+                    // for handling case for subscription resources where instead of
+                    // reference we only have id of person/patient resource in extension/identifier
+                    if (
+                        (references.length == 0) &&
+                        ['identifier', 'extension'].includes(fieldForSearchParameter)
+                    ) {
+                        let key = 'url';
+                        let value = 'valueString';
+                        if (fieldForSearchParameter === 'identifier') {
+                            key = 'system';
+                            value = 'value';
+                        }
+                        properties.flat().map((r) => {
+                            if (r[key] === 'https://icanbwell.com/codes/client_person_id') {
+                                references.push('Person/' + r[value]);
+                            } else if (r[key] === 'https://icanbwell.com/codes/source_patient_id') {
+                                references.push('Patient/' + r[value]);
+                            }
+                        });
+                    }
+
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
@@ -1283,7 +1305,7 @@ class GraphHelper {
 
             for (const resource of resourceList) {
                 let resourceNonClinicalDataFields = nonClinicalDataFields[resource.resourceType];
-                for (const path of resourceNonClinicalDataFields) {
+                for (const path of resourceNonClinicalDataFields ?? []) {
                     let references = NestedPropertyReader.getNestedProperty({
                         obj: resource,
                         path: path

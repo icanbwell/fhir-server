@@ -3,7 +3,7 @@
     {
       "resource": {
         "resourceType": "SubscriptionTopic",
-        "id": "subscriptionTopic1",
+        "id": "subscriptionTopic2",
         "meta": {
           "id": "90d8a9a1-ce43-4b2d-9c6a-84d1c5fe1c36",
           "versionId": "3",
@@ -33,12 +33,12 @@
           {
             "id": "c608fab680d4b6b0e45ccdc3049b109dc3bba852bf2502511243784c9ac5e1ff",
             "system": "https://icanbwell.com/codes/client_person_id",
-            "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
           },
           {
             "id": "aea01aa309cb938242b47c911ba047196c5b197446301e44ebe219f82a22bed6",
             "system": "https://icanbwell.com/codes/source_patient_id",
-            "value": "24a5930e-11b4-5525-b482-669174917044"
+            "value": "1234"
           },
           {
             "id": "db27b29dd0097ea9afce165fadd12189d9635d216517f0e7d02dc243ffe6aae3",

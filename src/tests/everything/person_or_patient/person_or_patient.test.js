@@ -49,7 +49,7 @@ describe('Person and Patient $everything Tests', () => {
     });
 
     describe('Person and Patient $everything Tests', () => {
-        test.only('Person and Patient $everything works', async () => {
+        test('Person and Patient $everything works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
