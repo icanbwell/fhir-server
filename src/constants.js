@@ -211,5 +211,20 @@ module.exports = {
         DELETE: 'DELETE'
     },
     EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000, // 24hrs
-    DISABLED_COLLECTIONS: ['Parameters_4_0_0']
+    DISABLED_COLLECTIONS: ['Parameters_4_0_0'],
+    SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
+        patient: 'https://icanbwell.com/codes/source_patient_id',
+        person: 'https://icanbwell.com/codes/client_person_id'
+    },
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP: {
+        extension: {
+            key: 'url',
+            value: 'valueString'
+        },
+        identifier: {
+            key: 'system',
+            value: 'value'
+        }
+    }
 };

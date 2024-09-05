@@ -15,6 +15,16 @@ const unlinkedAccountResource = require('./fixtures/Account/unlinked_account.jso
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
+const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
+const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
+
+const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
+const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
+
+const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
+const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
+
+
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
 const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
@@ -113,6 +123,48 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
             // ACT & ASSERT
             // First get patient everything
             resp = await request
@@ -121,7 +173,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp.body.meta).toBeDefined();
             expect(resp.body.meta.tag).toBeDefined();
             const query = resp.body.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query')[0].display;
-            expect(query.split('|').length).toEqual(71);
+            expect(query.split('|').length).toEqual(74);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);

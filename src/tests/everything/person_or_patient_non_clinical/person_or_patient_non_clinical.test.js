@@ -19,6 +19,15 @@ const practitionerResource = require('./fixtures/Practitioner/practitioner.json'
 const organizationResource1 = require('./fixtures/Organization/organization1.json');
 const organizationResource2 = require('./fixtures/Organization/organization2.json');
 
+const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
+const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
+
+const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
+const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
+
+const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
+const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
+
 // expected
 const expectedPersonResourcesWithNonClinicalDepth1 = require('./fixtures/expected/expected_Person_with_non_clinical_depth_1.json');
 const expectedPersonResourcesWithNonClinicalDepth2 = require('./fixtures/expected/expected_Person_with_non_clinical_depth_2.json');
@@ -150,6 +159,48 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request
             .post('/4_0_0/Condition/1/$merge?validate=true')
             .send(conditionResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+            .send(subscription1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+            .send(subscription2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+            .send(subscriptionStatus1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+            .send(subscriptionStatus2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+            .send(subscriptionTopic1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+            .send(subscriptionTopic2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });

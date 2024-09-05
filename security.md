@@ -324,3 +324,8 @@ The path to the patient reference is specified for each resource type. Access wi
 #### 6.2 Resources without patient data
 
 For resources that are not associated with a Patient, access will be granted or denied based on the user and access scopes.
+
+#### 6.3 Subscription related resources in case of Patient scope
+
+The subscription-related resources — Subscription, SubscriptionStatus, and SubscriptionTopic — have custom logic with patient scope. Since these resources do not have a direct patient reference, we manually linked them to the patient using extension and identifier fields.
+For Subscription & SubscriptionStatus resources we match field `url` with value `https://icanbwell.com/codes/client_person_id` along with `valueString` field containing id of person(from JWT token) in `extension`. Whereas in case of SubscriptionTopic we match `system` with value `https://icanbwell.com/codes/client_person_id` along with `value` field containing id of person(from JWT token) in `identifier`.

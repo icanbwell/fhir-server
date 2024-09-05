@@ -34,7 +34,15 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const {
+    GRIDFS: { RETRIEVE },
+    OPERATIONS: { READ },
+    SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
+    PATIENT_REFERENCE_PREFIX,
+    PERSON_REFERENCE_PREFIX,
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM
+} = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
@@ -531,19 +539,30 @@ class GraphHelper {
              * @type {import('./entityAndContainedBase').EntityAndContainedBase}
              */
             const uniqueParentEntities = Array.from(new Set(parentEntities));
-            // create comma separated list of ids
+            // create comma separated list of references and ids
             /**
              * @type {string[]}
              */
             let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
+            /**
+             * @type {string[]}
+             */
+            let parentResourceIdList = uniqueParentEntities
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => p.entityUuid);
 
             if (this.configManager.supportLegacyIds && supportLegacyId) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
                     uniqueParentEntities
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
                         .map(p => `${p.resource.resourceType}/${p.entityId}`)
+                );
+                parentResourceIdList = parentResourceIdList.concat(
+                    uniqueParentEntities
+                        .filter(p => p.entityId !== undefined && p.entityId !== null)
+                        .map(p => p.entityId)
                 );
             }
 
@@ -553,7 +572,8 @@ class GraphHelper {
             /**
              * @type {string}
              */
-            const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
             /**
              * @type {ParsedArgs}
              */
@@ -665,9 +685,39 @@ class GraphHelper {
                     /**
                      * @type {string[]}
                      */
-                    const references = properties
+                    let references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
+
+                    // for handling case for subscription resources where instead of
+                    // reference we only have id of person/patient resource in extension/identifier
+                    if (
+                        references.length == 0 &&
+                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(fieldForSearchParameter)
+                    ) {
+                        properties.flat().map((r) => {
+                            if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                            ) {
+                                references.push(
+                                    PERSON_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            } else if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
+                            ) {
+                                references.push(
+                                    PATIENT_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            }
+                        });
+                    }
+
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
@@ -917,7 +967,7 @@ class GraphHelper {
                         const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
                             includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
                             item: c,
-containedEntries: []
+                            containedEntries: []
                         }));
                         childEntries = childEntries.concat(childEntriesForCurrentEntity);
                         parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
@@ -1271,7 +1321,7 @@ containedEntries: []
 
             for (const resource of resourceList) {
                 let resourceNonClinicalDataFields = nonClinicalDataFields[resource.resourceType];
-                for (const path of resourceNonClinicalDataFields) {
+                for (const path of resourceNonClinicalDataFields ?? []) {
                     let references = NestedPropertyReader.getNestedProperty({
                         obj: resource,
                         path: path

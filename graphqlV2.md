@@ -398,6 +398,22 @@ query {
   }
 }
 ```
+- `missing`
+```graphql
+query {
+  observation(
+    status: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
 
 ### SearchString
 - `value`
@@ -440,6 +456,22 @@ query {
         notEquals: {
             value: "testing"
         }
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `missing`
+```graphql
+query {
+  person(
+    name: {
+        missing: true
     }
   ) {
     entry {
@@ -503,6 +535,22 @@ query {
   }
 }
 ```
+- `missing`
+```graphql
+query {
+  procedure(
+    encounter: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
 
 ### SearchDate/SearchDateTime
 - `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
@@ -543,6 +591,22 @@ query {
             }
         }
     }
+}
+```
+- `missing`
+```graphql
+query {
+  immunization(
+    date: {
+        missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
 }
 ```
 
@@ -596,6 +660,22 @@ query {
                 url: "https://www.icanbwell.com",
                 valueString: "test"
             }
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `missing`
+```graphql
+query {
+    condition(
+        extension: {
+            missing: true
         }
     ) {
         entry {
@@ -699,7 +779,7 @@ query OnObservation {
 }
 ```
 
-## Upcoming support for missing search parameter types, modifiers and prefixes
+## Upcoming support for modifiers and prefixes
 
 -   Support for querying on fields of Number type, like probability in riskAssessment.
 
@@ -756,22 +836,6 @@ Eg- Query to get conditions where text portion of a CodeableConcept or the displ
 ```graphql
 query getCondition {
     condition(code: { text: "headache" }) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-
--   Fix 'missing' modifier which is not working in graphqlv1
-
-Eg- Query to get observations where specimen field is missing
-
-```graphql
-query getObservation {
-    observation(specimen: { missing: true }) {
         entry {
             resource {
                 id

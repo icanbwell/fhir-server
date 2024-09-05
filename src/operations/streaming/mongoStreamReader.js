@@ -5,7 +5,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../common/sentry');
-const { SearchManager } = require('../search/searchManager');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
