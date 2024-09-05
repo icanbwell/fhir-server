@@ -11,7 +11,6 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
-const { BwellPersonFinder } = require('./bwellPersonFinder');
 const { KafkaClient } = require('./kafkaClient');
 const { BasePostSaveHandler } = require('./basePostSaveHandler');
 const { RethrownError } = require('./rethrownError');
@@ -29,9 +28,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
      * @property {ResourceManager} resourceManager
-     * @property {string} patientChangeTopic
      * @property {string} fhirResourceChangeTopic
-     * @property {BwellPersonFinder} bwellPersonFinder
      * @property {ConfigManager} configManager
      *
      * @param {Params}
@@ -39,9 +36,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
     constructor ({
         kafkaClient,
         resourceManager,
-        patientChangeTopic,
         fhirResourceChangeTopic,
-        bwellPersonFinder,
         configManager
     }) {
         super();
@@ -58,40 +53,18 @@ class ChangeEventProducer extends BasePostSaveHandler {
         /**
          * @type {string}
          */
-        this.patientChangeTopic = patientChangeTopic;
-        assertIsValid(patientChangeTopic);
-        /**
-         * @type {string}
-         */
         this.fhirResourceChangeTopic = fhirResourceChangeTopic;
         assertIsValid(fhirResourceChangeTopic);
-        /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
         /**
          * @type {ConfigManager}
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-        /**
-         * @type {Map}
-         */
-        this.patientMessageMap = new Map();
 
         /**
          * @type {Map}
          */
         this.fhirResourceMessageMap = new Map();
-    }
-
-    /**
-     * This map stores an entry per message id
-     * @return {Map<string, Object>} id, resource
-     */
-    getPatientMessageMap () {
-        return this.patientMessageMap;
     }
 
     /**
@@ -174,62 +147,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
     }
 
     /**
-     * Fire event for patient create
-     * @param {string} requestId
-     * @param {string} patientId
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onPatientCreateAsync ({ requestId, patientId, timestamp, sourceType }) {
-        const isCreate = true;
-
-        const resourceType = 'Patient';
-        const messageJson = this._createMessage({
-            requestId,
-            id: patientId,
-            timestamp,
-            isCreate,
-            resourceType,
-            eventName: 'Patient Create',
-            sourceType
-        });
-        const key = `${patientId}`;
-        this.getPatientMessageMap().set(key, messageJson);
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} patientId
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onPatientChangeAsync ({ requestId, patientId, timestamp, sourceType }) {
-        const isCreate = false;
-
-        const resourceType = 'Patient';
-        const messageJson = this._createMessage({
-            requestId,
-            id: patientId,
-            timestamp,
-            isCreate,
-            resourceType,
-            eventName: 'Patient Change',
-            sourceType
-        });
-
-        const key = `${patientId}`;
-        const patientMessageMap = this.getPatientMessageMap();
-        const existingMessageEntry = patientMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            patientMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
      * Fire event for fhir resource create
      * @param {string} requestId
      * @param {string} id
@@ -305,10 +222,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 sourceType = doc.extension.find(x => x.url === 'https://www.icanbwell.com/sourceType').valueString;
             }
 
-            /**
-             * @type {string|null}
-             */
-            const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
             await logTraceSystemEventAsync(
                 {
                     event: 'fireEventsAsync' + `_${resourceType}`,
@@ -317,47 +230,10 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         resourceType,
                         requestId,
                         eventType,
-                        doc,
-                        patientId
+                        doc
                     }
                 }
             );
-            if (patientId) {
-                if (eventType === 'C' && resourceType === 'Patient') {
-                    await this.onPatientCreateAsync(
-                        {
-                            requestId, patientId, timestamp: currentDate, sourceType
-                        });
-                } else {
-                    await this.onPatientChangeAsync({
-                            requestId, patientId, timestamp: currentDate, sourceType
-                        }
-                    );
-
-                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId });
-                    if (personId) {
-                        const proxyPatientId = `person.${personId}`;
-                        await this.onPatientChangeAsync({
-                                requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
-                            }
-                        );
-                    }
-                }
-            }
-            if (resourceType === 'Person' && this.bwellPersonFinder.isBwellPerson(doc)) {
-                const proxyPatientId = `person.${doc.id}`;
-                if (eventType === 'C') {
-                    await this.onPatientCreateAsync({
-                            requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
-                        }
-                    );
-                } else {
-                    await this.onPatientChangeAsync({
-                            requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
-                        }
-                    );
-                }
-            }
             if (this.configManager.kafkaEnabledResources.includes(resourceType)) {
                 if (eventType === 'C') {
                     await this.onResourceCreateAsync({
@@ -370,7 +246,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 }
             }
             if (
-                this.getPatientMessageMap().size >= this.configManager.postRequestBatchSize ||
                 this.getFhirResourceMessageMap().size >= this.configManager.postRequestBatchSize
             ) {
                 await this.flushAsync();
@@ -391,21 +266,19 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @return {Promise<void>}
      */
     async flushAsync () {
-        const patientMessageMap = this.getPatientMessageMap();
         const fhirResourceMessageMap = this.getFhirResourceMessageMap();
         if (!env.ENABLE_EVENTS_KAFKA) {
-            patientMessageMap.clear();
             fhirResourceMessageMap.clear();
             return;
         }
-        if (patientMessageMap.size === 0 && fhirResourceMessageMap.size === 0) {
+        if (fhirResourceMessageMap.size === 0) {
             return;
         }
 
         // find unique events
         const fhirVersion = 'R4';
         await mutex.runExclusive(async () => {
-                const numberOfMessagesBefore = patientMessageMap.size + fhirResourceMessageMap.size;
+                const numberOfMessagesBefore = fhirResourceMessageMap.size;
 
                 const createKafkaClientMessageFn = ([id, /** @type {Object} */ messageJson]) => {
                     return {
@@ -416,18 +289,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     };
                 };
                 try {
-                    // --- Process Patient events ---
-                    /**
-                     * @type {KafkaClientMessage[]}
-                     */
-                    const patientMessages = Array.from(
-                        patientMessageMap.entries(), createKafkaClientMessageFn
-                    );
-
-                    await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
-
-                    patientMessageMap.clear();
-
                     // --- Process other resources events ---
                     /**
                      * @type {KafkaClientMessage[]}
@@ -447,8 +308,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                                 message: 'Finished',
                                 args: {
                                     numberOfMessagesBefore,
-                                    numberOfMessagesAfter: patientMessageMap.size + fhirResourceMessageMap.size,
-                                    patientTopic: this.patientChangeTopic,
+                                    numberOfMessagesAfter: fhirResourceMessageMap.size,
                                     resourceTopic: this.fhirResourceChangeTopic
                                 }
                             }

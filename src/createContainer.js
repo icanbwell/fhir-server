@@ -206,9 +206,7 @@ const createContainer = function () {
         {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
-            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-            bwellPersonFinder: c.bwellPersonFinder,
             configManager: c.configManager
         }
     ));

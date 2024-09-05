@@ -72,7 +72,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:6.0.13
+    image: mongo:7.0.12
     ports:
       - '27017:27017'
     environment:
@@ -125,13 +125,13 @@ services:
         ]
 
 #  kafkaUI:
-  #    image: obsidiandynamics/kafdrop:4.0.1
+  #    image: provectuslabs/kafka-ui
   #    ports:
-  #      - '9000:9000'
+  #      - '9000:8080'
   #    environment:
-  #      - KAFKA_BROKERCONNECT=kafka:9092
+  #      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
   #      - 'JVM_OPTS=-Xms32M -Xmx64M'
-  #      - SERVER_SERVLET_CONTEXTPATH=/
+  #      - SERVER_SERVLET_CONTEXT_PATH=/
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1
