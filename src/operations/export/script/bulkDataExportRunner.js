@@ -19,7 +19,12 @@ const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType')
 const { isUuid } = require('../../../utils/uid.util');
 const { logInfo, logError, logDebug } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { COLLECTION, GRIDFS } = require('../../../constants');
+const {
+    COLLECTION,
+    GRIDFS,
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP
+} = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
@@ -235,7 +240,8 @@ class BulkDataExportRunner {
                 const requestedResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
-                    allowedResources: Object.keys(this.patientFilterManager.patientFilterMapping)
+                    allowedResources:
+                        this.patientFilterManager.getAllPatientOrPersonRelatedResources()
                 });
 
                 if (pathname.startsWith('/4_0_0/Patient/$export')) {
@@ -462,6 +468,29 @@ class BulkDataExportRunner {
                             }
                         }
                     ]
+                };
+            } else if (resourceType.startsWith("Subscription")) {
+                let patientSubscriptionFilter = {
+                    Subscription: 'extension',
+                    SubscriptionStatus: 'extension',
+                    SubscriptionTopic: 'identifier'
+                };
+
+                let patientIds = patientReferences.map(r => ReferenceParser.parseReference(r).id);
+
+                andQuery = {
+                    [patientSubscriptionFilter[resourceType]]: {
+                        $elemMatch: {
+                            [SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[
+                                patientSubscriptionFilter[resourceType]
+                            ]['key']]: SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient,
+                            [SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[
+                                patientSubscriptionFilter[resourceType]
+                            ]['value']]: {
+                                $in: patientIds
+                            }
+                        }
+                    }
                 };
             } else {
                 const patientField = this.patientFilterManager.getPatientPropertyForResource({
