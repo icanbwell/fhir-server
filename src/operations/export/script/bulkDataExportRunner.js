@@ -240,9 +240,8 @@ class BulkDataExportRunner {
                 const requestedResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
-                    allowedResources: Object.keys(
-                        this.patientFilterManager.patientFilterMapping
-                    ).concat(Object.keys(this.patientFilterManager.personFilterWithQueryMapping))
+                    allowedResources:
+                        this.patientFilterManager.getAllPatientOrPersonRelatedResources()
                 });
 
                 if (pathname.startsWith('/4_0_0/Patient/$export')) {
