@@ -16,4 +16,6 @@ input SearchToken {
     values: [SearchTokenValue]
     missing: Boolean
     notEquals: NotSearchTokenValue
+    text: String
+    ofType: SearchTokenValue
 }

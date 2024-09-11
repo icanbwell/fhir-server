@@ -1,0 +1,25 @@
+query {
+    condition(
+        _debug: true
+        _security: {
+            notEquals: {
+                values: [
+                    { code: "mps-api1", system: "https://www.icanbwell.com/owner" }
+                    { code: "mps-api2", system: "https://www.icanbwell.com/owner" }
+                ]
+            }
+        }
+    ) {
+        entry {
+            resource {
+                id
+                meta {
+                    security {
+                        system
+                        code
+                    }
+                }
+            }
+        }
+    }
+}
