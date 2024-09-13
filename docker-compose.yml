@@ -100,7 +100,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: bitnami/kafka:3.6.1
+    image: bitnami/kafka:3.5.1
     ports:
       - '9092:9092'
     environment:
@@ -124,14 +124,14 @@ services:
           '--list',
         ]
 
-#  kafkaUI:
-  #    image: provectuslabs/kafka-ui
-  #    ports:
-  #      - '9000:8080'
-  #    environment:
-  #      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-  #      - 'JVM_OPTS=-Xms32M -Xmx64M'
-  #      - SERVER_SERVLET_CONTEXT_PATH=/
+  # kafkaUI:
+  #   image: provectuslabs/kafka-ui
+  #   ports:
+  #     - '9000:8080'
+  #   environment:
+  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+  #     - 'JVM_OPTS=-Xms32M -Xmx64M'
+  #     - SERVER_SERVLET_CONTEXT_PATH=/
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1
