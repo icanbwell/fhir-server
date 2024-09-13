@@ -69,7 +69,7 @@ services:
       - ./yarn.lock:/srv/src/yarn.lock
     command: yarn run dev
     healthcheck:
-      test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
+      test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
     image: mongo:7.0.12
