@@ -1,0 +1,27 @@
+query {
+    condition(
+        _debug: true
+        identifier: {
+            ofType: {
+                system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+                code: "PRN"
+                value: "4657"
+            }
+        }
+    ) {
+        entry {
+            resource {
+                id
+                identifier {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    value
+                }
+            }
+        }
+    }
+}

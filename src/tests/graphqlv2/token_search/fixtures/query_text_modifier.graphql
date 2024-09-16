@@ -1,0 +1,17 @@
+query {
+    condition(_debug: true, code: { text: "text query" }) {
+        entry {
+            resource {
+                id
+                code {
+                    coding {
+                        system
+                        code
+                        display
+                    }
+                    text
+                }
+            }
+        }
+    }
+}
