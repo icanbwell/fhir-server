@@ -414,6 +414,50 @@ query {
   }
 }
 ```
+- `text`
+Eg- Query to get conditions where text portion of a CodeableConcept or the display portion contains text 'headache'
+```graphql
+query getCondition {
+    condition(code: { text: "headache" }) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `ofType`
+Can only be used with identifier and require system, code and value to be defined.
+```graphql
+query {
+    condition(
+        identifier: {
+            ofType: {
+                system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+                code: "PRN"
+                value: "4657"
+            }
+        }
+    ) {
+        entry {
+            resource {
+                id
+                identifier {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    value
+                }
+            }
+        }
+    }
+}
+```
+
 
 ### SearchString
 - `value`
@@ -472,6 +516,38 @@ query {
   person(
     name: {
         missing: true
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `contains`
+```graphql
+query {
+  person(
+    name: {
+        contains: "test"
+    }
+  ) {
+    entry {
+      resource {
+        id
+      }
+    }
+  }
+}
+```
+- `exact`
+```graphql
+query {
+  person(
+    name: {
+        exact: "test"
     }
   ) {
     entry {
@@ -687,6 +763,113 @@ query {
 }
 ```
 
+### SearchNumber
+- `value` [Also supports `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo` and `approximately`]
+```graphql
+query getriskAssessment {
+    riskAssessment(
+        probability: { 
+            # Below filter does an AND operation of all items in "value"
+            value: { 
+                lessThan: 100,
+                greaterThan: 80
+            }
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `values` [List format of `value`]
+```graphql
+query getriskAssessment {
+    riskAssessment(
+        probability: { 
+            # Below filters does an OR operation of all items in "values"
+            values: [
+                { lessThan: 100 }
+                { greaterThan: 50 }
+            ]
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+- `missing`
+```graphql
+query {
+    riskAssessment(
+        probability: { 
+            missing: true
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+### SearchQuantity
+- `prefix`, `value`, `system` and `code`
+<br>
+Values of prefix can be following:
+  * ne: notEquals
+  * gt: greaterThan
+  * ge: greaterThanOrEqualTo
+  * lt: lessThan
+  * le: lessThanOrEqualTo
+  * ap: approximately
+
+```graphql
+query getObservation {
+    observation(
+      value_quantity: { 
+        value: "5.4", 
+        prefix: "lt",
+        system: "http://unitsofmeasure.org",
+        code: "g"
+      }
+    ) {
+        entry {
+            resource {
+                id
+              	valueQuantity{
+                  value
+                  system
+                  code
+                }
+            }
+        }
+    }
+}
+```
+- `missing`
+```graphql
+query {
+    observation(
+        value_quantity: {
+            missing: true
+        }
+    ) {
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
 ## Upgrading from graphqlv1 to graphqlv2
 
 ### API endpoint update
@@ -770,72 +953,6 @@ Eg- Query to fetch observation with id '001'
 ```graphql
 query OnObservation {
     observation(id: { value: "001" }) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-
-## Upcoming support for modifiers and prefixes
-
--   Support for querying on fields of Number type, like probability in riskAssessment.
-
-Eg- Query to get riskAssessment whose probability is greater than 100
-
-```graphql
-query getriskAssessment {
-    riskAssessment(probability: { value: { greaterThan: 100 } }) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-
--   Support for querying on fields of Quantity type, like value_quantity in observation.
-
-Eg- Query to get Observations where value of observation is less than 5.4
-
-```graphql
-query getObservation {
-    observation(value_quantity: { value: 5.4, prefix: "lt" }) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-
--   Support for modifiers in String search parameters: exact and contains
-
-Eg- Query to get Accounts where name contains 'abc'
-
-```graphql
-query getAccount {
-    account(name: { contains: "abc" }) {
-        entry {
-            resource {
-                id
-            }
-        }
-    }
-}
-```
-
--   Support for modifiers in Token search parameters: text, in, not-in, of-type, above & below
-
-Eg- Query to get conditions where text portion of a CodeableConcept or the display portion contains text 'headache'
-
-```graphql
-query getCondition {
-    condition(code: { text: "headache" }) {
         entry {
             resource {
                 id
