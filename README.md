@@ -39,6 +39,10 @@ For example:
 
 [GraphQL](graphql.md)
 
+## GraphQLV2 Support
+
+[GraphQLV2](graphqlV2.md)
+
 ## Merge functionality
 
 [Merge](merge.md)
