@@ -13,7 +13,7 @@ This functionality can be enabled by setting the following environment variables
 Note that KAFKA_URLS can be a comma separated list.
 
 Use the mentioned environment variable to enable kafka events for more Fhir resources: ```KAFKA_ENABLED_RESOURCES```
-[NOTE: Default value is: "Consent,ExportStatus"]
+[NOTE: Default value is: "Consent"]
 
 ## Format of change events
 

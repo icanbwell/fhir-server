@@ -74,3 +74,47 @@ Suppose a client wants to export data of all the patients modified after 2023-10
 3. Now, Client can access the exported data by using the urls present in the response body.
 
 ##### Note: To access exported data Client must have access(AWS credential) to S3.
+
+## Kafka Event
+
+FHIR server can send events to a Kafka queue whenever for updates of bulk export.
+
+### Using change events
+
+This functionality can be enabled by setting the environment variable: ```ENABLE_EXPORT_EVENTS_KAFKA: "1"```
+
+Topic name can be changed using the below environment variable: ```KAFKA_EXPORT_EVENT_TOPIC```
+<br>
+Note: Default values for above variable is set to: ```fhir.bulk_export.events```
+
+### Header of event
+
+Two fields are set in the event:
+
+1. b3 (Unique tracking number of the FHIR request that generated this event)
+2. version (version of FHIR event used: R4)
+
+### Content of event
+
+```json
+{
+    "data": {
+        "error": [],
+        "exportJobId": "302d2283-dac7-4861-a8c7-68d2e56eef69",
+        "output": [
+            {
+                "type": "Patient",
+                "url": "s3://test/exports/bwell/302d2283-dac7-4861-a8c7-68d2e56eef69/Patient.ndjson"
+            }
+        ],
+        "request": "http://localhost:3000/4_0_0/$export?_type=Patient",
+        "status": "completed",
+        "transactionTime": "2024-09-19T08:14:21.762Z"
+    },
+    "datacontenttype": "application/json",
+    "id": "598fabc7-8548-428b-8701-753f9dfaf021",
+    "source": "https://www.icanbwell.com/fhir-server",
+    "specversion": "1.0",
+    "type": "ExportCompleted"
+}
+```
