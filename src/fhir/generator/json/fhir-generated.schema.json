@@ -4520,7 +4520,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BackboneElement": {
       "additionalProperties": false,
@@ -4541,7 +4542,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Narrative": {
       "additionalProperties": false,
@@ -4565,7 +4567,8 @@
       "required": [
         "status",
         "div"
-      ]
+      ],
+      "type": "object"
     },
     "Element": {
       "additionalProperties": false,
@@ -4580,7 +4583,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Meta": {
       "additionalProperties": false,
@@ -4622,7 +4626,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Address": {
       "additionalProperties": false,
@@ -4670,7 +4675,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Contributor": {
       "additionalProperties": false,
@@ -4700,7 +4706,8 @@
       "required": [
         "type",
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "Attachment": {
       "additionalProperties": false,
@@ -4739,7 +4746,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Count": {
       "additionalProperties": false,
@@ -4760,7 +4768,8 @@
           "$ref": "#/definitions/code"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DataRequirement": {
       "additionalProperties": false,
@@ -4819,7 +4828,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DataRequirementCodeFilter": {
       "additionalProperties": false,
@@ -4849,7 +4859,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DataRequirementDateFilter": {
       "additionalProperties": false,
@@ -4879,7 +4890,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DataRequirementSort": {
       "additionalProperties": false,
@@ -4903,7 +4915,8 @@
       "required": [
         "path",
         "direction"
-      ]
+      ],
+      "type": "object"
     },
     "Dosage": {
       "additionalProperties": false,
@@ -4972,7 +4985,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DosageDoseAndRate": {
       "additionalProperties": false,
@@ -5011,7 +5025,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Money": {
       "additionalProperties": false,
@@ -5032,7 +5047,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "HumanName": {
       "additionalProperties": false,
@@ -5077,7 +5093,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContactPoint": {
       "additionalProperties": false,
@@ -5107,7 +5124,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MarketingStatus": {
       "additionalProperties": false,
@@ -5145,7 +5163,8 @@
       },
       "required": [
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "Identifier": {
       "additionalProperties": false,
@@ -5178,7 +5197,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "RatioRange": {
       "additionalProperties": false,
@@ -5202,7 +5222,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Coding": {
       "additionalProperties": false,
@@ -5232,7 +5253,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SampledData": {
       "additionalProperties": false,
@@ -5272,7 +5294,8 @@
         "origin",
         "period",
         "dimensions"
-      ]
+      ],
+      "type": "object"
     },
     "Population": {
       "additionalProperties": false,
@@ -5308,7 +5331,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Ratio": {
       "additionalProperties": false,
@@ -5329,7 +5353,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ElementDefinition": {
       "additionalProperties": false,
@@ -5976,7 +6001,8 @@
       },
       "required": [
         "path"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionConstraint": {
       "additionalProperties": false,
@@ -6022,7 +6048,8 @@
         "key",
         "severity",
         "human"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionMapping": {
       "additionalProperties": false,
@@ -6058,7 +6085,8 @@
       "required": [
         "identity",
         "map"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionBase": {
       "additionalProperties": false,
@@ -6092,7 +6120,8 @@
         "path",
         "min",
         "max"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionType": {
       "additionalProperties": false,
@@ -6139,7 +6168,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionExample": {
       "additionalProperties": false,
@@ -6318,7 +6348,8 @@
       },
       "required": [
         "label"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionSlicing": {
       "additionalProperties": false,
@@ -6356,7 +6387,8 @@
       },
       "required": [
         "rules"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionBinding": {
       "additionalProperties": false,
@@ -6388,7 +6420,8 @@
       },
       "required": [
         "strength"
-      ]
+      ],
+      "type": "object"
     },
     "ElementDefinitionDiscriminator": {
       "additionalProperties": false,
@@ -6418,7 +6451,8 @@
       "required": [
         "type",
         "path"
-      ]
+      ],
+      "type": "object"
     },
     "Distance": {
       "additionalProperties": false,
@@ -6439,7 +6473,8 @@
           "$ref": "#/definitions/code"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Age": {
       "additionalProperties": false,
@@ -6460,7 +6495,8 @@
           "$ref": "#/definitions/code"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Reference": {
       "additionalProperties": false,
@@ -6487,7 +6523,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TriggerDefinition": {
       "additionalProperties": false,
@@ -6531,7 +6568,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Quantity": {
       "additionalProperties": false,
@@ -6561,7 +6599,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Period": {
       "additionalProperties": false,
@@ -6582,7 +6621,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Duration": {
       "additionalProperties": false,
@@ -6612,7 +6652,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Range": {
       "additionalProperties": false,
@@ -6633,7 +6674,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "RelatedArtifact": {
       "additionalProperties": false,
@@ -6671,7 +6713,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Annotation": {
       "additionalProperties": false,
@@ -6700,7 +6743,8 @@
       },
       "required": [
         "text"
-      ]
+      ],
+      "type": "object"
     },
     "ProductShelfLife": {
       "additionalProperties": false,
@@ -6739,7 +6783,8 @@
       "required": [
         "type",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "ContactDetail": {
       "additionalProperties": false,
@@ -6763,7 +6808,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "UsageContext": {
       "additionalProperties": false,
@@ -6795,7 +6841,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Expression": {
       "additionalProperties": false,
@@ -6827,7 +6874,8 @@
       },
       "required": [
         "language"
-      ]
+      ],
+      "type": "object"
     },
     "CodeableReference": {
       "additionalProperties": false,
@@ -6848,7 +6896,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Signature": {
       "additionalProperties": false,
@@ -6857,7 +6906,8 @@
           "items": {
             "$ref": "#/definitions/Coding"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "when": {
           "$ref": "#/definitions/instant"
@@ -6891,7 +6941,8 @@
         "type",
         "when",
         "who"
-      ]
+      ],
+      "type": "object"
     },
     "Timing": {
       "additionalProperties": false,
@@ -6924,7 +6975,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TimingRepeat": {
       "additionalProperties": false,
@@ -7005,7 +7057,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ProdCharacteristic": {
       "additionalProperties": false,
@@ -7068,7 +7121,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CodeableConcept": {
       "additionalProperties": false,
@@ -7092,7 +7146,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ParameterDefinition": {
       "additionalProperties": false,
@@ -7131,7 +7186,8 @@
       "required": [
         "use",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DomainResource": {
       "additionalProperties": false,
@@ -7170,7 +7226,8 @@
           "$ref": "#/definitions/code"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Resource": {
       "additionalProperties": false,
@@ -7188,7 +7245,8 @@
           "$ref": "#/definitions/code"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Account": {
       "additionalProperties": false,
@@ -7278,7 +7336,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "AccountCoverage": {
       "additionalProperties": false,
@@ -7307,7 +7366,8 @@
       },
       "required": [
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "AccountGuarantor": {
       "additionalProperties": false,
@@ -7339,7 +7399,8 @@
       },
       "required": [
         "party"
-      ]
+      ],
+      "type": "object"
     },
     "ActivityDefinition": {
       "additionalProperties": false,
@@ -7600,7 +7661,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ActivityDefinitionParticipant": {
       "additionalProperties": false,
@@ -7629,7 +7691,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "ActivityDefinitionDynamicValue": {
       "additionalProperties": false,
@@ -7659,7 +7722,8 @@
       "required": [
         "path",
         "expression"
-      ]
+      ],
+      "type": "object"
     },
     "AdministrableProductDefinition": {
       "additionalProperties": false,
@@ -7713,7 +7777,8 @@
           "items": {
             "$ref": "#/definitions/AdministrableProductDefinitionRouteOfAdministration"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -7753,7 +7818,8 @@
         "resourceType",
         "status",
         "routeOfAdministration"
-      ]
+      ],
+      "type": "object"
     },
     "AdministrableProductDefinitionProperty": {
       "additionalProperties": false,
@@ -7797,7 +7863,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "AdministrableProductDefinitionRouteOfAdministration": {
       "additionalProperties": false,
@@ -7844,7 +7911,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "AdministrableProductDefinitionTargetSpecies": {
       "additionalProperties": false,
@@ -7876,7 +7944,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "AdministrableProductDefinitionWithdrawalPeriod": {
       "additionalProperties": false,
@@ -7909,7 +7978,8 @@
       "required": [
         "tissue",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "AdverseEvent": {
       "additionalProperties": false,
@@ -8036,7 +8106,8 @@
         "resourceType",
         "actuality",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "AdverseEventSuspectEntity": {
       "additionalProperties": false,
@@ -8068,7 +8139,8 @@
       },
       "required": [
         "instance"
-      ]
+      ],
+      "type": "object"
     },
     "AdverseEventCausality": {
       "additionalProperties": false,
@@ -8101,7 +8173,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "AllergyIntolerance": {
       "additionalProperties": false,
@@ -8218,7 +8291,8 @@
       "required": [
         "resourceType",
         "patient"
-      ]
+      ],
+      "type": "object"
     },
     "AllergyIntoleranceReaction": {
       "additionalProperties": false,
@@ -8230,7 +8304,8 @@
           "items": {
             "$ref": "#/definitions/CodeableConcept"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "description": {
           "$ref": "#/definitions/string"
@@ -8268,7 +8343,8 @@
       },
       "required": [
         "manifestation"
-      ]
+      ],
+      "type": "object"
     },
     "Appointment": {
       "additionalProperties": false,
@@ -8367,7 +8443,8 @@
           "items": {
             "$ref": "#/definitions/AppointmentParticipant"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "requestedPeriod": {
           "items": {
@@ -8413,7 +8490,8 @@
         "resourceType",
         "status",
         "participant"
-      ]
+      ],
+      "type": "object"
     },
     "AppointmentParticipant": {
       "additionalProperties": false,
@@ -8454,7 +8532,8 @@
       },
       "required": [
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "AppointmentResponse": {
       "additionalProperties": false,
@@ -8530,7 +8609,8 @@
         "resourceType",
         "appointment",
         "participantStatus"
-      ]
+      ],
+      "type": "object"
     },
     "AuditEvent": {
       "additionalProperties": false,
@@ -8572,7 +8652,8 @@
           "items": {
             "$ref": "#/definitions/AuditEventAgent"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "source": {
           "$ref": "#/definitions/AuditEventSource"
@@ -8623,7 +8704,8 @@
         "recorded",
         "agent",
         "source"
-      ]
+      ],
+      "type": "object"
     },
     "AuditEventAgent": {
       "additionalProperties": false,
@@ -8688,7 +8770,8 @@
       },
       "required": [
         "requestor"
-      ]
+      ],
+      "type": "object"
     },
     "AuditEventNetwork": {
       "additionalProperties": false,
@@ -8715,7 +8798,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "AuditEventSource": {
       "additionalProperties": false,
@@ -8750,7 +8834,8 @@
       },
       "required": [
         "observer"
-      ]
+      ],
+      "type": "object"
     },
     "AuditEventEntity": {
       "additionalProperties": false,
@@ -8804,7 +8889,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "AuditEventDetail": {
       "additionalProperties": false,
@@ -8836,7 +8922,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Basic": {
       "additionalProperties": false,
@@ -8899,7 +8986,8 @@
       "required": [
         "resourceType",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Binary": {
       "additionalProperties": false,
@@ -8932,7 +9020,8 @@
       "required": [
         "resourceType",
         "contentType"
-      ]
+      ],
+      "type": "object"
     },
     "BiologicallyDerivedProduct": {
       "additionalProperties": false,
@@ -9024,7 +9113,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "BiologicallyDerivedProductCollection": {
       "additionalProperties": false,
@@ -9057,7 +9147,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BiologicallyDerivedProductProcessing": {
       "additionalProperties": false,
@@ -9093,7 +9184,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BiologicallyDerivedProductManipulation": {
       "additionalProperties": false,
@@ -9123,7 +9215,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BiologicallyDerivedProductStorage": {
       "additionalProperties": false,
@@ -9156,7 +9249,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BodyStructure": {
       "additionalProperties": false,
@@ -9234,7 +9328,8 @@
       "required": [
         "resourceType",
         "patient"
-      ]
+      ],
+      "type": "object"
     },
     "Bundle": {
       "additionalProperties": false,
@@ -9285,7 +9380,8 @@
       "required": [
         "resourceType",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "BundleLink": {
       "additionalProperties": false,
@@ -9315,7 +9411,8 @@
       "required": [
         "relation",
         "url"
-      ]
+      ],
+      "type": "object"
     },
     "BundleEntry": {
       "additionalProperties": false,
@@ -9357,7 +9454,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BundleSearch": {
       "additionalProperties": false,
@@ -9384,7 +9482,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "BundleRequest": {
       "additionalProperties": false,
@@ -9426,7 +9525,8 @@
       "required": [
         "method",
         "url"
-      ]
+      ],
+      "type": "object"
     },
     "BundleResponse": {
       "additionalProperties": false,
@@ -9464,7 +9564,8 @@
       },
       "required": [
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatement": {
       "additionalProperties": false,
@@ -9551,7 +9652,8 @@
           "items": {
             "$ref": "#/definitions/code"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "patchFormat": {
           "items": {
@@ -9624,7 +9726,8 @@
         "kind",
         "fhirVersion",
         "format"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementSoftware": {
       "additionalProperties": false,
@@ -9656,7 +9759,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementImplementation": {
       "additionalProperties": false,
@@ -9688,7 +9792,8 @@
       },
       "required": [
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementRest": {
       "additionalProperties": false,
@@ -9750,7 +9855,8 @@
       },
       "required": [
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementSecurity": {
       "additionalProperties": false,
@@ -9783,7 +9889,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CapabilityStatementResource": {
       "additionalProperties": false,
@@ -9878,7 +9985,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementInteraction": {
       "additionalProperties": false,
@@ -9907,7 +10015,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementSearchParam": {
       "additionalProperties": false,
@@ -9943,7 +10052,8 @@
       "required": [
         "name",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementOperation": {
       "additionalProperties": false,
@@ -9976,7 +10086,8 @@
       "required": [
         "name",
         "definition"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementInteraction1": {
       "additionalProperties": false,
@@ -10005,7 +10116,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementMessaging": {
       "additionalProperties": false,
@@ -10044,7 +10156,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CapabilityStatementEndpoint": {
       "additionalProperties": false,
@@ -10074,7 +10187,8 @@
       "required": [
         "protocol",
         "address"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementSupportedMessage": {
       "additionalProperties": false,
@@ -10104,7 +10218,8 @@
       "required": [
         "mode",
         "definition"
-      ]
+      ],
+      "type": "object"
     },
     "CapabilityStatementDocument": {
       "additionalProperties": false,
@@ -10137,7 +10252,8 @@
       "required": [
         "mode",
         "profile"
-      ]
+      ],
+      "type": "object"
     },
     "CarePlan": {
       "additionalProperties": false,
@@ -10295,7 +10411,8 @@
         "status",
         "intent",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "CarePlanActivity": {
       "additionalProperties": false,
@@ -10340,7 +10457,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CarePlanDetail": {
       "additionalProperties": false,
@@ -10441,7 +10559,8 @@
       },
       "required": [
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "CareTeam": {
       "additionalProperties": false,
@@ -10548,7 +10667,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "CareTeamParticipant": {
       "additionalProperties": false,
@@ -10584,7 +10704,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CatalogEntry": {
       "additionalProperties": false,
@@ -10687,7 +10808,8 @@
         "resourceType",
         "orderable",
         "referencedItem"
-      ]
+      ],
+      "type": "object"
     },
     "CatalogEntryRelatedEntry": {
       "additionalProperties": false,
@@ -10717,7 +10839,8 @@
       "required": [
         "relationtype",
         "item"
-      ]
+      ],
+      "type": "object"
     },
     "ChargeItem": {
       "additionalProperties": false,
@@ -10884,7 +11007,8 @@
         "status",
         "code",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "ChargeItemPerformer": {
       "additionalProperties": false,
@@ -10913,7 +11037,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "ChargeItemDefinition": {
       "additionalProperties": false,
@@ -11058,7 +11183,8 @@
         "resourceType",
         "url",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ChargeItemDefinitionApplicability": {
       "additionalProperties": false,
@@ -11088,7 +11214,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ChargeItemDefinitionPropertyGroup": {
       "additionalProperties": false,
@@ -11121,7 +11248,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ChargeItemDefinitionPriceComponent": {
       "additionalProperties": false,
@@ -11156,7 +11284,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Citation": {
       "additionalProperties": false,
@@ -11330,7 +11459,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "CitationSummary": {
       "additionalProperties": false,
@@ -11359,7 +11489,8 @@
       },
       "required": [
         "text"
-      ]
+      ],
+      "type": "object"
     },
     "CitationClassification": {
       "additionalProperties": false,
@@ -11389,7 +11520,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationStatusDate": {
       "additionalProperties": false,
@@ -11422,7 +11554,8 @@
       "required": [
         "activity",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "CitationRelatesTo": {
       "additionalProperties": false,
@@ -11466,7 +11599,8 @@
       },
       "required": [
         "relationshipType"
-      ]
+      ],
+      "type": "object"
     },
     "CitationCitedArtifact": {
       "additionalProperties": false,
@@ -11565,7 +11699,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationVersion": {
       "additionalProperties": false,
@@ -11594,7 +11729,8 @@
       },
       "required": [
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "CitationStatusDate1": {
       "additionalProperties": false,
@@ -11627,7 +11763,8 @@
       "required": [
         "activity",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "CitationTitle": {
       "additionalProperties": false,
@@ -11662,7 +11799,8 @@
       },
       "required": [
         "text"
-      ]
+      ],
+      "type": "object"
     },
     "CitationAbstract": {
       "additionalProperties": false,
@@ -11697,7 +11835,8 @@
       },
       "required": [
         "text"
-      ]
+      ],
+      "type": "object"
     },
     "CitationPart": {
       "additionalProperties": false,
@@ -11727,7 +11866,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationRelatesTo1": {
       "additionalProperties": false,
@@ -11771,7 +11911,8 @@
       },
       "required": [
         "relationshipType"
-      ]
+      ],
+      "type": "object"
     },
     "CitationPublicationForm": {
       "additionalProperties": false,
@@ -11828,7 +11969,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationPublishedIn": {
       "additionalProperties": false,
@@ -11867,7 +12009,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationPeriodicRelease": {
       "additionalProperties": false,
@@ -11900,7 +12043,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationDateOfPublication": {
       "additionalProperties": false,
@@ -11939,7 +12083,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationWebLocation": {
       "additionalProperties": false,
@@ -11966,7 +12111,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationClassification1": {
       "additionalProperties": false,
@@ -11999,7 +12145,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationWhoClassified": {
       "additionalProperties": false,
@@ -12035,7 +12182,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationContributorship": {
       "additionalProperties": false,
@@ -12071,7 +12219,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationEntry": {
       "additionalProperties": false,
@@ -12146,7 +12295,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationAffiliationInfo": {
       "additionalProperties": false,
@@ -12179,7 +12329,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CitationContributionInstance": {
       "additionalProperties": false,
@@ -12208,7 +12359,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CitationSummary1": {
       "additionalProperties": false,
@@ -12243,7 +12395,8 @@
       },
       "required": [
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "Claim": {
       "additionalProperties": false,
@@ -12342,7 +12495,8 @@
           "items": {
             "$ref": "#/definitions/ClaimInsurance"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "accident": {
           "$ref": "#/definitions/ClaimAccident"
@@ -12400,7 +12554,8 @@
         "provider",
         "priority",
         "insurance"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimRelated": {
       "additionalProperties": false,
@@ -12430,7 +12585,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClaimPayee": {
       "additionalProperties": false,
@@ -12459,7 +12615,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimCareTeam": {
       "additionalProperties": false,
@@ -12498,7 +12655,8 @@
       "required": [
         "sequence",
         "provider"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimSupportingInfo": {
       "additionalProperties": false,
@@ -12555,7 +12713,8 @@
       "required": [
         "sequence",
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimDiagnosis": {
       "additionalProperties": false,
@@ -12599,7 +12758,8 @@
       },
       "required": [
         "sequence"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimProcedure": {
       "additionalProperties": false,
@@ -12646,7 +12806,8 @@
       },
       "required": [
         "sequence"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimInsurance": {
       "additionalProperties": false,
@@ -12695,7 +12856,8 @@
         "sequence",
         "focal",
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimAccident": {
       "additionalProperties": false,
@@ -12730,7 +12892,8 @@
       },
       "required": [
         "date"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimItem": {
       "additionalProperties": false,
@@ -12856,7 +13019,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimDetail": {
       "additionalProperties": false,
@@ -12928,7 +13092,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimSubDetail": {
       "additionalProperties": false,
@@ -12994,7 +13159,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponse": {
       "additionalProperties": false,
@@ -13153,7 +13319,8 @@
         "created",
         "insurer",
         "outcome"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseItem": {
       "additionalProperties": false,
@@ -13171,7 +13338,8 @@
           "items": {
             "$ref": "#/definitions/ClaimResponseAdjudication"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "detail": {
           "items": {
@@ -13198,7 +13366,8 @@
       "required": [
         "itemSequence",
         "adjudication"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseAdjudication": {
       "additionalProperties": false,
@@ -13233,7 +13402,8 @@
       },
       "required": [
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseDetail": {
       "additionalProperties": false,
@@ -13251,7 +13421,8 @@
           "items": {
             "$ref": "#/definitions/ClaimResponseAdjudication"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "subDetail": {
           "items": {
@@ -13278,7 +13449,8 @@
       "required": [
         "detailSequence",
         "adjudication"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseSubDetail": {
       "additionalProperties": false,
@@ -13316,7 +13488,8 @@
       },
       "required": [
         "subDetailSequence"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseAddItem": {
       "additionalProperties": false,
@@ -13406,7 +13579,8 @@
           "items": {
             "$ref": "#/definitions/ClaimResponseAdjudication"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "detail": {
           "items": {
@@ -13433,7 +13607,8 @@
       "required": [
         "productOrService",
         "adjudication"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseDetail1": {
       "additionalProperties": false,
@@ -13469,7 +13644,8 @@
           "items": {
             "$ref": "#/definitions/ClaimResponseAdjudication"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "subDetail": {
           "items": {
@@ -13496,7 +13672,8 @@
       "required": [
         "productOrService",
         "adjudication"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseSubDetail1": {
       "additionalProperties": false,
@@ -13532,7 +13709,8 @@
           "items": {
             "$ref": "#/definitions/ClaimResponseAdjudication"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -13553,7 +13731,8 @@
       "required": [
         "productOrService",
         "adjudication"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseTotal": {
       "additionalProperties": false,
@@ -13583,7 +13762,8 @@
       "required": [
         "category",
         "amount"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponsePayment": {
       "additionalProperties": false,
@@ -13625,7 +13805,8 @@
       "required": [
         "type",
         "amount"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseProcessNote": {
       "additionalProperties": false,
@@ -13660,7 +13841,8 @@
       },
       "required": [
         "text"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseInsurance": {
       "additionalProperties": false,
@@ -13700,7 +13882,8 @@
         "sequence",
         "focal",
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "ClaimResponseError": {
       "additionalProperties": false,
@@ -13735,7 +13918,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ClinicalImpression": {
       "additionalProperties": false,
@@ -13871,7 +14055,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "ClinicalImpressionInvestigation": {
       "additionalProperties": false,
@@ -13903,7 +14088,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ClinicalImpressionFinding": {
       "additionalProperties": false,
@@ -13933,7 +14119,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinition": {
       "additionalProperties": false,
@@ -14023,7 +14210,8 @@
       "required": [
         "resourceType",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "ClinicalUseDefinitionContraindication": {
       "additionalProperties": false,
@@ -14068,7 +14256,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinitionOtherTherapy": {
       "additionalProperties": false,
@@ -14098,7 +14287,8 @@
       "required": [
         "relationshipType",
         "therapy"
-      ]
+      ],
+      "type": "object"
     },
     "ClinicalUseDefinitionIndication": {
       "additionalProperties": false,
@@ -14152,7 +14342,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinitionInteraction": {
       "additionalProperties": false,
@@ -14194,7 +14385,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinitionInteractant": {
       "additionalProperties": false,
@@ -14221,7 +14413,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinitionUndesirableEffect": {
       "additionalProperties": false,
@@ -14251,7 +14444,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ClinicalUseDefinitionWarning": {
       "additionalProperties": false,
@@ -14278,7 +14472,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CodeSystem": {
       "additionalProperties": false,
@@ -14423,7 +14618,8 @@
         "resourceType",
         "status",
         "content"
-      ]
+      ],
+      "type": "object"
     },
     "CodeSystemFilter": {
       "additionalProperties": false,
@@ -14438,7 +14634,8 @@
           "items": {
             "$ref": "#/definitions/FilterOperator"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "value": {
           "$ref": "#/definitions/string"
@@ -14463,7 +14660,8 @@
         "code",
         "operator",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "CodeSystemProperty": {
       "additionalProperties": false,
@@ -14499,7 +14697,8 @@
       "required": [
         "code",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CodeSystemConcept": {
       "additionalProperties": false,
@@ -14549,7 +14748,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "CodeSystemDesignation": {
       "additionalProperties": false,
@@ -14581,7 +14781,8 @@
       },
       "required": [
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "CodeSystemProperty1": {
       "additionalProperties": false,
@@ -14628,7 +14829,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Communication": {
       "additionalProperties": false,
@@ -14784,7 +14986,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "CommunicationPayload": {
       "additionalProperties": false,
@@ -14814,7 +15017,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CommunicationRequest": {
       "additionalProperties": false,
@@ -14961,7 +15165,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "CommunicationRequestPayload": {
       "additionalProperties": false,
@@ -14991,7 +15196,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CompartmentDefinition": {
       "additionalProperties": false,
@@ -15091,7 +15297,8 @@
         "status",
         "code",
         "search"
-      ]
+      ],
+      "type": "object"
     },
     "CompartmentDefinitionResource": {
       "additionalProperties": false,
@@ -15126,7 +15333,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Composition": {
       "additionalProperties": false,
@@ -15162,7 +15370,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "title": {
           "$ref": "#/definitions/string"
@@ -15238,7 +15447,8 @@
         "date",
         "author",
         "title"
-      ]
+      ],
+      "type": "object"
     },
     "CompositionAttester": {
       "additionalProperties": false,
@@ -15270,7 +15480,8 @@
       },
       "required": [
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "CompositionRelatesTo": {
       "additionalProperties": false,
@@ -15302,7 +15513,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "CompositionEvent": {
       "additionalProperties": false,
@@ -15338,7 +15550,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CompositionSection": {
       "additionalProperties": false,
@@ -15398,7 +15611,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ConceptMap": {
       "additionalProperties": false,
@@ -15515,7 +15729,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ConceptMapGroup": {
       "additionalProperties": false,
@@ -15536,7 +15751,8 @@
           "items": {
             "$ref": "#/definitions/ConceptMapElement"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "unmapped": {
           "$ref": "#/definitions/ConceptMapUnmapped"
@@ -15559,7 +15775,8 @@
       },
       "required": [
         "element"
-      ]
+      ],
+      "type": "object"
     },
     "ConceptMapElement": {
       "additionalProperties": false,
@@ -15592,7 +15809,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ConceptMapTarget": {
       "additionalProperties": false,
@@ -15639,7 +15857,8 @@
       },
       "required": [
         "equivalence"
-      ]
+      ],
+      "type": "object"
     },
     "ConceptMapDependsOn": {
       "additionalProperties": false,
@@ -15675,7 +15894,8 @@
       "required": [
         "property",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "ConceptMapUnmapped": {
       "additionalProperties": false,
@@ -15710,7 +15930,8 @@
       },
       "required": [
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "Condition": {
       "additionalProperties": false,
@@ -15848,7 +16069,8 @@
       "required": [
         "resourceType",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "ConditionStage": {
       "additionalProperties": false,
@@ -15881,7 +16103,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ConditionEvidence": {
       "additionalProperties": false,
@@ -15914,7 +16137,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Consent": {
       "additionalProperties": false,
@@ -15938,7 +16162,8 @@
           "items": {
             "$ref": "#/definitions/CodeableConcept"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "patient": {
           "$ref": "#/definitions/Reference"
@@ -16021,7 +16246,8 @@
         "status",
         "scope",
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ConsentPolicy": {
       "additionalProperties": false,
@@ -16048,7 +16274,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ConsentVerification": {
       "additionalProperties": false,
@@ -16080,7 +16307,8 @@
       },
       "required": [
         "verified"
-      ]
+      ],
+      "type": "object"
     },
     "ConsentProvision": {
       "additionalProperties": false,
@@ -16158,7 +16386,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ConsentActor": {
       "additionalProperties": false,
@@ -16188,7 +16417,8 @@
       "required": [
         "role",
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "ConsentData": {
       "additionalProperties": false,
@@ -16218,7 +16448,8 @@
       "required": [
         "meaning",
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "Contract": {
       "additionalProperties": false,
@@ -16409,7 +16640,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "ContractContentDefinition": {
       "additionalProperties": false,
@@ -16451,7 +16683,8 @@
       "required": [
         "type",
         "publicationStatus"
-      ]
+      ],
+      "type": "object"
     },
     "ContractTerm": {
       "additionalProperties": false,
@@ -16525,7 +16758,8 @@
       },
       "required": [
         "offer"
-      ]
+      ],
+      "type": "object"
     },
     "ContractSecurityLabel": {
       "additionalProperties": false,
@@ -16569,7 +16803,8 @@
       },
       "required": [
         "classification"
-      ]
+      ],
+      "type": "object"
     },
     "ContractOffer": {
       "additionalProperties": false,
@@ -16638,7 +16873,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractParty": {
       "additionalProperties": false,
@@ -16647,7 +16883,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "role": {
           "$ref": "#/definitions/CodeableConcept"
@@ -16671,7 +16908,8 @@
       "required": [
         "reference",
         "role"
-      ]
+      ],
+      "type": "object"
     },
     "ContractAnswer": {
       "additionalProperties": false,
@@ -16728,7 +16966,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractAsset": {
       "additionalProperties": false,
@@ -16827,7 +17066,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractContext": {
       "additionalProperties": false,
@@ -16860,7 +17100,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractValuedItem": {
       "additionalProperties": false,
@@ -16932,7 +17173,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractAction": {
       "additionalProperties": false,
@@ -17065,7 +17307,8 @@
         "type",
         "intent",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ContractSubject": {
       "additionalProperties": false,
@@ -17074,7 +17317,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "role": {
           "$ref": "#/definitions/CodeableConcept"
@@ -17097,7 +17341,8 @@
       },
       "required": [
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "ContractSigner": {
       "additionalProperties": false,
@@ -17112,7 +17357,8 @@
           "items": {
             "$ref": "#/definitions/Signature"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -17134,7 +17380,8 @@
         "type",
         "party",
         "signature"
-      ]
+      ],
+      "type": "object"
     },
     "ContractFriendly": {
       "additionalProperties": false,
@@ -17161,7 +17408,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractLegal": {
       "additionalProperties": false,
@@ -17188,7 +17436,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ContractRule": {
       "additionalProperties": false,
@@ -17215,7 +17464,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Coverage": {
       "additionalProperties": false,
@@ -17260,7 +17510,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "class": {
           "items": {
@@ -17328,7 +17579,8 @@
         "status",
         "beneficiary",
         "payor"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageClass": {
       "additionalProperties": false,
@@ -17361,7 +17613,8 @@
       "required": [
         "type",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageCostToBeneficiary": {
       "additionalProperties": false,
@@ -17397,7 +17650,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CoverageException": {
       "additionalProperties": false,
@@ -17426,7 +17680,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityRequest": {
       "additionalProperties": false,
@@ -17450,7 +17705,8 @@
           "items": {
             "$ref": "#/definitions/EligibilityRequestPurpose"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "patient": {
           "$ref": "#/definitions/Reference"
@@ -17535,7 +17791,8 @@
         "patient",
         "created",
         "insurer"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityRequestSupportingInfo": {
       "additionalProperties": false,
@@ -17568,7 +17825,8 @@
       "required": [
         "sequence",
         "information"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityRequestInsurance": {
       "additionalProperties": false,
@@ -17600,7 +17858,8 @@
       },
       "required": [
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityRequestItem": {
       "additionalProperties": false,
@@ -17663,7 +17922,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CoverageEligibilityRequestDiagnosis": {
       "additionalProperties": false,
@@ -17690,7 +17950,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CoverageEligibilityResponse": {
       "additionalProperties": false,
@@ -17711,7 +17972,8 @@
           "items": {
             "$ref": "#/definitions/EligibilityResponsePurpose"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "patient": {
           "$ref": "#/definitions/Reference"
@@ -17801,7 +18063,8 @@
         "request",
         "outcome",
         "insurer"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityResponseInsurance": {
       "additionalProperties": false,
@@ -17839,7 +18102,8 @@
       },
       "required": [
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityResponseItem": {
       "additionalProperties": false,
@@ -17911,7 +18175,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "CoverageEligibilityResponseBenefit": {
       "additionalProperties": false,
@@ -17955,7 +18220,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "CoverageEligibilityResponseError": {
       "additionalProperties": false,
@@ -17981,7 +18247,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "DetectedIssue": {
       "additionalProperties": false,
@@ -18077,7 +18344,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "DetectedIssueEvidence": {
       "additionalProperties": false,
@@ -18110,7 +18378,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DetectedIssueMitigation": {
       "additionalProperties": false,
@@ -18142,7 +18411,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "Device": {
       "additionalProperties": false,
@@ -18294,7 +18564,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceUdiCarrier": {
       "additionalProperties": false,
@@ -18333,7 +18604,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DeviceDeviceName": {
       "additionalProperties": false,
@@ -18363,7 +18635,8 @@
       "required": [
         "name",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceSpecialization": {
       "additionalProperties": false,
@@ -18392,7 +18665,8 @@
       },
       "required": [
         "systemType"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceVersion": {
       "additionalProperties": false,
@@ -18424,7 +18698,8 @@
       },
       "required": [
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceProperty": {
       "additionalProperties": false,
@@ -18462,7 +18737,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinition": {
       "additionalProperties": false,
@@ -18614,7 +18890,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionUdiDeviceIdentifier": {
       "additionalProperties": false,
@@ -18648,7 +18925,8 @@
         "deviceIdentifier",
         "issuer",
         "jurisdiction"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionDeviceName": {
       "additionalProperties": false,
@@ -18678,7 +18956,8 @@
       "required": [
         "name",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionSpecialization": {
       "additionalProperties": false,
@@ -18707,7 +18986,8 @@
       },
       "required": [
         "systemType"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionCapability": {
       "additionalProperties": false,
@@ -18739,7 +19019,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionProperty": {
       "additionalProperties": false,
@@ -18777,7 +19058,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceDefinitionMaterial": {
       "additionalProperties": false,
@@ -18809,7 +19091,8 @@
       },
       "required": [
         "substance"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceMetric": {
       "additionalProperties": false,
@@ -18891,7 +19174,8 @@
         "resourceType",
         "type",
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceMetricCalibration": {
       "additionalProperties": false,
@@ -18921,7 +19205,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DeviceRequest": {
       "additionalProperties": false,
@@ -19084,7 +19369,8 @@
         "resourceType",
         "intent",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "DeviceRequestParameter": {
       "additionalProperties": false,
@@ -19120,7 +19406,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DeviceUseStatement": {
       "additionalProperties": false,
@@ -19230,7 +19517,8 @@
         "status",
         "subject",
         "device"
-      ]
+      ],
+      "type": "object"
     },
     "DiagnosticReport": {
       "additionalProperties": false,
@@ -19366,7 +19654,8 @@
         "resourceType",
         "status",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "DiagnosticReportMedia": {
       "additionalProperties": false,
@@ -19395,7 +19684,8 @@
       },
       "required": [
         "link"
-      ]
+      ],
+      "type": "object"
     },
     "DocumentManifest": {
       "additionalProperties": false,
@@ -19446,7 +19736,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "related": {
           "items": {
@@ -19492,7 +19783,8 @@
         "resourceType",
         "status",
         "content"
-      ]
+      ],
+      "type": "object"
     },
     "DocumentManifestRelated": {
       "additionalProperties": false,
@@ -19519,7 +19811,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "DocumentReference": {
       "additionalProperties": false,
@@ -19588,7 +19881,8 @@
           "items": {
             "$ref": "#/definitions/DocumentReferenceContent"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "context": {
           "$ref": "#/definitions/DocumentReferenceContext"
@@ -19631,7 +19925,8 @@
         "resourceType",
         "status",
         "content"
-      ]
+      ],
+      "type": "object"
     },
     "DocumentReferenceRelatesTo": {
       "additionalProperties": false,
@@ -19661,7 +19956,8 @@
       "required": [
         "code",
         "target"
-      ]
+      ],
+      "type": "object"
     },
     "DocumentReferenceContent": {
       "additionalProperties": false,
@@ -19690,7 +19986,8 @@
       },
       "required": [
         "attachment"
-      ]
+      ],
+      "type": "object"
     },
     "DocumentReferenceContext": {
       "additionalProperties": false,
@@ -19741,7 +20038,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Encounter": {
       "additionalProperties": false,
@@ -19895,7 +20193,8 @@
         "resourceType",
         "status",
         "class"
-      ]
+      ],
+      "type": "object"
     },
     "EncounterStatusHistory": {
       "additionalProperties": false,
@@ -19925,7 +20224,8 @@
       "required": [
         "status",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "EncounterClassHistory": {
       "additionalProperties": false,
@@ -19955,7 +20255,8 @@
       "required": [
         "class",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "EncounterParticipant": {
       "additionalProperties": false,
@@ -19988,7 +20289,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EncounterDiagnosis": {
       "additionalProperties": false,
@@ -20020,7 +20322,8 @@
       },
       "required": [
         "condition"
-      ]
+      ],
+      "type": "object"
     },
     "EncounterHospitalization": {
       "additionalProperties": false,
@@ -20077,7 +20380,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EncounterLocation": {
       "additionalProperties": false,
@@ -20112,7 +20416,8 @@
       },
       "required": [
         "location"
-      ]
+      ],
+      "type": "object"
     },
     "Endpoint": {
       "additionalProperties": false,
@@ -20151,7 +20456,8 @@
           "items": {
             "$ref": "#/definitions/CodeableConcept"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "payloadMimeType": {
           "items": {
@@ -20208,7 +20514,8 @@
         "connectionType",
         "payloadType",
         "address"
-      ]
+      ],
+      "type": "object"
     },
     "EnrollmentRequest": {
       "additionalProperties": false,
@@ -20276,7 +20583,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "EnrollmentResponse": {
       "additionalProperties": false,
@@ -20347,7 +20655,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "EpisodeOfCare": {
       "additionalProperties": false,
@@ -20450,7 +20759,8 @@
         "resourceType",
         "status",
         "patient"
-      ]
+      ],
+      "type": "object"
     },
     "EpisodeOfCareStatusHistory": {
       "additionalProperties": false,
@@ -20480,7 +20790,8 @@
       "required": [
         "status",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "EpisodeOfCareDiagnosis": {
       "additionalProperties": false,
@@ -20512,7 +20823,8 @@
       },
       "required": [
         "condition"
-      ]
+      ],
+      "type": "object"
     },
     "EventDefinition": {
       "additionalProperties": false,
@@ -20638,7 +20950,8 @@
           "items": {
             "$ref": "#/definitions/TriggerDefinition"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -20678,7 +20991,8 @@
         "resourceType",
         "status",
         "trigger"
-      ]
+      ],
+      "type": "object"
     },
     "Evidence": {
       "additionalProperties": false,
@@ -20780,7 +21094,8 @@
           "items": {
             "$ref": "#/definitions/EvidenceVariableDefinition"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "synthesisType": {
           "$ref": "#/definitions/CodeableConcept"
@@ -20838,7 +21153,8 @@
         "resourceType",
         "status",
         "variableDefinition"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceVariableDefinition": {
       "additionalProperties": false,
@@ -20882,7 +21198,8 @@
       },
       "required": [
         "variableRole"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceStatistic": {
       "additionalProperties": false,
@@ -20942,7 +21259,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceSampleSize": {
       "additionalProperties": false,
@@ -20981,7 +21299,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceAttributeEstimate": {
       "additionalProperties": false,
@@ -21029,7 +21348,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceModelCharacteristic": {
       "additionalProperties": false,
@@ -21070,7 +21390,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceVariable": {
       "additionalProperties": false,
@@ -21220,7 +21541,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceCertainty": {
       "additionalProperties": false,
@@ -21265,7 +21587,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceReport": {
       "additionalProperties": false,
@@ -21404,7 +21727,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceReportSubject": {
       "additionalProperties": false,
@@ -21437,7 +21761,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceReportCharacteristic": {
       "additionalProperties": false,
@@ -21484,7 +21809,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceReportRelatesTo": {
       "additionalProperties": false,
@@ -21516,7 +21842,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "EvidenceReportSection": {
       "additionalProperties": false,
@@ -21588,7 +21915,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceVariableCharacteristic": {
       "additionalProperties": false,
@@ -21639,7 +21967,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceVariableTimeFromStart": {
       "additionalProperties": false,
@@ -21675,7 +22004,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "EvidenceVariableCategory": {
       "additionalProperties": false,
@@ -21708,7 +22038,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExampleScenario": {
       "additionalProperties": false,
@@ -21828,7 +22159,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioActor": {
       "additionalProperties": false,
@@ -21864,7 +22196,8 @@
       "required": [
         "actorId",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioInstance": {
       "additionalProperties": false,
@@ -21912,7 +22245,8 @@
       "required": [
         "resourceId",
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioVersion": {
       "additionalProperties": false,
@@ -21942,7 +22276,8 @@
       "required": [
         "versionId",
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioContainedInstance": {
       "additionalProperties": false,
@@ -21971,7 +22306,8 @@
       },
       "required": [
         "resourceId"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioProcess": {
       "additionalProperties": false,
@@ -22012,7 +22348,8 @@
       },
       "required": [
         "title"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioStep": {
       "additionalProperties": false,
@@ -22051,7 +22388,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExampleScenarioOperation": {
       "additionalProperties": false,
@@ -22104,7 +22442,8 @@
       },
       "required": [
         "number"
-      ]
+      ],
+      "type": "object"
     },
     "ExampleScenarioAlternative": {
       "additionalProperties": false,
@@ -22139,7 +22478,8 @@
       },
       "required": [
         "title"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefit": {
       "additionalProperties": false,
@@ -22268,7 +22608,8 @@
           "items": {
             "$ref": "#/definitions/ExplanationOfBenefitInsurance"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "accident": {
           "$ref": "#/definitions/ExplanationOfBenefitAccident"
@@ -22366,7 +22707,8 @@
         "provider",
         "outcome",
         "insurance"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitRelated": {
       "additionalProperties": false,
@@ -22396,7 +22738,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExplanationOfBenefitPayee": {
       "additionalProperties": false,
@@ -22423,7 +22766,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExplanationOfBenefitCareTeam": {
       "additionalProperties": false,
@@ -22462,7 +22806,8 @@
       "required": [
         "sequence",
         "provider"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitSupportingInfo": {
       "additionalProperties": false,
@@ -22519,7 +22864,8 @@
       "required": [
         "sequence",
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitDiagnosis": {
       "additionalProperties": false,
@@ -22563,7 +22909,8 @@
       },
       "required": [
         "sequence"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitProcedure": {
       "additionalProperties": false,
@@ -22610,7 +22957,8 @@
       },
       "required": [
         "sequence"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitInsurance": {
       "additionalProperties": false,
@@ -22646,7 +22994,8 @@
       "required": [
         "focal",
         "coverage"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitAccident": {
       "additionalProperties": false,
@@ -22679,7 +23028,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExplanationOfBenefitItem": {
       "additionalProperties": false,
@@ -22817,7 +23167,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitAdjudication": {
       "additionalProperties": false,
@@ -22852,7 +23203,8 @@
       },
       "required": [
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitDetail": {
       "additionalProperties": false,
@@ -22936,7 +23288,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitSubDetail": {
       "additionalProperties": false,
@@ -23014,7 +23367,8 @@
       "required": [
         "sequence",
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitAddItem": {
       "additionalProperties": false,
@@ -23130,7 +23484,8 @@
       },
       "required": [
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitDetail1": {
       "additionalProperties": false,
@@ -23192,7 +23547,8 @@
       },
       "required": [
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitSubDetail1": {
       "additionalProperties": false,
@@ -23248,7 +23604,8 @@
       },
       "required": [
         "productOrService"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitTotal": {
       "additionalProperties": false,
@@ -23278,7 +23635,8 @@
       "required": [
         "category",
         "amount"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitPayment": {
       "additionalProperties": false,
@@ -23317,7 +23675,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExplanationOfBenefitProcessNote": {
       "additionalProperties": false,
@@ -23350,7 +23709,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ExplanationOfBenefitBenefitBalance": {
       "additionalProperties": false,
@@ -23400,7 +23760,8 @@
       },
       "required": [
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "ExplanationOfBenefitFinancial": {
       "additionalProperties": false,
@@ -23441,7 +23802,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "FamilyMemberHistory": {
       "additionalProperties": false,
@@ -23587,7 +23949,8 @@
         "status",
         "patient",
         "relationship"
-      ]
+      ],
+      "type": "object"
     },
     "FamilyMemberHistoryCondition": {
       "additionalProperties": false,
@@ -23637,7 +24000,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Flag": {
       "additionalProperties": false,
@@ -23714,7 +24078,8 @@
         "status",
         "code",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "Goal": {
       "additionalProperties": false,
@@ -23833,7 +24198,8 @@
         "lifecycleStatus",
         "description",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "GoalTarget": {
       "additionalProperties": false,
@@ -23884,7 +24250,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "GraphDefinition": {
       "additionalProperties": false,
@@ -23988,7 +24355,8 @@
         "name",
         "status",
         "start"
-      ]
+      ],
+      "type": "object"
     },
     "GraphDefinitionLink": {
       "additionalProperties": false,
@@ -24030,7 +24398,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "GraphDefinitionTarget": {
       "additionalProperties": false,
@@ -24072,7 +24441,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "GraphDefinitionCompartment": {
       "additionalProperties": false,
@@ -24112,7 +24482,8 @@
         "use",
         "code",
         "rule"
-      ]
+      ],
+      "type": "object"
     },
     "Group": {
       "additionalProperties": false,
@@ -24197,7 +24568,8 @@
         "resourceType",
         "type",
         "actual"
-      ]
+      ],
+      "type": "object"
     },
     "GroupCharacteristic": {
       "additionalProperties": false,
@@ -24245,7 +24617,8 @@
       "required": [
         "code",
         "exclude"
-      ]
+      ],
+      "type": "object"
     },
     "GroupMember": {
       "additionalProperties": false,
@@ -24277,7 +24650,8 @@
       },
       "required": [
         "entity"
-      ]
+      ],
+      "type": "object"
     },
     "GuidanceResponse": {
       "additionalProperties": false,
@@ -24391,7 +24765,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "HealthcareService": {
       "additionalProperties": false,
@@ -24555,7 +24930,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "HealthcareServiceEligibility": {
       "additionalProperties": false,
@@ -24582,7 +24958,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "HealthcareServiceAvailableTime": {
       "additionalProperties": false,
@@ -24618,7 +24995,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "HealthcareServiceNotAvailable": {
       "additionalProperties": false,
@@ -24647,7 +25025,8 @@
       },
       "required": [
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "ImagingStudy": {
       "additionalProperties": false,
@@ -24783,7 +25162,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "ImagingStudySeries": {
       "additionalProperties": false,
@@ -24855,7 +25235,8 @@
       "required": [
         "uid",
         "modality"
-      ]
+      ],
+      "type": "object"
     },
     "ImagingStudyPerformer": {
       "additionalProperties": false,
@@ -24884,7 +25265,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "ImagingStudyInstance": {
       "additionalProperties": false,
@@ -24920,7 +25302,8 @@
       "required": [
         "uid",
         "sopClass"
-      ]
+      ],
+      "type": "object"
     },
     "Immunization": {
       "additionalProperties": false,
@@ -25084,7 +25467,8 @@
         "status",
         "vaccineCode",
         "patient"
-      ]
+      ],
+      "type": "object"
     },
     "ImmunizationPerformer": {
       "additionalProperties": false,
@@ -25113,7 +25497,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "ImmunizationEducation": {
       "additionalProperties": false,
@@ -25146,7 +25531,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ImmunizationReaction": {
       "additionalProperties": false,
@@ -25176,7 +25562,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ImmunizationProtocolApplied": {
       "additionalProperties": false,
@@ -25221,7 +25608,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ImmunizationEvaluation": {
       "additionalProperties": false,
@@ -25321,7 +25709,8 @@
         "targetDisease",
         "immunizationEvent",
         "doseStatus"
-      ]
+      ],
+      "type": "object"
     },
     "ImmunizationRecommendation": {
       "additionalProperties": false,
@@ -25348,7 +25737,8 @@
           "items": {
             "$ref": "#/definitions/ImmunizationRecommendationRecommendation"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -25389,7 +25779,8 @@
         "patient",
         "date",
         "recommendation"
-      ]
+      ],
+      "type": "object"
     },
     "ImmunizationRecommendationRecommendation": {
       "additionalProperties": false,
@@ -25472,7 +25863,8 @@
       },
       "required": [
         "forecastStatus"
-      ]
+      ],
+      "type": "object"
     },
     "ImmunizationRecommendationDateCriterion": {
       "additionalProperties": false,
@@ -25502,7 +25894,8 @@
       "required": [
         "code",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuide": {
       "additionalProperties": false,
@@ -25568,7 +25961,8 @@
           "items": {
             "$ref": "#/definitions/FHIRVersion"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "dependsOn": {
           "items": {
@@ -25629,7 +26023,8 @@
         "status",
         "packageId",
         "fhirVersion"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideDependsOn": {
       "additionalProperties": false,
@@ -25661,7 +26056,8 @@
       },
       "required": [
         "uri"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideGlobal": {
       "additionalProperties": false,
@@ -25691,7 +26087,8 @@
       "required": [
         "type",
         "profile"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideDefinition": {
       "additionalProperties": false,
@@ -25706,7 +26103,8 @@
           "items": {
             "$ref": "#/definitions/ImplementationGuideResource"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "page": {
           "$ref": "#/definitions/ImplementationGuidePage"
@@ -25741,7 +26139,8 @@
       },
       "required": [
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideGrouping": {
       "additionalProperties": false,
@@ -25770,7 +26169,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideResource": {
       "additionalProperties": false,
@@ -25817,7 +26217,8 @@
       },
       "required": [
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuidePage": {
       "additionalProperties": false,
@@ -25859,7 +26260,8 @@
       "required": [
         "title",
         "generation"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideParameter": {
       "additionalProperties": false,
@@ -25889,7 +26291,8 @@
       "required": [
         "code",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideTemplate": {
       "additionalProperties": false,
@@ -25922,7 +26325,8 @@
       "required": [
         "code",
         "source"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideManifest": {
       "additionalProperties": false,
@@ -25934,7 +26338,8 @@
           "items": {
             "$ref": "#/definitions/ImplementationGuideResource1"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "page": {
           "items": {
@@ -25972,7 +26377,8 @@
       },
       "required": [
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuideResource1": {
       "additionalProperties": false,
@@ -26007,7 +26413,8 @@
       },
       "required": [
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "ImplementationGuidePage1": {
       "additionalProperties": false,
@@ -26042,7 +26449,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "Ingredient": {
       "additionalProperties": false,
@@ -26122,7 +26530,8 @@
         "status",
         "role",
         "substance"
-      ]
+      ],
+      "type": "object"
     },
     "IngredientManufacturer": {
       "additionalProperties": false,
@@ -26151,7 +26560,8 @@
       },
       "required": [
         "manufacturer"
-      ]
+      ],
+      "type": "object"
     },
     "IngredientSubstance": {
       "additionalProperties": false,
@@ -26183,7 +26593,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "IngredientStrength": {
       "additionalProperties": false,
@@ -26237,7 +26648,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "IngredientReferenceStrength": {
       "additionalProperties": false,
@@ -26276,7 +26688,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InsurancePlan": {
       "additionalProperties": false,
@@ -26389,7 +26802,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "InsurancePlanContact": {
       "additionalProperties": false,
@@ -26425,7 +26839,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InsurancePlanCoverage": {
       "additionalProperties": false,
@@ -26443,7 +26858,8 @@
           "items": {
             "$ref": "#/definitions/InsurancePlanBenefit"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -26464,7 +26880,8 @@
       "required": [
         "type",
         "benefit"
-      ]
+      ],
+      "type": "object"
     },
     "InsurancePlanBenefit": {
       "additionalProperties": false,
@@ -26499,7 +26916,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "InsurancePlanLimit": {
       "additionalProperties": false,
@@ -26526,7 +26944,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InsurancePlanPlan": {
       "additionalProperties": false,
@@ -26580,7 +26999,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InsurancePlanGeneralCost": {
       "additionalProperties": false,
@@ -26613,7 +27033,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InsurancePlanSpecificCost": {
       "additionalProperties": false,
@@ -26645,7 +27066,8 @@
       },
       "required": [
         "category"
-      ]
+      ],
+      "type": "object"
     },
     "InsurancePlanBenefit1": {
       "additionalProperties": false,
@@ -26677,7 +27099,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "InsurancePlanCost": {
       "additionalProperties": false,
@@ -26715,7 +27138,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Invoice": {
       "additionalProperties": false,
@@ -26823,7 +27247,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "InvoiceParticipant": {
       "additionalProperties": false,
@@ -26852,7 +27277,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "InvoiceLineItem": {
       "additionalProperties": false,
@@ -26888,7 +27314,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "InvoicePriceComponent": {
       "additionalProperties": false,
@@ -26923,7 +27350,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Library": {
       "additionalProperties": false,
@@ -27104,7 +27532,8 @@
         "resourceType",
         "status",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Linkage": {
       "additionalProperties": false,
@@ -27122,7 +27551,8 @@
           "items": {
             "$ref": "#/definitions/LinkageItem"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -27161,7 +27591,8 @@
       "required": [
         "resourceType",
         "item"
-      ]
+      ],
+      "type": "object"
     },
     "LinkageItem": {
       "additionalProperties": false,
@@ -27191,7 +27622,8 @@
       "required": [
         "type",
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "List": {
       "additionalProperties": false,
@@ -27285,7 +27717,8 @@
         "resourceType",
         "status",
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "ListEntry": {
       "additionalProperties": false,
@@ -27320,7 +27753,8 @@
       },
       "required": [
         "item"
-      ]
+      ],
+      "type": "object"
     },
     "Location": {
       "additionalProperties": false,
@@ -27433,7 +27867,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "LocationPosition": {
       "additionalProperties": false,
@@ -27466,7 +27901,8 @@
       "required": [
         "longitude",
         "latitude"
-      ]
+      ],
+      "type": "object"
     },
     "LocationHoursOfOperation": {
       "additionalProperties": false,
@@ -27502,7 +27938,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ManufacturedItemDefinition": {
       "additionalProperties": false,
@@ -27581,7 +28018,8 @@
         "resourceType",
         "status",
         "manufacturedDoseForm"
-      ]
+      ],
+      "type": "object"
     },
     "ManufacturedItemDefinitionProperty": {
       "additionalProperties": false,
@@ -27622,7 +28060,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "Measure": {
       "additionalProperties": false,
@@ -27838,7 +28277,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureGroup": {
       "additionalProperties": false,
@@ -27877,7 +28317,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasurePopulation": {
       "additionalProperties": false,
@@ -27909,7 +28350,8 @@
       },
       "required": [
         "criteria"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureStratifier": {
       "additionalProperties": false,
@@ -27945,7 +28387,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasureComponent": {
       "additionalProperties": false,
@@ -27977,7 +28420,8 @@
       },
       "required": [
         "criteria"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureSupplementalData": {
       "additionalProperties": false,
@@ -28015,7 +28459,8 @@
       },
       "required": [
         "criteria"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureReport": {
       "additionalProperties": false,
@@ -28105,7 +28550,8 @@
         "type",
         "measure",
         "period"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureReportGroup": {
       "additionalProperties": false,
@@ -28144,7 +28590,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasureReportPopulation": {
       "additionalProperties": false,
@@ -28174,7 +28621,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasureReportStratifier": {
       "additionalProperties": false,
@@ -28207,7 +28655,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasureReportStratum": {
       "additionalProperties": false,
@@ -28246,7 +28695,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MeasureReportComponent": {
       "additionalProperties": false,
@@ -28276,7 +28726,8 @@
       "required": [
         "code",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "MeasureReportPopulation1": {
       "additionalProperties": false,
@@ -28306,7 +28757,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Media": {
       "additionalProperties": false,
@@ -28436,7 +28888,8 @@
         "resourceType",
         "status",
         "content"
-      ]
+      ],
+      "type": "object"
     },
     "Medication": {
       "additionalProperties": false,
@@ -28510,7 +28963,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationIngredient": {
       "additionalProperties": false,
@@ -28543,7 +28997,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationBatch": {
       "additionalProperties": false,
@@ -28570,7 +29025,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationAdministration": {
       "additionalProperties": false,
@@ -28712,7 +29168,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationAdministrationPerformer": {
       "additionalProperties": false,
@@ -28741,7 +29198,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationAdministrationDosage": {
       "additionalProperties": false,
@@ -28783,7 +29241,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationDispense": {
       "additionalProperties": false,
@@ -28936,7 +29395,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationDispensePerformer": {
       "additionalProperties": false,
@@ -28965,7 +29425,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationDispenseSubstitution": {
       "additionalProperties": false,
@@ -29006,7 +29467,8 @@
       },
       "required": [
         "wasSubstituted"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledge": {
       "additionalProperties": false,
@@ -29161,7 +29623,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeRelatedMedicationKnowledge": {
       "additionalProperties": false,
@@ -29173,7 +29636,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -29194,7 +29658,8 @@
       "required": [
         "type",
         "reference"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeMonograph": {
       "additionalProperties": false,
@@ -29221,7 +29686,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeIngredient": {
       "additionalProperties": false,
@@ -29254,7 +29720,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeCost": {
       "additionalProperties": false,
@@ -29287,7 +29754,8 @@
       "required": [
         "type",
         "cost"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeMonitoringProgram": {
       "additionalProperties": false,
@@ -29314,7 +29782,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeAdministrationGuidelines": {
       "additionalProperties": false,
@@ -29353,7 +29822,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeDosage": {
       "additionalProperties": false,
@@ -29365,7 +29835,8 @@
           "items": {
             "$ref": "#/definitions/Dosage"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -29386,7 +29857,8 @@
       "required": [
         "type",
         "dosage"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgePatientCharacteristics": {
       "additionalProperties": false,
@@ -29419,7 +29891,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeMedicineClassification": {
       "additionalProperties": false,
@@ -29451,7 +29924,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgePackaging": {
       "additionalProperties": false,
@@ -29478,7 +29952,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeDrugCharacteristic": {
       "additionalProperties": false,
@@ -29514,7 +29989,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationKnowledgeRegulatory": {
       "additionalProperties": false,
@@ -29555,7 +30031,8 @@
       },
       "required": [
         "regulatoryAuthority"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeSubstitution": {
       "additionalProperties": false,
@@ -29585,7 +30062,8 @@
       "required": [
         "type",
         "allowed"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeSchedule": {
       "additionalProperties": false,
@@ -29611,7 +30089,8 @@
       },
       "required": [
         "schedule"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeMaxDispense": {
       "additionalProperties": false,
@@ -29640,7 +30119,8 @@
       },
       "required": [
         "quantity"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationKnowledgeKinetics": {
       "additionalProperties": false,
@@ -29676,7 +30156,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationRequest": {
       "additionalProperties": false,
@@ -29864,7 +30345,8 @@
         "status",
         "intent",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "MedicationRequestDispenseRequest": {
       "additionalProperties": false,
@@ -29906,7 +30388,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationRequestInitialFill": {
       "additionalProperties": false,
@@ -29933,7 +30416,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationRequestSubstitution": {
       "additionalProperties": false,
@@ -29963,7 +30447,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicationStatement": {
       "additionalProperties": false,
@@ -30093,7 +30578,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinition": {
       "additionalProperties": false,
@@ -30216,7 +30702,8 @@
           "items": {
             "$ref": "#/definitions/MedicinalProductDefinitionName"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "crossReference": {
           "items": {
@@ -30273,7 +30760,8 @@
       "required": [
         "resourceType",
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionContact": {
       "additionalProperties": false,
@@ -30302,7 +30790,8 @@
       },
       "required": [
         "contact"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionName": {
       "additionalProperties": false,
@@ -30343,7 +30832,8 @@
       },
       "required": [
         "productName"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionNamePart": {
       "additionalProperties": false,
@@ -30373,7 +30863,8 @@
       "required": [
         "part",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionCountryLanguage": {
       "additionalProperties": false,
@@ -30406,7 +30897,8 @@
       "required": [
         "country",
         "language"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionCrossReference": {
       "additionalProperties": false,
@@ -30435,7 +30927,8 @@
       },
       "required": [
         "product"
-      ]
+      ],
+      "type": "object"
     },
     "MedicinalProductDefinitionOperation": {
       "additionalProperties": false,
@@ -30471,7 +30964,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MedicinalProductDefinitionCharacteristic": {
       "additionalProperties": false,
@@ -30512,7 +31006,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "MessageDefinition": {
       "additionalProperties": false,
@@ -30660,7 +31155,8 @@
         "resourceType",
         "status",
         "date"
-      ]
+      ],
+      "type": "object"
     },
     "MessageDefinitionFocus": {
       "additionalProperties": false,
@@ -30696,7 +31192,8 @@
       "required": [
         "code",
         "min"
-      ]
+      ],
+      "type": "object"
     },
     "MessageDefinitionAllowedResponse": {
       "additionalProperties": false,
@@ -30725,7 +31222,8 @@
       },
       "required": [
         "message"
-      ]
+      ],
+      "type": "object"
     },
     "MessageHeader": {
       "additionalProperties": false,
@@ -30812,7 +31310,8 @@
       "required": [
         "resourceType",
         "source"
-      ]
+      ],
+      "type": "object"
     },
     "MessageHeaderDestination": {
       "additionalProperties": false,
@@ -30847,7 +31346,8 @@
       },
       "required": [
         "endpoint"
-      ]
+      ],
+      "type": "object"
     },
     "MessageHeaderSource": {
       "additionalProperties": false,
@@ -30885,7 +31385,8 @@
       },
       "required": [
         "endpoint"
-      ]
+      ],
+      "type": "object"
     },
     "MessageHeaderResponse": {
       "additionalProperties": false,
@@ -30918,7 +31419,8 @@
       "required": [
         "identifier",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "MolecularSequence": {
       "additionalProperties": false,
@@ -31029,7 +31531,8 @@
       "required": [
         "resourceType",
         "coordinateSystem"
-      ]
+      ],
+      "type": "object"
     },
     "MolecularSequenceReferenceSeq": {
       "additionalProperties": false,
@@ -31077,7 +31580,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MolecularSequenceVariant": {
       "additionalProperties": false,
@@ -31116,7 +31620,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MolecularSequenceQuality": {
       "additionalProperties": false,
@@ -31184,7 +31689,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "MolecularSequenceRoc": {
       "additionalProperties": false,
@@ -31247,7 +31753,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MolecularSequenceRepository": {
       "additionalProperties": false,
@@ -31288,7 +31795,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "MolecularSequenceStructureVariant": {
       "additionalProperties": false,
@@ -31324,7 +31832,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MolecularSequenceOuter": {
       "additionalProperties": false,
@@ -31351,7 +31860,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "MolecularSequenceInner": {
       "additionalProperties": false,
@@ -31378,7 +31888,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NamingSystem": {
       "additionalProperties": false,
@@ -31435,7 +31946,8 @@
           "items": {
             "$ref": "#/definitions/NamingSystemUniqueId"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -31478,7 +31990,8 @@
         "kind",
         "date",
         "uniqueId"
-      ]
+      ],
+      "type": "object"
     },
     "NamingSystemUniqueId": {
       "additionalProperties": false,
@@ -31517,7 +32030,8 @@
       "required": [
         "type",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "NutritionOrder": {
       "additionalProperties": false,
@@ -31643,7 +32157,8 @@
         "intent",
         "patient",
         "dateTime"
-      ]
+      ],
+      "type": "object"
     },
     "NutritionOrderOralDiet": {
       "additionalProperties": false,
@@ -31697,7 +32212,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionOrderNutrient": {
       "additionalProperties": false,
@@ -31724,7 +32240,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionOrderTexture": {
       "additionalProperties": false,
@@ -31751,7 +32268,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionOrderSupplement": {
       "additionalProperties": false,
@@ -31790,7 +32308,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionOrderEnteralFormula": {
       "additionalProperties": false,
@@ -31841,7 +32360,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionOrderAdministration": {
       "additionalProperties": false,
@@ -31874,7 +32394,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionProduct": {
       "additionalProperties": false,
@@ -31970,7 +32491,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "NutritionProductNutrient": {
       "additionalProperties": false,
@@ -32000,7 +32522,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "NutritionProductIngredient": {
       "additionalProperties": false,
@@ -32032,7 +32555,8 @@
       },
       "required": [
         "item"
-      ]
+      ],
+      "type": "object"
     },
     "NutritionProductProductCharacteristic": {
       "additionalProperties": false,
@@ -32076,7 +32600,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "NutritionProductInstance": {
       "additionalProperties": false,
@@ -32115,7 +32640,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Observation": {
       "additionalProperties": false,
@@ -32308,7 +32834,8 @@
         "resourceType",
         "status",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ObservationReferenceRange": {
       "additionalProperties": false,
@@ -32350,7 +32877,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ObservationComponent": {
       "additionalProperties": false,
@@ -32424,7 +32952,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ObservationDefinition": {
       "additionalProperties": false,
@@ -32520,7 +33049,8 @@
       "required": [
         "resourceType",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ObservationDefinitionQuantitativeDetails": {
       "additionalProperties": false,
@@ -32553,7 +33083,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ObservationDefinitionQualifiedInterval": {
       "additionalProperties": false,
@@ -32601,7 +33132,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "OperationDefinition": {
       "additionalProperties": false,
@@ -32748,7 +33280,8 @@
         "system",
         "type",
         "instance"
-      ]
+      ],
+      "type": "object"
     },
     "OperationDefinitionParameter": {
       "additionalProperties": false,
@@ -32816,7 +33349,8 @@
         "use",
         "min",
         "max"
-      ]
+      ],
+      "type": "object"
     },
     "OperationDefinitionBinding": {
       "additionalProperties": false,
@@ -32846,7 +33380,8 @@
       "required": [
         "strength",
         "valueSet"
-      ]
+      ],
+      "type": "object"
     },
     "OperationDefinitionReferencedFrom": {
       "additionalProperties": false,
@@ -32875,7 +33410,8 @@
       },
       "required": [
         "source"
-      ]
+      ],
+      "type": "object"
     },
     "OperationDefinitionOverload": {
       "additionalProperties": false,
@@ -32905,7 +33441,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "OperationOutcome": {
       "additionalProperties": false,
@@ -32917,7 +33454,8 @@
           "items": {
             "$ref": "#/definitions/OperationOutcomeIssue"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -32956,7 +33494,8 @@
       "required": [
         "resourceType",
         "issue"
-      ]
+      ],
+      "type": "object"
     },
     "OperationOutcomeIssue": {
       "additionalProperties": false,
@@ -33004,7 +33543,8 @@
       "required": [
         "severity",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "Organization": {
       "additionalProperties": false,
@@ -33099,7 +33639,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "OrganizationContact": {
       "additionalProperties": false,
@@ -33135,7 +33676,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "OrganizationAffiliation": {
       "additionalProperties": false,
@@ -33239,7 +33781,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PackagedProductDefinition": {
       "additionalProperties": false,
@@ -33346,7 +33889,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PackagedProductDefinitionLegalStatusOfSupply": {
       "additionalProperties": false,
@@ -33373,7 +33917,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PackagedProductDefinitionPackage": {
       "additionalProperties": false,
@@ -33448,7 +33993,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PackagedProductDefinitionShelfLifeStorage": {
       "additionalProperties": false,
@@ -33484,7 +34030,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PackagedProductDefinitionProperty": {
       "additionalProperties": false,
@@ -33525,7 +34072,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "PackagedProductDefinitionContainedItem": {
       "additionalProperties": false,
@@ -33554,7 +34102,8 @@
       },
       "required": [
         "item"
-      ]
+      ],
+      "type": "object"
     },
     "Parameters": {
       "additionalProperties": false,
@@ -33583,7 +34132,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "ParametersParameter": {
       "additionalProperties": false,
@@ -33768,7 +34318,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "Patient": {
       "additionalProperties": false,
@@ -33893,7 +34444,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PatientContact": {
       "additionalProperties": false,
@@ -33941,7 +34493,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PatientCommunication": {
       "additionalProperties": false,
@@ -33970,7 +34523,8 @@
       },
       "required": [
         "language"
-      ]
+      ],
+      "type": "object"
     },
     "PatientLink": {
       "additionalProperties": false,
@@ -34000,7 +34554,8 @@
       "required": [
         "other",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "PaymentNotice": {
       "additionalProperties": false,
@@ -34088,7 +34643,8 @@
         "payment",
         "recipient",
         "amount"
-      ]
+      ],
+      "type": "object"
     },
     "PaymentReconciliation": {
       "additionalProperties": false,
@@ -34190,7 +34746,8 @@
         "created",
         "paymentDate",
         "paymentAmount"
-      ]
+      ],
+      "type": "object"
     },
     "PaymentReconciliationDetail": {
       "additionalProperties": false,
@@ -34243,7 +34800,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "PaymentReconciliationProcessNote": {
       "additionalProperties": false,
@@ -34270,7 +34828,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Person": {
       "additionalProperties": false,
@@ -34359,7 +34918,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PersonLink": {
       "additionalProperties": false,
@@ -34388,7 +34948,8 @@
       },
       "required": [
         "target"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinition": {
       "additionalProperties": false,
@@ -34571,7 +35132,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinitionGoal": {
       "additionalProperties": false,
@@ -34624,7 +35186,8 @@
       },
       "required": [
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinitionTarget": {
       "additionalProperties": false,
@@ -34660,7 +35223,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PlanDefinitionAction": {
       "additionalProperties": false,
@@ -34822,7 +35386,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PlanDefinitionCondition": {
       "additionalProperties": false,
@@ -34851,7 +35416,8 @@
       },
       "required": [
         "kind"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinitionRelatedAction": {
       "additionalProperties": false,
@@ -34887,7 +35453,8 @@
       "required": [
         "actionId",
         "relationship"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinitionParticipant": {
       "additionalProperties": false,
@@ -34916,7 +35483,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "PlanDefinitionDynamicValue": {
       "additionalProperties": false,
@@ -34943,7 +35511,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Practitioner": {
       "additionalProperties": false,
@@ -35038,7 +35607,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PractitionerQualification": {
       "additionalProperties": false,
@@ -35076,7 +35646,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "PractitionerRole": {
       "additionalProperties": false,
@@ -35189,7 +35760,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "PractitionerRoleAvailableTime": {
       "additionalProperties": false,
@@ -35225,7 +35797,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "PractitionerRoleNotAvailable": {
       "additionalProperties": false,
@@ -35254,7 +35827,8 @@
       },
       "required": [
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "Procedure": {
       "additionalProperties": false,
@@ -35447,7 +36021,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "ProcedurePerformer": {
       "additionalProperties": false,
@@ -35479,7 +36054,8 @@
       },
       "required": [
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "ProcedureFocalDevice": {
       "additionalProperties": false,
@@ -35508,7 +36084,8 @@
       },
       "required": [
         "manipulated"
-      ]
+      ],
+      "type": "object"
     },
     "Provenance": {
       "additionalProperties": false,
@@ -35520,7 +36097,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "occurredPeriod": {
           "$ref": "#/definitions/Period"
@@ -35553,7 +36131,8 @@
           "items": {
             "$ref": "#/definitions/ProvenanceAgent"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "entity": {
           "items": {
@@ -35606,7 +36185,8 @@
         "target",
         "recorded",
         "agent"
-      ]
+      ],
+      "type": "object"
     },
     "ProvenanceAgent": {
       "additionalProperties": false,
@@ -35644,7 +36224,8 @@
       },
       "required": [
         "who"
-      ]
+      ],
+      "type": "object"
     },
     "ProvenanceEntity": {
       "additionalProperties": false,
@@ -35680,7 +36261,8 @@
       "required": [
         "role",
         "what"
-      ]
+      ],
+      "type": "object"
     },
     "Questionnaire": {
       "additionalProperties": false,
@@ -35815,7 +36397,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "QuestionnaireItem": {
       "additionalProperties": false,
@@ -35902,7 +36485,8 @@
       "required": [
         "linkId",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "QuestionnaireEnableWhen": {
       "additionalProperties": false,
@@ -35962,7 +36546,8 @@
       "required": [
         "question",
         "operator"
-      ]
+      ],
+      "type": "object"
     },
     "QuestionnaireAnswerOption": {
       "additionalProperties": false,
@@ -36004,7 +36589,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "QuestionnaireInitial": {
       "additionalProperties": false,
@@ -36061,7 +36647,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "QuestionnaireResponse": {
       "additionalProperties": false,
@@ -36148,7 +36735,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "QuestionnaireResponseItem": {
       "additionalProperties": false,
@@ -36192,7 +36780,8 @@
       },
       "required": [
         "linkId"
-      ]
+      ],
+      "type": "object"
     },
     "QuestionnaireResponseAnswer": {
       "additionalProperties": false,
@@ -36255,7 +36844,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "RegulatedAuthorization": {
       "additionalProperties": false,
@@ -36353,7 +36943,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "RegulatedAuthorizationCase": {
       "additionalProperties": false,
@@ -36395,7 +36986,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "RelatedPerson": {
       "additionalProperties": false,
@@ -36497,7 +37089,8 @@
       "required": [
         "resourceType",
         "patient"
-      ]
+      ],
+      "type": "object"
     },
     "RelatedPersonCommunication": {
       "additionalProperties": false,
@@ -36526,7 +37119,8 @@
       },
       "required": [
         "language"
-      ]
+      ],
+      "type": "object"
     },
     "RequestGroup": {
       "additionalProperties": false,
@@ -36653,7 +37247,8 @@
         "resourceType",
         "status",
         "intent"
-      ]
+      ],
+      "type": "object"
     },
     "RequestGroupAction": {
       "additionalProperties": false,
@@ -36764,7 +37359,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "RequestGroupCondition": {
       "additionalProperties": false,
@@ -36793,7 +37389,8 @@
       },
       "required": [
         "kind"
-      ]
+      ],
+      "type": "object"
     },
     "RequestGroupRelatedAction": {
       "additionalProperties": false,
@@ -36829,7 +37426,8 @@
       "required": [
         "actionId",
         "relationship"
-      ]
+      ],
+      "type": "object"
     },
     "ResearchDefinition": {
       "additionalProperties": false,
@@ -37016,7 +37614,8 @@
         "resourceType",
         "status",
         "population"
-      ]
+      ],
+      "type": "object"
     },
     "ResearchElementDefinition": {
       "additionalProperties": false,
@@ -37163,7 +37762,8 @@
           "items": {
             "$ref": "#/definitions/ResearchElementDefinitionCharacteristic"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -37204,7 +37804,8 @@
         "status",
         "type",
         "characteristic"
-      ]
+      ],
+      "type": "object"
     },
     "ResearchElementDefinitionCharacteristic": {
       "additionalProperties": false,
@@ -37291,7 +37892,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ResearchStudy": {
       "additionalProperties": false,
@@ -37453,7 +38055,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ResearchStudyArm": {
       "additionalProperties": false,
@@ -37485,7 +38088,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "ResearchStudyObjective": {
       "additionalProperties": false,
@@ -37512,7 +38116,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ResearchSubject": {
       "additionalProperties": false,
@@ -37586,7 +38191,8 @@
         "status",
         "study",
         "individual"
-      ]
+      ],
+      "type": "object"
     },
     "RiskAssessment": {
       "additionalProperties": false,
@@ -37704,7 +38310,8 @@
         "resourceType",
         "status",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "RiskAssessmentPrediction": {
       "additionalProperties": false,
@@ -37749,7 +38356,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Schedule": {
       "additionalProperties": false,
@@ -37788,7 +38396,8 @@
           "items": {
             "$ref": "#/definitions/Reference"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "planningHorizon": {
           "$ref": "#/definitions/Period"
@@ -37833,7 +38442,8 @@
       "required": [
         "resourceType",
         "actor"
-      ]
+      ],
+      "type": "object"
     },
     "SearchParameter": {
       "additionalProperties": false,
@@ -37896,7 +38506,8 @@
           "items": {
             "$ref": "#/definitions/ResourceType"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "type": {
           "$ref": "#/definitions/SearchParamType"
@@ -37989,7 +38600,8 @@
         "code",
         "base",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "SearchParameterComponent": {
       "additionalProperties": false,
@@ -38019,7 +38631,8 @@
       "required": [
         "definition",
         "expression"
-      ]
+      ],
+      "type": "object"
     },
     "ServiceRequest": {
       "additionalProperties": false,
@@ -38234,7 +38847,8 @@
         "status",
         "intent",
         "subject"
-      ]
+      ],
+      "type": "object"
     },
     "Slot": {
       "additionalProperties": false,
@@ -38327,7 +38941,8 @@
         "status",
         "start",
         "end"
-      ]
+      ],
+      "type": "object"
     },
     "Specimen": {
       "additionalProperties": false,
@@ -38431,7 +39046,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "SpecimenCollection": {
       "additionalProperties": false,
@@ -38479,7 +39095,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SpecimenProcessing": {
       "additionalProperties": false,
@@ -38518,7 +39135,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SpecimenContainer": {
       "additionalProperties": false,
@@ -38563,7 +39181,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SpecimenDefinition": {
       "additionalProperties": false,
@@ -38634,7 +39253,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "SpecimenDefinitionTypeTested": {
       "additionalProperties": false,
@@ -38687,7 +39307,8 @@
       },
       "required": [
         "preference"
-      ]
+      ],
+      "type": "object"
     },
     "SpecimenDefinitionContainer": {
       "additionalProperties": false,
@@ -38738,7 +39359,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SpecimenDefinitionAdditive": {
       "additionalProperties": false,
@@ -38765,7 +39387,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SpecimenDefinitionHandling": {
       "additionalProperties": false,
@@ -38798,7 +39421,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "StructureDefinition": {
       "additionalProperties": false,
@@ -38953,7 +39577,8 @@
         "kind",
         "abstract",
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "StructureDefinitionMapping": {
       "additionalProperties": false,
@@ -38988,7 +39613,8 @@
       },
       "required": [
         "identity"
-      ]
+      ],
+      "type": "object"
     },
     "StructureDefinitionContext": {
       "additionalProperties": false,
@@ -39018,7 +39644,8 @@
       "required": [
         "type",
         "expression"
-      ]
+      ],
+      "type": "object"
     },
     "StructureDefinitionSnapshot": {
       "additionalProperties": false,
@@ -39027,7 +39654,8 @@
           "items": {
             "$ref": "#/definitions/ElementDefinition"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -39047,7 +39675,8 @@
       },
       "required": [
         "element"
-      ]
+      ],
+      "type": "object"
     },
     "StructureDefinitionDifferential": {
       "additionalProperties": false,
@@ -39056,7 +39685,8 @@
           "items": {
             "$ref": "#/definitions/ElementDefinition"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -39076,7 +39706,8 @@
       },
       "required": [
         "element"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMap": {
       "additionalProperties": false,
@@ -39157,7 +39788,8 @@
           "items": {
             "$ref": "#/definitions/StructureMapGroup"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -39199,7 +39831,8 @@
         "name",
         "status",
         "group"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapStructure": {
       "additionalProperties": false,
@@ -39235,7 +39868,8 @@
       "required": [
         "url",
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapGroup": {
       "additionalProperties": false,
@@ -39256,13 +39890,15 @@
           "items": {
             "$ref": "#/definitions/StructureMapInput"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "rule": {
           "items": {
             "$ref": "#/definitions/StructureMapRule"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -39285,7 +39921,8 @@
         "typeMode",
         "input",
         "rule"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapInput": {
       "additionalProperties": false,
@@ -39321,7 +39958,8 @@
       "required": [
         "name",
         "mode"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapRule": {
       "additionalProperties": false,
@@ -39333,7 +39971,8 @@
           "items": {
             "$ref": "#/definitions/StructureMapSource"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "target": {
           "items": {
@@ -39375,7 +40014,8 @@
       "required": [
         "name",
         "source"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapSource": {
       "additionalProperties": false,
@@ -39578,7 +40218,8 @@
       },
       "required": [
         "context"
-      ]
+      ],
+      "type": "object"
     },
     "StructureMapTarget": {
       "additionalProperties": false,
@@ -39629,7 +40270,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "StructureMapParameter": {
       "additionalProperties": false,
@@ -39665,7 +40307,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "StructureMapDependent": {
       "additionalProperties": false,
@@ -39677,7 +40320,8 @@
           "items": {
             "$ref": "#/definitions/string"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -39698,7 +40342,8 @@
       "required": [
         "name",
         "variable"
-      ]
+      ],
+      "type": "object"
     },
     "Subscription": {
       "additionalProperties": false,
@@ -39770,7 +40415,8 @@
         "reason",
         "criteria",
         "channel"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionChannel": {
       "additionalProperties": false,
@@ -39808,7 +40454,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionStatus": {
       "additionalProperties": false,
@@ -39881,7 +40528,8 @@
         "resourceType",
         "type",
         "subscription"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionStatusNotificationEvent": {
       "additionalProperties": false,
@@ -39919,7 +40567,8 @@
       },
       "required": [
         "eventNumber"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionTopic": {
       "additionalProperties": false,
@@ -40058,7 +40707,8 @@
         "resourceType",
         "url",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionTopicResourceTrigger": {
       "additionalProperties": false,
@@ -40099,7 +40749,8 @@
       },
       "required": [
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionTopicQueryCriteria": {
       "additionalProperties": false,
@@ -40135,7 +40786,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubscriptionTopicEventTrigger": {
       "additionalProperties": false,
@@ -40168,7 +40820,8 @@
       "required": [
         "event",
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionTopicCanFilterBy": {
       "additionalProperties": false,
@@ -40209,7 +40862,8 @@
       },
       "required": [
         "filterParameter"
-      ]
+      ],
+      "type": "object"
     },
     "SubscriptionTopicNotificationShape": {
       "additionalProperties": false,
@@ -40247,7 +40901,8 @@
       },
       "required": [
         "resource"
-      ]
+      ],
+      "type": "object"
     },
     "Substance": {
       "additionalProperties": false,
@@ -40325,7 +40980,8 @@
       "required": [
         "resourceType",
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceInstance": {
       "additionalProperties": false,
@@ -40355,7 +41011,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceIngredient": {
       "additionalProperties": false,
@@ -40385,7 +41042,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinition": {
       "additionalProperties": false,
@@ -40525,7 +41183,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceDefinitionMoiety": {
       "additionalProperties": false,
@@ -40573,7 +41232,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinitionProperty": {
       "additionalProperties": false,
@@ -40614,7 +41274,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceDefinitionMolecularWeight": {
       "additionalProperties": false,
@@ -40646,7 +41307,8 @@
       },
       "required": [
         "amount"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceDefinitionStructure": {
       "additionalProperties": false,
@@ -40700,7 +41362,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinitionRepresentation": {
       "additionalProperties": false,
@@ -40733,7 +41396,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinitionCode": {
       "additionalProperties": false,
@@ -40775,7 +41439,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinitionName": {
       "additionalProperties": false,
@@ -40852,7 +41517,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceDefinitionOfficial": {
       "additionalProperties": false,
@@ -40882,7 +41548,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SubstanceDefinitionRelationship": {
       "additionalProperties": false,
@@ -40938,7 +41605,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "SubstanceDefinitionSourceMaterial": {
       "additionalProperties": false,
@@ -40977,7 +41645,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SupplyDelivery": {
       "additionalProperties": false,
@@ -41072,7 +41741,8 @@
       },
       "required": [
         "resourceType"
-      ]
+      ],
+      "type": "object"
     },
     "SupplyDeliverySuppliedItem": {
       "additionalProperties": false,
@@ -41102,7 +41772,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "SupplyRequest": {
       "additionalProperties": false,
@@ -41216,7 +41887,8 @@
       "required": [
         "resourceType",
         "quantity"
-      ]
+      ],
+      "type": "object"
     },
     "SupplyRequestParameter": {
       "additionalProperties": false,
@@ -41252,7 +41924,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "Task": {
       "additionalProperties": false,
@@ -41418,7 +42091,8 @@
         "resourceType",
         "status",
         "intent"
-      ]
+      ],
+      "type": "object"
     },
     "TaskRestriction": {
       "additionalProperties": false,
@@ -41451,7 +42125,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TaskInput": {
       "additionalProperties": false,
@@ -41627,7 +42302,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "TaskOutput": {
       "additionalProperties": false,
@@ -41803,7 +42479,8 @@
       },
       "required": [
         "type"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilities": {
       "additionalProperties": false,
@@ -41934,7 +42611,8 @@
         "status",
         "date",
         "kind"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesSoftware": {
       "additionalProperties": false,
@@ -41963,7 +42641,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesImplementation": {
       "additionalProperties": false,
@@ -41992,7 +42671,8 @@
       },
       "required": [
         "description"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesCodeSystem": {
       "additionalProperties": false,
@@ -42025,7 +42705,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TerminologyCapabilitiesVersion": {
       "additionalProperties": false,
@@ -42073,7 +42754,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TerminologyCapabilitiesFilter": {
       "additionalProperties": false,
@@ -42085,7 +42767,8 @@
           "items": {
             "$ref": "#/definitions/code"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -42106,7 +42789,8 @@
       "required": [
         "code",
         "op"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesExpansion": {
       "additionalProperties": false,
@@ -42145,7 +42829,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TerminologyCapabilitiesParameter": {
       "additionalProperties": false,
@@ -42174,7 +42859,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesValidateCode": {
       "additionalProperties": false,
@@ -42200,7 +42886,8 @@
       },
       "required": [
         "translations"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesTranslation": {
       "additionalProperties": false,
@@ -42226,7 +42913,8 @@
       },
       "required": [
         "needsMap"
-      ]
+      ],
+      "type": "object"
     },
     "TerminologyCapabilitiesClosure": {
       "additionalProperties": false,
@@ -42250,7 +42938,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TestReport": {
       "additionalProperties": false,
@@ -42339,7 +43028,8 @@
         "status",
         "testScript",
         "result"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportParticipant": {
       "additionalProperties": false,
@@ -42372,7 +43062,8 @@
       "required": [
         "type",
         "uri"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportSetup": {
       "additionalProperties": false,
@@ -42381,7 +43072,8 @@
           "items": {
             "$ref": "#/definitions/TestReportAction"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -42401,7 +43093,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportAction": {
       "additionalProperties": false,
@@ -42428,7 +43121,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TestReportOperation": {
       "additionalProperties": false,
@@ -42460,7 +43154,8 @@
       },
       "required": [
         "result"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportAssert": {
       "additionalProperties": false,
@@ -42492,7 +43187,8 @@
       },
       "required": [
         "result"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportTest": {
       "additionalProperties": false,
@@ -42507,7 +43203,8 @@
           "items": {
             "$ref": "#/definitions/TestReportAction1"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -42527,7 +43224,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportAction1": {
       "additionalProperties": false,
@@ -42554,7 +43252,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TestReportTeardown": {
       "additionalProperties": false,
@@ -42563,7 +43262,8 @@
           "items": {
             "$ref": "#/definitions/TestReportAction2"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -42583,7 +43283,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestReportAction2": {
       "additionalProperties": false,
@@ -42609,7 +43310,8 @@
       },
       "required": [
         "operation"
-      ]
+      ],
+      "type": "object"
     },
     "TestScript": {
       "additionalProperties": false,
@@ -42755,7 +43457,8 @@
         "url",
         "name",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptOrigin": {
       "additionalProperties": false,
@@ -42785,7 +43488,8 @@
       "required": [
         "index",
         "profile"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptDestination": {
       "additionalProperties": false,
@@ -42815,7 +43519,8 @@
       "required": [
         "index",
         "profile"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptMetadata": {
       "additionalProperties": false,
@@ -42830,7 +43535,8 @@
           "items": {
             "$ref": "#/definitions/TestScriptCapability"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -42850,7 +43556,8 @@
       },
       "required": [
         "capability"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptLink": {
       "additionalProperties": false,
@@ -42879,7 +43586,8 @@
       },
       "required": [
         "url"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptCapability": {
       "additionalProperties": false,
@@ -42931,7 +43639,8 @@
         "required",
         "validated",
         "capabilities"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptFixture": {
       "additionalProperties": false,
@@ -42964,7 +43673,8 @@
       "required": [
         "autocreate",
         "autodelete"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptVariable": {
       "additionalProperties": false,
@@ -43011,7 +43721,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptSetup": {
       "additionalProperties": false,
@@ -43020,7 +43731,8 @@
           "items": {
             "$ref": "#/definitions/TestScriptAction"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -43040,7 +43752,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptAction": {
       "additionalProperties": false,
@@ -43067,7 +43780,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TestScriptOperation": {
       "additionalProperties": false,
@@ -43144,7 +43858,8 @@
       },
       "required": [
         "encodeRequestUrl"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptRequestHeader": {
       "additionalProperties": false,
@@ -43174,7 +43889,8 @@
       "required": [
         "field",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptAssert": {
       "additionalProperties": false,
@@ -43263,7 +43979,8 @@
       },
       "required": [
         "warningOnly"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptTest": {
       "additionalProperties": false,
@@ -43278,7 +43995,8 @@
           "items": {
             "$ref": "#/definitions/TestScriptAction1"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -43298,7 +44016,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptAction1": {
       "additionalProperties": false,
@@ -43325,7 +44044,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "TestScriptTeardown": {
       "additionalProperties": false,
@@ -43334,7 +44054,8 @@
           "items": {
             "$ref": "#/definitions/TestScriptAction2"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "modifierExtension": {
           "items": {
@@ -43354,7 +44075,8 @@
       },
       "required": [
         "action"
-      ]
+      ],
+      "type": "object"
     },
     "TestScriptAction2": {
       "additionalProperties": false,
@@ -43380,7 +44102,8 @@
       },
       "required": [
         "operation"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSet": {
       "additionalProperties": false,
@@ -43491,7 +44214,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetCompose": {
       "additionalProperties": false,
@@ -43506,7 +44230,8 @@
           "items": {
             "$ref": "#/definitions/ValueSetInclude"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "exclude": {
           "items": {
@@ -43532,7 +44257,8 @@
       },
       "required": [
         "include"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetInclude": {
       "additionalProperties": false,
@@ -43577,7 +44303,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "ValueSetConcept": {
       "additionalProperties": false,
@@ -43612,7 +44339,8 @@
       },
       "required": [
         "code"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetDesignation": {
       "additionalProperties": false,
@@ -43644,7 +44372,8 @@
       },
       "required": [
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetFilter": {
       "additionalProperties": false,
@@ -43678,7 +44407,8 @@
         "property",
         "op",
         "value"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetExpansion": {
       "additionalProperties": false,
@@ -43725,7 +44455,8 @@
       },
       "required": [
         "timestamp"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetParameter": {
       "additionalProperties": false,
@@ -43772,7 +44503,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "type": "object"
     },
     "ValueSetContains": {
       "additionalProperties": false,
@@ -43823,7 +44555,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "VerificationResult": {
       "additionalProperties": false,
@@ -43925,7 +44658,8 @@
       "required": [
         "resourceType",
         "status"
-      ]
+      ],
+      "type": "object"
     },
     "VerificationResultPrimarySource": {
       "additionalProperties": false,
@@ -43976,7 +44710,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "VerificationResultAttestation": {
       "additionalProperties": false,
@@ -44021,7 +44756,8 @@
           "type": "array"
         }
       },
-      "required": []
+      "required": [],
+      "type": "object"
     },
     "VerificationResultValidator": {
       "additionalProperties": false,
@@ -44053,7 +44789,8 @@
       },
       "required": [
         "organization"
-      ]
+      ],
+      "type": "object"
     },
     "VisionPrescription": {
       "additionalProperties": false,
@@ -44089,7 +44826,8 @@
           "items": {
             "$ref": "#/definitions/VisionPrescriptionLensSpecification"
           },
-          "type": "array"
+          "type": "array",
+          "minItems": 1
         },
         "text": {
           "$ref": "#/definitions/Narrative"
@@ -44133,7 +44871,8 @@
         "dateWritten",
         "prescriber",
         "lensSpecification"
-      ]
+      ],
+      "type": "object"
     },
     "VisionPrescriptionLensSpecification": {
       "additionalProperties": false,
@@ -44205,7 +44944,8 @@
       "required": [
         "product",
         "eye"
-      ]
+      ],
+      "type": "object"
     },
     "VisionPrescriptionPrism": {
       "additionalProperties": false,
@@ -44235,7 +44975,8 @@
       "required": [
         "amount",
         "base"
-      ]
+      ],
+      "type": "object"
     }
   }
 }
