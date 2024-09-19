@@ -30,7 +30,7 @@ const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory'
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { ExportEventProducer } = require('../../../utils/exportEventProducer');
 
 class BulkDataExportRunner {
     /**
@@ -46,7 +46,7 @@ class BulkDataExportRunner {
      * @property {ResourceLocatorFactory} resourceLocatorFactory
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
-     * @property {PostSaveProcessor} postSaveProcessor
+     * @property {ExportEventProducer} exportEventProducer
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -67,7 +67,7 @@ class BulkDataExportRunner {
         resourceLocatorFactory,
         r4ArgsParser,
         searchManager,
-        postSaveProcessor,
+        exportEventProducer,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -168,10 +168,10 @@ class BulkDataExportRunner {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
-         * @type {PostSaveProcessor}
+         * @type {ExportEventProducer}
          */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+        this.exportEventProducer = exportEventProducer;
+        assertTypeEquals(exportEventProducer, ExportEventProducer);
 
         /**
          * @type {string}
@@ -339,13 +339,10 @@ class BulkDataExportRunner {
         await this.databaseExportManager.updateExportStatusAsync({
             exportStatusResource: this.exportStatusResource
         });
-        await this.postSaveProcessor.afterSaveAsync({
-            requestId: this.requestId,
-            eventType: 'U',
-            resourceType: 'ExportStatus',
-            doc: this.exportStatusResource
+        await this.exportEventProducer.produce({
+            resource: this.exportStatusResource,
+            requestId: this.requestId
         });
-        await this.postSaveProcessor.flushAsync();
     }
 
     /**

@@ -208,6 +208,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to send export events to kafka
+     * @return {boolean}
+     */
+    get kafkaEnableExportEvents () {
+        return isTrue(env.ENABLE_EXPORT_EVENTS_KAFKA);
+    }
+
+    /**
      * list of resources for which kafka events are enabled
      * @return {boolean}
      */
@@ -216,7 +224,7 @@ class ConfigManager {
             (
                 env.KAFKA_ENABLED_RESOURCES && env.KAFKA_ENABLED_RESOURCES.split(',')
                     .map((col) => col.trim())
-            ) || ['Consent', 'ExportStatus']
+            ) || ['Consent']
         );
     }
 

@@ -17,7 +17,7 @@ const { ScopesValidator } = require('../operations/security/scopesValidator');
 const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
-const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { ExportEventProducer } = require('../utils/exportEventProducer');
 
 class AdminExportManager {
     /**
@@ -30,7 +30,7 @@ class AdminExportManager {
      * @property {configManager} configManager
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
-     * @property {PostSaveProcessor} postSaveProcessor
+     * @property {ExportEventProducer} exportEventProducer
      */
     constructor({
         postRequestProcessor,
@@ -42,7 +42,7 @@ class AdminExportManager {
         configManager,
         exportManager,
         scopesValidator,
-        postSaveProcessor
+        exportEventProducer
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -91,10 +91,10 @@ class AdminExportManager {
         assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
-         * @type {PostSaveProcessor}
+         * @type {ExportEventProducer}
          */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+        this.exportEventProducer = exportEventProducer;
+        assertTypeEquals(exportEventProducer, ExportEventProducer);
     }
 
     /**
@@ -204,14 +204,9 @@ class AdminExportManager {
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource: updatedResource
                 });
-                this.postRequestProcessor.add({
-                    requestId: req.id,
-                    fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
-                        requestId: req.id,
-                        eventType: 'U',
-                        resourceType: 'ExportStatus',
-                        doc: updatedResource
-                    })
+                await this.exportEventProducer.produce({
+                    resource: updatedResource,
+                    requestId: req.id
                 });
                 return updatedResource;
             }

@@ -9,6 +9,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockKafkaClient } = require('../mocks/mockKafkaClient');
 const { assertTypeEquals } = require('../../utils/assertType');
+const { isUuid } = require('../../utils/uid.util');
 
 
 describe('Export Tests', () => {
@@ -30,13 +31,8 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
-            /*
-             * @type {PostSaveProcessor}
-             */
-            const postSaveProcessor = getTestContainer().postSaveProcessor;
             const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
-            await postSaveProcessor.flushAsync();
             let messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(0);
 
@@ -44,12 +40,32 @@ describe('Export Tests', () => {
                 .post('/4_0_0/Patient/$export?_type=Patient')
                 .set(getHeaders())
                 .expect(202);
-            await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(1);
 
             expect(resp.headers['content-location']).toBeDefined();
             const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+            let messageData = JSON.parse(messages[0].value);
+            expect(messageData).toEqual(
+                {
+                    data:  {
+                        error:  [],
+                        exportJobId: exportStatusId,
+                        output:  [],
+                        request: "http://localhost:3000/4_0_0/Patient/$export?_type=Patient",
+                        status: "accepted",
+                        transactionTime: expect.any(String)
+                    },
+                    datacontenttype: "application/json",
+                    id: expect.any(String),
+                    source: "https://www.icanbwell.com/fhir-server",
+                    specversion: "1.0",
+                    type: "ExportInitiated"
+                }
+            )
+            expect(isUuid(messageData.id)).toBeTruthy();
+            expect(!isNaN((new Date(messageData.data.transactionTime)).getTime())).toBeTruthy();
 
             resp = await request
                 .get(`/4_0_0/$export/${exportStatusId}`)
@@ -67,7 +83,6 @@ describe('Export Tests', () => {
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
                 .expect(200);
-            await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(2);
 

@@ -5,18 +5,16 @@ const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { isUuid } = require('../utils/uid.util');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
-const { PostSaveProcessor } = require('./postSaveProcessor');
 
 class DatabaseExportManager {
     /**
      * @typedef {Object} ConstructorParams
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
-     * @property {PostSaveProcessor} postSaveProcessor
      *
      * @param {ConstructorParams}
      */
-    constructor({ databaseQueryFactory, databaseUpdateFactory, postSaveProcessor }) {
+    constructor({ databaseQueryFactory, databaseUpdateFactory }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -28,12 +26,6 @@ class DatabaseExportManager {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -88,12 +80,6 @@ class DatabaseExportManager {
             });
 
             await databaseUpdateManager.insertOneAsync({ doc: exportStatusResource });
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId,
-                eventType: 'C',
-                resourceType: 'ExportStatus',
-                doc: exportStatusResource
-            });
         } catch (err) {
             throw new RethrownError({
                 message: `Error in insertExportStatusAsync: ${err.message}`,

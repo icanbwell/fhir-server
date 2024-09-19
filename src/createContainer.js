@@ -107,6 +107,7 @@ const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
+const { ExportEventProducer } = require('./utils/exportEventProducer');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -207,6 +208,13 @@ const createContainer = function () {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+            configManager: c.configManager
+        }
+    ));
+    container.register('exportEventProducer', (c) => new ExportEventProducer(
+        {
+            kafkaClient: c.kafkaClient,
+            fhirExportEventTopic: env.KAFKA_EXPORT_EVENT_TOPIC || 'fhir.bulk_export.events',
             configManager: c.configManager
         }
     ));
@@ -805,8 +813,7 @@ const createContainer = function () {
 
     container.register('databaseExportManager', (c) => new DatabaseExportManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
-        postSaveProcessor: c.postSaveProcessor
+        databaseUpdateFactory: c.databaseUpdateFactory
     }));
 
     container.register('exportOperation', (c) => new ExportOperation({
@@ -817,7 +824,8 @@ const createContainer = function () {
         exportManager: c.exportManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        databaseExportManager: c.databaseExportManager
+        databaseExportManager: c.databaseExportManager,
+        exportEventProducer: c.exportEventProducer
     }));
 
     container.register('exportManager', (c) => new ExportManager({
@@ -843,7 +851,7 @@ const createContainer = function () {
         k8sClient: c.k8sClient,
         exportManager: c.exportManager,
         scopesValidator: c.scopesValidator,
-        postSaveProcessor: c.postSaveProcessor
+        exportEventProducer: c.exportEventProducer
     }));
 
     return container;

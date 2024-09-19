@@ -9,6 +9,7 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { logInfo } = require('../common/logging');
+const { ExportEventProducer } = require('../../utils/exportEventProducer');
 
 class ExportOperation {
     /**
@@ -21,6 +22,7 @@ class ExportOperation {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {AuditLogger} auditLogger
      * @property {DatabaseExportManager} databaseExportManager
+     * @property {ExportEventProducer} exportEventProducer
      *
      * @param {ConstructorParams}
      */
@@ -32,7 +34,8 @@ class ExportOperation {
         exportManager,
         postRequestProcessor,
         auditLogger,
-        databaseExportManager
+        databaseExportManager,
+        exportEventProducer
     }) {
         /**
          * @type {ScopesManager}
@@ -81,6 +84,12 @@ class ExportOperation {
          */
         this.databaseExportManager = databaseExportManager;
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
+
+        /**
+         * @type {ExportEventProducer}
+         */
+        this.exportEventProducer = exportEventProducer;
+        assertTypeEquals(exportEventProducer, ExportEventProducer);
     }
 
     /**
@@ -123,6 +132,11 @@ class ExportOperation {
 
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource, requestId });
+
+            await this.exportEventProducer.produce({
+                resource: exportStatusResource,
+                requestId
+            });
 
             logInfo(
                 `Created ExportStatus resource with Id: ${exportStatusResource.id}`,
