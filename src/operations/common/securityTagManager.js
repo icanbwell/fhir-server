@@ -6,6 +6,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const { R4SearchQueryCreator } = require('../query/r4');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * This class manages queries for security tags
@@ -17,8 +18,9 @@ class SecurityTagManager {
      * @param {AccessIndexManager} accessIndexManager
      * @param {PatientFilterManager} patientFilterManager
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {ConfigManager} configManager
      */
-    constructor ({ scopesManager, accessIndexManager, patientFilterManager, r4SearchQueryCreator }) {
+    constructor ({ scopesManager, accessIndexManager, patientFilterManager, r4SearchQueryCreator, configManager }) {
         /**
          * @type {ScopesManager}
          */
@@ -42,6 +44,12 @@ class SecurityTagManager {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -57,6 +65,10 @@ class SecurityTagManager {
          * @type {string[]}
          */
         let securityTags = [];
+
+        if (!this.configManager.authEnabled) {
+            return securityTags;
+        }
         // add any access codes from scopes
         const accessCodes = this.scopesManager.getAccessCodesFromScopes(accessRequested, user, scope);
         // fail if there are no access codes unless we have a patient limiting scope

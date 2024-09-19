@@ -47,6 +47,9 @@ class ScopesManager {
      * @return {string[]} security tags allowed by scopes
      */
     getAccessCodesFromScopes (action, user, scope) {
+        if (!this.configManager.authEnabled) {
+            return [];
+        }
         assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -83,6 +86,10 @@ class ScopesManager {
      * @return {boolean}
      */
     doesResourceHaveAnyAccessCodeFromThisList (accessCodes, resource) {
+        if (!this.configManager.authEnabled) {
+            return true;
+        }
+
         // fail if there are no access codes
         if (!accessCodes || accessCodes.length === 0) {
             return false;
@@ -126,6 +133,9 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
+        if (!this.configManager.authEnabled) {
+            return true;
+        }
         const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
             scope, resourceType: resource.resourceType
         });
@@ -247,6 +257,9 @@ class ScopesManager {
      * @returns {string[]}
      */
     getPatientScopes ({ scope }) {
+        if (!this.configManager.authEnabled) {
+            return false;
+        }
         if (!scope) {
             return [];
         }
@@ -292,6 +305,9 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessAllowedByPatientScopes ({ scope, resourceType }) {
+        if (!this.configManager.authEnabled) {
+            return false;
+        }
         assertIsValid(scope, 'Scope is required');
         assertIsValid(resourceType, 'ResourceType is required');
 
@@ -311,6 +327,9 @@ class ScopesManager {
      * @return {boolean}
      */
     hasPatientScope ({ scope }) {
+        if (!this.configManager.authEnabled) {
+            return false;
+        }
         assertIsValid(scope);
         const scopes = this.parseScopes(scope);
         if (scopes.some(s => s.includes('patient/'))) {

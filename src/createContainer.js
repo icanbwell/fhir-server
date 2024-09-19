@@ -312,7 +312,8 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             personToPatientIdsExpander: c.personToPatientIdsExpander,
             scopesManager: c.scopesManager,
-            patientFilterManager: c.patientFilterManager
+            patientFilterManager: c.patientFilterManager,
+            configManager: c.configManager
         }
     ));
 
@@ -344,7 +345,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
             patientFilterManager: c.patientFilterManager,
-            r4SearchQueryCreator: c.r4SearchQueryCreator
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            configManager: c.configManager
         }));
 
     container.register('mergeManager', (c) => new MergeManager(

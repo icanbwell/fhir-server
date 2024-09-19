@@ -548,6 +548,16 @@ class ConfigManager {
     get mongoStreamingTimeout(){
         return env.MONGO_STREAMING_TIMEOUT ? parseInt(env.MONGO_STREAMING_TIMEOUT) : 60 * 60 * 1000;
     }
+
+    /**
+     * represent whether to use authentication for request or not
+     */
+    get authEnabled() {
+        if (env.AUTH_ENABLED === null || env.AUTH_ENABLED === undefined) {
+            return true;
+        }
+        return isTrue(env.AUTH_ENABLED);
+    }
 }
 
 module.exports = {
