@@ -212,7 +212,7 @@ class ConfigManager {
      * @return {boolean}
      */
     get kafkaEnableExportEvents () {
-        return isTrue(env.ENABLE_EXPORT_EVENTS_KAFKA);
+        return isTrue(env.ENABLE_BULK_EXPORT_KAFKA_EVENTS);
     }
 
     /**

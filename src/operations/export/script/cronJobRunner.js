@@ -8,7 +8,7 @@ const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants')
 const { ExportManager } = require('../exportManager');
 const { ConfigManager } = require('../../../utils/configManager');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
-const { ExportEventProducer } = require('../../../utils/exportEventProducer');
+const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 
 class CronJobRunner {
     /**
@@ -19,7 +19,7 @@ class CronJobRunner {
      * @property {ExportManager} exportManager
      * @property {ConfigManager} configManager
      * @property {PostSaveProcessor} postSaveProcessor
-     * @property {ExportEventProducer} exportEventProducer
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      * @param {ConstructorParams}
      */
     constructor({
@@ -28,7 +28,7 @@ class CronJobRunner {
         exportManager,
         configManager,
         postSaveProcessor,
-        exportEventProducer
+        bulkExportEventProducer
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -61,10 +61,10 @@ class CronJobRunner {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
-        this.exportEventProducer = exportEventProducer;
-        assertTypeEquals(exportEventProducer, ExportEventProducer);
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
     }
 
     /**
@@ -178,7 +178,7 @@ class CronJobRunner {
                     resourceType: 'ExportStatus',
                     doc: exportStatusResource
                 });
-                await this.exportEventProducer.produce({
+                await this.bulkExportEventProducer.produce({
                     resource: exportStatusResource,
                     requestId: this.configManager.hostnameValue
                 });

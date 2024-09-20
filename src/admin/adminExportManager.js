@@ -18,7 +18,7 @@ const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
-const { ExportEventProducer } = require('../utils/exportEventProducer');
+const { BulkExportEventProducer } = require('../utils/bulkExportEventProducer');
 
 class AdminExportManager {
     /**
@@ -32,7 +32,7 @@ class AdminExportManager {
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
      * @property {PostSaveProcessor} postSaveProcessor
-     * @property {ExportEventProducer} exportEventProducer
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      */
     constructor({
         postRequestProcessor,
@@ -45,7 +45,7 @@ class AdminExportManager {
         exportManager,
         scopesValidator,
         postSaveProcessor,
-        exportEventProducer
+        bulkExportEventProducer
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -94,16 +94,16 @@ class AdminExportManager {
         assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
-        this.exportEventProducer = exportEventProducer;
-        assertTypeEquals(exportEventProducer, ExportEventProducer);
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
     }
 
     /**
@@ -222,7 +222,7 @@ class AdminExportManager {
                         doc: updatedResource
                     })
                 });
-                await this.exportEventProducer.produce({
+                await this.bulkExportEventProducer.produce({
                     resource: updatedResource,
                     requestId: req.id
                 });

@@ -96,7 +96,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -133,7 +133,7 @@ describe('Export Tests', () => {
             const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             let messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(3);
+            expect(messages.length).toBe(5);
             expect(JSON.parse(messages[0].value)).toEqual({
                 data: {
                     error: [],
@@ -149,7 +149,7 @@ describe('Export Tests', () => {
                 specversion: '1.0',
                 type: 'ExportInitiated'
             });
-            expect(JSON.parse(messages[1].value)).toEqual({
+            expect(JSON.parse(messages[2].value)).toEqual({
                 data: {
                     error: [],
                     exportJobId: exportStatusId,
@@ -164,7 +164,7 @@ describe('Export Tests', () => {
                 specversion: '1.0',
                 type: 'ExportStatusUpdated'
             });
-            expect(JSON.parse(messages[2].value)).toEqual({
+            expect(JSON.parse(messages[4].value)).toEqual({
                 data: {
                     error: [],
                     exportJobId: exportStatusId,
@@ -250,7 +250,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -357,7 +357,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -449,7 +449,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -543,7 +543,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -659,7 +659,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
-                        exportEventProducer: c.exportEventProducer,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
@@ -807,7 +807,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
-                        exportEventProducer: c.exportEventProducer,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
@@ -966,7 +966,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
-                        exportEventProducer: c.exportEventProducer,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,

@@ -26,7 +26,7 @@ async function main() {
                 exportManager: c.exportManager,
                 configManager: c.configManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer
+                bulkExportEventProducer: c.bulkExportEventProducer
             })
     );
 

@@ -81,9 +81,9 @@ FHIR server can send events to a Kafka queue whenever for updates of bulk export
 
 ### Using change events
 
-This functionality can be enabled by setting the environment variable: ```ENABLE_EXPORT_EVENTS_KAFKA: "1"```
+This functionality can be enabled by setting the environment variable: ```ENABLE_BULK_EXPORT_KAFKA_EVENTS: "1"```
 
-Topic name can be changed using the below environment variable: ```KAFKA_EXPORT_EVENT_TOPIC```
+Topic name can be changed using the below environment variable: ```KAFKA_BULK_EXPORT_EVENT_TOPIC```
 <br>
 Note: Default values for above variable is set to: ```fhir.bulk_export.events```
 

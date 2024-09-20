@@ -9,7 +9,7 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const { ScopesManager } = require('../security/scopesManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { logInfo } = require('../common/logging');
-const { ExportEventProducer } = require('../../utils/exportEventProducer');
+const { BulkExportEventProducer } = require('../../utils/bulkExportEventProducer');
 
 class ExportOperation {
     /**
@@ -22,7 +22,7 @@ class ExportOperation {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {AuditLogger} auditLogger
      * @property {DatabaseExportManager} databaseExportManager
-     * @property {ExportEventProducer} exportEventProducer
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      *
      * @param {ConstructorParams}
      */
@@ -35,7 +35,7 @@ class ExportOperation {
         postRequestProcessor,
         auditLogger,
         databaseExportManager,
-        exportEventProducer
+        bulkExportEventProducer
     }) {
         /**
          * @type {ScopesManager}
@@ -86,10 +86,10 @@ class ExportOperation {
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
-        this.exportEventProducer = exportEventProducer;
-        assertTypeEquals(exportEventProducer, ExportEventProducer);
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
     }
 
     /**
@@ -133,7 +133,7 @@ class ExportOperation {
             // Insert ExportStatus resource in database
             await this.databaseExportManager.insertExportStatusAsync({ exportStatusResource, requestId });
 
-            await this.exportEventProducer.produce({
+            await this.bulkExportEventProducer.produce({
                 resource: exportStatusResource,
                 requestId
             });

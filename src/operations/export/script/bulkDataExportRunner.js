@@ -31,7 +31,7 @@ const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
-const { ExportEventProducer } = require('../../../utils/exportEventProducer');
+const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 
 class BulkDataExportRunner {
     /**
@@ -48,7 +48,7 @@ class BulkDataExportRunner {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
      * @property {PostSaveProcessor} postSaveProcessor
-     * @property {ExportEventProducer} exportEventProducer
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -70,7 +70,7 @@ class BulkDataExportRunner {
         r4ArgsParser,
         searchManager,
         postSaveProcessor,
-        exportEventProducer,
+        bulkExportEventProducer,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -171,16 +171,16 @@ class BulkDataExportRunner {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
-         * @type {ExportEventProducer}
+         * @type {BulkExportEventProducer}
          */
-        this.exportEventProducer = exportEventProducer;
-        assertTypeEquals(exportEventProducer, ExportEventProducer);
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
 
         /**
          * @type {string}
@@ -355,7 +355,7 @@ class BulkDataExportRunner {
             doc: this.exportStatusResource
         });
         await this.postSaveProcessor.flushAsync();
-        await this.exportEventProducer.produce({
+        await this.bulkExportEventProducer.produce({
             resource: this.exportStatusResource,
             requestId: this.requestId
         });

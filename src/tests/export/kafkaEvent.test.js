@@ -47,7 +47,7 @@ describe('Export Tests', () => {
                 .expect(202);
             await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(1);
+            expect(messages.length).toBe(2);
 
             expect(resp.headers['content-location']).toBeDefined();
             const exportStatusId = resp.headers['content-location'].split('/').pop();
@@ -91,7 +91,7 @@ describe('Export Tests', () => {
                 .expect(200);
             await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(2);
+            expect(messages.length).toBe(4);
 
             delete exportStatusPutResponse.body.transactionTime;
             delete exportStatusPutResponse.body.id;

@@ -211,7 +211,7 @@ module.exports = {
         DELETE: 'DELETE'
     },
     EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000, // 24hrs
-    EXPORT_EVENT_STATUS_MAP: {
+    BULK_EXPORT_EVENT_STATUS_MAP: {
         accepted: 'ExportInitiated',
         completed: 'ExportCompleted',
         'in-progress': 'ExportStatusUpdated',

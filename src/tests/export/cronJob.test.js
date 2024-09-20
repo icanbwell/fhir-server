@@ -86,7 +86,7 @@ describe('Cron Job Tests', () => {
                         exportManager: c.exportManager,
                         configManager: c.configManager,
                         postSaveProcessor: c.postSaveProcessor,
-                        exportEventProducer: c.exportEventProducer
+                        bulkExportEventProducer: c.bulkExportEventProducer
                     })
             );
             const cronJobRunner = container.cronJobRunner;

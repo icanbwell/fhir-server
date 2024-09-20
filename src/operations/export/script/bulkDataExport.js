@@ -59,7 +59,7 @@ async function main() {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
-                exportEventProducer: c.exportEventProducer,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize,
                 fetchResourceBatchSize,

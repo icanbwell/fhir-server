@@ -4,22 +4,22 @@ const { KafkaClient } = require('./kafkaClient');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 const ExportStatus = require('../fhir/classes/4_0_0/custom_resources/exportStatus');
-const { EXPORT_EVENT_STATUS_MAP } = require('../constants');
+const { BULK_EXPORT_EVENT_STATUS_MAP } = require('../constants');
 
 /**
  * This class is used to produce kafka events for bulk export
  */
-class ExportEventProducer {
+class BulkExportEventProducer {
     /**
      * Constructor
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
-     * @property {string} fhirExportEventTopic
+     * @property {string} fhirBulkExportEventTopic
      * @property {ConfigManager} configManager
      *
      * @param {Params}
      */
-    constructor({ kafkaClient, fhirExportEventTopic, configManager }) {
+    constructor({ kafkaClient, fhirBulkExportEventTopic, configManager }) {
         /**
          * @type {KafkaClient}
          */
@@ -28,8 +28,8 @@ class ExportEventProducer {
         /**
          * @type {string}
          */
-        this.fhirExportEventTopic = fhirExportEventTopic;
-        assertIsValid(fhirExportEventTopic);
+        this.fhirBulkExportEventTopic = fhirBulkExportEventTopic;
+        assertIsValid(fhirBulkExportEventTopic);
         /**
          * @type {ConfigManager}
          */
@@ -38,7 +38,7 @@ class ExportEventProducer {
     }
 
     /**
-     * Creates export event message
+     * Creates bulk export event message
      * @param {ExportStatus} resource
      * @param {string} eventType
      * @return {object}
@@ -76,10 +76,10 @@ class ExportEventProducer {
                 return;
             }
 
-            let eventType = EXPORT_EVENT_STATUS_MAP[resource.status];
+            let eventType = BULK_EXPORT_EVENT_STATUS_MAP[resource.status];
             const messageJson = this._createMessage({ resource, eventType });
 
-            await this.kafkaClient.sendMessagesAsync(this.fhirExportEventTopic, [
+            await this.kafkaClient.sendMessagesAsync(this.fhirBulkExportEventTopic, [
                 {
                     key: messageJson.id,
                     fhirVersion: 'R4',
@@ -89,7 +89,7 @@ class ExportEventProducer {
             ]);
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in ExportEventProducer.produce(): ',
+                message: 'Error in BulkExportEventProducer.produce(): ',
                 error: e.stack,
                 args: {
                     message: e.message
@@ -100,5 +100,5 @@ class ExportEventProducer {
 }
 
 module.exports = {
-    ExportEventProducer
+    BulkExportEventProducer
 };
