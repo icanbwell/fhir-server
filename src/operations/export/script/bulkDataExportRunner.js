@@ -171,7 +171,7 @@ class BulkDataExportRunner {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
-         * @type {BulkExportEventProducer}
+         * @type {PostSaveProcessor}
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);

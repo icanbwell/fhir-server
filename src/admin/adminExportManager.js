@@ -94,7 +94,7 @@ class AdminExportManager {
         assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
-         * @type {BulkExportEventProducer}
+         * @type {PostSaveProcessor}
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);

@@ -36,8 +36,8 @@ describe('Export Tests', () => {
              */
             const postSaveProcessor = getTestContainer().postSaveProcessor;
             const mockKafkaClient = getTestContainer().kafkaClient;
-            await postSaveProcessor.flushAsync();
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
+            await postSaveProcessor.flushAsync();
             let messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(0);
 
