@@ -56,9 +56,7 @@ describe('Export Tests', () => {
             expect(messageData).toEqual(
                 {
                     data:  {
-                        error:  [],
                         exportJobId: exportStatusId,
-                        output:  [],
                         request: "http://localhost:3000/4_0_0/Patient/$export?_type=Patient",
                         status: "accepted",
                         transactionTime: expect.any(String)

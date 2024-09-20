@@ -99,14 +99,7 @@ Two fields are set in the event:
 ```json
 {
     "data": {
-        "error": [],
         "exportJobId": "302d2283-dac7-4861-a8c7-68d2e56eef69",
-        "output": [
-            {
-                "type": "Patient",
-                "url": "s3://test/exports/bwell/302d2283-dac7-4861-a8c7-68d2e56eef69/Patient.ndjson"
-            }
-        ],
         "request": "http://localhost:3000/4_0_0/$export?_type=Patient",
         "status": "completed",
         "transactionTime": "2024-09-19T08:14:21.762Z"

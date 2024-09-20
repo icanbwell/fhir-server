@@ -1,0 +1,92 @@
+asyncapi: 3.0.0
+info:
+  title: Bulk Data Export Events
+  version: '1.0.0'
+  description: API for handling events related to the lifecycle of bulk data exports from the FHIR server.
+operations:
+  BulkExportEvent:
+    channel:
+      $ref: '#/channels/BulkExportChannel'
+    action: send
+channels:
+  BulkExportChannel:
+    address: fhir.bulk_export.events
+    summary: Channel for all bulk export related events
+    bindings:
+      kafka:
+        topic: fhir.bulk_export.events
+    messages:
+      BulkExportEvent:
+        $ref: '#/components/messages/BulkExportEvent'
+        bindings:
+          kafka:
+            key: '{{exportJobId}}'
+components:
+  messages:
+    BulkExportEvent:
+      description: Events triggered at various stages of the bulk export process.
+      headers:
+        type: object
+        properties:
+          b3:
+            type: string
+            description: Unique tracking number of the FHIR request that generated this event.
+          version:
+            type: string
+            enum:
+              - "R4"
+            description: Version of FHIR event used.
+      payload:
+        type: object
+        properties:
+          specversion:
+            type: string
+            enum:
+              - "1.0"
+            description: The CloudEvents specification version used.
+          id:
+            type: string
+            description: A unique identifier for the event.
+          source:
+            type: string
+            const: "https://www.icanbwell.com/fhir-server"
+            description: The source of the event, indicating the service that generated the event.
+          type:
+            type: string
+            enum: ["ExportInitiated", "ExportStatusUpdated", "ExportCompleted"]
+            description: The type of the event, indicating the specific stage of the bulk export process.
+          datacontenttype:
+            type: string
+            const: "application/json"
+            description: The content type of the event data.
+          data:
+            $ref: '#/components/schemas/ExportEventData'
+        required:
+          - specversion
+          - id
+          - source
+          - type
+          - datacontenttype
+          - data
+  schemas:
+    ExportEventData:
+      type: object
+      required:
+        - transactionTime
+        - request
+        - status
+      properties:
+        exportJobId:
+          type: string
+          description: Unique identifier for the bulk export job, used as the key for partitioning Kafka messages.
+        transactionTime:
+          type: string
+          format: date-time
+          description: The time at which the transaction was completed or updated.
+        request:
+          type: string
+          description: The original request URL that initiated the bulk export.
+        status:
+          type: string
+          enum: ['accepted', 'in-progress', 'completed', 'entered-in-error']
+          description: The current status of the bulk export process.

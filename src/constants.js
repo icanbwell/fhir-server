@@ -215,7 +215,7 @@ module.exports = {
         accepted: 'ExportInitiated',
         completed: 'ExportCompleted',
         'in-progress': 'ExportStatusUpdated',
-        'entered-in-error': 'ExportStatusUpdated'
+        'entered-in-error': 'ExportCompleted'
     },
     DISABLED_COLLECTIONS: ['Parameters_4_0_0'],
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],

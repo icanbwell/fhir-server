@@ -136,9 +136,7 @@ describe('Export Tests', () => {
             expect(messages.length).toBe(5);
             expect(JSON.parse(messages[0].value)).toEqual({
                 data: {
-                    error: [],
                     exportJobId: exportStatusId,
-                    output: [],
                     request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
                     status: 'accepted',
                     transactionTime: expect.any(String)
@@ -151,9 +149,7 @@ describe('Export Tests', () => {
             });
             expect(JSON.parse(messages[2].value)).toEqual({
                 data: {
-                    error: [],
                     exportJobId: exportStatusId,
-                    output: [],
                     request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
                     status: 'in-progress',
                     transactionTime: expect.any(String)
@@ -166,14 +162,7 @@ describe('Export Tests', () => {
             });
             expect(JSON.parse(messages[4].value)).toEqual({
                 data: {
-                    error: [],
                     exportJobId: exportStatusId,
-                    output: [
-                        {
-                            type: 'Patient',
-                            url: 's3://test/exports/bwell/' + exportStatusId + '/Patient.ndjson'
-                        }
-                    ],
                     request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
                     status: 'completed',
                     transactionTime: expect.any(String)

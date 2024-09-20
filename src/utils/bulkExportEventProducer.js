@@ -55,9 +55,7 @@ class BulkExportEventProducer {
                 exportJobId: resource.id,
                 transactionTime: resource.transactionTime,
                 request: resource.request,
-                status: resource.status,
-                output: resource.output,
-                error: resource.errors
+                status: resource.status
             }
         };
         return message;
