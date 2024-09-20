@@ -31,7 +31,12 @@ describe('Export Tests', () => {
                 }));
                 return c;
             });
+            /*
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             const mockKafkaClient = getTestContainer().kafkaClient;
+            await postSaveProcessor.flushAsync();
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             let messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(0);
@@ -40,6 +45,7 @@ describe('Export Tests', () => {
                 .post('/4_0_0/Patient/$export?_type=Patient')
                 .set(getHeaders())
                 .expect(202);
+            await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(1);
 
@@ -83,6 +89,7 @@ describe('Export Tests', () => {
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
                 .send(expectedExportStatusResponseCopy)
                 .expect(200);
+            await postSaveProcessor.flushAsync();
             messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(2);
 

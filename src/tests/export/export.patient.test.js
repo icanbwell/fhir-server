@@ -10,6 +10,7 @@ const { BulkDataExportRunner } = require('../../operations/export/script/bulkDat
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockS3Client } = require('./mocks/s3Client');
 const { generateUUID } = require('../../utils/uid.util');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 describe('Export Tests', () => {
@@ -39,6 +40,10 @@ describe('Export Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
@@ -87,6 +92,7 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportEventProducer: c.exportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
@@ -103,6 +109,7 @@ describe('Export Tests', () => {
             await bulkDataExportRunner.processAsync();
             // wait for post request processing to finish
             await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -128,6 +135,10 @@ describe('Export Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/Patient/$export')
@@ -184,6 +195,7 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportEventProducer: c.exportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
@@ -200,6 +212,7 @@ describe('Export Tests', () => {
             await bulkDataExportRunner.processAsync();
             // wait for post request processing to finish
             await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -222,6 +235,10 @@ describe('Export Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/Patient/$export?_type=Patient')
@@ -270,6 +287,7 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportEventProducer: c.exportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
@@ -286,6 +304,7 @@ describe('Export Tests', () => {
             await bulkDataExportRunner.processAsync();
             // wait for post request processing to finish
             await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request
@@ -310,6 +329,10 @@ describe('Export Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
 
             let resp = await request
                 .post('/4_0_0/$export?_type=AuditEvent')
@@ -358,6 +381,7 @@ describe('Export Tests', () => {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
+                postSaveProcessor: c.postSaveProcessor,
                 exportEventProducer: c.exportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
@@ -374,6 +398,7 @@ describe('Export Tests', () => {
             await bulkDataExportRunner.processAsync();
             // wait for post request processing to finish
             await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
 
             // Query again to check the status
             resp = await request

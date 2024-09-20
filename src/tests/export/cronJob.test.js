@@ -85,6 +85,7 @@ describe('Cron Job Tests', () => {
                         databaseExportManager: c.databaseExportManager,
                         exportManager: c.exportManager,
                         configManager: c.configManager,
+                        postSaveProcessor: c.postSaveProcessor,
                         exportEventProducer: c.exportEventProducer
                     })
             );

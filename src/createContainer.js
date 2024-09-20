@@ -813,7 +813,8 @@ const createContainer = function () {
 
     container.register('databaseExportManager', (c) => new DatabaseExportManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('exportOperation', (c) => new ExportOperation({
@@ -851,6 +852,7 @@ const createContainer = function () {
         k8sClient: c.k8sClient,
         exportManager: c.exportManager,
         scopesValidator: c.scopesValidator,
+        postSaveProcessor: c.postSaveProcessor,
         exportEventProducer: c.exportEventProducer
     }));
 

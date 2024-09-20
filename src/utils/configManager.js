@@ -224,7 +224,7 @@ class ConfigManager {
             (
                 env.KAFKA_ENABLED_RESOURCES && env.KAFKA_ENABLED_RESOURCES.split(',')
                     .map((col) => col.trim())
-            ) || ['Consent']
+            ) || ['Consent', 'ExportStatus']
         );
     }
 

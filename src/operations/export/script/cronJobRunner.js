@@ -7,6 +7,7 @@ const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManage
 const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
 const { ExportManager } = require('../exportManager');
 const { ConfigManager } = require('../../../utils/configManager');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { ExportEventProducer } = require('../../../utils/exportEventProducer');
 
 class CronJobRunner {
@@ -17,6 +18,7 @@ class CronJobRunner {
      * @property {DatabaseExportManager} databaseExportManager
      * @property {ExportManager} exportManager
      * @property {ConfigManager} configManager
+     * @property {PostSaveProcessor} postSaveProcessor
      * @property {ExportEventProducer} exportEventProducer
      * @param {ConstructorParams}
      */
@@ -25,6 +27,7 @@ class CronJobRunner {
         databaseExportManager,
         exportManager,
         configManager,
+        postSaveProcessor,
         exportEventProducer
     }) {
         /**
@@ -50,6 +53,12 @@ class CronJobRunner {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
          * @type {ExportEventProducer}
@@ -163,7 +172,12 @@ class CronJobRunner {
                 await this.databaseExportManager.updateExportStatusAsync({
                     exportStatusResource
                 });
-
+                await this.postSaveProcessor.afterSaveAsync({
+                    requestId: this.configManager.hostnameValue,
+                    eventType: 'U',
+                    resourceType: 'ExportStatus',
+                    doc: exportStatusResource
+                });
                 await this.exportEventProducer.produce({
                     resource: exportStatusResource,
                     requestId: this.configManager.hostnameValue
