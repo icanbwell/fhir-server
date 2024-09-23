@@ -107,6 +107,7 @@ const { ExportOperation } = require('./operations/export/export');
 const { ExportManager } = require('./operations/export/exportManager');
 const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
+const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -207,6 +208,13 @@ const createContainer = function () {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+            configManager: c.configManager
+        }
+    ));
+    container.register('bulkExportEventProducer', (c) => new BulkExportEventProducer(
+        {
+            kafkaClient: c.kafkaClient,
+            fhirBulkExportEventTopic: env.KAFKA_BULK_EXPORT_EVENT_TOPIC || 'fhir.bulk_export.events',
             configManager: c.configManager
         }
     ));
@@ -817,7 +825,8 @@ const createContainer = function () {
         exportManager: c.exportManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        databaseExportManager: c.databaseExportManager
+        databaseExportManager: c.databaseExportManager,
+        bulkExportEventProducer: c.bulkExportEventProducer
     }));
 
     container.register('exportManager', (c) => new ExportManager({
@@ -843,7 +852,8 @@ const createContainer = function () {
         k8sClient: c.k8sClient,
         exportManager: c.exportManager,
         scopesValidator: c.scopesValidator,
-        postSaveProcessor: c.postSaveProcessor
+        postSaveProcessor: c.postSaveProcessor,
+        bulkExportEventProducer: c.bulkExportEventProducer
     }));
 
     return container;

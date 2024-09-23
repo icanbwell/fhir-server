@@ -208,6 +208,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to send bulk export events to kafka
+     * @return {boolean}
+     */
+    get kafkaEnableExportEvents () {
+        return isTrue(env.ENABLE_BULK_EXPORT_KAFKA_EVENTS);
+    }
+
+    /**
      * list of resources for which kafka events are enabled
      * @return {boolean}
      */

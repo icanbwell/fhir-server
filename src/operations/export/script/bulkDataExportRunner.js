@@ -31,6 +31,7 @@ const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 
 class BulkDataExportRunner {
     /**
@@ -47,6 +48,7 @@ class BulkDataExportRunner {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -68,6 +70,7 @@ class BulkDataExportRunner {
         r4ArgsParser,
         searchManager,
         postSaveProcessor,
+        bulkExportEventProducer,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -172,6 +175,12 @@ class BulkDataExportRunner {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {BulkExportEventProducer}
+         */
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
 
         /**
          * @type {string}
@@ -346,6 +355,10 @@ class BulkDataExportRunner {
             doc: this.exportStatusResource
         });
         await this.postSaveProcessor.flushAsync();
+        await this.bulkExportEventProducer.produce({
+            resource: this.exportStatusResource,
+            requestId: this.requestId
+        });
     }
 
     /**

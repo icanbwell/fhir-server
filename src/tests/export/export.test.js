@@ -13,6 +13,8 @@ const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { generateUUID } = require('../../utils/uid.util');
+const { MockKafkaClient } = require('../mocks/mockKafkaClient');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 describe('Export Tests', () => {
     beforeEach(async () => {
@@ -94,6 +96,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -126,6 +129,50 @@ describe('Export Tests', () => {
             expect(urlParts.pop()).toEqual('bwell');
 
             expect(resp.body.errors).toHaveLength(0);
+
+            const mockKafkaClient = getTestContainer().kafkaClient;
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
+            let messages = mockKafkaClient.getMessages();
+            expect(messages.length).toBe(5);
+            expect(JSON.parse(messages[0].value)).toEqual({
+                data: {
+                    exportJobId: exportStatusId,
+                    request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
+                    status: 'accepted',
+                    transactionTime: expect.any(String)
+                },
+                datacontenttype: 'application/json',
+                id: expect.any(String),
+                source: 'https://www.icanbwell.com/fhir-server',
+                specversion: '1.0',
+                type: 'ExportInitiated'
+            });
+            expect(JSON.parse(messages[2].value)).toEqual({
+                data: {
+                    exportJobId: exportStatusId,
+                    request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
+                    status: 'in-progress',
+                    transactionTime: expect.any(String)
+                },
+                datacontenttype: 'application/json',
+                id: expect.any(String),
+                source: 'https://www.icanbwell.com/fhir-server',
+                specversion: '1.0',
+                type: 'ExportStatusUpdated'
+            });
+            expect(JSON.parse(messages[4].value)).toEqual({
+                data: {
+                    exportJobId: exportStatusId,
+                    request: 'http://localhost:3000/4_0_0/$export?_type=Patient',
+                    status: 'completed',
+                    transactionTime: expect.any(String)
+                },
+                datacontenttype: 'application/json',
+                id: expect.any(String),
+                source: 'https://www.icanbwell.com/fhir-server',
+                specversion: '1.0',
+                type: 'ExportCompleted'
+            });
         });
 
         test('S3 path is constructed by concatenating access tags', async () => {
@@ -192,6 +239,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -298,6 +346,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -389,6 +438,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -482,6 +532,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -597,6 +648,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
@@ -744,6 +796,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
@@ -902,6 +955,7 @@ describe('Export Tests', () => {
                         r4ArgsParser: c.r4ArgsParser,
                         searchManager: c.searchManager,
                         postSaveProcessor: c.postSaveProcessor,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
                         exportStatusId,
                         patientReferenceBatchSize: 1000,
                         uploadPartSize: 1024 * 1024,
