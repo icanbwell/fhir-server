@@ -2,6 +2,7 @@
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
 const person1Resource = require('./fixtures/person/person1.json');
+const exportStatus1Resource = require('./fixtures/exportStatus/exportStatus1.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
@@ -15,6 +16,7 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { generateUUID } = require('../../utils/uid.util');
 const { MockKafkaClient } = require('../mocks/mockKafkaClient');
 const { assertTypeEquals } = require('../../utils/assertType');
+const { getLogger } = require('../../winstonInit');
 
 describe('Export Tests', () => {
     beforeEach(async () => {
@@ -1053,6 +1055,84 @@ describe('Export Tests', () => {
                         '--patientReferenceBatchSize 20 --fetchResourceBatchSize 30 --uploadPartSize 40'
                     )
                 })
+            );
+        });
+
+        test('Export triggering does not work when status is other than accepted', async () => {
+            const request = await createTestRequest((c) => {
+                c.register(
+                    'k8sClient',
+                    (c) =>
+                        new MockK8sClient({
+                            configManager: c.configManager
+                        })
+                );
+                return c;
+            });
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {PostSaveProcessor}
+             */
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
+            const requestId = generateUUID();
+            const container = getTestContainer();
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collection = fhirDb.collection('ExportStatus_4_0_0');
+
+            // Setting status field for ExportStatus resources to 'in-progress'
+            exportStatus1Resource.status = 'in-progress';
+
+            // Adding resources in db
+            const result = await collection.insertOne(exportStatus1Resource);
+            expect(result.acknowledged).toEqual(true);
+
+            container.register(
+                'bulkDataExportRunner',
+                (c) =>
+                    new BulkDataExportRunner({
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        databaseExportManager: c.databaseExportManager,
+                        patientFilterManager: c.patientFilterManager,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        r4SearchQueryCreator: c.r4SearchQueryCreator,
+                        patientQueryCreator: c.patientQueryCreator,
+                        enrichmentManager: c.enrichmentManager,
+                        resourceLocatorFactory: c.resourceLocatorFactory,
+                        r4ArgsParser: c.r4ArgsParser,
+                        searchManager: c.searchManager,
+                        postSaveProcessor: c.postSaveProcessor,
+                        bulkExportEventProducer: c.bulkExportEventProducer,
+                        exportStatusId: exportStatus1Resource.id,
+                        patientReferenceBatchSize: 1000,
+                        uploadPartSize: 1024 * 1024,
+                        s3Client: new MockS3Client({
+                            bucketName: 'test',
+                            region: 'test'
+                        }),
+                        requestId
+                    })
+            );
+
+            const bulkDataExportRunner = container.bulkDataExportRunner;
+            const mockLogInfo = jest.spyOn(getLogger(), 'info');
+
+            await bulkDataExportRunner.processAsync();
+            // wait for post request processing to finish
+            await postRequestProcessor.executeAsync({ requestId });
+            await postSaveProcessor.flushAsync();
+
+            expect(mockLogInfo).toHaveBeenCalledTimes(1);
+            expect(mockLogInfo).toBeCalledWith(
+                'Export already triggered for ExportStatus resource with Id- 81673f07-0b70-494d-9903-c391c24c73b0, current status: in-progress',
+                undefined
             );
         });
     });

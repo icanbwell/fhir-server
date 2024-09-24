@@ -206,6 +206,14 @@ class BulkDataExportRunner {
                 return;
             }
 
+            if (this.exportStatusResource.status !== 'accepted') {
+                logInfo(
+                    `Export already triggered for ExportStatus resource with Id- ${this.exportStatusId}, ` +
+                        `current status: ${this.exportStatusResource.status}`
+                );
+                return;
+            }
+
             // Update status of ExportStatus resource to in-progress
             this.exportStatusResource.status = 'in-progress';
             await this.updateExportStatusResource();
