@@ -1,0 +1,22 @@
+query {
+    allergyIntolerance(
+        verification_status:  {
+            notEquals: {
+                code: "entered-in-error"
+            }
+        }
+    )
+    {
+        entry {
+            resource {
+                id
+                type
+                category
+                criticality
+                code {
+                    text
+                }
+            }
+        }
+    }
+}
