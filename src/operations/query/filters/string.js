@@ -13,6 +13,9 @@ class FilterByString extends BaseFilter {
      */
     filterByItem (field, value) {
         const useExactSearch = this.parsedArg.modifiers.includes("exact");
+        if (useExactSearch && value === 'error') {
+            throw new Error('Sentry test');
+        }
         // If the field type is HumanName, use name query builder to apply the search in all the HumanName attributes.
         if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'humanname') {
             const ors = nameQueryBuilder({ target: value, useExactSearch: useExactSearch });
