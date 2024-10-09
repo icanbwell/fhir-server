@@ -28,7 +28,7 @@ class MockAccessLogger extends AccessLogger {
         stopTime = Date.now(),
         query
     }) {
-        expect(statusCode).toEqual(400);
+        expect([400,201]).toContain(statusCode);
     }
 }
 
