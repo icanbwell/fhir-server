@@ -1,4 +1,4 @@
-# FHIR Server Cheatsheet
+# FHIR Server Cheatsheet for REST API
 
 ## 0. Accessing FHIR Server
 
@@ -66,7 +66,7 @@ https://fhir.icanbwell.com/4_0_0/Patient
 Use the `_count` query parameter e.g.,
 https://fhir.icanbwell.com/4_0_0/Practitioner?_count=10
 
-The default is 10
+The default is 100
 
 **Note**: Passing 0 in this query parameter is equivalent to no limit.
 
@@ -94,13 +94,21 @@ FHIR Specification: https://www.hl7.org/fhir/search.html#_sort
 
 ### 1.4 Paging
 
+#### 1.4.1 offset & limit based paging
+
 To page through the data specify the `_count` and the `_getpageoffset` query parameters e.g., https://fhir.icanbwell.com/4_0_0/ExplanationOfBenefit?_count=2&_getpagesoffset=2
 
 When you get no resources back then this means you've reached the end.
 
-#### 1.4.1 Efficient Paging
+**Note**: Do not use _getpagesoffset based paging if a recource have millions of records. If FHIR Server is not able read 1st record from MongoDB within 1 minute then it will return as error with 500 status code.
 
-Paging large tables can be very inefficient. We recommend more efficient patterns so your queries do not time out: https://github.com/icanbwell/fhir-server/blob/master/performance.md
+#### 1.4.2 cursor(_next url) based pagination
+
+Each REST Search to FHIR Server returns `_next` url in bundle that can be used to fetch next set of data for search and `_count` can specify the no. of records that can be returned in each API call. When you get no resources back then this means you've reached the end.
+
+We do not have any maximum number for `_count`. It can be anything but `_count=0` in this query parameter is equivalent to no limit and return all the records that can be transfered in 1 hours.
+
+**Note**: FHIR Server can keep REST resouce fetch connection open till 1 hour and if request is not able to complete in 1 hour then last record may be in-complete json.
 
 ### 1.5 Additional Filters
 
