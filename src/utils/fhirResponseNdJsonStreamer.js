@@ -34,10 +34,6 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', String(this.requestId));
-
-        const header = '';
-
-        await this.response.write(header);
     }
 
     /**

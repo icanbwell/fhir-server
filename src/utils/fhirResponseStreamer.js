@@ -62,10 +62,6 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', String(this.requestId));
-
-        const header = '{"entry":[';
-
-        await this.response.write(header);
     }
 
     /**
@@ -83,7 +79,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
             if (this._first) {
                 // write the beginning json
                 this._first = false;
-                await this.response.write(bundleEntryJson);
+                await this.response.write('{"entry":[' + bundleEntryJson);
             } else {
                 // add comma at the beginning to make it legal json
                 await this.response.write(',' + bundleEntryJson);
