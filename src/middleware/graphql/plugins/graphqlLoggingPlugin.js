@@ -51,7 +51,7 @@ class MyApolloServerLoggingPlugin /* extends ApolloServerPlugin */ {
             async parsingDidStart () {
                 return async (err) => {
                     if (err) {
-                        logError(
+                        logInfo(
                             'GraphQL Request Parsing Error',
                             {
                                 user,
@@ -75,7 +75,7 @@ class MyApolloServerLoggingPlugin /* extends ApolloServerPlugin */ {
                         await async.forEach(
                             errs,
                             async (err) => {
-                                logError(`GraphQL Request Validation Error: ${err.message}`, {
+                                logInfo(`GraphQL Request Validation Error: ${err.message}`, {
                                     error: err,
                                     source: 'GraphQL',
                                     args: {

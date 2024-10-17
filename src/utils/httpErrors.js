@@ -22,6 +22,7 @@ class BadRequestError extends ServerError {
                 operationOutcomeIssue
             ]
         });
+        this.logLevel = 'info';
 
         // You can attach relevant information to the error instance
         // (e.g.. the username)
@@ -52,6 +53,7 @@ class NotFoundError extends ServerError {
         });
 
         this.name = 'NotFound';
+        this.logLevel = 'info';
 
         // You can attach relevant information to the error instance
         // (e.g.. the username)
@@ -80,6 +82,7 @@ class NotAllowedError extends ServerError {
                 }
             ]
         });
+        this.logLevel = 'info';
 
         // You can attach relevant information to the error instance
         // (e.g.. the username)

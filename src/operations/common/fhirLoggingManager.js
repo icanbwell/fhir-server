@@ -258,7 +258,7 @@ class FhirLoggingManager {
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
         // write the insecure information to insecure log
-        if (error) {
+        if (error && error?.logLevel !== 'info') {
             fhirInSecureLogger.error(logEntry);
         } else {
             fhirInSecureLogger.info(logEntry);
