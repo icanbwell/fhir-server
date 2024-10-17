@@ -28,6 +28,12 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         this._first = true;
 
         /**
+         * @type {string}
+         * @private
+         */
+        this._beginningJSON = '{"entry":[';
+
+        /**
          * @type {string | null}
          * @private
          */
@@ -79,7 +85,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
             if (this._first) {
                 // write the beginning json
                 this._first = false;
-                await this.response.write('{"entry":[' + bundleEntryJson);
+                await this.response.write(this._beginningJSON + bundleEntryJson);
             } else {
                 // add comma at the beginning to make it legal json
                 await this.response.write(',' + bundleEntryJson);
@@ -117,6 +123,12 @@ class FhirResponseStreamer extends BaseResponseStreamer {
          * @type {string}
          */
         const bundleJson = JSON.stringify(cleanObject);
+
+        if (this._first) {
+            // write the beginning json
+            this._first = false;
+            await this.response.write(this._beginningJSON);
+        }
 
         // write ending json
         await this.response.end('],' + bundleJson.substring(1));
