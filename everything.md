@@ -2,6 +2,8 @@
 
 The FHIR server supports the $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/resource-operation-graph.html). This operation is used to retrieve all resources related to the provided resource. The $everything operation internally uses graphs to fetch or delete all the resources. Here are the graphs that $everything uses underneath: https://github.com/icanbwell/fhir-server/tree/main/src/graphs
 
+Note - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
+
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
