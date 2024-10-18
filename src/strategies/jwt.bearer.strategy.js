@@ -10,7 +10,7 @@ const superagent = require('superagent');
 
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const { isTrue } = require('../utils/isTrue');
-const { logDebug } = require('../operations/common/logging');
+const { logDebug, logError } = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
@@ -26,21 +26,31 @@ const requiredJWTFields = {
  * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
 const getExternalJwksByUrlAsync = async (jwksUrl) => {
-    /**
-     * @type {*}
-     */
-    const res = await superagent
-        .get(jwksUrl)
-        .set({
-            Accept: 'application/json'
-        })
-        .retry(EXTERNAL_REQUEST_RETRY_COUNT)
-        .timeout(requestTimeout);
-    /**
-     * @type {Object}
-     */
-    const jsonResponse = JSON.parse(res.text);
-    return jsonResponse.keys;
+    try {
+        /**
+         * @type {*}
+         */
+        const res = await superagent
+            .get(jwksUrl)
+            .set({
+                Accept: 'application/json'
+            })
+            .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+            .timeout(requestTimeout);
+        /**
+         * @type {Object}
+         */
+        const jsonResponse = JSON.parse(res.text);
+        return jsonResponse.keys;
+    } catch (error) {
+        logError(`Error while fetching keys from external jwk url: ${error.message}`, {
+            error: error,
+            args: {
+                jwksUrl: jwksUrl
+            }
+        });
+        return [];
+    }
 };
 
 /**
