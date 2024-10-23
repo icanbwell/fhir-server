@@ -41,7 +41,8 @@ const {
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
     PERSON_REFERENCE_PREFIX,
-    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
+    PERSON_PROXY_PREFIX
 } = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
@@ -509,6 +510,8 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync ({
@@ -522,7 +525,9 @@ class GraphHelper {
                                         reverse_filter,
                                         explain,
                                         debug,
-                                        supportLegacyId = true
+                                        supportLegacyId = true,
+                                        proxyPatientIds = [],
+                                        proxyPatientResources = []
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -564,6 +569,13 @@ class GraphHelper {
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
                         .map(p => p.entityId)
                 );
+            }
+
+            if (parentResourceType === 'Patient' && proxyPatientIds) {
+                parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
+                    proxyPatientIds.map((id) => PATIENT_REFERENCE_PREFIX + id)
+                );
+                parentResourceIdList = parentResourceIdList.concat(proxyPatientIds);
             }
 
             if (parentResourceTypeAndIdList.length === 0) {
@@ -689,6 +701,17 @@ class GraphHelper {
                         .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
 
+                    // for handling case when searching using sourceid of proxy patient
+                    /**
+                     * @type {string[]}
+                     */
+                    let referenceWithSourceIds = []
+                    if(proxyPatientIds){
+                        referenceWithSourceIds = properties
+                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r}))
+                        .filter(r => r !== undefined).map(r => r.split('|')[0]);
+                    }
+
                     // for handling case for subscription resources where instead of
                     // reference we only have id of person/patient resource in extension/identifier
                     if (
@@ -729,14 +752,24 @@ class GraphHelper {
                             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
                     }
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = uniqueParentEntities.map(
-                            p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        logError(
-                            `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
-                            `using property ${fieldForSearchParameter} in ` +
-                            'child entity ' +
-                            `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`, {}
-                        );
+                        if (
+                            parentResourceType === 'Patient' &&
+                            proxyPatientIds &&
+                            proxyPatientIds.some((id) =>
+                                referenceWithSourceIds.includes(PATIENT_REFERENCE_PREFIX + id)
+                            )
+                        ) {
+                            proxyPatientResources.push(resourceEntityAndContained);
+                        } else {
+                            const parentEntitiesString = uniqueParentEntities.map(
+                                p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                            logError(
+                                `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                                `using property ${fieldForSearchParameter} in ` +
+                                'child entity ' +
+                                `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,{}
+                            );
+                        }
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -874,6 +907,8 @@ class GraphHelper {
      * @param {{type: string}} target
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync (
@@ -887,7 +922,9 @@ class GraphHelper {
             debug,
             target,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1003,7 +1040,9 @@ class GraphHelper {
                             reverse_filter: target.params,
                             explain,
                             debug,
-                            supportLegacyId
+                            supportLegacyId,
+                            proxyPatientIds,
+                            proxyPatientResources
                         }
                     );
                     if (queryItem) {
@@ -1045,7 +1084,9 @@ class GraphHelper {
                                 explain,
                                 debug,
                                 parsedArgs,
-                                supportLegacyId
+                                supportLegacyId,
+                                proxyPatientIds,
+                                proxyPatientResources
                             }
                         )
                     );
@@ -1083,6 +1124,8 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync (
@@ -1095,7 +1138,9 @@ class GraphHelper {
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1119,7 +1164,9 @@ class GraphHelper {
                         debug,
                         target,
                         parsedArgs,
-                        supportLegacyId
+                        supportLegacyId,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 )
             );
@@ -1159,6 +1206,8 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync (
@@ -1171,7 +1220,9 @@ class GraphHelper {
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1201,7 +1252,9 @@ class GraphHelper {
                         explain,
                         debug,
                         parsedArgs,
-                        supportLegacyId
+                        supportLegacyId,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 )
             );
@@ -1441,6 +1494,8 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync (
@@ -1457,7 +1512,9 @@ class GraphHelper {
             idsAlreadyProcessed,
             supportLegacyId = true,
             includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1
+            nonClinicalResourcesDepth = 1,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1576,7 +1633,7 @@ class GraphHelper {
             /**
              * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
              */
-            const { entities: allRelatedEntries, queryItems } = await this.processGraphLinksAsync(
+            let { entities: allRelatedEntries, queryItems } = await this.processGraphLinksAsync(
                 {
                     requestInfo,
                     base_version,
@@ -1586,7 +1643,9 @@ class GraphHelper {
                     explain,
                     debug,
                     parsedArgs,
-                    supportLegacyId
+                    supportLegacyId,
+                    proxyPatientIds,
+                    proxyPatientResources
                 }
             );
 
@@ -1600,6 +1659,8 @@ class GraphHelper {
                     }
                 }
             }
+            // adding proxy patient resources to top level as no parent resource
+            allRelatedEntries = allRelatedEntries.concat(proxyPatientResources);
 
             /**
              * @type {ResourceIdentifier[]}
@@ -1885,6 +1946,22 @@ class GraphHelper {
                 parsedArgsForChunk.id = idChunk;
                 parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
                 /**
+                 * @type {string[]}
+                 */
+                let proxyPatientIds = []
+                /**
+                 * @type {ResourceEntityAndContained[]}
+                 */
+                let proxyPatientResources = []
+                if (resourceType === 'Person') {
+                    proxyPatientIds = idChunk.map((id) => {
+                        return PERSON_PROXY_PREFIX + id;
+                    });
+                } else if (resourceType === 'Patient') {
+                    proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
+                }
+
+                /**
                  * @type {ProcessMultipleIdsAsyncResult}
                  */
                 const {
@@ -1907,7 +1984,9 @@ class GraphHelper {
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
                         includeNonClinicalResources,
-                        nonClinicalResourcesDepth
+                        nonClinicalResourcesDepth,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 );
                 entries = entries.concat(entries1);
