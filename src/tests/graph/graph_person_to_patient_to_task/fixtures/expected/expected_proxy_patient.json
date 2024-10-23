@@ -441,7 +441,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['b2ee7ab4-c3b1-50af-8017-dbecc28177bf','3a088efc-f7ac-5906-8e32-0d2ed29f7051']}},{'_sourceId':'person.002126287fbd412d8b52115e48edbd4c'}]}, {'_id':0})  | db.Task_4_0_0.find({'$and':[{'$or':[{'for._uuid':{'$in':['Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf','Patient/3a088efc-f7ac-5906-8e32-0d2ed29f7051']}},{'for._sourceId':{'$in':['Patient/aab16fc4c5914e38b489bcd096369623','Patient/0318898e65044aaab3115d048d44c434']}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {})",
+        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['b2ee7ab4-c3b1-50af-8017-dbecc28177bf','3a088efc-f7ac-5906-8e32-0d2ed29f7051']}},{'_sourceId':'person.002126287fbd412d8b52115e48edbd4c'}]}, {'_id':0})  | db.Task_4_0_0.find({'$and':[{'$or':[{'for._uuid':{'$in':['Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf','Patient/3a088efc-f7ac-5906-8e32-0d2ed29f7051']}},{'for._sourceId':{'$in':['Patient/aab16fc4c5914e38b489bcd096369623','Patient/0318898e65044aaab3115d048d44c434','Patient/person.002126287fbd412d8b52115e48edbd4c']}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {
