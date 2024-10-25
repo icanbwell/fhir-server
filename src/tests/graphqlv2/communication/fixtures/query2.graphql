@@ -1,0 +1,22 @@
+query Totals {
+  communication(
+    verification_status {
+      notEquals: {
+        code: "entered-in-error"
+      }
+    }
+  )  {
+     entry {
+       resource {
+         about {
+            reference {
+              ... on Patient {
+                id
+                resourceType
+            }
+          }
+        }
+      }
+    }
+  }
+}
