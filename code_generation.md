@@ -9,6 +9,9 @@ Currently we generate the following code:
 3. Javascript file `src/fhir/classes/4_0_0/resources/index.js` that contains a list of resources
 4. GraphQL schemas and resolvers in `src/graphql/v2`
 5. Search parameters in `src/searchParameters`
+6. Resources Non-clinical fields in `src/graphs/patient`
+7. Validation schema in `src/fhir/generator/json`
+8. Resource field types in `src/fhir/generator/json`
 
 ## Schema files
 
@@ -108,6 +111,22 @@ This runs `src/fhir/generator/generate_non_clinical_fields.py` and makes a list 
 This reads the `src/graphs/patient/everything.json` file and generates the following file:
 `src/graphs/patient/generated.non_clinical_resources_fields.json`
 
+### 7. Validation schema in `src/fhir/generator/json`
+
+This is run by the command `make schema`.
+
+This runs `src/fhir/generator/generate_schema.py`.
+
+It generates `src/fhir/generator/json/fhir-generated.schema.json` file used for resources validation.
+
+### 8. Resource field types in `src/fhir/generator/json`
+
+This is run by the command `make resourceFieldTypes`.
+
+This runs `src/fhir/generator/generate_resource_fields_type.py`.
+
+It reads `src/fhir/generator/xsd/definitions.xml/profiles-resources.xml` file and generates `src/fhir/generator/json/fhir-generated.field-types.json` file used for getting field types while making queries.
+
 ## FHIR Schema files used
 
 The generator uses the following files:
@@ -119,8 +138,6 @@ The generator uses the following files:
    in `src/fhir/generator/xsd/definitions.xml/*.xsd`.
 4. `src/fhir/generator/xsd/definitions.xml/dataelements.xml` contains the types for the properties of each resource, the
    types for the references and the types for the CodeableConcepts.
-5. `v3-codesystems.xml` contains the list of v3 code systems.
-6. `v2-tables.xml` contains the list of v2 code systems.
 
 ## Debugging
 

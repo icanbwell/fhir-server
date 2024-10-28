@@ -3,7 +3,6 @@ const env = require('var');
 const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const { searchLimitForIds, limit } = require('../../utils/searchForm.util');
 const { pipeline } = require('stream/promises');
 const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
 const { Transform } = require('stream');
@@ -35,6 +34,7 @@ const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
+const { DB_SEARCH_LIMIT_FOR_IDS, DB_SEARCH_LIMIT } = require('../../constants');
 
 class SearchManager {
     /**
@@ -582,8 +582,8 @@ class SearchManager {
             const pageNumber = Number(parsedArgs._getpagesoffset);
             options.skip = pageNumber > 0 ? pageNumber * nPerPage : 0;
         }
-        // cap it at searchLimitForIds to avoid running out of memory
-        options.limit = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
+        // cap it at DB_SEARCH_LIMIT_FOR_IDS to avoid running out of memory
+        options.limit = isStreaming ? nPerPage : Math.min(nPerPage, DB_SEARCH_LIMIT_FOR_IDS);
 
         return { options };
     }
@@ -897,9 +897,9 @@ class SearchManager {
     ) {
         // set a limit so the server does not come down due to volume of data
         if (!parsedArgs.id && !parsedArgs._elements) {
-            options.limit = limit;
+            options.limit = DB_SEARCH_LIMIT;
         } else {
-            options.limit = searchLimitForIds;
+            options.limit = DB_SEARCH_LIMIT_FOR_IDS;
         }
     }
 
