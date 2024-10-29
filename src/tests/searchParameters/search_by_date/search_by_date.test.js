@@ -150,6 +150,13 @@ describe('Observation Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources3);
+
+            // search by date ap and make sure we get the right Observation back
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&date=ap2019-12-01')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources3);
         });
 
         // removing these tests for now since new date functionality makes them invalid

@@ -2,7 +2,8 @@ const {
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
-    datetimeTimingQueryBuilder
+    datetimeTimingQueryBuilder,
+    datetimeApproxString
 } = require('../../../utils/querybuilder.util');
 const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
@@ -57,10 +58,18 @@ class FilterByDateTime extends BaseFilter {
             } else {
                 // if this is date as a string
                 if (!isColumnDateTimeType(this.resourceType, fieldName)) {
-                    strQuery = {
-                        [fieldName]: dateQueryBuilder({
-                            date: value, type: this.propertyObj.type
-                        })
+                    if (value.startsWith('ap')) {
+                        const justDate = value.substring(2);
+                        const { start, end} = datetimeApproxString({dateQueryItem: justDate})
+                        strQuery = {
+                            [fieldName]: { $gte: start, $lte: end }
+                        }
+                    } else {
+                        strQuery = {
+                            [fieldName]: dateQueryBuilder({
+                                date: value, type: this.propertyObj.type
+                            })
+                        }
                     };
                 }
             }
@@ -119,6 +128,13 @@ class FilterByDateTime extends BaseFilter {
                 and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
             }
         }
+
+        // clean up and_segments, remove undefines
+        and_segments[0]['$or'] = and_segments[0]['$or'].filter((query) => {
+            if (query) {
+                return query;
+            }
+        });
 
         return and_segments;
     }

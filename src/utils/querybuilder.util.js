@@ -1068,13 +1068,43 @@ const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
             query.$lte = date;
             break;
         case 'ap':
-            query.$lte = date;
-            break;
+           { const { startDate, endDate } = datetimeApprox({dateQueryItem: date});
+            query.$lte = endDate;
+            query.$gte = startDate;
+            break; }
         default:
             throw new Error(`${operation} is not supported.`);
     }
     return query;
 };
+
+const datetimeApproxString = function({ dateQueryItem }) {
+    if (typeof dateQueryItem !=='string') {
+        return { startDate: "", endDate: "" };
+    }
+    const { startDate, endDate } = datetimeApprox({dateQueryItem: moment(dateQueryItem).utc().toDate()});
+    const start = moment(startDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    const end = moment(endDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    return ({ start, end });
+}
+
+/**
+ * Searches for date using the Date type
+ * @param {Date} dateQueryItem
+ * @return {Object}
+ */
+const datetimeApprox = function({ dateQueryItem }) {
+    if (dateQueryItem === null || !moment(dateQueryItem).isValid()) {
+        return { startDate: "", endDate: false };
+    }
+
+    const now = moment();
+    const diffDate = Math.abs(now.diff(dateQueryItem));
+    const offset = diffDate * 0.1;
+    const startDate = moment(dateQueryItem).subtract(offset, 'ms').toDate();
+    const endDate = moment(dateQueryItem).add(offset, 'ms').toDate();
+    return ({ startDate, endDate })
+}
 
 /**
  * filters by date for a Period
@@ -1112,10 +1142,12 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
         case 'ge':
         case 'gt':
         case 'eb':
-            startQuery = {
-                $ne: null
-            };
+            startQuery = { $ne: null };
             break;
+        case 'ap':
+           { const { start, end } = datetimeApproxString({dateQueryItem: date});
+             startQuery = { $gte: start };
+             break; }
     }
     startQuery = { [`${fieldName}.start`]: startQuery };
 
@@ -1147,7 +1179,14 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                 })
             };
             break;
-    }
+        case 'ap':
+           { const { start, end } = datetimeApproxString({dateQueryItem: date});
+             endQuery = {
+                 [`${fieldName}.end`]: { $lte: end }
+               }
+             break;
+           }
+     }
     return [startQuery, endQuery];
 };
 
@@ -1187,10 +1226,12 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
         case 'ge':
         case 'gt':
         case 'eb':
-            timingQuery = {
-                $ne: null
-            };
+            timingQuery = { $ne: null }
             break;
+        case 'ap':
+           { const { start, end } = datetimeApproxString({dateQueryItem: date});
+             timingQuery = { $gte: start, $lte: end };
+            break; }
     }
     timingQuery = { [`${fieldName}.event`]: timingQuery };
 
@@ -1473,6 +1514,7 @@ module.exports = {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
     datetimeTimingQueryBuilder,
+    datetimeApproxString,
     textQueryBuilder,
     exactMatchQueryBuilder,
     tokenQueryContainsBuilder,
