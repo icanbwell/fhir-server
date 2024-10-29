@@ -249,8 +249,18 @@
     "min": "0",
     "max": "1"
   },
-  "ActivityDefinition.subject[x]": {
+  "ActivityDefinition.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.subjectReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.subjectcanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -379,8 +389,33 @@
     "min": "0",
     "max": "1"
   },
-  "ActivityDefinition.timing[x]": {
+  "ActivityDefinition.timingTiming": {
     "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.timingdateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.timingAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.timingRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.timingDuration": {
+    "code": "Duration",
     "min": "0",
     "max": "1"
   },
@@ -419,8 +454,13 @@
     "min": "0",
     "max": "1"
   },
-  "ActivityDefinition.product[x]": {
+  "ActivityDefinition.productReference": {
     "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "ActivityDefinition.productCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -594,8 +634,28 @@
     "min": "1",
     "max": "1"
   },
-  "AdministrableProductDefinition.property.value[x]": {
+  "AdministrableProductDefinition.property.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "AdministrableProductDefinition.property.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "AdministrableProductDefinition.property.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "AdministrableProductDefinition.property.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "AdministrableProductDefinition.property.valueAttachment": {
+    "code": "Attachment",
     "min": "0",
     "max": "1"
   },
@@ -999,8 +1059,28 @@
     "min": "0",
     "max": "1"
   },
-  "AllergyIntolerance.onset[x]": {
+  "AllergyIntolerance.onsetdateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "AllergyIntolerance.onsetAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "AllergyIntolerance.onsetPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "AllergyIntolerance.onsetRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "AllergyIntolerance.onsetstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -1654,8 +1734,13 @@
     "min": "1",
     "max": "1"
   },
-  "AuditEvent.entity.detail.value[x]": {
+  "AuditEvent.entity.detail.valuestring": {
     "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "AuditEvent.entity.detail.valuebase64Binary": {
+    "code": "base64Binary",
     "min": "1",
     "max": "1"
   },
@@ -1864,8 +1949,13 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.collection.collected[x]": {
+  "BiologicallyDerivedProduct.collection.collecteddateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "BiologicallyDerivedProduct.collection.collectedPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -1904,8 +1994,13 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.processing.time[x]": {
+  "BiologicallyDerivedProduct.processing.timedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "BiologicallyDerivedProduct.processing.timePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -1934,8 +2029,13 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.manipulation.time[x]": {
+  "BiologicallyDerivedProduct.manipulation.timedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "BiologicallyDerivedProduct.manipulation.timePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -3179,8 +3279,18 @@
     "min": "0",
     "max": "1"
   },
-  "CarePlan.activity.detail.scheduled[x]": {
+  "CarePlan.activity.detail.scheduledTiming": {
     "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "CarePlan.activity.detail.scheduledPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "CarePlan.activity.detail.scheduledstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -3194,8 +3304,13 @@
     "min": "0",
     "max": "*"
   },
-  "CarePlan.activity.detail.product[x]": {
+  "CarePlan.activity.detail.productCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "CarePlan.activity.detail.productReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -3569,8 +3684,18 @@
     "min": "0",
     "max": "1"
   },
-  "ChargeItem.occurrence[x]": {
+  "ChargeItem.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "ChargeItem.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ChargeItem.occurrenceTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -3664,8 +3789,13 @@
     "min": "0",
     "max": "*"
   },
-  "ChargeItem.product[x]": {
+  "ChargeItem.productReference": {
     "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "ChargeItem.productCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -4209,8 +4339,23 @@
     "min": "0",
     "max": "*"
   },
-  "Citation.relatesTo.target[x]": {
+  "Citation.relatesTo.targeturi": {
     "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.relatesTo.targetIdentifier": {
+    "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.relatesTo.targetReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.relatesTo.targetAttachment": {
+    "code": "Attachment",
     "min": "1",
     "max": "1"
   },
@@ -4459,8 +4604,23 @@
     "min": "0",
     "max": "*"
   },
-  "Citation.citedArtifact.relatesTo.target[x]": {
+  "Citation.citedArtifact.relatesTo.targeturi": {
     "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.citedArtifact.relatesTo.targetIdentifier": {
+    "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.citedArtifact.relatesTo.targetReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Citation.citedArtifact.relatesTo.targetAttachment": {
+    "code": "Attachment",
     "min": "1",
     "max": "1"
   },
@@ -5239,13 +5399,38 @@
     "min": "0",
     "max": "1"
   },
-  "Claim.supportingInfo.timing[x]": {
+  "Claim.supportingInfo.timingdate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "Claim.supportingInfo.value[x]": {
+  "Claim.supportingInfo.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.supportingInfo.valueboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.supportingInfo.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.supportingInfo.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.supportingInfo.valueAttachment": {
+    "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.supportingInfo.valueReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -5279,8 +5464,13 @@
     "min": "1",
     "max": "1"
   },
-  "Claim.diagnosis.diagnosis[x]": {
+  "Claim.diagnosis.diagnosisCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Claim.diagnosis.diagnosisReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -5334,8 +5524,13 @@
     "min": "0",
     "max": "1"
   },
-  "Claim.procedure.procedure[x]": {
+  "Claim.procedure.procedureCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Claim.procedure.procedureReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -5429,8 +5624,13 @@
     "min": "0",
     "max": "1"
   },
-  "Claim.accident.location[x]": {
+  "Claim.accident.locationAddress": {
     "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.accident.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -5504,13 +5704,28 @@
     "min": "0",
     "max": "*"
   },
-  "Claim.item.serviced[x]": {
+  "Claim.item.serviceddate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "Claim.item.location[x]": {
+  "Claim.item.servicedPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.item.locationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.item.locationAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "Claim.item.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -6009,13 +6224,28 @@
     "min": "0",
     "max": "*"
   },
-  "ClaimResponse.addItem.serviced[x]": {
+  "ClaimResponse.addItem.serviceddate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "ClaimResponse.addItem.location[x]": {
+  "ClaimResponse.addItem.servicedPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ClaimResponse.addItem.locationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ClaimResponse.addItem.locationAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "ClaimResponse.addItem.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -6464,8 +6694,13 @@
     "min": "0",
     "max": "1"
   },
-  "ClinicalImpression.effective[x]": {
+  "ClinicalImpression.effectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "ClinicalImpression.effectivePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -6759,8 +6994,13 @@
     "min": "0",
     "max": "1"
   },
-  "ClinicalUseDefinition.indication.duration[x]": {
+  "ClinicalUseDefinition.indication.durationRange": {
     "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "ClinicalUseDefinition.indication.durationstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -6809,8 +7049,13 @@
     "min": "0",
     "max": "*"
   },
-  "ClinicalUseDefinition.interaction.interactant.item[x]": {
+  "ClinicalUseDefinition.interaction.interactant.itemReference": {
     "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "ClinicalUseDefinition.interaction.interactant.itemCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "1",
     "max": "1"
   },
@@ -7234,8 +7479,38 @@
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.value[x]": {
+  "CodeSystem.concept.property.valuecode": {
     "code": "code",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valuedateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "CodeSystem.concept.property.valuedecimal": {
+    "code": "decimal",
     "min": "1",
     "max": "1"
   },
@@ -7404,8 +7679,18 @@
     "min": "0",
     "max": "*"
   },
-  "Communication.payload.content[x]": {
+  "Communication.payload.contentstring": {
     "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Communication.payload.contentAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Communication.payload.contentReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -7539,13 +7824,28 @@
     "min": "0",
     "max": "*"
   },
-  "CommunicationRequest.payload.content[x]": {
+  "CommunicationRequest.payload.contentstring": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "CommunicationRequest.occurrence[x]": {
+  "CommunicationRequest.payload.contentAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "CommunicationRequest.payload.contentReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "CommunicationRequest.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "CommunicationRequest.occurrencePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -7879,8 +8179,13 @@
     "min": "1",
     "max": "1"
   },
-  "Composition.relatesTo.target[x]": {
+  "Composition.relatesTo.targetIdentifier": {
     "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "Composition.relatesTo.targetReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -8099,13 +8404,23 @@
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.source[x]": {
+  "ConceptMap.sourceuri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.target[x]": {
+  "ConceptMap.sourcecanonical": {
+    "code": "canonical",
+    "min": "0",
+    "max": "1"
+  },
+  "ConceptMap.targeturi": {
     "code": "uri",
+    "min": "0",
+    "max": "1"
+  },
+  "ConceptMap.targetcanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -8384,13 +8699,53 @@
     "min": "0",
     "max": "1"
   },
-  "Condition.onset[x]": {
+  "Condition.onsetdateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
   },
-  "Condition.abatement[x]": {
+  "Condition.onsetAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.onsetPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.onsetRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.onsetstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.abatementdateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.abatementAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.abatementPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.abatementRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Condition.abatementstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -8559,8 +8914,13 @@
     "min": "0",
     "max": "*"
   },
-  "Consent.source[x]": {
+  "Consent.sourceAttachment": {
     "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "Consent.sourceReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -8899,8 +9259,13 @@
     "min": "0",
     "max": "1"
   },
-  "Contract.topic[x]": {
+  "Contract.topicCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.topicReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -8999,8 +9364,13 @@
     "min": "0",
     "max": "1"
   },
-  "Contract.term.topic[x]": {
+  "Contract.term.topicCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.term.topicReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -9154,8 +9524,63 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.term.offer.answer.value[x]": {
+  "Contract.term.offer.answer.valueboolean": {
     "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valuedecimal": {
+    "code": "decimal",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valuedate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valuedateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valuetime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueuri": {
+    "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.term.offer.answer.valueReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -9309,8 +9734,13 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.term.asset.valuedItem.entity[x]": {
+  "Contract.term.asset.valuedItem.entityCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.term.asset.valuedItem.entityReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -9464,8 +9894,18 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.term.action.occurrence[x]": {
+  "Contract.term.action.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.term.action.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.term.action.occurrenceTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -9594,8 +10034,13 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.friendly.content[x]": {
+  "Contract.friendly.contentAttachment": {
     "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.friendly.contentReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -9619,8 +10064,13 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.legal.content[x]": {
+  "Contract.legal.contentAttachment": {
     "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.legal.contentReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -9644,13 +10094,23 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.rule.content[x]": {
+  "Contract.rule.contentAttachment": {
     "code": "Attachment",
     "min": "1",
     "max": "1"
   },
-  "Contract.legallyBinding[x]": {
+  "Contract.rule.contentReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Contract.legallyBindingAttachment": {
     "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "Contract.legallyBindingReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -9819,8 +10279,13 @@
     "min": "0",
     "max": "1"
   },
-  "Coverage.costToBeneficiary.value[x]": {
+  "Coverage.costToBeneficiary.valueQuantity": {
     "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Coverage.costToBeneficiary.valueMoney": {
+    "code": "Money",
     "min": "1",
     "max": "1"
   },
@@ -9929,8 +10394,13 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityRequest.serviced[x]": {
+  "CoverageEligibilityRequest.serviceddate": {
     "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityRequest.servicedPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -10109,8 +10579,13 @@
     "min": "0",
     "max": "*"
   },
-  "CoverageEligibilityRequest.item.diagnosis.diagnosis[x]": {
+  "CoverageEligibilityRequest.item.diagnosis.diagnosisCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityRequest.item.diagnosis.diagnosisReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -10179,8 +10654,13 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityResponse.serviced[x]": {
+  "CoverageEligibilityResponse.serviceddate": {
     "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityResponse.servicedPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -10344,13 +10824,33 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.allowed[x]": {
+  "CoverageEligibilityResponse.insurance.item.benefit.allowedunsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.used[x]": {
+  "CoverageEligibilityResponse.insurance.item.benefit.allowedstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityResponse.insurance.item.benefit.allowedMoney": {
+    "code": "Money",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityResponse.insurance.item.benefit.usedunsignedInt": {
     "code": "unsignedInt",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityResponse.insurance.item.benefit.usedstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "CoverageEligibilityResponse.insurance.item.benefit.usedMoney": {
+    "code": "Money",
     "min": "0",
     "max": "1"
   },
@@ -10469,8 +10969,13 @@
     "min": "0",
     "max": "1"
   },
-  "DetectedIssue.identified[x]": {
+  "DetectedIssue.identifieddateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "DetectedIssue.identifiedPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -10964,8 +11469,13 @@
     "min": "1",
     "max": "1"
   },
-  "DeviceDefinition.manufacturer[x]": {
+  "DeviceDefinition.manufacturerstring": {
     "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceDefinition.manufacturerReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -11404,8 +11914,13 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceRequest.code[x]": {
+  "DeviceRequest.codeReference": {
     "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "DeviceRequest.codeCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "1",
     "max": "1"
   },
@@ -11434,8 +11949,23 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceRequest.parameter.value[x]": {
+  "DeviceRequest.parameter.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceRequest.parameter.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceRequest.parameter.valueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceRequest.parameter.valueboolean": {
+    "code": "boolean",
     "min": "0",
     "max": "1"
   },
@@ -11449,8 +11979,18 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceRequest.occurrence[x]": {
+  "DeviceRequest.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceRequest.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceRequest.occurrenceTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -11569,8 +12109,18 @@
     "min": "0",
     "max": "*"
   },
-  "DeviceUseStatement.timing[x]": {
+  "DeviceUseStatement.timingTiming": {
     "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceUseStatement.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "DeviceUseStatement.timingdateTime": {
+    "code": "dateTime",
     "min": "0",
     "max": "1"
   },
@@ -11684,8 +12234,13 @@
     "min": "0",
     "max": "1"
   },
-  "DiagnosticReport.effective[x]": {
+  "DiagnosticReport.effectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "DiagnosticReport.effectivePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -12994,8 +13549,13 @@
     "min": "0",
     "max": "1"
   },
-  "EventDefinition.subject[x]": {
+  "EventDefinition.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "EventDefinition.subjectReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -13154,8 +13714,13 @@
     "min": "0",
     "max": "1"
   },
-  "Evidence.citeAs[x]": {
+  "Evidence.citeAsReference": {
     "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "Evidence.citeAsmarkdown": {
+    "code": "markdown",
     "min": "0",
     "max": "1"
   },
@@ -13629,8 +14194,13 @@
     "min": "0",
     "max": "*"
   },
-  "EvidenceReport.citeAs[x]": {
+  "EvidenceReport.citeAsReference": {
     "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "EvidenceReport.citeAsmarkdown": {
+    "code": "markdown",
     "min": "0",
     "max": "1"
   },
@@ -13694,8 +14264,28 @@
     "min": "1",
     "max": "1"
   },
-  "EvidenceReport.subject.characteristic.value[x]": {
+  "EvidenceReport.subject.characteristic.valueReference": {
     "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceReport.subject.characteristic.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceReport.subject.characteristic.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceReport.subject.characteristic.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceReport.subject.characteristic.valueRange": {
+    "code": "Range",
     "min": "1",
     "max": "1"
   },
@@ -13769,8 +14359,13 @@
     "min": "1",
     "max": "1"
   },
-  "EvidenceReport.relatesTo.target[x]": {
+  "EvidenceReport.relatesTo.targetIdentifier": {
     "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceReport.relatesTo.targetReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -14019,8 +14614,23 @@
     "min": "0",
     "max": "1"
   },
-  "EvidenceVariable.characteristic.definition[x]": {
+  "EvidenceVariable.characteristic.definitionReference": {
     "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceVariable.characteristic.definitioncanonical": {
+    "code": "canonical",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceVariable.characteristic.definitionCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "EvidenceVariable.characteristic.definitionExpression": {
+    "code": "Expression",
     "min": "1",
     "max": "1"
   },
@@ -14114,8 +14724,18 @@
     "min": "0",
     "max": "1"
   },
-  "EvidenceVariable.category.value[x]": {
+  "EvidenceVariable.category.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "EvidenceVariable.category.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "EvidenceVariable.category.valueRange": {
+    "code": "Range",
     "min": "0",
     "max": "1"
   },
@@ -14829,13 +15449,38 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.supportingInfo.timing[x]": {
+  "ExplanationOfBenefit.supportingInfo.timingdate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.supportingInfo.value[x]": {
+  "ExplanationOfBenefit.supportingInfo.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.supportingInfo.valueboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.supportingInfo.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.supportingInfo.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.supportingInfo.valueAttachment": {
+    "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.supportingInfo.valueReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -14869,8 +15514,13 @@
     "min": "1",
     "max": "1"
   },
-  "ExplanationOfBenefit.diagnosis.diagnosis[x]": {
+  "ExplanationOfBenefit.diagnosis.diagnosisCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.diagnosis.diagnosisReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -14924,8 +15574,13 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.procedure.procedure[x]": {
+  "ExplanationOfBenefit.procedure.procedureCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.procedure.procedureReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -15004,8 +15659,13 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.accident.location[x]": {
+  "ExplanationOfBenefit.accident.locationAddress": {
     "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.accident.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -15079,13 +15739,28 @@
     "min": "0",
     "max": "*"
   },
-  "ExplanationOfBenefit.item.serviced[x]": {
+  "ExplanationOfBenefit.item.serviceddate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.item.location[x]": {
+  "ExplanationOfBenefit.item.servicedPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.item.locationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.item.locationAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.item.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -15389,13 +16064,28 @@
     "min": "0",
     "max": "*"
   },
-  "ExplanationOfBenefit.addItem.serviced[x]": {
+  "ExplanationOfBenefit.addItem.serviceddate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.addItem.location[x]": {
+  "ExplanationOfBenefit.addItem.servicedPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.addItem.locationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.addItem.locationAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.addItem.locationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -15759,13 +16449,28 @@
     "min": "1",
     "max": "1"
   },
-  "ExplanationOfBenefit.benefitBalance.financial.allowed[x]": {
+  "ExplanationOfBenefit.benefitBalance.financial.allowedunsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.benefitBalance.financial.used[x]": {
+  "ExplanationOfBenefit.benefitBalance.financial.allowedstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.benefitBalance.financial.allowedMoney": {
+    "code": "Money",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.benefitBalance.financial.usedunsignedInt": {
     "code": "unsignedInt",
+    "min": "0",
+    "max": "1"
+  },
+  "ExplanationOfBenefit.benefitBalance.financial.usedMoney": {
+    "code": "Money",
     "min": "0",
     "max": "1"
   },
@@ -15859,13 +16564,33 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.born[x]": {
+  "FamilyMemberHistory.bornPeriod": {
     "code": "Period",
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.age[x]": {
+  "FamilyMemberHistory.borndate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.bornstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.ageAge": {
     "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.ageRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.agestring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -15874,8 +16599,28 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.deceased[x]": {
+  "FamilyMemberHistory.deceasedboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.deceasedAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.deceasedRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.deceaseddate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.deceasedstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -15929,8 +16674,23 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.condition.onset[x]": {
+  "FamilyMemberHistory.condition.onsetAge": {
     "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.condition.onsetRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.condition.onsetPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "FamilyMemberHistory.condition.onsetstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -16094,8 +16854,13 @@
     "min": "1",
     "max": "1"
   },
-  "Goal.start[x]": {
+  "Goal.startdate": {
     "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.startCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -16124,13 +16889,48 @@
     "min": "0",
     "max": "1"
   },
-  "Goal.target.detail[x]": {
+  "Goal.target.detailQuantity": {
     "code": "Quantity",
     "min": "0",
     "max": "1"
   },
-  "Goal.target.due[x]": {
+  "Goal.target.detailRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.detailCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.detailstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.detailboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.detailinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.detailRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.duedate": {
     "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "Goal.target.dueDuration": {
+    "code": "Duration",
     "min": "0",
     "max": "1"
   },
@@ -16509,8 +17309,28 @@
     "min": "1",
     "max": "1"
   },
-  "Group.characteristic.value[x]": {
+  "Group.characteristic.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Group.characteristic.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Group.characteristic.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Group.characteristic.valueRange": {
+    "code": "Range",
+    "min": "1",
+    "max": "1"
+  },
+  "Group.characteristic.valueReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -16609,8 +17429,18 @@
     "min": "0",
     "max": "*"
   },
-  "GuidanceResponse.module[x]": {
+  "GuidanceResponse.moduleuri": {
     "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "GuidanceResponse.modulecanonical": {
+    "code": "canonical",
+    "min": "1",
+    "max": "1"
+  },
+  "GuidanceResponse.moduleCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "1",
     "max": "1"
   },
@@ -17264,8 +18094,13 @@
     "min": "0",
     "max": "1"
   },
-  "Immunization.occurrence[x]": {
+  "Immunization.occurrencedateTime": {
     "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Immunization.occurrencestring": {
+    "code": "string",
     "min": "1",
     "max": "1"
   },
@@ -17494,13 +18329,23 @@
     "min": "0",
     "max": "*"
   },
-  "Immunization.protocolApplied.doseNumber[x]": {
+  "Immunization.protocolApplied.doseNumberpositiveInt": {
     "code": "positiveInt",
     "min": "1",
     "max": "1"
   },
-  "Immunization.protocolApplied.seriesDoses[x]": {
+  "Immunization.protocolApplied.doseNumberstring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Immunization.protocolApplied.seriesDosespositiveInt": {
     "code": "positiveInt",
+    "min": "0",
+    "max": "1"
+  },
+  "Immunization.protocolApplied.seriesDosesstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -17599,13 +18444,23 @@
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.doseNumber[x]": {
+  "ImmunizationEvaluation.doseNumberpositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.seriesDoses[x]": {
+  "ImmunizationEvaluation.doseNumberstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "ImmunizationEvaluation.seriesDosespositiveInt": {
     "code": "positiveInt",
+    "min": "0",
+    "max": "1"
+  },
+  "ImmunizationEvaluation.seriesDosesstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -17754,13 +18609,23 @@
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.doseNumber[x]": {
+  "ImmunizationRecommendation.recommendation.doseNumberpositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.seriesDoses[x]": {
+  "ImmunizationRecommendation.recommendation.doseNumberstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "ImmunizationRecommendation.recommendation.seriesDosespositiveInt": {
     "code": "positiveInt",
+    "min": "0",
+    "max": "1"
+  },
+  "ImmunizationRecommendation.recommendation.seriesDosesstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -18049,8 +18914,13 @@
     "min": "0",
     "max": "1"
   },
-  "ImplementationGuide.definition.resource.example[x]": {
+  "ImplementationGuide.definition.resource.exampleboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ImplementationGuide.definition.resource.examplecanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -18079,8 +18949,13 @@
     "min": "0",
     "max": "*"
   },
-  "ImplementationGuide.definition.page.name[x]": {
+  "ImplementationGuide.definition.page.nameurl": {
     "code": "url",
+    "min": "1",
+    "max": "1"
+  },
+  "ImplementationGuide.definition.page.nameReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -18209,8 +19084,13 @@
     "min": "1",
     "max": "1"
   },
-  "ImplementationGuide.manifest.resource.example[x]": {
+  "ImplementationGuide.manifest.resource.exampleboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ImplementationGuide.manifest.resource.examplecanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -18409,8 +19289,13 @@
     "min": "0",
     "max": "*"
   },
-  "Ingredient.substance.strength.presentation[x]": {
+  "Ingredient.substance.strength.presentationRatio": {
     "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Ingredient.substance.strength.presentationRatioRange": {
+    "code": "RatioRange",
     "min": "0",
     "max": "1"
   },
@@ -18419,8 +19304,13 @@
     "min": "0",
     "max": "1"
   },
-  "Ingredient.substance.strength.concentration[x]": {
+  "Ingredient.substance.strength.concentrationRatio": {
     "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Ingredient.substance.strength.concentrationRatioRange": {
+    "code": "RatioRange",
     "min": "0",
     "max": "1"
   },
@@ -18464,8 +19354,13 @@
     "min": "0",
     "max": "1"
   },
-  "Ingredient.substance.strength.referenceStrength.strength[x]": {
+  "Ingredient.substance.strength.referenceStrength.strengthRatio": {
     "code": "Ratio",
+    "min": "1",
+    "max": "1"
+  },
+  "Ingredient.substance.strength.referenceStrength.strengthRatioRange": {
+    "code": "RatioRange",
     "min": "1",
     "max": "1"
   },
@@ -19014,8 +19909,13 @@
     "min": "0",
     "max": "1"
   },
-  "Invoice.lineItem.chargeItem[x]": {
+  "Invoice.lineItem.chargeItemReference": {
     "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Invoice.lineItem.chargeItemCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "1",
     "max": "1"
   },
@@ -19164,8 +20064,13 @@
     "min": "1",
     "max": "1"
   },
-  "Library.subject[x]": {
+  "Library.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Library.subjectReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -19779,8 +20684,28 @@
     "min": "1",
     "max": "1"
   },
-  "ManufacturedItemDefinition.property.value[x]": {
+  "ManufacturedItemDefinition.property.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ManufacturedItemDefinition.property.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "ManufacturedItemDefinition.property.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "ManufacturedItemDefinition.property.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ManufacturedItemDefinition.property.valueAttachment": {
+    "code": "Attachment",
     "min": "0",
     "max": "1"
   },
@@ -19864,8 +20789,13 @@
     "min": "0",
     "max": "1"
   },
-  "Measure.subject[x]": {
+  "Measure.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Measure.subjectReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -20554,8 +21484,13 @@
     "min": "0",
     "max": "1"
   },
-  "Media.created[x]": {
+  "Media.createddateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Media.createdPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -20709,8 +21644,13 @@
     "min": "0",
     "max": "*"
   },
-  "Medication.ingredient.item[x]": {
+  "Medication.ingredient.itemCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Medication.ingredient.itemReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -20824,8 +21764,13 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationAdministration.medication[x]": {
+  "MedicationAdministration.medicationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationAdministration.medicationReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -20844,8 +21789,13 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationAdministration.effective[x]": {
+  "MedicationAdministration.effectivedateTime": {
     "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationAdministration.effectivePeriod": {
+    "code": "Period",
     "min": "1",
     "max": "1"
   },
@@ -20949,8 +21899,13 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationAdministration.dosage.rate[x]": {
+  "MedicationAdministration.dosage.rateRatio": {
     "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationAdministration.dosage.rateQuantity": {
+    "code": "Quantity",
     "min": "0",
     "max": "1"
   },
@@ -21014,8 +21969,13 @@
     "min": "1",
     "max": "1"
   },
-  "MedicationDispense.statusReason[x]": {
+  "MedicationDispense.statusReasonCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationDispense.statusReasonReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -21024,8 +21984,13 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationDispense.medication[x]": {
+  "MedicationDispense.medicationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationDispense.medicationReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -21339,8 +22304,13 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationKnowledge.ingredient.item[x]": {
+  "MedicationKnowledge.ingredient.itemCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationKnowledge.ingredient.itemReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -21479,8 +22449,13 @@
     "min": "1",
     "max": "*"
   },
-  "MedicationKnowledge.administrationGuidelines.indication[x]": {
+  "MedicationKnowledge.administrationGuidelines.indicationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationKnowledge.administrationGuidelines.indicationReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -21504,8 +22479,13 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationKnowledge.administrationGuidelines.patientCharacteristics.characteristic[x]": {
+  "MedicationKnowledge.administrationGuidelines.patientCharacteristics.characteristicCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationKnowledge.administrationGuidelines.patientCharacteristics.characteristicQuantity": {
+    "code": "Quantity",
     "min": "1",
     "max": "1"
   },
@@ -21599,8 +22579,23 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationKnowledge.drugCharacteristic.value[x]": {
+  "MedicationKnowledge.drugCharacteristic.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationKnowledge.drugCharacteristic.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationKnowledge.drugCharacteristic.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationKnowledge.drugCharacteristic.valuebase64Binary": {
+    "code": "base64Binary",
     "min": "0",
     "max": "1"
   },
@@ -21829,13 +22824,23 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationRequest.reported[x]": {
+  "MedicationRequest.reportedboolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "MedicationRequest.medication[x]": {
+  "MedicationRequest.reportedReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationRequest.medicationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationRequest.medicationReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -22029,8 +23034,13 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationRequest.substitution.allowed[x]": {
+  "MedicationRequest.substitution.allowedboolean": {
     "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationRequest.substitution.allowedCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "1",
     "max": "1"
   },
@@ -22124,8 +23134,13 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationStatement.medication[x]": {
+  "MedicationStatement.medicationCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "MedicationStatement.medicationReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -22139,8 +23154,13 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationStatement.effective[x]": {
+  "MedicationStatement.effectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicationStatement.effectivePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -22554,8 +23574,28 @@
     "min": "1",
     "max": "1"
   },
-  "MedicinalProductDefinition.characteristic.value[x]": {
+  "MedicinalProductDefinition.characteristic.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicinalProductDefinition.characteristic.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicinalProductDefinition.characteristic.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicinalProductDefinition.characteristic.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "MedicinalProductDefinition.characteristic.valueAttachment": {
+    "code": "Attachment",
     "min": "0",
     "max": "1"
   },
@@ -22689,8 +23729,13 @@
     "min": "0",
     "max": "*"
   },
-  "MessageDefinition.event[x]": {
+  "MessageDefinition.eventCoding": {
     "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "MessageDefinition.eventuri": {
+    "code": "uri",
     "min": "1",
     "max": "1"
   },
@@ -22819,8 +23864,13 @@
     "min": "0",
     "max": "*"
   },
-  "MessageHeader.event[x]": {
+  "MessageHeader.eventCoding": {
     "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "MessageHeader.eventuri": {
+    "code": "uri",
     "min": "1",
     "max": "1"
   },
@@ -23954,8 +25004,13 @@
     "min": "0",
     "max": "1"
   },
-  "NutritionOrder.enteralFormula.administration.rate[x]": {
+  "NutritionOrder.enteralFormula.administration.rateQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "NutritionOrder.enteralFormula.administration.rateRatio": {
+    "code": "Ratio",
     "min": "0",
     "max": "1"
   },
@@ -24124,8 +25179,33 @@
     "min": "1",
     "max": "1"
   },
-  "NutritionProduct.productCharacteristic.value[x]": {
+  "NutritionProduct.productCharacteristic.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "NutritionProduct.productCharacteristic.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "NutritionProduct.productCharacteristic.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "NutritionProduct.productCharacteristic.valuebase64Binary": {
+    "code": "base64Binary",
+    "min": "1",
+    "max": "1"
+  },
+  "NutritionProduct.productCharacteristic.valueAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "NutritionProduct.productCharacteristic.valueboolean": {
+    "code": "boolean",
     "min": "1",
     "max": "1"
   },
@@ -24264,8 +25344,23 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.effective[x]": {
+  "Observation.effectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.effectivePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.effectiveTiming": {
+    "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.effectiveinstant": {
+    "code": "instant",
     "min": "0",
     "max": "1"
   },
@@ -24279,8 +25374,58 @@
     "min": "0",
     "max": "*"
   },
-  "Observation.value[x]": {
+  "Observation.valueQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valueSampledData": {
+    "code": "SampledData",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valuetime": {
+    "code": "time",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valuedateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.valuePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -24404,8 +25549,58 @@
     "min": "1",
     "max": "1"
   },
-  "Observation.component.value[x]": {
+  "Observation.component.valueQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valueSampledData": {
+    "code": "SampledData",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valuetime": {
+    "code": "time",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valuedateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Observation.component.valuePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -25439,8 +26634,13 @@
     "min": "0",
     "max": "1"
   },
-  "PackagedProductDefinition.package.shelfLifeStorage.period[x]": {
+  "PackagedProductDefinition.package.shelfLifeStorage.periodDuration": {
     "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "PackagedProductDefinition.package.shelfLifeStorage.periodstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -25479,8 +26679,28 @@
     "min": "1",
     "max": "1"
   },
-  "PackagedProductDefinition.package.property.value[x]": {
+  "PackagedProductDefinition.package.property.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "PackagedProductDefinition.package.property.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "PackagedProductDefinition.package.property.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "PackagedProductDefinition.package.property.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "PackagedProductDefinition.package.property.valueAttachment": {
+    "code": "Attachment",
     "min": "0",
     "max": "1"
   },
@@ -25559,8 +26779,253 @@
     "min": "1",
     "max": "1"
   },
-  "Parameters.parameter.value[x]": {
+  "Parameters.parameter.valuebase64Binary": {
     "code": "base64Binary",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuecanonical": {
+    "code": "canonical",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuecode": {
+    "code": "code",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuedateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuedecimal": {
+    "code": "decimal",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueid": {
+    "code": "id",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueinstant": {
+    "code": "instant",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuemarkdown": {
+    "code": "markdown",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueoid": {
+    "code": "oid",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuepositiveInt": {
+    "code": "positiveInt",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuetime": {
+    "code": "time",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueunsignedInt": {
+    "code": "unsignedInt",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueuri": {
+    "code": "uri",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueurl": {
+    "code": "url",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueuuid": {
+    "code": "uuid",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueAnnotation": {
+    "code": "Annotation",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueAttachment": {
+    "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueCoding": {
+    "code": "Coding",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueContactPoint": {
+    "code": "ContactPoint",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueCount": {
+    "code": "Count",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueDistance": {
+    "code": "Distance",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueHumanName": {
+    "code": "HumanName",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueIdentifier": {
+    "code": "Identifier",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueMoney": {
+    "code": "Money",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valuePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueSampledData": {
+    "code": "SampledData",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueSignature": {
+    "code": "Signature",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueTiming": {
+    "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueContactDetail": {
+    "code": "ContactDetail",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueContributor": {
+    "code": "Contributor",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueDataRequirement": {
+    "code": "DataRequirement",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueExpression": {
+    "code": "Expression",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueParameterDefinition": {
+    "code": "ParameterDefinition",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueRelatedArtifact": {
+    "code": "RelatedArtifact",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueTriggerDefinition": {
+    "code": "TriggerDefinition",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueUsageContext": {
+    "code": "UsageContext",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueDosage": {
+    "code": "Dosage",
+    "min": "0",
+    "max": "1"
+  },
+  "Parameters.parameter.valueMeta": {
+    "code": "Meta",
     "min": "0",
     "max": "1"
   },
@@ -25639,8 +27104,13 @@
     "min": "0",
     "max": "1"
   },
-  "Patient.deceased[x]": {
+  "Patient.deceasedboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Patient.deceaseddateTime": {
+    "code": "dateTime",
     "min": "0",
     "max": "1"
   },
@@ -25654,8 +27124,13 @@
     "min": "0",
     "max": "1"
   },
-  "Patient.multipleBirth[x]": {
+  "Patient.multipleBirthboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "Patient.multipleBirthinteger": {
+    "code": "integer",
     "min": "0",
     "max": "1"
   },
@@ -26294,8 +27769,18 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.subject[x]": {
+  "PlanDefinition.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.subjectReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.subjectcanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -26469,8 +27954,18 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.goal.target.detail[x]": {
+  "PlanDefinition.goal.target.detailQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.goal.target.detailRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.goal.target.detailCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -26544,8 +28039,18 @@
     "min": "0",
     "max": "*"
   },
-  "PlanDefinition.action.subject[x]": {
+  "PlanDefinition.action.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.subjectReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.subjectcanonical": {
+    "code": "canonical",
     "min": "0",
     "max": "1"
   },
@@ -26624,13 +28129,43 @@
     "min": "1",
     "max": "1"
   },
-  "PlanDefinition.action.relatedAction.offset[x]": {
+  "PlanDefinition.action.relatedAction.offsetDuration": {
     "code": "Duration",
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.timing[x]": {
+  "PlanDefinition.action.relatedAction.offsetRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingdateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.timingTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -26694,8 +28229,13 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.definition[x]": {
+  "PlanDefinition.action.definitioncanonical": {
     "code": "canonical",
+    "min": "0",
+    "max": "1"
+  },
+  "PlanDefinition.action.definitionuri": {
+    "code": "uri",
     "min": "0",
     "max": "1"
   },
@@ -27124,8 +28664,28 @@
     "min": "0",
     "max": "1"
   },
-  "Procedure.performed[x]": {
+  "Procedure.performeddateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Procedure.performedPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Procedure.performedstring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "Procedure.performedAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "Procedure.performedRange": {
+    "code": "Range",
     "min": "0",
     "max": "1"
   },
@@ -27309,8 +28869,13 @@
     "min": "1",
     "max": "*"
   },
-  "Provenance.occurred[x]": {
+  "Provenance.occurredPeriod": {
     "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "Provenance.occurreddateTime": {
+    "code": "dateTime",
     "min": "0",
     "max": "1"
   },
@@ -27639,8 +29204,53 @@
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answer[x]": {
+  "Questionnaire.item.enableWhen.answerboolean": {
     "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerdecimal": {
+    "code": "decimal",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerdate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerdateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answertime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerstring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.enableWhen.answerReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -27694,8 +29304,33 @@
     "min": "0",
     "max": "*"
   },
-  "Questionnaire.item.answerOption.value[x]": {
+  "Questionnaire.item.answerOption.valueinteger": {
     "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.answerOption.valuedate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.answerOption.valuetime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.answerOption.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.answerOption.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.answerOption.valueReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -27724,8 +29359,63 @@
     "min": "0",
     "max": "*"
   },
-  "Questionnaire.item.initial.value[x]": {
+  "Questionnaire.item.initial.valueboolean": {
     "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valuedecimal": {
+    "code": "decimal",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valuedate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valuedateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valuetime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueuri": {
+    "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Questionnaire.item.initial.valueReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -27874,8 +29564,63 @@
     "min": "0",
     "max": "*"
   },
-  "QuestionnaireResponse.item.answer.value[x]": {
+  "QuestionnaireResponse.item.answer.valueboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valuedecimal": {
+    "code": "decimal",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valuedateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valuetime": {
+    "code": "time",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueuri": {
+    "code": "uri",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueAttachment": {
+    "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueCoding": {
+    "code": "Coding",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "QuestionnaireResponse.item.answer.valueReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -28019,8 +29764,13 @@
     "min": "0",
     "max": "1"
   },
-  "RegulatedAuthorization.case.date[x]": {
+  "RegulatedAuthorization.case.datePeriod": {
     "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "RegulatedAuthorization.case.datedateTime": {
+    "code": "dateTime",
     "min": "0",
     "max": "1"
   },
@@ -28389,13 +30139,43 @@
     "min": "1",
     "max": "1"
   },
-  "RequestGroup.action.relatedAction.offset[x]": {
+  "RequestGroup.action.relatedAction.offsetDuration": {
     "code": "Duration",
     "min": "0",
     "max": "1"
   },
-  "RequestGroup.action.timing[x]": {
+  "RequestGroup.action.relatedAction.offsetRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingdateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingPeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "RequestGroup.action.timingTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -28524,8 +30304,13 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchDefinition.subject[x]": {
+  "ResearchDefinition.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchDefinition.subjectReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -28734,8 +30519,13 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchElementDefinition.subject[x]": {
+  "ResearchElementDefinition.subjectCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.subjectReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -28869,8 +30659,23 @@
     "min": "0",
     "max": "*"
   },
-  "ResearchElementDefinition.characteristic.definition[x]": {
+  "ResearchElementDefinition.characteristic.definitionCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.definitioncanonical": {
+    "code": "canonical",
+    "min": "1",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.definitionExpression": {
+    "code": "Expression",
+    "min": "1",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.definitionDataRequirement": {
+    "code": "DataRequirement",
     "min": "1",
     "max": "1"
   },
@@ -28894,8 +30699,23 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchElementDefinition.characteristic.studyEffective[x]": {
+  "ResearchElementDefinition.characteristic.studyEffectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.studyEffectivePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.studyEffectiveDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.studyEffectiveTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -28914,8 +30734,23 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchElementDefinition.characteristic.participantEffective[x]": {
+  "ResearchElementDefinition.characteristic.participantEffectivedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.participantEffectivePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.participantEffectiveDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "ResearchElementDefinition.characteristic.participantEffectiveTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -29304,8 +31139,13 @@
     "min": "0",
     "max": "1"
   },
-  "RiskAssessment.occurrence[x]": {
+  "RiskAssessment.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "RiskAssessment.occurrencePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -29359,8 +31199,13 @@
     "min": "0",
     "max": "1"
   },
-  "RiskAssessment.prediction.probability[x]": {
+  "RiskAssessment.prediction.probabilitydecimal": {
     "code": "decimal",
+    "min": "0",
+    "max": "1"
+  },
+  "RiskAssessment.prediction.probabilityRange": {
+    "code": "Range",
     "min": "0",
     "max": "1"
   },
@@ -29374,8 +31219,13 @@
     "min": "0",
     "max": "1"
   },
-  "RiskAssessment.prediction.when[x]": {
+  "RiskAssessment.prediction.whenPeriod": {
     "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "RiskAssessment.prediction.whenRange": {
+    "code": "Range",
     "min": "0",
     "max": "1"
   },
@@ -29774,8 +31624,18 @@
     "min": "0",
     "max": "*"
   },
-  "ServiceRequest.quantity[x]": {
+  "ServiceRequest.quantityQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "ServiceRequest.quantityRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "ServiceRequest.quantityRange": {
+    "code": "Range",
     "min": "0",
     "max": "1"
   },
@@ -29789,13 +31649,28 @@
     "min": "0",
     "max": "1"
   },
-  "ServiceRequest.occurrence[x]": {
+  "ServiceRequest.occurrencedateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
   },
-  "ServiceRequest.asNeeded[x]": {
+  "ServiceRequest.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "ServiceRequest.occurrenceTiming": {
+    "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "ServiceRequest.asNeededboolean": {
     "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ServiceRequest.asNeededCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -30074,8 +31949,13 @@
     "min": "0",
     "max": "1"
   },
-  "Specimen.collection.collected[x]": {
+  "Specimen.collection.collecteddateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Specimen.collection.collectedPeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -30099,8 +31979,13 @@
     "min": "0",
     "max": "1"
   },
-  "Specimen.collection.fastingStatus[x]": {
+  "Specimen.collection.fastingStatusCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Specimen.collection.fastingStatusDuration": {
+    "code": "Duration",
     "min": "0",
     "max": "1"
   },
@@ -30139,8 +32024,13 @@
     "min": "0",
     "max": "*"
   },
-  "Specimen.processing.time[x]": {
+  "Specimen.processing.timedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "Specimen.processing.timePeriod": {
+    "code": "Period",
     "min": "0",
     "max": "1"
   },
@@ -30189,8 +32079,13 @@
     "min": "0",
     "max": "1"
   },
-  "Specimen.container.additive[x]": {
+  "Specimen.container.additiveCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "Specimen.container.additiveReference": {
+    "code": "Reference",
     "min": "0",
     "max": "1"
   },
@@ -30349,8 +32244,13 @@
     "min": "0",
     "max": "1"
   },
-  "SpecimenDefinition.typeTested.container.minimumVolume[x]": {
+  "SpecimenDefinition.typeTested.container.minimumVolumeQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "SpecimenDefinition.typeTested.container.minimumVolumestring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -30374,8 +32274,13 @@
     "min": "0",
     "max": "*"
   },
-  "SpecimenDefinition.typeTested.container.additive.additive[x]": {
+  "SpecimenDefinition.typeTested.container.additive.additiveCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "SpecimenDefinition.typeTested.container.additive.additiveReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -31019,8 +32924,253 @@
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValue[x]": {
+  "StructureMap.group.rule.source.defaultValuebase64Binary": {
     "code": "base64Binary",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuecanonical": {
+    "code": "canonical",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuecode": {
+    "code": "code",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuedateTime": {
+    "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuedecimal": {
+    "code": "decimal",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueid": {
+    "code": "id",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueinstant": {
+    "code": "instant",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuemarkdown": {
+    "code": "markdown",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueoid": {
+    "code": "oid",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuepositiveInt": {
+    "code": "positiveInt",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuestring": {
+    "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuetime": {
+    "code": "time",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueunsignedInt": {
+    "code": "unsignedInt",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueuri": {
+    "code": "uri",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueurl": {
+    "code": "url",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueuuid": {
+    "code": "uuid",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueAddress": {
+    "code": "Address",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueAge": {
+    "code": "Age",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueAnnotation": {
+    "code": "Annotation",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueAttachment": {
+    "code": "Attachment",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueCoding": {
+    "code": "Coding",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueContactPoint": {
+    "code": "ContactPoint",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueCount": {
+    "code": "Count",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueDistance": {
+    "code": "Distance",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueDuration": {
+    "code": "Duration",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueHumanName": {
+    "code": "HumanName",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueIdentifier": {
+    "code": "Identifier",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueMoney": {
+    "code": "Money",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValuePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueSampledData": {
+    "code": "SampledData",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueSignature": {
+    "code": "Signature",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueTiming": {
+    "code": "Timing",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueContactDetail": {
+    "code": "ContactDetail",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueContributor": {
+    "code": "Contributor",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueDataRequirement": {
+    "code": "DataRequirement",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueExpression": {
+    "code": "Expression",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueParameterDefinition": {
+    "code": "ParameterDefinition",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueRelatedArtifact": {
+    "code": "RelatedArtifact",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueTriggerDefinition": {
+    "code": "TriggerDefinition",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueUsageContext": {
+    "code": "UsageContext",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueDosage": {
+    "code": "Dosage",
+    "min": "0",
+    "max": "1"
+  },
+  "StructureMap.group.rule.source.defaultValueMeta": {
+    "code": "Meta",
     "min": "0",
     "max": "1"
   },
@@ -31129,8 +33279,28 @@
     "min": "0",
     "max": "*"
   },
-  "StructureMap.group.rule.target.parameter.value[x]": {
+  "StructureMap.group.rule.target.parameter.valueid": {
     "code": "id",
+    "min": "1",
+    "max": "1"
+  },
+  "StructureMap.group.rule.target.parameter.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "StructureMap.group.rule.target.parameter.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "StructureMap.group.rule.target.parameter.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "StructureMap.group.rule.target.parameter.valuedecimal": {
+    "code": "decimal",
     "min": "1",
     "max": "1"
   },
@@ -31844,8 +34014,13 @@
     "min": "0",
     "max": "1"
   },
-  "Substance.ingredient.substance[x]": {
+  "Substance.ingredient.substanceCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Substance.ingredient.substanceReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -31994,8 +34169,13 @@
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.moiety.amount[x]": {
+  "SubstanceDefinition.moiety.amountQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.moiety.amountstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -32029,8 +34209,28 @@
     "min": "1",
     "max": "1"
   },
-  "SubstanceDefinition.property.value[x]": {
+  "SubstanceDefinition.property.valueCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.property.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.property.valuedate": {
+    "code": "date",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.property.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.property.valueAttachment": {
+    "code": "Attachment",
     "min": "0",
     "max": "1"
   },
@@ -32319,8 +34519,13 @@
     "min": "0",
     "max": "*"
   },
-  "SubstanceDefinition.relationship.substanceDefinition[x]": {
+  "SubstanceDefinition.relationship.substanceDefinitionReference": {
     "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.relationship.substanceDefinitionCodeableConcept": {
+    "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
@@ -32334,8 +34539,18 @@
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.relationship.amount[x]": {
+  "SubstanceDefinition.relationship.amountQuantity": {
     "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.relationship.amountRatio": {
+    "code": "Ratio",
+    "min": "0",
+    "max": "1"
+  },
+  "SubstanceDefinition.relationship.amountstring": {
+    "code": "string",
     "min": "0",
     "max": "1"
   },
@@ -32494,13 +34709,28 @@
     "min": "0",
     "max": "1"
   },
-  "SupplyDelivery.suppliedItem.item[x]": {
+  "SupplyDelivery.suppliedItem.itemCodeableConcept": {
     "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
-  "SupplyDelivery.occurrence[x]": {
+  "SupplyDelivery.suppliedItem.itemReference": {
+    "code": "Reference",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyDelivery.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyDelivery.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyDelivery.occurrenceTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -32579,8 +34809,13 @@
     "min": "0",
     "max": "1"
   },
-  "SupplyRequest.item[x]": {
+  "SupplyRequest.itemCodeableConcept": {
     "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "SupplyRequest.itemReference": {
+    "code": "Reference",
     "min": "1",
     "max": "1"
   },
@@ -32614,13 +34849,38 @@
     "min": "0",
     "max": "1"
   },
-  "SupplyRequest.parameter.value[x]": {
+  "SupplyRequest.parameter.valueCodeableConcept": {
     "code": "CodeableConcept",
     "min": "0",
     "max": "1"
   },
-  "SupplyRequest.occurrence[x]": {
+  "SupplyRequest.parameter.valueQuantity": {
+    "code": "Quantity",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyRequest.parameter.valueRange": {
+    "code": "Range",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyRequest.parameter.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyRequest.occurrencedateTime": {
     "code": "dateTime",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyRequest.occurrencePeriod": {
+    "code": "Period",
+    "min": "0",
+    "max": "1"
+  },
+  "SupplyRequest.occurrenceTiming": {
+    "code": "Timing",
     "min": "0",
     "max": "1"
   },
@@ -32899,8 +35159,253 @@
     "min": "1",
     "max": "1"
   },
-  "Task.input.value[x]": {
+  "Task.input.valuebase64Binary": {
     "code": "base64Binary",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuecanonical": {
+    "code": "canonical",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuecode": {
+    "code": "code",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuedate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuedateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuedecimal": {
+    "code": "decimal",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueid": {
+    "code": "id",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueinstant": {
+    "code": "instant",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuemarkdown": {
+    "code": "markdown",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueoid": {
+    "code": "oid",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuepositiveInt": {
+    "code": "positiveInt",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuetime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueunsignedInt": {
+    "code": "unsignedInt",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueuri": {
+    "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueurl": {
+    "code": "url",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueuuid": {
+    "code": "uuid",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueAddress": {
+    "code": "Address",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueAge": {
+    "code": "Age",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueAnnotation": {
+    "code": "Annotation",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueContactPoint": {
+    "code": "ContactPoint",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueCount": {
+    "code": "Count",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueDistance": {
+    "code": "Distance",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueDuration": {
+    "code": "Duration",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueHumanName": {
+    "code": "HumanName",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueIdentifier": {
+    "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueMoney": {
+    "code": "Money",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valuePeriod": {
+    "code": "Period",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueRange": {
+    "code": "Range",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueRatio": {
+    "code": "Ratio",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueSampledData": {
+    "code": "SampledData",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueSignature": {
+    "code": "Signature",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueTiming": {
+    "code": "Timing",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueContactDetail": {
+    "code": "ContactDetail",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueContributor": {
+    "code": "Contributor",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueDataRequirement": {
+    "code": "DataRequirement",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueExpression": {
+    "code": "Expression",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueParameterDefinition": {
+    "code": "ParameterDefinition",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueRelatedArtifact": {
+    "code": "RelatedArtifact",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueTriggerDefinition": {
+    "code": "TriggerDefinition",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueUsageContext": {
+    "code": "UsageContext",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueDosage": {
+    "code": "Dosage",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.input.valueMeta": {
+    "code": "Meta",
     "min": "1",
     "max": "1"
   },
@@ -32929,8 +35434,253 @@
     "min": "1",
     "max": "1"
   },
-  "Task.output.value[x]": {
+  "Task.output.valuebase64Binary": {
     "code": "base64Binary",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueboolean": {
+    "code": "boolean",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuecanonical": {
+    "code": "canonical",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuecode": {
+    "code": "code",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuedate": {
+    "code": "date",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuedateTime": {
+    "code": "dateTime",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuedecimal": {
+    "code": "decimal",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueid": {
+    "code": "id",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueinstant": {
+    "code": "instant",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueinteger": {
+    "code": "integer",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuemarkdown": {
+    "code": "markdown",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueoid": {
+    "code": "oid",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuepositiveInt": {
+    "code": "positiveInt",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuestring": {
+    "code": "string",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuetime": {
+    "code": "time",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueunsignedInt": {
+    "code": "unsignedInt",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueuri": {
+    "code": "uri",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueurl": {
+    "code": "url",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueuuid": {
+    "code": "uuid",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueAddress": {
+    "code": "Address",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueAge": {
+    "code": "Age",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueAnnotation": {
+    "code": "Annotation",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueAttachment": {
+    "code": "Attachment",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueCodeableConcept": {
+    "code": "CodeableConcept",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueCoding": {
+    "code": "Coding",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueContactPoint": {
+    "code": "ContactPoint",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueCount": {
+    "code": "Count",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueDistance": {
+    "code": "Distance",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueDuration": {
+    "code": "Duration",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueHumanName": {
+    "code": "HumanName",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueIdentifier": {
+    "code": "Identifier",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueMoney": {
+    "code": "Money",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valuePeriod": {
+    "code": "Period",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueQuantity": {
+    "code": "Quantity",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueRange": {
+    "code": "Range",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueRatio": {
+    "code": "Ratio",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueReference": {
+    "code": "Reference",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueSampledData": {
+    "code": "SampledData",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueSignature": {
+    "code": "Signature",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueTiming": {
+    "code": "Timing",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueContactDetail": {
+    "code": "ContactDetail",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueContributor": {
+    "code": "Contributor",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueDataRequirement": {
+    "code": "DataRequirement",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueExpression": {
+    "code": "Expression",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueParameterDefinition": {
+    "code": "ParameterDefinition",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueRelatedArtifact": {
+    "code": "RelatedArtifact",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueTriggerDefinition": {
+    "code": "TriggerDefinition",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueUsageContext": {
+    "code": "UsageContext",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueDosage": {
+    "code": "Dosage",
+    "min": "1",
+    "max": "1"
+  },
+  "Task.output.valueMeta": {
+    "code": "Meta",
     "min": "1",
     "max": "1"
   },
@@ -34804,8 +37554,38 @@
     "min": "1",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.value[x]": {
+  "ValueSet.expansion.parameter.valuestring": {
     "code": "string",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valueboolean": {
+    "code": "boolean",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valueinteger": {
+    "code": "integer",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valuedecimal": {
+    "code": "decimal",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valueuri": {
+    "code": "uri",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valuecode": {
+    "code": "code",
+    "min": "0",
+    "max": "1"
+  },
+  "ValueSet.expansion.parameter.valuedateTime": {
+    "code": "dateTime",
     "min": "0",
     "max": "1"
   },

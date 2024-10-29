@@ -43,20 +43,39 @@ def get_resources_fields_data():
                 if not hasattr(snapshot_element, "type"):
                     continue
 
-                type_: ObjectifiedElement = snapshot_element["type"][0]
-                if not hasattr(type_, "code"):
-                    continue
-                type_code_obj = type_["code"]
-                type_code: str = type_code_obj.get("value")
+                if snapshot_element.get("id").endswith("[x]"):
+                    for type in snapshot_element["type"]:
+                        type_code_obj = type["code"]
+                        type_code: str = type_code_obj.get("value")
+                        type_name: str = type_code
 
-                if type_code:
-                    if type_code == "http://hl7.org/fhirpath/System.String":
-                        type_code = "string"
-                    result[snapshot_element.get("id")] = {
-                        "code": type_code,
-                        "min": snapshot_element["min"].get("value"),
-                        "max": snapshot_element["max"].get("value"),
-                    }
+                        if type_code:
+                            if type_code == "http://hl7.org/fhirpath/System.String":
+                                type_code = "string"
+                                type_name = "String"
+                            result[
+                                snapshot_element.get("id").replace("[x]", "")
+                                + type_name
+                            ] = {
+                                "code": type_code,
+                                "min": snapshot_element["min"].get("value"),
+                                "max": snapshot_element["max"].get("value"),
+                            }
+                else:
+                    type_: ObjectifiedElement = snapshot_element["type"][0]
+                    if not hasattr(type_, "code"):
+                        continue
+                    type_code_obj = type_["code"]
+                    type_code: str = type_code_obj.get("value")
+
+                    if type_code:
+                        if type_code == "http://hl7.org/fhirpath/System.String":
+                            type_code = "string"
+                        result[snapshot_element.get("id")] = {
+                            "code": type_code,
+                            "min": snapshot_element["min"].get("value"),
+                            "max": snapshot_element["max"].get("value"),
+                        }
 
     return result
 
