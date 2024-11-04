@@ -556,6 +556,26 @@ class ConfigManager {
     get mongoStreamingTimeout(){
         return env.MONGO_STREAMING_TIMEOUT ? parseInt(env.MONGO_STREAMING_TIMEOUT) : 60 * 60 * 1000;
     }
+
+    /**
+     * the size limit for request body in access log
+     * @return {number}
+     */
+    get accessLogRequestBodyLimit() {
+        return env.ACCESS_LOG_REQUEST_BODY_SIZE_LIMIT
+            ? parseInt(env.ACCESS_LOG_REQUEST_BODY_SIZE_LIMIT)
+            : 7 * 1024 * 1024; // 7 MB
+    }
+
+    /**
+     * the size limit for result in access log
+     * @return {number}
+     */
+    get accessLogResultLimit() {
+        return env.ACCESS_LOG_RESULT_SIZE_LIMIT
+            ? parseInt(env.ACCESS_LOG_RESULT_SIZE_LIMIT)
+            : 7 * 1024 * 1024; // 7 MB
+    }
 }
 
 module.exports = {
