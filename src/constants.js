@@ -7,6 +7,8 @@ module.exports = {
     CLIENT_DB: 'client_db',
     AUDIT_EVENT_CLIENT: 'auditEventClient',
     AUDIT_EVENT_CLIENT_DB: 'auditEventClient_db',
+    DB_SEARCH_LIMIT: 100,
+    DB_SEARCH_LIMIT_FOR_IDS: 1000,
     COLLECTION: {
         ACCOUNT: 'Account',
         ACTIVITYDEFINITION: 'ActivityDefinition',
