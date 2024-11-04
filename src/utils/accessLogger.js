@@ -11,6 +11,7 @@ const { getCircularReplacer } = require('./getCircularReplacer');
 const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
+const { logError } = require('../operations/common/logging');
 
 class AccessLogger {
     /**
@@ -138,15 +139,26 @@ class AccessLogger {
         if (result) {
             let resultBuffer = Buffer.from(result);
             const sizeLimit = this.configManager.accessLogResultLimit
+            let resultTruncated = false;
 
             if (resultBuffer.byteLength > sizeLimit) {
                 resultBuffer = resultBuffer.subarray(0, sizeLimit);
+                resultTruncated = true;
+                logError(
+                    `AccessLogger: result truncated in access log for request id: ${requestInfo.userRequestId}`
+                );
             }
 
-            detail.push({
-                type: 'result',
-                valueString: resultBuffer.toString()
-            });
+            detail.push(
+                {
+                    type: 'result',
+                    valueString: resultBuffer.toString()
+                },
+                {
+                    type: 'result-truncated',
+                    valueString: `${resultTruncated}`
+                }
+            );
         }
         if (os.hostname()) {
             const hostname = os.hostname();
@@ -192,6 +204,7 @@ class AccessLogger {
                 !requestInfo.body || typeof requestInfo.body === 'string'
                     ? requestInfo.body
                     : JSON.stringify(requestInfo.body, getCircularReplacer());
+            let bodyTruncated = false;
 
             if (body) {
                 let bodyBuffer = Buffer.from(body);
@@ -199,14 +212,24 @@ class AccessLogger {
 
                 if (bodyBuffer.byteLength > sizeLimit) {
                     bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+                    bodyTruncated = true;
+                    logError(
+                        `AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`
+                    );
                 }
                 body = bodyBuffer.toString();
             }
 
-            detail.push({
-                type: 'body',
-                valueString: body
-            });
+            detail.push(
+                {
+                    type: 'body',
+                    valueString: body
+                },
+                {
+                    type: 'body-truncated',
+                    valueString: `${bodyTruncated}`
+                }
+            );
         }
 
         if (query) {
