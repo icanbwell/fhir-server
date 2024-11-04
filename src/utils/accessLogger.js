@@ -11,6 +11,7 @@ const { getCircularReplacer } = require('./getCircularReplacer');
 const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
+const { logInfo } = require('../operations/common/logging');
 
 class AccessLogger {
     /**
@@ -141,6 +142,13 @@ class AccessLogger {
 
             if (resultBuffer.byteLength > sizeLimit) {
                 resultBuffer = resultBuffer.subarray(0, sizeLimit);
+                detail.push({
+                    type: 'result-truncated',
+                    valueString: 'true'
+                });
+                logInfo(
+                    `AccessLogger: result truncated in access log for request id: ${requestInfo.userRequestId}`
+                );
             }
 
             detail.push({
@@ -199,6 +207,13 @@ class AccessLogger {
 
                 if (bodyBuffer.byteLength > sizeLimit) {
                     bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+                    detail.push({
+                        type: 'body-truncated',
+                        valueString: 'true'
+                    });
+                    logInfo(
+                        `AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`
+                    );
                 }
                 body = bodyBuffer.toString();
             }
