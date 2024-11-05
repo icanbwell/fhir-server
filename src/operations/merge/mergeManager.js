@@ -254,7 +254,7 @@ class MergeManager {
 
         if (resourceToMerge.meta) {
             resourceToMerge.meta.versionId = '1';
-            resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         }
 
         /**

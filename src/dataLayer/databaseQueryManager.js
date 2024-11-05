@@ -155,7 +155,7 @@ error: e,
                          * @type {Resource}
                          */
                         const historyResource = resource.clone();
-                        historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                        historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                         await historyCollection.insertOne(new BundleEntry({
                             id: historyResource.id,
                             resource: historyResource,
