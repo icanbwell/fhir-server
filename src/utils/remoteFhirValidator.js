@@ -46,6 +46,7 @@ class RemoteFhirValidator {
             const response = await request
                 .get(originalUrl.toString())
                 .set('Accept', 'application/json')
+                .set('User-Agent', `fhir-server/${this.configManager.environmentValue}`)
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.configManager.requestTimeoutMs);
             return response.body;
