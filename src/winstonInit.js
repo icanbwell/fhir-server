@@ -27,7 +27,7 @@ const container = new Container();
 const defaultConfig = {
     level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
     format: combine(
-        timestamp({ format: 'YYYY-MM-DDTHH:mm:ssZ' }),
+        timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }),
         json()
     ),
     defaultMeta: {
