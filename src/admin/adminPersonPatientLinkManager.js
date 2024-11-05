@@ -316,7 +316,7 @@ class AdminPersonPatientLinkManager {
                 meta: {
                     id: generateUUID(),
                     versionId: 1,
-                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
                     source: meta.source,
                     security: meta.security
                 },

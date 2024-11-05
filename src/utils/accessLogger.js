@@ -241,7 +241,7 @@ class AccessLogger {
                 start: new Date(startTime).toISOString(),
                 end: new Date(stopTime).toISOString()
             },
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
             outcome: isError ? 8 : 0,
             outcomeDesc: isError ? 'Error' : 'Success',
             agent: [

@@ -477,7 +477,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
             // batch up the calls to update
-            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             if (this.properties && this.properties.length > 0) {
                 const { patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,

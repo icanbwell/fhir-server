@@ -217,7 +217,7 @@ class CreateOperation {
         try {
             resource.meta.versionId = '1';
             // noinspection JSValidateTypes,SpellCheckingInspection
-            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource, base_version
             });
