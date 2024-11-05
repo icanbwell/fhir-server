@@ -103,14 +103,9 @@ async function createServer (fnGetContainer) {
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
             logInfo('Beginning shutdown of server', {});
+            await flushBuffer(fnGetContainer);
             logInfo('Disconnecting Kafka producer');
             await container.kafkaClient.disconnect();
-            await flushBuffer(fnGetContainer);
-            await logSystemEventAsync({
-                event: 'shutdown',
-                message: 'Beginning shutdown of server',
-                args: {}
-            });
         },
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
