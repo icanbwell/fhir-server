@@ -24,7 +24,8 @@ query Vitals{
         value_quantity: {
           value: "75",
           prefix: "ne"
-        }
+        },
+        _debug: true
     ) {
         entry {
             resource {

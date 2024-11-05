@@ -93,6 +93,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -195,6 +196,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -218,7 +220,7 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp.body.output).toHaveLength(70);
+            expect(resp.body.output).toHaveLength(73);
             expect(resp.body.errors).toHaveLength(0);
         });
 
@@ -286,6 +288,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,
@@ -379,6 +382,7 @@ describe('Export Tests', () => {
                 r4ArgsParser: c.r4ArgsParser,
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
+                bulkExportEventProducer: c.bulkExportEventProducer,
                 exportStatusId,
                 patientReferenceBatchSize: 1000,
                 uploadPartSize: 1024 * 1024,

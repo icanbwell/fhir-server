@@ -68,11 +68,6 @@ class MyFHIRServer {
      * @return {MyFHIRServer}
      */
     configureMiddleware () {
-        // Enable error tracking request handler if supplied in config
-        if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
-            this.app.use(this.config.errorTracking.requestHandler());
-        }
-
         this.app.use(
             compression({
                 // https://www.npmjs.com/package/compression
@@ -248,7 +243,7 @@ class MyFHIRServer {
          */
         // Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
-            this.app.use(this.config.errorTracking.errorHandler());
+            this.config.errorTracking.errorHandler(this.app);
         }
 
         // Generic catch all error handler

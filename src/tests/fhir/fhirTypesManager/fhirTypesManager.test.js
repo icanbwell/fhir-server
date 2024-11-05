@@ -48,7 +48,7 @@ describe('FhirTypesManager Tests', () => {
             expect(fhirTypesManager.getTypeForField({
                 resourceType: 'Measure',
                 field: 'library'
-            })).toStrictEqual('Reference');
+            })).toStrictEqual('canonical');
             expect(fhirTypesManager.getTypeForField({
                 resourceType: 'Measure',
                 field: 'approvalDate'

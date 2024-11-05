@@ -7,6 +7,8 @@ module.exports = {
     CLIENT_DB: 'client_db',
     AUDIT_EVENT_CLIENT: 'auditEventClient',
     AUDIT_EVENT_CLIENT_DB: 'auditEventClient_db',
+    DB_SEARCH_LIMIT: 100,
+    DB_SEARCH_LIMIT_FOR_IDS: 1000,
     COLLECTION: {
         ACCOUNT: 'Account',
         ACTIVITYDEFINITION: 'ActivityDefinition',
@@ -211,5 +213,26 @@ module.exports = {
         DELETE: 'DELETE'
     },
     EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000, // 24hrs
-    DISABLED_COLLECTIONS: ['Parameters_4_0_0']
+    BULK_EXPORT_EVENT_STATUS_MAP: {
+        accepted: 'ExportInitiated',
+        completed: 'ExportCompleted',
+        'in-progress': 'ExportStatusUpdated',
+        'entered-in-error': 'ExportCompleted'
+    },
+    DISABLED_COLLECTIONS: ['Parameters_4_0_0'],
+    SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
+        patient: 'https://icanbwell.com/codes/source_patient_id',
+        person: 'https://icanbwell.com/codes/client_person_id'
+    },
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP: {
+        extension: {
+            key: 'url',
+            value: 'valueString'
+        },
+        identifier: {
+            key: 'system',
+            value: 'value'
+        }
+    }
 };

@@ -6,6 +6,7 @@ const { fhirServerConfig } = require('./config');
 const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const { getImageVersion } = require('./utils/getImageVersion');
+const { memoryCheck } = require('./routeHandlers/memoryChecker');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -82,19 +83,30 @@ async function createServer (fnGetContainer) {
     });
 
     const options = {
+        healthChecks: {
+            '/ready': memoryCheck
+        },
+        statusOkResponse: 'OK',
+        statusError: 455,
+        statusErrorResponse: 455,
         timeout: env.GRACEFUL_TIMEOUT_MS ? parseInt(env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
-            logInfo('Beginning shutdown of server', {});
-            logInfo('Disconnecting Kafka producer');
-            await container.kafkaClient.disconnect();
-            await flushBuffer(fnGetContainer);
-            await logSystemEventAsync({
-                event: 'shutdown',
-                message: 'Beginning shutdown of server',
-                args: {}
+            // https://github.com/godaddy/terminus?tab=readme-ov-file#how-to-set-terminus-up-with-kubernetes
+            let serverShutdownDelay = env.SHUTDOWN_DELAY_MS
+                ? parseInt(env.SHUTDOWN_DELAY_MS)
+                : 15100; // number of milliseconds before shutdown begin
+            logInfo(`Server will begin shutdown in ${serverShutdownDelay / 1000} sec`, {});
+            return new Promise((resolve) => {
+                setTimeout(resolve, serverShutdownDelay);
             });
         }, // called before the HTTP server starts its shutdown
+        onSignal: async () => {
+            logInfo('Beginning shutdown of server', {});
+            await flushBuffer(fnGetContainer);
+            logInfo('Disconnecting Kafka producer');
+            await container.kafkaClient.disconnect();
+        },
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
         }, // called right before exiting

@@ -218,7 +218,8 @@ class FhirXmlToJsonSchemaParser:
                         'items': {
                             '$ref': f"#/definitions/{property['type']}"
                         },
-                        'type': 'array'
+                        'type': 'array',
+                        **({"minItems": 1} if property["required"] else {}),
                     }
                 else:
                     properties[property['name']] = {
@@ -231,7 +232,8 @@ class FhirXmlToJsonSchemaParser:
             schema[name] = {
                 'additionalProperties': False,
                 'properties': properties,
-                'required': required
+                'required': required,
+                'type': 'object'
             }
             logger.info(f'Schema generated for {name}')
 

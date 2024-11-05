@@ -40,7 +40,9 @@ function convertGraphQLParameters (queryParameterValue) {
                 }
                 if (queryParameterValue.notEquals) {
                     // noinspection JSValidateTypes
-                    queryParameterValue.values = [queryParameterValue.notEquals];
+                    queryParameterValue.values = queryParameterValue.notEquals.values
+                        ? queryParameterValue.notEquals.values
+                        : [queryParameterValue.notEquals];
                     useNotEquals = true;
                 }
                 // eslint-disable-next-line no-case-declarations
@@ -82,6 +84,25 @@ function convertGraphQLParameters (queryParameterValue) {
                         }
                     }
                     orQueryParameterValue = newQueryParameterValue;
+                }
+                else if (queryParameterValue.text) {
+                    orQueryParameterValue = queryParameterValue.text;
+                    modifiers.push('text');
+                }
+                else if (queryParameterValue.ofType) {
+                    let tokenString = '';
+                    const tokenToProcess = queryParameterValue.ofType;
+                    if (tokenToProcess.system) {
+                        tokenString = tokenToProcess.system + '|';
+                    }
+                    if (tokenToProcess.code) {
+                        tokenString += tokenToProcess.code + '|';
+                    }
+                    if (tokenToProcess.value) {
+                        tokenString += tokenToProcess.value;
+                    }
+                    orQueryParameterValue = tokenString;
+                    modifiers.push('of-type');
                 }
                 break;
             case 'reference':

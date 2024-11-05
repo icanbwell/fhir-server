@@ -260,8 +260,7 @@ const fhirServerConfig = {
         level: env.LOGLEVEL
     },
     errorTracking: {
-        requestHandler: Sentry.Handlers.requestHandler,
-        errorHandler: Sentry.Handlers.errorHandler
+        errorHandler: Sentry.setupExpressErrorHandler
     },
     //
     // If you want to set up conformance statement with security enabled

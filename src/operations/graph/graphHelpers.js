@@ -34,7 +34,16 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const {
+    GRIDFS: { RETRIEVE },
+    OPERATIONS: { READ },
+    SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
+    PATIENT_REFERENCE_PREFIX,
+    PERSON_REFERENCE_PREFIX,
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
+    PERSON_PROXY_PREFIX
+} = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
@@ -501,6 +510,8 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync ({
@@ -514,7 +525,9 @@ class GraphHelper {
                                         reverse_filter,
                                         explain,
                                         debug,
-                                        supportLegacyId = true
+                                        supportLegacyId = true,
+                                        proxyPatientIds = [],
+                                        proxyPatientResources = []
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -531,13 +544,19 @@ class GraphHelper {
              * @type {import('./entityAndContainedBase').EntityAndContainedBase}
              */
             const uniqueParentEntities = Array.from(new Set(parentEntities));
-            // create comma separated list of ids
+            // create comma separated list of references and ids
             /**
              * @type {string[]}
              */
             let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
+            /**
+             * @type {string[]}
+             */
+            let parentResourceIdList = uniqueParentEntities
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => p.entityUuid);
 
             if (this.configManager.supportLegacyIds && supportLegacyId) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
@@ -545,6 +564,18 @@ class GraphHelper {
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
                         .map(p => `${p.resource.resourceType}/${p.entityId}`)
                 );
+                parentResourceIdList = parentResourceIdList.concat(
+                    uniqueParentEntities
+                        .filter(p => p.entityId !== undefined && p.entityId !== null)
+                        .map(p => p.entityId)
+                );
+            }
+
+            if (parentResourceType === 'Patient' && proxyPatientIds) {
+                parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
+                    proxyPatientIds.map((id) => PATIENT_REFERENCE_PREFIX + id)
+                );
+                parentResourceIdList = parentResourceIdList.concat(proxyPatientIds);
             }
 
             if (parentResourceTypeAndIdList.length === 0) {
@@ -553,7 +584,8 @@ class GraphHelper {
             /**
              * @type {string}
              */
-            const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
             /**
              * @type {ParsedArgs}
              */
@@ -665,9 +697,50 @@ class GraphHelper {
                     /**
                      * @type {string[]}
                      */
-                    const references = properties
+                    let references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
+
+                    // for handling case when searching using sourceid of proxy patient
+                    /**
+                     * @type {string[]}
+                     */
+                    let referenceWithSourceIds = []
+                    if(proxyPatientIds){
+                        referenceWithSourceIds = properties
+                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r}))
+                        .filter(r => r !== undefined).map(r => r.split('|')[0]);
+                    }
+
+                    // for handling case for subscription resources where instead of
+                    // reference we only have id of person/patient resource in extension/identifier
+                    if (
+                        references.length == 0 &&
+                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(fieldForSearchParameter)
+                    ) {
+                        properties.flat().map((r) => {
+                            if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                            ) {
+                                references.push(
+                                    PERSON_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            } else if (
+                                r[
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
+                            ) {
+                                references.push(
+                                    PATIENT_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            }
+                        });
+                    }
+
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
@@ -679,14 +752,24 @@ class GraphHelper {
                             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
                     }
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = uniqueParentEntities.map(
-                            p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        logError(
-                            `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
-                            `using property ${fieldForSearchParameter} in ` +
-                            'child entity ' +
-                            `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`, {}
-                        );
+                        if (
+                            parentResourceType === 'Patient' &&
+                            proxyPatientIds &&
+                            proxyPatientIds.some((id) =>
+                                referenceWithSourceIds.includes(PATIENT_REFERENCE_PREFIX + id)
+                            )
+                        ) {
+                            proxyPatientResources.push(resourceEntityAndContained);
+                        } else {
+                            const parentEntitiesString = uniqueParentEntities.map(
+                                p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                            logError(
+                                `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                                `using property ${fieldForSearchParameter} in ` +
+                                'child entity ' +
+                                `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,{}
+                            );
+                        }
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -824,6 +907,8 @@ class GraphHelper {
      * @param {{type: string}} target
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync (
@@ -837,7 +922,9 @@ class GraphHelper {
             debug,
             target,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -917,7 +1004,7 @@ class GraphHelper {
                         const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
                             includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
                             item: c,
-containedEntries: []
+                            containedEntries: []
                         }));
                         childEntries = childEntries.concat(childEntriesForCurrentEntity);
                         parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
@@ -953,7 +1040,9 @@ containedEntries: []
                             reverse_filter: target.params,
                             explain,
                             debug,
-                            supportLegacyId
+                            supportLegacyId,
+                            proxyPatientIds,
+                            proxyPatientResources
                         }
                     );
                     if (queryItem) {
@@ -995,7 +1084,9 @@ containedEntries: []
                                 explain,
                                 debug,
                                 parsedArgs,
-                                supportLegacyId
+                                supportLegacyId,
+                                proxyPatientIds,
+                                proxyPatientResources
                             }
                         )
                     );
@@ -1033,6 +1124,8 @@ containedEntries: []
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync (
@@ -1045,7 +1138,9 @@ containedEntries: []
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1069,7 +1164,9 @@ containedEntries: []
                         debug,
                         target,
                         parsedArgs,
-                        supportLegacyId
+                        supportLegacyId,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 )
             );
@@ -1109,6 +1206,8 @@ containedEntries: []
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync (
@@ -1121,7 +1220,9 @@ containedEntries: []
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1151,7 +1252,9 @@ containedEntries: []
                         explain,
                         debug,
                         parsedArgs,
-                        supportLegacyId
+                        supportLegacyId,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 )
             );
@@ -1271,7 +1374,7 @@ containedEntries: []
 
             for (const resource of resourceList) {
                 let resourceNonClinicalDataFields = nonClinicalDataFields[resource.resourceType];
-                for (const path of resourceNonClinicalDataFields) {
+                for (const path of resourceNonClinicalDataFields ?? []) {
                     let references = NestedPropertyReader.getNestedProperty({
                         obj: resource,
                         path: path
@@ -1391,6 +1494,8 @@ containedEntries: []
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
+     * @param {string[]} proxyPatientIds
+     * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync (
@@ -1407,7 +1512,9 @@ containedEntries: []
             idsAlreadyProcessed,
             supportLegacyId = true,
             includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1
+            nonClinicalResourcesDepth = 1,
+            proxyPatientIds = [],
+            proxyPatientResources = []
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1526,7 +1633,7 @@ containedEntries: []
             /**
              * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
              */
-            const { entities: allRelatedEntries, queryItems } = await this.processGraphLinksAsync(
+            let { entities: allRelatedEntries, queryItems } = await this.processGraphLinksAsync(
                 {
                     requestInfo,
                     base_version,
@@ -1536,7 +1643,9 @@ containedEntries: []
                     explain,
                     debug,
                     parsedArgs,
-                    supportLegacyId
+                    supportLegacyId,
+                    proxyPatientIds,
+                    proxyPatientResources
                 }
             );
 
@@ -1550,6 +1659,8 @@ containedEntries: []
                     }
                 }
             }
+            // adding proxy patient resources to top level as no parent resource
+            allRelatedEntries = allRelatedEntries.concat(proxyPatientResources);
 
             /**
              * @type {ResourceIdentifier[]}
@@ -1835,6 +1946,22 @@ containedEntries: []
                 parsedArgsForChunk.id = idChunk;
                 parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
                 /**
+                 * @type {string[]}
+                 */
+                let proxyPatientIds = []
+                /**
+                 * @type {ResourceEntityAndContained[]}
+                 */
+                let proxyPatientResources = []
+                if (resourceType === 'Person') {
+                    proxyPatientIds = idChunk.map((id) => {
+                        return PERSON_PROXY_PREFIX + id;
+                    });
+                } else if (resourceType === 'Patient') {
+                    proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
+                }
+
+                /**
                  * @type {ProcessMultipleIdsAsyncResult}
                  */
                 const {
@@ -1857,7 +1984,9 @@ containedEntries: []
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
                         includeNonClinicalResources,
-                        nonClinicalResourcesDepth
+                        nonClinicalResourcesDepth,
+                        proxyPatientIds,
+                        proxyPatientResources
                     }
                 );
                 entries = entries.concat(entries1);

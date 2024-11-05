@@ -79,7 +79,7 @@ class DatabaseExportManager {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
             // Update meta.lastUpdated
-            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             exportStatusResource.meta.version = '1';
 
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
@@ -113,7 +113,7 @@ class DatabaseExportManager {
         assertTypeEquals(exportStatusResource, ExportStatus);
         try {
             // Update meta.lastUpdated
-            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            exportStatusResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
             exportStatusResource.meta.versionId = `${parseInt(exportStatusResource.meta.versionId) + 1}`;
 
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({

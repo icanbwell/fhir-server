@@ -283,8 +283,6 @@ function createApp ({ fnGetContainer }) {
 
     app.get('/live', (req, res) => handleMemoryCheck(req, res));
 
-    app.get('/ready', (req, res) => handleMemoryCheck(req, res));
-
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
         const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');

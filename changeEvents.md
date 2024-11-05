@@ -1,6 +1,6 @@
 # Change Event Tracking
 
-This FHIR server can (optionally) send events to a Kafka queue whenever a patient or a resource is changed.
+This FHIR server can (optionally) send events to a Kafka queue whenever a resource is changed.
 
 ## Using change events
 
@@ -22,12 +22,11 @@ Change events follow the FHIR Audit Event Schema.
 ### Topic supported
 
 business.events:
-(new user registered, new user added, onboarding, new client added, Patient Change Event, etc..)
+(new user registered, new user added, onboarding, new client added, etc..)
 
-Topic name can be changed using the below environment variables:-
-1. ```KAFKA_PATIENT_CHANGE_TOPIC```: Used to set topic name for events created for Patient/Person resource
-2. ```KAFKA_RESOURCE_CHANGE_TOPIC```: Used to set topic name for events created for kafka enabled Fhir resources
-Note: Default values for both above variables is set to: ```business.events```
+Topic name can be changed using the below environment variable:-
+1. ```KAFKA_RESOURCE_CHANGE_TOPIC```: Used to set topic name for events created for kafka enabled Fhir resources
+Note: Default values for above variable is set to: ```business.events```
 
 ### Header of event
 
@@ -54,7 +53,7 @@ The content is specified in FHIR Audit Event schema.
             "coding": [
                 {
                     "system": "https://www.icanbwell.com/event-purpose",
-                    "code": "Patient Change"
+                    "code": "Consent Change"
                 }
             ]
         }
@@ -62,7 +61,7 @@ The content is specified in FHIR Audit Event schema.
     "agent": [
         {
             "who": {
-                "reference": "Patient/2354"
+                "reference": "Consent/2354"
             }
         }
     ]

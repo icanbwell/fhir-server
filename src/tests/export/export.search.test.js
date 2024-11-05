@@ -65,7 +65,7 @@ describe('Export Tests', () => {
 
             await postSaveProcessor.flushAsync();
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(1);
+            expect(messages.length).toBe(2);
 
             delete exportStatusResponse.body.transactionTime;
             delete exportStatusResponse.body.id;

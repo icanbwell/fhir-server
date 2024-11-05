@@ -1,6 +1,3 @@
-const patient = require('./fixtures/patient.json');
-const bwellPerson = require('./fixtures/bwellPerson.json');
-const clientPerson = require('./fixtures/clientPerson.json');
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
 const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
@@ -9,8 +6,6 @@ const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../..
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const env = require('var');
-const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
-const Person = require('../../../fhir/classes/4_0_0/resources/person');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
@@ -32,27 +27,21 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * Constructor
      * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
-     * @param {string} patientChangeTopic
      * @param {string} fhirResourceChangeTopic
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {ConfigManager} configManager
      */
     constructor ({
                     kafkaClient,
                     resourceManager,
-                    patientChangeTopic,
                     fhirResourceChangeTopic,
-                    bwellPersonFinder,
                     requestSpecificCache,
                     configManager
                 }) {
         super({
             kafkaClient,
             resourceManager,
-            patientChangeTopic,
             fhirResourceChangeTopic,
-            bwellPersonFinder,
             requestSpecificCache,
             configManager
         });
@@ -83,9 +72,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -93,16 +80,6 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
-            // noinspection JSCheckFunctionSignatures
-            const onPatientCreateAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
-                .mockImplementation(() => {
-                });
-            // noinspection JSCheckFunctionSignatures
-            const onPatientChangeAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
-                .mockImplementation(() => {
-                });
             // noinspection JSCheckFunctionSignatures
             const onResourceCreateAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
@@ -123,12 +100,6 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
-                resourceType: 'Patient',
-                doc: new Patient(patient)
-            });
-            await databaseBulkInserter.insertOneAsync({
-                base_version,
-                requestInfo,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
@@ -137,17 +108,6 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
-            });
-
-            patient.birthDate = '2020-01-01';
-            await databaseBulkInserter.mergeOneAsync({
-                base_version,
-                requestInfo,
-                resourceType: 'Patient',
-                id: patient.id,
-                doc: new Patient(patient),
-                previousVersionId: '1',
-                patches: null
             });
 
             // now execute the bulk inserts
@@ -173,92 +133,16 @@ describe('databaseBulkInserter Tests', () => {
              * @type {import('mongodb').Db}
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
-            // check patients
-            const patientCollection = `Patient_${base_version}`;
-            const patients = await fhirDb.collection(patientCollection).find().toArray();
-            expect(patients.length).toStrictEqual(1);
-            expect(patients[0].id).toStrictEqual('00100000000');
             // check observations
             const observationCollection = `Observation_${base_version}`;
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
             expect(onResourceCreateAsync).toBeCalledTimes(1);
             expect(onResourceChangeAsync).toBeCalledTimes(0);
         });
-        test('execAsync works for Person change events', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const container = createTestContainer((container1) => {
-                container1.register(
-                    'changeEventProducer',
-                    (c) =>
-                        new MockChangeEventProducer({
-                            kafkaClient: c.kafkaClient,
-                            resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
-                            configManager: c.configManager,
-                            requestSpecificCache: c.requestSpecificCache
-                        })
-                );
-                return container1;
-            });
-
-            // noinspection JSCheckFunctionSignatures
-            const onPatientCreateAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
-                .mockImplementation(() => {
-                });
-            // noinspection JSCheckFunctionSignatures
-            const onPatientChangeAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
-                .mockImplementation(() => {
-                });
-            /**
-             * @type {DatabaseBulkInserter}
-             */
-            const databaseBulkInserter = container.databaseBulkInserter;
-            const requestId = '1234';
-            const requestInfo = getTestRequestInfo({ requestId });
-
-            await databaseBulkInserter.insertOneAsync({
-                base_version,
-                requestInfo,
-                resourceType: 'Person',
-                doc: new Person(bwellPerson)
-            });
-            await databaseBulkInserter.insertOneAsync({
-                base_version,
-                requestInfo,
-                resourceType: 'Person',
-                doc: new Person(clientPerson)
-            });
-
-            // now execute the bulk inserts
-            await databaseBulkInserter.executeAsync({
-                requestInfo,
-                currentDate,
-                base_version
-            });
-
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({ requestId });
-            await postRequestProcessor.waitTillDoneAsync({ requestId });
-
-            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(0);
-        });
         test('execAsync handles mongo error', async () => {
             /**
              * @type {string}
@@ -272,9 +156,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -282,16 +164,6 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
-            // noinspection JSCheckFunctionSignatures
-            const onPatientCreateAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
-                .mockImplementation(() => {
-                });
-            // noinspection JSCheckFunctionSignatures
-            const onPatientChangeAsyncMock = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
-                .mockImplementation(() => {
-                });
             // noinspection JSCheckFunctionSignatures
             const onResourceCreateAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
@@ -312,7 +184,6 @@ describe('databaseBulkInserter Tests', () => {
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const base_version = '4_0_0';
-            const patientCollection = `Patient_${base_version}`;
             // noinspection JSCheckFunctionSignatures
             jest
                 .spyOn(Collection.prototype, 'bulkWrite')
@@ -342,12 +213,6 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
-                resourceType: 'Patient',
-                doc: new Patient(patient)
-            });
-            await databaseBulkInserter.insertOneAsync({
-                base_version,
-                requestInfo,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
@@ -356,17 +221,6 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
-            });
-
-            patient.birthDate = '2020-01-01';
-            await databaseBulkInserter.mergeOneAsync({
-                base_version,
-                requestInfo,
-                resourceType: 'Patient',
-                id: patient.id,
-                doc: new Patient(patient),
-                previousVersionId: '1',
-                patches: null
             });
 
             // now execute the bulk inserts
@@ -387,16 +241,11 @@ describe('databaseBulkInserter Tests', () => {
             expect(result).not.toBeNull();
             expect(result.length).toBeGreaterThanOrEqual(2);
 
-            // check patients
-            const patients = await fhirDb.collection(patientCollection).find().toArray();
-            expect(patients.length).toStrictEqual(0);
             // check observations
             const observationCollection = `Observation_${base_version}`;
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
             expect(onResourceCreateAsync).toBeCalledTimes(1);
             expect(onResourceChangeAsync).toBeCalledTimes(0);
         });
@@ -416,9 +265,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -889,9 +736,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1345,9 +1190,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1608,9 +1451,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
-                            bwellPersonFinder: c.bwellPersonFinder,
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })

@@ -109,7 +109,7 @@ class AuditLogger {
             id: generateUUID(),
             meta: new Meta({
                 versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
                 security: [
                     new Coding({
                         system: SecurityTagSystem.owner,
@@ -121,7 +121,7 @@ class AuditLogger {
                     })
                 ]
             }),
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
             type: new Coding({
                 system: 'http://dicom.nema.org/resources/ontology/DCM',
                 code: '110112',

@@ -267,7 +267,7 @@ class ResourceMerger {
         meta.versionId = incrementVersion
             ? `${parseInt(currentResource.meta.versionId) + 1}`
             : currentResource.meta.versionId;
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         // set the source from the incoming resource
         meta.source = original_source;
         // These properties are set automatically

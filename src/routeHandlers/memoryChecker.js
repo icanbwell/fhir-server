@@ -4,8 +4,10 @@
 
 const env = require('var');
 const v8 = require('v8');
+const { HealthCheckError } = require('@godaddy/terminus');
+const { logInfo } = require('../operations/common/logging');
 
-module.exports.handleMemoryCheck = (req, res, memoryThresholdOffset) => {
+function memoryCheck (memoryThresholdOffset) {
     const heapStats = v8.getHeapStatistics();
     const memoryUsedMB = heapStats.used_heap_size / 1024 / 1024;
     const memoryAllocatedMB = heapStats.heap_size_limit / 1024 / 1024;
@@ -17,7 +19,21 @@ module.exports.handleMemoryCheck = (req, res, memoryThresholdOffset) => {
         memThreshold += memoryThresholdOffset;
     }
     if (memoryUsedPercentage > memThreshold) {
+        logInfo('memoryCheck: Server memory threshold breached');
+        throw new HealthCheckError('healthcheck failed');
+    }
+};
+
+function handleMemoryCheck (req, res, memoryThresholdOffset) {
+    try {
+        memoryCheck(memoryThresholdOffset)
+    } catch (error) {
         return res.sendStatus(455);
     }
     return res.sendStatus(200);
+};
+
+module.exports = {
+    handleMemoryCheck,
+    memoryCheck
 };

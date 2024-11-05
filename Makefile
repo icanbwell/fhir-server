@@ -202,3 +202,7 @@ schema:
 .PHONY:nonClinicalResourceFields
 nonClinicalResourceFields:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_non_clinical_fields.py"
+
+.PHONY:resourceFieldTypes
+resourceFieldTypes:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_resource_fields_type.py"

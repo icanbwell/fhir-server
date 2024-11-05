@@ -95,7 +95,9 @@ class PatientFilterManager {
          * @type {Object}
          */
         this.personFilterWithQueryMapping = {
-            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}'
+            Subscription: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
+            SubscriptionStatus: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
+            SubscriptionTopic: 'identifier=https://icanbwell.com/codes/client_person_id|{person}'
         };
     }
 

@@ -1,15 +1,5 @@
-const dataElementsJson = require('../fhir/generator/json/definitions.json/dataelements.json');
-const dataElementMap = new Map(dataElementsJson.entry.map(i =>
-        [
-            i.resource.id,
-            {
-                code: i.resource.element[0].type ? i.resource.element[0].type[0].code : null,
-                min: i.resource.element[0].min,
-                max: i.resource.element[0].max
-            }
-        ]
-    )
-);
+const dataElementsJson = require('../fhir/generator/json/fhir-generated.field-types.json');
+const dataElementMap = new Map(Object.entries(dataElementsJson));
 const customDataElementsMap = new Map([
     [
         'ExportStatus.status',

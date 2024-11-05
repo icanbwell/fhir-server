@@ -261,7 +261,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
         // batch up the calls to update
-        updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+        updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResource.toJSONInternal() } };
         operations.push(result);
         // console.log(`Operation: ${JSON.stringify(result)}`);

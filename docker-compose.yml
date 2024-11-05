@@ -39,6 +39,7 @@ services:
       STREAM_RESPONSE: '1'
       LOG_STREAM_STEPS: '0'
       ENABLE_EVENTS_KAFKA: '1'
+      ENABLE_BULK_EXPORT_KAFKA_EVENTS: '1'
       ENABLE_KAFKA_HEALTHCHECK: '1'
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
@@ -69,10 +70,10 @@ services:
       - ./yarn.lock:/srv/src/yarn.lock
     command: yarn run dev
     healthcheck:
-      test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
+      test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:6.0.13
+    image: mongo:7.0.12
     ports:
       - '27017:27017'
     environment:
@@ -100,7 +101,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: bitnami/kafka:3.6.1
+    image: bitnami/kafka:3.5.1
     ports:
       - '9092:9092'
     environment:
@@ -124,14 +125,14 @@ services:
           '--list',
         ]
 
-#  kafkaUI:
-  #    image: obsidiandynamics/kafdrop:4.0.1
-  #    ports:
-  #      - '9000:9000'
-  #    environment:
-  #      - KAFKA_BROKERCONNECT=kafka:9092
-  #      - 'JVM_OPTS=-Xms32M -Xmx64M'
-  #      - SERVER_SERVLET_CONTEXTPATH=/
+  # kafkaUI:
+  #   image: provectuslabs/kafka-ui
+  #   ports:
+  #     - '9000:8080'
+  #   environment:
+  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+  #     - 'JVM_OPTS=-Xms32M -Xmx64M'
+  #     - SERVER_SERVLET_CONTEXT_PATH=/
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1

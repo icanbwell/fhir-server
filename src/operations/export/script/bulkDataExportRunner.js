@@ -19,13 +19,19 @@ const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType')
 const { isUuid } = require('../../../utils/uid.util');
 const { logInfo, logError, logDebug } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { COLLECTION, GRIDFS } = require('../../../constants');
+const {
+    COLLECTION,
+    GRIDFS,
+    SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
+    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP
+} = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 
 class BulkDataExportRunner {
     /**
@@ -42,6 +48,7 @@ class BulkDataExportRunner {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {SearchManager} searchManager
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -63,6 +70,7 @@ class BulkDataExportRunner {
         r4ArgsParser,
         searchManager,
         postSaveProcessor,
+        bulkExportEventProducer,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -169,6 +177,12 @@ class BulkDataExportRunner {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
+         * @type {BulkExportEventProducer}
+         */
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
+
+        /**
          * @type {string}
          */
         this.requestId = requestId;
@@ -188,6 +202,14 @@ class BulkDataExportRunner {
             if (!this.exportStatusResource) {
                 logInfo(
                     `ExportStatus resource not found with Id: ${this.exportStatusId}`
+                );
+                return;
+            }
+
+            if (this.exportStatusResource.status !== 'accepted') {
+                logInfo(
+                    `Export already triggered for ExportStatus resource with Id- ${this.exportStatusId}, ` +
+                        `current status: ${this.exportStatusResource.status}`
                 );
                 return;
             }
@@ -235,7 +257,8 @@ class BulkDataExportRunner {
                 const requestedResources = await this.getRequestedResourceAsync({
                     scope: this.exportStatusResource.scope,
                     searchParams,
-                    allowedResources: Object.keys(this.patientFilterManager.patientFilterMapping)
+                    allowedResources:
+                        this.patientFilterManager.getAllPatientOrPersonRelatedResources()
                 });
 
                 if (pathname.startsWith('/4_0_0/Patient/$export')) {
@@ -340,6 +363,10 @@ class BulkDataExportRunner {
             doc: this.exportStatusResource
         });
         await this.postSaveProcessor.flushAsync();
+        await this.bulkExportEventProducer.produce({
+            resource: this.exportStatusResource,
+            requestId: this.requestId
+        });
     }
 
     /**
@@ -462,6 +489,29 @@ class BulkDataExportRunner {
                             }
                         }
                     ]
+                };
+            } else if (resourceType.startsWith("Subscription")) {
+                let patientSubscriptionFilter = {
+                    Subscription: 'extension',
+                    SubscriptionStatus: 'extension',
+                    SubscriptionTopic: 'identifier'
+                };
+
+                let patientIds = patientReferences.map(r => ReferenceParser.parseReference(r).id);
+
+                andQuery = {
+                    [patientSubscriptionFilter[resourceType]]: {
+                        $elemMatch: {
+                            [SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[
+                                patientSubscriptionFilter[resourceType]
+                            ]['key']]: SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient,
+                            [SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[
+                                patientSubscriptionFilter[resourceType]
+                            ]['value']]: {
+                                $in: patientIds
+                            }
+                        }
+                    }
                 };
             } else {
                 const patientField = this.patientFilterManager.getPatientPropertyForResource({

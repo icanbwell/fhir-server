@@ -8,6 +8,7 @@ const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants')
 const { ExportManager } = require('../exportManager');
 const { ConfigManager } = require('../../../utils/configManager');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 
 class CronJobRunner {
     /**
@@ -18,6 +19,7 @@ class CronJobRunner {
      * @property {ExportManager} exportManager
      * @property {ConfigManager} configManager
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      * @param {ConstructorParams}
      */
     constructor({
@@ -25,7 +27,8 @@ class CronJobRunner {
         databaseExportManager,
         exportManager,
         configManager,
-        postSaveProcessor
+        postSaveProcessor,
+        bulkExportEventProducer
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -56,6 +59,12 @@ class CronJobRunner {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {BulkExportEventProducer}
+         */
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
     }
 
     /**
@@ -168,6 +177,10 @@ class CronJobRunner {
                     eventType: 'U',
                     resourceType: 'ExportStatus',
                     doc: exportStatusResource
+                });
+                await this.bulkExportEventProducer.produce({
+                    resource: exportStatusResource,
+                    requestId: this.configManager.hostnameValue
                 });
             }
             logInfo(

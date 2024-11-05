@@ -10,16 +10,19 @@ const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
 const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
+const { ConfigManager } = require('./configManager');
+const { logInfo } = require('../operations/common/logging');
 
 class AccessLogger {
     /**
      * constructor
      * @typedef {Object} params
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
-     * @param {ScopesManager} scopesManager
-     * @param {FhirOperationsManager} fhirOperationsManager
+     * @property {ScopesManager} scopesManager
+     * @property {FhirOperationsManager} fhirOperationsManager
      * @property {string} base_version
-     * @param {string|null} imageVersion
+     * @property {string|null} imageVersion
+     * @property {ConfigManager} configManager
      *
      * @param {params}
      */
@@ -28,7 +31,8 @@ class AccessLogger {
         scopesManager,
         fhirOperationsManager,
         base_version = '4_0_0',
-        imageVersion
+        imageVersion,
+        configManager
     }) {
         /**
          * @type {DatabaseUpdateFactory}
@@ -53,6 +57,10 @@ class AccessLogger {
          * @type {string|null}
          */
         this.imageVersion = imageVersion;
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -129,9 +137,23 @@ class AccessLogger {
             valueString: String(this.imageVersion)
         });
         if (result) {
+            let resultBuffer = Buffer.from(result);
+            const sizeLimit = this.configManager.accessLogResultLimit
+
+            if (resultBuffer.byteLength > sizeLimit) {
+                resultBuffer = resultBuffer.subarray(0, sizeLimit);
+                detail.push({
+                    type: 'result-truncated',
+                    valueString: 'true'
+                });
+                logInfo(
+                    `AccessLogger: result truncated in access log for request id: ${requestInfo.userRequestId}`
+                );
+            }
+
             detail.push({
                 type: 'result',
-                valueString: result
+                valueString: resultBuffer.toString()
             });
         }
         if (os.hostname()) {
@@ -174,11 +196,31 @@ class AccessLogger {
         }
 
         if (requestInfo.body) {
+            let body =
+                !requestInfo.body || typeof requestInfo.body === 'string'
+                    ? requestInfo.body
+                    : JSON.stringify(requestInfo.body, getCircularReplacer());
+
+            if (body) {
+                let bodyBuffer = Buffer.from(body);
+                const sizeLimit = this.configManager.accessLogRequestBodyLimit
+
+                if (bodyBuffer.byteLength > sizeLimit) {
+                    bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+                    detail.push({
+                        type: 'body-truncated',
+                        valueString: 'true'
+                    });
+                    logInfo(
+                        `AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`
+                    );
+                }
+                body = bodyBuffer.toString();
+            }
+
             detail.push({
                 type: 'body',
-                valueString: (!requestInfo.body || typeof requestInfo.body === 'string')
-                    ? requestInfo.body
-                    : JSON.stringify(requestInfo.body, getCircularReplacer())
+                valueString: body
             });
         }
 
@@ -199,7 +241,7 @@ class AccessLogger {
                 start: new Date(startTime).toISOString(),
                 end: new Date(stopTime).toISOString()
             },
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
             outcome: isError ? 8 : 0,
             outcomeDesc: isError ? 'Error' : 'Success',
             agent: [

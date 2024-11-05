@@ -635,8 +635,13 @@ const quantityQueryBuilder = function ({ target, field }) {
                     range = calcRange(strNum);
                 }
                 num = Number(num);
-                qB[`${field}.value`] = { $ne: { $gte: Number((num - range.offset).toPrecision(range.precn)),
-                        $lt: Number((num + range.offset).toPrecision(range.precn)) }};
+                qB[`${field}.value`] = {
+                    $exists: true,
+                    $not: {
+                        $gte: Number((num - range.offset).toPrecision(range.precn)),
+                        $lt: Number((num + range.offset).toPrecision(range.precn))
+                    }
+                };
                 break;
         }
     } else {

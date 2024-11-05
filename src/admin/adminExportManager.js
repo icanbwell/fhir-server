@@ -18,6 +18,7 @@ const { NotFoundError } = require("../utils/httpErrors");
 const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { BulkExportEventProducer } = require('../utils/bulkExportEventProducer');
 
 class AdminExportManager {
     /**
@@ -31,6 +32,7 @@ class AdminExportManager {
      * @property {ExportManager} exportManager
      * @property {ScopesValidator} scopesValidator
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {BulkExportEventProducer} bulkExportEventProducer
      */
     constructor({
         postRequestProcessor,
@@ -42,7 +44,8 @@ class AdminExportManager {
         configManager,
         exportManager,
         scopesValidator,
-        postSaveProcessor
+        postSaveProcessor,
+        bulkExportEventProducer
     }) {
         /**
         *  @type {PostRequestProcessor}
@@ -95,6 +98,12 @@ class AdminExportManager {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {BulkExportEventProducer}
+         */
+        this.bulkExportEventProducer = bulkExportEventProducer;
+        assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
     }
 
     /**
@@ -212,6 +221,10 @@ class AdminExportManager {
                         resourceType: 'ExportStatus',
                         doc: updatedResource
                     })
+                });
+                await this.bulkExportEventProducer.produce({
+                    resource: updatedResource,
+                    requestId: req.id
                 });
                 return updatedResource;
             }
