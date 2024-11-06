@@ -64,7 +64,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
-            expect(result.query.$and['1'].$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['2'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {

@@ -2,12 +2,14 @@ const {
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
-    datetimeTimingQueryBuilder
+    datetimeTimingQueryBuilder,
+    datetimeApproxString
 } = require('../../../utils/querybuilder.util');
 const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
 const { isTrue } = require('../../../utils/isTrue');
 const { isFalse } = require('../../../utils/isFalse');
+const {BadRequestError} = require("../../../utils/httpErrors");
 
 function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
@@ -57,10 +59,23 @@ class FilterByDateTime extends BaseFilter {
             } else {
                 // if this is date as a string
                 if (!isColumnDateTimeType(this.resourceType, fieldName)) {
-                    strQuery = {
-                        [fieldName]: dateQueryBuilder({
-                            date: value, type: this.propertyObj.type
-                        })
+                    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?((.)\d{3}(Z))?$/;
+                    const match = value.match(regex);
+                    if (!match) {
+                        throw new BadRequestError(new Error(`Invalid date parameter value: ${value}`));
+                    }
+                    if (match && match[1] && match[1] === 'ap') {
+                        const justDate = value.substring(2);
+                        const { start, end} = datetimeApproxString({dateQueryItem: justDate})
+                        strQuery = {
+                            [fieldName]: { $gte: start, $lte: end }
+                        }
+                    } else {
+                        strQuery = {
+                            [fieldName]: dateQueryBuilder({
+                                date: value, type: this.propertyObj.type
+                            })
+                        }
                     };
                 }
             }
@@ -119,6 +134,13 @@ class FilterByDateTime extends BaseFilter {
                 and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
             }
         }
+
+        // clean up and_segments, remove undefines
+        and_segments[0]['$or'] = and_segments[0]['$or'].filter((query) => {
+            if (query) {
+                return query;
+            }
+        });
 
         return and_segments;
     }

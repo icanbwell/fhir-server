@@ -15,7 +15,7 @@
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
-                        "display": "[['recordedDate','meta.tag.system','meta.tag.code','_uuid']]"
+                        "display": "[['meta.tag.system','meta.tag.code','recordedDate','_uuid']]"
                     },
                     { "system": "https://www.icanbwell.com/queryTime", "display": "[0.035]" },
                     {
