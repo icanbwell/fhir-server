@@ -1,11 +1,13 @@
 const { Readable, pipeline } = require('stream');
 const ObjectId = require('mongodb').ObjectId;
+const { GridFSBucket, ReadPreferenceMode } = require('mongodb');
 
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../utils/configManager');
 const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
 const { NotFoundError } = require('../utils/httpErrors');
+const { logInfo } = require('../operations/common/logging');
 const { INSERT, RETRIEVE, DELETE } = require('../constants').GRIDFS;
 
 /**
@@ -117,15 +119,34 @@ class DatabaseAttachmentManager {
      * @param {Number|String} index
      * @param {Object} patchContent
      * @param {String} path
+     * @param {Number} retryCount
     */
-    async changeAttachmentWithGridFS ({
-        resource, resourceId, metadata, index = 0, operation = null, patchContent = null, path = ''
+    async changeAttachmentWithGridFS({
+        resource,
+        resourceId,
+        metadata,
+        index = 0,
+        operation = null,
+        patchContent = null,
+        path = '',
+        retryCount = 0
     }) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
-            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+            let gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+            if (retryCount >= 2) {
+                gridFSBucket = new GridFSBucket(
+                    await this.mongoDatabaseManager.getClientDbAsync(),
+                    { readPreference: ReadPreferenceMode.primary }
+                );
+                logInfo(
+                    `Retrying read with primary readPreference for attachment: ${resource._file_id}`, {
+                        source: 'DatabaseAttachmentManager changeAttachmentWithGridFS'
+                    }
+                );
+            }
             if (!patchContent || this.isUpdated(`${path}/data`, patchContent)) {
                 switch (operation) {
                     case INSERT:
@@ -134,7 +155,24 @@ class DatabaseAttachmentManager {
                         );
 
                     case RETRIEVE:
-                        return await this.convertFileIdToData(resource, gridFSBucket);
+                        try {
+                            return await this.convertFileIdToData(resource, gridFSBucket);
+                        } catch (error) {
+                            if (retryCount < 2) {
+                                return await this.changeAttachmentWithGridFS({
+                                    resource,
+                                    resourceId,
+                                    metadata,
+                                    index,
+                                    operation,
+                                    patchContent,
+                                    path,
+                                    retryCount: retryCount + 1
+                                });
+                            } else {
+                                throw new NotFoundError('Unable to fetch the attachment or not found');
+                            }
+                        }
 
                     case DELETE:
                         await this.deleteFile(resource, metadata);
@@ -212,6 +250,17 @@ class DatabaseAttachmentManager {
             if (resource._file_id) {
                 try {
                     const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));
+
+                    downloadStream.on('error', (err) => {
+                        logInfo(
+                            `Error occurred in downloading attachment file with id: ${resource._file_id}`, {
+                                message: err.message,
+                                stack: err.stack,
+                                source: 'DatabaseAttachmentManager convertFileIdToData'
+                            }
+                        );
+                        reject(err);
+                    });
 
                     downloadStream.on('data', (chunk) => {
                         resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
