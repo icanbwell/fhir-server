@@ -159,6 +159,11 @@ class DatabaseAttachmentManager {
                             return await this.convertFileIdToData(resource, gridFSBucket);
                         } catch (error) {
                             if (retryCount < 2) {
+                                logInfo(
+                                    `Retrying attachment file download with id: ${resource._file_id}`, {
+                                        source: 'DatabaseAttachmentManager changeAttachmentWithGridFS'
+                                    }
+                                );
                                 return await this.changeAttachmentWithGridFS({
                                     resource,
                                     resourceId,
