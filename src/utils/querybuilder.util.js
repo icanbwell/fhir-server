@@ -1078,7 +1078,7 @@ const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
             query.$gte = startDate;
             break; }
         default:
-            throw new Error(`${operation} is not supported.`);
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
     }
     return query;
 };
@@ -1153,6 +1153,8 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
            { const { start, end } = datetimeApproxString({dateQueryItem: date});
              startQuery = { $gte: start };
              break; }
+        default:
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
     }
     startQuery = { [`${fieldName}.start`]: startQuery };
 
@@ -1191,7 +1193,13 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                }
              break;
            }
-     }
+        case 'lt':
+        case 'le':
+        case 'sa':
+            break;
+        default:
+           throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
+    }
     return [startQuery, endQuery];
 };
 
@@ -1237,6 +1245,8 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
            { const { start, end } = datetimeApproxString({dateQueryItem: date});
              timingQuery = { $gte: start, $lte: end };
             break; }
+        default:
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
     }
     timingQuery = { [`${fieldName}.event`]: timingQuery };
 
