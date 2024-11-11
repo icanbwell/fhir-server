@@ -849,6 +849,9 @@ class SearchManager {
 
                     transform (chunk, encoding, callback) {
                         if (ac.signal.aborted) {
+                            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                            // calling in setImmediate to process it in next iteration of event loop
+                            // and unblock other requests
                             setImmediate(callback);
                             return;
                         }
