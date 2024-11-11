@@ -61,9 +61,6 @@ class FilterByDateTime extends BaseFilter {
                 if (!isColumnDateTimeType(this.resourceType, fieldName)) {
                     const regex = /([a-z]+)(.+)/;
                     const match = value.match(regex);
-                    // if (!match) {
-                    //     throw new BadRequestError(new Error(`Invalid date parameter value: ${value}`));
-                    // }
                     if (match && match[1] && match[1] === 'ap') {
                         const justDate = value.substring(2);
                         const { start, end} = datetimeApproxString({dateQueryItem: justDate})
