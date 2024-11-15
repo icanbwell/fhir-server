@@ -2,6 +2,7 @@
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 const observation3Resource = require('./fixtures/Observation/observation3.json');
+const encounter1Resource = require('./fixtures/Encounter/encounter1.json');
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_Observation.json');
@@ -12,7 +13,7 @@ const expectedEmptyObservationResources = require('./fixtures/expected/expected_
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('Observation Tests', () => {
+describe('Observation/Encounter Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -158,6 +159,57 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources3);
         });
+
+        test('search_by_date.test.js errors when presented bad date value', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // search by date gtx and make sure we get an error back
+            try {
+                 resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&date=gtx2019-10-29')
+                .set(getHeaders());
+            } catch (err) {
+                console.log(resp);
+                console.error(err);
+            }
+            const result = JSON.parse(resp.text);
+            expect(resp.status).toEqual(400);
+            expect(result.issue[0].details.text).toEqual('Invalid date parameter value: gtx2019-10-29');
+        });
+
+        test('search_by_date.test.js errors when presented bad date value for period', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Encounter/1/$merge?validate=true')
+                .send(encounter1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // search by date gtx and make sure we get an error back
+            try {
+                 resp = await request
+                .get('/4_0_0/Encounter/?_bundle=1&date=ape2019-10-29')
+                .set(getHeaders());
+            } catch (err) {
+                console.log(resp);
+                console.error(err);
+            }
+            const result = JSON.parse(resp.text);
+            expect(resp.status).toEqual(400);
+            expect(result.issue[0].details.text).toEqual('Invalid date parameter value: ape2019-10-29');
+        });
+
 
         // removing these tests for now since new date functionality makes them invalid
     //     test('search by date value doesn\'t work', async () => {
