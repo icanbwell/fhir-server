@@ -265,7 +265,8 @@ class AuditLogger {
                     requestInfo,
                     currentDate,
                     base_version: this.base_version,
-                    operationsMap
+                    operationsMap,
+                    maintainOrder: false
                 });
                 /**
                  * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
