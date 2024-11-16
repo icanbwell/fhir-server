@@ -270,7 +270,7 @@ class AuditLogger {
                 currentDate,
                 base_version: this.base_version,
                 operationsMap,
-                maintainOrder: true
+                maintainOrder: false
             });
             /**
              * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
