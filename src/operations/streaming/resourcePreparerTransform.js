@@ -66,7 +66,10 @@ class ResourcePreparerTransform extends Transform {
      */
     _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
-            callback();
+            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+            // calling in setImmediate to process it in next iteration of event loop
+            // and unblock other requests
+            setImmediate(callback);
             return;
         }
         try {
@@ -118,7 +121,10 @@ class ResourcePreparerTransform extends Transform {
                 }
             };
             processChunksAsync().finally(() => {
-                callback();
+                // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                // calling in setImmediate to process it in next iteration of event loop
+                // and unblock other requests
+                setImmediate(callback);
             });
         } catch (e) {
             logError(`ResourcePreparer _transform: error: ${e.message || e}. id: ${chunk.id}`, {
@@ -151,7 +157,10 @@ class ResourcePreparerTransform extends Transform {
             // this is an unexpected error so set statuscode 500
             this.response.statusCode = 500;
             this.push(operationOutcome);
-            callback();
+            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+            // calling in setImmediate to process it in next iteration of event loop
+            // and unblock other requests
+            setImmediate(callback);
         }
     }
 
@@ -191,7 +200,10 @@ class ResourcePreparerTransform extends Transform {
         if (this.configManager.logStreamSteps) {
             logInfo('ResourcePreparerTransform: _flush', {});
         }
-        callback();
+        // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+        // calling in setImmediate to process it in next iteration of event loop
+        // and unblock other requests
+        setImmediate(callback);
     }
 }
 

@@ -296,17 +296,20 @@ class SearchBundleOperation {
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async () => {
-                            // log access to audit logs
-                            await this.auditLogger.logAuditEntryAsync(
-                                {
+                            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                            // calling in setImmediate to process it in next iteration of event loop
+                            // to prevent logging audit entry in MicroTask just after graphql request
+                            setImmediate(async () => {
+                                // log access to audit logs
+                                await this.auditLogger.logAuditEntryAsync({
                                     requestInfo,
                                     base_version,
                                     resourceType,
                                     operation: 'read',
                                     args: parsedArgs.getRawArgs(),
                                     ids: resources.map((r) => r.id)
-                                }
-                            );
+                                });
+                            });
                         }
                     });
                 }

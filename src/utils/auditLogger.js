@@ -222,68 +222,70 @@ class AuditLogger {
             return;
         }
         const release = await mutex.acquire();
+        let currentQueue = [];
         try {
-            /**
-             * Audit entries are always of resource type AuditEvent
-             * @type {string}
-             */
-            const resourceType = 'AuditEvent';
-
-            const currentQueue = this.queue.splice(0, this.queue.length);
-            let requestId;
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
-            /**
-             * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
-             */
-            const operationsMap = new Map();
-            operationsMap.set(resourceType, []);
-
-            for (const { doc, requestInfo } of currentQueue) {
-                assertTypeEquals(doc, AuditEvent);
-                ({ requestId } = requestInfo);
-                operationsMap.get(resourceType).push(
-                    this.databaseBulkInserter.getOperationForResourceAsync({
-                        requestId,
-                        resourceType,
-                        doc,
-                        operationType: 'insert',
-                        operation: {
-                            insertOne: {
-                                document: doc.toJSONInternal()
-                            }
-                        }
-                    })
-                );
-            }
-            if (operationsMap.get(resourceType).length > 0) {
-                const requestInfo = currentQueue[0].requestInfo;
-                /**
-                 * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
-                 */
-                const mergeResults = await this.databaseBulkInserter.executeAsync({
-                    requestInfo,
-                    currentDate,
-                    base_version: this.base_version,
-                    operationsMap
-                });
-                /**
-                 * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
-                 */
-                const mergeResultErrors = mergeResults.filter(m => m.issue);
-                if (mergeResultErrors.length > 0) {
-                    logError('Error creating audit entries', {
-                        error: mergeResultErrors,
-                        source: 'flushAsync',
-                        args: {
-                            request: { id: requestId },
-                            errors: mergeResultErrors
-                        }
-                    });
-                }
-            }
+            currentQueue = this.queue.splice(0, this.queue.length);
         } finally {
             release();
+        }
+
+        /**
+         * Audit entries are always of resource type AuditEvent
+         * @type {string}
+         */
+        const resourceType = 'AuditEvent';
+        let requestId;
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
+        /**
+         * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
+         */
+        const operationsMap = new Map();
+        operationsMap.set(resourceType, []);
+
+        for (const { doc, requestInfo } of currentQueue) {
+            assertTypeEquals(doc, AuditEvent);
+            ({ requestId } = requestInfo);
+            operationsMap.get(resourceType).push(
+                this.databaseBulkInserter.getOperationForResourceAsync({
+                    requestId,
+                    resourceType,
+                    doc,
+                    operationType: 'insert',
+                    operation: {
+                        insertOne: {
+                            document: doc.toJSONInternal()
+                        }
+                    }
+                })
+            );
+        }
+        if (operationsMap.get(resourceType).length > 0) {
+            const requestInfo = currentQueue[0].requestInfo;
+            /**
+             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync({
+                requestInfo,
+                currentDate,
+                base_version: this.base_version,
+                operationsMap,
+                maintainOrder: true
+            });
+            /**
+             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+             */
+            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            if (mergeResultErrors.length > 0) {
+                logError('Error creating audit entries', {
+                    error: mergeResultErrors,
+                    source: 'flushAsync',
+                    args: {
+                        request: { id: requestId },
+                        errors: mergeResultErrors
+                    }
+                });
+            }
         }
     }
 }

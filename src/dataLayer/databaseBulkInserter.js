@@ -689,9 +689,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} currentDate
      * @param {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
+     * @param {boolean} maintainOrder
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync ({ requestInfo, currentDate, base_version, operationsMap }) {
+    async executeAsync ({ requestInfo, currentDate, base_version, operationsMap, maintainOrder = true }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         assertIsValid(requestId, 'requestId is null');
@@ -721,7 +722,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         currentDate,
                         mapEntry,
                         base_version,
-                        useHistoryCollection: false
+                        useHistoryCollection: false,
+                        maintainOrder
                     }
                 ));
 
@@ -793,6 +795,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
+     * @param {boolean} maintainOrder
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync (
@@ -801,7 +804,8 @@ class DatabaseBulkInserter extends EventEmitter {
             requestInfo,
             currentDate,
             mapEntry,
-            useHistoryCollection
+            useHistoryCollection,
+            maintainOrder = true
         }
     ) {
         try {
@@ -817,7 +821,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType,
                     base_version,
                     useHistoryCollection,
-                    operations
+                    operations,
+                    maintainOrder
                 });
         } catch (e) {
             throw new RethrownError({
@@ -834,6 +839,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
+     * @param {boolean} maintainOrder
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync (
@@ -843,7 +849,8 @@ class DatabaseBulkInserter extends EventEmitter {
             base_version,
             useHistoryCollection,
             operations,
-            requestInfo
+            requestInfo,
+            maintainOrder = true
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
@@ -893,7 +900,11 @@ class DatabaseBulkInserter extends EventEmitter {
             /**
              * @type {import('mongodb').BulkWriteOptions|null}
              */
-            const options = { ordered: true };
+            let options = { ordered: true };
+
+            if(!maintainOrder){
+                options = { ordered: false };
+            }
             /**
              * @type {import('mongodb').BulkWriteResult|undefined}
              */

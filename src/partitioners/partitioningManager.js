@@ -166,8 +166,6 @@ class PartitioningManager {
 
         assertIsValid(base_version, 'base_version is empty');
 
-        await this.loadPartitionsFromDatabaseAsync();
-
         const resourceTypeWithBaseVersion = `${resourceType}_${base_version}`;
 
         // see if there is a partitionConfig defined for this resource
@@ -175,6 +173,8 @@ class PartitioningManager {
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.isResourcePartitioned(resourceType)) {
+            await this.loadPartitionsFromDatabaseAsync();
+
             /**
              * @type {string}
              */
@@ -249,8 +249,6 @@ class PartitioningManager {
     async getPartitionNamesByQueryAsync ({ resourceType, base_version, query, extraInfo = {} }) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
 
-        await this.loadPartitionsFromDatabaseAsync(extraInfo);
-
         const resourceWithBaseVersion = `${resourceType}_${base_version}`;
 
         // see if there is a partitionConfig defined for this resource
@@ -258,6 +256,7 @@ class PartitioningManager {
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.isResourcePartitioned(resourceType)) {
+            await this.loadPartitionsFromDatabaseAsync(extraInfo);
             const field = partitionConfig.field;
             const type = partitionConfig.type;
             /**
