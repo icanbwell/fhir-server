@@ -249,49 +249,10 @@ module.exports = {
         AuditEvent_4_0_0: [
             {
                 keys: {
-                    recorded: 1
+                    recorded: -1
                 },
                 options: {
-                    name: 'recorded'
-                }
-            },
-            {
-                keys: {
-                    _uuid: 1,
-                    recorded: 1
-                },
-                options: {
-                    name: '_uuidRecorded'
-                }
-            },
-            {
-                keys: {
-                    'agent.who._uuid': 1,
-                    _uuid: 1,
-                    recorded: 1
-                },
-                options: {
-                    name: 'agentWho_uuid_uuidRecorded'
-                }
-            },
-            {
-                keys: {
-                    'agent.altId': 1,
-                    _uuid: 1,
-                    recorded: 1
-                },
-                options: {
-                    name: 'agent_altId_1._uuid_1.recorded_1'
-                }
-            },
-            {
-                keys: {
-                    'entity.what._uuid': 1,
-                    _uuid: 1,
-                    recorded: 1
-                },
-                options: {
-                    name: 'entityWhat_uuid_uuidRecorded'
+                    name: 'recorded_1'
                 }
             }
         ],
