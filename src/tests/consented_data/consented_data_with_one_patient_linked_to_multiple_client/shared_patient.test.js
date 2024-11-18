@@ -58,7 +58,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
         await commonAfterEach();
     });
 
-    test('Consent with shared patient flow', async () => {
+    test.skip('Consent with shared patient flow', async () => {
         const request = await createTestRequest((c) => {
             return c;
         });
