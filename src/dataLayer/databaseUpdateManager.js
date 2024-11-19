@@ -15,6 +15,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const { logInfo } = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
@@ -355,10 +356,16 @@ class DatabaseUpdateManager {
             await collection.insertOne(doc);
             return doc;
         } catch (e) {
-            throw new RethrownError({
-                error: e,
-                message: 'Error while inserting access log'
-            });
+            if (e.code === 11000) {
+                // https://www.mongodb.com/docs/manual/reference/error-codes/#mongodb-error-11000
+                // for _id DuplicateKey error
+                logInfo(`Error while inserting access log: ${e.message}`, { stack: e.stack });
+            } else {
+                throw new RethrownError({
+                    error: e,
+                    message: 'Error while inserting access log'
+                });
+            }
         }
     }
 }
