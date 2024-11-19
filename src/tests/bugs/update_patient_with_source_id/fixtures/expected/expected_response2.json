@@ -1,0 +1,28 @@
+{
+    "resourceType": "Patient",
+    "id": "patient1",
+    "meta": {
+        "versionId": "3",
+        "lastUpdated": "2024-11-19T13:03:53.098Z",
+        "source": "http://healthsystem1health.org/provider",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "identifier": [
+        { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "patient1" },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
+        }
+    ],
+    "name": [{ "use": "usual", "text": "t", "family": "PATIENT1", "given": ["SHYLA"] }],
+    "gender": "female",
+    "birthDate": "2017-01-01"
+}
