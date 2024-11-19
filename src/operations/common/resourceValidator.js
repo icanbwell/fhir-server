@@ -91,6 +91,10 @@ class ResourceValidator {
      * @returns {OperationOutcome | null}
      */
     validatePatientReference ({ currentResource, resourceToValidateJson, isUser }) {
+        // For Patient resource, check for id field is ignored as id field cannot be updated and is ignored later
+        if (currentResource.resourceType === "Patient"){
+            return null;
+        }
         // Get Patient field
         const patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: currentResource.resourceType
