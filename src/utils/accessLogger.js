@@ -282,6 +282,10 @@ class AccessLogger {
             meta: logEntry
         };
 
+        if('x-duplicate-id' in requestInfo.headers){
+            accessLogEntry['_id'] = requestInfo.headers['x-duplicate-id'];
+        }
+
         await this.createAccessLogEntry({ accessLogEntry });
     }
 }
