@@ -25,6 +25,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
+const { AuditLogger } = require('../../../utils/auditLogger');
 
 describe('GraphQL Patient Tests', () => {
     let requestId;
@@ -41,6 +42,19 @@ describe('GraphQL Patient Tests', () => {
         test('GraphQL Update General Practitioner for Patient', async () => {
             const request = await createTestRequest();
             const container = getTestContainer();
+
+            // Using unmocked audit logger to test creation of audit logs in db
+            container.register(
+                'auditLogger',
+                (c) =>
+                    new AuditLogger({
+                        postRequestProcessor: c.postRequestProcessor,
+                        databaseBulkInserter: c.databaseBulkInserter,
+                        configManager: c.configManager,
+                        preSaveManager: c.preSaveManager
+                    })
+            );
+
             /**
              * @type {PostRequestProcessor}
              */
