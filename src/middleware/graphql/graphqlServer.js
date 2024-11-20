@@ -154,7 +154,10 @@ const graphql = async (fnGetContainer) => {
             },
             stringifyResult: (value) => {
                 return JSON.stringify(removeNullFromArray(value), null, 2);
-            }
+            },
+            // to process requests during server graceful shutdown
+            // https://www.apollographql.com/docs/apollo-server/api/apollo-server#stoponterminationsignals
+            stopOnTerminationSignals: false
         });
 
     // apollo requires us to start the server first
