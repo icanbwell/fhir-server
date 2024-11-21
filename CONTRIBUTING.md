@@ -33,6 +33,15 @@ Run `make tests` to run all the tests locally. Or click a test in PyCharm and ch
 
 Note: Logs are set to `SILENT` for unit tests in `jest/setEnvVars.js` file. If you want to enable logging for testcases you can change the `LOGLEVEL` env variable to `DEBUG` and for getting all the logs that might help tracing db calls you can change the `LOGLEVEL` env variable to `SILLY`.
 
+### Using custom matchers in jest
+- Jest Custom matchers are defined in: https://github.com/icanbwell/fhir-server/blob/main/src/tests/customMatchers.js
+- Any Custom matcher defined needs to be registered in https://github.com/icanbwell/fhir-server/blob/main/src/tests/testSetup.js before it can be used.
+
+1. toHaveMongoQuery
+
+   Matches the Mongo query received in the response from the FHIR server with the provided expected response by extracting the query object and sorting any array values. This ensures that test failures caused by the varying order of IDs between test runs are eliminated.
+   Must be used before the `toHaveResponse` as it matches the query and removes them from received and expected results allowing test of toHaveResponse to pass.
+
 ### Update packages
 
 To add a new package or update version of a package, edit package.json and then run `make update` to regenerate `yarn.lock` file.

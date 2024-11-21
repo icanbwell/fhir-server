@@ -6,7 +6,8 @@ const {
     toHaveMergeResponse,
     toHaveResourceCount,
     toHaveGraphQLResponse,
-    sortEntriesByUUID
+    sortEntriesByUUID,
+    toHaveMongoQuery
 } = require('./customMatchers');
 
 const { expect } = require('@jest/globals');
@@ -18,7 +19,8 @@ toHaveStatusOk,
 toHaveMergeResponse,
 toHaveResourceCount,
 toHaveGraphQLResponse,
-    sortEntriesByUUID
+    sortEntriesByUUID,
+    toHaveMongoQuery
 });
 
 const {

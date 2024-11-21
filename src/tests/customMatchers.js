@@ -8,6 +8,7 @@ const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner')
 const { ndjsonToJsonText } = require('ndjson-to-json-text');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { csv2json } = require('csv42');
+const _ = require('lodash');
 
 /**
  * @typedef JestUtils
@@ -648,6 +649,96 @@ function toHaveResourceCount (resp, expected) {
     return { actual: count, expected, message, pass };
 }
 
+/**
+ * matches mongo query by sorting any nested arrays
+ * and removes query part from received and expected reponse
+ * @param {import('http').ServerResponse} resp
+ * @param {Object|Object[]} expected
+ */
+function toHaveMongoQuery(resp, expected) {
+    const sortNestedArrays = (obj) => {
+        if (Array.isArray(obj)) {
+            return obj.map(sortNestedArrays);
+        } else if (obj && typeof obj === 'object') {
+            const newObj = {};
+            for (const key in obj) {
+                if (key === '$in' && Array.isArray(obj[key])) {
+                    newObj[key] = _.sortBy(obj[key]);
+                } else {
+                    newObj[key] = sortNestedArrays(obj[key]);
+                }
+            }
+            return newObj;
+        }
+        return obj;
+    };
+
+    const parseQueryString = (queryString) => {
+        const collectionNameRegex = /db\.(\w+_\d+_\d+_\d+)/;
+        // Extract the collection name
+        const collectionName = queryString.match(collectionNameRegex)[1];
+
+        let queryPart = queryString.match(/\(([^)]+)\)/)[1];
+
+        // Find the position of the last comma outside of braces
+        let braceCount = 0;
+        let lastCommaIndex = -1;
+        for (let i = 0; i < queryPart.length; i++) {
+            if (queryPart[i] === '{') braceCount++;
+            if (queryPart[i] === '}') braceCount--;
+            if (queryPart[i] === ',' && braceCount === 0) {
+                lastCommaIndex = i;
+            }
+        }
+
+        // Replace single quotes with double quotes
+        queryPart = queryPart.replace(/'/g, '"');
+
+        let queryContent = queryPart.substring(0, lastCommaIndex).trim();
+        let projectionContent = queryPart.substring(lastCommaIndex + 1).trim();
+
+        let jsonQuery = {};
+        let jsonProjection = {};
+        try {
+            jsonQuery = JSON.parse(queryContent);
+            jsonProjection = JSON.parse(projectionContent);
+        } catch (error) {
+            throw new Error('Failed to parse query: ' + error.message);
+        }
+        return {
+            collection: collectionName,
+            query: sortNestedArrays(jsonQuery),
+            projection: jsonProjection
+        };
+    };
+
+    let receivedQuery = [];
+    resp.body.meta.tag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/query') {
+            receivedQuery = t.display.split('|').sort();
+            t.display = '';
+        }
+    });
+
+    let expectedQuery = [];
+    expected.meta.tag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/query') {
+            expectedQuery = t.display.split('|').sort();
+            t.display = '';
+        }
+    });
+
+    // First check equal number of queries are performed
+    expect(receivedQuery.length).toEqual(expectedQuery.length);
+
+    // Compare each query
+    receivedQuery.forEach((element, index) => {
+        expect(parseQueryString(element)).toEqual(parseQueryString(expectedQuery[index]));
+    });
+
+    return { actual: resp, expected, message: '', pass: true };
+}
+
 // NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js
 module.exports = {
     toHaveResponse,
@@ -657,5 +748,6 @@ module.exports = {
     toHaveResourceCount,
     cleanMeta,
     toHaveGraphQLResponse,
-    sortEntriesByUUID
+    sortEntriesByUUID,
+    toHaveMongoQuery
 };

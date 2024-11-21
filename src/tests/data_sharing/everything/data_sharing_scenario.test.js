@@ -88,6 +88,9 @@ describe('Data sharing test cases for different scenarios', () => {
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse1Resource);
+
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse1Resource);
         });
 

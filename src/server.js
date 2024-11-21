@@ -98,11 +98,14 @@ async function createServer (fnGetContainer) {
                 : 15100; // number of milliseconds before shutdown begin
             logInfo(`Server will begin shutdown in ${serverShutdownDelay / 1000} sec`, {});
             return new Promise((resolve) => {
-                setTimeout(resolve, serverShutdownDelay);
+                setTimeout(() => {
+                    logInfo('Beginning shutdown of server', {});
+                    // server stops accepting new requests after this point
+                    resolve();
+                }, serverShutdownDelay);
             });
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
-            logInfo('Beginning shutdown of server', {});
             await flushBuffer(fnGetContainer);
             logInfo('Disconnecting Kafka producer');
             await container.kafkaClient.disconnect();
