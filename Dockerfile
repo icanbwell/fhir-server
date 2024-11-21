@@ -38,6 +38,7 @@ WORKDIR /srv/src
 USER node
 COPY --chown=node:node package.json /srv/src/package.json
 COPY --chown=node:node yarn.lock /srv/src/yarn.lock
+COPY --chown=node:node k8s-start.sh /srv/src/k8s-start.sh
 
 # Copy code from multi-stage build above
 COPY --from=build /srv/src/node_modules /srv/src/node_modules
