@@ -282,7 +282,11 @@ class AccessLogger {
             meta: logEntry
         };
 
-        await this.createAccessLogEntry({ accessLogEntry });
+        // calling in setImmediate to process it in next iteration of event loop
+        // to prevent creating access log entry in MicroTask
+        setImmediate(async () => {
+            await this.createAccessLogEntry({ accessLogEntry });
+        });
     }
 }
 
