@@ -1,7 +1,9 @@
 /**
  * This route handler implements the /health endpoint which returns the health of the system
  */
+const env = require('var');
 
+const { getExternalJwksAsync, getJwksByUrlAsync } = require('../strategies/jwt.bearer.strategy');
 const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
 
 let container;
@@ -10,6 +12,9 @@ let container;
 module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     let status;
     container = container || fnGetContainer();
+    // cache jwks
+    getJwksByUrlAsync(env.AUTH_JWKS_URL)
+    getExternalJwksAsync()
     // check kafka connection
     try {
         if (await handleKafkaHealthCheck(container)) {

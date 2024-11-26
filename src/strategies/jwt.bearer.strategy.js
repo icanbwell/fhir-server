@@ -7,8 +7,13 @@ const async = require('async');
 const env = require('var');
 const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
+const LRUCache = require('lru-cache');
 
-const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
+const {
+    EXTERNAL_REQUEST_RETRY_COUNT,
+    DEFAULT_CACHE_EXPIRY_TIME,
+    DEFAULT_CACHE_MAX_COUNT
+} = require('../constants');
 const { isTrue } = require('../utils/isTrue');
 const { logDebug, logError } = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
@@ -20,12 +25,21 @@ const requiredJWTFields = {
     bwellFhirPatientId: 'bwellFhirPatientId'
 };
 
+const cacheOptions = {
+    max: env.CACHE_MAX_COUNT ? Number(env.CACHE_MAX_COUNT) : DEFAULT_CACHE_MAX_COUNT,
+    ttl: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME
+};
+const cache = new LRUCache(cacheOptions);
+
 /**
  * Retrieve jwks for URL
  * @param {string} jwksUrl
  * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
-const getExternalJwksByUrlAsync = async (jwksUrl) => {
+const getJwksByUrlAsync = async (jwksUrl) => {
+    if(cache.has(jwksUrl)){
+        return cache.get(jwksUrl)
+    }
     try {
         /**
          * @type {*}
@@ -41,7 +55,8 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
          * @type {Object}
          */
         const jsonResponse = JSON.parse(res.text);
-        return jsonResponse.keys;
+        cache.set(jwksUrl, jsonResponse);
+        return jsonResponse;
     } catch (error) {
         logError(`Error while fetching keys from external jwk url: ${error.message}`, {
             error: error,
@@ -49,7 +64,7 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
                 jwksUrl: jwksUrl
             }
         });
-        return [];
+        return { keys: [] };
     }
 };
 
@@ -70,7 +85,7 @@ const getExternalJwksAsync = async () => {
          */
         const keysArray = await async.map(
             extJwksUrls,
-            async (extJwksUrl) => await getExternalJwksByUrlAsync(extJwksUrl.trim())
+            async (extJwksUrl) => (await getJwksByUrlAsync(extJwksUrl.trim())).keys
         );
         return keysArray.flat(2);
     }
@@ -240,7 +255,7 @@ class MyJwtStrategy extends JwtStrategy {
  *
  * Requires ENV variables for introspecting the token
  */
-module.exports.strategy = new MyJwtStrategy(
+const strategy = new MyJwtStrategy(
     {
         // Dynamically provide a signing key based on the kid in the header and the signing keys provided by the JWKS endpoint.
         secretOrKeyProvider: jwksRsa.passportJwtSecret({
@@ -249,6 +264,7 @@ module.exports.strategy = new MyJwtStrategy(
             jwksRequestsPerMinute: 5,
             jwksUri: env.AUTH_JWKS_URL,
             cacheMaxAge: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME,
+            fetcher: getJwksByUrlAsync,
             /**
              * @return {Promise<import('jwks-rsa').JSONWebKey[]>}
              */
@@ -278,3 +294,9 @@ module.exports.strategy = new MyJwtStrategy(
     },
     verify
 );
+
+module.exports = {
+    getExternalJwksAsync,
+    getJwksByUrlAsync,
+    strategy
+}
