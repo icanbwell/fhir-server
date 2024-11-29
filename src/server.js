@@ -58,27 +58,26 @@ async function createServer (fnGetContainer) {
         });
 
     // https://stackoverflow.com/questions/56606305/difference-between-keepalivetimeout-and-timeout
-    // https://www.w3schools.com/nodejs/prop_server_timeout.asp
-    // The number of milliseconds of inactivity before a socket is presumed to have timed out.
-    // A value of 0 will disable the timeout behavior on incoming connections.
-    server.setTimeout(10 * 60 * 1000, (/* socket */) => {
-        logInfo('Server timeout', {});
-    }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
     // finished writing the last response, before a socket will be destroyed. If the server receives new data
     // before the keep-alive timeout has fired, it will reset the regular inactivity timeout, i.e., server.timeout.
     // A value of 0 will disable the keep-alive timeout behavior on incoming connections. A value of 0 makes the
     // http server behave similarly to Node.js versions prior to 8.0.0, which did not have a keep-alive timeout.
     // Timeout in milliseconds. Default: 5000 (5 seconds).
-    server.keepAliveTimeout = 10 * 60 * 1000;
+    server.keepAliveTimeout = env.KEEP_ALIVE_TIMEOUT ? parseInt(env.KEEP_ALIVE_TIMEOUT) : 10 * 60 * 1000;
 
     server.on('connection', function (socket) {
-        socket.setTimeout(10 * 60 * 1000);
+        // https://nodejs.org/api/net.html#net_socket_settimeout_timeout_callback
+        // The number of milliseconds of inactivity before a socket is presumed to have timed out.
+        // A value of 0 will disable the timeout behavior on incoming connections.
+        socket.setTimeout(env.SOCKET_TIMEOUT ? parseInt(env.SOCKET_TIMEOUT) : 10 * 60 * 1000);
         socket.once('timeout', function () {
             logInfo('Socket timeout', {});
+            socket.end();
         });
         socket.once('error', function (e) {
             logError('Socket error', { error: e });
+            socket.end();
         });
     });
 
