@@ -106,6 +106,9 @@ async function createServer (fnGetContainer) {
             });
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
+            // for flushing dd-trace and sentry
+            logInfo('Emitting beforeExit event');
+            process.emit('beforeExit');
             await flushBuffer(fnGetContainer);
             logInfo('Disconnecting Kafka producer');
             await container.kafkaClient.disconnect();
