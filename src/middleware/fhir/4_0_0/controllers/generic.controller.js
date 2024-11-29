@@ -384,9 +384,6 @@ class GenericController {
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
             /** @type {function() : void} */next) => {
-            if (resourceType == 'ResearchStudy') {
-                throw new Error('test error');
-            }
             try {
                 const bundle = await this.fhirOperationsManager.historyById(req.sanitized_args, {
                         req,
