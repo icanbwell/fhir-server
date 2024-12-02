@@ -95,7 +95,7 @@ const getUserName = (req) => {
  * @returns {string | undefined}
  */
 const getRemoteAddress = (req) => {
-    return req.header('X-Forwarded-For') || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
+    return req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
 };
 
 /**

@@ -91,7 +91,7 @@ const graphql = async (fnGetContainer) => {
                     (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
                     ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id),
                 scope: req.authInfo && req.authInfo.scope,
-                remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                remoteIpAddress: req.socket.remoteAddress,
                 requestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID),
                 userRequestId: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
                 protocol: req.protocol,
