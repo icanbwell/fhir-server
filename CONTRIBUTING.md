@@ -6,13 +6,14 @@ You will need:
 2. Node.js 20.13: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
 On Macs:
-1. `brew install nvm`
-2. Add the content into ~/.zshrc as suggested by above
-3. Close shell window and open again
-4. `nvm install`
-5. `nvm use`
-6. `npm install -g yarn`
-7. `yarn install`
+1. Install brew (https://brew.sh/) if not already installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+2. `brew install nvm`
+3. Add the content into ~/.zshrc as suggested by above
+4. Close shell window and open again
+5. `nvm install`
+6. `nvm use`
+7. `npm install -g yarn`
+8. `yarn install`
 
 
 ## Common developer processes
