@@ -1211,6 +1211,16 @@ module.exports = {
                 options: {
                     name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
+            },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'identifier.system_1_value_1__uuid_1'
+                }
             }
         ],
         ValueSet_4_0_0: [
