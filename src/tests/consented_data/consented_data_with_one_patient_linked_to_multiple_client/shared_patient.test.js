@@ -138,6 +138,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
                 `/4_0_0/Patient/?id=person.${masterPersonResource.id}&_rewritePatientReference=0&_bundle=1&_debug=1`
             )
             .set(client1Headers);
+        expect(resp).toHaveMongoQuery(expectedClient1ConsentPatientResource);
         expect(resp).toHaveResponse(expectedClient1ConsentPatientResource);
 
         // now it should return consented resources
