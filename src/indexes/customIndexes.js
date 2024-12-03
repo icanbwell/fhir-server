@@ -1221,8 +1221,26 @@ module.exports = {
                 options: {
                     name: 'identifier.system_1_value_1__uuid_1'
                 }
+            },
+            {
+                keys: {
+                    'focus._uuid': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'focus_uuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'for._uuid': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'for_uuid_uuid'
+                }
             }
-        ],
+       ],
         ValueSet_4_0_0: [
             {
                 keys: {
