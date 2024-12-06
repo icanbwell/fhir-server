@@ -83,7 +83,14 @@ def main():
     for resource in all_classes:
         if resource.is_resource:
             print(f"Processing for resource: {resource.fhir_name}")
-            all_properties = {}
+            # additional properties
+            all_properties = {
+                "_id": "string",
+                "_uuid": "string",
+                "_sourceId": "string",
+                "_access.slug": "integer",
+                "_sourceAssigningAuthority": "string",
+            }
             for property in resource.properties:
                 if property.is_v2_supported:
                     continue
@@ -98,7 +105,7 @@ def main():
                         property.type_snake_case
                     ]
 
-            json_file_path = data_dir.joinpath(f"{resource.name_snake_case}_4_0_0.json")
+            json_file_path = data_dir.joinpath(f"{resource.fhir_name}_4_0_0.json")
             with open(json_file_path, "w") as json_file:
                 json.dump(all_properties, json_file, indent=2)
                 json_file.write("\n")
