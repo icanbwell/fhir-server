@@ -46,6 +46,13 @@ def get_nested_fields(field_class: FhirProperty, recursive_path: str):
 
     nested_fields = {}
 
+    if field_class.cleaned_type == "Reference":
+        nested_fields = {
+            f"{path}._uuid": "string",
+            f"{path}._sourceId": "string",
+            f"{path}._sourceAssigningAuthority": "string",
+        }
+
     if not field_property:
         if field_class.type_ in primitive_types_dict.keys():
             return {path: primitive_types_dict[field_class.type_]}
