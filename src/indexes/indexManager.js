@@ -562,7 +562,7 @@ args: {
             async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
                 {
                     collectionName,
-                    db: collectionName.includes('_History') ? resourceHistoryDb : db,
+                    db: !audit && !accessLogs && collectionName.includes('_History') ? resourceHistoryDb : db,
                     filterToProblems
                 })
         );
@@ -841,7 +841,7 @@ args: {
                         await this.deleteIndexInCollectionAsync({
                             collectionName: indexProblem.collectionName,
                             indexName: index.indexConfig.options.name,
-                            db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                            db: !audit && !accessLogs && indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                         });
 
                         indexConfigsDropped.push(index.indexConfig);
@@ -849,7 +849,7 @@ args: {
                         await this.createIndexIfNotExistsAsync({
                             collectionName: indexProblem.collectionName,
                             indexConfig: index.indexConfig,
-                            db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                            db: !audit && !accessLogs && indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                         });
 
                         indexConfigsCreated.push(index.indexConfig);
@@ -920,7 +920,7 @@ args: {
                 collections.includes(indexProblem.collectionName)) {
                 const indexConfigsCreated = await this.createCollectionIndexAsync({
                     indexProblem,
-                    db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                    db: !audit && !accessLogs && indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                 });
 
                 if (indexConfigsCreated.length) {
@@ -979,7 +979,7 @@ args: {
                 collections.includes(indexProblem.collectionName)) {
                 const indexConfigsDropped = await this.dropCollectionIndexAsync({
                     indexProblem,
-                    db: indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
+                    db: !audit && !accessLogs && indexProblem.collectionName.includes('_History') ? resourceHistoryDb : db
                 });
 
                 if (indexConfigsDropped.length) {
