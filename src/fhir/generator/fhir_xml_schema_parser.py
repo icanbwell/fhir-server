@@ -167,6 +167,39 @@ class FhirXmlSchemaParser:
         return name[0].lower() + name[1:]
 
     @staticmethod
+    def get_fhir_primitive_types():
+        data_dir: Path = Path(__file__).parent.joinpath("./")
+
+        fhir_xsd_all_file: Path = (
+            data_dir.joinpath("xsd")
+            .joinpath("definitions.xml")
+            .joinpath("fhir-all-xsd")
+            .joinpath("fhir-single.xsd")
+        )
+        with open(fhir_xsd_all_file, "rb") as file:
+            contents = file.read()
+            root = objectify.fromstring(contents)
+
+            types_list = [
+                FhirXmlSchemaParser.camel_to_snake(element.get("name"))
+                for element in root["simpleType"]
+            ]
+            primitive_types_dict = {}
+
+            for type in types_list:
+                primitive_types_dict[
+                    type.replace("-primitive", "").replace("Enum", "")
+                ] = (
+                    "string"
+                    if not type.endswith("-primitive")
+                    else type.replace("-primitive", "")
+                )
+            
+            primitive_types_dict['xhtml'] = 'string'
+
+            return primitive_types_dict
+
+    @staticmethod
     def generate_classes(filter_to_resource: Optional[str] = None) -> List[FhirEntity]:
         data_dir: Path = Path(__file__).parent.joinpath("./")
         fhir_entities: List[FhirEntity] = []
