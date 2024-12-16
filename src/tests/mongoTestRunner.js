@@ -1,8 +1,4 @@
 const { MongoMemoryReplSet } = require('mongodb-memory-server-core');
-/**
- * @type {import('mongodb-memory-server').MongoMemoryServer|undefined|null}
- */
-let mongo;
 
 /**
  * @type {import('mongodb-memory-server').MongoMemoryReplSet|undefined|null}
@@ -13,7 +9,8 @@ let myMongoUrl;
 
 async function startTestMongoServerAsync () {
     mongoRepl = await MongoMemoryReplSet.create({
-        replSet: { count: 1, storageEngine: 'wiredTiger' }
+        replSet: { count: 1, storageEngine: 'wiredTiger' },
+        binary: { version: '8.0.4' }
     });
     await mongoRepl.waitUntilRunning();
     myMongoUrl = mongoRepl.getUri();
@@ -25,10 +22,6 @@ async function stopTestMongoServerAsync () {
         await mongoRepl.stop({ doCleanup: true });
         mongoRepl = null;
     }
-    if (mongo) {
-        await mongo.stop({ doCleanup: true });
-    }
-    mongo = null;
     delete global.__MONGO_URI__;
     myMongoUrl = null;
 }
