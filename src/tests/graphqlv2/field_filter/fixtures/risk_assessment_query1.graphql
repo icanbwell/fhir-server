@@ -1,5 +1,5 @@
 query {
-    riskAssessment(
+    riskAssessments(
         probability: {
             value: {
                 greaterThan: "2002",

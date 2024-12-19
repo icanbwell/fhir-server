@@ -9,7 +9,7 @@ extend type Query {
     concepts, or classes in class models.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    conceptMap(
+    conceptMaps(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

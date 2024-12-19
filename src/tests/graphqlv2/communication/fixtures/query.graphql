@@ -1,5 +1,5 @@
 query Totals {
-  communication {
+  communications {
     entry {
       resource {
         about {

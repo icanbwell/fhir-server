@@ -7,7 +7,7 @@ extend type Query {
         A food or fluid product that is consumed by patients.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    nutritionProduct(
+    nutritionProducts(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

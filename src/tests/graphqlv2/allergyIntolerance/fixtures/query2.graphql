@@ -1,5 +1,5 @@
 query {
-    allergyIntolerance(
+    allergyIntolerances(
         verification_status:  {
             notEquals: {
                 code: "entered-in-error"

@@ -10,7 +10,7 @@ extend type Query {
     describe a collection of knowledge assets.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    library(
+    libraries(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
