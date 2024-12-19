@@ -25,7 +25,8 @@ Reference type for BasedOn
 type ServiceRequestBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestBasedOn
+    reference: String
+    resource: ServiceRequestBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -37,7 +38,8 @@ Reference type for Replaces
 type ServiceRequestReplacesReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -51,7 +53,8 @@ Reference type for Subject
 type ServiceRequestSubjectReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestSubject
+    reference: String
+    resource: ServiceRequestSubject
     type: uri
     identifier: Identifier
     display: String
@@ -63,7 +66,8 @@ Reference type for Encounter
 type ServiceRequestEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -77,7 +81,8 @@ Reference type for Requester
 type ServiceRequestRequesterReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestRequester
+    reference: String
+    resource: ServiceRequestRequester
     type: uri
     identifier: Identifier
     display: String
@@ -91,7 +96,8 @@ Reference type for Performer
 type ServiceRequestPerformerReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestPerformer
+    reference: String
+    resource: ServiceRequestPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -103,7 +109,8 @@ Reference type for LocationReference
 type ServiceRequestLocationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -117,7 +124,8 @@ Reference type for ReasonReference
 type ServiceRequestReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestReasonReference
+    reference: String
+    resource: ServiceRequestReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -131,7 +139,8 @@ Reference type for Insurance
 type ServiceRequestInsuranceReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestInsurance
+    reference: String
+    resource: ServiceRequestInsurance
     type: uri
     identifier: Identifier
     display: String
@@ -145,7 +154,8 @@ Reference type for SupportingInfo
 type ServiceRequestSupportingInfoReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequestSupportingInfo
+    reference: String
+    resource: ServiceRequestSupportingInfo
     type: uri
     identifier: Identifier
     display: String
@@ -157,7 +167,8 @@ Reference type for Specimen
 type ServiceRequestSpecimenReference {
     id: String
     extension: [Extension]
-    reference: Specimen
+    reference: String
+    resource: Specimen
     type: uri
     identifier: Identifier
     display: String
@@ -169,7 +180,8 @@ Reference type for RelevantHistory
 type ServiceRequestRelevantHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

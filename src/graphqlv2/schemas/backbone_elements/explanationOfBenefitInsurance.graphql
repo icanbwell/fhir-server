@@ -8,7 +8,8 @@ Reference type for Coverage
 type ExplanationOfBenefitInsuranceCoverageReference {
     id: String
     extension: [Extension]
-    reference: Coverage
+    reference: String
+    resource: Coverage
     type: uri
     identifier: Identifier
     display: String

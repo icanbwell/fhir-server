@@ -22,7 +22,8 @@ Reference type for BasedOn
 type DiagnosticReportBasedOnReference {
     id: String
     extension: [Extension]
-    reference: DiagnosticReportBasedOn
+    reference: String
+    resource: DiagnosticReportBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -36,7 +37,8 @@ Reference type for Subject
 type DiagnosticReportSubjectReference {
     id: String
     extension: [Extension]
-    reference: DiagnosticReportSubject
+    reference: String
+    resource: DiagnosticReportSubject
     type: uri
     identifier: Identifier
     display: String
@@ -48,7 +50,8 @@ Reference type for Encounter
 type DiagnosticReportEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +65,8 @@ Reference type for Performer
 type DiagnosticReportPerformerReference {
     id: String
     extension: [Extension]
-    reference: DiagnosticReportPerformer
+    reference: String
+    resource: DiagnosticReportPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -76,7 +80,8 @@ Reference type for ResultsInterpreter
 type DiagnosticReportResultsInterpreterReference {
     id: String
     extension: [Extension]
-    reference: DiagnosticReportResultsInterpreter
+    reference: String
+    resource: DiagnosticReportResultsInterpreter
     type: uri
     identifier: Identifier
     display: String
@@ -88,7 +93,8 @@ Reference type for Specimen
 type DiagnosticReportSpecimenReference {
     id: String
     extension: [Extension]
-    reference: Specimen
+    reference: String
+    resource: Specimen
     type: uri
     identifier: Identifier
     display: String
@@ -100,7 +106,8 @@ Reference type for Result
 type DiagnosticReportResultReference {
     id: String
     extension: [Extension]
-    reference: Observation
+    reference: String
+    resource: Observation
     type: uri
     identifier: Identifier
     display: String
@@ -112,7 +119,8 @@ Reference type for ImagingStudy
 type DiagnosticReportImagingStudyReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudy
+    reference: String
+    resource: ImagingStudy
     type: uri
     identifier: Identifier
     display: String

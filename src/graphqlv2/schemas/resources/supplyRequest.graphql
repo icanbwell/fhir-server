@@ -24,7 +24,8 @@ Reference type for ItemReference
 type SupplyRequestItemReferenceReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestItemReference
+    reference: String
+    resource: SupplyRequestItemReference
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +39,8 @@ Reference type for Requester
 type SupplyRequestRequesterReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestRequester
+    reference: String
+    resource: SupplyRequestRequester
     type: uri
     identifier: Identifier
     display: String
@@ -52,7 +54,8 @@ Reference type for Supplier
 type SupplyRequestSupplierReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestSupplier
+    reference: String
+    resource: SupplyRequestSupplier
     type: uri
     identifier: Identifier
     display: String
@@ -66,7 +69,8 @@ Reference type for ReasonReference
 type SupplyRequestReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestReasonReference
+    reference: String
+    resource: SupplyRequestReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -80,7 +84,8 @@ Reference type for DeliverFrom
 type SupplyRequestDeliverFromReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestDeliverFrom
+    reference: String
+    resource: SupplyRequestDeliverFrom
     type: uri
     identifier: Identifier
     display: String
@@ -94,7 +99,8 @@ Reference type for DeliverTo
 type SupplyRequestDeliverToReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequestDeliverTo
+    reference: String
+    resource: SupplyRequestDeliverTo
     type: uri
     identifier: Identifier
     display: String

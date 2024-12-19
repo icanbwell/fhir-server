@@ -11,7 +11,8 @@ Reference type for Actor
 type ImagingStudyPerformerActorReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudyPerformerActor
+    reference: String
+    resource: ImagingStudyPerformerActor
     type: uri
     identifier: Identifier
     display: String

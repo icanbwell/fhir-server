@@ -13,7 +13,8 @@ Reference type for ContentReference
 type ContractLegalContentReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractLegalContentReference
+    reference: String
+    resource: ContractLegalContentReference
     type: uri
     identifier: Identifier
     display: String

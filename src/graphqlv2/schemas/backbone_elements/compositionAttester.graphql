@@ -12,7 +12,8 @@ Reference type for Party
 type CompositionAttesterPartyReference {
     id: String
     extension: [Extension]
-    reference: CompositionAttesterParty
+    reference: String
+    resource: CompositionAttesterParty
     type: uri
     identifier: Identifier
     display: String

@@ -22,7 +22,8 @@ Reference type for Subject
 type SpecimenSubjectReference {
     id: String
     extension: [Extension]
-    reference: SpecimenSubject
+    reference: String
+    resource: SpecimenSubject
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for Parent
 type SpecimenParentReference {
     id: String
     extension: [Extension]
-    reference: Specimen
+    reference: String
+    resource: Specimen
     type: uri
     identifier: Identifier
     display: String
@@ -46,7 +48,8 @@ Reference type for Request
 type SpecimenRequestReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String

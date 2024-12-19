@@ -14,7 +14,8 @@ Reference type for VariableDefinition
 type EvidenceVariableVariableDefinitionReference {
     id: String
     extension: [Extension]
-    reference: EvidenceVariableVariableDefinition
+    reference: String
+    resource: EvidenceVariableVariableDefinition
     type: uri
     identifier: Identifier
     display: String

@@ -10,7 +10,8 @@ Reference type for Coverage
 type ClaimInsuranceCoverageReference {
     id: String
     extension: [Extension]
-    reference: Coverage
+    reference: String
+    resource: Coverage
     type: uri
     identifier: Identifier
     display: String
@@ -22,7 +23,8 @@ Reference type for ClaimResponse
 type ClaimInsuranceClaimResponseReference {
     id: String
     extension: [Extension]
-    reference: ClaimResponse
+    reference: String
+    resource: ClaimResponse
     type: uri
     identifier: Identifier
     display: String

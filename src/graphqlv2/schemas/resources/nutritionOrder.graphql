@@ -21,7 +21,8 @@ Reference type for Patient
 type NutritionOrderPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Encounter
 type NutritionOrderEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Orderer
 type NutritionOrderOrdererReference {
     id: String
     extension: [Extension]
-    reference: NutritionOrderOrderer
+    reference: String
+    resource: NutritionOrderOrderer
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for AllergyIntolerance
 type NutritionOrderAllergyIntoleranceReference {
     id: String
     extension: [Extension]
-    reference: AllergyIntolerance
+    reference: String
+    resource: AllergyIntolerance
     type: uri
     identifier: Identifier
     display: String

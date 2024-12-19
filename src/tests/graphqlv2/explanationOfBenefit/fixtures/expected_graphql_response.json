@@ -72,8 +72,8 @@
             ]
           }
         ],
-        "insurance": [{ "focal": true, "coverage": { "reference": { "id": "WPS-0559166162" } } }],
-        "insurer": { "reference": { "id": "WPS-Health" } },
+        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "WPS-0559166162" } } }],
+        "insurer": { "resource": { "id": "WPS-Health" } },
         "item": [
           {
             "adjudication": [
@@ -213,7 +213,7 @@
           }
         ],
         "provider": {
-          "reference": {
+          "resource": {
             "__typename": "Organization",
             "id": "733797173",
             "identifier": [
@@ -251,7 +251,7 @@
           "text": "Claim Type"
         },
         "use": "claim",
-        "patient": { "reference": { "id": "WPS-0559166162" } }
+        "patient": { "resource": { "id": "WPS-0559166162" } }
       }
     },
     {
@@ -357,8 +357,8 @@
             ]
           }
         ],
-        "insurance": [{ "focal": true, "coverage": { "reference": { "id": "WPS-5458231534" } } }],
-        "insurer": { "reference": { "id": "WPS-Health" } },
+        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "WPS-5458231534" } } }],
+        "insurer": { "resource": { "id": "WPS-Health" } },
         "item": [
           {
             "adjudication": [
@@ -496,7 +496,7 @@
           }
         ],
         "provider": {
-          "reference": {
+          "resource": {
             "__typename": "Organization",
             "id": "733797173",
             "identifier": [
@@ -534,7 +534,7 @@
           "text": "Claim Type"
         },
         "use": "claim",
-        "patient": { "reference": { "id": "WPS-5458231534" } }
+        "patient": { "resource": { "id": "WPS-5458231534" } }
       }
     }
   ],

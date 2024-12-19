@@ -12,7 +12,8 @@ Reference type for Who
 type VerificationResultPrimarySourceWhoReference {
     id: String
     extension: [Extension]
-    reference: VerificationResultPrimarySourceWho
+    reference: String
+    resource: VerificationResultPrimarySourceWho
     type: uri
     identifier: Identifier
     display: String

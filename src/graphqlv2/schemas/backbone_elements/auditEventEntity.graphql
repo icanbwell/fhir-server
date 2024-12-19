@@ -154,7 +154,8 @@ Reference type for What
 type AuditEventEntityWhatReference {
     id: String
     extension: [Extension]
-    reference: AuditEventEntityWhat
+    reference: String
+    resource: AuditEventEntityWhat
     type: uri
     identifier: Identifier
     display: String

@@ -13,7 +13,8 @@ Reference type for SupportingImmunization
 type ImmunizationRecommendationRecommendationSupportingImmunizationReference {
     id: String
     extension: [Extension]
-    reference: ImmunizationRecommendationRecommendationSupportingImmunization
+    reference: String
+    resource: ImmunizationRecommendationRecommendationSupportingImmunization
     type: uri
     identifier: Identifier
     display: String
@@ -27,7 +28,8 @@ Reference type for SupportingPatientInformation
 type ImmunizationRecommendationRecommendationSupportingPatientInformationReference {
     id: String
     extension: [Extension]
-    reference: ImmunizationRecommendationRecommendationSupportingPatientInformation
+    reference: String
+    resource: ImmunizationRecommendationRecommendationSupportingPatientInformation
     type: uri
     identifier: Identifier
     display: String

@@ -11,7 +11,8 @@ Reference type for Additive
 type BiologicallyDerivedProductProcessingAdditiveReference {
     id: String
     extension: [Extension]
-    reference: Substance
+    reference: String
+    resource: Substance
     type: uri
     identifier: Identifier
     display: String

@@ -10,7 +10,8 @@ Reference type for SubjectResults
 type MeasureReportPopulationSubjectResultsReference {
     id: String
     extension: [Extension]
-    reference: List
+    reference: String
+    resource: List
     type: uri
     identifier: Identifier
     display: String

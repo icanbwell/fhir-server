@@ -11,7 +11,8 @@ Reference type for ProcedureReference
 type ClaimProcedureProcedureReferenceReference {
     id: String
     extension: [Extension]
-    reference: Procedure
+    reference: String
+    resource: Procedure
     type: uri
     identifier: Identifier
     display: String
@@ -23,7 +24,8 @@ Reference type for Udi
 type ClaimProcedureUdiReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String

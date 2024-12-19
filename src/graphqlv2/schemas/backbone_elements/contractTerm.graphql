@@ -18,7 +18,8 @@ Reference type for TopicReference
 type ContractTermTopicReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractTermTopicReference
+    reference: String
+    resource: ContractTermTopicReference
     type: uri
     identifier: Identifier
     display: String

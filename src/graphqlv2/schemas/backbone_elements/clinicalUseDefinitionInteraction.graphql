@@ -10,7 +10,8 @@ Reference type for Effect
 type ClinicalUseDefinitionInteractionEffectReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
+    reference: String
+    resource: ObservationDefinition
     type: uri
     identifier: Identifier
     display: String

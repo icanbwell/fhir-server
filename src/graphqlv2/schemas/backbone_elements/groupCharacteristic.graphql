@@ -14,7 +14,8 @@ Reference type for ValueReference
 type GroupCharacteristicValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: GroupCharacteristicValueReference
+    reference: String
+    resource: GroupCharacteristicValueReference
     type: uri
     identifier: Identifier
     display: String

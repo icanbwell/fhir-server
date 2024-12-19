@@ -31,7 +31,8 @@ Reference type for SubjectReference
 type ActivityDefinitionSubjectReferenceReference {
     id: String
     extension: [Extension]
-    reference: Group
+    reference: String
+    resource: Group
     type: uri
     identifier: Identifier
     display: String
@@ -43,7 +44,8 @@ Reference type for Location
 type ActivityDefinitionLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -57,7 +59,8 @@ Reference type for ProductReference
 type ActivityDefinitionProductReferenceReference {
     id: String
     extension: [Extension]
-    reference: ActivityDefinitionProductReference
+    reference: String
+    resource: ActivityDefinitionProductReference
     type: uri
     identifier: Identifier
     display: String
@@ -69,7 +72,8 @@ Reference type for SpecimenRequirement
 type ActivityDefinitionSpecimenRequirementReference {
     id: String
     extension: [Extension]
-    reference: SpecimenDefinition
+    reference: String
+    resource: SpecimenDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -81,7 +85,8 @@ Reference type for ObservationRequirement
 type ActivityDefinitionObservationRequirementReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
+    reference: String
+    resource: ObservationDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -93,7 +98,8 @@ Reference type for ObservationResultRequirement
 type ActivityDefinitionObservationResultRequirementReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
+    reference: String
+    resource: ObservationDefinition
     type: uri
     identifier: Identifier
     display: String

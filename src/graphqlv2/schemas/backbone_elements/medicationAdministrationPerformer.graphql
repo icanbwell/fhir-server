@@ -11,7 +11,8 @@ Reference type for Actor
 type MedicationAdministrationPerformerActorReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationPerformerActor
+    reference: String
+    resource: MedicationAdministrationPerformerActor
     type: uri
     identifier: Identifier
     display: String

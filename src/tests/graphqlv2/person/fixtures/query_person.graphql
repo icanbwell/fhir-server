@@ -39,7 +39,7 @@ query {
                     assurance
                     target {
                         id
-                        reference {
+                        resource {
                             ... on Patient {
                                 id
                             }

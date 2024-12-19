@@ -19,7 +19,8 @@ Reference type for Practitioner
 type PractitionerRolePractitionerReference {
     id: String
     extension: [Extension]
-    reference: Practitioner
+    reference: String
+    resource: Practitioner
     type: uri
     identifier: Identifier
     display: String
@@ -31,7 +32,8 @@ Reference type for Organization
 type PractitionerRoleOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -43,7 +45,8 @@ Reference type for Location
 type PractitionerRoleLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -55,7 +58,8 @@ Reference type for HealthcareService
 type PractitionerRoleHealthcareServiceReference {
     id: String
     extension: [Extension]
-    reference: HealthcareService
+    reference: String
+    resource: HealthcareService
     type: uri
     identifier: Identifier
     display: String
@@ -67,7 +71,8 @@ Reference type for Endpoint
 type PractitionerRoleEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String

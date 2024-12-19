@@ -163,7 +163,8 @@ Reference type for Target
 type VerificationResultTargetReference {
     id: String
     extension: [Extension]
-    reference: VerificationResultTarget
+    reference: String
+    resource: VerificationResultTarget
     type: uri
     identifier: Identifier
     display: String

@@ -19,7 +19,8 @@ Reference type for BasedOn
 type SupplyDeliveryBasedOnReference {
     id: String
     extension: [Extension]
-    reference: SupplyRequest
+    reference: String
+    resource: SupplyRequest
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for PartOf
 type SupplyDeliveryPartOfReference {
     id: String
     extension: [Extension]
-    reference: SupplyDeliveryPartOf
+    reference: String
+    resource: SupplyDeliveryPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for Patient
 type SupplyDeliveryPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for Supplier
 type SupplyDeliverySupplierReference {
     id: String
     extension: [Extension]
-    reference: SupplyDeliverySupplier
+    reference: String
+    resource: SupplyDeliverySupplier
     type: uri
     identifier: Identifier
     display: String
@@ -71,7 +75,8 @@ Reference type for Destination
 type SupplyDeliveryDestinationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -85,7 +90,8 @@ Reference type for Receiver
 type SupplyDeliveryReceiverReference {
     id: String
     extension: [Extension]
-    reference: SupplyDeliveryReceiver
+    reference: String
+    resource: SupplyDeliveryReceiver
     type: uri
     identifier: Identifier
     display: String

@@ -21,7 +21,8 @@ Reference type for Sender
 type MessageHeaderSenderReference {
     id: String
     extension: [Extension]
-    reference: MessageHeaderSender
+    reference: String
+    resource: MessageHeaderSender
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Enterer
 type MessageHeaderEntererReference {
     id: String
     extension: [Extension]
-    reference: MessageHeaderEnterer
+    reference: String
+    resource: MessageHeaderEnterer
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for Author
 type MessageHeaderAuthorReference {
     id: String
     extension: [Extension]
-    reference: MessageHeaderAuthor
+    reference: String
+    resource: MessageHeaderAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -63,7 +66,8 @@ Reference type for Responsible
 type MessageHeaderResponsibleReference {
     id: String
     extension: [Extension]
-    reference: MessageHeaderResponsible
+    reference: String
+    resource: MessageHeaderResponsible
     type: uri
     identifier: Identifier
     display: String
@@ -77,7 +81,8 @@ Reference type for Focus
 type MessageHeaderFocusReference {
     id: String
     extension: [Extension]
-    reference: MessageHeaderFocus
+    reference: String
+    resource: MessageHeaderFocus
     type: uri
     identifier: Identifier
     display: String

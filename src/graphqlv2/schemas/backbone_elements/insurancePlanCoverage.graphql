@@ -10,7 +10,8 @@ Reference type for Network
 type InsurancePlanCoverageNetworkReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

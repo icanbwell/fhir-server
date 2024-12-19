@@ -14,7 +14,8 @@ Reference type for TargetReference
 type CitationRelatesToTargetReferenceReference {
     id: String
     extension: [Extension]
-    reference: CitationRelatesToTargetReference
+    reference: String
+    resource: CitationRelatesToTargetReference
     type: uri
     identifier: Identifier
     display: String

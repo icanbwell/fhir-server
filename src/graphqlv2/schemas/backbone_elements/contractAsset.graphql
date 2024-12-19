@@ -158,7 +158,8 @@ Reference type for TypeReference
 type ContractAssetTypeReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractAssetTypeReference
+    reference: String
+    resource: ContractAssetTypeReference
     type: uri
     identifier: Identifier
     display: String

@@ -14,7 +14,8 @@ Reference type for ValueReference
 type UsageContextValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: UsageContextValueReference
+    reference: String
+    resource: UsageContextValueReference
     type: uri
     identifier: Identifier
     display: String

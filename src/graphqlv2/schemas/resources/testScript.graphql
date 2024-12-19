@@ -170,7 +170,8 @@ Reference type for Profile
 type TestScriptProfileReference {
     id: String
     extension: [Extension]
-    reference: TestScriptProfile
+    reference: String
+    resource: TestScriptProfile
     type: uri
     identifier: Identifier
     display: String

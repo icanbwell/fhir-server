@@ -151,7 +151,8 @@ Reference type for Resource
 type TestScriptFixtureResourceReference {
     id: String
     extension: [Extension]
-    reference: TestScriptFixtureResource
+    reference: String
+    resource: TestScriptFixtureResource
     type: uri
     identifier: Identifier
     display: String

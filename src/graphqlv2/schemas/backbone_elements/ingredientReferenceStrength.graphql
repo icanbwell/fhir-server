@@ -11,7 +11,8 @@ Reference type for Substance
 type IngredientReferenceStrengthSubstanceReference {
     id: String
     extension: [Extension]
-    reference: SubstanceDefinition
+    reference: String
+    resource: SubstanceDefinition
     type: uri
     identifier: Identifier
     display: String

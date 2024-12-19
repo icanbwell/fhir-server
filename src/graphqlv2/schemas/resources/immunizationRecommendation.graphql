@@ -16,7 +16,8 @@ Reference type for Patient
 type ImmunizationRecommendationPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -28,7 +29,8 @@ Reference type for Authority
 type ImmunizationRecommendationAuthorityReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

@@ -18,7 +18,8 @@ Reference type for Patient
 type EpisodeOfCarePatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -30,7 +31,8 @@ Reference type for ManagingOrganization
 type EpisodeOfCareManagingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -42,7 +44,8 @@ Reference type for ReferralRequest
 type EpisodeOfCareReferralRequestReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -56,7 +59,8 @@ Reference type for CareManager
 type EpisodeOfCareCareManagerReference {
     id: String
     extension: [Extension]
-    reference: EpisodeOfCareCareManager
+    reference: String
+    resource: EpisodeOfCareCareManager
     type: uri
     identifier: Identifier
     display: String
@@ -68,7 +72,8 @@ Reference type for Team
 type EpisodeOfCareTeamReference {
     id: String
     extension: [Extension]
-    reference: CareTeam
+    reference: String
+    resource: CareTeam
     type: uri
     identifier: Identifier
     display: String
@@ -80,7 +85,8 @@ Reference type for Account
 type EpisodeOfCareAccountReference {
     id: String
     extension: [Extension]
-    reference: Account
+    reference: String
+    resource: Account
     type: uri
     identifier: Identifier
     display: String

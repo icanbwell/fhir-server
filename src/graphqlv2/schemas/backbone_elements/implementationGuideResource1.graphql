@@ -153,7 +153,8 @@ Reference type for Reference
 type ImplementationGuideResource1ReferenceReference {
     id: String
     extension: [Extension]
-    reference: ImplementationGuideResource1Reference
+    reference: String
+    resource: ImplementationGuideResource1Reference
     type: uri
     identifier: Identifier
     display: String

@@ -24,7 +24,8 @@ Reference type for InstantiatesCanonical
 type ContractInstantiatesCanonicalReference {
     id: String
     extension: [Extension]
-    reference: Contract
+    reference: String
+    resource: Contract
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +39,8 @@ Reference type for Subject
 type ContractSubjectTypeReference {
     id: String
     extension: [Extension]
-    reference: ContractSubjectType
+    reference: String
+    resource: ContractSubjectType
     type: uri
     identifier: Identifier
     display: String
@@ -50,7 +52,8 @@ Reference type for Authority
 type ContractAuthorityReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +65,8 @@ Reference type for Domain
 type ContractDomainReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -74,7 +78,8 @@ Reference type for Site
 type ContractSiteReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -88,7 +93,8 @@ Reference type for Author
 type ContractAuthorReference {
     id: String
     extension: [Extension]
-    reference: ContractAuthor
+    reference: String
+    resource: ContractAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -102,7 +108,8 @@ Reference type for TopicReference
 type ContractTopicReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractTopicReference
+    reference: String
+    resource: ContractTopicReference
     type: uri
     identifier: Identifier
     display: String
@@ -116,7 +123,8 @@ Reference type for SupportingInfo
 type ContractSupportingInfoReference {
     id: String
     extension: [Extension]
-    reference: ContractSupportingInfo
+    reference: String
+    resource: ContractSupportingInfo
     type: uri
     identifier: Identifier
     display: String
@@ -128,7 +136,8 @@ Reference type for RelevantHistory
 type ContractRelevantHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String
@@ -142,7 +151,8 @@ Reference type for LegallyBindingReference
 type ContractLegallyBindingReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractLegallyBindingReference
+    reference: String
+    resource: ContractLegallyBindingReference
     type: uri
     identifier: Identifier
     display: String

@@ -16,7 +16,8 @@ Reference type for Schedule
 type SlotScheduleReference {
     id: String
     extension: [Extension]
-    reference: Schedule
+    reference: String
+    resource: Schedule
     type: uri
     identifier: Identifier
     display: String

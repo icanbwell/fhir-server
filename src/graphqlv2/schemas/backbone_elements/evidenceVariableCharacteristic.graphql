@@ -16,7 +16,8 @@ Reference type for DefinitionReference
 type EvidenceVariableCharacteristicDefinitionReferenceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceVariableCharacteristicDefinitionReference
+    reference: String
+    resource: EvidenceVariableCharacteristicDefinitionReference
     type: uri
     identifier: Identifier
     display: String
@@ -30,7 +31,8 @@ Reference type for Device
 type EvidenceVariableCharacteristicDeviceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceVariableCharacteristicDevice
+    reference: String
+    resource: EvidenceVariableCharacteristicDevice
     type: uri
     identifier: Identifier
     display: String

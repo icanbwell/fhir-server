@@ -23,7 +23,8 @@ Reference type for Patient
 type FamilyMemberHistoryPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -37,7 +38,8 @@ Reference type for ReasonReference
 type FamilyMemberHistoryReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: FamilyMemberHistoryReasonReference
+    reference: String
+    resource: FamilyMemberHistoryReasonReference
     type: uri
     identifier: Identifier
     display: String

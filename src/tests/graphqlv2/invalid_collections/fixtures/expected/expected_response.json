@@ -6,7 +6,7 @@
           "resource": {
             "id": "1",
             "meta": { "source": "test" },
-            "link": [{ "target": { "reference": null } }]
+            "link": [{ "target": { "resource": null } }]
           }
         }
       ],

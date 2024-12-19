@@ -20,7 +20,7 @@ query {
                     }
                     outcomeReference {
                         id
-                        reference {
+                        resource {
                             ... on Observation {
                                 id
                                 resourceType
@@ -29,7 +29,7 @@ query {
                     }
                 }
                 encounter {
-                    reference {
+                    resource {
                         extension{
                             id
                             url
@@ -39,7 +39,7 @@ query {
                     }
                 }
                 author {
-                    reference {
+                    resource {
                         ... on Patient {
                             extension{
                                 id
@@ -51,7 +51,7 @@ query {
                     }
                 }
                 careTeam {
-                    reference {
+                    resource {
                         ... on CareTeam {
                             extension {
                                 id

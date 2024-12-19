@@ -21,7 +21,8 @@ Reference type for PackageFor
 type PackagedProductDefinitionPackageForReference {
     id: String
     extension: [Extension]
-    reference: MedicinalProductDefinition
+    reference: String
+    resource: MedicinalProductDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Manufacturer
 type PackagedProductDefinitionManufacturerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

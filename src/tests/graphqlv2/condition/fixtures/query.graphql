@@ -8,7 +8,7 @@ query {
                     text
                 }
                 subject {
-                    reference {
+                    resource {
                         ... on Patient {
                             __typename
                             birthDate

@@ -162,7 +162,8 @@ Reference type for BasedOn
 type RiskAssessmentBasedOnReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentBasedOn
+    reference: String
+    resource: RiskAssessmentBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -176,7 +177,8 @@ Reference type for Parent
 type RiskAssessmentParentReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentParent
+    reference: String
+    resource: RiskAssessmentParent
     type: uri
     identifier: Identifier
     display: String
@@ -190,7 +192,8 @@ Reference type for Subject
 type RiskAssessmentSubjectReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentSubject
+    reference: String
+    resource: RiskAssessmentSubject
     type: uri
     identifier: Identifier
     display: String
@@ -202,7 +205,8 @@ Reference type for Encounter
 type RiskAssessmentEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -214,7 +218,8 @@ Reference type for Condition
 type RiskAssessmentConditionReference {
     id: String
     extension: [Extension]
-    reference: Condition
+    reference: String
+    resource: Condition
     type: uri
     identifier: Identifier
     display: String
@@ -228,7 +233,8 @@ Reference type for Performer
 type RiskAssessmentPerformerReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentPerformer
+    reference: String
+    resource: RiskAssessmentPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -242,7 +248,8 @@ Reference type for ReasonReference
 type RiskAssessmentReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentReasonReference
+    reference: String
+    resource: RiskAssessmentReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -256,7 +263,8 @@ Reference type for Basis
 type RiskAssessmentBasisReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessmentBasis
+    reference: String
+    resource: RiskAssessmentBasis
     type: uri
     identifier: Identifier
     display: String

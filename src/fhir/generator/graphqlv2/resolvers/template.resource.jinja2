@@ -36,7 +36,7 @@ module.exports = {
     {% if property.reference_target_resources %}
     {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

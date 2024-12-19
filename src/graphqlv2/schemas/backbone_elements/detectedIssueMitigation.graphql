@@ -12,7 +12,8 @@ Reference type for Author
 type DetectedIssueMitigationAuthorReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssueMitigationAuthor
+    reference: String
+    resource: DetectedIssueMitigationAuthor
     type: uri
     identifier: Identifier
     display: String

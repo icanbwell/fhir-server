@@ -19,7 +19,8 @@ Reference type for Subject
 type AdverseEventSubjectReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventSubject
+    reference: String
+    resource: AdverseEventSubject
     type: uri
     identifier: Identifier
     display: String
@@ -31,7 +32,8 @@ Reference type for Encounter
 type AdverseEventEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -43,7 +45,8 @@ Reference type for ResultingCondition
 type AdverseEventResultingConditionReference {
     id: String
     extension: [Extension]
-    reference: Condition
+    reference: String
+    resource: Condition
     type: uri
     identifier: Identifier
     display: String
@@ -55,7 +58,8 @@ Reference type for Location
 type AdverseEventLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -69,7 +73,8 @@ Reference type for Recorder
 type AdverseEventRecorderReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventRecorder
+    reference: String
+    resource: AdverseEventRecorder
     type: uri
     identifier: Identifier
     display: String
@@ -83,7 +88,8 @@ Reference type for Contributor
 type AdverseEventContributorReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventContributor
+    reference: String
+    resource: AdverseEventContributor
     type: uri
     identifier: Identifier
     display: String
@@ -97,7 +103,8 @@ Reference type for SubjectMedicalHistory
 type AdverseEventSubjectMedicalHistoryReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventSubjectMedicalHistory
+    reference: String
+    resource: AdverseEventSubjectMedicalHistory
     type: uri
     identifier: Identifier
     display: String
@@ -109,7 +116,8 @@ Reference type for ReferenceDocument
 type AdverseEventReferenceDocumentReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
+    reference: String
+    resource: DocumentReference
     type: uri
     identifier: Identifier
     display: String
@@ -121,7 +129,8 @@ Reference type for Study
 type AdverseEventStudyReference {
     id: String
     extension: [Extension]
-    reference: ResearchStudy
+    reference: String
+    resource: ResearchStudy
     type: uri
     identifier: Identifier
     display: String

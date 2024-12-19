@@ -155,7 +155,8 @@ Reference type for FocusReference
 type EvidenceReportSectionFocusReferenceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceReportSectionFocusReference
+    reference: String
+    resource: EvidenceReportSectionFocusReference
     type: uri
     identifier: Identifier
     display: String
@@ -169,7 +170,8 @@ Reference type for Author
 type EvidenceReportSectionAuthorReference {
     id: String
     extension: [Extension]
-    reference: EvidenceReportSectionAuthor
+    reference: String
+    resource: EvidenceReportSectionAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -183,7 +185,8 @@ Reference type for EntryReference
 type EvidenceReportSectionEntryReferenceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceReportSectionEntryReference
+    reference: String
+    resource: EvidenceReportSectionEntryReference
     type: uri
     identifier: Identifier
     display: String

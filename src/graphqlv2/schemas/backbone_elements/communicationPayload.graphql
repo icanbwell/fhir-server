@@ -11,7 +11,8 @@ Reference type for ContentReference
 type CommunicationPayloadContentReferenceReference {
     id: String
     extension: [Extension]
-    reference: CommunicationPayloadContentReference
+    reference: String
+    resource: CommunicationPayloadContentReference
     type: uri
     identifier: Identifier
     display: String

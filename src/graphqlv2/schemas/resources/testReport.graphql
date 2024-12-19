@@ -20,7 +20,8 @@ Reference type for TestScript
 type TestReportTestScriptReference {
     id: String
     extension: [Extension]
-    reference: TestScript
+    reference: String
+    resource: TestScript
     type: uri
     identifier: Identifier
     display: String

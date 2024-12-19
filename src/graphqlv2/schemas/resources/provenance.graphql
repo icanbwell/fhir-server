@@ -163,7 +163,8 @@ Reference type for Target
 type ProvenanceTargetReference {
     id: String
     extension: [Extension]
-    reference: ProvenanceTarget
+    reference: String
+    resource: ProvenanceTarget
     type: uri
     identifier: Identifier
     display: String
@@ -175,7 +176,8 @@ Reference type for Location
 type ProvenanceLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

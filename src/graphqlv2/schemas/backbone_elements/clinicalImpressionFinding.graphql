@@ -11,7 +11,8 @@ Reference type for ItemReference
 type ClinicalImpressionFindingItemReferenceReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpressionFindingItemReference
+    reference: String
+    resource: ClinicalImpressionFindingItemReference
     type: uri
     identifier: Identifier
     display: String

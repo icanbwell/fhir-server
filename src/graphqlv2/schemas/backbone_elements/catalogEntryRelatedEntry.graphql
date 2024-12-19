@@ -9,7 +9,8 @@ Reference type for Item
 type CatalogEntryRelatedEntryItemReference {
     id: String
     extension: [Extension]
-    reference: CatalogEntry
+    reference: String
+    resource: CatalogEntry
     type: uri
     identifier: Identifier
     display: String

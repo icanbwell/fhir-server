@@ -152,7 +152,8 @@ Reference type for Resource
 type LinkageItemResourceReference {
     id: String
     extension: [Extension]
-    reference: LinkageItemResource
+    reference: String
+    resource: LinkageItemResource
     type: uri
     identifier: Identifier
     display: String

@@ -164,7 +164,8 @@ Reference type for BasedOn
 type DeviceRequestBasedOnReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestBasedOn
+    reference: String
+    resource: DeviceRequestBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -178,7 +179,8 @@ Reference type for PriorRequest
 type DeviceRequestPriorRequestReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestPriorRequest
+    reference: String
+    resource: DeviceRequestPriorRequest
     type: uri
     identifier: Identifier
     display: String
@@ -190,7 +192,8 @@ Reference type for CodeReference
 type DeviceRequestCodeReferenceReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -204,7 +207,8 @@ Reference type for Subject
 type DeviceRequestSubjectReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestSubject
+    reference: String
+    resource: DeviceRequestSubject
     type: uri
     identifier: Identifier
     display: String
@@ -216,7 +220,8 @@ Reference type for Encounter
 type DeviceRequestEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -230,7 +235,8 @@ Reference type for Requester
 type DeviceRequestRequesterReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestRequester
+    reference: String
+    resource: DeviceRequestRequester
     type: uri
     identifier: Identifier
     display: String
@@ -244,7 +250,8 @@ Reference type for Performer
 type DeviceRequestPerformerReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestPerformer
+    reference: String
+    resource: DeviceRequestPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -258,7 +265,8 @@ Reference type for ReasonReference
 type DeviceRequestReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestReasonReference
+    reference: String
+    resource: DeviceRequestReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -272,7 +280,8 @@ Reference type for Insurance
 type DeviceRequestInsuranceReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestInsurance
+    reference: String
+    resource: DeviceRequestInsurance
     type: uri
     identifier: Identifier
     display: String
@@ -286,7 +295,8 @@ Reference type for SupportingInfo
 type DeviceRequestSupportingInfoReference {
     id: String
     extension: [Extension]
-    reference: DeviceRequestSupportingInfo
+    reference: String
+    resource: DeviceRequestSupportingInfo
     type: uri
     identifier: Identifier
     display: String
@@ -298,7 +308,8 @@ Reference type for RelevantHistory
 type DeviceRequestRelevantHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

@@ -14,7 +14,8 @@ Reference type for Publisher
 type ContractContentDefinitionPublisherReference {
     id: String
     extension: [Extension]
-    reference: ContractContentDefinitionPublisher
+    reference: String
+    resource: ContractContentDefinitionPublisher
     type: uri
     identifier: Identifier
     display: String

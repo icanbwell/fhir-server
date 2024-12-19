@@ -162,7 +162,8 @@ Reference type for BasedOn
 type RequestGroupBasedOnReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupBasedOn
+    reference: String
+    resource: RequestGroupBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -176,7 +177,8 @@ Reference type for Replaces
 type RequestGroupReplacesReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupReplaces
+    reference: String
+    resource: RequestGroupReplaces
     type: uri
     identifier: Identifier
     display: String
@@ -190,7 +192,8 @@ Reference type for Subject
 type RequestGroupSubjectReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupSubject
+    reference: String
+    resource: RequestGroupSubject
     type: uri
     identifier: Identifier
     display: String
@@ -202,7 +205,8 @@ Reference type for Encounter
 type RequestGroupEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -216,7 +220,8 @@ Reference type for Author
 type RequestGroupAuthorReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupAuthor
+    reference: String
+    resource: RequestGroupAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -230,7 +235,8 @@ Reference type for ReasonReference
 type RequestGroupReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupReasonReference
+    reference: String
+    resource: RequestGroupReasonReference
     type: uri
     identifier: Identifier
     display: String

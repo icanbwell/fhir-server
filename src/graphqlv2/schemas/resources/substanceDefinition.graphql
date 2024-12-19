@@ -25,7 +25,8 @@ Reference type for InformationSource
 type SubstanceDefinitionInformationSourceReference {
     id: String
     extension: [Extension]
-    reference: Citation
+    reference: String
+    resource: Citation
     type: uri
     identifier: Identifier
     display: String
@@ -37,7 +38,8 @@ Reference type for Manufacturer
 type SubstanceDefinitionManufacturerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for Supplier
 type SubstanceDefinitionSupplierReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

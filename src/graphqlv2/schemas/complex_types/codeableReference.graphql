@@ -11,7 +11,8 @@ Reference type for Reference
 type CodeableReferenceReferenceReference {
     id: String
     extension: [Extension]
-    reference: CodeableReferenceReference
+    reference: String
+    resource: CodeableReferenceReference
     type: uri
     identifier: Identifier
     display: String

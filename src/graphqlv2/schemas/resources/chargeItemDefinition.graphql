@@ -26,7 +26,8 @@ Reference type for Instance
 type ChargeItemDefinitionInstanceReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemDefinitionInstance
+    reference: String
+    resource: ChargeItemDefinitionInstance
     type: uri
     identifier: Identifier
     display: String

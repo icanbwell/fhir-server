@@ -14,7 +14,8 @@ Reference type for Udi
 type ExplanationOfBenefitSubDetailUdiReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String

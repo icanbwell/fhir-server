@@ -56,13 +56,13 @@
         "id": null,
         "extension": null,
         "assurance": "level4",
-        "target": { "id": null, "reference": null }
+        "target": { "id": null, "resource": null }
       },
       {
         "id": null,
         "extension": null,
         "assurance": "level4",
-        "target": { "id": null, "reference": null }
+        "target": { "id": null, "resource": null }
       }
     ],
     "implicitRules": null,
@@ -158,7 +158,7 @@
         "assurance": "level4",
         "target": {
           "id": null,
-          "reference": { "id": "6bcdef66-b41c-413b-b9e3-40ffe20dd18e" }
+          "resource": { "id": "6bcdef66-b41c-413b-b9e3-40ffe20dd18e" }
         }
       }
     ],

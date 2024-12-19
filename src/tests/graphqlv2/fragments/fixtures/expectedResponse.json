@@ -6,18 +6,18 @@
           "resource": {
             "id": "2",
             "provider": {
-              "reference": {
+              "resource": {
                 "__typename": "Practitioner",
                 "name": [{ "family": "Azamar", "given": ["Daniel"] }]
               }
             }
           }
         },
-        { "resource": { "id": "3", "provider": { "reference": null } } },
+        { "resource": { "id": "3", "provider": { "resource": null } } },
         {
           "resource": {
             "id": "1",
-            "provider": { "reference": { "__typename": "Organization", "orgName": "Testing" } }
+            "provider": { "resource": { "__typename": "Organization", "orgName": "Testing" } }
           }
         }
       ],

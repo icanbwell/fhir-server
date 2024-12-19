@@ -10,7 +10,8 @@ Reference type for NameReference
 type ImplementationGuidePageNameReferenceReference {
     id: String
     extension: [Extension]
-    reference: Binary
+    reference: String
+    resource: Binary
     type: uri
     identifier: Identifier
     display: String

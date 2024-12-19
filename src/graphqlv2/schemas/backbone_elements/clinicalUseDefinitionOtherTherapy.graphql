@@ -15,7 +15,8 @@ Reference type for Therapy
 type ClinicalUseDefinitionOtherTherapyTherapyReference {
     id: String
     extension: [Extension]
-    reference: ClinicalUseDefinitionOtherTherapyTherapy
+    reference: String
+    resource: ClinicalUseDefinitionOtherTherapyTherapy
     type: uri
     identifier: Identifier
     display: String

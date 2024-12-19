@@ -23,7 +23,8 @@ Reference type for ReasonReference
 type AppointmentReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: AppointmentReasonReference
+    reference: String
+    resource: AppointmentReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -37,7 +38,8 @@ Reference type for SupportingInformation
 type AppointmentSupportingInformationReference {
     id: String
     extension: [Extension]
-    reference: AppointmentSupportingInformation
+    reference: String
+    resource: AppointmentSupportingInformation
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for Slot
 type AppointmentSlotReference {
     id: String
     extension: [Extension]
-    reference: Slot
+    reference: String
+    resource: Slot
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for BasedOn
 type AppointmentBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String

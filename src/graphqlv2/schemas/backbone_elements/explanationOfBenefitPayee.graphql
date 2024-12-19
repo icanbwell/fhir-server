@@ -11,7 +11,8 @@ Reference type for Party
 type ExplanationOfBenefitPayeePartyReference {
     id: String
     extension: [Extension]
-    reference: ExplanationOfBenefitPayeeParty
+    reference: String
+    resource: ExplanationOfBenefitPayeeParty
     type: uri
     identifier: Identifier
     display: String

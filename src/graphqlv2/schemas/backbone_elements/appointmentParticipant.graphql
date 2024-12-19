@@ -13,7 +13,8 @@ Reference type for Actor
 type AppointmentParticipantActorReference {
     id: String
     extension: [Extension]
-    reference: AppointmentParticipantActor
+    reference: String
+    resource: AppointmentParticipantActor
     type: uri
     identifier: Identifier
     display: String

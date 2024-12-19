@@ -159,7 +159,8 @@ Reference type for Subject
 type BasicSubjectReference {
     id: String
     extension: [Extension]
-    reference: BasicSubject
+    reference: String
+    resource: BasicSubject
     type: uri
     identifier: Identifier
     display: String
@@ -173,7 +174,8 @@ Reference type for Author
 type BasicAuthorReference {
     id: String
     extension: [Extension]
-    reference: BasicAuthor
+    reference: String
+    resource: BasicAuthor
     type: uri
     identifier: Identifier
     display: String

@@ -20,7 +20,8 @@ Reference type for Subject
 type ListSubjectReference {
     id: String
     extension: [Extension]
-    reference: ListSubject
+    reference: String
+    resource: ListSubject
     type: uri
     identifier: Identifier
     display: String
@@ -32,7 +33,8 @@ Reference type for Encounter
 type ListEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -46,7 +48,8 @@ Reference type for Source
 type ListSourceReference {
     id: String
     extension: [Extension]
-    reference: ListSource
+    reference: String
+    resource: ListSource
     type: uri
     identifier: Identifier
     display: String

@@ -65,7 +65,8 @@ Reference type for DefaultValueReference
 type ElementDefinitionDefaultValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ElementDefinitionDefaultValueReference
+    reference: String
+    resource: ElementDefinitionDefaultValueReference
     type: uri
     identifier: Identifier
     display: String
@@ -79,7 +80,8 @@ Reference type for FixedReference
 type ElementDefinitionFixedReferenceReference {
     id: String
     extension: [Extension]
-    reference: ElementDefinitionFixedReference
+    reference: String
+    resource: ElementDefinitionFixedReference
     type: uri
     identifier: Identifier
     display: String
@@ -93,7 +95,8 @@ Reference type for PatternReference
 type ElementDefinitionPatternReferenceReference {
     id: String
     extension: [Extension]
-    reference: ElementDefinitionPatternReference
+    reference: String
+    resource: ElementDefinitionPatternReference
     type: uri
     identifier: Identifier
     display: String

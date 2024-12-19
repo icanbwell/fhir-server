@@ -20,7 +20,8 @@ Reference type for ValueReference
 type QuestionnaireResponseAnswerValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: QuestionnaireResponseAnswerValueReference
+    reference: String
+    resource: QuestionnaireResponseAnswerValueReference
     type: uri
     identifier: Identifier
     display: String

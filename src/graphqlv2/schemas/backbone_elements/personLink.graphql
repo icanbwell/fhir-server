@@ -11,7 +11,8 @@ Reference type for Target
 type PersonLinkTargetReference {
     id: String
     extension: [Extension]
-    reference: PersonLinkTarget
+    reference: String
+    resource: PersonLinkTarget
     type: uri
     identifier: Identifier
     display: String

@@ -22,7 +22,8 @@ Reference type for PartOf
 type MedicationAdministrationPartOfReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationPartOf
+    reference: String
+    resource: MedicationAdministrationPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for MedicationReference
 type MedicationAdministrationMedicationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Medication
+    reference: String
+    resource: Medication
     type: uri
     identifier: Identifier
     display: String
@@ -48,7 +50,8 @@ Reference type for Subject
 type MedicationAdministrationSubjectReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationSubject
+    reference: String
+    resource: MedicationAdministrationSubject
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +65,8 @@ Reference type for Context
 type MedicationAdministrationContextReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationContext
+    reference: String
+    resource: MedicationAdministrationContext
     type: uri
     identifier: Identifier
     display: String
@@ -76,7 +80,8 @@ Reference type for SupportingInformation
 type MedicationAdministrationSupportingInformationReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationSupportingInformation
+    reference: String
+    resource: MedicationAdministrationSupportingInformation
     type: uri
     identifier: Identifier
     display: String
@@ -90,7 +95,8 @@ Reference type for ReasonReference
 type MedicationAdministrationReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: MedicationAdministrationReasonReference
+    reference: String
+    resource: MedicationAdministrationReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -102,7 +108,8 @@ Reference type for Request
 type MedicationAdministrationRequestReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequest
+    reference: String
+    resource: MedicationRequest
     type: uri
     identifier: Identifier
     display: String
@@ -114,7 +121,8 @@ Reference type for Device
 type MedicationAdministrationDeviceReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -126,7 +134,8 @@ Reference type for EventHistory
 type MedicationAdministrationEventHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

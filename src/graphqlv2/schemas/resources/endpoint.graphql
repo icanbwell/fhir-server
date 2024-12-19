@@ -19,7 +19,8 @@ Reference type for ManagingOrganization
 type EndpointManagingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

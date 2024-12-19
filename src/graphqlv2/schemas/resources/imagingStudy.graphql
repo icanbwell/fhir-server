@@ -22,7 +22,8 @@ Reference type for Subject
 type ImagingStudySubjectReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudySubject
+    reference: String
+    resource: ImagingStudySubject
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for Encounter
 type ImagingStudyEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -48,7 +50,8 @@ Reference type for BasedOn
 type ImagingStudyBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudyBasedOn
+    reference: String
+    resource: ImagingStudyBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +65,8 @@ Reference type for Referrer
 type ImagingStudyReferrerReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudyReferrer
+    reference: String
+    resource: ImagingStudyReferrer
     type: uri
     identifier: Identifier
     display: String
@@ -76,7 +80,8 @@ Reference type for Interpreter
 type ImagingStudyInterpreterReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudyInterpreter
+    reference: String
+    resource: ImagingStudyInterpreter
     type: uri
     identifier: Identifier
     display: String
@@ -88,7 +93,8 @@ Reference type for Endpoint
 type ImagingStudyEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String
@@ -100,7 +106,8 @@ Reference type for ProcedureReference
 type ImagingStudyProcedureReferenceReference {
     id: String
     extension: [Extension]
-    reference: Procedure
+    reference: String
+    resource: Procedure
     type: uri
     identifier: Identifier
     display: String
@@ -112,7 +119,8 @@ Reference type for Location
 type ImagingStudyLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -126,7 +134,8 @@ Reference type for ReasonReference
 type ImagingStudyReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: ImagingStudyReasonReference
+    reference: String
+    resource: ImagingStudyReasonReference
     type: uri
     identifier: Identifier
     display: String

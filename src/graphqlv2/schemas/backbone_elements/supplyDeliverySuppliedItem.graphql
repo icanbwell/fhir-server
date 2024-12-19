@@ -14,7 +14,8 @@ Reference type for ItemReference
 type SupplyDeliverySuppliedItemItemReferenceReference {
     id: String
     extension: [Extension]
-    reference: SupplyDeliverySuppliedItemItemReference
+    reference: String
+    resource: SupplyDeliverySuppliedItemItemReference
     type: uri
     identifier: Identifier
     display: String

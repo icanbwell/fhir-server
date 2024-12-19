@@ -24,7 +24,8 @@ Reference type for PartOf
 type ChargeItemPartOfReference {
     id: String
     extension: [Extension]
-    reference: ChargeItem
+    reference: String
+    resource: ChargeItem
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +39,8 @@ Reference type for Subject
 type ChargeItemSubjectReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemSubject
+    reference: String
+    resource: ChargeItemSubject
     type: uri
     identifier: Identifier
     display: String
@@ -52,7 +54,8 @@ Reference type for Context
 type ChargeItemContextReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemContext
+    reference: String
+    resource: ChargeItemContext
     type: uri
     identifier: Identifier
     display: String
@@ -64,7 +67,8 @@ Reference type for PerformingOrganization
 type ChargeItemPerformingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -76,7 +80,8 @@ Reference type for RequestingOrganization
 type ChargeItemRequestingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -88,7 +93,8 @@ Reference type for CostCenter
 type ChargeItemCostCenterReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -102,7 +108,8 @@ Reference type for Enterer
 type ChargeItemEntererReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemEnterer
+    reference: String
+    resource: ChargeItemEnterer
     type: uri
     identifier: Identifier
     display: String
@@ -116,7 +123,8 @@ Reference type for Service
 type ChargeItemServiceReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemService
+    reference: String
+    resource: ChargeItemService
     type: uri
     identifier: Identifier
     display: String
@@ -130,7 +138,8 @@ Reference type for ProductReference
 type ChargeItemProductReferenceReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemProductReference
+    reference: String
+    resource: ChargeItemProductReference
     type: uri
     identifier: Identifier
     display: String
@@ -142,7 +151,8 @@ Reference type for Account
 type ChargeItemAccountReference {
     id: String
     extension: [Extension]
-    reference: Account
+    reference: String
+    resource: Account
     type: uri
     identifier: Identifier
     display: String
@@ -156,7 +166,8 @@ Reference type for SupportingInformation
 type ChargeItemSupportingInformationReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemSupportingInformation
+    reference: String
+    resource: ChargeItemSupportingInformation
     type: uri
     identifier: Identifier
     display: String

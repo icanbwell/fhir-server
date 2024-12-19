@@ -21,7 +21,8 @@ Reference type for Subject
 type GuidanceResponseSubjectReference {
     id: String
     extension: [Extension]
-    reference: GuidanceResponseSubject
+    reference: String
+    resource: GuidanceResponseSubject
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Encounter
 type GuidanceResponseEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for Performer
 type GuidanceResponsePerformerReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for ReasonReference
 type GuidanceResponseReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: GuidanceResponseReasonReference
+    reference: String
+    resource: GuidanceResponseReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -71,7 +75,8 @@ Reference type for EvaluationMessage
 type GuidanceResponseEvaluationMessageReference {
     id: String
     extension: [Extension]
-    reference: OperationOutcome
+    reference: String
+    resource: OperationOutcome
     type: uri
     identifier: Identifier
     display: String
@@ -83,7 +88,8 @@ Reference type for OutputParameters
 type GuidanceResponseOutputParametersReference {
     id: String
     extension: [Extension]
-    reference: Parameters
+    reference: String
+    resource: Parameters
     type: uri
     identifier: Identifier
     display: String
@@ -97,7 +103,8 @@ Reference type for Result
 type GuidanceResponseResultReference {
     id: String
     extension: [Extension]
-    reference: GuidanceResponseResult
+    reference: String
+    resource: GuidanceResponseResult
     type: uri
     identifier: Identifier
     display: String

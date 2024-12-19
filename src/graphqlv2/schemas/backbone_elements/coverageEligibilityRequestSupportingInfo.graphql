@@ -152,7 +152,8 @@ Reference type for Information
 type CoverageEligibilityRequestSupportingInfoInformationReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestSupportingInfoInformation
+    reference: String
+    resource: CoverageEligibilityRequestSupportingInfoInformation
     type: uri
     identifier: Identifier
     display: String

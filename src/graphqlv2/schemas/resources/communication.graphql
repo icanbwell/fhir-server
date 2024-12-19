@@ -162,7 +162,8 @@ Reference type for BasedOn
 type CommunicationBasedOnReference {
     id: String
     extension: [Extension]
-    reference: CommunicationBasedOn
+    reference: String
+    resource: CommunicationBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -176,7 +177,8 @@ Reference type for PartOf
 type CommunicationPartOfReference {
     id: String
     extension: [Extension]
-    reference: CommunicationPartOf
+    reference: String
+    resource: CommunicationPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -188,7 +190,8 @@ Reference type for InResponseTo
 type CommunicationInResponseToReference {
     id: String
     extension: [Extension]
-    reference: Communication
+    reference: String
+    resource: Communication
     type: uri
     identifier: Identifier
     display: String
@@ -202,7 +205,8 @@ Reference type for Subject
 type CommunicationSubjectReference {
     id: String
     extension: [Extension]
-    reference: CommunicationSubject
+    reference: String
+    resource: CommunicationSubject
     type: uri
     identifier: Identifier
     display: String
@@ -216,7 +220,8 @@ Reference type for About
 type CommunicationAboutReference {
     id: String
     extension: [Extension]
-    reference: CommunicationAbout
+    reference: String
+    resource: CommunicationAbout
     type: uri
     identifier: Identifier
     display: String
@@ -228,7 +233,8 @@ Reference type for Encounter
 type CommunicationEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -242,7 +248,8 @@ Reference type for Recipient
 type CommunicationRecipientReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRecipient
+    reference: String
+    resource: CommunicationRecipient
     type: uri
     identifier: Identifier
     display: String
@@ -256,7 +263,8 @@ Reference type for Sender
 type CommunicationSenderReference {
     id: String
     extension: [Extension]
-    reference: CommunicationSender
+    reference: String
+    resource: CommunicationSender
     type: uri
     identifier: Identifier
     display: String
@@ -270,7 +278,8 @@ Reference type for ReasonReference
 type CommunicationReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: CommunicationReasonReference
+    reference: String
+    resource: CommunicationReasonReference
     type: uri
     identifier: Identifier
     display: String

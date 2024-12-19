@@ -18,7 +18,8 @@ Reference type for LocationReference
 type ExplanationOfBenefitItemLocationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -30,7 +31,8 @@ Reference type for Udi
 type ExplanationOfBenefitItemUdiReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -42,7 +44,8 @@ Reference type for Encounter
 type ExplanationOfBenefitItemEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String

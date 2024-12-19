@@ -10,7 +10,7 @@ query Claims {
       resource {
         id
         provider {
-          reference {
+          resource {
             __typename
             ... on Organization {
               orgName: name

@@ -24,7 +24,8 @@ Reference type for Subject
 type ConditionSubjectReference {
     id: String
     extension: [Extension]
-    reference: ConditionSubject
+    reference: String
+    resource: ConditionSubject
     type: uri
     identifier: Identifier
     display: String
@@ -36,7 +37,8 @@ Reference type for Encounter
 type ConditionEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -50,7 +52,8 @@ Reference type for Recorder
 type ConditionRecorderReference {
     id: String
     extension: [Extension]
-    reference: ConditionRecorder
+    reference: String
+    resource: ConditionRecorder
     type: uri
     identifier: Identifier
     display: String
@@ -64,7 +67,8 @@ Reference type for Asserter
 type ConditionAsserterReference {
     id: String
     extension: [Extension]
-    reference: ConditionAsserter
+    reference: String
+    resource: ConditionAsserter
     type: uri
     identifier: Identifier
     display: String

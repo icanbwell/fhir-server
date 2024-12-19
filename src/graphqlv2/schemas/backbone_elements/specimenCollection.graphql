@@ -15,7 +15,8 @@ Reference type for Collector
 type SpecimenCollectionCollectorReference {
     id: String
     extension: [Extension]
-    reference: SpecimenCollectionCollector
+    reference: String
+    resource: SpecimenCollectionCollector
     type: uri
     identifier: Identifier
     display: String

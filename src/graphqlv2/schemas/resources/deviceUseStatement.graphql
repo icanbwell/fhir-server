@@ -19,7 +19,8 @@ Reference type for BasedOn
 type DeviceUseStatementBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Subject
 type DeviceUseStatementSubjectReference {
     id: String
     extension: [Extension]
-    reference: DeviceUseStatementSubject
+    reference: String
+    resource: DeviceUseStatementSubject
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for DerivedFrom
 type DeviceUseStatementDerivedFromReference {
     id: String
     extension: [Extension]
-    reference: DeviceUseStatementDerivedFrom
+    reference: String
+    resource: DeviceUseStatementDerivedFrom
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for Source
 type DeviceUseStatementSourceReference {
     id: String
     extension: [Extension]
-    reference: DeviceUseStatementSource
+    reference: String
+    resource: DeviceUseStatementSource
     type: uri
     identifier: Identifier
     display: String
@@ -73,7 +77,8 @@ Reference type for Device
 type DeviceUseStatementDeviceReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -87,7 +92,8 @@ Reference type for ReasonReference
 type DeviceUseStatementReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: DeviceUseStatementReasonReference
+    reference: String
+    resource: DeviceUseStatementReasonReference
     type: uri
     identifier: Identifier
     display: String

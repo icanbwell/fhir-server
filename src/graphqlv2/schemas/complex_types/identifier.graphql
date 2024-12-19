@@ -14,7 +14,8 @@ Reference type for Assigner
 type IdentifierAssignerReference {
     id: String
     extension: [Extension]
-    reference: IdentifierAssigner
+    reference: String
+    resource: IdentifierAssigner
     type: uri
     identifier: Identifier
     display: String

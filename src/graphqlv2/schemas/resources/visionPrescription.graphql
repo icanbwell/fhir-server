@@ -16,7 +16,8 @@ Reference type for Patient
 type VisionPrescriptionPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -28,7 +29,8 @@ Reference type for Encounter
 type VisionPrescriptionEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -42,7 +44,8 @@ Reference type for Prescriber
 type VisionPrescriptionPrescriberReference {
     id: String
     extension: [Extension]
-    reference: VisionPrescriptionPrescriber
+    reference: String
+    resource: VisionPrescriptionPrescriber
     type: uri
     identifier: Identifier
     display: String

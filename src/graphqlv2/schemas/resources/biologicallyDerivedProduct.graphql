@@ -20,7 +20,8 @@ Reference type for Request
 type BiologicallyDerivedProductRequestReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -32,7 +33,8 @@ Reference type for Parent
 type BiologicallyDerivedProductParentReference {
     id: String
     extension: [Extension]
-    reference: BiologicallyDerivedProduct
+    reference: String
+    resource: BiologicallyDerivedProduct
     type: uri
     identifier: Identifier
     display: String

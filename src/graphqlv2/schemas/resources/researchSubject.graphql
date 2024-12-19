@@ -15,7 +15,8 @@ Reference type for Study
 type ResearchSubjectStudyReference {
     id: String
     extension: [Extension]
-    reference: ResearchStudy
+    reference: String
+    resource: ResearchStudy
     type: uri
     identifier: Identifier
     display: String
@@ -27,7 +28,8 @@ Reference type for Individual
 type ResearchSubjectIndividualReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -39,7 +41,8 @@ Reference type for Consent
 type ResearchSubjectConsentReference {
     id: String
     extension: [Extension]
-    reference: Consent
+    reference: String
+    resource: Consent
     type: uri
     identifier: Identifier
     display: String

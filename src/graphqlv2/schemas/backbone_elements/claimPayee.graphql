@@ -11,7 +11,8 @@ Reference type for Party
 type ClaimPayeePartyReference {
     id: String
     extension: [Extension]
-    reference: ClaimPayeeParty
+    reference: String
+    resource: ClaimPayeeParty
     type: uri
     identifier: Identifier
     display: String

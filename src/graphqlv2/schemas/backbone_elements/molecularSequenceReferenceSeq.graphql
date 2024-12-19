@@ -11,7 +11,8 @@ Reference type for ReferenceSeqPointer
 type MolecularSequenceReferenceSeqReferenceSeqPointerReference {
     id: String
     extension: [Extension]
-    reference: MolecularSequence
+    reference: String
+    resource: MolecularSequence
     type: uri
     identifier: Identifier
     display: String

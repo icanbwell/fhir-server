@@ -10,7 +10,8 @@ Reference type for DiagnosisReference
 type ExplanationOfBenefitDiagnosisDiagnosisReferenceReference {
     id: String
     extension: [Extension]
-    reference: Condition
+    reference: String
+    resource: Condition
     type: uri
     identifier: Identifier
     display: String

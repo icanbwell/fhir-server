@@ -10,7 +10,8 @@ Reference type for Details
 type MessageHeaderResponseDetailsReference {
     id: String
     extension: [Extension]
-    reference: OperationOutcome
+    reference: String
+    resource: OperationOutcome
     type: uri
     identifier: Identifier
     display: String

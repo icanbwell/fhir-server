@@ -153,7 +153,8 @@ Reference type for What
 type ProvenanceEntityWhatReference {
     id: String
     extension: [Extension]
-    reference: ProvenanceEntityWhat
+    reference: String
+    resource: ProvenanceEntityWhat
     type: uri
     identifier: Identifier
     display: String

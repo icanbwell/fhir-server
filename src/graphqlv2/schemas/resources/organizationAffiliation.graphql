@@ -17,7 +17,8 @@ Reference type for Organization
 type OrganizationAffiliationOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for ParticipatingOrganization
 type OrganizationAffiliationParticipatingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -41,7 +43,8 @@ Reference type for Network
 type OrganizationAffiliationNetworkReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -53,7 +56,8 @@ Reference type for Location
 type OrganizationAffiliationLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -65,7 +69,8 @@ Reference type for HealthcareService
 type OrganizationAffiliationHealthcareServiceReference {
     id: String
     extension: [Extension]
-    reference: HealthcareService
+    reference: String
+    resource: HealthcareService
     type: uri
     identifier: Identifier
     display: String
@@ -77,7 +82,8 @@ Reference type for Endpoint
 type OrganizationAffiliationEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String

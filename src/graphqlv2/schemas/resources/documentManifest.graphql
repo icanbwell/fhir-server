@@ -19,7 +19,8 @@ Reference type for Subject
 type DocumentManifestSubjectReference {
     id: String
     extension: [Extension]
-    reference: DocumentManifestSubject
+    reference: String
+    resource: DocumentManifestSubject
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Author
 type DocumentManifestAuthorReference {
     id: String
     extension: [Extension]
-    reference: DocumentManifestAuthor
+    reference: String
+    resource: DocumentManifestAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Recipient
 type DocumentManifestRecipientReference {
     id: String
     extension: [Extension]
-    reference: DocumentManifestRecipient
+    reference: String
+    resource: DocumentManifestRecipient
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for Content
 type DocumentManifestContentReference {
     id: String
     extension: [Extension]
-    reference: DocumentManifestContent
+    reference: String
+    resource: DocumentManifestContent
     type: uri
     identifier: Identifier
     display: String

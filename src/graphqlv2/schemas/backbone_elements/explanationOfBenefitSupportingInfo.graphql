@@ -17,7 +17,8 @@ Reference type for ValueReference
 type ExplanationOfBenefitSupportingInfoValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ExplanationOfBenefitSupportingInfoValueReference
+    reference: String
+    resource: ExplanationOfBenefitSupportingInfoValueReference
     type: uri
     identifier: Identifier
     display: String

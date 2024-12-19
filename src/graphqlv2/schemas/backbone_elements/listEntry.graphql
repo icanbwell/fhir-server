@@ -153,7 +153,8 @@ Reference type for Item
 type ListEntryItemReference {
     id: String
     extension: [Extension]
-    reference: ListEntryItem
+    reference: String
+    resource: ListEntryItem
     type: uri
     identifier: Identifier
     display: String

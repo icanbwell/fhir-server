@@ -27,7 +27,8 @@ Reference type for Patient
 type ClaimPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -41,7 +42,8 @@ Reference type for Enterer
 type ClaimEntererReference {
     id: String
     extension: [Extension]
-    reference: ClaimEnterer
+    reference: String
+    resource: ClaimEnterer
     type: uri
     identifier: Identifier
     display: String
@@ -53,7 +55,8 @@ Reference type for Insurer
 type ClaimInsurerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -67,7 +70,8 @@ Reference type for Provider
 type ClaimProviderReference {
     id: String
     extension: [Extension]
-    reference: ClaimProvider
+    reference: String
+    resource: ClaimProvider
     type: uri
     identifier: Identifier
     display: String
@@ -81,7 +85,8 @@ Reference type for Prescription
 type ClaimPrescriptionReference {
     id: String
     extension: [Extension]
-    reference: ClaimPrescription
+    reference: String
+    resource: ClaimPrescription
     type: uri
     identifier: Identifier
     display: String
@@ -95,7 +100,8 @@ Reference type for OriginalPrescription
 type ClaimOriginalPrescriptionReference {
     id: String
     extension: [Extension]
-    reference: ClaimOriginalPrescription
+    reference: String
+    resource: ClaimOriginalPrescription
     type: uri
     identifier: Identifier
     display: String
@@ -107,7 +113,8 @@ Reference type for Referral
 type ClaimReferralReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -119,7 +126,8 @@ Reference type for Facility
 type ClaimFacilityReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

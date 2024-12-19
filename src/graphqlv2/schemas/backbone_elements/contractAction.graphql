@@ -17,7 +17,8 @@ Reference type for Context
 type ContractActionContextReference {
     id: String
     extension: [Extension]
-    reference: ContractActionContext
+    reference: String
+    resource: ContractActionContext
     type: uri
     identifier: Identifier
     display: String
@@ -31,7 +32,8 @@ Reference type for Requester
 type ContractActionRequesterReference {
     id: String
     extension: [Extension]
-    reference: ContractActionRequester
+    reference: String
+    resource: ContractActionRequester
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for Performer
 type ContractActionPerformerReference {
     id: String
     extension: [Extension]
-    reference: ContractActionPerformer
+    reference: String
+    resource: ContractActionPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for ReasonReference
 type ContractActionReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractActionReasonReference
+    reference: String
+    resource: ContractActionReasonReference
     type: uri
     identifier: Identifier
     display: String

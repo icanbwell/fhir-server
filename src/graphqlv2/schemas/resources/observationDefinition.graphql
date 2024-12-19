@@ -17,7 +17,8 @@ Reference type for ValidCodedValueSet
 type ObservationDefinitionValidCodedValueSetReference {
     id: String
     extension: [Extension]
-    reference: ValueSet
+    reference: String
+    resource: ValueSet
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for NormalCodedValueSet
 type ObservationDefinitionNormalCodedValueSetReference {
     id: String
     extension: [Extension]
-    reference: ValueSet
+    reference: String
+    resource: ValueSet
     type: uri
     identifier: Identifier
     display: String
@@ -41,7 +43,8 @@ Reference type for AbnormalCodedValueSet
 type ObservationDefinitionAbnormalCodedValueSetReference {
     id: String
     extension: [Extension]
-    reference: ValueSet
+    reference: String
+    resource: ValueSet
     type: uri
     identifier: Identifier
     display: String
@@ -53,7 +56,8 @@ Reference type for CriticalCodedValueSet
 type ObservationDefinitionCriticalCodedValueSetReference {
     id: String
     extension: [Extension]
-    reference: ValueSet
+    reference: String
+    resource: ValueSet
     type: uri
     identifier: Identifier
     display: String

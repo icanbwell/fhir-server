@@ -21,7 +21,8 @@ Reference type for Participant
 type RequestGroupActionParticipantReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupActionParticipant
+    reference: String
+    resource: RequestGroupActionParticipant
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Resource
 type RequestGroupActionResourceReference {
     id: String
     extension: [Extension]
-    reference: RequestGroupActionResource
+    reference: String
+    resource: RequestGroupActionResource
     type: uri
     identifier: Identifier
     display: String

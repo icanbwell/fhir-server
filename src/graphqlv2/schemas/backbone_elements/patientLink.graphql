@@ -11,7 +11,8 @@ Reference type for Other
 type PatientLinkOtherReference {
     id: String
     extension: [Extension]
-    reference: PatientLinkOther
+    reference: String
+    resource: PatientLinkOther
     type: uri
     identifier: Identifier
     display: String

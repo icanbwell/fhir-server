@@ -152,7 +152,8 @@ Reference type for Reference
 type ContractContextReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractContextReference
+    reference: String
+    resource: ContractContextReference
     type: uri
     identifier: Identifier
     display: String

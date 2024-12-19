@@ -15,7 +15,8 @@ Reference type for Item
 type PackagedProductDefinitionContainedItemItemReference {
     id: String
     extension: [Extension]
-    reference: PackagedProductDefinitionContainedItemItem
+    reference: String
+    resource: PackagedProductDefinitionContainedItemItem
     type: uri
     identifier: Identifier
     display: String

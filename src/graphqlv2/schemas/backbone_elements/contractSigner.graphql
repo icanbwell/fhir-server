@@ -12,7 +12,8 @@ Reference type for Party
 type ContractSignerPartyReference {
     id: String
     extension: [Extension]
-    reference: ContractSignerParty
+    reference: String
+    resource: ContractSignerParty
     type: uri
     identifier: Identifier
     display: String

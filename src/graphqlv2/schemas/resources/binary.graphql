@@ -154,7 +154,8 @@ Reference type for SecurityContext
 type BinarySecurityContextReference {
     id: String
     extension: [Extension]
-    reference: BinarySecurityContext
+    reference: String
+    resource: BinarySecurityContext
     type: uri
     identifier: Identifier
     display: String

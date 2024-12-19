@@ -11,7 +11,8 @@ Reference type for Contact
 type MedicinalProductDefinitionContactContactReference {
     id: String
     extension: [Extension]
-    reference: MedicinalProductDefinitionContactContact
+    reference: String
+    resource: MedicinalProductDefinitionContactContact
     type: uri
     identifier: Identifier
     display: String

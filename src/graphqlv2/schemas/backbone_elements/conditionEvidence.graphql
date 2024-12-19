@@ -152,7 +152,8 @@ Reference type for Detail
 type ConditionEvidenceDetailReference {
     id: String
     extension: [Extension]
-    reference: ConditionEvidenceDetail
+    reference: String
+    resource: ConditionEvidenceDetail
     type: uri
     identifier: Identifier
     display: String
