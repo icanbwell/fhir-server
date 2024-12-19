@@ -7,7 +7,7 @@ extend type Query {
         An ingredient of a manufactured item or pharmaceutical product.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    ingredient(
+    ingredients(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

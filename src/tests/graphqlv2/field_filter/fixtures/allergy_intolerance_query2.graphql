@@ -1,5 +1,5 @@
 query {
-    allergyIntolerance(
+    allergyIntolerances(
         date: {
             values:[
                 {

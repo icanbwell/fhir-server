@@ -19,8 +19,8 @@ fragment QuantityFields on Quantity {
     comparator
 }
 
-query Vitals($FHIR_DEFAULT_COUNT: Int) {
-    observation(
+query Vitalss($FHIR_DEFAULT_COUNT: Int) {
+    observations(
         _sort: ["-effectiveDateTime"]
         _count: $FHIR_DEFAULT_COUNT
         category: {values: [

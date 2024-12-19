@@ -1,5 +1,5 @@
 query {
-    riskAssessment(
+    riskAssessments(
         probability: {
             value: {
                 equals: "2003"

@@ -7,7 +7,7 @@ extend type Query {
         A medically related item or items, in a container or package.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    packagedProductDefinition(
+    packagedProductDefinitions(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

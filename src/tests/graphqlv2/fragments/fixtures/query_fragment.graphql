@@ -5,7 +5,7 @@ fragment PractitionerName on Practitioner {
   }
 }
 query Claims {
-  explanationOfBenefit {
+  explanationOfBenefits {
     entry {
       resource {
         id

@@ -1,5 +1,5 @@
 query PatientTest {
-  patient {
+  patients {
     entry {
       resource {
         id

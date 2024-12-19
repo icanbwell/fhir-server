@@ -7,7 +7,7 @@ extend type Query {
         Raw data describing a biological sequence.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    molecularSequence(
+    molecularSequences(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

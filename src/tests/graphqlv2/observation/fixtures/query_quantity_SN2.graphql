@@ -20,7 +20,7 @@ fragment QuantityFields on Quantity {
 }
 
 query Vitals{
-    observation(
+    observations(
         value_quantity: {
           value: "1.00e2"
         },

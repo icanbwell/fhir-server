@@ -1,5 +1,5 @@
 query {
-    condition(
+    conditions(
         _debug: true
         identifier: {
             ofType: {

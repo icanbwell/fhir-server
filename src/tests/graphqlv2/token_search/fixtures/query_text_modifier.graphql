@@ -1,5 +1,5 @@
 query {
-    condition(_debug: true, code: { text: "text query" }) {
+    conditions(_debug: true, code: { text: "text query" }) {
         entry {
             resource {
                 id

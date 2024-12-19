@@ -84,7 +84,7 @@ describe('Graphql IndexHints Test', () => {
                 .set(getGraphQLHeaders());
 
             // Find the object with the specified system value
-            let desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
+            let desiredObject = resp.body.data.patients.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
             expect(desiredObject.code).toEqual('[id_1]');
@@ -98,7 +98,7 @@ describe('Graphql IndexHints Test', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
+            desiredObject = resp.body.data.patients.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
             expect(desiredObject.code).toEqual('[uuid]');

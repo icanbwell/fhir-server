@@ -9,7 +9,7 @@ extend type Query {
     content, whether text, image, pdf, zip archive, etc.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    binary(
+    binaries(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

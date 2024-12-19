@@ -7,7 +7,7 @@ extend type Query {
         A summary of information based on the results of executing a TestScript.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    testReport(
+    testReports(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

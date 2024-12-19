@@ -1,6 +1,6 @@
 {
   "data": {
-    "communication": {
+    "communications": {
       "entry": [{ "resource": { "about": [{ "resource": null }] } }],
       "meta": null
     }

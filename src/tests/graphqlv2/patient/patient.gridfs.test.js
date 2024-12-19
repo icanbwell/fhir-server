@@ -81,7 +81,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 expect(body.errors).toBeUndefined();
             }
 
-            const patients = body.data.patient.entry;
+            const patients = body.data.patients.entry;
 
             expect(patients[0].resource.photo.length).toEqual(1);
 

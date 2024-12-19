@@ -1,5 +1,5 @@
 query my_patient {
-    patient(
+    patients(
         address: {
             missing: false
         }

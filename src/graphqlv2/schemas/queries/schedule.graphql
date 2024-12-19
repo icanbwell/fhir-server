@@ -7,7 +7,7 @@ extend type Query {
         A container for slots of time that may be available for booking appointments.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    schedule(
+    schedules(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

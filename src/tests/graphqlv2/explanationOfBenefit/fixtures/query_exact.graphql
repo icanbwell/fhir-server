@@ -1,5 +1,5 @@
 query {
-    explanationOfBenefit(
+    explanationOfBenefits(
         disposition: {
             exact: "unknown"
         },
