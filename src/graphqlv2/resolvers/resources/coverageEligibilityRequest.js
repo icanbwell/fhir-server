@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        coverageEligibilityRequest: async (parent, args, context, info) => {
+        coverageEligibilityRequests: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,

@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        patient: async (parent, args, context, info) => {
+        patients: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,

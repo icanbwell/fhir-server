@@ -1,6 +1,6 @@
 # Write your query here
 query {
-  person(
+  persons(
     identifier: {
       value: {
         system: "http://www.client.com/profileid"

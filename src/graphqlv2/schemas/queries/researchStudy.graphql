@@ -12,7 +12,7 @@ extend type Query {
     information about human or animal subjects.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    researchStudy(
+    researchStudies(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

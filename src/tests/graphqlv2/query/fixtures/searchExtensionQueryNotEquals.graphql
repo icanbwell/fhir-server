@@ -1,5 +1,5 @@
 query OnObservation {
-  observation(
+  observations(
     _debug: true,
     extension: {
       notEquals: {

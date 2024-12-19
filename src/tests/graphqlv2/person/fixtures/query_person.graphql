@@ -1,5 +1,5 @@
 query {
-    person(
+    persons(
         _debug: true
         identifier: {
             value: {

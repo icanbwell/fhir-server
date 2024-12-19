@@ -1,5 +1,5 @@
 query {
-    patient(
+    patients(
         identifier: {
             value: {
                 system: "http://www.client.com/profileid"

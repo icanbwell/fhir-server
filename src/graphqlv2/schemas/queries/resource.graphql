@@ -6,7 +6,7 @@ extend type Query {
     Resource
         This is the base resource type for everything.
     """
-    resource(
+    resources(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

@@ -94,7 +94,7 @@ describe('GraphQL Observation Tests', () => {
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationResources, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationResources, 'observations');
         });
         test('GraphQL Reference type', async () => {
             const request = await createTestRequest();
@@ -137,7 +137,7 @@ describe('GraphQL Observation Tests', () => {
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationSubjectResources, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationSubjectResources, 'observations');
         });
         test('GraphQL notEquals Reference type', async () => {
             const request = await createTestRequest();
@@ -180,7 +180,7 @@ describe('GraphQL Observation Tests', () => {
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationNotSubjectResources, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationNotSubjectResources, 'observations');
         });
         test('GraphQL equals Quantity value', async () => {
             const request = await createTestRequest();
@@ -223,7 +223,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observations');
         });
          test('GraphQL lt prefix Quantity value', async () => {
             const request = await createTestRequest();
@@ -266,7 +266,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observations');
         });
         test('GraphQL test quantity range with 5 sig digits', async () => {
             const request = await createTestRequest();
@@ -309,7 +309,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultQuantity5sig, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultQuantity5sig, 'observations');
         });
         test('GraphQL test quantity range with 1e2 scientific notation', async () => {
             const request = await createTestRequest();
@@ -352,7 +352,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN1, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN1, 'observations');
         });
         test('GraphQL test quantity range with 1.00e2 scientific notation', async () => {
             const request = await createTestRequest();
@@ -395,7 +395,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN2, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN2, 'observations');
         });
         test('GraphQL test quantity range with 5.40e-3 scientific notation', async () => {
             const request = await createTestRequest();
@@ -438,7 +438,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN3, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultQuantitySN3, 'observations');
         });
         test('GraphQL test derivedFrom missing', async () => {
             const request = await createTestRequest();
@@ -481,7 +481,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultMissing, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultMissing, 'observations');
         });
         test('GraphQL test derivedFrom not missing', async () => {
             const request = await createTestRequest();
@@ -524,7 +524,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedResultNotMissing, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedResultNotMissing, 'observations');
         });
         test('GraphQL ne prefix Quantity value not found', async () => {
             const request = await createTestRequest();
@@ -565,7 +565,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationNeNotFound, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationNeNotFound, 'observations');
         });
          test('GraphQL ne prefix Quantity value found', async () => {
             const request = await createTestRequest();
@@ -608,7 +608,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationNeFound, 'observation');
+            expect(resp).toHaveGraphQLResponse(expectedObservationNeFound, 'observations');
         });
      });
 });

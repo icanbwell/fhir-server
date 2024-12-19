@@ -7,7 +7,7 @@ extend type Query {
         Example of workflow instance.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    exampleScenario(
+    exampleScenarios(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

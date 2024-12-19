@@ -7,7 +7,7 @@ extend type Query {
         A kind of specimen with associated set of requirements.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    specimenDefinition(
+    specimenDefinitions(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

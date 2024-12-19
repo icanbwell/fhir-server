@@ -15,7 +15,7 @@ extend type Query {
     Patient, Practitioner, Encounter, etc.).
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    composition(
+    compositions(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

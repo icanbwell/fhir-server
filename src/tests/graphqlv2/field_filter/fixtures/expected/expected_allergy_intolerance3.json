@@ -1,6 +1,6 @@
 {
     "data": {
-        "allergyIntolerance": {
+        "allergyIntolerances": {
             "entry": [
                 { "resource": { "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51" } },
                 { "resource": { "id": "e039c680-1024-34ff-d9d8-5d87feada4d5" } }

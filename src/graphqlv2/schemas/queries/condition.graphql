@@ -8,7 +8,7 @@ extend type Query {
     clinical concept that has risen to a level of concern.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    condition(
+    conditions(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

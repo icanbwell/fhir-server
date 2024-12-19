@@ -230,7 +230,7 @@ describe('GraphQL Patient Tests', () => {
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedNotGraphQlResponse, r => {
-                    const bundle = r.data?.patient;
+                    const bundle = r.data?.patients;
                     if (bundle?.meta && bundle.meta.tag) {
                         bundle.meta.tag.forEach((tag) => {
                             if (tag.system === 'https://www.icanbwell.com/queryTime' && tag.display) {

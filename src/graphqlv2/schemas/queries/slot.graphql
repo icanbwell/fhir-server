@@ -7,7 +7,7 @@ extend type Query {
         A slot of time on a schedule that may be available for booking appointments.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    slot(
+    slots(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

@@ -6,7 +6,7 @@ extend type Query {
     DomainResource
         A resource that includes narrative, extensions, and contained resources.
     """
-    domainResource(
+    domainResources(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

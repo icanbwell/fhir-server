@@ -58,7 +58,7 @@ describe('GraphQL Immunization Tests', () => {
             resp = await request
                 // .get('/$graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/$graphql')
+                .post('/4_0_0/$graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
