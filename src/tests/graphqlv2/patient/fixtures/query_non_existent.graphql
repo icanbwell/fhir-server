@@ -1,4 +1,4 @@
-# Write your query or mutation here
+# Write your query here
 query {
   person(
     identifier: {
