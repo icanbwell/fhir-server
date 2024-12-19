@@ -19,7 +19,8 @@ Reference type for For
 type IngredientForReference {
     id: String
     extension: [Extension]
-    reference: IngredientFor
+    reference: String
+    resource: IngredientFor
     type: uri
     identifier: Identifier
     display: String

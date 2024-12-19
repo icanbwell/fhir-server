@@ -16,7 +16,8 @@ Reference type for Author
 type LinkageAuthorReference {
     id: String
     extension: [Extension]
-    reference: LinkageAuthor
+    reference: String
+    resource: LinkageAuthor
     type: uri
     identifier: Identifier
     display: String

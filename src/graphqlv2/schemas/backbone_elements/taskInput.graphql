@@ -57,7 +57,8 @@ Reference type for ValueReference
 type TaskInputValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: TaskInputValueReference
+    reference: String
+    resource: TaskInputValueReference
     type: uri
     identifier: Identifier
     display: String

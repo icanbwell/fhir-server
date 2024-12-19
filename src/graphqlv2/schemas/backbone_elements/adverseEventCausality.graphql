@@ -11,7 +11,8 @@ Reference type for Author
 type AdverseEventCausalityAuthorReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventCausalityAuthor
+    reference: String
+    resource: AdverseEventCausalityAuthor
     type: uri
     identifier: Identifier
     display: String

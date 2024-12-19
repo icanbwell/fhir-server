@@ -152,7 +152,8 @@ Reference type for Detail
 type DetectedIssueEvidenceDetailReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssueEvidenceDetail
+    reference: String
+    resource: DetectedIssueEvidenceDetail
     type: uri
     identifier: Identifier
     display: String

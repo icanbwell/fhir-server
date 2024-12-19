@@ -14,7 +14,8 @@ Reference type for ItemReference
 type ClinicalUseDefinitionInteractantItemReferenceReference {
     id: String
     extension: [Extension]
-    reference: ClinicalUseDefinitionInteractantItemReference
+    reference: String
+    resource: ClinicalUseDefinitionInteractantItemReference
     type: uri
     identifier: Identifier
     display: String

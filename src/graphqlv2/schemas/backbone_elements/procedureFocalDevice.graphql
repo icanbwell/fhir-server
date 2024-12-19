@@ -9,7 +9,8 @@ Reference type for Manipulated
 type ProcedureFocalDeviceManipulatedReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String

@@ -21,7 +21,8 @@ Reference type for PartOf
 type MedicationDispensePartOfReference {
     id: String
     extension: [Extension]
-    reference: Procedure
+    reference: String
+    resource: Procedure
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for StatusReasonReference
 type MedicationDispenseStatusReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssue
+    reference: String
+    resource: DetectedIssue
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for MedicationReference
 type MedicationDispenseMedicationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Medication
+    reference: String
+    resource: Medication
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for Subject
 type MedicationDispenseSubjectReference {
     id: String
     extension: [Extension]
-    reference: MedicationDispenseSubject
+    reference: String
+    resource: MedicationDispenseSubject
     type: uri
     identifier: Identifier
     display: String
@@ -73,7 +77,8 @@ Reference type for Context
 type MedicationDispenseContextReference {
     id: String
     extension: [Extension]
-    reference: MedicationDispenseContext
+    reference: String
+    resource: MedicationDispenseContext
     type: uri
     identifier: Identifier
     display: String
@@ -87,7 +92,8 @@ Reference type for SupportingInformation
 type MedicationDispenseSupportingInformationReference {
     id: String
     extension: [Extension]
-    reference: MedicationDispenseSupportingInformation
+    reference: String
+    resource: MedicationDispenseSupportingInformation
     type: uri
     identifier: Identifier
     display: String
@@ -99,7 +105,8 @@ Reference type for Location
 type MedicationDispenseLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -111,7 +118,8 @@ Reference type for AuthorizingPrescription
 type MedicationDispenseAuthorizingPrescriptionReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequest
+    reference: String
+    resource: MedicationRequest
     type: uri
     identifier: Identifier
     display: String
@@ -123,7 +131,8 @@ Reference type for Destination
 type MedicationDispenseDestinationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -137,7 +146,8 @@ Reference type for Receiver
 type MedicationDispenseReceiverReference {
     id: String
     extension: [Extension]
-    reference: MedicationDispenseReceiver
+    reference: String
+    resource: MedicationDispenseReceiver
     type: uri
     identifier: Identifier
     display: String
@@ -149,7 +159,8 @@ Reference type for DetectedIssue
 type MedicationDispenseDetectedIssueReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssue
+    reference: String
+    resource: DetectedIssue
     type: uri
     identifier: Identifier
     display: String
@@ -161,7 +172,8 @@ Reference type for EventHistory
 type MedicationDispenseEventHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

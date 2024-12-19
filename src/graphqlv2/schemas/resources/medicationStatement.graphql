@@ -21,7 +21,8 @@ Reference type for BasedOn
 type MedicationStatementBasedOnReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementBasedOn
+    reference: String
+    resource: MedicationStatementBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for PartOf
 type MedicationStatementPartOfReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementPartOf
+    reference: String
+    resource: MedicationStatementPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for MedicationReference
 type MedicationStatementMedicationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Medication
+    reference: String
+    resource: Medication
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for Subject
 type MedicationStatementSubjectReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementSubject
+    reference: String
+    resource: MedicationStatementSubject
     type: uri
     identifier: Identifier
     display: String
@@ -75,7 +79,8 @@ Reference type for Context
 type MedicationStatementContextReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementContext
+    reference: String
+    resource: MedicationStatementContext
     type: uri
     identifier: Identifier
     display: String
@@ -89,7 +94,8 @@ Reference type for InformationSource
 type MedicationStatementInformationSourceReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementInformationSource
+    reference: String
+    resource: MedicationStatementInformationSource
     type: uri
     identifier: Identifier
     display: String
@@ -103,7 +109,8 @@ Reference type for DerivedFrom
 type MedicationStatementDerivedFromReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementDerivedFrom
+    reference: String
+    resource: MedicationStatementDerivedFrom
     type: uri
     identifier: Identifier
     display: String
@@ -117,7 +124,8 @@ Reference type for ReasonReference
 type MedicationStatementReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: MedicationStatementReasonReference
+    reference: String
+    resource: MedicationStatementReasonReference
     type: uri
     identifier: Identifier
     display: String

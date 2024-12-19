@@ -25,7 +25,8 @@ Reference type for BasedOn
 type ProcedureBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ProcedureBasedOn
+    reference: String
+    resource: ProcedureBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -39,7 +40,8 @@ Reference type for PartOf
 type ProcedurePartOfReference {
     id: String
     extension: [Extension]
-    reference: ProcedurePartOf
+    reference: String
+    resource: ProcedurePartOf
     type: uri
     identifier: Identifier
     display: String
@@ -53,7 +55,8 @@ Reference type for Subject
 type ProcedureSubjectReference {
     id: String
     extension: [Extension]
-    reference: ProcedureSubject
+    reference: String
+    resource: ProcedureSubject
     type: uri
     identifier: Identifier
     display: String
@@ -65,7 +68,8 @@ Reference type for Encounter
 type ProcedureEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -79,7 +83,8 @@ Reference type for Recorder
 type ProcedureRecorderReference {
     id: String
     extension: [Extension]
-    reference: ProcedureRecorder
+    reference: String
+    resource: ProcedureRecorder
     type: uri
     identifier: Identifier
     display: String
@@ -93,7 +98,8 @@ Reference type for Asserter
 type ProcedureAsserterReference {
     id: String
     extension: [Extension]
-    reference: ProcedureAsserter
+    reference: String
+    resource: ProcedureAsserter
     type: uri
     identifier: Identifier
     display: String
@@ -105,7 +111,8 @@ Reference type for Location
 type ProcedureLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -119,7 +126,8 @@ Reference type for ReasonReference
 type ProcedureReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: ProcedureReasonReference
+    reference: String
+    resource: ProcedureReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -133,7 +141,8 @@ Reference type for Report
 type ProcedureReportReference {
     id: String
     extension: [Extension]
-    reference: ProcedureReport
+    reference: String
+    resource: ProcedureReport
     type: uri
     identifier: Identifier
     display: String
@@ -145,7 +154,8 @@ Reference type for ComplicationDetail
 type ProcedureComplicationDetailReference {
     id: String
     extension: [Extension]
-    reference: Condition
+    reference: String
+    resource: Condition
     type: uri
     identifier: Identifier
     display: String
@@ -159,7 +169,8 @@ Reference type for UsedReference
 type ProcedureUsedReferenceReference {
     id: String
     extension: [Extension]
-    reference: ProcedureUsedReference
+    reference: String
+    resource: ProcedureUsedReference
     type: uri
     identifier: Identifier
     display: String

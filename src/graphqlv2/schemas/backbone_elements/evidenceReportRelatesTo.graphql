@@ -10,7 +10,8 @@ Reference type for TargetReference
 type EvidenceReportRelatesToTargetReferenceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceReport
+    reference: String
+    resource: EvidenceReport
     type: uri
     identifier: Identifier
     display: String

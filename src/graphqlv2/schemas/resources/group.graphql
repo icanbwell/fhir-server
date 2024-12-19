@@ -20,7 +20,8 @@ Reference type for ManagingEntity
 type GroupManagingEntityReference {
     id: String
     extension: [Extension]
-    reference: GroupManagingEntity
+    reference: String
+    resource: GroupManagingEntity
     type: uri
     identifier: Identifier
     display: String

@@ -24,7 +24,8 @@ Reference type for SubjectReference
 type ResearchElementDefinitionSubjectReferenceReference {
     id: String
     extension: [Extension]
-    reference: Group
+    reference: String
+    resource: Group
     type: uri
     identifier: Identifier
     display: String

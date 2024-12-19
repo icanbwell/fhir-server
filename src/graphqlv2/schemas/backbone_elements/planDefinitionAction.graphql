@@ -26,7 +26,8 @@ Reference type for SubjectReference
 type PlanDefinitionActionSubjectReferenceReference {
     id: String
     extension: [Extension]
-    reference: Group
+    reference: String
+    resource: Group
     type: uri
     identifier: Identifier
     display: String

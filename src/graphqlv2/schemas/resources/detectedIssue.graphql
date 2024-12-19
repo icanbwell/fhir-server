@@ -19,7 +19,8 @@ Reference type for Patient
 type DetectedIssuePatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Author
 type DetectedIssueAuthorReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssueAuthor
+    reference: String
+    resource: DetectedIssueAuthor
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Implicated
 type DetectedIssueImplicatedReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssueImplicated
+    reference: String
+    resource: DetectedIssueImplicated
     type: uri
     identifier: Identifier
     display: String

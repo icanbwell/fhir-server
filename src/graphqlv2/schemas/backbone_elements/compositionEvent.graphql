@@ -153,7 +153,8 @@ Reference type for Detail
 type CompositionEventDetailReference {
     id: String
     extension: [Extension]
-    reference: CompositionEventDetail
+    reference: String
+    resource: CompositionEventDetail
     type: uri
     identifier: Identifier
     display: String

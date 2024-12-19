@@ -16,7 +16,8 @@ Reference type for Appointment
 type AppointmentResponseAppointmentReference {
     id: String
     extension: [Extension]
-    reference: Appointment
+    reference: String
+    resource: Appointment
     type: uri
     identifier: Identifier
     display: String
@@ -30,7 +31,8 @@ Reference type for Actor
 type AppointmentResponseActorReference {
     id: String
     extension: [Extension]
-    reference: AppointmentResponseActor
+    reference: String
+    resource: AppointmentResponseActor
     type: uri
     identifier: Identifier
     display: String

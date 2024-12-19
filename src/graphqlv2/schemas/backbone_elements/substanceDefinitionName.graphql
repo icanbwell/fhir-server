@@ -10,7 +10,8 @@ Reference type for Source
 type SubstanceDefinitionNameSourceReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
+    reference: String
+    resource: DocumentReference
     type: uri
     identifier: Identifier
     display: String

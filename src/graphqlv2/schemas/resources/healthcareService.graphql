@@ -21,7 +21,8 @@ Reference type for ProvidedBy
 type HealthcareServiceProvidedByReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Location
 type HealthcareServiceLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for CoverageArea
 type HealthcareServiceCoverageAreaReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -57,7 +60,8 @@ Reference type for Endpoint
 type HealthcareServiceEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String

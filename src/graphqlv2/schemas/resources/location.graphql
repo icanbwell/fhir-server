@@ -20,7 +20,8 @@ Reference type for ManagingOrganization
 type LocationManagingOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -32,7 +33,8 @@ Reference type for PartOf
 type LocationPartOfReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -44,7 +46,8 @@ Reference type for Endpoint
 type LocationEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String

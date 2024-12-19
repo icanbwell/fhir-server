@@ -11,7 +11,8 @@ Reference type for Actor
 type InvoiceParticipantActorReference {
     id: String
     extension: [Extension]
-    reference: InvoiceParticipantActor
+    reference: String
+    resource: InvoiceParticipantActor
     type: uri
     identifier: Identifier
     display: String

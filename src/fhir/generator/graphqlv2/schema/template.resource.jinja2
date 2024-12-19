@@ -47,7 +47,8 @@ Reference type for {{ upper_case_first_letter(property.name) }}
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
     extension: [Extension]
-    reference: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
+    reference: String
+    resource: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +63,8 @@ Reference type for {{ upper_case_first_letter(property.name) }}
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
     extension: [Extension]
-    reference: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
+    reference: String
+    resource: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
     type: uri
     identifier: Identifier
     display: String
@@ -75,7 +77,8 @@ Reference type for {{ upper_case_first_letter(property.name) }}
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
     extension: [Extension]
-    reference: {{ property.reference_target_resources_names [0] }}
+    reference: String
+    resource: {{ property.reference_target_resources_names [0] }}
     type: uri
     identifier: Identifier
     display: String

@@ -12,7 +12,8 @@ Reference type for Member
 type CareTeamParticipantMemberReference {
     id: String
     extension: [Extension]
-    reference: CareTeamParticipantMember
+    reference: String
+    resource: CareTeamParticipantMember
     type: uri
     identifier: Identifier
     display: String
@@ -24,7 +25,8 @@ Reference type for OnBehalfOf
 type CareTeamParticipantOnBehalfOfReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

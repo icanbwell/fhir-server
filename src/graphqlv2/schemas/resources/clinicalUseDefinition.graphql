@@ -22,7 +22,8 @@ Reference type for Subject
 type ClinicalUseDefinitionSubjectReference {
     id: String
     extension: [Extension]
-    reference: ClinicalUseDefinitionSubject
+    reference: String
+    resource: ClinicalUseDefinitionSubject
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for Population
 type ClinicalUseDefinitionPopulationReference {
     id: String
     extension: [Extension]
-    reference: Group
+    reference: String
+    resource: Group
     type: uri
     identifier: Identifier
     display: String

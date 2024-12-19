@@ -17,7 +17,8 @@ Reference type for Source
 type DeviceMetricSourceReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for Parent
 type DeviceMetricParentReference {
     id: String
     extension: [Extension]
-    reference: Device
+    reference: String
+    resource: Device
     type: uri
     identifier: Identifier
     display: String

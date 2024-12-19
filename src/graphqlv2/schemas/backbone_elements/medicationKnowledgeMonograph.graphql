@@ -11,7 +11,8 @@ Reference type for Source
 type MedicationKnowledgeMonographSourceReference {
     id: String
     extension: [Extension]
-    reference: MedicationKnowledgeMonographSource
+    reference: String
+    resource: MedicationKnowledgeMonographSource
     type: uri
     identifier: Identifier
     display: String

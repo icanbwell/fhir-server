@@ -58,7 +58,8 @@ Reference type for ValueReference
 type ElementDefinitionExampleValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ElementDefinitionExampleValueReference
+    reference: String
+    resource: ElementDefinitionExampleValueReference
     type: uri
     identifier: Identifier
     display: String

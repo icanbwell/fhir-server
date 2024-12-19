@@ -9,7 +9,8 @@ Reference type for Detail
 type ImmunizationReactionDetailReference {
     id: String
     extension: [Extension]
-    reference: Observation
+    reference: String
+    resource: Observation
     type: uri
     identifier: Identifier
     display: String

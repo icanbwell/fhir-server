@@ -17,7 +17,8 @@ Reference type for FormOf
 type AdministrableProductDefinitionFormOfReference {
     id: String
     extension: [Extension]
-    reference: MedicinalProductDefinition
+    reference: String
+    resource: MedicinalProductDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for ProducedFrom
 type AdministrableProductDefinitionProducedFromReference {
     id: String
     extension: [Extension]
-    reference: ManufacturedItemDefinition
+    reference: String
+    resource: ManufacturedItemDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -41,7 +43,8 @@ Reference type for Device
 type AdministrableProductDefinitionDeviceReference {
     id: String
     extension: [Extension]
-    reference: DeviceDefinition
+    reference: String
+    resource: DeviceDefinition
     type: uri
     identifier: Identifier
     display: String

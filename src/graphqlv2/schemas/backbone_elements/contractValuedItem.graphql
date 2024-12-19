@@ -17,7 +17,8 @@ Reference type for EntityReference
 type ContractValuedItemEntityReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractValuedItemEntityReference
+    reference: String
+    resource: ContractValuedItemEntityReference
     type: uri
     identifier: Identifier
     display: String
@@ -31,7 +32,8 @@ Reference type for Responsible
 type ContractValuedItemResponsibleReference {
     id: String
     extension: [Extension]
-    reference: ContractValuedItemResponsible
+    reference: String
+    resource: ContractValuedItemResponsible
     type: uri
     identifier: Identifier
     display: String
@@ -45,7 +47,8 @@ Reference type for Recipient
 type ContractValuedItemRecipientReference {
     id: String
     extension: [Extension]
-    reference: ContractValuedItemRecipient
+    reference: String
+    resource: ContractValuedItemRecipient
     type: uri
     identifier: Identifier
     display: String

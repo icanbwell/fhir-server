@@ -12,7 +12,8 @@ Reference type for Individual
 type EncounterParticipantIndividualReference {
     id: String
     extension: [Extension]
-    reference: EncounterParticipantIndividual
+    reference: String
+    resource: EncounterParticipantIndividual
     type: uri
     identifier: Identifier
     display: String

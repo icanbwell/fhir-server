@@ -156,7 +156,8 @@ Reference type for Topic
 type ContractOfferTopicReference {
     id: String
     extension: [Extension]
-    reference: ContractOfferTopic
+    reference: String
+    resource: ContractOfferTopic
     type: uri
     identifier: Identifier
     display: String

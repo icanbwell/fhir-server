@@ -17,7 +17,8 @@ Reference type for ReasonReference
 type CarePlanDetailReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: CarePlanDetailReasonReference
+    reference: String
+    resource: CarePlanDetailReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for Goal
 type CarePlanDetailGoalReference {
     id: String
     extension: [Extension]
-    reference: Goal
+    reference: String
+    resource: Goal
     type: uri
     identifier: Identifier
     display: String
@@ -41,7 +43,8 @@ Reference type for Location
 type CarePlanDetailLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -55,7 +58,8 @@ Reference type for Performer
 type CarePlanDetailPerformerReference {
     id: String
     extension: [Extension]
-    reference: CarePlanDetailPerformer
+    reference: String
+    resource: CarePlanDetailPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -69,7 +73,8 @@ Reference type for ProductReference
 type CarePlanDetailProductReferenceReference {
     id: String
     extension: [Extension]
-    reference: CarePlanDetailProductReference
+    reference: String
+    resource: CarePlanDetailProductReference
     type: uri
     identifier: Identifier
     display: String

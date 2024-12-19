@@ -165,7 +165,8 @@ Reference type for BasedOn
 type TaskBasedOnReference {
     id: String
     extension: [Extension]
-    reference: TaskBasedOn
+    reference: String
+    resource: TaskBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -177,7 +178,8 @@ Reference type for PartOf
 type TaskPartOfReference {
     id: String
     extension: [Extension]
-    reference: Task
+    reference: String
+    resource: Task
     type: uri
     identifier: Identifier
     display: String
@@ -191,7 +193,8 @@ Reference type for Focus
 type TaskFocusReference {
     id: String
     extension: [Extension]
-    reference: TaskFocus
+    reference: String
+    resource: TaskFocus
     type: uri
     identifier: Identifier
     display: String
@@ -205,7 +208,8 @@ Reference type for For
 type TaskForReference {
     id: String
     extension: [Extension]
-    reference: TaskFor
+    reference: String
+    resource: TaskFor
     type: uri
     identifier: Identifier
     display: String
@@ -217,7 +221,8 @@ Reference type for Encounter
 type TaskEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -231,7 +236,8 @@ Reference type for Requester
 type TaskRequesterReference {
     id: String
     extension: [Extension]
-    reference: TaskRequester
+    reference: String
+    resource: TaskRequester
     type: uri
     identifier: Identifier
     display: String
@@ -245,7 +251,8 @@ Reference type for Owner
 type TaskOwnerReference {
     id: String
     extension: [Extension]
-    reference: TaskOwner
+    reference: String
+    resource: TaskOwner
     type: uri
     identifier: Identifier
     display: String
@@ -257,7 +264,8 @@ Reference type for Location
 type TaskLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -271,7 +279,8 @@ Reference type for ReasonReference
 type TaskReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: TaskReasonReference
+    reference: String
+    resource: TaskReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -285,7 +294,8 @@ Reference type for Insurance
 type TaskInsuranceReference {
     id: String
     extension: [Extension]
-    reference: TaskInsurance
+    reference: String
+    resource: TaskInsurance
     type: uri
     identifier: Identifier
     display: String
@@ -297,7 +307,8 @@ Reference type for RelevantHistory
 type TaskRelevantHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

@@ -12,7 +12,8 @@ Reference type for AuthorReference
 type AnnotationAuthorReferenceReference {
     id: String
     extension: [Extension]
-    reference: AnnotationAuthorReference
+    reference: String
+    resource: AnnotationAuthorReference
     type: uri
     identifier: Identifier
     display: String

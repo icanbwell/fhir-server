@@ -57,7 +57,8 @@ Reference type for DefaultValueReference
 type StructureMapSourceDefaultValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: StructureMapSourceDefaultValueReference
+    reference: String
+    resource: StructureMapSourceDefaultValueReference
     type: uri
     identifier: Identifier
     display: String

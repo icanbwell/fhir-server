@@ -18,7 +18,8 @@ Reference type for Actor
 type ScheduleActorReference {
     id: String
     extension: [Extension]
-    reference: ScheduleActor
+    reference: String
+    resource: ScheduleActor
     type: uri
     identifier: Identifier
     display: String

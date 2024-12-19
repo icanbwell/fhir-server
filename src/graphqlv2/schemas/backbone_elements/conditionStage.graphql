@@ -11,7 +11,8 @@ Reference type for Assessment
 type ConditionStageAssessmentReference {
     id: String
     extension: [Extension]
-    reference: ConditionStageAssessment
+    reference: String
+    resource: ConditionStageAssessment
     type: uri
     identifier: Identifier
     display: String

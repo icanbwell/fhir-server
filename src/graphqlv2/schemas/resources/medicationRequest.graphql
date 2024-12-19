@@ -27,7 +27,8 @@ Reference type for ReportedReference
 type MedicationRequestReportedReferenceReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestReportedReference
+    reference: String
+    resource: MedicationRequestReportedReference
     type: uri
     identifier: Identifier
     display: String
@@ -39,7 +40,8 @@ Reference type for MedicationReference
 type MedicationRequestMedicationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Medication
+    reference: String
+    resource: Medication
     type: uri
     identifier: Identifier
     display: String
@@ -53,7 +55,8 @@ Reference type for Subject
 type MedicationRequestSubjectReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestSubject
+    reference: String
+    resource: MedicationRequestSubject
     type: uri
     identifier: Identifier
     display: String
@@ -65,7 +68,8 @@ Reference type for Encounter
 type MedicationRequestEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -79,7 +83,8 @@ Reference type for SupportingInformation
 type MedicationRequestSupportingInformationReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestSupportingInformation
+    reference: String
+    resource: MedicationRequestSupportingInformation
     type: uri
     identifier: Identifier
     display: String
@@ -93,7 +98,8 @@ Reference type for Requester
 type MedicationRequestRequesterReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestRequester
+    reference: String
+    resource: MedicationRequestRequester
     type: uri
     identifier: Identifier
     display: String
@@ -107,7 +113,8 @@ Reference type for Performer
 type MedicationRequestPerformerReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestPerformer
+    reference: String
+    resource: MedicationRequestPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -121,7 +128,8 @@ Reference type for Recorder
 type MedicationRequestRecorderReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestRecorder
+    reference: String
+    resource: MedicationRequestRecorder
     type: uri
     identifier: Identifier
     display: String
@@ -135,7 +143,8 @@ Reference type for ReasonReference
 type MedicationRequestReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestReasonReference
+    reference: String
+    resource: MedicationRequestReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -149,7 +158,8 @@ Reference type for BasedOn
 type MedicationRequestBasedOnReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestBasedOn
+    reference: String
+    resource: MedicationRequestBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -163,7 +173,8 @@ Reference type for Insurance
 type MedicationRequestInsuranceReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequestInsurance
+    reference: String
+    resource: MedicationRequestInsurance
     type: uri
     identifier: Identifier
     display: String
@@ -175,7 +186,8 @@ Reference type for PriorPrescription
 type MedicationRequestPriorPrescriptionReference {
     id: String
     extension: [Extension]
-    reference: MedicationRequest
+    reference: String
+    resource: MedicationRequest
     type: uri
     identifier: Identifier
     display: String
@@ -187,7 +199,8 @@ Reference type for DetectedIssue
 type MedicationRequestDetectedIssueReference {
     id: String
     extension: [Extension]
-    reference: DetectedIssue
+    reference: String
+    resource: DetectedIssue
     type: uri
     identifier: Identifier
     display: String
@@ -199,7 +212,8 @@ Reference type for EventHistory
 type MedicationRequestEventHistoryReference {
     id: String
     extension: [Extension]
-    reference: Provenance
+    reference: String
+    resource: Provenance
     type: uri
     identifier: Identifier
     display: String

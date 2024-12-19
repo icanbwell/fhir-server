@@ -152,7 +152,8 @@ Reference type for Focus
 type SubscriptionStatusNotificationEventFocusReference {
     id: String
     extension: [Extension]
-    reference: SubscriptionStatusNotificationEventFocus
+    reference: String
+    resource: SubscriptionStatusNotificationEventFocus
     type: uri
     identifier: Identifier
     display: String
@@ -166,7 +167,8 @@ Reference type for AdditionalContext
 type SubscriptionStatusNotificationEventAdditionalContextReference {
     id: String
     extension: [Extension]
-    reference: SubscriptionStatusNotificationEventAdditionalContext
+    reference: String
+    resource: SubscriptionStatusNotificationEventAdditionalContext
     type: uri
     identifier: Identifier
     display: String

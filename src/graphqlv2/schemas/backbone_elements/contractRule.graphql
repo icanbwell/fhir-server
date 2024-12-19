@@ -9,7 +9,8 @@ Reference type for ContentReference
 type ContractRuleContentReferenceReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
+    reference: String
+    resource: DocumentReference
     type: uri
     identifier: Identifier
     display: String

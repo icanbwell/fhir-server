@@ -14,7 +14,8 @@ Reference type for Endpoint
 type ImagingStudySeriesEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String
@@ -26,7 +27,8 @@ Reference type for Specimen
 type ImagingStudySeriesSpecimenReference {
     id: String
     extension: [Extension]
-    reference: Specimen
+    reference: String
+    resource: Specimen
     type: uri
     identifier: Identifier
     display: String

@@ -13,7 +13,8 @@ Reference type for ContentReference
 type ContractFriendlyContentReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractFriendlyContentReference
+    reference: String
+    resource: ContractFriendlyContentReference
     type: uri
     identifier: Identifier
     display: String

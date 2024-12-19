@@ -14,7 +14,8 @@ Reference type for ValueReference
 type EvidenceReportCharacteristicValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: EvidenceReportCharacteristicValueReference
+    reference: String
+    resource: EvidenceReportCharacteristicValueReference
     type: uri
     identifier: Identifier
     display: String

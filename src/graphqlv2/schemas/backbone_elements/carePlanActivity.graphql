@@ -154,7 +154,8 @@ Reference type for OutcomeReference
 type CarePlanActivityOutcomeReferenceReference {
     id: String
     extension: [Extension]
-    reference: CarePlanActivityOutcomeReference
+    reference: String
+    resource: CarePlanActivityOutcomeReference
     type: uri
     identifier: Identifier
     display: String
@@ -168,7 +169,8 @@ Reference type for Reference
 type CarePlanActivityReferenceReference {
     id: String
     extension: [Extension]
-    reference: CarePlanActivityReference
+    reference: String
+    resource: CarePlanActivityReference
     type: uri
     identifier: Identifier
     display: String

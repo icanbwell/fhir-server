@@ -11,7 +11,8 @@ Reference type for LocationReference
 type ClaimAccidentLocationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

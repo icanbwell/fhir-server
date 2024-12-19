@@ -12,7 +12,8 @@ Reference type for Collector
 type BiologicallyDerivedProductCollectionCollectorReference {
     id: String
     extension: [Extension]
-    reference: BiologicallyDerivedProductCollectionCollector
+    reference: String
+    resource: BiologicallyDerivedProductCollectionCollector
     type: uri
     identifier: Identifier
     display: String
@@ -26,7 +27,8 @@ Reference type for Source
 type BiologicallyDerivedProductCollectionSourceReference {
     id: String
     extension: [Extension]
-    reference: BiologicallyDerivedProductCollectionSource
+    reference: String
+    resource: BiologicallyDerivedProductCollectionSource
     type: uri
     identifier: Identifier
     display: String

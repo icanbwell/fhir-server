@@ -35,7 +35,7 @@ query {
                 careTeam {
                     sequence
                     provider {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -66,13 +66,13 @@ query {
                 insurance {
                     focal
                     coverage {
-                        reference {
+                        resource {
                             id
                         }
                     }
                 }
                 insurer {
-                    reference {
+                    resource {
                         id
                     }
                 }
@@ -135,7 +135,7 @@ query {
                         }
                     }
                     party {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -150,7 +150,7 @@ query {
                     }
                 }
                 provider {
-                    reference {
+                    resource {
                         __typename
                         ... on Organization {
                             id
@@ -188,7 +188,7 @@ query {
                 }
                 use
                 patient {
-                    reference {
+                    resource {
                         id
                     }
                 }

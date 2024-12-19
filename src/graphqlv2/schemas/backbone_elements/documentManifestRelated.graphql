@@ -152,7 +152,8 @@ Reference type for Ref
 type DocumentManifestRelatedRefReference {
     id: String
     extension: [Extension]
-    reference: DocumentManifestRelatedRef
+    reference: String
+    resource: DocumentManifestRelatedRef
     type: uri
     identifier: Identifier
     display: String

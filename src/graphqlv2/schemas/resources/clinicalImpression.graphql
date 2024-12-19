@@ -22,7 +22,8 @@ Reference type for Subject
 type ClinicalImpressionSubjectReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpressionSubject
+    reference: String
+    resource: ClinicalImpressionSubject
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for Encounter
 type ClinicalImpressionEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -48,7 +50,8 @@ Reference type for Assessor
 type ClinicalImpressionAssessorReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpressionAssessor
+    reference: String
+    resource: ClinicalImpressionAssessor
     type: uri
     identifier: Identifier
     display: String
@@ -60,7 +63,8 @@ Reference type for Previous
 type ClinicalImpressionPreviousReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpression
+    reference: String
+    resource: ClinicalImpression
     type: uri
     identifier: Identifier
     display: String
@@ -74,7 +78,8 @@ Reference type for Problem
 type ClinicalImpressionProblemReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpressionProblem
+    reference: String
+    resource: ClinicalImpressionProblem
     type: uri
     identifier: Identifier
     display: String
@@ -86,7 +91,8 @@ Reference type for PrognosisReference
 type ClinicalImpressionPrognosisReferenceReference {
     id: String
     extension: [Extension]
-    reference: RiskAssessment
+    reference: String
+    resource: RiskAssessment
     type: uri
     identifier: Identifier
     display: String
@@ -100,7 +106,8 @@ Reference type for SupportingInfo
 type ClinicalImpressionSupportingInfoReference {
     id: String
     extension: [Extension]
-    reference: ClinicalImpressionSupportingInfo
+    reference: String
+    resource: ClinicalImpressionSupportingInfo
     type: uri
     identifier: Identifier
     display: String

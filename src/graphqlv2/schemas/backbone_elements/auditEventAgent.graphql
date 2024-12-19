@@ -14,7 +14,8 @@ Reference type for Who
 type AuditEventAgentWhoReference {
     id: String
     extension: [Extension]
-    reference: AuditEventAgentWho
+    reference: String
+    resource: AuditEventAgentWho
     type: uri
     identifier: Identifier
     display: String
@@ -26,7 +27,8 @@ Reference type for Location
 type AuditEventAgentLocationReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

@@ -10,7 +10,8 @@ Reference type for Claim
 type ExplanationOfBenefitRelatedClaimReference {
     id: String
     extension: [Extension]
-    reference: Claim
+    reference: String
+    resource: Claim
     type: uri
     identifier: Identifier
     display: String

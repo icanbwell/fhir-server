@@ -24,7 +24,8 @@ Reference type for BasedOn
 type MediaBasedOnReference {
     id: String
     extension: [Extension]
-    reference: MediaBasedOn
+    reference: String
+    resource: MediaBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +39,8 @@ Reference type for PartOf
 type MediaPartOfReference {
     id: String
     extension: [Extension]
-    reference: MediaPartOf
+    reference: String
+    resource: MediaPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -52,7 +54,8 @@ Reference type for Subject
 type MediaSubjectReference {
     id: String
     extension: [Extension]
-    reference: MediaSubject
+    reference: String
+    resource: MediaSubject
     type: uri
     identifier: Identifier
     display: String
@@ -64,7 +67,8 @@ Reference type for Encounter
 type MediaEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -78,7 +82,8 @@ Reference type for Operator
 type MediaOperatorReference {
     id: String
     extension: [Extension]
-    reference: MediaOperator
+    reference: String
+    resource: MediaOperator
     type: uri
     identifier: Identifier
     display: String
@@ -92,7 +97,8 @@ Reference type for Device
 type MediaDeviceReference {
     id: String
     extension: [Extension]
-    reference: MediaDevice
+    reference: String
+    resource: MediaDevice
     type: uri
     identifier: Identifier
     display: String

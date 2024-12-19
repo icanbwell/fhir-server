@@ -22,7 +22,8 @@ Reference type for Patient
 type RelatedPersonPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String

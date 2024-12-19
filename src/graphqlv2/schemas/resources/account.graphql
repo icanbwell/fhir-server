@@ -20,7 +20,8 @@ Reference type for Subject
 type AccountSubjectReference {
     id: String
     extension: [Extension]
-    reference: AccountSubject
+    reference: String
+    resource: AccountSubject
     type: uri
     identifier: Identifier
     display: String
@@ -32,7 +33,8 @@ Reference type for Owner
 type AccountOwnerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -44,7 +46,8 @@ Reference type for PartOf
 type AccountPartOfReference {
     id: String
     extension: [Extension]
-    reference: Account
+    reference: String
+    resource: Account
     type: uri
     identifier: Identifier
     display: String

@@ -11,7 +11,8 @@ Reference type for VerifiedWith
 type ConsentVerificationVerifiedWithReference {
     id: String
     extension: [Extension]
-    reference: ConsentVerificationVerifiedWith
+    reference: String
+    resource: ConsentVerificationVerifiedWith
     type: uri
     identifier: Identifier
     display: String

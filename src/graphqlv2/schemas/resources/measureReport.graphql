@@ -21,7 +21,8 @@ Reference type for Subject
 type MeasureReportSubjectReference {
     id: String
     extension: [Extension]
-    reference: MeasureReportSubject
+    reference: String
+    resource: MeasureReportSubject
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Reporter
 type MeasureReportReporterReference {
     id: String
     extension: [Extension]
-    reference: MeasureReportReporter
+    reference: String
+    resource: MeasureReportReporter
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for EvaluatedResource
 type MeasureReportEvaluatedResourceReference {
     id: String
     extension: [Extension]
-    reference: MeasureReportEvaluatedResource
+    reference: String
+    resource: MeasureReportEvaluatedResource
     type: uri
     identifier: Identifier
     display: String

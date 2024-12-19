@@ -18,7 +18,8 @@ Reference type for AnswerReference
 type QuestionnaireEnableWhenAnswerReferenceReference {
     id: String
     extension: [Extension]
-    reference: QuestionnaireEnableWhenAnswerReference
+    reference: String
+    resource: QuestionnaireEnableWhenAnswerReference
     type: uri
     identifier: Identifier
     display: String

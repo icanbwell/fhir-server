@@ -26,7 +26,8 @@ Reference type for Subject
 type EncounterSubjectReference {
     id: String
     extension: [Extension]
-    reference: EncounterSubject
+    reference: String
+    resource: EncounterSubject
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +39,8 @@ Reference type for EpisodeOfCare
 type EncounterEpisodeOfCareReference {
     id: String
     extension: [Extension]
-    reference: EpisodeOfCare
+    reference: String
+    resource: EpisodeOfCare
     type: uri
     identifier: Identifier
     display: String
@@ -50,7 +52,8 @@ Reference type for BasedOn
 type EncounterBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ServiceRequest
+    reference: String
+    resource: ServiceRequest
     type: uri
     identifier: Identifier
     display: String
@@ -62,7 +65,8 @@ Reference type for Appointment
 type EncounterAppointmentReference {
     id: String
     extension: [Extension]
-    reference: Appointment
+    reference: String
+    resource: Appointment
     type: uri
     identifier: Identifier
     display: String
@@ -76,7 +80,8 @@ Reference type for ReasonReference
 type EncounterReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: EncounterReasonReference
+    reference: String
+    resource: EncounterReasonReference
     type: uri
     identifier: Identifier
     display: String
@@ -88,7 +93,8 @@ Reference type for Account
 type EncounterAccountReference {
     id: String
     extension: [Extension]
-    reference: Account
+    reference: String
+    resource: Account
     type: uri
     identifier: Identifier
     display: String
@@ -100,7 +106,8 @@ Reference type for ServiceProvider
 type EncounterServiceProviderReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -112,7 +119,8 @@ Reference type for PartOf
 type EncounterPartOfReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String

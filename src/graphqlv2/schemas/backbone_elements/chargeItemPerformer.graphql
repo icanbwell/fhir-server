@@ -11,7 +11,8 @@ Reference type for Actor
 type ChargeItemPerformerActorReference {
     id: String
     extension: [Extension]
-    reference: ChargeItemPerformerActor
+    reference: String
+    resource: ChargeItemPerformerActor
     type: uri
     identifier: Identifier
     display: String

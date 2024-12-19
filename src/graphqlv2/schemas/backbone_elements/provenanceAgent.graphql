@@ -11,7 +11,8 @@ Reference type for Who
 type ProvenanceAgentWhoReference {
     id: String
     extension: [Extension]
-    reference: ProvenanceAgentWho
+    reference: String
+    resource: ProvenanceAgentWho
     type: uri
     identifier: Identifier
     display: String
@@ -25,7 +26,8 @@ Reference type for OnBehalfOf
 type ProvenanceAgentOnBehalfOfReference {
     id: String
     extension: [Extension]
-    reference: ProvenanceAgentOnBehalfOf
+    reference: String
+    resource: ProvenanceAgentOnBehalfOf
     type: uri
     identifier: Identifier
     display: String

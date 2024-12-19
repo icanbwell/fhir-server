@@ -23,7 +23,8 @@ Reference type for SubjectReference
 type ResearchDefinitionSubjectReferenceReference {
     id: String
     extension: [Extension]
-    reference: Group
+    reference: String
+    resource: Group
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Population
 type ResearchDefinitionPopulationReference {
     id: String
     extension: [Extension]
-    reference: ResearchElementDefinition
+    reference: String
+    resource: ResearchElementDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Exposure
 type ResearchDefinitionExposureReference {
     id: String
     extension: [Extension]
-    reference: ResearchElementDefinition
+    reference: String
+    resource: ResearchElementDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -59,7 +62,8 @@ Reference type for ExposureAlternative
 type ResearchDefinitionExposureAlternativeReference {
     id: String
     extension: [Extension]
-    reference: ResearchElementDefinition
+    reference: String
+    resource: ResearchElementDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -71,7 +75,8 @@ Reference type for Outcome
 type ResearchDefinitionOutcomeReference {
     id: String
     extension: [Extension]
-    reference: ResearchElementDefinition
+    reference: String
+    resource: ResearchElementDefinition
     type: uri
     identifier: Identifier
     display: String

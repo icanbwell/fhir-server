@@ -20,7 +20,8 @@ Reference type for Provider
 type ClaimResponseAddItemProviderReference {
     id: String
     extension: [Extension]
-    reference: ClaimResponseAddItemProvider
+    reference: String
+    resource: ClaimResponseAddItemProvider
     type: uri
     identifier: Identifier
     display: String
@@ -32,7 +33,8 @@ Reference type for LocationReference
 type ClaimResponseAddItemLocationReferenceReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

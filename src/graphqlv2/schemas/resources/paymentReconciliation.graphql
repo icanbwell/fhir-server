@@ -21,7 +21,8 @@ Reference type for PaymentIssuer
 type PaymentReconciliationPaymentIssuerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -33,7 +34,8 @@ Reference type for Request
 type PaymentReconciliationRequestReference {
     id: String
     extension: [Extension]
-    reference: Task
+    reference: String
+    resource: Task
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Requestor
 type PaymentReconciliationRequestorReference {
     id: String
     extension: [Extension]
-    reference: PaymentReconciliationRequestor
+    reference: String
+    resource: PaymentReconciliationRequestor
     type: uri
     identifier: Identifier
     display: String

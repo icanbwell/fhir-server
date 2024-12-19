@@ -18,7 +18,8 @@ Reference type for Subject
 type FlagSubjectReference {
     id: String
     extension: [Extension]
-    reference: FlagSubject
+    reference: String
+    resource: FlagSubject
     type: uri
     identifier: Identifier
     display: String
@@ -30,7 +31,8 @@ Reference type for Encounter
 type FlagEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -44,7 +46,8 @@ Reference type for Author
 type FlagAuthorReference {
     id: String
     extension: [Extension]
-    reference: FlagAuthor
+    reference: String
+    resource: FlagAuthor
     type: uri
     identifier: Identifier
     display: String

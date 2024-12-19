@@ -12,7 +12,8 @@ Reference type for Provider
 type ExplanationOfBenefitCareTeamProviderReference {
     id: String
     extension: [Extension]
-    reference: ExplanationOfBenefitCareTeamProvider
+    reference: String
+    resource: ExplanationOfBenefitCareTeamProvider
     type: uri
     identifier: Identifier
     display: String

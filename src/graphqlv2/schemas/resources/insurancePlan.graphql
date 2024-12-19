@@ -19,7 +19,8 @@ Reference type for OwnedBy
 type InsurancePlanOwnedByReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -31,7 +32,8 @@ Reference type for AdministeredBy
 type InsurancePlanAdministeredByReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -43,7 +45,8 @@ Reference type for CoverageArea
 type InsurancePlanCoverageAreaReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String
@@ -55,7 +58,8 @@ Reference type for Endpoint
 type InsurancePlanEndpointReference {
     id: String
     extension: [Extension]
-    reference: Endpoint
+    reference: String
+    resource: Endpoint
     type: uri
     identifier: Identifier
     display: String
@@ -67,7 +71,8 @@ Reference type for Network
 type InsurancePlanNetworkReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

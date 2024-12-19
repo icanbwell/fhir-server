@@ -30,7 +30,8 @@ Reference type for BasedOn
 type ObservationBasedOnReference {
     id: String
     extension: [Extension]
-    reference: ObservationBasedOn
+    reference: String
+    resource: ObservationBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -44,7 +45,8 @@ Reference type for PartOf
 type ObservationPartOfReference {
     id: String
     extension: [Extension]
-    reference: ObservationPartOf
+    reference: String
+    resource: ObservationPartOf
     type: uri
     identifier: Identifier
     display: String
@@ -58,7 +60,8 @@ Reference type for Subject
 type ObservationSubjectReference {
     id: String
     extension: [Extension]
-    reference: ObservationSubject
+    reference: String
+    resource: ObservationSubject
     type: uri
     identifier: Identifier
     display: String
@@ -72,7 +75,8 @@ Reference type for Focus
 type ObservationFocusReference {
     id: String
     extension: [Extension]
-    reference: ObservationFocus
+    reference: String
+    resource: ObservationFocus
     type: uri
     identifier: Identifier
     display: String
@@ -84,7 +88,8 @@ Reference type for Encounter
 type ObservationEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -98,7 +103,8 @@ Reference type for Performer
 type ObservationPerformerReference {
     id: String
     extension: [Extension]
-    reference: ObservationPerformer
+    reference: String
+    resource: ObservationPerformer
     type: uri
     identifier: Identifier
     display: String
@@ -110,7 +116,8 @@ Reference type for Specimen
 type ObservationSpecimenReference {
     id: String
     extension: [Extension]
-    reference: Specimen
+    reference: String
+    resource: Specimen
     type: uri
     identifier: Identifier
     display: String
@@ -124,7 +131,8 @@ Reference type for Device
 type ObservationDeviceReference {
     id: String
     extension: [Extension]
-    reference: ObservationDevice
+    reference: String
+    resource: ObservationDevice
     type: uri
     identifier: Identifier
     display: String
@@ -138,7 +146,8 @@ Reference type for HasMember
 type ObservationHasMemberReference {
     id: String
     extension: [Extension]
-    reference: ObservationHasMember
+    reference: String
+    resource: ObservationHasMember
     type: uri
     identifier: Identifier
     display: String
@@ -152,7 +161,8 @@ Reference type for DerivedFrom
 type ObservationDerivedFromReference {
     id: String
     extension: [Extension]
-    reference: ObservationDerivedFrom
+    reference: String
+    resource: ObservationDerivedFrom
     type: uri
     identifier: Identifier
     display: String

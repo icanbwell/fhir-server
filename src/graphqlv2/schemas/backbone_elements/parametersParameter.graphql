@@ -58,7 +58,8 @@ Reference type for ValueReference
 type ParametersParameterValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ParametersParameterValueReference
+    reference: String
+    resource: ParametersParameterValueReference
     type: uri
     identifier: Identifier
     display: String

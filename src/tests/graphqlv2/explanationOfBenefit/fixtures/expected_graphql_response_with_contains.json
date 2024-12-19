@@ -66,7 +66,7 @@
               }
             ],
             "insurer": {
-              "reference": {
+              "resource": {
                 "id": "WPS-Health"
               }
             },
@@ -261,7 +261,7 @@
               }
             ],
             "provider": {
-              "reference": null
+              "resource": null
             },
             "resourceType": "ExplanationOfBenefit",
             "status": "active",

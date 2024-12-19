@@ -57,7 +57,8 @@ Reference type for ValueReference
 type ExtensionValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ExtensionValueReference
+    reference: String
+    resource: ExtensionValueReference
     type: uri
     identifier: Identifier
     display: String

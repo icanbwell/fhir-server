@@ -21,7 +21,8 @@ Reference type for Patient
 type CoverageEligibilityRequestPatientReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Enterer
 type CoverageEligibilityRequestEntererReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestEnterer
+    reference: String
+    resource: CoverageEligibilityRequestEnterer
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for Provider
 type CoverageEligibilityRequestProviderReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestProvider
+    reference: String
+    resource: CoverageEligibilityRequestProvider
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for Insurer
 type CoverageEligibilityRequestInsurerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String
@@ -73,7 +77,8 @@ Reference type for Facility
 type CoverageEligibilityRequestFacilityReference {
     id: String
     extension: [Extension]
-    reference: Location
+    reference: String
+    resource: Location
     type: uri
     identifier: Identifier
     display: String

@@ -25,7 +25,8 @@ Reference type for Impurity
 type MedicinalProductDefinitionImpurityReference {
     id: String
     extension: [Extension]
-    reference: SubstanceDefinition
+    reference: String
+    resource: SubstanceDefinition
     type: uri
     identifier: Identifier
     display: String
@@ -37,7 +38,8 @@ Reference type for AttachedDocument
 type MedicinalProductDefinitionAttachedDocumentReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
+    reference: String
+    resource: DocumentReference
     type: uri
     identifier: Identifier
     display: String
@@ -49,7 +51,8 @@ Reference type for MasterFile
 type MedicinalProductDefinitionMasterFileReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
+    reference: String
+    resource: DocumentReference
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for ClinicalTrial
 type MedicinalProductDefinitionClinicalTrialReference {
     id: String
     extension: [Extension]
-    reference: ResearchStudy
+    reference: String
+    resource: ResearchStudy
     type: uri
     identifier: Identifier
     display: String

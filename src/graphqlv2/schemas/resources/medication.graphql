@@ -18,7 +18,8 @@ Reference type for Manufacturer
 type MedicationManufacturerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

@@ -11,7 +11,8 @@ Reference type for Actor
 type ImmunizationPerformerActorReference {
     id: String
     extension: [Extension]
-    reference: ImmunizationPerformerActor
+    reference: String
+    resource: ImmunizationPerformerActor
     type: uri
     identifier: Identifier
     display: String

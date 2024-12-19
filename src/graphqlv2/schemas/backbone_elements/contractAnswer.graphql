@@ -19,7 +19,8 @@ Reference type for ValueReference
 type ContractAnswerValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractAnswerValueReference
+    reference: String
+    resource: ContractAnswerValueReference
     type: uri
     identifier: Identifier
     display: String

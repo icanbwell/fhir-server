@@ -155,7 +155,8 @@ Reference type for Request
 type PaymentReconciliationDetailRequestReference {
     id: String
     extension: [Extension]
-    reference: PaymentReconciliationDetailRequest
+    reference: String
+    resource: PaymentReconciliationDetailRequest
     type: uri
     identifier: Identifier
     display: String
@@ -169,7 +170,8 @@ Reference type for Submitter
 type PaymentReconciliationDetailSubmitterReference {
     id: String
     extension: [Extension]
-    reference: PaymentReconciliationDetailSubmitter
+    reference: String
+    resource: PaymentReconciliationDetailSubmitter
     type: uri
     identifier: Identifier
     display: String
@@ -183,7 +185,8 @@ Reference type for Response
 type PaymentReconciliationDetailResponseReference {
     id: String
     extension: [Extension]
-    reference: PaymentReconciliationDetailResponse
+    reference: String
+    resource: PaymentReconciliationDetailResponse
     type: uri
     identifier: Identifier
     display: String
@@ -195,7 +198,8 @@ Reference type for Responsible
 type PaymentReconciliationDetailResponsibleReference {
     id: String
     extension: [Extension]
-    reference: PractitionerRole
+    reference: String
+    resource: PractitionerRole
     type: uri
     identifier: Identifier
     display: String
@@ -209,7 +213,8 @@ Reference type for Payee
 type PaymentReconciliationDetailPayeeReference {
     id: String
     extension: [Extension]
-    reference: PaymentReconciliationDetailPayee
+    reference: String
+    resource: PaymentReconciliationDetailPayee
     type: uri
     identifier: Identifier
     display: String

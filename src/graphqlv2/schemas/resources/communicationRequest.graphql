@@ -162,7 +162,8 @@ Reference type for BasedOn
 type CommunicationRequestBasedOnReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestBasedOn
+    reference: String
+    resource: CommunicationRequestBasedOn
     type: uri
     identifier: Identifier
     display: String
@@ -174,7 +175,8 @@ Reference type for Replaces
 type CommunicationRequestReplacesReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequest
+    reference: String
+    resource: CommunicationRequest
     type: uri
     identifier: Identifier
     display: String
@@ -188,7 +190,8 @@ Reference type for Subject
 type CommunicationRequestSubjectReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestSubject
+    reference: String
+    resource: CommunicationRequestSubject
     type: uri
     identifier: Identifier
     display: String
@@ -202,7 +205,8 @@ Reference type for About
 type CommunicationRequestAboutReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestAbout
+    reference: String
+    resource: CommunicationRequestAbout
     type: uri
     identifier: Identifier
     display: String
@@ -214,7 +218,8 @@ Reference type for Encounter
 type CommunicationRequestEncounterReference {
     id: String
     extension: [Extension]
-    reference: Encounter
+    reference: String
+    resource: Encounter
     type: uri
     identifier: Identifier
     display: String
@@ -228,7 +233,8 @@ Reference type for Requester
 type CommunicationRequestRequesterReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestRequester
+    reference: String
+    resource: CommunicationRequestRequester
     type: uri
     identifier: Identifier
     display: String
@@ -242,7 +248,8 @@ Reference type for Recipient
 type CommunicationRequestRecipientReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestRecipient
+    reference: String
+    resource: CommunicationRequestRecipient
     type: uri
     identifier: Identifier
     display: String
@@ -256,7 +263,8 @@ Reference type for Sender
 type CommunicationRequestSenderReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestSender
+    reference: String
+    resource: CommunicationRequestSender
     type: uri
     identifier: Identifier
     display: String
@@ -270,7 +278,8 @@ Reference type for ReasonReference
 type CommunicationRequestReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: CommunicationRequestReasonReference
+    reference: String
+    resource: CommunicationRequestReasonReference
     type: uri
     identifier: Identifier
     display: String

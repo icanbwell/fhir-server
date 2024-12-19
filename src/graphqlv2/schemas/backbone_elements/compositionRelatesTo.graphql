@@ -10,7 +10,8 @@ Reference type for TargetReference
 type CompositionRelatesToTargetReferenceReference {
     id: String
     extension: [Extension]
-    reference: Composition
+    reference: String
+    resource: Composition
     type: uri
     identifier: Identifier
     display: String

@@ -16,7 +16,8 @@ Reference type for TimingReference
 type TriggerDefinitionTimingReferenceReference {
     id: String
     extension: [Extension]
-    reference: TriggerDefinitionTimingReference
+    reference: String
+    resource: TriggerDefinitionTimingReference
     type: uri
     identifier: Identifier
     display: String

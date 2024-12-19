@@ -20,7 +20,8 @@ Reference type for Subject
 type GoalSubjectReference {
     id: String
     extension: [Extension]
-    reference: GoalSubject
+    reference: String
+    resource: GoalSubject
     type: uri
     identifier: Identifier
     display: String
@@ -34,7 +35,8 @@ Reference type for ExpressedBy
 type GoalExpressedByReference {
     id: String
     extension: [Extension]
-    reference: GoalExpressedBy
+    reference: String
+    resource: GoalExpressedBy
     type: uri
     identifier: Identifier
     display: String
@@ -48,7 +50,8 @@ Reference type for Addresses
 type GoalAddressesReference {
     id: String
     extension: [Extension]
-    reference: GoalAddresses
+    reference: String
+    resource: GoalAddresses
     type: uri
     identifier: Identifier
     display: String
@@ -60,7 +63,8 @@ Reference type for OutcomeReference
 type GoalOutcomeReferenceReference {
     id: String
     extension: [Extension]
-    reference: Observation
+    reference: String
+    resource: Observation
     type: uri
     identifier: Identifier
     display: String

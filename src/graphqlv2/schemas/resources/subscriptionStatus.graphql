@@ -16,7 +16,8 @@ Reference type for Subscription
 type SubscriptionStatusSubscriptionReference {
     id: String
     extension: [Extension]
-    reference: Subscription
+    reference: String
+    resource: Subscription
     type: uri
     identifier: Identifier
     display: String

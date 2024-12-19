@@ -13,7 +13,8 @@ Reference type for Performer
 type MedicationRequestDispenseRequestPerformerReference {
     id: String
     extension: [Extension]
-    reference: Organization
+    reference: String
+    resource: Organization
     type: uri
     identifier: Identifier
     display: String

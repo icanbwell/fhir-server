@@ -11,7 +11,8 @@ Reference type for ChargeItemReference
 type InvoiceLineItemChargeItemReferenceReference {
     id: String
     extension: [Extension]
-    reference: ChargeItem
+    reference: String
+    resource: ChargeItem
     type: uri
     identifier: Identifier
     display: String

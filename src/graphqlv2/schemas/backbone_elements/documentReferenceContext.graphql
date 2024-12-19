@@ -12,7 +12,8 @@ Reference type for Encounter
 type DocumentReferenceContextEncounterReference {
     id: String
     extension: [Extension]
-    reference: DocumentReferenceContextEncounter
+    reference: String
+    resource: DocumentReferenceContextEncounter
     type: uri
     identifier: Identifier
     display: String
@@ -24,7 +25,8 @@ Reference type for SourcePatientInfo
 type DocumentReferenceContextSourcePatientInfoReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -38,7 +40,8 @@ Reference type for Related
 type DocumentReferenceContextRelatedReference {
     id: String
     extension: [Extension]
-    reference: DocumentReferenceContextRelated
+    reference: String
+    resource: DocumentReferenceContextRelated
     type: uri
     identifier: Identifier
     display: String

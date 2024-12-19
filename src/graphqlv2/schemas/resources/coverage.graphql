@@ -21,7 +21,8 @@ Reference type for PolicyHolder
 type CoveragePolicyHolderReference {
     id: String
     extension: [Extension]
-    reference: CoveragePolicyHolder
+    reference: String
+    resource: CoveragePolicyHolder
     type: uri
     identifier: Identifier
     display: String
@@ -35,7 +36,8 @@ Reference type for Subscriber
 type CoverageSubscriberReference {
     id: String
     extension: [Extension]
-    reference: CoverageSubscriber
+    reference: String
+    resource: CoverageSubscriber
     type: uri
     identifier: Identifier
     display: String
@@ -47,7 +49,8 @@ Reference type for Beneficiary
 type CoverageBeneficiaryReference {
     id: String
     extension: [Extension]
-    reference: Patient
+    reference: String
+    resource: Patient
     type: uri
     identifier: Identifier
     display: String
@@ -61,7 +64,8 @@ Reference type for Payor
 type CoveragePayorReference {
     id: String
     extension: [Extension]
-    reference: CoveragePayor
+    reference: String
+    resource: CoveragePayor
     type: uri
     identifier: Identifier
     display: String
@@ -73,7 +77,8 @@ Reference type for Contract
 type CoverageContractReference {
     id: String
     extension: [Extension]
-    reference: Contract
+    reference: String
+    resource: Contract
     type: uri
     identifier: Identifier
     display: String

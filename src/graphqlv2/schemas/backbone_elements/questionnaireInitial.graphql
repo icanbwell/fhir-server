@@ -19,7 +19,8 @@ Reference type for ValueReference
 type QuestionnaireInitialValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: QuestionnaireInitialValueReference
+    reference: String
+    resource: QuestionnaireInitialValueReference
     type: uri
     identifier: Identifier
     display: String

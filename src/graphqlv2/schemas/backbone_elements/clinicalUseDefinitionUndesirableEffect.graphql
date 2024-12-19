@@ -9,7 +9,8 @@ Reference type for SymptomConditionEffect
 type ClinicalUseDefinitionUndesirableEffectSymptomConditionEffectReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
+    reference: String
+    resource: ObservationDefinition
     type: uri
     identifier: Identifier
     display: String

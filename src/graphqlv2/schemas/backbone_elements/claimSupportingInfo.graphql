@@ -16,7 +16,8 @@ Reference type for ValueReference
 type ClaimSupportingInfoValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ClaimSupportingInfoValueReference
+    reference: String
+    resource: ClaimSupportingInfoValueReference
     type: uri
     identifier: Identifier
     display: String

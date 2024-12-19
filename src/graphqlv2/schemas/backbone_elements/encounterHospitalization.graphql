@@ -12,7 +12,8 @@ Reference type for Origin
 type EncounterHospitalizationOriginReference {
     id: String
     extension: [Extension]
-    reference: EncounterHospitalizationOrigin
+    reference: String
+    resource: EncounterHospitalizationOrigin
     type: uri
     identifier: Identifier
     display: String
@@ -26,7 +27,8 @@ Reference type for Destination
 type EncounterHospitalizationDestinationReference {
     id: String
     extension: [Extension]
-    reference: EncounterHospitalizationDestination
+    reference: String
+    resource: EncounterHospitalizationDestination
     type: uri
     identifier: Identifier
     display: String

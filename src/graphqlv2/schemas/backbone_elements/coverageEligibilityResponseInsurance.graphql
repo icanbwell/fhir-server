@@ -10,7 +10,8 @@ Reference type for Coverage
 type CoverageEligibilityResponseInsuranceCoverageReference {
     id: String
     extension: [Extension]
-    reference: Coverage
+    reference: String
+    resource: Coverage
     type: uri
     identifier: Identifier
     display: String

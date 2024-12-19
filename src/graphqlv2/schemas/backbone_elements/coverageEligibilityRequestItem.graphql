@@ -15,7 +15,8 @@ Reference type for Provider
 type CoverageEligibilityRequestItemProviderReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestItemProvider
+    reference: String
+    resource: CoverageEligibilityRequestItemProvider
     type: uri
     identifier: Identifier
     display: String
@@ -29,7 +30,8 @@ Reference type for Facility
 type CoverageEligibilityRequestItemFacilityReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestItemFacility
+    reference: String
+    resource: CoverageEligibilityRequestItemFacility
     type: uri
     identifier: Identifier
     display: String
@@ -43,7 +45,8 @@ Reference type for Detail
 type CoverageEligibilityRequestItemDetailReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityRequestItemDetail
+    reference: String
+    resource: CoverageEligibilityRequestItemDetail
     type: uri
     identifier: Identifier
     display: String
