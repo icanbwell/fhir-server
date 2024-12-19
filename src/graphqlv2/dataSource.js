@@ -362,44 +362,6 @@ class FhirDataSource {
         );
     }
 
-    /**
-     * Finds resources with args used specifically while performing mutation
-     * @param {Resource|null} parent
-     * @param {Object} args
-     * @param {GraphQLContext} context
-     * @param {Object} info
-     * @param {string} resourceType
-     * @return {Promise<Resource[]>}
-     */
-    async getResourcesForMutation (parent, args, context, info, resourceType) {
-        // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
-        const args1 = {
-            base_version: '4_0_0',
-            _bundle: '1',
-            ...args
-        };
-        // if _debug is not set and we are in debug mode, set it
-        if (!args1._debug && this.debugMode) {
-            args1._debug = true;
-        }
-        return this.unBundle(
-            await this.searchBundleOperation.searchBundleAsync(
-                {
-                    requestInfo: context.fhirRequestInfo,
-                    resourceType,
-                    parsedArgs: await this.getParsedArgsForMutationAsync(
-                        {
-                            args: args1,
-                            resourceType,
-                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
-                        }
-                    ),
-                    useAggregationPipeline: false
-                }
-            )
-        );
-    }
-
     // noinspection OverlyComplexFunctionJS
     /**
      * Finds resources with args
@@ -549,30 +511,6 @@ class FhirDataSource {
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
                 base_version, parsedArgs, resourceType, operation: READ
-            }
-        );
-        if (headers) {
-            parsedArgs.headers = headers;
-        }
-        return parsedArgs;
-    }
-
-    /**
-     * Parse arguments
-     * @param {Object} args
-     * @param {string} resourceType
-     * @param {Object|undefined} headers
-     * @return {Promise<ParsedArgs>}
-     */
-    async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = this.r4ArgsParser.parseArgs(
-            {
-                resourceType,
-                args,
-                useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
         if (headers) {
