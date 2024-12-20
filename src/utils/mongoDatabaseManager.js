@@ -179,7 +179,7 @@ class MongoDatabaseManager {
     async createClientAsync (clientConfig) {
         const parts = clientConfig.connection.split(':');
         const server = clientConfig.connection.substring(clientConfig.connection.indexOf('@'));
-        const maskedConnection = parts[0] + ':' + parts[1] + ':***********' + server;
+        const maskedConnection = `${parts[0]}:${parts[1]}:***********${server}`;
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
