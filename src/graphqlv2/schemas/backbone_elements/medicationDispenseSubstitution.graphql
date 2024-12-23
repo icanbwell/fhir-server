@@ -13,7 +13,7 @@ type MedicationDispenseSubstitutionResponsiblePartyReference {
     extension: [Extension]
     reference: String
     resource: MedicationDispenseSubstitutionResponsibleParty
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

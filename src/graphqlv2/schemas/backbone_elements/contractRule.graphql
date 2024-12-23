@@ -11,7 +11,7 @@ type ContractRuleContentReferenceReference {
     extension: [Extension]
     reference: String
     resource: DocumentReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

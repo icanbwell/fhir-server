@@ -65,6 +65,7 @@ class FhirProperty:
     type_: str
     cleaned_type: str
     type_snake_case: str
+    scalar_type: Optional[str] = None
     optional: bool
     is_list: bool
     documentation: List[str]
@@ -259,6 +260,26 @@ resources_plural_names_mapping: Dict[str, str] = {
     "VisionPrescription": "VisionPrescriptions"
 }
 
+property_scalar_types_mapping: Dict[str, str] = {
+    "base64Binary": "Base64Binary",
+    "canonical": "Canonical",
+    "code": "Code",
+    "date": "Date",
+    "dateTime": "DateTime",
+    "decimal": "Float",
+    "id": "ID",
+    "instant": "Instant",
+    "markdown": "Markdown",
+    "number": "Int",
+    "oid": "OID",
+    "time": "Time",
+    "unsignedInt": "Int",
+    "uri": "URI",
+    "url": "URL",
+    "uuid": "UUID",
+    "xhtml": "XHTML",
+}
+
 class FhirXmlSchemaParser:
     cleaned_type_mapping: Dict[str, str] = {
         "boolean": "Boolean",
@@ -384,6 +405,7 @@ class FhirXmlSchemaParser:
                         fhir_property.is_complex = True
                         fhir_property.cleaned_type = fhir_property.fhir_type
                         fhir_property.type_snake_case = FhirXmlSchemaParser.camel_to_snake(fhir_property.fhir_type)
+                        fhir_property.scalar_type = property_scalar_types_mapping.get(fhir_property.type_snake_case)
                     fhir_property.is_resource = property_fhir_entity.is_resource
                     fhir_property.is_extension = property_fhir_entity.is_extension
 
@@ -631,6 +653,7 @@ class FhirXmlSchemaParser:
                         else:
                             fhir_property.type_ = value_set.name
                             fhir_property.type_snake_case = value_set.name_snake_case
+                            fhir_property.scalar_type = property_scalar_types_mapping.get(value_set.name_snake_case)
                             fhir_property.cleaned_type = value_set.cleaned_name
                             fhir_property.is_code = True
                     # putting in kludge for R4B as this field is removed in R5
@@ -934,6 +957,13 @@ class FhirXmlSchemaParser:
                             type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                                 FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
                             ),
+                            scalar_type=property_scalar_types_mapping.get(
+                                FhirXmlSchemaParser.camel_to_snake(
+                                    FhirXmlSchemaParser.cleaned_type_mapping.get(
+                                        cleaned_type, cleaned_type
+                                    )
+                                )
+                            ),
                             optional=optional,
                             is_list=is_list,
                             documentation=[property_documentation],
@@ -956,6 +986,13 @@ class FhirXmlSchemaParser:
                         cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
                         type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                             FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
+                        ),
+                        scalar_type=property_scalar_types_mapping.get(
+                            FhirXmlSchemaParser.camel_to_snake(
+                                FhirXmlSchemaParser.cleaned_type_mapping.get(
+                                    cleaned_type, cleaned_type
+                                )
+                            )
                         ),
                         optional=optional,
                         is_list=is_list,

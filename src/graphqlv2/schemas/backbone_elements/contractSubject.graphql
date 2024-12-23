@@ -13,7 +13,7 @@ type ContractSubjectReferenceReference {
     extension: [Extension]
     reference: String
     resource: ContractSubjectReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

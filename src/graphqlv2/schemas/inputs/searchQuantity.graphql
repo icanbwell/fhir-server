@@ -1,13 +1,13 @@
 input SearchQuantityValue {
     prefix: String
-    value: decimal
+    value: Decimal
     system: String
     code: String
 }
 input SearchQuantity {
     searchType: String = "quantity"
     prefix: String
-    value: decimal
+    value: Decimal
     system: String
     code: String
     missing: Boolean

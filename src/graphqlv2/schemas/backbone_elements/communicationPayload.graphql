@@ -13,7 +13,7 @@ type CommunicationPayloadContentReferenceReference {
     extension: [Extension]
     reference: String
     resource: CommunicationPayloadContentReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

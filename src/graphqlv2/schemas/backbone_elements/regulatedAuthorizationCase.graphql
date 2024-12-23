@@ -3,7 +3,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Period from "../complex_types/period.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 
 
 """
@@ -61,7 +61,7 @@ type RegulatedAuthorizationCase {
     """
     None
     """
-    dateDateTime: dateTime
+    dateDateTime: DateTime
     """
     A regulatory submission from an organization to a regulator, as part of an
     assessing case. Multiple applications may occur over time, with more or

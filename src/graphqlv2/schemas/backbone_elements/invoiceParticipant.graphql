@@ -13,7 +13,7 @@ type InvoiceParticipantActorReference {
     extension: [Extension]
     reference: String
     resource: InvoiceParticipantActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
-# import base64Binary from "../simple_types/base64Binary.graphql"
+# import Base64Binary from "../simple_types/base64Binary.graphql"
 
 
 """
@@ -58,5 +58,5 @@ type MedicationKnowledgeDrugCharacteristic {
     """
     None
     """
-    valueBase64Binary: base64Binary
+    valueBase64Binary: Base64Binary
 }

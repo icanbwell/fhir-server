@@ -13,7 +13,7 @@ type MedicationKnowledgeMonographSourceReference {
     extension: [Extension]
     reference: String
     resource: MedicationKnowledgeMonographSource
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

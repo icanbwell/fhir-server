@@ -12,7 +12,7 @@ type CitationWhoClassifiedPersonReference {
     extension: [Extension]
     reference: String
     resource: CitationWhoClassifiedPerson
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -25,7 +25,7 @@ type CitationWhoClassifiedOrganizationReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -38,7 +38,7 @@ type CitationWhoClassifiedPublisherReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

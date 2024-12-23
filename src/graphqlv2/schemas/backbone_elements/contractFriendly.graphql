@@ -15,7 +15,7 @@ type ContractFriendlyContentReferenceReference {
     extension: [Extension]
     reference: String
     resource: ContractFriendlyContentReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

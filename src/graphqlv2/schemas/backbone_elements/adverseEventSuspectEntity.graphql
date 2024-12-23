@@ -13,7 +13,7 @@ type AdverseEventSuspectEntityInstanceReference {
     extension: [Extension]
     reference: String
     resource: AdverseEventSuspectEntityInstance
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

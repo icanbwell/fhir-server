@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Money from "../complex_types/money.graphql"
-# import decimal from "../simple_types/decimal.graphql"
 
 
 """
@@ -61,5 +60,5 @@ type ExplanationOfBenefitAdjudication {
     A non-monetary value associated with the category. Mutually exclusive to the
     amount element above.
     """
-    value: decimal
+    value: Float
 }

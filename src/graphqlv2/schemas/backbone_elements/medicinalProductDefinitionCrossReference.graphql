@@ -11,7 +11,7 @@ type MedicinalProductDefinitionCrossReferenceProductReference {
     extension: [Extension]
     reference: String
     resource: MedicinalProductDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -16,7 +16,7 @@ type MedicinalProductDefinitionOperationTypeReference {
     extension: [Extension]
     reference: String
     resource: MedicinalProductDefinitionOperationType
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -29,7 +29,7 @@ type MedicinalProductDefinitionOperationOrganizationReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

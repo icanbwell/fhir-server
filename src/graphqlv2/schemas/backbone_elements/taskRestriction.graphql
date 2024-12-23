@@ -14,7 +14,7 @@ type TaskRestrictionRecipientReference {
     extension: [Extension]
     reference: String
     resource: TaskRestrictionRecipient
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

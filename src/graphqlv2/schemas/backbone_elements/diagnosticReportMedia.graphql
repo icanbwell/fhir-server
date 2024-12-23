@@ -10,7 +10,7 @@ type DiagnosticReportMediaLinkReference {
     extension: [Extension]
     reference: String
     resource: Media
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -14,7 +14,7 @@ type ContractSignerPartyReference {
     extension: [Extension]
     reference: String
     resource: ContractSignerParty
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

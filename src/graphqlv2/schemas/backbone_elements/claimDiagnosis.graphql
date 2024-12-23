@@ -12,7 +12,7 @@ type ClaimDiagnosisDiagnosisReferenceReference {
     extension: [Extension]
     reference: String
     resource: Condition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

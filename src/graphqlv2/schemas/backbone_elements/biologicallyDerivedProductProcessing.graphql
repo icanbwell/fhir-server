@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 
 """
@@ -13,7 +13,7 @@ type BiologicallyDerivedProductProcessingAdditiveReference {
     extension: [Extension]
     reference: String
     resource: Substance
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -69,7 +69,7 @@ type BiologicallyDerivedProductProcessing {
     """
     None
     """
-    timeDateTime: dateTime
+    timeDateTime: DateTime
     """
     None
     """

@@ -13,7 +13,7 @@ type ClaimPayeePartyReference {
     extension: [Extension]
     reference: String
     resource: ClaimPayeeParty
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -4,10 +4,8 @@
 # import Range from "../complex_types/range.graphql"
 # import Period from "../complex_types/period.graphql"
 # import positiveInt from "../simple_types/int.graphql"
-# import decimal from "../simple_types/decimal.graphql"
-# import code from "../simple_types/code.graphql"
-# import time from "../simple_types/time.graphql"
-# import unsignedInt from "../simple_types/unsignedInt.graphql"
+# import Code from "../simple_types/code.graphql"
+# import Time from "../simple_types/time.graphql"
 
 
 """
@@ -76,16 +74,16 @@ type TimingRepeat {
     How long this thing happens for when it happens. If durationMax is present,
     this element indicates the lower bound of the allowed range of the duration.
     """
-    duration: decimal
+    duration: Float
     """
     If present, indicates that the duration is a range - so to perform the action
     between [duration] and [durationMax] time length.
     """
-    durationMax: decimal
+    durationMax: Float
     """
     The units of time for the duration, in UCUM units.
     """
-    durationUnit: code
+    durationUnit: Code
     """
     The number of times to repeat the action within the specified period. If
     frequencyMax is present, this element indicates the lower bound of the allowed
@@ -103,34 +101,34 @@ type TimingRepeat {
     period. If periodMax is present, this element indicates the lower bound of the
     allowed range of the period length.
     """
-    period: decimal
+    period: Float
     """
     If present, indicates that the period is a range from [period] to [periodMax],
     allowing expressing concepts such as "do this once every 3-5 days.
     """
-    periodMax: decimal
+    periodMax: Float
     """
     The units of time for the period in UCUM units.
     """
-    periodUnit: code
+    periodUnit: Code
     """
     If one or more days of week is provided, then the action happens only on the
     specified day(s).
     """
-    dayOfWeek: [code]
+    dayOfWeek: [Code]
     """
     Specified time of day for action to take place.
     """
-    timeOfDay: [time]
+    timeOfDay: [Time]
     """
     An approximate time period during the day, potentially linked to an event of
     daily living that indicates when the action should occur.
     """
-    when: [code]
+    when: [Code]
     """
     The number of minutes from the event. If the event code does not indicate
     whether the minutes is before or after the event, then the offset is assumed
     to be after the event.
     """
-    offset: unsignedInt
+    offset: Int
 }

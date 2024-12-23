@@ -13,7 +13,7 @@ type ImmunizationPerformerActorReference {
     extension: [Extension]
     reference: String
     resource: ImmunizationPerformerActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

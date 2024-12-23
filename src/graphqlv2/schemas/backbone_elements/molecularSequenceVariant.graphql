@@ -11,7 +11,7 @@ type MolecularSequenceVariantVariantPointerReference {
     extension: [Extension]
     reference: String
     resource: Observation
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

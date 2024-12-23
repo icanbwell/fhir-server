@@ -2,11 +2,11 @@
 # import Extension from "../extensions/extension.graphql"
 # import Group from "../resources/group.graphql"
 # import EvidenceVariable from "../resources/evidenceVariable.graphql"
-# import canonical from "../simple_types/canonical.graphql"
+# import Canonical from "../simple_types/canonical.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Expression from "../complex_types/expression.graphql"
 # import EvidenceVariableTimeFromStart from "../backbone_elements/evidenceVariableTimeFromStart.graphql"
-# import code from "../simple_types/code.graphql"
+# import Code from "../simple_types/code.graphql"
 
 union EvidenceVariableCharacteristicDefinitionReference = Group | EvidenceVariable
 
@@ -18,7 +18,7 @@ type EvidenceVariableCharacteristicDefinitionReferenceReference {
     extension: [Extension]
     reference: String
     resource: EvidenceVariableCharacteristicDefinitionReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -33,7 +33,7 @@ type EvidenceVariableCharacteristicDeviceReference {
     extension: [Extension]
     reference: String
     resource: EvidenceVariableCharacteristicDevice
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -85,7 +85,7 @@ type EvidenceVariableCharacteristic {
     """
     None
     """
-    definitionCanonical: canonical
+    definitionCanonical: Canonical
     """
     None
     """
@@ -114,5 +114,5 @@ type EvidenceVariableCharacteristic {
     """
     Indicates how elements are aggregated within the study effective period.
     """
-    groupMeasure: code
+    groupMeasure: Code
 }

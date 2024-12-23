@@ -13,7 +13,7 @@ type ChargeItemPerformerActorReference {
     extension: [Extension]
     reference: String
     resource: ChargeItemPerformerActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -16,7 +16,7 @@ type UsageContextValueReferenceReference {
     extension: [Extension]
     reference: String
     resource: UsageContextValueReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -11,7 +11,7 @@ type ProcedureFocalDeviceManipulatedReference {
     extension: [Extension]
     reference: String
     resource: Device
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

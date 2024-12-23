@@ -12,7 +12,7 @@ type MeasureReportPopulation1SubjectResultsReference {
     extension: [Extension]
     reference: String
     resource: List
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

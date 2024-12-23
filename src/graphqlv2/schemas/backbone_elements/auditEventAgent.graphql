@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import uri from "../simple_types/uri.graphql"
+# import URI from "../simple_types/uri.graphql"
 # import Coding from "../complex_types/coding.graphql"
 # import AuditEventNetwork from "../backbone_elements/auditEventNetwork.graphql"
 
@@ -16,7 +16,7 @@ type AuditEventAgentWhoReference {
     extension: [Extension]
     reference: String
     resource: AuditEventAgentWho
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -29,7 +29,7 @@ type AuditEventAgentLocationReference {
     extension: [Extension]
     reference: String
     resource: Location
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -110,7 +110,7 @@ type AuditEventAgent {
     consent, guarantor funding, etc. The policy would also indicate the security
     token used.
     """
-    policy: [uri]
+    policy: [URI]
     """
     Type of media involved. Used when the event is about exporting/importing onto
     media.

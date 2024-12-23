@@ -13,7 +13,7 @@ type ConsentActorReferenceReference {
     extension: [Extension]
     reference: String
     resource: ConsentActorReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

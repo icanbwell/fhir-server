@@ -17,7 +17,7 @@ type ClinicalUseDefinitionOtherTherapyTherapyReference {
     extension: [Extension]
     reference: String
     resource: ClinicalUseDefinitionOtherTherapyTherapy
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

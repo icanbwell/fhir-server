@@ -13,7 +13,7 @@ type SubstanceDefinitionRelationshipSubstanceDefinitionReferenceReference {
     extension: [Extension]
     reference: String
     resource: SubstanceDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -26,7 +26,7 @@ type SubstanceDefinitionRelationshipSourceReference {
     extension: [Extension]
     reference: String
     resource: DocumentReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

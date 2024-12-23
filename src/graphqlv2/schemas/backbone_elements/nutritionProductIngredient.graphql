@@ -11,7 +11,7 @@ type NutritionProductIngredientItemReference {
     extension: [Extension]
     reference: String
     resource: NutritionProduct
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

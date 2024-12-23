@@ -154,7 +154,7 @@ type ContractContextReferenceReference {
     extension: [Extension]
     reference: String
     resource: ContractContextReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

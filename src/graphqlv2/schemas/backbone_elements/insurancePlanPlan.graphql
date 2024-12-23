@@ -14,7 +14,7 @@ type InsurancePlanPlanCoverageAreaReference {
     extension: [Extension]
     reference: String
     resource: Location
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -27,7 +27,7 @@ type InsurancePlanPlanNetworkReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

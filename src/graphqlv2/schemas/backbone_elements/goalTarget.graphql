@@ -5,7 +5,7 @@
 # import Range from "../complex_types/range.graphql"
 # import integer from "../simple_types/int.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 
 
@@ -80,7 +80,7 @@ type GoalTarget {
     """
     None
     """
-    dueDate: date
+    dueDate: Date
     """
     None
     """
