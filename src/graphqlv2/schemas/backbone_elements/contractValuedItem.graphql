@@ -3,11 +3,9 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Resource from "../resources/resource.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Money from "../complex_types/money.graphql"
-# import decimal from "../simple_types/decimal.graphql"
-# import unsignedInt from "../simple_types/unsignedInt.graphql"
 
 union ContractValuedItemEntityReference =Account | ActivityDefinition | AdministrableProductDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Citation | Claim | ClaimResponse | ClinicalImpression | ClinicalUseDefinition | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceReport | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | Ingredient | InsurancePlan | Invoice | Library | Linkage | List | Location | ManufacturedItemDefinition | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProductDefinition | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | NutritionProduct | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | PackagedProductDefinition | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RegulatedAuthorization | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceDefinition | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
 
@@ -19,7 +17,7 @@ type ContractValuedItemEntityReferenceReference {
     extension: [Extension]
     reference: String
     resource: ContractValuedItemEntityReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -34,7 +32,7 @@ type ContractValuedItemResponsibleReference {
     extension: [Extension]
     reference: String
     resource: ContractValuedItemResponsible
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -49,7 +47,7 @@ type ContractValuedItemRecipientReference {
     extension: [Extension]
     reference: String
     resource: ContractValuedItemRecipient
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -105,7 +103,7 @@ type ContractValuedItem {
     Indicates the time during which this Contract ValuedItem information is
     effective.
     """
-    effectiveTime: dateTime
+    effectiveTime: DateTime
     """
     Specifies the units by which the Contract Valued Item is measured or counted,
     and quantifies the countable or measurable Contract Valued Item instances.
@@ -120,14 +118,14 @@ type ContractValuedItem {
     value of the Contract Valued Item delivered. The concept of a Factor allows
     for a discount or surcharge multiplier to be applied to a monetary amount.
     """
-    factor: decimal
+    factor: Float
     """
     An amount that expresses the weighting (based on difficulty, cost and/or
     resource intensiveness) associated with the Contract Valued Item delivered.
     The concept of Points allows for assignment of point values for a Contract
     Valued Item, such that a monetary amount can be assigned to each point.
     """
-    points: decimal
+    points: Float
     """
     Expresses the product of the Contract Valued Item unitQuantity and the
     unitPriceAmt. For example, the formula: unit Quantity * unit Price (Cost per
@@ -142,7 +140,7 @@ type ContractValuedItem {
     """
     When payment is due.
     """
-    paymentDate: dateTime
+    paymentDate: DateTime
     """
     Who will make payment.
     """
@@ -160,5 +158,5 @@ type ContractValuedItem {
     A set of security labels that define which terms are controlled by this
     condition.
     """
-    securityLabelNumber: [unsignedInt]
+    securityLabelNumber: [Int]
 }

@@ -154,7 +154,7 @@ type ConditionEvidenceDetailReference {
     extension: [Extension]
     reference: String
     resource: ConditionEvidenceDetail
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

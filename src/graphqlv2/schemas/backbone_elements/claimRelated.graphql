@@ -12,7 +12,7 @@ type ClaimRelatedClaimReference {
     extension: [Extension]
     reference: String
     resource: Claim
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

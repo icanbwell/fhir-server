@@ -13,7 +13,7 @@ type ImagingStudyPerformerActorReference {
     extension: [Extension]
     reference: String
     resource: ImagingStudyPerformerActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

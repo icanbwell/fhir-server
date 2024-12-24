@@ -17,7 +17,7 @@ type PackagedProductDefinitionContainedItemItemReference {
     extension: [Extension]
     reference: String
     resource: PackagedProductDefinitionContainedItemItem
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

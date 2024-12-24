@@ -13,7 +13,7 @@ type CodeableReferenceReferenceReference {
     extension: [Extension]
     reference: String
     resource: CodeableReferenceReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

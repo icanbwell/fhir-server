@@ -2,9 +2,9 @@
 # import Extension from "../extensions/extension.graphql"
 # import CitationPublishedIn from "../backbone_elements/citationPublishedIn.graphql"
 # import CitationPeriodicRelease from "../backbone_elements/citationPeriodicRelease.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import markdown from "../simple_types/markdown.graphql"
+# import Markdown from "../simple_types/markdown.graphql"
 
 
 """
@@ -56,11 +56,11 @@ type CitationPublicationForm {
     The date the article was added to the database, or the date the article was
     released (which may differ from the journal issue publication date).
     """
-    articleDate: dateTime
+    articleDate: DateTime
     """
     The date the article was last revised or updated in the database.
     """
-    lastRevisionDate: dateTime
+    lastRevisionDate: DateTime
     """
     Language in which this form of the article is published.
     """
@@ -88,5 +88,5 @@ type CitationPublicationForm {
     """
     Copyright notice for the full article or artifact.
     """
-    copyright: markdown
+    copyright: Markdown
 }

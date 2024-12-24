@@ -2,40 +2,40 @@ input SearchNumberValue {
     """
     the value for the parameter in the resource is equal to the provided value
     """
-    equals: number
+    equals: Decimal
     """
     the value for the parameter in the resource is not equal to the provided value
     """
-    notEquals: number
+    notEquals: Decimal
     """
     the value for the parameter in the resource is greater than the provided value
     """
-    greaterThan: number
+    greaterThan: Decimal
     """
     the value for the parameter in the resource is greater or equal to the provided value
     """
-    greaterThanOrEqualTo: number
+    greaterThanOrEqualTo: Decimal
     """
     the value for the parameter in the resource is less than the provided value
     """
-    lessThan: number
+    lessThan: Decimal
     """
     the value for the parameter in the resource is less or equal to the provided value
     """
-    lessThanOrEqualTo: number
+    lessThanOrEqualTo: Decimal
     """
     the value for the parameter in the resource starts after the provided value
     """
-    startsAfter: number
+    startsAfter: Decimal
     """
     the value for the parameter in the resource ends before the provided value
     """
-    endsBefore: number
+    endsBefore: Decimal
     """
     the value for the parameter in the resource is approximately the same to the provided value.
     Note that the recommended value for the approximation is 10% of the stated value (or for a date, 10% of the gap between now and the date), but systems may choose other values where appropriate
     """
-    approximately: number
+    approximately: Decimal
 }
 input SearchNumber {
     searchType: String = "number"

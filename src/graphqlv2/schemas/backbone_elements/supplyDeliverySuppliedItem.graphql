@@ -16,7 +16,7 @@ type SupplyDeliverySuppliedItemItemReferenceReference {
     extension: [Extension]
     reference: String
     resource: SupplyDeliverySuppliedItemItemReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

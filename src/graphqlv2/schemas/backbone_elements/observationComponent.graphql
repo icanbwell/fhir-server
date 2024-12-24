@@ -6,8 +6,8 @@
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 # import SampledData from "../complex_types/sampledData.graphql"
-# import time from "../simple_types/time.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import Time from "../simple_types/time.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 # import ObservationReferenceRange from "../backbone_elements/observationReferenceRange.graphql"
 
@@ -85,11 +85,11 @@ type ObservationComponent {
     """
     None
     """
-    valueTime: time
+    valueTime: Time
     """
     None
     """
-    valueDateTime: dateTime
+    valueDateTime: DateTime
     """
     None
     """

@@ -13,7 +13,7 @@ type ClinicalImpressionFindingItemReferenceReference {
     extension: [Extension]
     reference: String
     resource: ClinicalImpressionFindingItemReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

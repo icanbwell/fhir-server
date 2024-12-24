@@ -17,7 +17,7 @@ type CoverageEligibilityRequestItemProviderReference {
     extension: [Extension]
     reference: String
     resource: CoverageEligibilityRequestItemProvider
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -32,7 +32,7 @@ type CoverageEligibilityRequestItemFacilityReference {
     extension: [Extension]
     reference: String
     resource: CoverageEligibilityRequestItemFacility
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -47,7 +47,7 @@ type CoverageEligibilityRequestItemDetailReference {
     extension: [Extension]
     reference: String
     resource: CoverageEligibilityRequestItemDetail
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -16,7 +16,7 @@ type GroupCharacteristicValueReferenceReference {
     extension: [Extension]
     reference: String
     resource: GroupCharacteristicValueReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

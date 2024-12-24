@@ -154,7 +154,7 @@ type DetectedIssueEvidenceDetailReference {
     extension: [Extension]
     reference: String
     resource: DetectedIssueEvidenceDetail
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

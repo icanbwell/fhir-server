@@ -14,7 +14,7 @@ type ClaimCareTeamProviderReference {
     extension: [Extension]
     reference: String
     resource: ClaimCareTeamProvider
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

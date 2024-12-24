@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 
 
@@ -54,7 +54,7 @@ type PackagedProductDefinitionProperty {
     """
     None
     """
-    valueDate: date
+    valueDate: Date
     """
     None
     """

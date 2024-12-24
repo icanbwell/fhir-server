@@ -13,7 +13,7 @@ type ProvenanceAgentWhoReference {
     extension: [Extension]
     reference: String
     resource: ProvenanceAgentWho
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -28,7 +28,7 @@ type ProvenanceAgentOnBehalfOfReference {
     extension: [Extension]
     reference: String
     resource: ProvenanceAgentOnBehalfOf
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

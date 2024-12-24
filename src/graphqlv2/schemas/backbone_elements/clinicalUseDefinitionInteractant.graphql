@@ -16,7 +16,7 @@ type ClinicalUseDefinitionInteractantItemReferenceReference {
     extension: [Extension]
     reference: String
     resource: ClinicalUseDefinitionInteractantItemReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

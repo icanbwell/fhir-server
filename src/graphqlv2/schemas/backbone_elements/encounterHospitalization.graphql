@@ -14,7 +14,7 @@ type EncounterHospitalizationOriginReference {
     extension: [Extension]
     reference: String
     resource: EncounterHospitalizationOrigin
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -29,7 +29,7 @@ type EncounterHospitalizationDestinationReference {
     extension: [Extension]
     reference: String
     resource: EncounterHospitalizationDestination
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -11,7 +11,7 @@ type MedicationKnowledgeRelatedMedicationKnowledgeReferenceReference {
     extension: [Extension]
     reference: String
     resource: MedicationKnowledge
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

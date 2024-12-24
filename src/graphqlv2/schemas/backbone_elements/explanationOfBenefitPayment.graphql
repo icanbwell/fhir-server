@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Money from "../complex_types/money.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 
 
@@ -57,7 +57,7 @@ type ExplanationOfBenefitPayment {
     """
     Estimated date the payment will be issued or the actual issue date of payment.
     """
-    date: date
+    date: Date
     """
     Benefits payable less any payment adjustment.
     """

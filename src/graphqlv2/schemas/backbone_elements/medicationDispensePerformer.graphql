@@ -13,7 +13,7 @@ type MedicationDispensePerformerActorReference {
     extension: [Extension]
     reference: String
     resource: MedicationDispensePerformerActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

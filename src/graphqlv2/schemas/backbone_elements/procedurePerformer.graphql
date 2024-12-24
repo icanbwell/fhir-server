@@ -13,7 +13,7 @@ type ProcedurePerformerActorReference {
     extension: [Extension]
     reference: String
     resource: ProcedurePerformerActor
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -26,7 +26,7 @@ type ProcedurePerformerOnBehalfOfReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

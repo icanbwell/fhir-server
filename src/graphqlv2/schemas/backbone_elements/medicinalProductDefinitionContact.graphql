@@ -13,7 +13,7 @@ type MedicinalProductDefinitionContactContactReference {
     extension: [Extension]
     reference: String
     resource: MedicinalProductDefinitionContactContact
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

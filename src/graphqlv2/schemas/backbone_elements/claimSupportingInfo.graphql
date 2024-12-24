@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
@@ -18,7 +18,7 @@ type ClaimSupportingInfoValueReferenceReference {
     extension: [Extension]
     reference: String
     resource: ClaimSupportingInfoValueReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -77,7 +77,7 @@ type ClaimSupportingInfo {
     """
     None
     """
-    timingDate: date
+    timingDate: Date
     """
     None
     """

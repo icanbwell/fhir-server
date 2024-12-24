@@ -154,7 +154,7 @@ type DocumentManifestRelatedRefReference {
     extension: [Extension]
     reference: String
     resource: DocumentManifestRelatedRef
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

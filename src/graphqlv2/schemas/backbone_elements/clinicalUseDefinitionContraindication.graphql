@@ -12,7 +12,7 @@ type ClinicalUseDefinitionContraindicationDiseaseSymptomProcedureReference {
     extension: [Extension]
     reference: String
     resource: ObservationDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -25,7 +25,7 @@ type ClinicalUseDefinitionContraindicationDiseaseStatusReference {
     extension: [Extension]
     reference: String
     resource: ObservationDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -38,7 +38,7 @@ type ClinicalUseDefinitionContraindicationComorbidityReference {
     extension: [Extension]
     reference: String
     resource: ObservationDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -51,7 +51,7 @@ type ClinicalUseDefinitionContraindicationIndicationReference {
     extension: [Extension]
     reference: String
     resource: ClinicalUseDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

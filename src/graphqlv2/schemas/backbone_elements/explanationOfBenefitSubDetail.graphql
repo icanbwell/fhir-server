@@ -4,7 +4,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Money from "../complex_types/money.graphql"
-# import decimal from "../simple_types/decimal.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import ExplanationOfBenefitAdjudication from "../backbone_elements/explanationOfBenefitAdjudication.graphql"
 
@@ -16,7 +15,7 @@ type ExplanationOfBenefitSubDetailUdiReference {
     extension: [Extension]
     reference: String
     resource: Device
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -101,7 +100,7 @@ type ExplanationOfBenefitSubDetail {
     allows for a discount or surcharge multiplier to be applied to a monetary
     amount.
     """
-    factor: decimal
+    factor: Float
     """
     The quantity times the unit price for an additional service or product or
     charge.

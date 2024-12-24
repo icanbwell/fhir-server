@@ -11,7 +11,7 @@ type VerificationResultValidatorOrganizationReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

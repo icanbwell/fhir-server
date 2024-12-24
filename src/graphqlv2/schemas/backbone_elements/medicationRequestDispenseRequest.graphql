@@ -3,7 +3,6 @@
 # import MedicationRequestInitialFill from "../backbone_elements/medicationRequestInitialFill.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Period from "../complex_types/period.graphql"
-# import unsignedInt from "../simple_types/unsignedInt.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Reference from "../complex_types/reference.graphql"
 
@@ -15,7 +14,7 @@ type MedicationRequestDispenseRequestPerformerReference {
     extension: [Extension]
     reference: String
     resource: Organization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -81,7 +80,7 @@ type MedicationRequestDispenseRequest {
     can receive a total of 120 tablets.  A prescriber may explicitly say that zero
     refills are permitted after the initial dispense.
     """
-    numberOfRepeatsAllowed: unsignedInt
+    numberOfRepeatsAllowed: Int
     """
     The amount that is to be dispensed for one fill.
     """

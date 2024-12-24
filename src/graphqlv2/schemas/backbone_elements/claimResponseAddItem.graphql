@@ -3,12 +3,11 @@
 # import positiveInt from "../simple_types/int.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Address from "../complex_types/address.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Money from "../complex_types/money.graphql"
-# import decimal from "../simple_types/decimal.graphql"
 # import ClaimResponseAdjudication from "../backbone_elements/claimResponseAdjudication.graphql"
 # import ClaimResponseDetail1 from "../backbone_elements/claimResponseDetail1.graphql"
 
@@ -22,7 +21,7 @@ type ClaimResponseAddItemProviderReference {
     extension: [Extension]
     reference: String
     resource: ClaimResponseAddItemProvider
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -35,7 +34,7 @@ type ClaimResponseAddItemLocationReferenceReference {
     extension: [Extension]
     reference: String
     resource: Location
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -111,7 +110,7 @@ type ClaimResponseAddItem {
     """
     None
     """
-    servicedDate: date
+    servicedDate: Date
     """
     None
     """
@@ -143,7 +142,7 @@ type ClaimResponseAddItem {
     allows for a discount or surcharge multiplier to be applied to a monetary
     amount.
     """
-    factor: decimal
+    factor: Float
     """
     The quantity times the unit price for an additional service or product or
     charge.

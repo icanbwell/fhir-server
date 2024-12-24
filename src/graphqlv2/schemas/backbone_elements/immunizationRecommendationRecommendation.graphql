@@ -15,7 +15,7 @@ type ImmunizationRecommendationRecommendationSupportingImmunizationReference {
     extension: [Extension]
     reference: String
     resource: ImmunizationRecommendationRecommendationSupportingImmunization
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -30,7 +30,7 @@ type ImmunizationRecommendationRecommendationSupportingPatientInformationReferen
     extension: [Extension]
     reference: String
     resource: ImmunizationRecommendationRecommendationSupportingPatientInformation
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

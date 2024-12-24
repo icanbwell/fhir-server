@@ -12,7 +12,7 @@ type ClinicalUseDefinitionInteractionEffectReference {
     extension: [Extension]
     reference: String
     resource: ObservationDefinition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -10,7 +10,7 @@ type CitationVersionBaseCitationReference {
     extension: [Extension]
     reference: String
     resource: Citation
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

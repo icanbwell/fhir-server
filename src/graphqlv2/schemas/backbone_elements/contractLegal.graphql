@@ -15,7 +15,7 @@ type ContractLegalContentReferenceReference {
     extension: [Extension]
     reference: String
     resource: ContractLegalContentReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -10,7 +10,7 @@ type CoverageEligibilityRequestInsuranceCoverageReference {
     extension: [Extension]
     reference: String
     resource: Coverage
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

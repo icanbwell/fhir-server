@@ -154,7 +154,7 @@ type CoverageEligibilityRequestSupportingInfoInformationReference {
     extension: [Extension]
     reference: String
     resource: CoverageEligibilityRequestSupportingInfoInformation
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

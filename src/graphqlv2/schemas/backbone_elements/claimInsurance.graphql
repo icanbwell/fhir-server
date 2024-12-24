@@ -12,7 +12,7 @@ type ClaimInsuranceCoverageReference {
     extension: [Extension]
     reference: String
     resource: Coverage
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -25,7 +25,7 @@ type ClaimInsuranceClaimResponseReference {
     extension: [Extension]
     reference: String
     resource: ClaimResponse
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

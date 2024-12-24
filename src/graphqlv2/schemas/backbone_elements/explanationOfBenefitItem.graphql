@@ -2,13 +2,12 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Address from "../complex_types/address.graphql"
 # import Location from "../resources/location.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Money from "../complex_types/money.graphql"
-# import decimal from "../simple_types/decimal.graphql"
 # import ExplanationOfBenefitAdjudication from "../backbone_elements/explanationOfBenefitAdjudication.graphql"
 # import ExplanationOfBenefitDetail from "../backbone_elements/explanationOfBenefitDetail.graphql"
 
@@ -20,7 +19,7 @@ type ExplanationOfBenefitItemLocationReferenceReference {
     extension: [Extension]
     reference: String
     resource: Location
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -33,7 +32,7 @@ type ExplanationOfBenefitItemUdiReference {
     extension: [Extension]
     reference: String
     resource: Device
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -46,7 +45,7 @@ type ExplanationOfBenefitItemEncounterReference {
     extension: [Extension]
     reference: String
     resource: Encounter
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -135,7 +134,7 @@ type ExplanationOfBenefitItem {
     """
     None
     """
-    servicedDate: date
+    servicedDate: Date
     """
     None
     """
@@ -167,7 +166,7 @@ type ExplanationOfBenefitItem {
     allows for a discount or surcharge multiplier to be applied to a monetary
     amount.
     """
-    factor: decimal
+    factor: Float
     """
     The quantity times the unit price for an additional service or product or
     charge.

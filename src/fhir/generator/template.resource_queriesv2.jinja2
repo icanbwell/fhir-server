@@ -73,8 +73,6 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type in [ 'date'] %}
         {{ search_parameter_name.replace("-", "_") }}: SearchDate
-        {% elif search_parameter.type in ['dateTime', 'period', 'instant'] %}
-        {{ search_parameter_name.replace("-", "_") }}: SearchDateTime
         {% elif search_parameter.type == "token" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchToken
         {% elif search_parameter.type == "uri" %}

@@ -14,7 +14,7 @@ type EncounterDiagnosisConditionReference {
     extension: [Extension]
     reference: String
     resource: EncounterDiagnosisCondition
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

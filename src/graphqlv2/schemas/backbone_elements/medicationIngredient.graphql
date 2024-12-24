@@ -15,7 +15,7 @@ type MedicationIngredientItemReferenceReference {
     extension: [Extension]
     reference: String
     resource: MedicationIngredientItemReference
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }

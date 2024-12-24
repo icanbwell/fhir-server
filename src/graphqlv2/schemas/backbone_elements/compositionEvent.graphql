@@ -155,7 +155,7 @@ type CompositionEventDetailReference {
     extension: [Extension]
     reference: String
     resource: CompositionEventDetail
-    type: uri
+    type: URI
     identifier: Identifier
     display: String
 }
