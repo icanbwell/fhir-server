@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ContractOfferTopic: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ContractOfferTopicReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

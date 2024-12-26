@@ -49,7 +49,7 @@ ClinicalUseDefinition
     undesirable effect for a medicinal product, medication, device or procedure.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ClinicalUseDefinition {
+type ClinicalUseDefinition implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

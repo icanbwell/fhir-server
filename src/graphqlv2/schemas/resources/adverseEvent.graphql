@@ -145,7 +145,7 @@ AdverseEvent
     hospitalization, or that results in death.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type AdverseEvent {
+type AdverseEvent implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

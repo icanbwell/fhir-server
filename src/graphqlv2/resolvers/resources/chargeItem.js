@@ -39,11 +39,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ChargeItemSupportingInformation: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ChargeItemPartOfReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

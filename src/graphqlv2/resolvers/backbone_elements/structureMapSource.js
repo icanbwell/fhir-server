@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    StructureMapSourceDefaultValueReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     StructureMapSourceDefaultValueReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

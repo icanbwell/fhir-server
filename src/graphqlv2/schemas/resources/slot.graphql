@@ -29,7 +29,7 @@ Slot
     A slot of time on a schedule that may be available for booking appointments.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Slot {
+type Slot implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

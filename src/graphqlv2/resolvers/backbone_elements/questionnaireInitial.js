@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    QuestionnaireInitialValueReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     QuestionnaireInitialValueReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

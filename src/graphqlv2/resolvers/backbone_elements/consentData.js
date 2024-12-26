@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ConsentDataReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ConsentDataReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

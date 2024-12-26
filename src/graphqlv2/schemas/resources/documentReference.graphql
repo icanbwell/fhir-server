@@ -81,7 +81,7 @@ DocumentReference
     specific documents like policy text.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type DocumentReference {
+type DocumentReference implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    TestScriptFixtureResource: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     TestScriptFixtureResourceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    ProvenanceTarget: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ProvenanceTargetReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

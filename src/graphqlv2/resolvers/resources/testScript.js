@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    TestScriptProfile: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     TestScriptProfileReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

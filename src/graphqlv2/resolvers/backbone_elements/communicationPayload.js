@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CommunicationPayloadContentReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CommunicationPayloadContentReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

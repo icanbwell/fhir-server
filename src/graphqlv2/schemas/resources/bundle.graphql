@@ -14,7 +14,7 @@ Bundle
     A container for a collection of resources.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Bundle {
+type Bundle implements Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

@@ -62,6 +62,11 @@ def main() -> int:
         shutil.rmtree(resources_folder)
     os.mkdir(resources_folder)
 
+    interfaces_folder = graphql_schema_dir.joinpath("interfaces")
+    if os.path.exists(interfaces_folder):
+        shutil.rmtree(interfaces_folder)
+    os.mkdir(interfaces_folder)
+
     queries_folder = graphql_schema_dir.joinpath("queries")
     if os.path.exists(queries_folder):
         shutil.rmtree(queries_folder)
@@ -71,6 +76,11 @@ def main() -> int:
     if os.path.exists(resource_resolvers_folder):
         shutil.rmtree(resource_resolvers_folder)
     os.mkdir(resource_resolvers_folder)
+
+    interface_resolvers_folder = graphql_resolvers_dir.joinpath("interfaces")
+    if os.path.exists(interface_resolvers_folder):
+        shutil.rmtree(interface_resolvers_folder)
+    os.mkdir(interface_resolvers_folder)
 
     complex_types_folder = graphql_schema_dir.joinpath("complex_types")
     if os.path.exists(complex_types_folder):
@@ -108,8 +118,6 @@ def main() -> int:
     os.mkdir(value_sets_folder)
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
-    resource_list = FhirXmlSchemaParser.get_list_of_resources()
-    total_resources_count = len(resource_list)
 
     # generate schema.graphql
     with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
@@ -135,6 +143,41 @@ def main() -> int:
         if fhir_entity.is_value_set:  # valueset
             pass
 
+        elif fhir_entity.is_resource and fhir_entity.fhir_name in ["Resource", "DomainResource"]:
+            # write interface schema
+            with open(data_dir.joinpath("graphqlv2/schema/template.interface.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
+
+                file_path = interfaces_folder.joinpath(f"{entity_file_name}.graphql")
+                print(f"Writing interface: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
+
+            # write interface resolvers
+            with open(data_dir.joinpath("graphqlv2/resolvers/template.interface.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
+
+                file_path = interface_resolvers_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing interface resolver: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
+
         elif fhir_entity.is_resource:
             search_parameters_for_all_resources: Dict[str, Dict[str, Any]] = (
                 search_parameter_queries.get("Resource", {}) if fhir_entity.fhir_name != "Resource" else {}
@@ -153,11 +196,9 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -176,7 +217,6 @@ def main() -> int:
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -193,7 +233,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -213,9 +252,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -233,7 +270,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -250,9 +286,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             with open(file_path, "w") as file2:
@@ -269,7 +303,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -286,9 +319,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -306,7 +337,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -323,9 +353,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):

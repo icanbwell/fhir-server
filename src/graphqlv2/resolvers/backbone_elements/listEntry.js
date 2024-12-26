@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ListEntryItem: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ListEntryItemReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -16,7 +16,7 @@ Substance
     A homogeneous material with a definite composition.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Substance {
+type Substance implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

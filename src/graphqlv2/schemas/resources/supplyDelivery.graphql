@@ -103,7 +103,7 @@ SupplyDelivery
     Record of delivery of what is supplied.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type SupplyDelivery {
+type SupplyDelivery implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

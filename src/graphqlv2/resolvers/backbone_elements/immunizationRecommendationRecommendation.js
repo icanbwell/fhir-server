@@ -8,11 +8,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    ImmunizationRecommendationRecommendationSupportingPatientInformation: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ImmunizationRecommendationRecommendationSupportingImmunizationReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

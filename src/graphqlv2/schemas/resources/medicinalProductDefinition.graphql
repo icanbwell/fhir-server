@@ -82,7 +82,7 @@ MedicinalProductDefinition
     use, or drug catalogs).
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type MedicinalProductDefinition {
+type MedicinalProductDefinition implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

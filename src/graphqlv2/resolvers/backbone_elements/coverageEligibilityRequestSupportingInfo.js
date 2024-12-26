@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CoverageEligibilityRequestSupportingInfoInformation: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CoverageEligibilityRequestSupportingInfoInformationReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

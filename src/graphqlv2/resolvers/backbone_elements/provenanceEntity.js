@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ProvenanceEntityWhat: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ProvenanceEntityWhatReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

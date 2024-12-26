@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CompositionEventDetail: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CompositionEventDetailReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

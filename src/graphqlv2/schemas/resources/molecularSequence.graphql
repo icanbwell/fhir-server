@@ -86,7 +86,7 @@ MolecularSequence
     Raw data describing a biological sequence.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type MolecularSequence {
+type MolecularSequence implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

@@ -2,11 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CodeableReferenceReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CodeableReferenceReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -17,7 +17,7 @@ CompartmentDefinition
     A compartment definition that defines how resources are accessed on a server.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type CompartmentDefinition {
+type CompartmentDefinition implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

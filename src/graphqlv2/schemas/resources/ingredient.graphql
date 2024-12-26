@@ -32,7 +32,7 @@ Ingredient
     An ingredient of a manufactured item or pharmaceutical product.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Ingredient {
+type Ingredient implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

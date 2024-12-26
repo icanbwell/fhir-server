@@ -47,7 +47,7 @@ PackagedProductDefinition
     A medically related item or items, in a container or package.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type PackagedProductDefinition {
+type PackagedProductDefinition implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

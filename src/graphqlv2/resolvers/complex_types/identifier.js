@@ -2,11 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    IdentifierAssigner: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     IdentifierAssignerReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -172,7 +172,7 @@ ExplanationOfBenefit
     informing the subscriber of the benefits provided.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ExplanationOfBenefit {
+type ExplanationOfBenefit implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

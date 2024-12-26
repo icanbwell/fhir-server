@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    DocumentManifestRelatedRef: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     DocumentManifestRelatedRefReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {
