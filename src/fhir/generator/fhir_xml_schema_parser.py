@@ -65,6 +65,7 @@ class FhirProperty:
     type_: str
     cleaned_type: str
     type_snake_case: str
+    scalar_type: Optional[str] = None
     optional: bool
     is_list: bool
     documentation: List[str]
@@ -74,7 +75,6 @@ class FhirProperty:
     is_back_bone_element: bool
     is_basic_type: bool
     codeable_type: Optional[SmartName]
-    scalar_type: Optional[str] = None
     is_resource: bool = False
     is_extension: bool = False
     is_code: bool = False
