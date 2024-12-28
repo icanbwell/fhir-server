@@ -4,6 +4,7 @@
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
 const { ApolloServer } = require('@apollo/server');
+const { buildSubgraphSchema } = require('@apollo/subgraph');
 const { expressMiddleware } = require('@apollo/server/express4');
 const {
     ApolloServerPluginLandingPageDisabled,
@@ -128,8 +129,9 @@ const graphqlV2 = async (fnGetContainer) => {
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
-            typeDefs: typeDefs,
-            resolvers: resolvers,
+            schema: buildSubgraphSchema({ typeDefs, resolvers }),
+            // typeDefs: typeDefs,
+            // resolvers: resolvers,
             introspection: configManagerInstance.enableGraphQLV2Playground,
             cache: 'bounded',
             plugins,
