@@ -121,6 +121,9 @@ type {{ fhir_entity.cleaned_name }} {
         {% else %}
         {{- property.cleaned_type | replace(".","") -}}
         {% endif %}
+        {% if property.name == "id" %}
+        {{- '!' -}}
+        {% endif %}
         {% if property.is_list -%}
             {{ ']' -}}
         {% endif -%}
