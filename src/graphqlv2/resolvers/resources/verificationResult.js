@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    VerificationResultTarget: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     VerificationResultTargetReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

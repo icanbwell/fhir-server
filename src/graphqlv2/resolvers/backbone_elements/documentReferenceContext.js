@@ -8,11 +8,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DocumentReferenceContextRelated: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     DocumentReferenceContextEncounterReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

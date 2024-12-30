@@ -41,8 +41,6 @@
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
 {% if property.reference_target_resources | length == 1 and property.reference_target_resources_names [0] == "Resource" %}
-union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{- all_resources_string }}
-
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
@@ -50,7 +48,7 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
     id: String
     extension: [Extension]
     reference: String
-    resource: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
+    resource: Resource
     type: URI
     identifier: Identifier
     display: String
@@ -96,7 +94,11 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
     {{ documentation_item | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
 {%  endfor %}
 """
+{% if fhir_entity.base_type_list | length > 0 %}
+type {{ fhir_entity.cleaned_name }} implements {{ fhir_entity.base_type_list | unique | join(" & ") }}{
+{% else %}
 type {{ fhir_entity.cleaned_name }} {
+{% endif %}
     resourceType: String
 {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}

@@ -24,11 +24,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MeasureReportEvaluatedResource: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     MeasureReportSubjectReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

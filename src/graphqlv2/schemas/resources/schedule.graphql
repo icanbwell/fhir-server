@@ -31,7 +31,7 @@ Schedule
     A container for slots of time that may be available for booking appointments.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Schedule {
+type Schedule implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

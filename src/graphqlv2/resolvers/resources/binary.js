@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    BinarySecurityContext: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     BinarySecurityContextReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -39,11 +39,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    MedicationStatementDerivedFrom: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     MedicationStatementReasonReference: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

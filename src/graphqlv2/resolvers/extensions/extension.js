@@ -2,11 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ExtensionValueReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ExtensionValueReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ConditionEvidenceDetail: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     ConditionEvidenceDetailReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

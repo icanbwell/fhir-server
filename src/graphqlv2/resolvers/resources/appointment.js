@@ -19,11 +19,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    AppointmentSupportingInformation: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     AppointmentReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

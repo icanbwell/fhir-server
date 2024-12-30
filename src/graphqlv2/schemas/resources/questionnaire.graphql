@@ -25,7 +25,7 @@ Questionnaire
     phraseology and grouping to allow coherent, consistent data collection.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Questionnaire {
+type Questionnaire implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

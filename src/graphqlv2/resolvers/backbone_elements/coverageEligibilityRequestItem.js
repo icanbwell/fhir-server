@@ -13,11 +13,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    CoverageEligibilityRequestItemDetail: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CoverageEligibilityRequestItemProviderReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

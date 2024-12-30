@@ -14,11 +14,6 @@ module.exports = {
             );
         }
     },
-    BasicSubject: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     BasicAuthor: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

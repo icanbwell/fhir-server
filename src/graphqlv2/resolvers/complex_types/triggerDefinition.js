@@ -2,11 +2,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    TriggerDefinitionTimingReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     TriggerDefinitionTimingReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

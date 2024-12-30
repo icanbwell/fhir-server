@@ -3,16 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    SubscriptionStatusNotificationEventFocus: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    SubscriptionStatusNotificationEventAdditionalContext: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     SubscriptionStatusNotificationEventFocusReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

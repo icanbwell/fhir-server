@@ -14,17 +14,7 @@ module.exports = {
             );
         }
     },
-    CommunicationRequestBasedOn: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CommunicationRequestSubject: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    CommunicationRequestAbout: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }

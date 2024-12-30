@@ -118,7 +118,7 @@ GuidanceResponse
     of any proposed actions to be taken.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type GuidanceResponse {
+type GuidanceResponse implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

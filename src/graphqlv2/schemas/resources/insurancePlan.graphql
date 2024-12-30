@@ -84,7 +84,7 @@ InsurancePlan
     Details of a Health Insurance product/plan provided by an organization.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type InsurancePlan {
+type InsurancePlan implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

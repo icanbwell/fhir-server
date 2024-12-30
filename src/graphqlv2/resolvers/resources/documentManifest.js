@@ -29,11 +29,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    DocumentManifestContent: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     DocumentManifestSubjectReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

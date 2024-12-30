@@ -150,7 +150,7 @@ ImagingStudy
     ultrasound), but a study may have multiple series of different modalities.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ImagingStudy {
+type ImagingStudy implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

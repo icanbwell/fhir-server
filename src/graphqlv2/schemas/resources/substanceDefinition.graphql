@@ -65,7 +65,7 @@ SubstanceDefinition
     used for prescribing.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type SubstanceDefinition {
+type SubstanceDefinition implements DomainResource & Resource{
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once
