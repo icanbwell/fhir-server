@@ -66,7 +66,6 @@ class GraphOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
@@ -77,7 +76,6 @@ class GraphOperation {
         parsedArgs,
         resourceType,
         responseStreamer,
-        supportLegacyId = true,
         includeNonClinicalResources = false,
         nonClinicalResourcesDepth = 1
     }) {
@@ -191,8 +189,7 @@ class GraphOperation {
                         resourceType,
                         graphDefinitionJson: graphDefinitionRaw,
                         responseStreamer,
-                        parsedArgs,
-                        supportLegacyId
+                        parsedArgs
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -203,7 +200,6 @@ class GraphOperation {
                         contained,
                         responseStreamer,
                         parsedArgs,
-                        supportLegacyId,
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth
                     }

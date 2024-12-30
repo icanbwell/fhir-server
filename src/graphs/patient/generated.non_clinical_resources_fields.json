@@ -1,683 +1,683 @@
 {
   "Account": [
-    "subject.reference",
-    "owner.reference",
-    "guarantor.party.reference"
+    "subject",
+    "owner",
+    "guarantor.party"
   ],
   "ActivityDefinition": [
-    "location.reference",
-    "productReference.reference",
-    "specimenRequirement.reference",
-    "observationRequirement.reference",
-    "observationResultRequirement.reference"
+    "location",
+    "productReference",
+    "specimenRequirement",
+    "observationRequirement",
+    "observationResultRequirement"
   ],
   "AdministrableProductDefinition": [
-    "formOf.reference",
-    "producedFrom.reference",
-    "device.reference"
+    "formOf",
+    "producedFrom",
+    "device"
   ],
   "AdverseEvent": [
-    "subject.reference",
-    "location.reference",
-    "recorder.reference",
-    "contributor.reference",
-    "suspectEntity.instance.reference",
-    "suspectEntity.causality.author.reference",
-    "study.reference"
+    "subject",
+    "location",
+    "recorder",
+    "contributor",
+    "suspectEntity.instance",
+    "suspectEntity.causality.author",
+    "study"
   ],
   "AllergyIntolerance": [
-    "recorder.reference",
-    "asserter.reference"
+    "recorder",
+    "asserter"
   ],
   "Appointment": [
-    "supportingInformation.reference",
-    "slot.reference",
-    "participant.actor.reference"
+    "supportingInformation",
+    "slot",
+    "participant.actor"
   ],
   "AppointmentResponse": [
-    "actor.reference"
+    "actor"
   ],
   "AuditEvent": [
-    "agent.who.reference",
-    "agent.location.reference",
-    "source.observer.reference",
-    "entity.what.reference"
+    "agent.who",
+    "agent.location",
+    "source.observer",
+    "entity.what"
   ],
   "Basic": [
-    "subject.reference",
-    "author.reference"
+    "subject",
+    "author"
   ],
   "Binary": [
-    "securityContext.reference"
+    "securityContext"
   ],
   "BiologicallyDerivedProduct": [
-    "parent.reference",
-    "collection.collector.reference",
-    "collection.source.reference",
-    "processing.additive.reference"
+    "parent",
+    "collection.collector",
+    "collection.source",
+    "processing.additive"
   ],
   "CapabilityStatement": [
-    "implementation.custodian.reference"
+    "implementation.custodian"
   ],
   "CarePlan": [
-    "author.reference",
-    "contributor.reference",
-    "supportingInfo.reference",
-    "activity.outcomeReference.reference",
-    "activity.detail.location.reference",
-    "activity.detail.performer.reference",
-    "activity.detail.productReference.reference"
+    "author",
+    "contributor",
+    "supportingInfo",
+    "activity.outcomeReference",
+    "activity.detail.location",
+    "activity.detail.performer",
+    "activity.detail.productReference"
   ],
   "CareTeam": [
-    "participant.member.reference",
-    "participant.onBehalfOf.reference",
-    "managingOrganization.reference"
+    "participant.member",
+    "participant.onBehalfOf",
+    "managingOrganization"
   ],
   "CatalogEntry": [
-    "referencedItem.reference",
-    "relatedEntry.item.reference"
+    "referencedItem",
+    "relatedEntry.item"
   ],
   "ChargeItem": [
-    "performer.actor.reference",
-    "performingOrganization.reference",
-    "requestingOrganization.reference",
-    "costCenter.reference",
-    "enterer.reference",
-    "productReference.reference",
-    "supportingInformation.reference"
+    "performer.actor",
+    "performingOrganization",
+    "requestingOrganization",
+    "costCenter",
+    "enterer",
+    "productReference",
+    "supportingInformation"
   ],
   "ChargeItemDefinition": [
-    "instance.reference"
+    "instance"
   ],
   "Citation": [
-    "relatesTo.targetReference.reference",
-    "citedArtifact.version.baseCitation.reference",
-    "citedArtifact.part.baseCitation.reference",
-    "citedArtifact.relatesTo.targetReference.reference",
-    "citedArtifact.publicationForm.publishedIn.publisher.reference",
-    "citedArtifact.classification.whoClassified.person.reference",
-    "citedArtifact.classification.whoClassified.organization.reference",
-    "citedArtifact.classification.whoClassified.publisher.reference"
+    "relatesTo.targetReference",
+    "citedArtifact.version.baseCitation",
+    "citedArtifact.part.baseCitation",
+    "citedArtifact.relatesTo.targetReference",
+    "citedArtifact.publicationForm.publishedIn.publisher",
+    "citedArtifact.classification.whoClassified.person",
+    "citedArtifact.classification.whoClassified.organization",
+    "citedArtifact.classification.whoClassified.publisher"
   ],
   "Claim": [
-    "enterer.reference",
-    "insurer.reference",
-    "provider.reference",
-    "payee.party.reference",
-    "facility.reference",
-    "careTeam.provider.reference",
-    "supportingInfo.valueReference.reference",
-    "accident.locationReference.reference",
-    "item.locationReference.reference"
+    "enterer",
+    "insurer",
+    "provider",
+    "payee.party",
+    "facility",
+    "careTeam.provider",
+    "supportingInfo.valueReference",
+    "accident.locationReference",
+    "item.locationReference"
   ],
   "ClaimResponse": [
-    "insurer.reference",
-    "requestor.reference",
-    "addItem.provider.reference",
-    "addItem.locationReference.reference"
+    "insurer",
+    "requestor",
+    "addItem.provider",
+    "addItem.locationReference"
   ],
   "ClinicalImpression": [
-    "assessor.reference",
-    "supportingInfo.reference"
+    "assessor",
+    "supportingInfo"
   ],
   "ClinicalUseDefinition": [
-    "subject.reference",
-    "contraindication.diseaseSymptomProcedure.reference",
-    "contraindication.diseaseStatus.reference",
-    "contraindication.comorbidity.reference",
-    "contraindication.indication.reference",
-    "contraindication.otherTherapy.therapy.reference",
-    "indication.diseaseSymptomProcedure.reference",
-    "indication.diseaseStatus.reference",
-    "indication.comorbidity.reference",
-    "indication.intendedEffect.reference",
-    "indication.undesirableEffect.reference",
-    "interaction.interactant.itemReference.reference",
-    "interaction.effect.reference",
-    "undesirableEffect.symptomConditionEffect.reference"
+    "subject",
+    "contraindication.diseaseSymptomProcedure",
+    "contraindication.diseaseStatus",
+    "contraindication.comorbidity",
+    "contraindication.indication",
+    "contraindication.otherTherapy.therapy",
+    "indication.diseaseSymptomProcedure",
+    "indication.diseaseStatus",
+    "indication.comorbidity",
+    "indication.intendedEffect",
+    "indication.undesirableEffect",
+    "interaction.interactant.itemReference",
+    "interaction.effect",
+    "undesirableEffect.symptomConditionEffect"
   ],
   "Communication": [
-    "basedOn.reference",
-    "partOf.reference",
-    "about.reference",
-    "recipient.reference",
-    "sender.reference",
-    "payload.contentReference.reference"
+    "basedOn",
+    "partOf",
+    "about",
+    "recipient",
+    "sender",
+    "payload.contentReference"
   ],
   "CommunicationRequest": [
-    "basedOn.reference",
-    "about.reference",
-    "payload.contentReference.reference",
-    "requester.reference",
-    "recipient.reference",
-    "sender.reference"
+    "basedOn",
+    "about",
+    "payload.contentReference",
+    "requester",
+    "recipient",
+    "sender"
   ],
   "Composition": [
-    "subject.reference",
-    "author.reference",
-    "attester.party.reference",
-    "custodian.reference",
-    "event.detail.reference",
-    "section.author.reference",
-    "section.focus.reference",
-    "section.entry.reference"
+    "subject",
+    "author",
+    "attester.party",
+    "custodian",
+    "event.detail",
+    "section.author",
+    "section.focus",
+    "section.entry"
   ],
   "Condition": [
-    "recorder.reference",
-    "asserter.reference",
-    "evidence.detail.reference"
+    "recorder",
+    "asserter",
+    "evidence.detail"
   ],
   "Consent": [
-    "performer.reference",
-    "organization.reference",
-    "provision.actor.reference.reference",
-    "provision.data.reference.reference"
+    "performer",
+    "organization",
+    "provision.actor.reference",
+    "provision.data.reference"
   ],
   "Contract": [
-    "subject.reference",
-    "authority.reference",
-    "domain.reference",
-    "site.reference",
-    "author.reference",
-    "topicReference.reference",
-    "contentDefinition.publisher.reference",
-    "term.topicReference.reference",
-    "term.offer.party.reference.reference",
-    "term.offer.topic.reference",
-    "term.offer.answer.valueReference.reference",
-    "term.asset.typeReference.reference",
-    "term.asset.context.reference.reference",
-    "term.asset.valuedItem.entityReference.reference",
-    "term.asset.valuedItem.responsible.reference",
-    "term.asset.valuedItem.recipient.reference",
-    "term.action.subject.reference.reference",
-    "term.action.requester.reference",
-    "term.action.performer.reference",
-    "term.action.reasonReference.reference",
-    "supportingInfo.reference",
-    "signer.party.reference"
+    "subject",
+    "authority",
+    "domain",
+    "site",
+    "author",
+    "topicReference",
+    "contentDefinition.publisher",
+    "term.topicReference",
+    "term.offer.party.reference",
+    "term.offer.topic",
+    "term.offer.answer.valueReference",
+    "term.asset.typeReference",
+    "term.asset.context.reference",
+    "term.asset.valuedItem.entityReference",
+    "term.asset.valuedItem.responsible",
+    "term.asset.valuedItem.recipient",
+    "term.action.subject.reference",
+    "term.action.requester",
+    "term.action.performer",
+    "term.action.reasonReference",
+    "supportingInfo",
+    "signer.party"
   ],
   "Coverage": [
-    "policyHolder.reference",
-    "payor.reference"
+    "policyHolder",
+    "payor"
   ],
   "CoverageEligibilityRequest": [
-    "enterer.reference",
-    "provider.reference",
-    "insurer.reference",
-    "facility.reference",
-    "supportingInfo.information.reference",
-    "item.provider.reference",
-    "item.facility.reference",
-    "item.detail.reference"
+    "enterer",
+    "provider",
+    "insurer",
+    "facility",
+    "supportingInfo.information",
+    "item.provider",
+    "item.facility",
+    "item.detail"
   ],
   "CoverageEligibilityResponse": [
-    "requestor.reference",
-    "insurer.reference",
-    "insurance.item.provider.reference"
+    "requestor",
+    "insurer",
+    "insurance.item.provider"
   ],
   "DetectedIssue": [
-    "author.reference",
-    "implicated.reference",
-    "evidence.detail.reference",
-    "mitigation.author.reference"
+    "author",
+    "implicated",
+    "evidence.detail",
+    "mitigation.author"
   ],
   "Device": [
-    "definition.reference",
-    "owner.reference",
-    "location.reference"
+    "definition",
+    "owner",
+    "location"
   ],
   "DeviceDefinition": [
-    "manufacturerReference.reference",
-    "owner.reference",
-    "parentDevice.reference"
+    "manufacturerReference",
+    "owner",
+    "parentDevice"
   ],
   "DeviceRequest": [
-    "basedOn.reference",
-    "priorRequest.reference",
-    "subject.reference",
-    "requester.reference",
-    "performer.reference",
-    "supportingInfo.reference"
+    "basedOn",
+    "priorRequest",
+    "subject",
+    "requester",
+    "performer",
+    "supportingInfo"
   ],
   "DeviceUseStatement": [
-    "source.reference"
+    "source"
   ],
   "DiagnosticReport": [
-    "subject.reference",
-    "performer.reference",
-    "resultsInterpreter.reference"
+    "subject",
+    "performer",
+    "resultsInterpreter"
   ],
   "DocumentManifest": [
-    "subject.reference",
-    "author.reference",
-    "recipient.reference",
-    "content.reference",
-    "related.ref.reference"
+    "subject",
+    "author",
+    "recipient",
+    "content",
+    "related.ref"
   ],
   "DocumentReference": [
-    "subject.reference",
-    "author.reference",
-    "authenticator.reference",
-    "custodian.reference",
-    "context.related.reference"
+    "subject",
+    "author",
+    "authenticator",
+    "custodian",
+    "context.related"
   ],
   "Encounter": [
-    "participant.individual.reference",
-    "hospitalization.origin.reference",
-    "hospitalization.destination.reference",
-    "location.location.reference",
-    "serviceProvider.reference"
+    "participant.individual",
+    "hospitalization.origin",
+    "hospitalization.destination",
+    "location.location",
+    "serviceProvider"
   ],
   "Endpoint": [
-    "managingOrganization.reference"
+    "managingOrganization"
   ],
   "EnrollmentRequest": [
-    "insurer.reference",
-    "provider.reference"
+    "insurer",
+    "provider"
   ],
   "EnrollmentResponse": [
-    "organization.reference",
-    "requestProvider.reference"
+    "organization",
+    "requestProvider"
   ],
   "EpisodeOfCare": [
-    "managingOrganization.reference",
-    "careManager.reference"
+    "managingOrganization",
+    "careManager"
   ],
   "Evidence": [
-    "citeAsReference.reference",
-    "variableDefinition.observed.reference",
-    "variableDefinition.intended.reference",
-    "statistic.modelCharacteristic.variable.variableDefinition.reference"
+    "citeAsReference",
+    "variableDefinition.observed",
+    "variableDefinition.intended",
+    "statistic.modelCharacteristic.variable.variableDefinition"
   ],
   "EvidenceReport": [
-    "citeAsReference.reference",
-    "subject.characteristic.valueReference.reference",
-    "relatesTo.targetReference.reference",
-    "section.focusReference.reference",
-    "section.author.reference",
-    "section.entryReference.reference"
+    "citeAsReference",
+    "subject.characteristic.valueReference",
+    "relatesTo.targetReference",
+    "section.focusReference",
+    "section.author",
+    "section.entryReference"
   ],
   "EvidenceVariable": [
-    "characteristic.definitionReference.reference",
-    "characteristic.device.reference"
+    "characteristic.definitionReference",
+    "characteristic.device"
   ],
   "ExplanationOfBenefit": [
-    "enterer.reference",
-    "insurer.reference",
-    "provider.reference",
-    "payee.party.reference",
-    "facility.reference",
-    "careTeam.provider.reference",
-    "supportingInfo.valueReference.reference",
-    "accident.locationReference.reference",
-    "item.locationReference.reference",
-    "addItem.provider.reference",
-    "addItem.locationReference.reference"
+    "enterer",
+    "insurer",
+    "provider",
+    "payee.party",
+    "facility",
+    "careTeam.provider",
+    "supportingInfo.valueReference",
+    "accident.locationReference",
+    "item.locationReference",
+    "addItem.provider",
+    "addItem.locationReference"
   ],
   "Flag": [
-    "subject.reference",
-    "author.reference"
+    "subject",
+    "author"
   ],
   "Goal": [
-    "subject.reference",
-    "expressedBy.reference"
+    "subject",
+    "expressedBy"
   ],
   "Group": [
-    "managingEntity.reference",
-    "member.entity.reference"
+    "managingEntity",
+    "member.entity"
   ],
   "GuidanceResponse": [
-    "evaluationMessage.reference",
-    "outputParameters.reference"
+    "evaluationMessage",
+    "outputParameters"
   ],
   "HealthcareService": [
-    "providedBy.reference",
-    "location.reference",
-    "coverageArea.reference",
-    "endpoint.reference"
+    "providedBy",
+    "location",
+    "coverageArea",
+    "endpoint"
   ],
   "ImagingStudy": [
-    "referrer.reference",
-    "interpreter.reference",
-    "endpoint.reference",
-    "location.reference",
-    "series.endpoint.reference",
-    "series.performer.actor.reference"
+    "referrer",
+    "interpreter",
+    "endpoint",
+    "location",
+    "series.endpoint",
+    "series.performer.actor"
   ],
   "Immunization": [
-    "location.reference",
-    "manufacturer.reference",
-    "performer.actor.reference",
-    "protocolApplied.authority.reference"
+    "location",
+    "manufacturer",
+    "performer.actor",
+    "protocolApplied.authority"
   ],
   "ImmunizationEvaluation": [
-    "authority.reference"
+    "authority"
   ],
   "ImmunizationRecommendation": [
-    "authority.reference",
-    "recommendation.supportingPatientInformation.reference"
+    "authority",
+    "recommendation.supportingPatientInformation"
   ],
   "ImplementationGuide": [
-    "definition.resource.reference.reference",
-    "definition.page.nameReference.reference",
-    "manifest.resource.reference.reference"
+    "definition.resource.reference",
+    "definition.page.nameReference",
+    "manifest.resource.reference"
   ],
   "Ingredient": [
-    "for.reference",
-    "manufacturer.manufacturer.reference",
-    "substance.code.reference",
-    "substance.strength.referenceStrength.substance.reference"
+    "for",
+    "manufacturer.manufacturer",
+    "substance.code",
+    "substance.strength.referenceStrength.substance"
   ],
   "InsurancePlan": [
-    "ownedBy.reference",
-    "administeredBy.reference",
-    "coverageArea.reference",
-    "endpoint.reference",
-    "network.reference",
-    "coverage.network.reference",
-    "plan.coverageArea.reference",
-    "plan.network.reference"
+    "ownedBy",
+    "administeredBy",
+    "coverageArea",
+    "endpoint",
+    "network",
+    "coverage.network",
+    "plan.coverageArea",
+    "plan.network"
   ],
   "Invoice": [
-    "recipient.reference",
-    "participant.actor.reference",
-    "issuer.reference"
+    "recipient",
+    "participant.actor",
+    "issuer"
   ],
   "Linkage": [
-    "author.reference",
-    "item.resource.reference"
+    "author",
+    "item.resource"
   ],
   "List": [
-    "subject.reference",
-    "source.reference",
-    "entry.item.reference"
+    "subject",
+    "source",
+    "entry.item"
   ],
   "Location": [
-    "managingOrganization.reference",
-    "partOf.reference",
-    "endpoint.reference"
+    "managingOrganization",
+    "partOf",
+    "endpoint"
   ],
   "ManufacturedItemDefinition": [
-    "manufacturer.reference"
+    "manufacturer"
   ],
   "MeasureReport": [
-    "subject.reference",
-    "reporter.reference",
-    "evaluatedResource.reference"
+    "subject",
+    "reporter",
+    "evaluatedResource"
   ],
   "Media": [
-    "partOf.reference",
-    "subject.reference",
-    "operator.reference",
-    "device.reference"
+    "partOf",
+    "subject",
+    "operator",
+    "device"
   ],
   "Medication": [
-    "manufacturer.reference",
-    "ingredient.itemReference.reference"
+    "manufacturer",
+    "ingredient.itemReference"
   ],
   "MedicationAdministration": [
-    "medicationReference.reference",
-    "supportingInformation.reference",
-    "performer.actor.reference"
+    "medicationReference",
+    "supportingInformation",
+    "performer.actor"
   ],
   "MedicationDispense": [
-    "medicationReference.reference",
-    "supportingInformation.reference",
-    "performer.actor.reference",
-    "location.reference",
-    "destination.reference",
-    "receiver.reference",
-    "substitution.responsibleParty.reference"
+    "medicationReference",
+    "supportingInformation",
+    "performer.actor",
+    "location",
+    "destination",
+    "receiver",
+    "substitution.responsibleParty"
   ],
   "MedicationKnowledge": [
-    "manufacturer.reference",
-    "relatedMedicationKnowledge.reference.reference",
-    "associatedMedication.reference",
-    "ingredient.itemReference.reference",
-    "administrationGuidelines.indicationReference.reference",
-    "regulatory.regulatoryAuthority.reference"
+    "manufacturer",
+    "relatedMedicationKnowledge.reference",
+    "associatedMedication",
+    "ingredient.itemReference",
+    "administrationGuidelines.indicationReference",
+    "regulatory.regulatoryAuthority"
   ],
   "MedicationRequest": [
-    "reportedReference.reference",
-    "medicationReference.reference",
-    "supportingInformation.reference",
-    "requester.reference",
-    "performer.reference",
-    "recorder.reference",
-    "dispenseRequest.performer.reference"
+    "reportedReference",
+    "medicationReference",
+    "supportingInformation",
+    "requester",
+    "performer",
+    "recorder",
+    "dispenseRequest.performer"
   ],
   "MedicationStatement": [
-    "medicationReference.reference",
-    "informationSource.reference",
-    "derivedFrom.reference"
+    "medicationReference",
+    "informationSource",
+    "derivedFrom"
   ],
   "MedicinalProductDefinition": [
-    "impurity.reference",
-    "contact.contact.reference",
-    "clinicalTrial.reference",
-    "crossReference.product.reference",
-    "operation.type.reference",
-    "operation.organization.reference"
+    "impurity",
+    "contact.contact",
+    "clinicalTrial",
+    "crossReference.product",
+    "operation.type",
+    "operation.organization"
   ],
   "MessageHeader": [
-    "destination.receiver.reference",
-    "sender.reference",
-    "enterer.reference",
-    "author.reference",
-    "responsible.reference",
-    "response.details.reference",
-    "focus.reference"
+    "destination.receiver",
+    "sender",
+    "enterer",
+    "author",
+    "responsible",
+    "response.details",
+    "focus"
   ],
   "MolecularSequence": [
-    "performer.reference"
+    "performer"
   ],
   "NutritionOrder": [
-    "orderer.reference"
+    "orderer"
   ],
   "NutritionProduct": [
-    "manufacturer.reference",
-    "nutrient.item.reference",
-    "ingredient.item.reference",
-    "knownAllergen.reference"
+    "manufacturer",
+    "nutrient.item",
+    "ingredient.item",
+    "knownAllergen"
   ],
   "Observation": [
-    "subject.reference",
-    "focus.reference",
-    "performer.reference",
-    "device.reference"
+    "subject",
+    "focus",
+    "performer",
+    "device"
   ],
   "ObservationDefinition": [
-    "validCodedValueSet.reference",
-    "normalCodedValueSet.reference",
-    "abnormalCodedValueSet.reference",
-    "criticalCodedValueSet.reference"
+    "validCodedValueSet",
+    "normalCodedValueSet",
+    "abnormalCodedValueSet",
+    "criticalCodedValueSet"
   ],
   "Organization": [
-    "partOf.reference",
-    "endpoint.reference"
+    "partOf",
+    "endpoint"
   ],
   "OrganizationAffiliation": [
-    "organization.reference",
-    "participatingOrganization.reference",
-    "network.reference",
-    "location.reference",
-    "healthcareService.reference",
-    "endpoint.reference"
+    "organization",
+    "participatingOrganization",
+    "network",
+    "location",
+    "healthcareService",
+    "endpoint"
   ],
   "PackagedProductDefinition": [
-    "packageFor.reference",
-    "manufacturer.reference",
-    "package.manufacturer.reference",
-    "package.containedItem.item.reference"
+    "packageFor",
+    "manufacturer",
+    "package.manufacturer",
+    "package.containedItem.item"
   ],
   "Patient": [
-    "contact.organization.reference",
-    "generalPractitioner.reference",
-    "managingOrganization.reference"
+    "contact.organization",
+    "generalPractitioner",
+    "managingOrganization"
   ],
   "PaymentNotice": [
-    "request.reference",
-    "response.reference",
-    "provider.reference",
-    "payment.reference",
-    "payee.reference",
-    "recipient.reference"
+    "request",
+    "response",
+    "provider",
+    "payment",
+    "payee",
+    "recipient"
   ],
   "PaymentReconciliation": [
-    "paymentIssuer.reference",
-    "requestor.reference",
-    "detail.request.reference",
-    "detail.submitter.reference",
-    "detail.response.reference",
-    "detail.responsible.reference",
-    "detail.payee.reference"
+    "paymentIssuer",
+    "requestor",
+    "detail.request",
+    "detail.submitter",
+    "detail.response",
+    "detail.responsible",
+    "detail.payee"
   ],
   "Person": [
-    "managingOrganization.reference",
-    "link.target.reference"
+    "managingOrganization",
+    "link.target"
   ],
   "Practitioner": [
-    "qualification.issuer.reference"
+    "qualification.issuer"
   ],
   "PractitionerRole": [
-    "practitioner.reference",
-    "organization.reference",
-    "location.reference",
-    "healthcareService.reference",
-    "endpoint.reference"
+    "practitioner",
+    "organization",
+    "location",
+    "healthcareService",
+    "endpoint"
   ],
   "Procedure": [
-    "recorder.reference",
-    "asserter.reference",
-    "performer.actor.reference",
-    "performer.onBehalfOf.reference",
-    "location.reference",
-    "usedReference.reference"
+    "recorder",
+    "asserter",
+    "performer.actor",
+    "performer.onBehalfOf",
+    "location",
+    "usedReference"
   ],
   "Provenance": [
-    "target.reference",
-    "location.reference",
-    "agent.who.reference",
-    "agent.onBehalfOf.reference",
-    "entity.what.reference"
+    "target",
+    "location",
+    "agent.who",
+    "agent.onBehalfOf",
+    "entity.what"
   ],
   "Questionnaire": [
-    "item.enableWhen.answerReference.reference",
-    "item.answerOption.valueReference.reference",
-    "item.initial.valueReference.reference"
+    "item.enableWhen.answerReference",
+    "item.answerOption.valueReference",
+    "item.initial.valueReference"
   ],
   "QuestionnaireResponse": [
-    "subject.reference",
-    "author.reference",
-    "source.reference",
-    "item.answer.valueReference.reference"
+    "subject",
+    "author",
+    "source",
+    "item.answer.valueReference"
   ],
   "RegulatedAuthorization": [
-    "subject.reference",
-    "indication.reference",
-    "holder.reference",
-    "regulator.reference"
+    "subject",
+    "indication",
+    "holder",
+    "regulator"
   ],
   "RequestGroup": [
-    "basedOn.reference",
-    "replaces.reference",
-    "author.reference",
-    "action.participant.reference",
-    "action.resource.reference"
+    "basedOn",
+    "replaces",
+    "author",
+    "action.participant",
+    "action.resource"
   ],
   "ResearchDefinition": [
-    "population.reference",
-    "exposure.reference",
-    "exposureAlternative.reference",
-    "outcome.reference"
+    "population",
+    "exposure",
+    "exposureAlternative",
+    "outcome"
   ],
   "ResearchStudy": [
-    "protocol.reference",
-    "partOf.reference",
-    "sponsor.reference",
-    "principalInvestigator.reference",
-    "site.reference"
+    "protocol",
+    "partOf",
+    "sponsor",
+    "principalInvestigator",
+    "site"
   ],
   "ResearchSubject": [
-    "study.reference"
+    "study"
   ],
   "RiskAssessment": [
-    "basedOn.reference",
-    "parent.reference",
-    "performer.reference",
-    "basis.reference"
+    "basedOn",
+    "parent",
+    "performer",
+    "basis"
   ],
   "Schedule": [
-    "actor.reference"
+    "actor"
   ],
   "ServiceRequest": [
-    "subject.reference",
-    "requester.reference",
-    "performer.reference",
-    "locationReference.reference",
-    "supportingInfo.reference"
+    "subject",
+    "requester",
+    "performer",
+    "locationReference",
+    "supportingInfo"
   ],
   "Specimen": [
-    "subject.reference",
-    "collection.collector.reference",
-    "processing.additive.reference",
-    "container.additiveReference.reference"
+    "subject",
+    "collection.collector",
+    "processing.additive",
+    "container.additiveReference"
   ],
   "SpecimenDefinition": [
-    "typeTested.container.additive.additiveReference.reference"
+    "typeTested.container.additive.additiveReference"
   ],
   "SubscriptionStatus": [
-    "notificationEvent.focus.reference",
-    "notificationEvent.additionalContext.reference"
+    "notificationEvent.focus",
+    "notificationEvent.additionalContext"
   ],
   "Substance": [
-    "ingredient.substanceReference.reference"
+    "ingredient.substanceReference"
   ],
   "SubstanceDefinition": [
-    "informationSource.reference",
-    "manufacturer.reference",
-    "supplier.reference",
-    "relationship.substanceDefinitionReference.reference"
+    "informationSource",
+    "manufacturer",
+    "supplier",
+    "relationship.substanceDefinitionReference"
   ],
   "SupplyDelivery": [
-    "suppliedItem.itemReference.reference",
-    "supplier.reference",
-    "destination.reference",
-    "receiver.reference"
+    "suppliedItem.itemReference",
+    "supplier",
+    "destination",
+    "receiver"
   ],
   "SupplyRequest": [
-    "itemReference.reference",
-    "requester.reference",
-    "supplier.reference",
-    "deliverFrom.reference",
-    "deliverTo.reference"
+    "itemReference",
+    "requester",
+    "supplier",
+    "deliverFrom",
+    "deliverTo"
   ],
   "Task": [
-    "basedOn.reference",
-    "focus.reference",
-    "for.reference",
-    "requester.reference",
-    "owner.reference",
-    "location.reference",
-    "reasonReference.reference",
-    "restriction.recipient.reference"
+    "basedOn",
+    "focus",
+    "for",
+    "requester",
+    "owner",
+    "location",
+    "reasonReference",
+    "restriction.recipient"
   ],
   "TestReport": [
-    "testScript.reference"
+    "testScript"
   ],
   "TestScript": [
-    "fixture.resource.reference",
-    "profile.reference"
+    "fixture.resource",
+    "profile"
   ],
   "VerificationResult": [
-    "target.reference",
-    "primarySource.who.reference",
-    "attestation.who.reference",
-    "attestation.onBehalfOf.reference",
-    "validator.organization.reference"
+    "target",
+    "primarySource.who",
+    "attestation.who",
+    "attestation.onBehalfOf",
+    "validator.organization"
   ],
   "VisionPrescription": [
-    "prescriber.reference"
+    "prescriber"
   ]
 }

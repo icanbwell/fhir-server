@@ -41,10 +41,6 @@ class MockConfigManager extends ConfigManager {
         return true;
     }
 
-    get supportLegacyIds () {
-        return false;
-    }
-
     get rewritePatientReference () {
         return true;
     }
