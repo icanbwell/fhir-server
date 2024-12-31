@@ -152,7 +152,7 @@ module.exports = {
         VISIONPRESCRIPTION: 'VisionPrescription'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
-    LEGACY_ID_SUPPORT_RESOURCES: ['Person', 'Practitioner'],
+    GRAPH_LEGACY_ID_SUPPORT_RESOURCES: ['Person', 'Practitioner'],
     STRICT_SEARCH_HANDLING: 'strict',
     SPECIFIED_QUERY_PARAMS: [
         '_explain', '_debug', '_validate', 'contained', '_hash_references', 'base_version', '_elements',

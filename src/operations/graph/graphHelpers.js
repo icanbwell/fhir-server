@@ -43,7 +43,7 @@ const {
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
     PERSON_PROXY_PREFIX,
-    LEGACY_ID_SUPPORT_RESOURCES
+    GRAPH_LEGACY_ID_SUPPORT_RESOURCES
 } = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
@@ -215,7 +215,7 @@ class GraphHelper {
      */
     getReferencesFromPropertyValue({ propertyValue }) {
         return (Array.isArray(propertyValue) ? propertyValue : [propertyValue]).flatMap((item) =>
-            LEGACY_ID_SUPPORT_RESOURCES.includes(item.reference?.split('/')?.[0])
+            GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(item.reference?.split('/')?.[0])
                 ? [item.reference]
                 : [item._uuid]
         );
@@ -412,7 +412,7 @@ class GraphHelper {
                                 .filter(r => r !== undefined && r !== null)
                                 .includes(idToSearch));
 
-                    if (matchingParentEntities.length === 0 && LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResource.resourceType)) {
+                    if (matchingParentEntities.length === 0 && GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResource.resourceType)) {
                         idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
                         matchingParentEntities = uniqueParentEntities.filter(
                             p =>
@@ -547,7 +547,7 @@ class GraphHelper {
                 .filter((p) => p.entityUuid !== undefined && p.entityUuid !== null)
                 .forEach((p) => {
                     if (
-                        LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResourceType) &&
+                        GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResourceType) &&
                         p.entityId !== undefined &&
                         p.entityId !== null
                     ) {
@@ -739,7 +739,7 @@ class GraphHelper {
                     let matchingParentEntities = uniqueParentEntities.filter(
                         (p) =>
                             references.includes(`${p.resource.resourceType}/${p.resource._uuid}`) ||
-                            (LEGACY_ID_SUPPORT_RESOURCES.includes(p.resource.resourceType) &&
+                            (GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(p.resource.resourceType) &&
                                 references.includes(`${p.resource.resourceType}/${p.resource.id}`))
                     );
 

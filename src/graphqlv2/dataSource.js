@@ -1,7 +1,7 @@
 const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { OPERATIONS: { READ }, LEGACY_ID_SUPPORT_RESOURCES } = require('../constants');
+const { OPERATIONS: { READ }, GRAPH_LEGACY_ID_SUPPORT_RESOURCES } = require('../constants');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
@@ -256,7 +256,7 @@ class FhirDataSource {
             ?.filter(s => s) || [];
 
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
-        const referenceValue = LEGACY_ID_SUPPORT_RESOURCES.includes(
+        const referenceValue = GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(
             ResourceWithId.getResourceTypeFromReference(reference.reference)
         ) ? reference.reference : (reference._uuid || reference.reference);
         const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
