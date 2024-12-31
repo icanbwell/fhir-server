@@ -124,7 +124,6 @@ class EverythingOperation {
 
         try {
             const { id, _type: resourceFilter } = parsedArgs;
-            const supportLegacyId = false;
 
             const query = {};
             query.id = id;
@@ -189,7 +188,6 @@ class EverythingOperation {
                 parsedArgs,
                 resourceType,
                 responseStreamer,
-                supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                 nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
             });

@@ -42,7 +42,8 @@ const {
     PATIENT_REFERENCE_PREFIX,
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
-    PERSON_PROXY_PREFIX
+    PERSON_PROXY_PREFIX,
+    GRAPH_LEGACY_ID_SUPPORT_RESOURCES
 } = require('../../constants');
 const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
@@ -210,21 +211,14 @@ class GraphHelper {
      * retrieves references from the provided property.
      * Always returns an array of references whether the property value is an array or just an object
      * @param {Object || Object[]} propertyValue
-     * @param {boolean} supportLegacyId
      * @return {string[]}
      */
-    getReferencesFromPropertyValue ({ propertyValue, supportLegacyId = true }) {
-        if (this.configManager.supportLegacyIds && supportLegacyId) {
-            // concat uuids and ids so we can search both in case some reference does not have
-            // _sourceAssigningAuthority set correctly
-            return Array.isArray(propertyValue)
-                ? propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference))
-                : [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
-        } else {
-            return Array.isArray(propertyValue)
-                ? propertyValue.map(a => a._uuid)
-                : [].concat([propertyValue._uuid]);
-        }
+    getReferencesFromPropertyValue({ propertyValue }) {
+        return (Array.isArray(propertyValue) ? propertyValue : [propertyValue]).flatMap((item) =>
+            GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(item.reference?.split('/')?.[0])
+                ? [item.reference]
+                : [item._uuid]
+        );
     }
 
     /**
@@ -233,10 +227,9 @@ class GraphHelper {
      * @param {string} property
      * @param {string?} filterProperty
      * @param {string?} filterValue
-     * @param {boolean} supportLegacyId
      * @returns {boolean}
      */
-    isPropertyAReference ({ entities, property, filterProperty, filterValue, supportLegacyId = true }) {
+    isPropertyAReference ({ entities, property, filterProperty, filterValue }) {
         /**
          * @type {EntityAndContainedBase}
          */
@@ -248,7 +241,7 @@ class GraphHelper {
                 entity, property, filterProperty, filterValue
             });
             const references = propertiesForEntity
-                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
+                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
                 .filter(r => r !== undefined && r !== null);
 
             if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
@@ -269,7 +262,6 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {boolean} supportLegacyId
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync ({
@@ -281,8 +273,7 @@ class GraphHelper {
                                         filterProperty,
                                         filterValue,
                                         explain,
-                                        debug,
-                                        supportLegacyId = true
+                                        debug
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -298,7 +289,7 @@ class GraphHelper {
 
             // get values of this property from all the entities
             const relatedReferences = uniqueParentEntities.flatMap(p => this.getPropertiesForEntity({ entity: p, property })
-                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
+                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
                 .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
@@ -417,11 +408,11 @@ class GraphHelper {
                                     property
                                 }
                             )
-                                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
+                                .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
                                 .filter(r => r !== undefined && r !== null)
                                 .includes(idToSearch));
 
-                    if (this.configManager.supportLegacyIds && supportLegacyId && matchingParentEntities.length === 0) {
+                    if (matchingParentEntities.length === 0 && GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResource.resourceType)) {
                         idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
                         matchingParentEntities = uniqueParentEntities.filter(
                             p =>
@@ -430,7 +421,7 @@ class GraphHelper {
                                         property
                                     }
                                 )
-                                    .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
+                                    .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
                                     .filter(r => r !== undefined && r !== null)
                                     .includes(idToSearch));
                     }
@@ -509,7 +500,6 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem}
@@ -525,7 +515,6 @@ class GraphHelper {
                                         reverse_filter,
                                         explain,
                                         debug,
-                                        supportLegacyId = true,
                                         proxyPatientIds = [],
                                         proxyPatientResources = []
                                     }) {
@@ -548,28 +537,31 @@ class GraphHelper {
             /**
              * @type {string[]}
              */
-            let parentResourceTypeAndIdList = uniqueParentEntities
-                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
-                .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
+            let parentResourceTypeAndIdList = [];
             /**
              * @type {string[]}
              */
-            let parentResourceIdList = uniqueParentEntities
-                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
-                .map(p => p.entityUuid);
+            let parentResourceIdList = [];
 
-            if (this.configManager.supportLegacyIds && supportLegacyId) {
-                parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
-                    uniqueParentEntities
-                        .filter(p => p.entityId !== undefined && p.entityId !== null)
-                        .map(p => `${p.resource.resourceType}/${p.entityId}`)
-                );
-                parentResourceIdList = parentResourceIdList.concat(
-                    uniqueParentEntities
-                        .filter(p => p.entityId !== undefined && p.entityId !== null)
-                        .map(p => p.entityId)
-                );
-            }
+            uniqueParentEntities
+                .filter((p) => p.entityUuid !== undefined && p.entityUuid !== null)
+                .forEach((p) => {
+                    if (
+                        GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(relatedResourceType) &&
+                        p.entityId !== undefined &&
+                        p.entityId !== null
+                    ) {
+                        parentResourceTypeAndIdList.push(
+                            `${p.resource.resourceType}/${p.entityId}`
+                        );
+                        parentResourceIdList.push(p.entityId);
+                    } else {
+                        parentResourceTypeAndIdList.push(
+                            `${p.resource.resourceType}/${p.entityUuid}`
+                        );
+                        parentResourceIdList.push(p.entityUuid);
+                    }
+                });
 
             if (parentResourceType === 'Patient' && proxyPatientIds) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
@@ -698,7 +690,7 @@ class GraphHelper {
                      * @type {string[]}
                      */
                     let references = properties
-                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId }))
+                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
 
                     // for handling case when searching using sourceid of proxy patient
@@ -745,12 +737,12 @@ class GraphHelper {
                      * @type {EntityAndContainedBase[]}
                      */
                     let matchingParentEntities = uniqueParentEntities.filter(
-                        p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
+                        (p) =>
+                            references.includes(`${p.resource.resourceType}/${p.resource._uuid}`) ||
+                            (GRAPH_LEGACY_ID_SUPPORT_RESOURCES.includes(p.resource.resourceType) &&
+                                references.includes(`${p.resource.resourceType}/${p.resource.id}`))
+                    );
 
-                    if (this.configManager.supportLegacyIds && supportLegacyId && matchingParentEntities.length === 0) {
-                        matchingParentEntities = uniqueParentEntities.filter(
-                            p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
-                    }
                     if (matchingParentEntities.length === 0) {
                         if (
                             parentResourceType === 'Patient' &&
@@ -906,7 +898,6 @@ class GraphHelper {
      * @param {boolean|null} debug
      * @param {{type: string}} target
      * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
@@ -922,7 +913,6 @@ class GraphHelper {
             debug,
             target,
             parsedArgs,
-            supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = []
         }
@@ -957,7 +947,7 @@ class GraphHelper {
                 }));
                 // if this is a reference then get related resources
                 if (this.isPropertyAReference({
-                    entities: parentEntities, property, filterProperty, filterValue, supportLegacyId
+                    entities: parentEntities, property, filterProperty, filterValue
                 })) {
                     await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
@@ -980,8 +970,7 @@ class GraphHelper {
                             filterProperty,
                             filterValue,
                             explain,
-                            debug,
-                            supportLegacyId
+                            debug
                         }
                     );
                     if (queryItem) {
@@ -1040,7 +1029,6 @@ class GraphHelper {
                             reverse_filter: target.params,
                             explain,
                             debug,
-                            supportLegacyId,
                             proxyPatientIds,
                             proxyPatientResources
                         }
@@ -1084,7 +1072,6 @@ class GraphHelper {
                                 explain,
                                 debug,
                                 parsedArgs,
-                                supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources
                             }
@@ -1123,7 +1110,6 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem[]}
@@ -1138,7 +1124,6 @@ class GraphHelper {
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = []
         }
@@ -1164,7 +1149,6 @@ class GraphHelper {
                         debug,
                         target,
                         parsedArgs,
-                        supportLegacyId,
                         proxyPatientIds,
                         proxyPatientResources
                     }
@@ -1205,7 +1189,6 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
@@ -1220,7 +1203,6 @@ class GraphHelper {
             explain,
             debug,
             parsedArgs,
-            supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = []
         }
@@ -1252,7 +1234,6 @@ class GraphHelper {
                         explain,
                         debug,
                         parsedArgs,
-                        supportLegacyId,
                         proxyPatientIds,
                         proxyPatientResources
                     }
@@ -1380,25 +1361,24 @@ class GraphHelper {
                         path: path
                     });
                     if (references) {
-                        if (!Array.isArray(references)) {
-                            references = [references];
-                        }
-                        for (const reference of references) {
-                            const { id: referenceId, resourceType: referenceResourceType } =
-                                ReferenceParser.parseReference(reference);
-                            if (!resourcesToExclude.includes(referenceResourceType)) {
-                                if (nestedResourceReferences[referenceResourceType]) {
-                                    nestedResourceReferences[referenceResourceType] =
-                                        nestedResourceReferences[referenceResourceType].add(
+                        this.getReferencesFromPropertyValue({ propertyValue: references }).forEach(
+                            (reference) => {
+                                const { id: referenceId, resourceType: referenceResourceType } =
+                                    ReferenceParser.parseReference(reference);
+                                if (!resourcesToExclude.includes(referenceResourceType)) {
+                                    if (nestedResourceReferences[referenceResourceType]) {
+                                        nestedResourceReferences[referenceResourceType] =
+                                            nestedResourceReferences[referenceResourceType].add(
+                                                referenceId
+                                            );
+                                    } else {
+                                        nestedResourceReferences[referenceResourceType] = new Set([
                                             referenceId
-                                        );
-                                } else {
-                                    nestedResourceReferences[referenceResourceType] = new Set([
-                                        referenceId
-                                    ]);
+                                        ]);
+                                    }
                                 }
                             }
-                        }
+                        );
                     }
                 }
             }
@@ -1491,7 +1471,6 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceIdentifier[]} idsAlreadyProcessed
-     * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
@@ -1510,7 +1489,6 @@ class GraphHelper {
             parsedArgs,
             responseStreamer,
             idsAlreadyProcessed,
-            supportLegacyId = true,
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
@@ -1643,7 +1621,6 @@ class GraphHelper {
                     explain,
                     debug,
                     parsedArgs,
-                    supportLegacyId,
                     proxyPatientIds,
                     proxyPatientResources
                 }
@@ -1874,7 +1851,6 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
@@ -1888,7 +1864,6 @@ class GraphHelper {
             contained,
             responseStreamer,
             parsedArgs,
-            supportLegacyId = true,
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1
         }
@@ -1982,7 +1957,6 @@ class GraphHelper {
                         parsedArgs: parsedArgsForChunk,
                         responseStreamer,
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
-                        supportLegacyId,
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth,
                         proxyPatientIds,
@@ -2057,7 +2031,6 @@ class GraphHelper {
      * @param {Object} graphDefinitionJson (a GraphDefinition resource)
      * @param {BaseResponseStreamer} responseStreamer
      * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync (
@@ -2067,8 +2040,7 @@ class GraphHelper {
             resourceType,
             graphDefinitionJson,
             responseStreamer,
-            parsedArgs,
-            supportLegacyId = true
+            parsedArgs
         }
     ) {
         try {
@@ -2087,8 +2059,7 @@ class GraphHelper {
                     contained: false,
                     graphDefinitionJson,
                     responseStreamer: null, // don't let graph send the response
-                    parsedArgs,
-                    supportLegacyId
+                    parsedArgs
                 }
             );
             // now iterate and delete by resuourceType and Id

@@ -28,10 +28,6 @@ class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
         return true;
     }
-
-    get supportLegacyIds () {
-        return false;
-    }
 }
 
 describe('Patient Tests', () => {
