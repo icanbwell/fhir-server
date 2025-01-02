@@ -52,6 +52,7 @@
                 "status": "active"
             },
             {
+                "id": "WPS-0559166162",
                 "__typename": "Patient",
                 "name": [
                     {
@@ -66,6 +67,7 @@
                 "birthDate": "2017-01-01"
             },
             {
+                "id": "WPS-5458231534",
                 "__typename": "Patient",
                 "name": [
                     {
@@ -74,16 +76,6 @@
                     }
                 ],
                 "birthDate": "2017-01-01"
-            },
-            {
-                "__typename": "Patient",
-                "name": null,
-                "birthDate": null
-            },
-            {
-                "__typename": "Patient",
-                "name": null,
-                "birthDate": null
             }
         ]
     }

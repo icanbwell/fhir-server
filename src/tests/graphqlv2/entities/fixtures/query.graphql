@@ -22,6 +22,7 @@ query entities($representations: [_Any!]!) {
       status
     }
     ... on Patient {
+      id
       __typename
       name {
         family

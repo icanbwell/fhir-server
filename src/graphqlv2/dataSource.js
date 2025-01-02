@@ -571,8 +571,7 @@ class FhirDataSource {
      */
     async resolveEntityByReference(reference, context, info, requestedResource) {
         if (!reference || !reference.id) {
-            // must return empty object as gateway always expects equal number of objects for entities
-            return {};
+            return null;
         }
 
         /**
@@ -588,13 +587,13 @@ class FhirDataSource {
             referenceObj = { resourceType: references[0], id: references[1] };
         }
         else{
-            return {};
+            return null;
         }
 
         const { resourceType, id } = referenceObj;
 
         if (resourceType && requestedResource !== resourceType) {
-            return {};
+            return null;
         }
 
         try {
@@ -603,7 +602,7 @@ class FhirDataSource {
             let resource = await this.dataLoader.load(
                 ResourceWithId.getReferenceKey(requestedResource, id)
             );
-            return resource ?? {};
+            return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
                 // noinspection JSUnresolvedReference
@@ -614,7 +613,7 @@ class FhirDataSource {
                         id
                     }
                 });
-                return {};
+                return null;
             } else {
                 throw e;
             }

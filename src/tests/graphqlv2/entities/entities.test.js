@@ -84,8 +84,6 @@ describe('GraphQL entities Tests', () => {
                             id: 'WPS-5458231534'
                         },
                         // invalid ids
-                        // if 'id' is fetched in query when resource is not found, error will be
-                        // returned as 'id' is required field
                         {
                             __typename: 'Patient',
                             id: 'invald-id'
