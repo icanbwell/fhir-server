@@ -195,7 +195,7 @@ Provenance
     authenticated), all of which may impact security, privacy, and trust policies.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Provenance implements DomainResource & Resource{
+type Provenance implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

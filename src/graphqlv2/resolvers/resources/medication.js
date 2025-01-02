@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Medication: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Medication'
+            );
+        }
+    },
     MedicationManufacturerReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

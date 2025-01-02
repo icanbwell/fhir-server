@@ -182,7 +182,7 @@ TestScript
     determine compliance against the FHIR specification.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type TestScript implements DomainResource & Resource{
+type TestScript implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

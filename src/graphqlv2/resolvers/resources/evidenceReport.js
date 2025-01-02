@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    EvidenceReport: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'EvidenceReport'
+            );
+        }
+    },
     EvidenceReportCiteAsReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

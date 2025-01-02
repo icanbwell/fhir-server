@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Endpoint: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Endpoint'
+            );
+        }
+    },
     EndpointManagingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    NutritionProduct: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'NutritionProduct'
+            );
+        }
+    },
     NutritionProductManufacturerReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

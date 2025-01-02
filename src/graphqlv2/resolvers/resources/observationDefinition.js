@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    ObservationDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'ObservationDefinition'
+            );
+        }
+    },
     ObservationDefinitionValidCodedValueSetReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

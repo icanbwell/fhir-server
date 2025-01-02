@@ -1,0 +1,33 @@
+query entities($representations: [_Any!]!) {
+  _entities(representations: $representations) {
+    ... on AllergyIntolerance {
+      id
+      type
+      allergyCategory: category
+      criticality
+      code {
+        text
+      }
+    }
+    ... on CareTeam {
+      id
+      resourceType
+      category {
+        coding {
+          system
+          code
+        }
+      }
+      careTeamName: name
+      status
+    }
+    ... on Patient {
+      __typename
+      name {
+        family
+        given
+      }
+      birthDate
+    }
+  }
+}

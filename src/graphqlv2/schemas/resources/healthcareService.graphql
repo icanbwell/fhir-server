@@ -73,7 +73,7 @@ HealthcareService
     The details of a healthcare service available at a location.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type HealthcareService implements DomainResource & Resource{
+type HealthcareService implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

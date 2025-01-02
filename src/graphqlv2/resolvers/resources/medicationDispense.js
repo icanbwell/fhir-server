@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    MedicationDispense: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'MedicationDispense'
+            );
+        }
+    },
     MedicationDispenseSubject: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    InsurancePlan: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'InsurancePlan'
+            );
+        }
+    },
     InsurancePlanOwnedByReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    DiagnosticReport: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'DiagnosticReport'
+            );
+        }
+    },
     DiagnosticReportBasedOn: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

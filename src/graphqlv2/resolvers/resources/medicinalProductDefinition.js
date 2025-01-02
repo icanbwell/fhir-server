@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    MedicinalProductDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'MedicinalProductDefinition'
+            );
+        }
+    },
     MedicinalProductDefinitionImpurityReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Device: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Device'
+            );
+        }
+    },
     DeviceDefinitionReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

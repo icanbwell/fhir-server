@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Composition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Composition'
+            );
+        }
+    },
     CompositionAuthor: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

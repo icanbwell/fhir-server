@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Library: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Library'
+            );
+        }
+    },
     LibrarySubjectReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

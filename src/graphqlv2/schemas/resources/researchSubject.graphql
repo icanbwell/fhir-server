@@ -55,7 +55,7 @@ ResearchSubject
     administrative interest in a study.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ResearchSubject implements DomainResource & Resource{
+type ResearchSubject implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

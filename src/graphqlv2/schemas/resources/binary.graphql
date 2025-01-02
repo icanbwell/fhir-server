@@ -167,7 +167,7 @@ Binary
     content, whether text, image, pdf, zip archive, etc.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Binary implements Resource{
+type Binary implements Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

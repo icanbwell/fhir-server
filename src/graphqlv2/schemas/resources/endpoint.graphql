@@ -34,7 +34,7 @@ Endpoint
     server. This may include any security context information.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Endpoint implements DomainResource & Resource{
+type Endpoint implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

@@ -13,5 +13,15 @@ module.exports = {
                 'OperationDefinition'
             );
         }
+    },
+    OperationDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'OperationDefinition'
+            );
+        }
     }
 };

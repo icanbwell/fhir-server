@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    TestScript: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'TestScript'
+            );
+        }
+    },
     TestScriptProfileReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

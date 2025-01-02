@@ -95,9 +95,9 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
 {%  endfor %}
 """
 {% if fhir_entity.base_type_list | length > 0 %}
-type {{ fhir_entity.cleaned_name }} implements {{ fhir_entity.base_type_list | unique | join(" & ") }}{
+type {{ fhir_entity.cleaned_name }} implements {{ fhir_entity.base_type_list | unique | join(" & ") }} @key(fields: "id") {
 {% else %}
-type {{ fhir_entity.cleaned_name }} {
+type {{ fhir_entity.cleaned_name }} @key(fields: "id") {
 {% endif %}
     resourceType: String
 {% for property in fhir_entity.properties %}

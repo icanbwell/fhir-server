@@ -90,7 +90,7 @@ Device
     medical or non-medical device.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Device implements DomainResource & Resource{
+type Device implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once
