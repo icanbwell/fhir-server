@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    RelatedPerson: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'RelatedPerson'
+            );
+        }
+    },
     RelatedPersonPatientReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

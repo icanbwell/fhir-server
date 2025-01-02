@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    DeviceMetric: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'DeviceMetric'
+            );
+        }
+    },
     DeviceMetricSourceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

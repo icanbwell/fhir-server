@@ -12,7 +12,7 @@ Parameters
     no RESTful endpoint associated with it.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Parameters implements Resource{
+type Parameters implements Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

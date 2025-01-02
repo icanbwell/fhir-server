@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    HealthcareService: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'HealthcareService'
+            );
+        }
+    },
     HealthcareServiceProvidedByReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

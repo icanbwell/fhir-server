@@ -13,5 +13,15 @@ module.exports = {
                 'Subscription'
             );
         }
+    },
+    Subscription: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Subscription'
+            );
+        }
     }
 };

@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    ResearchDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'ResearchDefinition'
+            );
+        }
+    },
     ResearchDefinitionSubjectReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

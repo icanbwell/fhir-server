@@ -43,7 +43,7 @@ ImmunizationRecommendation
     to a published schedule with optional supporting justification.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ImmunizationRecommendation implements DomainResource & Resource{
+type ImmunizationRecommendation implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

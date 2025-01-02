@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Person: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Person'
+            );
+        }
+    },
     PersonManagingOrganizationReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

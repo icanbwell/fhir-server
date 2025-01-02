@@ -171,7 +171,7 @@ CarePlan
     possibly limited to care for a specific condition or set of conditions.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type CarePlan implements DomainResource & Resource{
+type CarePlan implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

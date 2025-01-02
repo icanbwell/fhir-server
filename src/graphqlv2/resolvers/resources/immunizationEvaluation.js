@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    ImmunizationEvaluation: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'ImmunizationEvaluation'
+            );
+        }
+    },
     ImmunizationEvaluationPatientReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

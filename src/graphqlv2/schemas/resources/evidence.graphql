@@ -41,7 +41,7 @@ Evidence
     confounding variables), the statistics, and the certainty of this evidence.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Evidence implements DomainResource & Resource{
+type Evidence implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

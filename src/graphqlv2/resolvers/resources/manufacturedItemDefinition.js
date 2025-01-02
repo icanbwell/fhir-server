@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    ManufacturedItemDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'ManufacturedItemDefinition'
+            );
+        }
+    },
     ManufacturedItemDefinitionManufacturerReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

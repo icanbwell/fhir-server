@@ -242,7 +242,7 @@ PaymentNotice
     rendered, and the request and response resource references.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type PaymentNotice implements DomainResource & Resource{
+type PaymentNotice implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

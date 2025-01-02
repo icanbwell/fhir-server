@@ -108,7 +108,7 @@ Media
     content may be inline or provided by direct reference.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Media implements DomainResource & Resource{
+type Media implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

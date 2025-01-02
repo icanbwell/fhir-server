@@ -74,7 +74,7 @@ CareTeam
     participate in the coordination and delivery of care for a patient.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type CareTeam implements DomainResource & Resource{
+type CareTeam implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

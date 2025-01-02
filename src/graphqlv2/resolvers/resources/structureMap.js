@@ -13,5 +13,15 @@ module.exports = {
                 'StructureMap'
             );
         }
+    },
+    StructureMap: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'StructureMap'
+            );
+        }
     }
 };

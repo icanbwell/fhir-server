@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Patient: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Patient'
+            );
+        }
+    },
     PatientGeneralPractitioner: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

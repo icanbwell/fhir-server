@@ -22,7 +22,7 @@ ConceptMap
     concepts, or classes in class models.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type ConceptMap implements DomainResource & Resource{
+type ConceptMap implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

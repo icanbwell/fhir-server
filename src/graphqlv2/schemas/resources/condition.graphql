@@ -81,7 +81,7 @@ Condition
     clinical concept that has risen to a level of concern.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type Condition implements DomainResource & Resource{
+type Condition implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

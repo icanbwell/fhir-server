@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    Observation: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Observation'
+            );
+        }
+    },
     ObservationBasedOn: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

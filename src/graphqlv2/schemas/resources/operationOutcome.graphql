@@ -14,7 +14,7 @@ OperationOutcome
     system action.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type OperationOutcome implements DomainResource & Resource{
+type OperationOutcome implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once

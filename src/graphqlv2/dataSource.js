@@ -561,6 +561,64 @@ class FhirDataSource {
         const extension = resource.extension.find(e => e.url === url);
         return extension ? extension[valueType] : null;
     }
+
+    /**
+     * Resolves entity by reference
+     * @param {{__typename: string, id: string}} reference
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @param {string} requestedResource
+     */
+    async resolveEntityByReference(reference, context, info, requestedResource) {
+        if (!reference || !reference.id) {
+            return null;
+        }
+
+        /**
+         * @type {string[]}
+         */
+        const references = reference.id.split('/');
+        let referenceObj;
+        // We can receive either reference or just the id
+        if (references.length === 1) {
+            referenceObj = { resourceType: null, id: references[0] }
+        }
+        else if (references.length === 2) {
+            referenceObj = { resourceType: references[0], id: references[1] };
+        }
+        else{
+            return null;
+        }
+
+        const { resourceType, id } = referenceObj;
+
+        if (resourceType && requestedResource !== resourceType) {
+            return null;
+        }
+
+        try {
+            this.createDataLoader({});
+            // noinspection JSValidateTypes
+            let resource = await this.dataLoader.load(
+                ResourceWithId.getReferenceKey(requestedResource, id)
+            );
+            return resource;
+        } catch (e) {
+            if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
+                logWarn('resolveEntityByReference: Resource not found', {
+                    user: context.user,
+                    args: {
+                        requestedResource,
+                        id
+                    }
+                });
+                return null;
+            } else {
+                throw e;
+            }
+        }
+    }
 }
 
 module.exports = {

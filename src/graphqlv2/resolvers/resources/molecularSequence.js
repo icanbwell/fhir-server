@@ -14,6 +14,16 @@ module.exports = {
             );
         }
     },
+    MolecularSequence: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'MolecularSequence'
+            );
+        }
+    },
     MolecularSequencePatientReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {

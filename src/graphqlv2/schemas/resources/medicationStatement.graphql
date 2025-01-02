@@ -156,7 +156,7 @@ MedicationStatement
     administration is more formal and is not missing detailed information.
     If the element is present, it must have either a @value, an @id, or extensions
 """
-type MedicationStatement implements DomainResource & Resource{
+type MedicationStatement implements DomainResource & Resource @key(fields: "id") {
     resourceType: String
     """
     The logical id of the resource, as used in the URL for the resource. Once
