@@ -241,7 +241,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-230916613368']}}, {'_id':0})  | db.Patient_4_0_0.find({'_uuid':'049d7971-64c2-54d2-81b0-f4fa8f6f5d68'}, {}) | db.Organization_4_0_0.find({'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'}, {}) | db.Practitioner_4_0_0.find({'_sourceId':'1376656959'}, {})",
+        "display": "db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-230916613368']}}, {'_id':0})  | db.Patient_4_0_0.find({'$or':[{'_uuid':'049d7971-64c2-54d2-81b0-f4fa8f6f5d68'},{'_sourceId':'WPS-6678928210'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'},{'_sourceId':'WPS-Health'}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_uuid':'b46cbec7-d900-520d-a869-999c7f603f00'},{'_sourceId':'1376656959'}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

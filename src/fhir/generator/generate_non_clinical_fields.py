@@ -46,7 +46,7 @@ def get_non_clinical_resources_fields(resources_to_exclude=[]):
         for type in reference_type.target_resources:
             if not type in resources_to_exclude:
                 x = result.get(resource, [])
-                x.append(path)
+                x.append(path + ".reference")
                 result[resource] = x
                 break
 

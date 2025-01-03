@@ -276,6 +276,17 @@ class ConfigManager {
     }
 
     /**
+     * whether to support legacy id support in queries
+     * @return {boolean}
+     */
+    get supportLegacyIds () {
+        if (env.SUPPORT_LEGACY_IDS === null || env.SUPPORT_LEGACY_IDS === undefined) {
+            return true;
+        }
+        return isTrue(env.SUPPORT_LEGACY_IDS);
+    }
+
+    /**
      * Whether meta.source tags are required
      * @return {boolean}
      */

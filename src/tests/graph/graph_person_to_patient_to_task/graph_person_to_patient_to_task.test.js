@@ -113,7 +113,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource);
         });
-        test('graph_person_to_patient_to_task does not work with reference id but wrong sourceAssigningAuthority', async () => {
+        test('graph_person_to_patient_to_task works (with reference id but wrong sourceAssigningAuthority)', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
