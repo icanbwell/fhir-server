@@ -158,11 +158,6 @@ class CreateOperation {
         resource_incoming.id = generateUUID();
 
         /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-
-        /**
          * @type {Resource}
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
@@ -179,7 +174,6 @@ class CreateOperation {
                     resourceType,
                     resourceToValidate: body,
                     path,
-                    currentDate,
                     resourceObj: resource
                 });
             }
@@ -258,7 +252,6 @@ class CreateOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestInfo,
-                    currentDate,
                     base_version
                 }
             );

@@ -235,7 +235,6 @@ class AuditLogger {
          */
         const resourceType = 'AuditEvent';
         let requestId;
-        const currentDate = moment.utc().format('YYYY-MM-DD');
 
         /**
          * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
@@ -267,7 +266,6 @@ class AuditLogger {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version: this.base_version,
                 operationsMap,
                 maintainOrder: false

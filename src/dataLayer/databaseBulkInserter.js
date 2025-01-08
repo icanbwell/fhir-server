@@ -699,7 +699,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * Executes all the operations in bulk
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @param {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
@@ -707,7 +706,6 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async executeAsync ({
         requestInfo,
-        currentDate,
         base_version,
         operationsMap,
         maintainOrder = true,
@@ -739,7 +737,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 async mapEntry => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
                         requestInfo,
-                        currentDate,
                         mapEntry,
                         base_version,
                         useHistoryCollection: false,
@@ -751,7 +748,7 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!operationsMap) {
                 await this.executeHistoryInPostRequestAsync(
                     {
-                        requestInfo, currentDate, base_version
+                        requestInfo, base_version
                     }
                 );
             }
@@ -780,10 +777,9 @@ class DatabaseBulkInserter extends EventEmitter {
      * Executes all the history operations in bulk in a Post Request operation
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @returns {Promise<void>}
      */
-    async executeHistoryInPostRequestAsync ({ requestInfo, currentDate, base_version }) {
+    async executeHistoryInPostRequestAsync ({ requestInfo, base_version }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
@@ -796,7 +792,6 @@ class DatabaseBulkInserter extends EventEmitter {
                             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                                 {
                                     requestInfo,
-                                    currentDate,
                                     mapEntry: x,
                                     base_version,
                                     useHistoryCollection: true
@@ -812,7 +807,6 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Performs bulk operations
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
@@ -824,7 +818,6 @@ class DatabaseBulkInserter extends EventEmitter {
         {
             base_version,
             requestInfo,
-            currentDate,
             mapEntry,
             useHistoryCollection,
             maintainOrder = true,
@@ -840,7 +833,6 @@ class DatabaseBulkInserter extends EventEmitter {
             return await this.performBulkForResourceTypeAsync(
                 {
                     requestInfo,
-                    currentDate,
                     resourceType,
                     base_version,
                     useHistoryCollection,
@@ -859,7 +851,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * Run bulk operations for collection of resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @param {string} resourceType
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
@@ -869,7 +860,6 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async performBulkForResourceTypeAsync (
         {
-            currentDate,
             resourceType,
             base_version,
             useHistoryCollection,

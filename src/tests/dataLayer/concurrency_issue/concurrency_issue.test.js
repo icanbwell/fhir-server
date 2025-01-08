@@ -287,14 +287,8 @@ describe('CodeSystem Tests', () => {
                     }
                 );
             }
-
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
 
@@ -405,13 +399,8 @@ describe('CodeSystem Tests', () => {
                 );
             }
 
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
 
