@@ -183,8 +183,6 @@ class UpdateOperation {
             }
         );
 
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-
         // read the incoming resource from request body
         /**
          * @type {Object}
@@ -277,7 +275,6 @@ class UpdateOperation {
                     resourceType,
                     resourceToValidate: resource_incoming_json,
                     path,
-                    currentDate,
                     resourceObj: resource_incoming,
                     currentResource: data
                 });
@@ -386,7 +383,6 @@ class UpdateOperation {
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
                         requestInfo,
-                        currentDate,
                         base_version
                     }
                 );

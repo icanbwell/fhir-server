@@ -60,11 +60,6 @@ describe('databaseBulkInserter Tests', () => {
     describe('databaseBulkInserter Tests', () => {
         const base_version = '4_0_0';
         test('execAsync works', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -113,7 +108,6 @@ describe('databaseBulkInserter Tests', () => {
             // now execute the bulk inserts
             await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
 
@@ -144,11 +138,6 @@ describe('databaseBulkInserter Tests', () => {
         });
 
         test('execAsync handles mongo error', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -226,7 +215,6 @@ describe('databaseBulkInserter Tests', () => {
             // now execute the bulk inserts
             const result = await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
 
@@ -253,11 +241,6 @@ describe('databaseBulkInserter Tests', () => {
     describe('databaseBulkInserter CodeSystem concurrency Tests', () => {
         const base_version = '4_0_0';
         test('execAsync works on CodeSystem without concurrency', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -503,7 +486,6 @@ describe('databaseBulkInserter Tests', () => {
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
@@ -724,11 +706,6 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -955,7 +932,6 @@ describe('databaseBulkInserter Tests', () => {
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
@@ -1178,11 +1154,6 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -1328,7 +1299,6 @@ describe('databaseBulkInserter Tests', () => {
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
@@ -1439,11 +1409,6 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
         test('execAsync works on CodeSystem with multiple inserts with same resource', async () => {
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -1527,7 +1492,6 @@ describe('databaseBulkInserter Tests', () => {
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([

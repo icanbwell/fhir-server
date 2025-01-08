@@ -101,11 +101,6 @@ class ValidateOperation {
             /** @type {string} */
             path
         } = requestInfo;
-
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
         // Note: no auth check needed to call validate
 
         // We accept the resource in the two forms allowed in FHIR:
@@ -163,7 +158,6 @@ class ValidateOperation {
                             resource_incoming,
                             resourceType,
                             path,
-                            currentDate,
                             parsedArgs,
                             currentOperationName,
                             requestInfo,
@@ -195,7 +189,6 @@ class ValidateOperation {
                     resource_incoming,
                     resourceType,
                     path,
-                    currentDate,
                     parsedArgs,
                     currentOperationName,
                     requestInfo,
@@ -220,7 +213,6 @@ class ValidateOperation {
      * @param {Object} resource_incoming
      * @param {string} resourceType
      * @param {string} path
-     * @param currentDate
      * @param parsedArgs
      * @param currentOperationName
      * @param {string} base_version
@@ -234,7 +226,6 @@ class ValidateOperation {
             resource_incoming,
             resourceType,
             path,
-            currentDate,
             parsedArgs,
             currentOperationName,
             requestInfo,
@@ -337,7 +328,6 @@ class ValidateOperation {
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,
                 path,
-                currentDate,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
                 profile: specifiedProfile

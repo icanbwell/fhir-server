@@ -29,10 +29,15 @@ const flushBuffer = async (fnGetContainer) => {
     const postSaveProcessor = container.postSaveProcessor;
     await postSaveProcessor.flushAsync();
     /**
-     * @type {import('../utils/auditLogger').AuditLogger}
+     * @type {import('./utils/auditLogger').AuditLogger}
      */
     const auditLogger = container.auditLogger;
     await auditLogger.flushAsync();
+    /**
+     * @type {import('./utils/accessLogger').AccessLogger}
+     */
+    const accessLogger = container.accessLogger;
+    await accessLogger.flushAsync();
 };
 
 /**

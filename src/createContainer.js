@@ -434,11 +434,11 @@ const createContainer = function () {
     );
     container.register('accessLogger', (c) => new AccessLogger(
             {
-                databaseUpdateFactory: c.databaseUpdateFactory,
                 scopesManager: c.scopesManager,
                 fhirOperationsManager: c.fhirOperationsManager,
                 imageVersion: getImageVersion(),
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseBulkInserter: c.databaseBulkInserter
             }
         )
     );
