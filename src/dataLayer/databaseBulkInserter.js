@@ -35,6 +35,7 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -264,14 +265,25 @@ class DatabaseBulkInserter extends EventEmitter {
      * @property {string} operationType
      * @property {import('mongodb').AnyBulkWriteOperation} operation
      * @property {MergePatchEntry[]|null} patches
+     * @property {boolean} isAccessLogOperation
      *
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
      */
-    getOperationForResourceAsync ({ requestId, resourceType, doc, operationType, operation, patches }) {
+    getOperationForResourceAsync ({
+        requestId,
+        resourceType,
+        doc,
+        operationType,
+        operation,
+        patches,
+        isAccessLogOperation = false
+    }) {
         try {
-            assertTypeEquals(doc, Resource);
-            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+            if (!isAccessLogOperation) {
+                assertTypeEquals(doc, Resource);
+                assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+            }
             if (doc._id) {
                 logInfo('_id still present', {
                     args: {
@@ -690,9 +702,17 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} currentDate
      * @param {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
      * @param {boolean} maintainOrder
+     * @param {boolean} isAccessLogOperation
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync ({ requestInfo, currentDate, base_version, operationsMap, maintainOrder = true }) {
+    async executeAsync ({
+        requestInfo,
+        currentDate,
+        base_version,
+        operationsMap,
+        maintainOrder = true,
+        isAccessLogOperation = false
+    }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         assertIsValid(requestId, 'requestId is null');
@@ -723,7 +743,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         mapEntry,
                         base_version,
                         useHistoryCollection: false,
-                        maintainOrder
+                        maintainOrder,
+                        isAccessLogOperation
                     }
                 ));
 
@@ -796,6 +817,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
      * @param {boolean} maintainOrder
+     * @param {boolean} isAccessLogOperation
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync (
@@ -805,7 +827,8 @@ class DatabaseBulkInserter extends EventEmitter {
             currentDate,
             mapEntry,
             useHistoryCollection,
-            maintainOrder = true
+            maintainOrder = true,
+            isAccessLogOperation = false
         }
     ) {
         try {
@@ -822,7 +845,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     base_version,
                     useHistoryCollection,
                     operations,
-                    maintainOrder
+                    maintainOrder,
+                    isAccessLogOperation
                 });
         } catch (e) {
             throw new RethrownError({
@@ -840,6 +864,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
      * @param {boolean} maintainOrder
+     * @param {boolean} isAccessLogOperation
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync (
@@ -850,7 +875,8 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection,
             operations,
             requestInfo,
-            maintainOrder = true
+            maintainOrder = true,
+            isAccessLogOperation = false
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
@@ -876,9 +902,13 @@ class DatabaseBulkInserter extends EventEmitter {
                 /**
                  * @type {string}
                  */
-                const collectionName = useHistoryCollection
-                    ? await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource)
-                    : await resourceLocator.getCollectionNameAsync(resource);
+                const collectionName = isAccessLogOperation
+                    ? ACCESS_LOGS_COLLECTION_NAME
+                    : useHistoryCollection
+                      ? await resourceLocator.getHistoryCollectionNameAsync(
+                            resource.resource || resource
+                        )
+                      : await resourceLocator.getCollectionNameAsync(resource);
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
@@ -925,7 +955,9 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                      */
-                    const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                    const collection = isAccessLogOperation
+                        ? await resourceLocator.getOrCreateAccessLogCollectionAsync()
+                        : await resourceLocator.getOrCreateCollectionAsync(collectionName);
                     /**
                      * @type {BulkInsertUpdateEntry[]}
                      */
@@ -1059,7 +1091,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                 resourceType,
                                 bulkInsertUpdateEntry: operationByCollection,
                                 bulkWriteResult,
-                                useHistoryCollection
+                                useHistoryCollection,
+                                isAccessLogOperation
                             })
                         );
                     }
@@ -1093,6 +1126,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
      * @param {import('mongodb').BulkWriteResult} bulkWriteResult
      * @param {boolean} useHistoryCollection
+     * @param {boolean} isAccessLogOperation
      * @returns {Promise<MergeResultEntry>}
      */
     async postSaveAsync (
@@ -1102,7 +1136,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             bulkInsertUpdateEntry,
             bulkWriteResult,
-            useHistoryCollection
+            useHistoryCollection,
+            isAccessLogOperation = false
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -1121,7 +1156,12 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
         );
-        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
+        if (
+            !bulkInsertUpdateEntry.skipped &&
+            resourceType !== 'AuditEvent' &&
+            !useHistoryCollection &&
+            !isAccessLogOperation
+        ) {
             await this.insertOneHistoryAsync(
                 {
                     requestInfo,
@@ -1173,7 +1213,12 @@ class DatabaseBulkInserter extends EventEmitter {
         }
 
         // fire change events
-        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
+        if (
+            !bulkInsertUpdateEntry.skipped &&
+            resourceType !== 'AuditEvent' &&
+            !useHistoryCollection &&
+            !isAccessLogOperation
+        ) {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => await this.postSaveProcessor.afterSaveAsync({

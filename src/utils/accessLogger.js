@@ -1,44 +1,42 @@
+const cron = require('node-cron');
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
+const { Mutex } = require('async-mutex');
 const os = require('os');
 
 const { ACCESS_LOGS_COLLECTION_NAME, REQUEST_ID_TYPE } = require('../constants');
-const { assertTypeEquals } = require('./assertType');
-const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
 const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
-const { logInfo } = require('../operations/common/logging');
+const { logInfo, logError } = require('../operations/common/logging');
+const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const mutex = new Mutex();
 
 class AccessLogger {
     /**
      * constructor
      * @typedef {Object} params
-     * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {ScopesManager} scopesManager
      * @property {FhirOperationsManager} fhirOperationsManager
      * @property {string} base_version
      * @property {string|null} imageVersion
      * @property {ConfigManager} configManager
+     * @property {DatabaseBulkInserter} databaseBulkInserter
      *
      * @param {params}
      */
     constructor ({
-        databaseUpdateFactory,
         scopesManager,
         fhirOperationsManager,
         base_version = '4_0_0',
         imageVersion,
-        configManager
+        configManager,
+        databaseBulkInserter
     }) {
-        /**
-         * @type {DatabaseUpdateFactory}
-         */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
         /**
          * @type {ScopesManager}
          */
@@ -61,18 +59,20 @@ class AccessLogger {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
-    }
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {object[]}
+         */
+        this.queue = [];
 
-    /**
-     * Create access log entry in access log db
-     * @param {Object} accessLogEntry
-     */
-    async createAccessLogEntry ({ accessLogEntry }) {
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: ACCESS_LOGS_COLLECTION_NAME,
-            base_version: this.base_version
+        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
+        cron.schedule(this.configManager.postRequestFlushTime, async () => {
+            await this.flushAsync();
         });
-        await databaseUpdateManager.insertOneAccessLogAsync({ doc: accessLogEntry });
     }
 
     /**
@@ -282,11 +282,84 @@ class AccessLogger {
             meta: logEntry
         };
 
-        // calling in setImmediate to process it in next iteration of event loop
-        // to prevent creating access log entry in MicroTask
-        setImmediate(async () => {
-            await this.createAccessLogEntry({ accessLogEntry });
-        });
+        this.queue.push({ doc: accessLogEntry, requestInfo });
+
+        if (this.queue.length >= this.configManager.postRequestBufferSize) {
+            await this.flushAsync();
+        }
+    }
+
+
+    /**
+     * Flush
+     * @return {Promise<void>}
+     */
+    async flushAsync () {
+        if (this.queue.length === 0) {
+            return;
+        }
+        const release = await mutex.acquire();
+        let currentQueue = [];
+        try {
+            currentQueue = this.queue.splice(0, this.queue.length);
+        } finally {
+            release();
+        }
+
+        let requestId;
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
+        /**
+         * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
+         */
+        const operationsMap = new Map();
+        operationsMap.set(ACCESS_LOGS_COLLECTION_NAME, []);
+
+        for (const { doc, requestInfo } of currentQueue) {
+            ({ requestId } = requestInfo);
+            operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
+                this.databaseBulkInserter.getOperationForResourceAsync({
+                    requestId,
+                    ACCESS_LOGS_COLLECTION_NAME,
+                    doc,
+                    operationType: 'insert',
+                    operation: {
+                        insertOne: {
+                            document: doc
+                        }
+                    },
+                    isAccessLogOperation: true
+                })
+            );
+        }
+        if (operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).length > 0) {
+            const requestInfo = currentQueue[0].requestInfo;
+            /**
+             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync({
+                requestInfo,
+                currentDate,
+                base_version: this.base_version,
+                operationsMap,
+                maintainOrder: false,
+                isAccessLogOperation: true
+            });
+            /**
+             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+             */
+            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            if (mergeResultErrors.length > 0) {
+                logError('Error creating access-log entries', {
+                    error: mergeResultErrors,
+                    source: 'flushAsync',
+                    args: {
+                        request: { id: requestId },
+                        errors: mergeResultErrors
+                    }
+                });
+            }
+        }
     }
 }
 

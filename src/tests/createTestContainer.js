@@ -22,9 +22,10 @@ const createTestContainer = function (fnUpdateContainer) {
         }));
     container.register('accessLogger', (c) => new MockAccessLogger(
         {
-            databaseUpdateFactory: c.databaseUpdateFactory,
             scopesManager: c.scopesManager,
-            fhirOperationsManager: c.fhirOperationsManager
+            fhirOperationsManager: c.fhirOperationsManager,
+            configManager: c.configManager,
+            databaseBulkInserter: c.databaseBulkInserter
         }));
     container.register('auditLogger', (c) => new MockAuditLogger(
         {
