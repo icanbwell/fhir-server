@@ -12,7 +12,7 @@ const { getCircularReplacer } = require('./getCircularReplacer');
 const { OPERATIONS: { READ, WRITE } } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
-const { logInfo, logError } = require('../operations/common/logging');
+const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const mutex = new Mutex();
 
@@ -283,10 +283,6 @@ class AccessLogger {
         };
 
         this.queue.push({ doc: accessLogEntry, requestInfo });
-
-        if (this.queue.length >= this.configManager.postRequestBufferSize) {
-            await this.flushAsync();
-        }
     }
 
 
@@ -305,6 +301,8 @@ class AccessLogger {
         } finally {
             release();
         }
+
+        logDebug(`Flushing ${currentQueue.length} access log entries`, {});
 
         let requestId;
 

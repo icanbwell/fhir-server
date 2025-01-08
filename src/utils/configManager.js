@@ -520,14 +520,6 @@ class ConfigManager {
     }
 
     /**
-     * returns the buffer size for post request processes
-     * @returns {number|number}
-     */
-    get postRequestBufferSize () {
-        return parseInt(env.POST_REQUEST_BUFFER_SIZE) || 100;
-    }
-
-    /**
      * S3 bucket name to export data to S3
      */
     get bulkExportS3BucketName () {
