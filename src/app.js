@@ -169,7 +169,9 @@ function createApp ({ fnGetContainer }) {
                     userAgent: req.headers['user-agent'],
                     originService: req.headers['origin-service'],
                     scope: req.authInfo?.scope,
-                    altId: username
+                    altId: username,
+                    id: req.id,
+                    systemGeneratedRequestId: req.uniqueRequestId
                 });
             }
         });
@@ -255,6 +257,7 @@ function createApp ({ fnGetContainer }) {
         ) => {
             // Generates a unique uuid that is used for operations
             const uniqueRequestId = generateUUID();
+            req.uniqueRequestId = uniqueRequestId;
             httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
 
             // Stores the userRquestId in httpContext and later used for logging and creating bundles.
