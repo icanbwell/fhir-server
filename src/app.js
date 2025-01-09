@@ -113,11 +113,11 @@ function createApp ({ fnGetContainer }) {
         const reqMethod = req.method.toUpperCase();
         logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
+        const username = req.authInfo?.context?.username ||
+            req.authInfo?.context?.subject ||
+            ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
         res.on('finish', () => {
             const finishTime = new Date().getTime();
-            const username = req.authInfo?.context?.username ||
-                req.authInfo?.context?.subject ||
-                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
             const logData = {
                 status: res.statusCode,
                 responseTime: `${(finishTime - startTime) / 1000}s`,
@@ -156,6 +156,20 @@ function createApp ({ fnGetContainer }) {
                 });
             }
             logInfo('Request Completed', logData);
+        });
+        res.on('close', () => {
+            if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))){
+                const abortTime = new Date().getTime();
+                logInfo('Request Aborted', {
+                    abortTime: `${(abortTime - startTime) / 1000}s`,
+                    requestUrl: reqPath,
+                    method: reqMethod,
+                    userAgent: req.headers['user-agent'],
+                    originService: req.headers['origin-service'],
+                    scope: req.authInfo?.scope,
+                    altId: username
+                });
+            }
         });
         next();
     });
