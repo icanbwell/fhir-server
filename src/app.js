@@ -102,6 +102,8 @@ function createApp ({ fnGetContainer }) {
      */
     const configManager = container.configManager;
 
+    const accessLogger = container.accessLogger;
+
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
     // Urls to be ignored for which access logs are to be created in db.
@@ -148,7 +150,7 @@ function createApp ({ fnGetContainer }) {
                 configManager.enableAccessLogsMiddleware &&
                 !ignoredUrls.some(url => reqPath.startsWith(url))
             ) {
-                container.accessLogger.logAccessLogAsync({
+                accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
