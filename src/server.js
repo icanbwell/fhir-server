@@ -81,7 +81,7 @@ async function createServer (fnGetContainer) {
             socket.end();
         });
         socket.once('error', function (e) {
-            logError('Socket error', { error: e });
+            logError('Socket error', { error: e, errMessage: e.message, stack: e.stack });
             socket.end();
         });
     });
