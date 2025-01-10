@@ -111,10 +111,10 @@ function createApp ({ fnGetContainer }) {
 
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
-        // Generates a unique uuid that is used for operations
+        // Generates a unique uuid and store in req and later used for operations
         const uniqueRequestId = generateUUID();
         req.uniqueRequestId = uniqueRequestId;
-        // Stores the userRequestId in httpContext and later used for logging and creating bundles.
+        // Stores the userRequestId in req and later used for logging and creating bundles.
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
 
         const reqPath = req.originalUrl;
