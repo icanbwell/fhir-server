@@ -513,6 +513,10 @@ class FhirDataSource {
                 base_version, parsedArgs, resourceType, operation: READ
             }
         );
+        headers = {
+            prefer: 'global_id=true',
+            ...headers
+        }
         if (headers) {
             parsedArgs.headers = headers;
         }

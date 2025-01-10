@@ -29,7 +29,7 @@ Evidence.Variable
     exposures/interventions, comparators, outcomes, measured variables,
     confounding variables), the statistics, and the certainty of this evidence.
 """
-type EvidenceVariable {
+type BackboneEvidenceVariable {
     """
     None
     """

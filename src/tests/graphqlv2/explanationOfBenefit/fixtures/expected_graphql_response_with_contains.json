@@ -38,7 +38,7 @@
                 ]
               }
             ],
-            "id": "WPS-Claim-230916613369",
+            "id": "2b2ea9d1-73b9-58fe-8572-9f757ada9769",
             "identifier": [
               {
                 "system": "https://www.wpshealth.com/",
@@ -67,7 +67,7 @@
             ],
             "insurer": {
               "resource": {
-                "id": "WPS-Health"
+                "id": "05da92c1-d004-5e5a-971a-e49cda65e672"
               }
             },
             "item": [

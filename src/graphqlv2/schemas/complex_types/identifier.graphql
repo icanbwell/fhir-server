@@ -13,7 +13,7 @@ type IdentifierAssignerReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: Organization
     type: URI
     identifier: Identifier
     display: String

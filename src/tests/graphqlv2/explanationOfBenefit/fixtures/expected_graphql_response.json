@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "id": "WPS-Claim-230916613369",
+        "id": "2b2ea9d1-73b9-58fe-8572-9f757ada9769",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -72,8 +72,8 @@
             ]
           }
         ],
-        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "WPS-0559166162" } } }],
-        "insurer": { "resource": { "id": "WPS-Health" } },
+        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4" } } }],
+        "insurer": { "resource": { "id": "05da92c1-d004-5e5a-971a-e49cda65e672" } },
         "item": [
           {
             "adjudication": [
@@ -215,7 +215,7 @@
         "provider": {
           "resource": {
             "__typename": "Organization",
-            "id": "733797173",
+            "id": "2b931c83-3cde-547f-b85c-9ace1819acd1",
             "identifier": [
               { "system": "bwell", "value": "-733797173" },
               { "system": "https://www.icanbwell.com/sourceId", "value": "733797173" },
@@ -251,12 +251,12 @@
           "text": "Claim Type"
         },
         "use": "claim",
-        "patient": { "resource": { "id": "WPS-0559166162" } }
+        "patient": { "resource": { "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4" } }
       }
     },
     {
       "resource": {
-        "id": "WPS-Claim-429017018331",
+        "id": "6df8ebde-886b-5033-b053-57274a1bfb3b",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -357,8 +357,8 @@
             ]
           }
         ],
-        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "WPS-5458231534" } } }],
-        "insurer": { "resource": { "id": "WPS-Health" } },
+        "insurance": [{ "focal": true, "coverage": { "resource": { "id": "b315b16e-2d91-5c3f-9d83-d049bd415f90" } } }],
+        "insurer": { "resource": { "id": "05da92c1-d004-5e5a-971a-e49cda65e672" } },
         "item": [
           {
             "adjudication": [
@@ -498,7 +498,7 @@
         "provider": {
           "resource": {
             "__typename": "Organization",
-            "id": "733797173",
+            "id": "2b931c83-3cde-547f-b85c-9ace1819acd1",
             "identifier": [
               { "system": "bwell", "value": "-733797173" },
               { "system": "https://www.icanbwell.com/sourceId", "value": "733797173" },
@@ -534,7 +534,7 @@
           "text": "Claim Type"
         },
         "use": "claim",
-        "patient": { "resource": { "id": "WPS-5458231534" } }
+        "patient": { "resource": { "id": "b315b16e-2d91-5c3f-9d83-d049bd415f90" } }
       }
     }
   ],

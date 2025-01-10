@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Schedule from "../resources/schedule.graphql"
 # import Date from "../simple_types/date.graphql"
 # import DateTime from "../simple_types/dateTime.graphql"
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
@@ -15,7 +15,7 @@ type TriggerDefinitionTimingReferenceReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: Schedule
     type: URI
     identifier: Identifier
     display: String

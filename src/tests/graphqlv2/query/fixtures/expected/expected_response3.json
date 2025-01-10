@@ -2,10 +2,10 @@
     "data": {
         "observations": {
             "entry": [
-                { "resource": { "id": "3", "category": null } },
+                { "resource": { "id": "6a550521-1703-5a0e-b565-349a1567cd91", "category": null } },
                 {
                     "resource": {
-                        "id": "1",
+                        "id": "dd402c77-8159-5539-a4c4-00e93edc0698",
                         "category": null
                     }
                 }

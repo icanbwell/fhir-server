@@ -1,40 +1,11 @@
 [
   {
-    "allergyIntolerance": [
-      {
-        "category": [
-          "environment"
-        ],
-        "code": {
-          "text": "Mold (organism)"
-        },
-        "criticality": "low",
-        "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
-        "type": "allergy"
-      }
-    ],
+    "allergyIntolerance": [],
     "birthDate": "2017-01-01",
-    "careTeam": [
-      {
-        "category": [
-          {
-            "coding": [
-              {
-                "code": "favorite-practitioners",
-                "system": "www.icanbwell.com/care-team-category"
-              }
-            ]
-          }
-        ],
-        "id": "68ea6705-c595-445b-9782-a54accfc5d06",
-        "name": "Favorites",
-        "resourceType": "CareTeam",
-        "status": "active"
-      }
-    ],
+    "careTeam": [],
     "explanationOfBenefit": [
       {
-        "id": "WPS-Claim-230916613369",
+        "id": "2b2ea9d1-73b9-58fe-8572-9f757ada9769",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -51,7 +22,7 @@
         ]
       }
     ],
-    "id": "WPS-0559166162",
+    "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4",
     "name": [
       {
         "family": "PATIENT1",
@@ -73,7 +44,7 @@
     "careTeam": [],
     "explanationOfBenefit": [
       {
-        "id": "WPS-Claim-429017018331",
+        "id": "6df8ebde-886b-5033-b053-57274a1bfb3b",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -90,7 +61,7 @@
         ]
       }
     ],
-    "id": "WPS-5458231534",
+    "id": "b315b16e-2d91-5c3f-9d83-d049bd415f90",
     "name": [
       {
         "family": "PATIENT2",

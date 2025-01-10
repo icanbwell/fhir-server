@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
-# import EvidenceVariable from "../backbone_elements/evidenceVariable.graphql"
+# import BackboneEvidenceVariable from "../backbone_elements/evidenceVariable.graphql"
 # import EvidenceAttributeEstimate from "../backbone_elements/evidenceAttributeEstimate.graphql"
 
 
@@ -54,7 +54,7 @@ type EvidenceModelCharacteristic {
     """
     A variable adjusted for in the adjusted analysis.
     """
-    variable: [EvidenceVariable]
+    variable: [BackboneEvidenceVariable]
     """
     An attribute of the statistic used as a model characteristic.
     """

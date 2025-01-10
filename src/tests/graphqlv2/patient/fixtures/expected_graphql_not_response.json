@@ -9,7 +9,7 @@
             "careTeam": [],
             "explanationOfBenefit": [
               {
-                "id": "WPS-Claim-429017018331",
+                "id": "6df8ebde-886b-5033-b053-57274a1bfb3b",
                 "identifier": [
                   {
                     "system": "https://www.wpshealth.com/",
@@ -26,7 +26,7 @@
                 ]
               }
             ],
-            "id": "WPS-5458231534",
+            "id": "b315b16e-2d91-5c3f-9d83-d049bd415f90",
             "name": [
               {
                 "family": "PATIENT2",

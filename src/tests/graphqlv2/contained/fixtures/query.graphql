@@ -1,0 +1,41 @@
+query {
+  conditions {
+    entry {
+      resource {
+        id
+        onsetDateTime
+        code {
+          text
+        }
+        contained {
+          ... on Location {
+            resourceType
+            name
+            address {
+              city
+              country
+              state
+              postalCode
+              line
+            }
+          }
+          ... on Organization {
+            resourceType
+            name
+            type {
+              coding {
+                system
+                code
+                display
+              }
+            }
+            telecom {
+              system
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}

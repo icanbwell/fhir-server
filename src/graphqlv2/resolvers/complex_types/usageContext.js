@@ -2,6 +2,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    UsageContextValueReference: {
+        __resolveType (obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        }
+    },
     UsageContextValueReferenceReference: {
         // noinspection JSUnusedLocalSymbols
         resource: async (parent, args, context, info) => {
