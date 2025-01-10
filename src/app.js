@@ -111,9 +111,19 @@ function createApp ({ fnGetContainer }) {
 
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
+        // Generates a unique uuid and store in req and later used for operations
+        const uniqueRequestId = generateUUID();
+        req.uniqueRequestId = uniqueRequestId;
+        // Stores the userRequestId in req and later used for logging and creating bundles.
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
+        logInfo('Incoming Request', {
+            path: reqPath,
+            method: reqMethod,
+            request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId}
+        });
         const startTime = new Date().getTime();
         const username = req.authInfo?.context?.username ||
             req.authInfo?.context?.subject ||
@@ -170,8 +180,7 @@ function createApp ({ fnGetContainer }) {
                     originService: req.headers['origin-service'],
                     scope: req.authInfo?.scope,
                     altId: username,
-                    id: req.id,
-                    systemGeneratedRequestId: req.uniqueRequestId
+                    request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId}
                 });
             }
         });
@@ -217,6 +226,25 @@ function createApp ({ fnGetContainer }) {
     // Used to initialize context for each request
     app.use(httpContext.middleware);
 
+    /**
+     * Generate a unique ID for each request at earliest.
+     * Use x-request-id in header if sent.
+     */
+    app.use(
+        (
+            /** @type {import('http').IncomingMessage} **/ req,
+            /** @type {import('http').ServerResponse} **/ res,
+            next
+        ) => {
+            // Stores uniqueRequestId in httpContext and later used for logging
+            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, req.uniqueRequestId);
+
+            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+            next();
+        }
+    );
+
     // generate nonce, and add to httpContext
     app.use((req, res, next) => {
         const nonce = generateNonce();
@@ -244,28 +272,6 @@ function createApp ({ fnGetContainer }) {
             }
         }
     };
-
-    /**
-     * Generate a unique ID for each request at earliest.
-     * Use x-request-id in header if sent.
-     */
-    app.use(
-        (
-            /** @type {import('http').IncomingMessage} **/ req,
-            /** @type {import('http').ServerResponse} **/ res,
-            next
-        ) => {
-            // Generates a unique uuid that is used for operations
-            const uniqueRequestId = generateUUID();
-            req.uniqueRequestId = uniqueRequestId;
-            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
-
-            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
-            next();
-        }
-    );
 
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
