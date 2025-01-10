@@ -6,6 +6,8 @@
 # import Code from "../simple_types/code.graphql"
 # import Base64Binary from "../simple_types/base64Binary.graphql"
 
+union SignatureWho = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+
 """
 Reference type for Who
 """
@@ -13,11 +15,13 @@ type SignatureWhoReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: SignatureWho
     type: URI
     identifier: Identifier
     display: String
 }
+
+union SignatureOnBehalfOf = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
 
 """
 Reference type for OnBehalfOf
@@ -26,7 +30,7 @@ type SignatureOnBehalfOfReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: SignatureOnBehalfOf
     type: URI
     identifier: Identifier
     display: String

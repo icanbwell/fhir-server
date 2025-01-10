@@ -73,7 +73,7 @@ describe('GraphQL entities Tests', () => {
                         },
                         {
                             __typename: 'CareTeam',
-                            id: '7d968f42-c0d9-48ff-8b8b-64fd4456280'
+                            id: 'af56a61a-34e6-5a7f-9539-cdc82c000f6f'
                         },
                         {
                             __typename: 'Patient',
@@ -81,7 +81,7 @@ describe('GraphQL entities Tests', () => {
                         },
                         {
                             __typename: 'Patient',
-                            id: 'WPS-5458231534'
+                            id: '88d5028b-42d5-569b-8b3c-beb24c00c6c4'
                         },
                         // invalid ids
                         {

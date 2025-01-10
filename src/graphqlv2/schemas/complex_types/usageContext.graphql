@@ -4,7 +4,15 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Range from "../complex_types/range.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import PlanDefinition from "../resources/planDefinition.graphql"
+# import ResearchStudy from "../resources/researchStudy.graphql"
+# import InsurancePlan from "../resources/insurancePlan.graphql"
+# import HealthcareService from "../resources/healthcareService.graphql"
+# import Group from "../resources/group.graphql"
+# import Location from "../resources/location.graphql"
+# import Organization from "../resources/organization.graphql"
+
+union UsageContextValueReference = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 
 """
 Reference type for ValueReference
@@ -13,7 +21,7 @@ type UsageContextValueReferenceReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: UsageContextValueReference
     type: URI
     identifier: Identifier
     display: String

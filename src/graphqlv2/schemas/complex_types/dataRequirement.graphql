@@ -3,7 +3,7 @@
 # import Code from "../simple_types/code.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Group from "../resources/group.graphql"
 # import DataRequirementCodeFilter from "../complex_types/dataRequirementCodeFilter.graphql"
 # import DataRequirementDateFilter from "../complex_types/dataRequirementDateFilter.graphql"
 # import positiveInt from "../simple_types/int.graphql"
@@ -16,7 +16,7 @@ type DataRequirementSubjectReferenceReference {
     id: String
     extension: [Extension]
     reference: String
-    resource: Resource
+    resource: Group
     type: URI
     identifier: Identifier
     display: String

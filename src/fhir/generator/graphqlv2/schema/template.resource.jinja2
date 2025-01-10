@@ -24,6 +24,8 @@
 # import {{ property.cleaned_type | replace(".","") }} from "../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt", "decimal", "id", "number", "unsignedInt"] %}
 {# do nothing since this is a GraphQL type            #}
+        {% elif property.type_snake_case in ["resourceContainer"] %}
+        {# do nothing as replaced by 'Resource' #}
         {% elif property.scalar_type != None %}
 # import {{ property.scalar_type }} from "../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {%  else %}
@@ -110,8 +112,12 @@ type {{ fhir_entity.cleaned_name }} @key(fields: "id") {
         {% if property.is_list -%}
             {{ '[' -}}
         {% endif -%}
-        {% if property.cleaned_type == "Extension" %}
+        {% if property.name == "id" %}
+        {{- 'ID!' -}}
+        {% elif property.cleaned_type == "Extension" %}
         {{- 'Extension' -}}
+        {% elif property.cleaned_type == "ResourceContainer" %}
+        {{- 'Resource' -}}
         {% elif property.is_code %}
         {{- 'Code' -}}
         {% elif property.reference_target_resources -%}
@@ -120,9 +126,6 @@ type {{ fhir_entity.cleaned_name }} @key(fields: "id") {
         {{- property.scalar_type -}}
         {% else %}
         {{- property.cleaned_type | replace(".","") -}}
-        {% endif %}
-        {% if property.name == "id" %}
-        {{- '!' -}}
         {% endif %}
         {% if property.is_list -%}
             {{ ']' -}}

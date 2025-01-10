@@ -18,6 +18,8 @@
 # import {{ property.type_ | replace(".","") }} from "../resources/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_extension %}
 # import {{ property.type_ | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
+        {% elif property.fhir_type == "BackboneElement" and property.cleaned_type == "EvidenceVariable" %}
+# import Backbone{{ property.type_ | replace(".","") }} from "../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.fhir_type == "BackboneElement" %}
 # import {{ property.type_ | replace(".","") }} from "../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_complex or property.fhir_type == "Element" %}
@@ -94,7 +96,10 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
     {{ documentation_item | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
 {%  endfor %}
 """
-type {{fhir_entity.cleaned_name}} {
+type {% if fhir_entity.cleaned_name == "EvidenceVariable" -%}
+    {{- 'Backbone' -}}
+{%- endif -%}
+{{- fhir_entity.cleaned_name}} {
 {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}
     """
@@ -112,6 +117,8 @@ type {{fhir_entity.cleaned_name}} {
             {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}{{ "Reference" -}}
         {% elif property.scalar_type != None %}
         {{- property.scalar_type -}}
+        {% elif property.fhir_type == "BackboneElement" and property.cleaned_type == "EvidenceVariable" %}
+        {{- 'BackboneEvidenceVariable' -}}
         {% else %}
         {{- property.cleaned_type | replace(".","") -}}
         {%  endif %}

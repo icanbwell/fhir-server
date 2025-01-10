@@ -3,7 +3,6 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
@@ -22,7 +21,7 @@ type Substance implements DomainResource & Resource @key(fields: "id") {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: String!
+    id: ID!
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
@@ -54,7 +53,7 @@ type Substance implements DomainResource & Resource @key(fields: "id") {
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]
+    contained: [Resource]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,

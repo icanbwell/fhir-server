@@ -716,7 +716,10 @@ describe('GraphQL Patient Tests', () => {
                         variables: {},
                         query: graphqlQueryText
                     })
-                    .set(getGraphQLHeaders());
+                    .set({
+                        ...getGraphQLHeaders(),
+                        prefer: 'global_id=false'
+                    });
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResponse(expectedGraphQlNotMissingAddressResponse, r => {
                     r.explanationOfBenefit.forEach(resource => {

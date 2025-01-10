@@ -2,8 +2,8 @@
     "data": {
         "observations": {
             "entry": [
-                { "resource": { "id": "2", "category": null } },
-                { "resource": { "id": "3", "category": null } }
+                { "resource": { "id": "09b8bd5b-1516-516d-8adb-9be114701f64", "category": null } },
+                { "resource": { "id": "6a550521-1703-5a0e-b565-349a1567cd91", "category": null } }
             ],
             "meta": {
                 "tag": [
