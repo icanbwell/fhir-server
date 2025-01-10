@@ -1,0 +1,82 @@
+{
+    "data": {
+        "_entities": [
+            {
+                "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
+                "type": "allergy",
+                "allergyCategory": ["environment"],
+                "criticality": "low",
+                "code": {
+                    "text": "Mold (organism)"
+                }
+            },
+            {
+                "id": "e039c680-1024-34ff-d9d8-5d87feada4d5",
+                "type": "allergy",
+                "allergyCategory": ["environment"],
+                "criticality": "low",
+                "code": {
+                    "text": "Bee venom (substance)"
+                }
+            },
+            {
+                "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+                "resourceType": "CareTeam",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "www.icanbwell.com/care-team-category",
+                                "code": "favorite-practitioners"
+                            }
+                        ]
+                    }
+                ],
+                "careTeamName": "Favorites",
+                "status": "active"
+            },
+            {
+                "id": "af56a61a-34e6-5a7f-9539-cdc82c000f6f",
+                "resourceType": "CareTeam",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "www.icanbwell.com/care-team-category",
+                                "code": "favorite-practitioners"
+                            }
+                        ]
+                    }
+                ],
+                "careTeamName": "Favorites",
+                "status": "active"
+            },
+            {
+                "id": "WPS-0559166162",
+                "__typename": "Patient",
+                "name": [
+                    {
+                        "family": "PATIENT1",
+                        "given": ["SHYLA"]
+                    },
+                    {
+                        "family": "PATIENT2",
+                        "given": ["SHYLA2"]
+                    }
+                ],
+                "birthDate": "2017-01-01"
+            },
+            {
+                "id": "WPS-5458231534",
+                "__typename": "Patient",
+                "name": [
+                    {
+                        "family": "PATIENT2",
+                        "given": ["SHYLA"]
+                    }
+                ],
+                "birthDate": "2017-01-01"
+            }
+        ]
+    }
+}
