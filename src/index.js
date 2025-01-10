@@ -3,7 +3,6 @@
  */
 // Load the rest of the modules
 const cluster = require('cluster');
-const os = require('os');
 const Sentry = require('@sentry/node');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
@@ -30,7 +29,7 @@ const main = async function () {
 
 const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
 if (cluster.isMaster && numCPUs > 1) {
-    console.log(JSON.stringify({"message": `Master ${process.pid} is running`}));
+    console.log(JSON.stringify({message: `Master ${process.pid} is running`}));
 
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
@@ -38,14 +37,14 @@ if (cluster.isMaster && numCPUs > 1) {
     }
 
     cluster.on('exit', (worker, code, signal) => {
-        console.log(JSON.stringify({"message": `Worker ${worker.process.pid} died`}));
+        console.log(JSON.stringify({message: `Worker ${worker.process.pid} died`}));
         // Optionally, you can fork a new worker here
         cluster.fork();
     });
 } else {
     (async () => {
         try {
-            console.log(JSON.stringify({"message": `Worker ${process.pid} started`}));
+            console.log(JSON.stringify({message: `Worker ${process.pid} started`}));
             // Your async code here
             await main();
         } catch (error) {
