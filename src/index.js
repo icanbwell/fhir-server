@@ -36,6 +36,17 @@ if (cluster.isMaster && numCPUs > 1) {
         cluster.fork();
     }
 
+    // Forward all signals to the worker processes
+    const forwardSignal = (signal) => {
+        for (const id in cluster.workers) {
+            cluster.workers[id].process.kill(signal);
+        }
+    };
+
+    process.on('SIGTERM', () => forwardSignal('SIGTERM'));
+    process.on('SIGINT', () => forwardSignal('SIGINT'));
+    process.on('SIGQUIT', () => forwardSignal('SIGQUIT'));
+
     cluster.on('exit', (worker, code, signal) => {
         console.log(JSON.stringify({message: `Worker ${worker.process.pid} died`}));
         // Optionally, you can fork a new worker here
