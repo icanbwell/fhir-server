@@ -45,7 +45,6 @@
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import Meta from "../complex_types/meta.graphql"
-# import ResourceContainer from "../simple_types/resourceContainer.graphql"
 
 """
 Reference type for ValueReference
@@ -303,7 +302,7 @@ type ParametersParameter {
     """
     If the parameter is a whole resource.
     """
-    resource: ResourceContainer
+    resource: Resource
     """
     A named part of a multi-part parameter.
     """

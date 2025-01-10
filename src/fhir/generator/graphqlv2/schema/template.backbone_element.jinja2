@@ -26,6 +26,8 @@
 # import {{ property.cleaned_type | replace(".","") }} from "../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt", "decimal", "id", "number", "unsignedInt"] %}
 {# do nothing since this is a GraphQL type            #}
+        {% elif property.type_snake_case in ["resourceContainer"] %}
+{# do nothing as replaced by 'Resource' #}
         {% elif property.scalar_type != None %}
 # import {{ property.scalar_type }} from "../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {%  else %}
@@ -117,6 +119,8 @@ type {% if fhir_entity.cleaned_name == "EvidenceVariable" -%}
             {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}{{ "Reference" -}}
         {% elif property.scalar_type != None %}
         {{- property.scalar_type -}}
+        {% elif property.cleaned_type == "ResourceContainer" %}
+        {{- 'Resource' -}}
         {% elif property.fhir_type == "BackboneElement" and property.cleaned_type == "EvidenceVariable" %}
         {{- 'BackboneEvidenceVariable' -}}
         {% else %}
