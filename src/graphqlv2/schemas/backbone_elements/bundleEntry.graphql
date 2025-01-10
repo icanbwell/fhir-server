@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import BundleLink from "../backbone_elements/bundleLink.graphql"
 # import URI from "../simple_types/uri.graphql"
-# import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import BundleSearch from "../backbone_elements/bundleSearch.graphql"
 # import BundleRequest from "../backbone_elements/bundleRequest.graphql"
 # import BundleResponse from "../backbone_elements/bundleResponse.graphql"
@@ -60,7 +59,7 @@ type BundleEntry {
     The Resource for the entry. The purpose/meaning of the resource is determined
     by the Bundle.type.
     """
-    resource: ResourceContainer
+    resource: Resource
     """
     Information about the search process that lead to the creation of this entry.
     """
