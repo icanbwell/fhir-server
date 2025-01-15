@@ -27,7 +27,7 @@ const { handleLogout } = require('./routeHandlers/logout');
 const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
 const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleLivenessCheck } = require('./routeHandlers/memoryChecker');
 const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
@@ -306,7 +306,7 @@ function createApp ({ fnGetContainer }) {
         fnGetContainer, req, res
     ));
 
-    app.get('/live', (req, res) => handleMemoryCheck(req, res));
+    app.get('/live', (req, res) => handleLivenessCheck(req, res));
 
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
