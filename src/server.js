@@ -6,7 +6,7 @@ const { fhirServerConfig } = require('./config');
 const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { memoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleReadinessCheck } = require('./routeHandlers/probeChecker');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -88,7 +88,7 @@ async function createServer (fnGetContainer) {
 
     const options = {
         healthChecks: {
-            '/ready': memoryCheck
+            '/ready': handleReadinessCheck
         },
         statusOkResponse: 'OK',
         statusError: 455,

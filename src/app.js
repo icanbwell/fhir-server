@@ -27,7 +27,7 @@ const { handleLogout } = require('./routeHandlers/logout');
 const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
 const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleLivenessCheck } = require('./routeHandlers/memoryChecker');
+const { handleLivenessCheck } = require('./routeHandlers/probeChecker.js');
 const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
@@ -37,6 +37,7 @@ const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
 const { generateLogDetail } = require('./utils/requestCompletionLogData.js');
+const { incrementRequestCount, decrementRequestCount, getRequestCount } = require('./utils/requestCounter');
 
 /**
  * Creates the FHIR app
@@ -111,6 +112,9 @@ function createApp ({ fnGetContainer }) {
 
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
+        // Increment the request count
+        incrementRequestCount();
+
         // Generates a unique uuid and store in req and later used for operations
         const uniqueRequestId = generateUUID();
         req.uniqueRequestId = uniqueRequestId;
@@ -119,16 +123,31 @@ function createApp ({ fnGetContainer }) {
 
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', {
-            path: reqPath,
-            method: reqMethod,
-            request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId}
         });
+        if (getRequestCount() > configManager.noOfRequestsPerPod) {
+            logInfo('Too Many Requests', {
+                path: reqPath,
+                method: reqMethod,
+                request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                requestCount: getRequestCount()
+            });
+            res.status(429).send('Too Many Requests');
+            return;
+        } else {
+            logInfo('Incoming Request', {
+                path: reqPath,
+                method: reqMethod,
+                request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                requestCount: getRequestCount()
+            });
+        }
         const startTime = new Date().getTime();
-        const username = req.authInfo?.context?.username ||
-            req.authInfo?.context?.subject ||
-            ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
         res.on('finish', () => {
+            // Decrement the request count
+            decrementRequestCount();
+            const username = req.authInfo?.context?.username ||
+                req.authInfo?.context?.subject ||
+                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
             const finishTime = new Date().getTime();
             const logData = {
                 status: res.statusCode,
@@ -138,7 +157,8 @@ function createApp ({ fnGetContainer }) {
                 userAgent: req.headers['user-agent'],
                 originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
-                altId: username
+                altId: username,
+                requestCount: getRequestCount()
             };
             if (res.statusCode === 401 || res.statusCode === 403) {
                 logData.detail = generateLogDetail({
@@ -170,17 +190,17 @@ function createApp ({ fnGetContainer }) {
             logInfo('Request Completed', logData);
         });
         res.on('close', () => {
+            // Decrement the request count
+            decrementRequestCount();
+
             if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))){
                 const abortTime = new Date().getTime();
                 logInfo('Request Aborted', {
                     abortTime: `${(abortTime - startTime) / 1000}s`,
                     requestUrl: reqPath,
                     method: reqMethod,
-                    userAgent: req.headers['user-agent'],
-                    originService: req.headers['origin-service'],
-                    scope: req.authInfo?.scope,
-                    altId: username,
-                    request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId}
+                    request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                    requestCount: getRequestCount()
                 });
             }
         });

@@ -64,6 +64,8 @@ services:
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'
+      ENABLE_MEMORY_CHECK: '1'
+      CONTAINER_MEM_REQUEST: 1000000000
     ports:
       - '3000:3000'
     volumes:
