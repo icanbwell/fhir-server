@@ -123,7 +123,7 @@ function createApp ({ fnGetContainer }) {
 
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        
+
         // Check if the current request count exceeds the configured limit
         if (getRequestCount() > configManager.noOfRequestsPerPod) {
             logInfo('Too Many Requests', {
