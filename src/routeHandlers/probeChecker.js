@@ -1,17 +1,28 @@
 /**
- * This route handler implements the checking of memory usage and returns non-200 status id usage is high
+ * This route handler implements the checking of k8 probe usage and returns non-200 status id usage is high
  */
 
 const env = require('var');
 const v8 = require('v8');
 const { HealthCheckError } = require('@godaddy/terminus');
 const { logInfo } = require('../operations/common/logging');
+const { getRequestCount } = require('../utils/requestCounter');
 
-function memoryCheck(terminusState) {
+
+function handleReadinessCheck(terminusState) {
     logInfo('Processing Request', {
         path: '/ready',
         method: 'GET'
     });
+    if (env.NO_OF_REQUESTS_PER_POD) {
+        if (getRequestCount() > parseInt(env.NO_OF_REQUESTS_PER_POD)) {
+            logInfo('Too Many Requests: Server request count threshold breached', {
+                requestCount: getRequestCount(),
+                requesCountLimit: env.NO_OF_REQUESTS_PER_POD
+            })
+            throw new HealthCheckError('healthcheck failed');
+        }
+    }
     if (env.ENABLE_MEMORY_CHECK) {
         let reqMemThreshold = env.CONTAINER_MEM_REQUEST
             ? (parseInt(env.CONTAINER_MEM_REQUEST) + 1048576 - 1) / 1048576
@@ -36,5 +47,5 @@ function handleLivenessCheck(req, res) {
 
 module.exports = {
     handleLivenessCheck,
-    memoryCheck
+    handleReadinessCheck
 };

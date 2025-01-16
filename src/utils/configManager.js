@@ -568,6 +568,16 @@ class ConfigManager {
             ? parseInt(env.ACCESS_LOG_RESULT_SIZE_LIMIT)
             : 7 * 1024 * 1024; // 7 MB
     }
+
+    /**
+     * Gets the number of requests allowed per pod.
+     * @returns {number} The number of requests allowed per pod.
+     */
+    get noOfRequestsPerPod () {
+        return env.NO_OF_REQUESTS_PER_POD? parseInt(env.NO_OF_REQUESTS_PER_POD): 1000;
+    }
+
+
 }
 
 module.exports = {
