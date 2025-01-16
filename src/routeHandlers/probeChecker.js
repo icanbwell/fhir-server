@@ -14,11 +14,11 @@ function handleReadinessCheck(terminusState) {
         path: '/ready',
         method: 'GET'
     });
-    if (env.NO_OF_REQUESTS_PER_POD) {
-        if (getRequestCount() > parseInt(env.NO_OF_REQUESTS_PER_POD)) {
+    if (env.NO_OF_REQUESTS_PER_POD_REDINESS_CHECK) {
+        if (getRequestCount() > parseInt(env.NO_OF_REQUESTS_PER_POD_REDINESS_CHECK)) {
             logInfo('Too Many Requests: Server request count threshold breached', {
                 requestCount: getRequestCount(),
-                requesCountLimit: env.NO_OF_REQUESTS_PER_POD
+                requesCountLimit: env.NO_OF_REQUESTS_PER_POD_REDINESS_CHECK
             })
             throw new HealthCheckError('healthcheck failed');
         }
