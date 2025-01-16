@@ -66,6 +66,7 @@ services:
       ENABLE_BULK_EXPORT: '1'
       ENABLE_MEMORY_CHECK: '1'
       CONTAINER_MEM_REQUEST: 1000000000
+      NO_OF_REQUESTS_PER_POD: 10
     ports:
       - '3000:3000'
     volumes:

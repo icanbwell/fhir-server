@@ -5,9 +5,7 @@ const incrementRequestCount = () => {
 };
 
 const decrementRequestCount = () => {
-    if (requestCount > 0) {
-        requestCount--;
-    }
+    requestCount--;
 };
 
 const getRequestCount = () => {

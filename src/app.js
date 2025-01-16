@@ -112,9 +112,6 @@ function createApp ({ fnGetContainer }) {
 
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
-        // Increment the request count
-        incrementRequestCount();
-
         // Generates a unique uuid and store in req and later used for operations
         const uniqueRequestId = generateUUID();
         req.uniqueRequestId = uniqueRequestId;
@@ -135,6 +132,9 @@ function createApp ({ fnGetContainer }) {
             res.status(429).send('Too Many Requests');
             return;
         } else {
+            // Increment the request count
+            incrementRequestCount();
+
             logInfo('Incoming Request', {
                 path: reqPath,
                 method: reqMethod,
@@ -144,8 +144,6 @@ function createApp ({ fnGetContainer }) {
         }
         const startTime = new Date().getTime();
         res.on('finish', () => {
-            // Decrement the request count
-            decrementRequestCount();
             const username = req.authInfo?.context?.username ||
                 req.authInfo?.context?.subject ||
                 ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
