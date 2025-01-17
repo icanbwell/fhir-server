@@ -1113,7 +1113,7 @@ class FhirXmlSchemaParser:
         return resources_list
 
     @staticmethod
-    def get_types_for_references() -> List[FhirReferenceType]:
+    def get_types_for_references(only_resources = False) -> List[FhirReferenceType]:
         data_dir: Path = Path(__file__).parent.joinpath("./")
         # List of resources to be used for reference any types.
         resources_list = FhirXmlSchemaParser.get_list_of_resources()
@@ -1126,69 +1126,70 @@ class FhirXmlSchemaParser:
             .joinpath("profiles-resources.xml")
         )
 
-        profile_types_xml_file: Path = (
-            data_dir.joinpath("xsd")
-            .joinpath("definitions.xml")
-            .joinpath("profiles-types.xml")
-        )
+        if not only_resources:
+            profile_types_xml_file: Path = (
+                data_dir.joinpath("xsd")
+                .joinpath("definitions.xml")
+                .joinpath("profiles-types.xml")
+            )
 
-        with open(profile_types_xml_file, "rb") as file:
-            contents: bytes = file.read()
-            root: ObjectifiedElement = objectify.fromstring(contents)
-            entries: ObjectifiedElement = root.entry
+            with open(profile_types_xml_file, "rb") as file:
+                contents: bytes = file.read()
+                root: ObjectifiedElement = objectify.fromstring(contents)
+                entries: ObjectifiedElement = root.entry
 
-            entry: ObjectifiedElement
-            for entry in entries:
-                if not hasattr(entry["resource"], "StructureDefinition"):
-                    continue
-
-                structure_definition: ObjectifiedElement = entry["resource"]["StructureDefinition"]
-                # name: str = structure_definition["name"].get("value")
-                snapshot_elements: ObjectifiedElement = structure_definition["snapshot"]["element"]
-                snapshot_element: ObjectifiedElement
-                for snapshot_element in snapshot_elements:
-                    if not hasattr(snapshot_element, 'type'):
+                entry: ObjectifiedElement
+                for entry in entries:
+                    if not hasattr(entry["resource"], "StructureDefinition"):
                         continue
 
-                    types: ObjectifiedElement = snapshot_element["type"]
-                    type_: ObjectifiedElement
-                    for type_ in types:
-                        type_code_obj = type_["code"]
-                        type_code: str = type_code_obj.get("value")
-                        if type_code.endswith("Reference"):
-                            if not hasattr(type_, "targetProfile"):
-                                logger.warning(
-                                    f'ASSERT: targetProfile not in {type_} for {snapshot_element["path"].get("value")}'
-                                )
-                            if hasattr(type_, "targetProfile"):
-                                target_profile_list: ObjectifiedElement = type_[
-                                    "targetProfile"
-                                ]
-                                target_profiles: List[str] = [
-                                    c.get("value") for c in target_profile_list
-                                ]
-                                target_resources: List[str] = [
-                                    c.split("/")[-1] for c in target_profiles
-                                ]
-                                # If target resource is type Reference(Any),
-                                # the target resource will be a list of all resources.
-                                if "Resource" in target_resources:
-                                    fhir_reference: FhirReferenceType = FhirReferenceType(
-                                        target_resources=target_resources,
-                                        path=snapshot_element["path"].get("value"),
+                    structure_definition: ObjectifiedElement = entry["resource"]["StructureDefinition"]
+                    # name: str = structure_definition["name"].get("value")
+                    snapshot_elements: ObjectifiedElement = structure_definition["snapshot"]["element"]
+                    snapshot_element: ObjectifiedElement
+                    for snapshot_element in snapshot_elements:
+                        if not hasattr(snapshot_element, 'type'):
+                            continue
+
+                        types: ObjectifiedElement = snapshot_element["type"]
+                        type_: ObjectifiedElement
+                        for type_ in types:
+                            type_code_obj = type_["code"]
+                            type_code: str = type_code_obj.get("value")
+                            if type_code.endswith("Reference"):
+                                if not hasattr(type_, "targetProfile"):
+                                    logger.warning(
+                                        f'ASSERT: targetProfile not in {type_} for {snapshot_element["path"].get("value")}'
                                     )
-                                    fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
-                                        target_resources=resources_list,
-                                        path=f'{snapshot_element["path"].get("value")}V2',
-                                    )
-                                    fhir_references.append(fhir_reference_v2_support)
-                                # Else target resource is the list of allowed references.
-                                else :
-                                    fhir_reference: FhirReferenceType = FhirReferenceType(
-                                        target_resources=target_resources,
-                                        path=snapshot_element["path"].get("value"),
-                                    )
-                                fhir_references.append(fhir_reference)
+                                if hasattr(type_, "targetProfile"):
+                                    target_profile_list: ObjectifiedElement = type_[
+                                        "targetProfile"
+                                    ]
+                                    target_profiles: List[str] = [
+                                        c.get("value") for c in target_profile_list
+                                    ]
+                                    target_resources: List[str] = [
+                                        c.split("/")[-1] for c in target_profiles
+                                    ]
+                                    # If target resource is type Reference(Any),
+                                    # the target resource will be a list of all resources.
+                                    if "Resource" in target_resources:
+                                        fhir_reference: FhirReferenceType = FhirReferenceType(
+                                            target_resources=target_resources,
+                                            path=snapshot_element["path"].get("value"),
+                                        )
+                                        fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
+                                            target_resources=resources_list,
+                                            path=f'{snapshot_element["path"].get("value")}V2',
+                                        )
+                                        fhir_references.append(fhir_reference_v2_support)
+                                    # Else target resource is the list of allowed references.
+                                    else :
+                                        fhir_reference: FhirReferenceType = FhirReferenceType(
+                                            target_resources=target_resources,
+                                            path=snapshot_element["path"].get("value"),
+                                        )
+                                    fhir_references.append(fhir_reference)
 
         with open(de_xml_file, "rb") as file:
             contents: bytes = file.read()

@@ -352,6 +352,14 @@
     {
       "target": [
         {
+          "type": "Linkage",
+          "params": "item={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "List",
           "params": "patient={ref}"
         }
@@ -434,6 +442,14 @@
         {
           "type": "Patient",
           "params": "link={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "PaymentNotice",
+          "params": "request={ref}"
         }
       ]
     },

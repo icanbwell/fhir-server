@@ -7,7 +7,7 @@ from fhir_xml_schema_parser import FhirXmlSchemaParser
 
 patient_graphs: Path = Path(__file__).parent.joinpath("./../../graphs/patient")
 
-reference_type_list = FhirXmlSchemaParser.get_types_for_references()
+reference_type_list = FhirXmlSchemaParser.get_types_for_references(only_resources=True)
 
 
 def get_clinical_resources(obj, field_names=None):
@@ -16,11 +16,11 @@ def get_clinical_resources(obj, field_names=None):
     """
 
     if field_names is None:
-        field_names = []
+        field_names = set()
 
     for key, value in obj.items():
         if key in ["type", "start"]:
-            field_names.append(value)
+            field_names.add(value)
         elif isinstance(value, dict):
             get_clinical_resources(value, field_names)
         elif isinstance(value, list):
@@ -58,7 +58,8 @@ def main():
     with open(json_file_path, "r") as json_file:
         patient_everything_graph = json.load(json_file)
 
-    clinical_resources = get_clinical_resources(patient_everything_graph)
+    clinical_resources = list(get_clinical_resources(patient_everything_graph))
+    clinical_resources.sort()
 
     json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")
     with open(json_file_path, "w") as json_file:

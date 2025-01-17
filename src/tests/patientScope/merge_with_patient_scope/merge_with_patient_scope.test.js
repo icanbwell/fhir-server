@@ -2,6 +2,11 @@
 const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 const resourceStructure = require('./fixtures/Resource/resource.json');
+const linkageResource = require('./fixtures/Linkage/linkage.json')
+const paymentNoticeResource = require('./fixtures/PaymentNotice/paymentNotice.json')
+
+const expectedLinkageResource = require('./fixtures/expected/expected_linkage.json')
+const expctedPaymentNoticeResource = require('./fixtures/expected/expected_payment_notice.json')
 
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
@@ -16,7 +21,7 @@ const { COLLECTION } = require('../../../constants');
 const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
 
 const person_payload = {
-    scope: 'patient/Condition.write',
+    scope: 'patient/*.*',
     username: 'patient-123@example.com',
     clientFhirPersonId: 'person1',
     clientFhirPatientId: 'clientFhirPatient',
@@ -32,7 +37,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-describe('Condition Tests', () => {
+describe('Patient Scope merge Tests', () => {
     /**
      * @type {string|undefined}
      */
@@ -342,5 +347,55 @@ describe('Condition Tests', () => {
             }
             env.VALIDATE_SCHEMA = envValue;
         });
+    });
+
+    test('merge and get with patient scope works', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        // ARRANGE
+        /** @type {SimpleContainer} */
+        const container = getTestContainer();
+        // add the resources to FHIR server
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = container.postRequestProcessor;
+        // insert Person record
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+        resp = await request
+            .post('/4_0_0/Linkage/$merge')
+            .send(linkageResource)
+            .set(headers);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/PaymentNotice/$merge')
+            .send(paymentNoticeResource)
+            .set(headers);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Linkage?_debug=true')
+            .set(headers);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedLinkageResource);
+
+        resp = await request
+            .get('/4_0_0/PaymentNotice?_debug=true')
+            .set(headers);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expctedPaymentNoticeResource);
     });
 });
