@@ -1,0 +1,27 @@
+[
+    {
+        "resourceType": "Linkage",
+        "id": "linkage1",
+        "meta": {
+            "source": "https://www.icanbwell.com",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "client"
+                }
+            ]
+        },
+        "item": [
+            {
+                "resource": {
+                    "reference": "Patient/patient1"
+                },
+                "type": "source"
+            }
+        ]
+    }
+]

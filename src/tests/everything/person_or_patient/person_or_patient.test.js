@@ -173,7 +173,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp.body.meta).toBeDefined();
             expect(resp.body.meta.tag).toBeDefined();
             const query = resp.body.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query')[0].display;
-            expect(query.split('|').length).toEqual(74);
+            expect(query.split('|').length).toEqual(76);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);

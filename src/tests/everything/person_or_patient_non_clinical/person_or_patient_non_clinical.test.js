@@ -18,6 +18,8 @@ const conditionResource = require('./fixtures/Condition/condition.json');
 const practitionerResource = require('./fixtures/Practitioner/practitioner.json');
 const organizationResource1 = require('./fixtures/Organization/organization1.json');
 const organizationResource2 = require('./fixtures/Organization/organization2.json');
+const linkageResource1 = require('./fixtures/Linkage/linkage.json');
+const paymentNoticeResource1 = require('./fixtures/PaymentNotice/paymentNotice.json');
 
 const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
 const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
@@ -201,6 +203,20 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request
             .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
             .send(subscriptionTopic2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Linkage/1/$merge?validate=true')
+            .send(linkageResource1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/PaymentNotice/1/$merge?validate=true')
+            .send(paymentNoticeResource1)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });

@@ -1,6 +1,5 @@
 {
   "clinicalResources": [
-    "Patient",
     "Account",
     "AdverseEvent",
     "AllergyIntolerance",
@@ -44,6 +43,7 @@
     "ImmunizationEvaluation",
     "ImmunizationRecommendation",
     "Invoice",
+    "Linkage",
     "List",
     "MeasureReport",
     "Media",
@@ -55,7 +55,7 @@
     "NutritionOrder",
     "Observation",
     "Patient",
-    "Person",
+    "PaymentNotice",
     "Person",
     "Procedure",
     "Provenance",

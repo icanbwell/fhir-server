@@ -1,0 +1,126 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "PaymentNotice",
+                "id": "paymentNotice1",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-01-17T11:55:53.784Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
+                        { "system": "https://www.icanbwell.com/access", "code": "client" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "paymentNotice1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "35d1869a-f7d7-577d-a8a7-17260a0be39c"
+                    }
+                ],
+                "status": "active",
+                "request": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Patient/patient1"
+                },
+                "created": "2014-08-15",
+                "payment": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "PaymentReconciliation/ER2500"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "PaymentReconciliation/9551f820-0979-5802-a7ef-c07834e45c41"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "PaymentReconciliation/ER2500"
+                },
+                "recipient": {
+                    "identifier": { "system": "http://regulators.gov", "value": "AB123" }
+                },
+                "amount": { "value": 12500, "currency": "USD" }
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.PaymentNotice_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'request._uuid':{'$in':['Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639','Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0']}},{'request._sourceId':'Patient/person.person1'}]},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "PaymentNotice_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['meta.tag.system','meta.tag.code','request._uuid','request._sourceId','meta.security.system','meta.security.code','_uuid']"
+            },
+            { "system": "https://www.icanbwell.com/queryTime", "display": "0.007" },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            { "system": "https://www.icanbwell.com/queryDatabase", "code": "fhir" },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.PaymentNotice_4_0_0\",\"parsedQuery\":{\"$and\":[{\"$or\":[{\"request._sourceId\":{\"$eq\":\"Patient/person.person1\"}},{\"request._uuid\":{\"$in\":[\"Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}}]},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"planCacheShapeHash\":\"97703F7D\",\"planCacheKey\":\"00D08AA7\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"request._sourceId\":{\"$eq\":\"Patient/person.person1\"}},{\"request._uuid\":{\"$in\":[\"Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}}]},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"$or\":[{\"request._sourceId\":{\"$eq\":\"Patient/person.person1\"}},{\"request._uuid\":{\"$in\":[\"Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}}]},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"F0A6F2CCC856168ED4795F6D5CF30E0D1831D4BB5B894D998556F8F921DBDFFF\",\"command\":{\"find\":\"PaymentNotice_4_0_0\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"$or\":[{\"request._uuid\":{\"$in\":[\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\",\"Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0\"]}},{\"request._sourceId\":\"Patient/person.person1\"}]},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\",\"code\":\"R\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":58674,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7460851912527577112\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7460851912527577112\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"$or\":[{\"request._sourceId\":{\"$eq\":\"Patient/person.person1\"}},{\"request._uuid\":{\"$in\":[\"Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}}]},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.PaymentNotice_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'$or':[{'request._uuid':{'$in':['Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639','Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0']}},{'request._sourceId':'Patient/person.person1'}]},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+            }
+        ]
+    },
+    "type": "searchset",
+    "timestamp": "2025-01-17T11:55:53.5353Z",
+    "total": 0,
+    "link": [
+        { "relation": "self", "url": "http://127.0.0.1:58693/4_0_0/PaymentNotice?_debug=true" },
+        {
+            "relation": "next",
+            "url": "http://127.0.0.1:58693/4_0_0/PaymentNotice?_debug=true&id%3Aabove=35d1869a-f7d7-577d-a8a7-17260a0be39c"
+        }
+    ]
+}
