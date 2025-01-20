@@ -58,10 +58,6 @@
                     {
                         "family": "PATIENT1",
                         "given": ["SHYLA"]
-                    },
-                    {
-                        "family": "PATIENT2",
-                        "given": ["SHYLA2"]
                     }
                 ],
                 "birthDate": "2017-01-01"

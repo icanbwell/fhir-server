@@ -107,6 +107,9 @@ URL: <base_url>/4_0_0/Patient/<patient_id>/$everything
 Resources returned/deleted:
 Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
+## Patient Resource Not Supported
+Currently [BiologicallyDerivedProduct]((https://www.hl7.org/fhir/r4b/BiologicallyDerivedProduct.html)) is not supported in $everything operation as there are no search parameters for this resource.
+
 ## Supported search query parameters
 
 ### id

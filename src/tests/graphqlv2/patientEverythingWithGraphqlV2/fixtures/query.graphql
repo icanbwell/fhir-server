@@ -3,183 +3,187 @@ query PatientTest {
     entry {
       resource {
         id
-        account {
+        accounts {
           id
           resourceType
         }
-        adverseEvent {
+        adverseEvents {
           id
           resourceType
         }
-        allergyIntolerance {
+        allergyIntolerances {
           id
           resourceType
         }
-        appointment {
+        appointments {
           id
           resourceType
         }
-        appointmentResponse {
+        appointmentResponses {
           id
           resourceType
         }
-        basic {
+        basics {
           id
           resourceType
         }
-        bodyStructure {
+        bodyStructures {
           id
           resourceType
         }
-        carePlan {
+        carePlans {
           id
           resourceType
         }
-        careTeam {
+        careTeams {
           id
           resourceType
         }
-        chargeItem {
+        chargeItems {
           id
           resourceType
         }
-        claim {
+        claims {
           id
           resourceType
         }
-        claimResponse {
+        claimResponses {
           id
           resourceType
         }
-        clinicalImpression {
+        clinicalImpressions {
           id
           resourceType
         }
-        communicationV2 {
+        communications {
           id
           resourceType
         }
-        communicationRequest {
+        communicationRequests {
           id
           resourceType
         }
-        composition {
+        compositions {
           id
           resourceType
         }
-        condition {
+        conditions {
           id
           resourceType
         }
-        consent {
+        consents {
           id
           resourceType
         }
-        contract {
+        contracts {
           id
           resourceType
         }
-        coverage {
+        coverages {
           id
           resourceType
         }
-        coverageEligibilityRequest {
+        coverageEligibilityRequests {
           id
           resourceType
         }
-        coverageEligibilityResponse {
+        coverageEligibilityResponses {
           id
           resourceType
         }
-        detectedIssue {
+        detectedIssues {
           id
           resourceType
         }
-        device {
+        devices {
           id
           resourceType
         }
-        deviceRequest {
+        deviceRequests {
           id
           resourceType
         }
-        deviceUseStatement {
+        deviceUseStatements {
           id
           resourceType
         }
-        diagnosticReport {
+        diagnosticReports {
           id
           resourceType
         }
-        documentManifest {
+        documentManifests {
           id
           resourceType
         }
-        documentReference {
+        documentReferences {
           id
           resourceType
         }
-        encounter {
+        encounters {
           id
           resourceType
         }
-        enrollmentRequest {
+        enrollmentRequests {
           id
           resourceType
         }
-        episodeOfCare {
+        episodesOfCare {
           id
           resourceType
         }
-        explanationOfBenefit {
+        explanationOfBenefits {
           id
           resourceType
         }
-        familyMemberHistory {
+        familyMemberHistories {
           id
           resourceType
         }
-        flag {
+        flags {
           id
           resourceType
         }
-        goal {
+        goals {
           id
           resourceType
         }
-        group {
+        groups {
           id
           resourceType
         }
-        guidanceResponse {
+        guidanceResponses {
           id
           resourceType
         }
-        imagingStudy {
+        imagingStudies {
           id
           resourceType
         }
-        immunization {
+        immunizations {
           id
           resourceType
         }
-        immunizationEvaluation {
+        immunizationEvaluations {
           id
           resourceType
         }
-        immunizationRecommendation {
+        immunizationRecommendations {
           id
           resourceType
         }
-        invoice {
+        invoices {
           id
           resourceType
         }
-        list {
+        linkages {
           id
           resourceType
         }
-        measureReport {
+        lists {
+          id
+          resourceType
+        }
+        measureReports {
           id
           resourceType
         }
@@ -187,91 +191,107 @@ query PatientTest {
           id
           resourceType
         }
-        medicationAdministration {
+        medicationAdministrations {
           id
           resourceType
         }
-        medicationDispense {
+        medicationDispenses {
           id
           resourceType
         }
-        medicationRequest {
+        medicationRequests {
           id
           resourceType
         }
-        medicationStatement {
+        medicationStatements {
           id
           resourceType
         }
-        molecularSequence {
+        molecularSequences {
           id
           resourceType
         }
-        nutritionOrder {
+        nutritionOrders {
           id
           resourceType
         }
-        observation {
+        observations {
           id
           resourceType
         }
-        person {
+        paymentNotices {
           id
           resourceType
         }
-        procedure {
+        persons {
           id
           resourceType
         }
-        provenance {
+        procedures {
           id
           resourceType
         }
-        questionnaireResponse {
+        provenances {
           id
           resourceType
         }
-        relatedPerson {
+        questionnaireResponses {
           id
           resourceType
         }
-        requestGroup {
+        relatedPersons {
           id
           resourceType
         }
-        researchSubject {
+        requestGroups {
           id
           resourceType
         }
-        riskAssessment {
+        researchSubjects {
           id
           resourceType
         }
-        schedule {
+        riskAssessments {
           id
           resourceType
         }
-        serviceRequest {
+        schedules {
           id
           resourceType
         }
-        specimen {
+        serviceRequests {
           id
           resourceType
         }
-        supplyDelivery {
+        specimens {
           id
           resourceType
         }
-        supplyRequest {
+        subscriptions {
           id
           resourceType
         }
-        task {
+        subscriptionStatuses {
           id
           resourceType
         }
-        visionPrescription {
+        subscriptionTopics {
+          id
+          resourceType
+        }
+        supplyDeliveries {
+          id
+          resourceType
+        }
+        supplyRequests {
+          id
+          resourceType
+        }
+        tasks {
+          id
+          resourceType
+        }
+        visionPrescriptions {
           id
           resourceType
         }

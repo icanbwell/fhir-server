@@ -1,6 +1,6 @@
 [
   {
-      "allergyIntolerance": [
+      "allergyIntolerances": [
         {
           "category": [
             "environment"
@@ -14,7 +14,7 @@
         }
       ],
       "birthDate": "2017-01-01",
-      "careTeam": [
+      "careTeams": [
         {
           "category": [
             {
@@ -32,7 +32,7 @@
           "status": "active"
         }
       ],
-      "explanationOfBenefit": [
+      "explanationOfBenefits": [
         {
           "id": "WPS-Claim-230916613369",
           "identifier": [

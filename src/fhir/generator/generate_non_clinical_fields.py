@@ -10,7 +10,7 @@ patient_graphs: Path = Path(__file__).parent.joinpath("./../../graphs/patient")
 reference_type_list = FhirXmlSchemaParser.get_types_for_references(only_resources=True)
 
 
-def get_clinical_resources(obj, field_names=None):
+def get_clinical_resources_and_filters(obj: dict, field_names=None, patient_filter_map = {}):
     """
     Returns list of resources which are directly linked to patient resource
     """
@@ -18,17 +18,19 @@ def get_clinical_resources(obj, field_names=None):
     if field_names is None:
         field_names = set()
 
+    if "params" in obj.keys():
+        patient_filter_map[obj["type"]] = obj["params"].split("=")[0]
     for key, value in obj.items():
         if key in ["type", "start"]:
             field_names.add(value)
         elif isinstance(value, dict):
-            get_clinical_resources(value, field_names)
+            get_clinical_resources_and_filters(value, field_names)
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    get_clinical_resources(item, field_names)
+                    get_clinical_resources_and_filters(item, field_names)
 
-    return field_names
+    return field_names, patient_filter_map
 
 
 def get_non_clinical_resources_fields(resources_to_exclude=[]):
@@ -58,7 +60,8 @@ def main():
     with open(json_file_path, "r") as json_file:
         patient_everything_graph = json.load(json_file)
 
-    clinical_resources = list(get_clinical_resources(patient_everything_graph))
+    clinical_resources, _ = get_clinical_resources_and_filters(patient_everything_graph)
+    clinical_resources = list(clinical_resources)
     clinical_resources.sort()
 
     json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")

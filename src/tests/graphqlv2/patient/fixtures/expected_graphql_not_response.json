@@ -4,10 +4,10 @@
       "entry": [
         {
           "resource": {
-            "allergyIntolerance": [],
+            "allergyIntolerances": [],
             "birthDate": "2017-01-01",
-            "careTeam": [],
-            "explanationOfBenefit": [
+            "careTeams": [],
+            "explanationOfBenefits": [
               {
                 "id": "6df8ebde-886b-5033-b053-57274a1bfb3b",
                 "identifier": [

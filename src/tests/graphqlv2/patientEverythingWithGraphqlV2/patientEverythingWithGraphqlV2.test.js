@@ -136,6 +136,16 @@ const TaskResource1 = require('./fixtures/Task/Task1.json');
 const TaskResource2 = require('./fixtures/Task/Task2.json');
 const VisionPrescriptionResource1 = require('./fixtures/VisionPrescription/VisionPrescription1.json');
 const VisionPrescriptionResource2 = require('./fixtures/VisionPrescription/VisionPrescription2.json');
+const Linkage1 = require('./fixtures/Linkage/linkage1.json');
+const Linkage2 = require('./fixtures/Linkage/linkage2.json');
+const PaymentNotice1 = require('./fixtures/PaymentNotice/paymentNotice1.json');
+const PaymentNotice2 = require('./fixtures/PaymentNotice/paymentNotice2.json');
+const Subscription1 = require('./fixtures/Subscription/subscription1.json');
+const Subscription2 = require('./fixtures/Subscription/subscription2.json');
+const SubscriptionStatus1 = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
+const SubscriptionStatus2 = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
+const SubscriptionTopic1 = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
+const SubscriptionTopic2 = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 
 const expectedResponse = require('./fixtures/expected/expectedResponse.json');
 
@@ -1045,6 +1055,76 @@ describe('Patient everything test using graphql', () => {
         resp = await request
             .post('/4_0_0/VisionPrescription/$merge')
             .send(VisionPrescriptionResource2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Linkage/$merge')
+            .send(Linkage1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Linkage/$merge')
+            .send(Linkage2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/PaymentNotice/$merge')
+            .send(PaymentNotice1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/PaymentNotice/$merge')
+            .send(PaymentNotice2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Subscription/$merge')
+            .send(Subscription1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Subscription/$merge')
+            .send(Subscription2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/$merge')
+            .send(SubscriptionStatus1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/$merge')
+            .send(SubscriptionStatus2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/$merge')
+            .send(SubscriptionTopic1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/$merge')
+            .send(SubscriptionTopic2)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
