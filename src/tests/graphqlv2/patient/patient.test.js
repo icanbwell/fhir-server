@@ -150,7 +150,7 @@ describe('GraphQL Patient Tests', () => {
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
-                r.explanationOfBenefit.forEach(resource => {
+                r.explanationOfBenefits.forEach(resource => {
                     cleanMeta(resource);
                 });
                 return r;
@@ -641,7 +641,7 @@ describe('GraphQL Patient Tests', () => {
                     .set(getGraphQLHeaders());
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResponse(expectedGraphQlMissingAddressResponse, r => {
-                    r.explanationOfBenefit.forEach(resource => {
+                    r.explanationOfBenefits.forEach(resource => {
                         cleanMeta(resource);
                     });
                     return r;
@@ -722,7 +722,7 @@ describe('GraphQL Patient Tests', () => {
                     });
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResponse(expectedGraphQlNotMissingAddressResponse, r => {
-                    r.explanationOfBenefit.forEach(resource => {
+                    r.explanationOfBenefits.forEach(resource => {
                         cleanMeta(resource);
                     });
                     return r;

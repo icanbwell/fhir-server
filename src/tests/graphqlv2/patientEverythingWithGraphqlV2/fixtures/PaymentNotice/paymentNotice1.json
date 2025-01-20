@@ -1,0 +1,28 @@
+[
+    {
+        "resourceType": "PaymentNotice",
+        "id": "1",
+        "meta": {
+            "source": "test",
+            "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+        },
+        "request": {
+            "reference": "Patient/1"
+        },
+        "created": "2014-08-15",
+        "status": "active",
+        "payment": {
+            "reference": "PaymentReconciliation/ER2500"
+        },
+        "recipient": {
+            "identifier": {
+                "system": "http://regulators.gov",
+                "value": "AB123"
+            }
+        },
+        "amount": {
+            "value": 12500.0,
+            "currency": "USD"
+        }
+    }
+]

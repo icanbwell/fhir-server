@@ -12,14 +12,14 @@ query my_patient {
                     given
                 }
                 birthDate
-                explanationOfBenefit {
+                explanationOfBenefits {
                     id
                     identifier {
                         system
                         value
                     }
                 }
-                allergyIntolerance {
+                allergyIntolerances {
                     id
                     type
                     category
@@ -28,7 +28,7 @@ query my_patient {
                         text
                     }
                 }
-                careTeam {
+                careTeams {
                     id
                     resourceType
                     category {

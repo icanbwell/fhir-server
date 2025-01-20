@@ -1,0 +1,52 @@
+{
+    "resourceType": "SubscriptionStatus",
+    "id": "1",
+    "meta": {
+        "source": "test",
+        "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
+    },
+    "status": "active",
+    "type": "query-status",
+    "subscription": {
+        "reference": "Subscription/subscription1"
+    },
+    "topic": "SubscriptionTopic/subscriptionTopic1",
+    "error": [
+        {
+            "text": "SubscriptionStatus error message",
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/subscription-error",
+                    "code": "error-response"
+                }
+            ]
+        }
+    ],
+    "extension": [
+        {
+            "id": "ae966c455e1fb4bb45b7c2af6b8b7981d36e90269e6092f5d94af54b99d5a2dd",
+            "url": "https://icanbwell.com/codes/test",
+            "valueString": "a6026593-63b2-4fc6-8129-fe2cd520e7fa"
+        },
+        {
+            "id": "ae966c455e1fb4bb45b7c2af6b8b7981d36e90269e6092f5d94af54b99d5a2da",
+            "url": "https://icanbwell.com/codes/source_patient_id",
+            "valueString": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+        },
+        {
+            "id": "c608fab680d4b6b0e45ccdc3049b109dc3bba852bf2502511243784c9ac5e1ff",
+            "url": "https://icanbwell.com/codes/client_person_id",
+            "valueString": "79e59046-ffc7-4c41-9819-c8ef83275454"
+        }
+    ],
+    "notificationEvent": [
+        {
+            "eventNumber": "1",
+            "timestamp": "2023-02-02T20:33:41.000Z"
+        },
+        {
+            "eventNumber": "2",
+            "timestamp": "2023-02-02T21:33:41.000Z"
+        }
+    ]
+}

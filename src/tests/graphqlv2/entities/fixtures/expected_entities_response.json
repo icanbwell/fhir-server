@@ -52,16 +52,23 @@
                 "status": "active"
             },
             {
+                "id": "b315b16e-2d91-5c3f-9d83-d049bd415f90",
+                "__typename": "Patient",
+                "name": [
+                    {
+                        "family": "PATIENT2",
+                        "given": ["SHYLA"]
+                    }
+                ],
+                "birthDate": "2017-01-01"
+            },
+            {
                 "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4",
                 "__typename": "Patient",
                 "name": [
                     {
                         "family": "PATIENT1",
                         "given": ["SHYLA"]
-                    },
-                    {
-                        "family": "PATIENT2",
-                        "given": ["SHYLA2"]
                     }
                 ],
                 "birthDate": "2017-01-01"

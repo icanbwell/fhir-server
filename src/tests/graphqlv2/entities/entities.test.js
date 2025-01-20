@@ -78,7 +78,7 @@ describe('GraphQL entities Tests', () => {
                         },
                         {
                             __typename: 'Patient',
-                            id: 'Patient/WPS-0559166162'
+                            id: 'Patient/WPS-5458231534'
                         },
                         {
                             __typename: 'Patient',

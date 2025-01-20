@@ -112,7 +112,7 @@ class FhirDataSource {
              * resources with this resourceType and id
              * @type {Resource[]}
              */
-            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r.id === id.split('|')[0]));
+            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r._sourceId === id.split('|')[0]));
             // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
             resultsOrdered.push(items.length > 0 ? items[0] : null);
         }
