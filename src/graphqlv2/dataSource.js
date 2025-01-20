@@ -10,17 +10,21 @@ const { ResourceWithId } = require('./resourceWithId');
 const { isValidResource } = require('../utils/validResourceCheck');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { ConfigManager } = require('../utils/configManager');
+const { isUuid, generateUUIDv5 } = require('../utils/uid.util');
+const { SearchBundleOperation } = require('../operations/search/searchBundle');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQLV2 resolvers to load the data
  */
 class FhirDataSource {
     /**
-     * @param {FhirRequestInfo} requestInfo
-     * @param {SearchBundleOperation} searchBundleOperation
-     * @param {R4ArgsParser} r4ArgsParser
-     * @param {QueryRewriterManager} queryRewriterManager
-     * @param {ConfigManager} configManager
+     * @typedef FhirDataSourceParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {SearchBundleOperation} searchBundleOperation
+     * @property {R4ArgsParser} r4ArgsParser
+     * @property {QueryRewriterManager} queryRewriterManager
+     * @property {ConfigManager} configManager
+     * @param {FhirDataSourceParams} params
      */
     constructor (
         {
@@ -299,6 +303,72 @@ class FhirDataSource {
                         }
                     }
                 );
+                return null;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Finds linked non clinical resources by reference
+     * @typedef findLinkedNonClinicalResourceParams
+     * @property {[String]} resourceTypes
+     * @property {String} referenceString
+     * @property {String} sourceAssigningAuthority
+     * @param {findLinkedNonClinicalResourceParams} params
+     * @return {Promise<null|Resource>}
+     */
+    async findLinkedNonClinicalResource({
+        resourceTypes,
+        referenceString,
+        sourceAssigningAuthority
+    }) {
+        if (!referenceString) {
+            return null;
+        }
+
+        const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(referenceString);
+        if (!referenceObj) {
+            return null;
+        }
+        let {
+            /** @type {string} **/
+            resourceType,
+            /** @type {string} **/
+            id
+        } = referenceObj;
+
+        if (
+            !isValidResource(resourceType) ||
+            (resourceTypes.length > 0 &&
+                !resourceTypes.includes('Resource') &&
+                !resourceTypes.includes(resourceType))
+        ) {
+            return null;
+        }
+
+        if (sourceAssigningAuthority && !isUuid(id)) {
+            id = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
+        }
+
+        try {
+            this.createDataLoader({});
+            // noinspection JSValidateTypes
+            let resource = await this.dataLoader.load(
+                ResourceWithId.getReferenceKey(resourceType, id)
+            );
+            return resource;
+        } catch (e) {
+            if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
+                logWarn('findLinkedNonClinicalResource: Resource not found for parent', {
+                    args: {
+                        resourceTypes,
+                        referenceString,
+                        sourceAssigningAuthority
+                    }
+                });
                 return null;
             } else {
                 throw e;
