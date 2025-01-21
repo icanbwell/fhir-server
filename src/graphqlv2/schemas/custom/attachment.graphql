@@ -1,8 +1,0 @@
-# import Binary from './resources/Binary.graphql'
-
-extend type Attachment {
-    """
-    For accessing binary resource saved in 'url' field.
-    """
-    resource: Binary
-}

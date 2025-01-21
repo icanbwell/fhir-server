@@ -115,11 +115,6 @@ def main() -> int:
         shutil.rmtree(backbone_elements_resolvers_folder)
     os.mkdir(backbone_elements_resolvers_folder)
 
-    value_sets_folder = graphql_schema_dir.joinpath("value_sets")
-    if os.path.exists(value_sets_folder):
-        shutil.rmtree(value_sets_folder)
-    os.mkdir(value_sets_folder)
-
     custom_patient_schema = graphql_schema_dir.joinpath("./custom/patient.graphql")
     if os.path.exists(custom_patient_schema):
         os.remove(custom_patient_schema)

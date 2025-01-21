@@ -13,7 +13,7 @@ module.exports = {
             return parent.attachment;
         }
     },
-    Attachment: {
+    DocumentReferenceAttachment: {
         resource: async (parent, args, context, info) => {
             return await context.dataApi.findLinkedNonClinicalResource({
                 resourceTypes: ['Binary'],
