@@ -45,7 +45,7 @@ type DocumentReferenceContent {
     The document or URL of the document along with critical metadata to prove
     content has integrity.
     """
-    attachment: Attachment
+    attachment: DocumentReferenceAttachment
     """
     An identifier of the document encoding, structure, and template that the
     document conforms to beyond the base format indicated in the mimeType.

@@ -1,0 +1,22 @@
+query documentReferencesWithBinary {
+  documentReferences(_debug: true) {
+    entry {
+      resource {
+        id
+        content {
+          attachment {
+            contentType
+            url
+            resource {
+              ... on Binary {
+                id
+                contentType
+                data
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

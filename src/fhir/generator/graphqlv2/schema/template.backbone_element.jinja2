@@ -123,6 +123,8 @@ type {% if fhir_entity.cleaned_name == "EvidenceVariable" -%}
         {{- 'Resource' -}}
         {% elif property.fhir_type == "BackboneElement" and property.cleaned_type == "EvidenceVariable" %}
         {{- 'BackboneEvidenceVariable' -}}
+        {% elif fhir_entity.cleaned_name == "DocumentReferenceContent" and property.name == "attachment" %}
+        {{- 'DocumentReferenceAttachment' -}}
         {% else %}
         {{- property.cleaned_type | replace(".","") -}}
         {%  endif %}
