@@ -1,0 +1,60 @@
+  {
+    "resourceType": "AllergyIntolerance",
+    "id": "e039c680-1024-34ff-d9d8-5d87feada4d5",
+    "meta": {
+      "versionId": "1",
+      "source": "mps",
+      "lastUpdated": "2021-09-24T02:33:25+00:00",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
+      ],
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "mps-api"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "mps-api"
+        }
+      ]
+    },
+    "clinicalStatus": {
+      "coding": [
+        {
+          "id": "2e4af0e6-b332-4b45-ba9e-a0d84d852aff",
+          "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+          "code": "active"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "id": "0792bef0-2826-4107-a229-7dd871053093",
+          "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "type": "allergy",
+    "category": [
+      "environment"
+    ],
+    "criticality": "low",
+    "code": {
+      "coding": [
+        {
+          "id": "10b7817b-9437-43e4-bb46-0816cf83cfa5",
+          "system": "http://snomed.info/sct",
+          "code": "288328004",
+          "display": "Bee venom (substance)"
+        }
+      ],
+      "text": "Bee venom (substance)"
+    },
+    "patient": {
+      "reference": "Patient/e4690a9f-f11b-871d-400f-300a9159aa64"
+    },
+    "recordedDate": "1994-12-18T08:21:31-05:00"
+  }
