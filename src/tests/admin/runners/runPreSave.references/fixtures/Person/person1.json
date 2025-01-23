@@ -28,6 +28,7 @@
       "type": {
         "coding": [
           {
+            "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
             "system": "https://www.icanbwell.com",
             "code": "FHIR_id",
             "display": "bWell FHIR id"
@@ -41,6 +42,7 @@
       "type": {
         "coding": [
           {
+            "id": "6cc93c8f-1db1-590d-a5d3-b97d4601558a",
             "system": "https://www.icanbwell.com",
             "code": "user_id",
             "display": "bWell App user_id"
@@ -54,6 +56,7 @@
       "type": {
         "coding": [
           {
+            "id": "aaa0e9f2-2b20-5a04-8823-d213dbf4bee7",
             "system": "https://www.icanbwell.com",
             "code": "member_id",
             "display": "bWell App member_id"

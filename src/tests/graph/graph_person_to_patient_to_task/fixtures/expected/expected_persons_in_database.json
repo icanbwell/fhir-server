@@ -24,6 +24,7 @@
         "type": {
           "coding": [
             {
+              "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
               "code": "FHIR_id",
               "display": "bWell FHIR id",
               "system": "https://www.icanbwell.com"

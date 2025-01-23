@@ -45,6 +45,7 @@
       "type": {
         "coding": [
           {
+            "id": "6cc93c8f-1db1-590d-a5d3-b97d4601558a",
             "code": "user_id",
             "display": "bWell App user_id",
             "system": "https://www.icanbwell.com"

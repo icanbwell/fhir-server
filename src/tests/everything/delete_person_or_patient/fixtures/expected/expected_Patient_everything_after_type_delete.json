@@ -70,12 +70,21 @@
                 "status": "final",
                 "code": {
                     "coding": [
-                        { "system": "http://www.icanbwell.com/cql/library", "code": "BMI001" },
                         {
+                            "id": "62186514-8c23-5680-85fd-b6898c99eacb",
+                            "system": "http://www.icanbwell.com/cql/library",
+                            "code": "BMI001"
+                        },
+                        {
+                            "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
                             "system": "http://www.icanbwell.com/cql/libraryVersion",
                             "code": "1.0.0"
                         },
-                        { "system": "http://www.icanbwell.com/cql/rule", "code": "InAgeCohort" }
+                        {
+                            "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
+                            "system": "http://www.icanbwell.com/cql/rule",
+                            "code": "InAgeCohort"
+                        }
                     ]
                 },
                 "subject": {

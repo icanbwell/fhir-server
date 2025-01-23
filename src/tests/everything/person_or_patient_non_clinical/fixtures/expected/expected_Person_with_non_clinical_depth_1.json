@@ -96,6 +96,7 @@
                 "type": {
                     "coding": [
                         {
+                            "id": "335d2e6f-c389-590f-ade8-d44615adebd2",
                             "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
                             "code": "PBILLACCT",
                             "display": "patient billing account"
@@ -227,14 +228,17 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "62186514-8c23-5680-85fd-b6898c99eacb",
                             "system": "http://www.icanbwell.com/cql/library",
                             "code": "BMI001"
                         },
                         {
+                            "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
                             "system": "http://www.icanbwell.com/cql/libraryVersion",
                             "code": "1.0.0"
                         },
                         {
+                            "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
                             "system": "http://www.icanbwell.com/cql/rule",
                             "code": "InAgeCohort"
                         }
@@ -351,6 +355,7 @@
                             "code": {
                                 "coding": [
                                     {
+                                        "id": "d031bf91-cea9-502e-98d0-cc0726f57818",
                                         "code": "160670007",
                                         "display": "Diabetic diet",
                                         "system": "http://snomed.info/sct"
@@ -386,6 +391,7 @@
                             "code": {
                                 "coding": [
                                     {
+                                        "id": "d69d144f-975d-5487-bd99-8b369ef8a06e",
                                         "code": "229065009",
                                         "display": "Exercise therapy",
                                         "system": "http://snomed.info/sct"
@@ -401,6 +407,7 @@
                     {
                         "coding": [
                             {
+                                "id": "ab22e646-0212-52c1-af4f-125d2495a60c",
                                 "code": "assess-plan",
                                 "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category"
                             }
@@ -409,6 +416,7 @@
                     {
                         "coding": [
                             {
+                                "id": "3ed71cb5-65db-5565-80e0-528c590008f7",
                                 "code": "698360004",
                                 "display": "Diabetes self management plan",
                                 "system": "http://terminology.hl7.org/NamingSystem/mddid"
@@ -581,30 +589,37 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
                             "code": "135615",
                             "system": "urn:oid:2.16.840.1.113883.6.253"
                         },
                         {
+                            "id": "ac0558be-374e-5668-8c03-83a02425e99e",
                             "code": "61100020102020",
                             "system": "urn:oid:2.16.840.1.113883.6.68"
                         },
                         {
+                            "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
                             "code": "59073",
                             "system": "urn:oid:2.16.840.1.113883.6.162"
                         },
                         {
+                            "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
                             "code": "3287",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                         },
                         {
+                            "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
                             "code": "3288",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                         },
                         {
+                            "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
                             "code": "822929",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                         },
                         {
+                            "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
                             "code": "884522",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                         }
@@ -614,6 +629,7 @@
                 "form": {
                     "coding": [
                         {
+                            "id": "fbee3e10-1f81-564f-b1c8-3a6c55007bbf",
                             "code": "SOLN",
                             "display": "Solution",
                             "system": "urn:oid:1.2.840.114350.1.13.283.3.7.4.698288.310"
@@ -639,30 +655,37 @@
                         "itemCodeableConcept": {
                             "coding": [
                                 {
+                                    "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
                                     "code": "135615",
                                     "system": "urn:oid:2.16.840.1.113883.6.253"
                                 },
                                 {
+                                    "id": "ac0558be-374e-5668-8c03-83a02425e99e",
                                     "code": "61100020102020",
                                     "system": "urn:oid:2.16.840.1.113883.6.68"
                                 },
                                 {
+                                    "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
                                     "code": "59073",
                                     "system": "urn:oid:2.16.840.1.113883.6.162"
                                 },
                                 {
+                                    "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
                                     "code": "3287",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                                 },
                                 {
+                                    "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
                                     "code": "3288",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                                 },
                                 {
+                                    "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
                                     "code": "822929",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                                 },
                                 {
+                                    "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
                                     "code": "884522",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
                                 }
@@ -714,6 +737,7 @@
                     {
                         "coding": [
                             {
+                                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                                 "code": "en",
                                 "system": "urn:ietf:bcp:47"
                             }
@@ -728,6 +752,7 @@
                         "type": {
                             "coding": [
                                 {
+                                    "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                                     "code": "PRN",
                                     "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                                 }
@@ -741,6 +766,7 @@
                         "type": {
                             "coding": [
                                 {
+                                    "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                                     "code": "NPI",
                                     "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                                 }
@@ -797,6 +823,7 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                                     "code": "MD",
                                     "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                                 }
@@ -807,6 +834,7 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                                     "code": "MD",
                                     "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                                 }
@@ -979,6 +1007,7 @@
                         "text": "SubscriptionStatus error message",
                         "coding": [
                             {
+                                "id": "c5d18b73-9f0b-54af-a1c8-ab136f427401",
                                 "system": "http://terminology.hl7.org/CodeSystem/subscription-error",
                                 "code": "error-response"
                             }

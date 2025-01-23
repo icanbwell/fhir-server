@@ -30,6 +30,7 @@
       "language": {
         "coding": [
           {
+            "id": "7f7ce31d-3946-5fe6-872c-7620c26fdfc9",
             "code": "en-US",
             "display": "English",
             "system": "urn:ietf:bcp:47"
@@ -111,6 +112,7 @@
       "type": {
         "coding": [
           {
+            "id": "350dc3b8-25bf-55f4-a302-96bc2bf7ff5a",
             "code": "MR",
             "display": "Medical Record Number",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -125,6 +127,7 @@
       "type": {
         "coding": [
           {
+            "id": "05c4b7aa-b33f-5760-b6ae-837eaa5c8f1f",
             "code": "SS",
             "display": "Social Security Number",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -139,6 +142,7 @@
       "type": {
         "coding": [
           {
+            "id": "3758e2ce-f59f-5bab-8e1c-eebd5554a5d6",
             "code": "DL",
             "display": "Driver's License",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -153,6 +157,7 @@
       "type": {
         "coding": [
           {
+            "id": "060e808d-c89d-582b-a400-15e6639a219e",
             "code": "PPN",
             "display": "Passport Number",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -176,6 +181,7 @@
   "maritalStatus": {
     "coding": [
       {
+        "id": "b8217c2e-2735-573a-8bc1-e2ee03016e01",
         "code": "M",
         "display": "M",
         "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus"

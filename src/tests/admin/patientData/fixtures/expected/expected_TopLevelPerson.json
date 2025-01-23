@@ -66,6 +66,7 @@
         "valueCodeableConcept": {
           "coding": [
             {
+              "id": "b765b00c-29bd-5ad0-a2b1-f42d7849e68c",
               "code": "code-1",
               "display": "some-display",
               "system": "foo://example.com:8042/over/there?name=ferret#"

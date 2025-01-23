@@ -36,6 +36,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                   "code": "PRN",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -49,6 +50,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -109,6 +111,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
@@ -119,6 +122,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
