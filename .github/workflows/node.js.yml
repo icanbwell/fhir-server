@@ -63,5 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:
-          name: coverage-artifacts
+          # starting upload-artifact@v4, multiple jobs can't upload to same artifact
+          # https://github.com/actions/upload-artifact/blob/main/docs/MIGRATION.md#multiple-uploads-to-the-same-named-artifact
+          name: coverage-artifacts-${{matrix.shard}}
           path: coverage/
