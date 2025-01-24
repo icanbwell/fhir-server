@@ -60,7 +60,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: mv coverage/coverage-final.json coverage/${{matrix.shard}}.json
       - name: Upload coverage file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:
           name: coverage-artifacts
