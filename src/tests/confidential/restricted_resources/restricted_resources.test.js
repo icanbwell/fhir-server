@@ -190,6 +190,7 @@ describe('Observation Tests', () => {
                 .expect(404);
         });
 
+
         test('restricted resources are not deleted with patient scope', async () => {
             const request = await createTestRequest();
             // ARRANGE
