@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        carePlan: async (parent, args, context, info) => {
+        carePlans: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'CarePlan'
+            );
+        }
+    },
+    CarePlan: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'CarePlan'
@@ -29,14 +39,9 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    CarePlanSupportingInfo: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CarePlanBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -48,7 +53,7 @@ module.exports = {
     },
     CarePlanReplacesReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -60,7 +65,7 @@ module.exports = {
     },
     CarePlanPartOfReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -72,7 +77,7 @@ module.exports = {
     },
     CarePlanSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -84,7 +89,7 @@ module.exports = {
     },
     CarePlanEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -96,7 +101,7 @@ module.exports = {
     },
     CarePlanAuthorReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -108,7 +113,7 @@ module.exports = {
     },
     CarePlanContributorReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -120,7 +125,7 @@ module.exports = {
     },
     CarePlanCareTeamReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -132,7 +137,7 @@ module.exports = {
     },
     CarePlanAddressesReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -144,7 +149,7 @@ module.exports = {
     },
     CarePlanSupportingInfoReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -156,7 +161,7 @@ module.exports = {
     },
     CarePlanGoalReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

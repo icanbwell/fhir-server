@@ -142,7 +142,6 @@ class MergeManager {
      * resource to merge
      * @param {Resource} resourceToMerge
      * @param {Resource} currentResource
-     * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<OperationOutcome|null>}
@@ -150,7 +149,6 @@ class MergeManager {
     async mergeExistingAsync ({
         resourceToMerge,
         currentResource,
-        currentDate,
         base_version,
         requestInfo
     }) {
@@ -197,7 +195,6 @@ class MergeManager {
                     resourceType: patched_resource_incoming.resourceType,
                     resourceToValidate: patched_resource_incoming,
                     path: requestInfo.path,
-                    currentDate,
                     resourceObj: patched_resource_incoming,
                     currentResource
                 });
@@ -233,14 +230,12 @@ class MergeManager {
      * merge insert
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentDate
      * @param {Resource} resourceToMerge
      * @returns {Promise<OperationOutcome|null>}
      */
     async mergeInsertAsync ({
         base_version,
         requestInfo,
-        currentDate,
         resourceToMerge
     }) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -268,7 +263,6 @@ class MergeManager {
             resourceType: resourceToMerge.resourceType,
             resourceToValidate: resourceToMerge,
             path: requestInfo.path,
-            currentDate,
             resourceObj: resourceToMerge
         });
 
@@ -299,7 +293,6 @@ class MergeManager {
      * Merges a single resource
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @return {Promise<MergeResultEntry|null>}
@@ -308,7 +301,6 @@ class MergeManager {
         {
             resourceToMerge,
             resourceType,
-            currentDate,
             base_version,
             requestInfo
         }
@@ -359,7 +351,7 @@ class MergeManager {
             // check if resource was found in database or not
             if (currentResource && currentResource.meta) {
                 validationError = await this.mergeExistingAsync({
-                    resourceToMerge, currentResource, currentDate, requestInfo, base_version
+                    resourceToMerge, currentResource, requestInfo, base_version
                 });
             } else {
                 // Check if meta & meta.source exists in resource
@@ -373,7 +365,6 @@ class MergeManager {
                 validationError = await this.mergeInsertAsync({
                     base_version,
                     requestInfo,
-                    currentDate,
                     resourceToMerge
                 });
             }
@@ -503,7 +494,6 @@ class MergeManager {
      * merges a list of resources
      * @param {Resource[]} resources_incoming
      * @param {string} resourceType
-     * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]>}
@@ -512,7 +502,6 @@ class MergeManager {
         {
             resources_incoming,
             resourceType,
-            currentDate,
             base_version,
             requestInfo
         }
@@ -535,7 +524,6 @@ class MergeManager {
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync({
                 resourceToMerge: x,
                 resourceType,
-                currentDate,
                 base_version,
                 requestInfo
             });
@@ -562,7 +550,6 @@ class MergeManager {
      *  and then the other ones tries to insert too
      * @param {Resource} resourceToMerge
      * @param {string} resourceType
-     * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @return {Promise<{resource: Resource|null, mergeError: MergeResultEntry|null}>}
@@ -571,7 +558,6 @@ class MergeManager {
         {
             resourceToMerge,
             resourceType,
-            currentDate,
             base_version,
             requestInfo
         }
@@ -581,7 +567,6 @@ class MergeManager {
             const mergeError = await this.mergeResourceAsync({
                 resourceToMerge,
                 resourceType,
-                currentDate,
                 base_version,
                 requestInfo
             });

@@ -8,8 +8,9 @@ Reference type for Link
 type DiagnosticReportMediaLinkReference {
     id: String
     extension: [Extension]
-    reference: Media
-    type: uri
+    reference: String
+    resource: Media
+    type: URI
     identifier: Identifier
     display: String
 }

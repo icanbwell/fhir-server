@@ -1,6 +1,6 @@
 {
     "data": {
-        "carePlan": {
+        "carePlans": {
             "entry": [
                 {
                     "resource": {
@@ -15,7 +15,7 @@
                                 "detail": {
                                     "code": { "text": "Airborne precautions (procedure)" }
                                 },
-                                "outcomeReference": [{ "id": null, "reference": null }]
+                                "outcomeReference": [{ "id": null, "resource": null }]
                             },
                             {
                                 "detail": {
@@ -26,12 +26,12 @@
                                 "outcomeReference": null
                             }
                         ],
-                        "encounter": { "reference": null },
+                        "encounter": { "resource": null },
                         "author": null,
                         "careTeam": [
-                            { "reference": null },
-                            { "reference": null },
-                            { "reference": null }
+                            { "resource": null },
+                            { "resource": null },
+                            { "resource": null }
                         ]
                     }
                 }

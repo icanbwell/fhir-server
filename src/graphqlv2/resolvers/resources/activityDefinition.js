@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        activityDefinition: async (parent, args, context, info) => {
+        activityDefinitions: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'ActivityDefinition'
+            );
+        }
+    },
+    ActivityDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'ActivityDefinition'
@@ -21,7 +31,7 @@ module.exports = {
     },
     ActivityDefinitionSubjectReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -33,7 +43,7 @@ module.exports = {
     },
     ActivityDefinitionLocationReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -45,7 +55,7 @@ module.exports = {
     },
     ActivityDefinitionProductReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -57,7 +67,7 @@ module.exports = {
     },
     ActivityDefinitionSpecimenRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -69,7 +79,7 @@ module.exports = {
     },
     ActivityDefinitionObservationRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -81,7 +91,7 @@ module.exports = {
     },
     ActivityDefinitionObservationResultRequirementReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

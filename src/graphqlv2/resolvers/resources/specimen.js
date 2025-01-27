@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        specimen: async (parent, args, context, info) => {
+        specimens: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'Specimen'
+            );
+        }
+    },
+    Specimen: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'Specimen'
@@ -21,7 +31,7 @@ module.exports = {
     },
     SpecimenSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -33,7 +43,7 @@ module.exports = {
     },
     SpecimenParentReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -45,7 +55,7 @@ module.exports = {
     },
     SpecimenRequestReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

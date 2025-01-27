@@ -1152,6 +1152,29 @@ module.exports = {
                 }
             }
         ],
+        Subscription_4_0_0: [
+            {
+                keys: {
+                    'extension.url': 1,
+                    'extension.valueString': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'extension.url_1_extension.valueString_1_uuid_1'
+                }
+            }
+        ],
+        SubscriptionStatus_4_0_0: [
+            {
+                keys: {
+                    'subscription._uuid': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'subscription.uuid_1_uuid_1'
+                }
+            }
+        ],
         SupplyRequest_4_0_0: [
             {
                 keys: {

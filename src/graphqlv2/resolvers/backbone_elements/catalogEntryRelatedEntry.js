@@ -5,7 +5,7 @@
 module.exports = {
     CatalogEntryRelatedEntryItemReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

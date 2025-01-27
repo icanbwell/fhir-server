@@ -178,11 +178,6 @@ class MergeOperation {
             body
         } = requestInfo;
 
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-
         // noinspection JSCheckFunctionSignatures
         try {
             const { /** @type {string} */ base_version } = parsedArgs;
@@ -199,7 +194,6 @@ class MergeOperation {
                 /** @type {boolean} */ wasIncomingAList
             } = await this.mergeValidator.validateAsync({
                 base_version,
-                currentDate,
                 currentOperationName,
                 incomingObjects,
                 resourceType,
@@ -222,7 +216,6 @@ class MergeOperation {
             const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
                 resources_incoming: validResources,
                 resourceType,
-                currentDate,
                 base_version,
                 requestInfo
             });
@@ -235,7 +228,6 @@ class MergeOperation {
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version
             });
 

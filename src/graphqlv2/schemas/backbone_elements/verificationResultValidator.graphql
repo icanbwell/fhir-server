@@ -9,8 +9,9 @@ Reference type for Organization
 type VerificationResultValidatorOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

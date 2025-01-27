@@ -11,8 +11,9 @@ Reference type for ResponsibleParty
 type MedicationDispenseSubstitutionResponsiblePartyReference {
     id: String
     extension: [Extension]
-    reference: MedicationDispenseSubstitutionResponsibleParty
-    type: uri
+    reference: String
+    resource: MedicationDispenseSubstitutionResponsibleParty
+    type: URI
     identifier: Identifier
     display: String
 }

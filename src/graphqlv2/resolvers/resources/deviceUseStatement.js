@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        deviceUseStatement: async (parent, args, context, info) => {
+        deviceUseStatements: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'DeviceUseStatement'
+            );
+        }
+    },
+    DeviceUseStatement: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'DeviceUseStatement'
@@ -36,7 +46,7 @@ module.exports = {
     },
     DeviceUseStatementBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -48,7 +58,7 @@ module.exports = {
     },
     DeviceUseStatementSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -60,7 +70,7 @@ module.exports = {
     },
     DeviceUseStatementDerivedFromReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -72,7 +82,7 @@ module.exports = {
     },
     DeviceUseStatementSourceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -84,7 +94,7 @@ module.exports = {
     },
     DeviceUseStatementDeviceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -96,7 +106,7 @@ module.exports = {
     },
     DeviceUseStatementReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

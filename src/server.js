@@ -6,7 +6,7 @@ const { fhirServerConfig } = require('./config');
 const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { memoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleReadinessCheck } = require('./routeHandlers/probeChecker');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -29,10 +29,15 @@ const flushBuffer = async (fnGetContainer) => {
     const postSaveProcessor = container.postSaveProcessor;
     await postSaveProcessor.flushAsync();
     /**
-     * @type {import('../utils/auditLogger').AuditLogger}
+     * @type {import('./utils/auditLogger').AuditLogger}
      */
     const auditLogger = container.auditLogger;
     await auditLogger.flushAsync();
+    /**
+     * @type {import('./utils/accessLogger').AccessLogger}
+     */
+    const accessLogger = container.accessLogger;
+    await accessLogger.flushAsync();
 };
 
 /**
@@ -76,14 +81,14 @@ async function createServer (fnGetContainer) {
             socket.end();
         });
         socket.once('error', function (e) {
-            logError('Socket error', { error: e });
+            logError('Socket error', { error: e, errMessage: e.message, stack: e.stack });
             socket.end();
         });
     });
 
     const options = {
         healthChecks: {
-            '/ready': memoryCheck
+            '/ready': handleReadinessCheck
         },
         statusOkResponse: 'OK',
         statusError: 455,

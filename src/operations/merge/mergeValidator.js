@@ -13,7 +13,6 @@ class MergeValidator {
 
     /**
      * @param {string} base_version
-     * @param {date} currentDate
      * @param {string} currentOperationName
      * @param {Object|Object[]} incomingObjects
      * @param {string} resourceType
@@ -22,7 +21,6 @@ class MergeValidator {
      */
     async validateAsync ({
         base_version,
-        currentDate,
         currentOperationName,
         incomingObjects,
         resourceType,
@@ -49,7 +47,6 @@ class MergeValidator {
                 validatedObjects: validatedObjectsByValidator, preCheckErrors, wasAList
             } = await validator.validate({
                 base_version,
-                currentDate,
                 currentOperationName,
                 incomingResources,
                 resourceType,

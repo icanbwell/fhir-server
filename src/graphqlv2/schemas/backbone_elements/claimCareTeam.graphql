@@ -12,8 +12,9 @@ Reference type for Provider
 type ClaimCareTeamProviderReference {
     id: String
     extension: [Extension]
-    reference: ClaimCareTeamProvider
-    type: uri
+    reference: String
+    resource: ClaimCareTeamProvider
+    type: URI
     identifier: Identifier
     display: String
 }

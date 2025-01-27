@@ -9,8 +9,9 @@ Reference type for Item
 type NutritionProductNutrientItemReference {
     id: String
     extension: [Extension]
-    reference: Substance
-    type: uri
+    reference: String
+    resource: Substance
+    type: URI
     identifier: Identifier
     display: String
 }

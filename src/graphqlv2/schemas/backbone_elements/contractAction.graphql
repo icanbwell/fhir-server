@@ -3,11 +3,10 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ContractSubject from "../backbone_elements/contractSubject.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import unsignedInt from "../simple_types/unsignedInt.graphql"
 
 union ContractActionContext = Encounter | EpisodeOfCare
 
@@ -17,8 +16,9 @@ Reference type for Context
 type ContractActionContextReference {
     id: String
     extension: [Extension]
-    reference: ContractActionContext
-    type: uri
+    reference: String
+    resource: ContractActionContext
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -31,8 +31,9 @@ Reference type for Requester
 type ContractActionRequesterReference {
     id: String
     extension: [Extension]
-    reference: ContractActionRequester
-    type: uri
+    reference: String
+    resource: ContractActionRequester
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -45,8 +46,9 @@ Reference type for Performer
 type ContractActionPerformerReference {
     id: String
     extension: [Extension]
-    reference: ContractActionPerformer
-    type: uri
+    reference: String
+    resource: ContractActionPerformer
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -59,8 +61,9 @@ Reference type for ReasonReference
 type ContractActionReasonReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractActionReasonReference
-    type: uri
+    reference: String
+    resource: ContractActionReasonReference
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -138,7 +141,7 @@ type ContractAction {
     """
     None
     """
-    occurrenceDateTime: dateTime
+    occurrenceDateTime: DateTime
     """
     None
     """
@@ -202,5 +205,5 @@ type ContractAction {
     """
     Security labels that protects the action.
     """
-    securityLabelNumber: [unsignedInt]
+    securityLabelNumber: [Int]
 }

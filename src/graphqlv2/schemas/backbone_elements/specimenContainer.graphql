@@ -11,8 +11,9 @@ Reference type for AdditiveReference
 type SpecimenContainerAdditiveReferenceReference {
     id: String
     extension: [Extension]
-    reference: Substance
-    type: uri
+    reference: String
+    resource: Substance
+    type: URI
     identifier: Identifier
     display: String
 }

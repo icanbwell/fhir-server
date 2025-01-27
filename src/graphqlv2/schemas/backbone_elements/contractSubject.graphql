@@ -11,8 +11,9 @@ Reference type for Reference
 type ContractSubjectReferenceReference {
     id: String
     extension: [Extension]
-    reference: ContractSubjectReference
-    type: uri
+    reference: String
+    resource: ContractSubjectReference
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -1,6 +1,6 @@
 {
   "data": {
-    "carePlan": {
+    "carePlans": {
       "entry": [
         {
           "resource": {
@@ -13,7 +13,7 @@
                 "outcomeReference": [
                   {
                     "id": null,
-                    "reference": {
+                    "resource": {
                       "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
                       "resourceType": "Observation"
                     }
@@ -23,12 +23,12 @@
               { "detail": { "code": { "text": "Heat therapy" } }, "outcomeReference": null }
             ],
             "encounter": {
-              "reference": null
+              "resource": null
             },
             "author": {
-              "reference": null
+              "resource": null
             },
-            "careTeam": [{ "reference": null }]
+            "careTeam": [{ "resource": null }]
           }
         },
         {
@@ -45,7 +45,7 @@
                 "outcomeReference": [
                   {
                     "id": null,
-                    "reference": {
+                    "resource": {
                       "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
                       "resourceType": "Observation"
                     }
@@ -58,10 +58,10 @@
               }
             ],
             "encounter": {
-              "reference": null
+              "resource": null
             },
             "author": null,
-            "careTeam": [{ "reference": null }]
+            "careTeam": [{ "resource": null }]
           }
         },
         {
@@ -78,7 +78,7 @@
                 "outcomeReference": [
                   {
                     "id": null,
-                    "reference": {
+                    "resource": {
                       "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
                       "resourceType": "Observation"
                     }
@@ -90,11 +90,11 @@
                 "outcomeReference": null
               }
             ],
-            "encounter": { "reference": null },
+            "encounter": { "resource": null },
             "author": null,
             "careTeam": [
               {
-                "reference": null
+                "resource": null
               }
             ]
           }
@@ -113,7 +113,7 @@
                 "outcomeReference": [
                   {
                     "id": null,
-                    "reference": {
+                    "resource": {
                       "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
                       "resourceType": "Observation"
                     }
@@ -133,9 +133,9 @@
                 "outcomeReference": null
               }
             ],
-            "encounter": { "reference": null },
+            "encounter": { "resource": null },
             "author": null,
-            "careTeam": [{ "reference": null }]
+            "careTeam": [{ "resource": null }]
           }
         },
         {
@@ -149,7 +149,7 @@
                 "outcomeReference": [
                   {
                     "id": null,
-                    "reference": {
+                    "resource": {
                       "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
                       "resourceType": "Observation"
                     }
@@ -158,9 +158,9 @@
               },
               { "detail": { "code": { "text": "Exercise therapy" } }, "outcomeReference": null }
             ],
-            "encounter": { "reference": null },
+            "encounter": { "resource": null },
             "author": null,
-            "careTeam": [{ "reference": null }]
+            "careTeam": [{ "resource": null }]
           }
         }
       ],

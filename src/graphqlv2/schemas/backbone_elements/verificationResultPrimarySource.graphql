@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 
 union VerificationResultPrimarySourceWho = Organization | Practitioner | PractitionerRole
 
@@ -12,8 +12,9 @@ Reference type for Who
 type VerificationResultPrimarySourceWhoReference {
     id: String
     extension: [Extension]
-    reference: VerificationResultPrimarySourceWho
-    type: uri
+    reference: String
+    resource: VerificationResultPrimarySourceWho
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -75,7 +76,7 @@ type VerificationResultPrimarySource {
     """
     When the target was validated against the primary source.
     """
-    validationDate: dateTime
+    validationDate: DateTime
     """
     Ability of the primary source to push updates/alerts (yes; no; undetermined).
     """

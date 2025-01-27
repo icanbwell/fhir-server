@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CarePlanActivityOutcomeReference: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CarePlanActivityReference: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -15,7 +10,7 @@ module.exports = {
     },
     CarePlanActivityOutcomeReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -27,7 +22,7 @@ module.exports = {
     },
     CarePlanActivityReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

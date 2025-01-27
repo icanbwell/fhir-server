@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        clinicalUseDefinition: async (parent, args, context, info) => {
+        clinicalUseDefinitions: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'ClinicalUseDefinition'
+            );
+        }
+    },
+    ClinicalUseDefinition: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'ClinicalUseDefinition'
@@ -21,7 +31,7 @@ module.exports = {
     },
     ClinicalUseDefinitionSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -33,7 +43,7 @@ module.exports = {
     },
     ClinicalUseDefinitionPopulationReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

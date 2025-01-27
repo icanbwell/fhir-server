@@ -74,6 +74,7 @@ class FhirProperty:
     is_back_bone_element: bool
     is_basic_type: bool
     codeable_type: Optional[SmartName]
+    scalar_type: Optional[str] = None
     is_resource: bool = False
     is_extension: bool = False
     is_code: bool = False
@@ -86,6 +87,7 @@ class FhirProperty:
 class FhirEntity:
     fhir_name: str
     cleaned_name: str
+    plural_name: str
     name_snake_case: str
     properties: List[FhirProperty]
     documentation: List[str]
@@ -111,6 +113,172 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+resources_plural_names_mapping: Dict[str, str] = {
+    "DomainResource": "DomainResources",
+    "Resource": "Resources",
+    "Account": "Accounts",
+    "ActivityDefinition": "ActivityDefinitions",
+    "AdministrableProductDefinition": "AdministrableProductDefinitions",
+    "AdverseEvent": "AdverseEvents",
+    "AllergyIntolerance": "AllergyIntolerances",
+    "Appointment": "Appointments",
+    "AppointmentResponse": "AppointmentResponses",
+    "AuditEvent": "AuditEvents",
+    "Basic": "Basics",
+    "Binary": "Binaries",
+    "BiologicallyDerivedProduct": "BiologicallyDerivedProducts",
+    "BodyStructure": "BodyStructures",
+    "Bundle": "Bundles",
+    "CapabilityStatement": "CapabilityStatements",
+    "CarePlan": "CarePlans",
+    "CareTeam": "CareTeams",
+    "CatalogEntry": "CatalogEntries",
+    "ChargeItem": "ChargeItems",
+    "ChargeItemDefinition": "ChargeItemDefinitions",
+    "Citation": "Citations",
+    "Claim": "Claims",
+    "ClaimResponse": "ClaimResponses",
+    "ClinicalImpression": "ClinicalImpressions",
+    "ClinicalUseDefinition": "ClinicalUseDefinitions",
+    "CodeSystem": "CodeSystems",
+    "Communication": "Communications",
+    "CommunicationRequest": "CommunicationRequests",
+    "CompartmentDefinition": "CompartmentDefinitions",
+    "Composition": "Compositions",
+    "ConceptMap": "ConceptMaps",
+    "Condition": "Conditions",
+    "Consent": "Consents",
+    "Contract": "Contracts",
+    "Coverage": "Coverages",
+    "CoverageEligibilityRequest": "CoverageEligibilityRequests",
+    "CoverageEligibilityResponse": "CoverageEligibilityResponses",
+    "DetectedIssue": "DetectedIssues",
+    "Device": "Devices",
+    "DeviceDefinition": "DeviceDefinitions",
+    "DeviceMetric": "DeviceMetrics",
+    "DeviceRequest": "DeviceRequests",
+    "DeviceUseStatement": "DeviceUseStatements",
+    "DiagnosticReport": "DiagnosticReports",
+    "DocumentManifest": "DocumentManifests",
+    "DocumentReference": "DocumentReferences",
+    "Encounter": "Encounters",
+    "Endpoint": "Endpoints",
+    "EnrollmentRequest": "EnrollmentRequests",
+    "EnrollmentResponse": "EnrollmentResponses",
+    "EpisodeOfCare": "EpisodesOfCare",
+    "EventDefinition": "EventDefinitions",
+    "Evidence": "Evidences",
+    "EvidenceReport": "EvidenceReports",
+    "EvidenceVariable": "EvidenceVariables",
+    "ExampleScenario": "ExampleScenarios",
+    "ExplanationOfBenefit": "ExplanationOfBenefits",
+    "FamilyMemberHistory": "FamilyMemberHistories",
+    "Flag": "Flags",
+    "Goal": "Goals",
+    "GraphDefinition": "GraphDefinitions",
+    "Group": "Groups",
+    "GuidanceResponse": "GuidanceResponses",
+    "HealthcareService": "HealthcareServices",
+    "ImagingStudy": "ImagingStudies",
+    "Immunization": "Immunizations",
+    "ImmunizationEvaluation": "ImmunizationEvaluations",
+    "ImmunizationRecommendation": "ImmunizationRecommendations",
+    "ImplementationGuide": "ImplementationGuides",
+    "Ingredient": "Ingredients",
+    "InsurancePlan": "InsurancePlans",
+    "Invoice": "Invoices",
+    "Library": "Libraries",
+    "Linkage": "Linkages",
+    "List": "Lists",
+    "Location": "Locations",
+    "ManufacturedItemDefinition": "ManufacturedItemDefinitions",
+    "Measure": "Measures",
+    "MeasureReport": "MeasureReports",
+    "Media": "Media",
+    "Medication": "Medications",
+    "MedicationAdministration": "MedicationAdministrations",
+    "MedicationDispense": "MedicationDispenses",
+    "MedicationKnowledge": "MedicationKnowledges",
+    "MedicationRequest": "MedicationRequests",
+    "MedicationStatement": "MedicationStatements",
+    "MedicinalProductDefinition": "MedicinalProductDefinitions",
+    "MessageDefinition": "MessageDefinitions",
+    "MessageHeader": "MessageHeaders",
+    "MolecularSequence": "MolecularSequences",
+    "NamingSystem": "NamingSystems",
+    "NutritionOrder": "NutritionOrders",
+    "NutritionProduct": "NutritionProducts",
+    "Observation": "Observations",
+    "ObservationDefinition": "ObservationDefinitions",
+    "OperationDefinition": "OperationDefinitions",
+    "OperationOutcome": "OperationOutcomes",
+    "Organization": "Organizations",
+    "OrganizationAffiliation": "OrganizationAffiliations",
+    "PackagedProductDefinition": "PackagedProductDefinitions",
+    "Parameters": "Parameters",
+    "Patient": "Patients",
+    "PaymentNotice": "PaymentNotices",
+    "PaymentReconciliation": "PaymentReconciliations",
+    "Person": "Persons",
+    "PlanDefinition": "PlanDefinitions",
+    "Practitioner": "Practitioners",
+    "PractitionerRole": "PractitionerRoles",
+    "Procedure": "Procedures",
+    "Provenance": "Provenances",
+    "Questionnaire": "Questionnaires",
+    "QuestionnaireResponse": "QuestionnaireResponses",
+    "RegulatedAuthorization": "RegulatedAuthorizations",
+    "RelatedPerson": "RelatedPersons",
+    "RequestGroup": "RequestGroups",
+    "ResearchDefinition": "ResearchDefinitions",
+    "ResearchElementDefinition": "ResearchElementDefinitions",
+    "ResearchStudy": "ResearchStudies",
+    "ResearchSubject": "ResearchSubjects",
+    "RiskAssessment": "RiskAssessments",
+    "Schedule": "Schedules",
+    "SearchParameter": "SearchParameters",
+    "ServiceRequest": "ServiceRequests",
+    "Slot": "Slots",
+    "Specimen": "Specimens",
+    "SpecimenDefinition": "SpecimenDefinitions",
+    "StructureDefinition": "StructureDefinitions",
+    "StructureMap": "StructureMaps",
+    "Subscription": "Subscriptions",
+    "SubscriptionStatus": "SubscriptionStatuses",
+    "SubscriptionTopic": "SubscriptionTopics",
+    "Substance": "Substances",
+    "SubstanceDefinition": "SubstanceDefinitions",
+    "SupplyDelivery": "SupplyDeliveries",
+    "SupplyRequest": "SupplyRequests",
+    "Task": "Tasks",
+    "TerminologyCapabilities": "TerminologyCapabilities",
+    "TestReport": "TestReports",
+    "TestScript": "TestScripts",
+    "ValueSet": "ValueSets",
+    "VerificationResult": "VerificationResults",
+    "VisionPrescription": "VisionPrescriptions"
+}
+
+property_scalar_types_mapping: Dict[str, str] = {
+    "base64Binary": "Base64Binary",
+    "canonical": "Canonical",
+    "code": "Code",
+    "date": "Date",
+    "dateTime": "DateTime",
+    "decimal": "Float",
+    "id": "ID",
+    "instant": "Instant",
+    "markdown": "Markdown",
+    "number": "Int",
+    "oid": "OID",
+    "time": "Time",
+    "unsignedInt": "Int",
+    "uri": "URI",
+    "url": "URL",
+    "uuid": "UUID",
+    "xhtml": "XHTML",
+}
 
 class FhirXmlSchemaParser:
     cleaned_type_mapping: Dict[str, str] = {
@@ -270,6 +438,7 @@ class FhirXmlSchemaParser:
                         fhir_property.is_complex = True
                         fhir_property.cleaned_type = fhir_property.fhir_type
                         fhir_property.type_snake_case = FhirXmlSchemaParser.camel_to_snake(fhir_property.fhir_type)
+                        fhir_property.scalar_type = property_scalar_types_mapping.get(fhir_property.type_snake_case)
                     fhir_property.is_resource = property_fhir_entity.is_resource
                     fhir_property.is_extension = property_fhir_entity.is_extension
 
@@ -323,6 +492,7 @@ class FhirXmlSchemaParser:
                     fhir_name=c.fhir_name,
                     name_snake_case=c.name_snake_case,
                     cleaned_name=c.cleaned_name,
+                    plural_name=resources_plural_names_mapping.get(c.cleaned_name, c.cleaned_name),
                     documentation=c.documentation,
                     properties=[],
                     is_back_bone_element=False,
@@ -516,6 +686,7 @@ class FhirXmlSchemaParser:
                         else:
                             fhir_property.type_ = value_set.name
                             fhir_property.type_snake_case = value_set.name_snake_case
+                            fhir_property.scalar_type = property_scalar_types_mapping.get(value_set.name_snake_case)
                             fhir_property.cleaned_type = value_set.cleaned_name
                             fhir_property.is_code = True
                     # putting in kludge for R4B as this field is removed in R5
@@ -718,6 +889,7 @@ class FhirXmlSchemaParser:
                 fhir_entity: FhirEntity = FhirEntity(
                     fhir_name=complex_type_name,
                     cleaned_name=cleaned_complex_type_name,
+                    plural_name=resources_plural_names_mapping.get(cleaned_complex_type_name, cleaned_complex_type_name),
                     name_snake_case=complex_type_name_snake_case,
                     type_=entity_type,
                     documentation=documentation_entries,
@@ -818,6 +990,13 @@ class FhirXmlSchemaParser:
                             type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                                 FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
                             ),
+                            scalar_type=property_scalar_types_mapping.get(
+                                FhirXmlSchemaParser.camel_to_snake(
+                                    FhirXmlSchemaParser.cleaned_type_mapping.get(
+                                        cleaned_type, cleaned_type
+                                    )
+                                )
+                            ),
                             optional=optional,
                             is_list=is_list,
                             documentation=[property_documentation],
@@ -840,6 +1019,13 @@ class FhirXmlSchemaParser:
                         cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
                         type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                             FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
+                        ),
+                        scalar_type=property_scalar_types_mapping.get(
+                            FhirXmlSchemaParser.camel_to_snake(
+                                FhirXmlSchemaParser.cleaned_type_mapping.get(
+                                    cleaned_type, cleaned_type
+                                )
+                            )
                         ),
                         optional=optional,
                         is_list=is_list,
@@ -960,10 +1146,11 @@ class FhirXmlSchemaParser:
         return resources_list
 
     @staticmethod
-    def get_types_for_references() -> List[FhirReferenceType]:
+    def get_types_for_references(only_resources = False) -> List[FhirReferenceType]:
         data_dir: Path = Path(__file__).parent.joinpath("./")
         # List of resources to be used for reference any types.
         resources_list = FhirXmlSchemaParser.get_list_of_resources()
+        fhir_references: List[FhirReferenceType] = []
 
         # first read fhir-all.xsd to get a list of resources
         de_xml_file: Path = (
@@ -972,12 +1159,76 @@ class FhirXmlSchemaParser:
             .joinpath("profiles-resources.xml")
         )
 
+        if not only_resources:
+            profile_types_xml_file: Path = (
+                data_dir.joinpath("xsd")
+                .joinpath("definitions.xml")
+                .joinpath("profiles-types.xml")
+            )
+
+            with open(profile_types_xml_file, "rb") as file:
+                contents: bytes = file.read()
+                root: ObjectifiedElement = objectify.fromstring(contents)
+                entries: ObjectifiedElement = root.entry
+
+                entry: ObjectifiedElement
+                for entry in entries:
+                    if not hasattr(entry["resource"], "StructureDefinition"):
+                        continue
+
+                    structure_definition: ObjectifiedElement = entry["resource"]["StructureDefinition"]
+                    # name: str = structure_definition["name"].get("value")
+                    snapshot_elements: ObjectifiedElement = structure_definition["snapshot"]["element"]
+                    snapshot_element: ObjectifiedElement
+                    for snapshot_element in snapshot_elements:
+                        if not hasattr(snapshot_element, 'type'):
+                            continue
+
+                        types: ObjectifiedElement = snapshot_element["type"]
+                        type_: ObjectifiedElement
+                        for type_ in types:
+                            type_code_obj = type_["code"]
+                            type_code: str = type_code_obj.get("value")
+                            if type_code.endswith("Reference"):
+                                if not hasattr(type_, "targetProfile"):
+                                    logger.warning(
+                                        f'ASSERT: targetProfile not in {type_} for {snapshot_element["path"].get("value")}'
+                                    )
+                                if hasattr(type_, "targetProfile"):
+                                    target_profile_list: ObjectifiedElement = type_[
+                                        "targetProfile"
+                                    ]
+                                    target_profiles: List[str] = [
+                                        c.get("value") for c in target_profile_list
+                                    ]
+                                    target_resources: List[str] = [
+                                        c.split("/")[-1] for c in target_profiles
+                                    ]
+                                    # If target resource is type Reference(Any),
+                                    # the target resource will be a list of all resources.
+                                    if "Resource" in target_resources:
+                                        fhir_reference: FhirReferenceType = FhirReferenceType(
+                                            target_resources=target_resources,
+                                            path=snapshot_element["path"].get("value"),
+                                        )
+                                        fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
+                                            target_resources=resources_list,
+                                            path=f'{snapshot_element["path"].get("value")}V2',
+                                        )
+                                        fhir_references.append(fhir_reference_v2_support)
+                                    # Else target resource is the list of allowed references.
+                                    else :
+                                        fhir_reference: FhirReferenceType = FhirReferenceType(
+                                            target_resources=target_resources,
+                                            path=snapshot_element["path"].get("value"),
+                                        )
+                                    fhir_references.append(fhir_reference)
+
         with open(de_xml_file, "rb") as file:
             contents: bytes = file.read()
             root: ObjectifiedElement = objectify.fromstring(contents)
             entries: ObjectifiedElement = root.entry
 
-            fhir_references: List[FhirReferenceType] = []
             entry: ObjectifiedElement
             for entry in entries:
                 if not hasattr(entry["resource"], "StructureDefinition"):
@@ -1030,7 +1281,8 @@ class FhirXmlSchemaParser:
                                         path=snapshot_element["path"].get("value"),
                                     )
                                 fhir_references.append(fhir_reference)
-            return fhir_references
+
+        return fhir_references
 
     @staticmethod
     def get_types_for_codeable_concepts() -> List[FhirCodeableType]:

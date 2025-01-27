@@ -9,8 +9,9 @@ Reference type for Coverage
 type AccountCoverageCoverageReference {
     id: String
     extension: [Extension]
-    reference: Coverage
-    type: uri
+    reference: String
+    resource: Coverage
+    type: URI
     identifier: Identifier
     display: String
 }

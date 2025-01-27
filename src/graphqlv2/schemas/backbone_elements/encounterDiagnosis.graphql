@@ -12,8 +12,9 @@ Reference type for Condition
 type EncounterDiagnosisConditionReference {
     id: String
     extension: [Extension]
-    reference: EncounterDiagnosisCondition
-    type: uri
+    reference: String
+    resource: EncounterDiagnosisCondition
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -14,8 +14,9 @@ Reference type for Manufacturer
 type PackagedProductDefinitionPackageManufacturerReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -5,12 +5,12 @@ fragment PractitionerName on Practitioner {
   }
 }
 query Claims {
-  explanationOfBenefit {
+  explanationOfBenefits {
     entry {
       resource {
         id
         provider {
-          reference {
+          resource {
             __typename
             ... on Organization {
               orgName: name

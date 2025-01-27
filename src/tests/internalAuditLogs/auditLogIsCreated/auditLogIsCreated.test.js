@@ -38,20 +38,21 @@ describe('InternalAuditLog Tests', () => {
 
     describe('InternalAuditLog Tests', () => {
         test('InternalAuditLog works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((container) => {
+                // Using unmocked audit logger to test creation of audit logs in db
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.databaseBulkInserter,
+                            configManager: c.configManager,
+                            preSaveManager: c.preSaveManager
+                        })
+                );
+                return container;
+            });
             const container = getTestContainer();
-
-            // Using unmocked audit logger to test creation of audit logs in db
-            container.register(
-                'auditLogger',
-                (c) =>
-                    new AuditLogger({
-                        postRequestProcessor: c.postRequestProcessor,
-                        databaseBulkInserter: c.databaseBulkInserter,
-                        configManager: c.configManager,
-                        preSaveManager: c.preSaveManager
-                    })
-            );
 
             /**
              * @type {PostRequestProcessor}
@@ -233,20 +234,21 @@ describe('InternalAuditLog Tests', () => {
         });
 
         test('InternalAuditLog works with patient scope', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((container) => {
+                // Using unmocked audit logger to test creation of audit logs in db
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.databaseBulkInserter,
+                            configManager: c.configManager,
+                            preSaveManager: c.preSaveManager
+                        })
+                );
+                return container;
+            });
             const container = getTestContainer();
-
-            // Using unmocked audit logger to test creation of audit logs in db
-            container.register(
-                'auditLogger',
-                (c) =>
-                    new AuditLogger({
-                        postRequestProcessor: c.postRequestProcessor,
-                        databaseBulkInserter: c.databaseBulkInserter,
-                        configManager: c.configManager,
-                        preSaveManager: c.preSaveManager
-                    })
-            );
 
             /**
              * @type {PostRequestProcessor}

@@ -4,10 +4,20 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        subscriptionTopic: async (parent, args, context, info) => {
+        subscriptionTopics: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
+                context,
+                info,
+                'SubscriptionTopic'
+            );
+        }
+    },
+    SubscriptionTopic: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
                 context,
                 info,
                 'SubscriptionTopic'

@@ -12,8 +12,9 @@ Reference type for CoverageArea
 type InsurancePlanPlanCoverageAreaReference {
     id: String
     extension: [Extension]
-    reference: Location
-    type: uri
+    reference: String
+    resource: Location
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -24,8 +25,9 @@ Reference type for Network
 type InsurancePlanPlanNetworkReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

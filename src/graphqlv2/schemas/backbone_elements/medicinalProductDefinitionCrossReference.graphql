@@ -9,8 +9,9 @@ Reference type for Product
 type MedicinalProductDefinitionCrossReferenceProductReference {
     id: String
     extension: [Extension]
-    reference: MedicinalProductDefinition
-    type: uri
+    reference: String
+    resource: MedicinalProductDefinition
+    type: URI
     identifier: Identifier
     display: String
 }

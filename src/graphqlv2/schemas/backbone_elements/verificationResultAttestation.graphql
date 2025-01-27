@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Signature from "../complex_types/signature.graphql"
 
 union VerificationResultAttestationWho = Practitioner | PractitionerRole | Organization
@@ -13,8 +13,9 @@ Reference type for Who
 type VerificationResultAttestationWhoReference {
     id: String
     extension: [Extension]
-    reference: VerificationResultAttestationWho
-    type: uri
+    reference: String
+    resource: VerificationResultAttestationWho
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -27,8 +28,9 @@ Reference type for OnBehalfOf
 type VerificationResultAttestationOnBehalfOfReference {
     id: String
     extension: [Extension]
-    reference: VerificationResultAttestationOnBehalfOf
-    type: uri
+    reference: String
+    resource: VerificationResultAttestationOnBehalfOf
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -84,7 +86,7 @@ type VerificationResultAttestation {
     """
     The date the information was attested to.
     """
-    date: date
+    date: Date
     """
     A digital identity certificate associated with the attestation source.
     """

@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import code from "../simple_types/code.graphql"
+# import Code from "../simple_types/code.graphql"
 # import Period from "../complex_types/period.graphql"
 
 union AppointmentParticipantActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
@@ -13,8 +13,9 @@ Reference type for Actor
 type AppointmentParticipantActorReference {
     id: String
     extension: [Extension]
-    reference: AppointmentParticipantActor
-    type: uri
+    reference: String
+    resource: AppointmentParticipantActor
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -69,11 +70,11 @@ type AppointmentParticipant {
     a use-case where two doctors need to meet to discuss the results for a
     specific patient, and the patient is not required to be present.
     """
-    required: code
+    required: Code
     """
     Participation status of the actor.
     """
-    status: code
+    status: Code
     """
     Participation period of the actor.
     """

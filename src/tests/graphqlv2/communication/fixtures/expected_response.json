@@ -1,7 +1,7 @@
 {
   "data": {
-    "communication": {
-      "entry": [{ "resource": { "about": [{ "reference": null }] } }],
+    "communications": {
+      "entry": [{ "resource": { "about": [{ "resource": null }] } }],
       "meta": null
     }
   }

@@ -9,8 +9,9 @@ Reference type for DiagnosisReference
 type CoverageEligibilityRequestDiagnosisDiagnosisReferenceReference {
     id: String
     extension: [Extension]
-    reference: Condition
-    type: uri
+    reference: String
+    resource: Condition
+    type: URI
     identifier: Identifier
     display: String
 }

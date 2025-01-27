@@ -8,8 +8,9 @@ Reference type for BaseCitation
 type CitationVersionBaseCitationReference {
     id: String
     extension: [Extension]
-    reference: Citation
-    type: uri
+    reference: String
+    resource: Citation
+    type: URI
     identifier: Identifier
     display: String
 }

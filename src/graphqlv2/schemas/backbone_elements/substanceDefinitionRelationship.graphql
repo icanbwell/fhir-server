@@ -11,8 +11,9 @@ Reference type for SubstanceDefinitionReference
 type SubstanceDefinitionRelationshipSubstanceDefinitionReferenceReference {
     id: String
     extension: [Extension]
-    reference: SubstanceDefinition
-    type: uri
+    reference: String
+    resource: SubstanceDefinition
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -23,8 +24,9 @@ Reference type for Source
 type SubstanceDefinitionRelationshipSourceReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
-    type: uri
+    reference: String
+    resource: DocumentReference
+    type: URI
     identifier: Identifier
     display: String
 }

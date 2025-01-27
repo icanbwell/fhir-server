@@ -11,8 +11,9 @@ Reference type for Entity
 type GroupMemberEntityReference {
     id: String
     extension: [Extension]
-    reference: GroupMemberEntity
-    type: uri
+    reference: String
+    resource: GroupMemberEntity
+    type: URI
     identifier: Identifier
     display: String
 }

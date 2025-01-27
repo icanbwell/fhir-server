@@ -11,8 +11,9 @@ Reference type for Instance
 type AdverseEventSuspectEntityInstanceReference {
     id: String
     extension: [Extension]
-    reference: AdverseEventSuspectEntityInstance
-    type: uri
+    reference: String
+    resource: AdverseEventSuspectEntityInstance
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -1,5 +1,5 @@
 query {
-    person(
+    persons(
         _debug: true
         identifier: {
             value: {
@@ -39,7 +39,7 @@ query {
                     assurance
                     target {
                         id
-                        reference {
+                        resource {
                             ... on Patient {
                                 id
                             }

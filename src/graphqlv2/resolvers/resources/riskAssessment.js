@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        riskAssessment: async (parent, args, context, info) => {
+        riskAssessments: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
@@ -14,14 +14,14 @@ module.exports = {
             );
         }
     },
-    RiskAssessmentBasedOn: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    RiskAssessmentParent: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
+    RiskAssessment: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'RiskAssessment'
+            );
         }
     },
     RiskAssessmentSubject: {
@@ -39,14 +39,9 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    RiskAssessmentBasis: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     RiskAssessmentBasedOnReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -58,7 +53,7 @@ module.exports = {
     },
     RiskAssessmentParentReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -70,7 +65,7 @@ module.exports = {
     },
     RiskAssessmentSubjectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -82,7 +77,7 @@ module.exports = {
     },
     RiskAssessmentEncounterReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -94,7 +89,7 @@ module.exports = {
     },
     RiskAssessmentConditionReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -106,7 +101,7 @@ module.exports = {
     },
     RiskAssessmentPerformerReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -118,7 +113,7 @@ module.exports = {
     },
     RiskAssessmentReasonReferenceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -130,7 +125,7 @@ module.exports = {
     },
     RiskAssessmentBasisReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

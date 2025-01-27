@@ -13,14 +13,9 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
-    CoverageEligibilityRequestItemDetail: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     CoverageEligibilityRequestItemProviderReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -32,7 +27,7 @@ module.exports = {
     },
     CoverageEligibilityRequestItemFacilityReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -44,7 +39,7 @@ module.exports = {
     },
     CoverageEligibilityRequestItemDetailReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

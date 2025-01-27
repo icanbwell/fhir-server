@@ -4,7 +4,7 @@
 module.exports = {
     Query: {
         // noinspection JSUnusedLocalSymbols
-        binary: async (parent, args, context, info) => {
+        binaries: async (parent, args, context, info) => {
             return await context.dataApi.getResourcesBundle(
                 parent,
                 args,
@@ -14,14 +14,19 @@ module.exports = {
             );
         }
     },
-    BinarySecurityContext: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
+    Binary: {
+        __resolveReference: async (reference, context, info) => {
+            return await context.dataApi.resolveEntityByReference(
+                reference,
+                context,
+                info,
+                'Binary'
+            );
         }
     },
     BinarySecurityContextReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

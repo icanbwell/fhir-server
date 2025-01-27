@@ -11,8 +11,9 @@ Reference type for Observer
 type AuditEventSourceObserverReference {
     id: String
     extension: [Extension]
-    reference: AuditEventSourceObserver
-    type: uri
+    reference: String
+    resource: AuditEventSourceObserver
+    type: URI
     identifier: Identifier
     display: String
 }

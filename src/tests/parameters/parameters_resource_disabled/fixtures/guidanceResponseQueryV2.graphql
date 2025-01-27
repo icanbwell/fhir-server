@@ -1,5 +1,5 @@
 query {
-    guidanceResponse{
+    guidanceResponses{
         entry{
             resource {
                 id
@@ -8,7 +8,7 @@ query {
                 }
                 outputParameters {
                     id
-                    reference {
+                    resource {
                         id
                         resourceType
                         parameter {

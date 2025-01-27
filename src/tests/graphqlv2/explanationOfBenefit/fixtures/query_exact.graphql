@@ -1,5 +1,5 @@
 query {
-    explanationOfBenefit(
+    explanationOfBenefits(
         disposition: {
             exact: "unknown"
         },
@@ -31,7 +31,7 @@ query {
                 careTeam {
                     sequence
                     provider {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -60,7 +60,7 @@ query {
                     }
                 }
                 insurer {
-                    reference {
+                    resource {
                         id
                     }
                 }
@@ -123,7 +123,7 @@ query {
                         }
                     }
                     party {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -138,7 +138,7 @@ query {
                     }
                 }
                 provider {
-                    reference {
+                    resource {
                         __typename
                         ... on Practitioner {
                             id

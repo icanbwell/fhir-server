@@ -154,10 +154,13 @@ describe('GraphQL Subscription Tests', () => {
                     query: graphqlQueryText
                 })
                 // .set(getGraphQLHeaders());
-                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+                .set({
+                    ...getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'),
+                    prefer: 'global_id=false'
+                });
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscription');
+            expect(resp).toHaveGraphQLResponse(expectedSubscriptionResources, 'subscriptions');
         });
         test('GraphQL subscription requires patient access', async () => {
             const request = await createTestRequest();
@@ -241,7 +244,7 @@ describe('GraphQL Subscription Tests', () => {
                 .set(getGraphQLHeadersWithPerson('xyz'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscription');
+            expect(resp).toHaveGraphQLResponse(expectedSubscriptionInvalidResources, 'subscriptions');
         });
     });
 });

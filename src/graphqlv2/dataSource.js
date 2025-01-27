@@ -10,17 +10,21 @@ const { ResourceWithId } = require('./resourceWithId');
 const { isValidResource } = require('../utils/validResourceCheck');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { ConfigManager } = require('../utils/configManager');
+const { isUuid, generateUUIDv5 } = require('../utils/uid.util');
+const { SearchBundleOperation } = require('../operations/search/searchBundle');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQLV2 resolvers to load the data
  */
 class FhirDataSource {
     /**
-     * @param {FhirRequestInfo} requestInfo
-     * @param {SearchBundleOperation} searchBundleOperation
-     * @param {R4ArgsParser} r4ArgsParser
-     * @param {QueryRewriterManager} queryRewriterManager
-     * @param {ConfigManager} configManager
+     * @typedef FhirDataSourceParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {SearchBundleOperation} searchBundleOperation
+     * @property {R4ArgsParser} r4ArgsParser
+     * @property {QueryRewriterManager} queryRewriterManager
+     * @property {ConfigManager} configManager
+     * @param {FhirDataSourceParams} params
      */
     constructor (
         {
@@ -112,7 +116,7 @@ class FhirDataSource {
              * resources with this resourceType and id
              * @type {Resource[]}
              */
-            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r.id === id.split('|')[0]));
+            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r._sourceId === id.split('|')[0]));
             // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
             resultsOrdered.push(items.length > 0 ? items[0] : null);
         }
@@ -307,6 +311,72 @@ class FhirDataSource {
     }
 
     /**
+     * Finds linked non clinical resources by reference
+     * @typedef findLinkedNonClinicalResourceParams
+     * @property {[String]} resourceTypes
+     * @property {String} referenceString
+     * @property {String} sourceAssigningAuthority
+     * @param {findLinkedNonClinicalResourceParams} params
+     * @return {Promise<null|Resource>}
+     */
+    async findLinkedNonClinicalResource({
+        resourceTypes,
+        referenceString,
+        sourceAssigningAuthority
+    }) {
+        if (!referenceString) {
+            return null;
+        }
+
+        const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(referenceString);
+        if (!referenceObj) {
+            return null;
+        }
+        let {
+            /** @type {string} **/
+            resourceType,
+            /** @type {string} **/
+            id
+        } = referenceObj;
+
+        if (
+            !isValidResource(resourceType) ||
+            (resourceTypes.length > 0 &&
+                !resourceTypes.includes('Resource') &&
+                !resourceTypes.includes(resourceType))
+        ) {
+            return null;
+        }
+
+        if (sourceAssigningAuthority && !isUuid(id)) {
+            id = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
+        }
+
+        try {
+            this.createDataLoader({});
+            // noinspection JSValidateTypes
+            let resource = await this.dataLoader.load(
+                ResourceWithId.getReferenceKey(resourceType, id)
+            );
+            return resource;
+        } catch (e) {
+            if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
+                logWarn('findLinkedNonClinicalResource: Resource not found for parent', {
+                    args: {
+                        resourceTypes,
+                        referenceString,
+                        sourceAssigningAuthority
+                    }
+                });
+                return null;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
      * Finds one or more resources by references array
      * @param {Resource|null} parent
      * @param {Object} args
@@ -350,44 +420,6 @@ class FhirDataSource {
                     requestInfo: context.fhirRequestInfo,
                     resourceType,
                     parsedArgs: await this.getParsedArgsAsync(
-                        {
-                            args: args1,
-                            resourceType,
-                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
-                        }
-                    ),
-                    useAggregationPipeline: false
-                }
-            )
-        );
-    }
-
-    /**
-     * Finds resources with args used specifically while performing mutation
-     * @param {Resource|null} parent
-     * @param {Object} args
-     * @param {GraphQLContext} context
-     * @param {Object} info
-     * @param {string} resourceType
-     * @return {Promise<Resource[]>}
-     */
-    async getResourcesForMutation (parent, args, context, info, resourceType) {
-        // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
-        const args1 = {
-            base_version: '4_0_0',
-            _bundle: '1',
-            ...args
-        };
-        // if _debug is not set and we are in debug mode, set it
-        if (!args1._debug && this.debugMode) {
-            args1._debug = true;
-        }
-        return this.unBundle(
-            await this.searchBundleOperation.searchBundleAsync(
-                {
-                    requestInfo: context.fhirRequestInfo,
-                    resourceType,
-                    parsedArgs: await this.getParsedArgsForMutationAsync(
                         {
                             args: args1,
                             resourceType,
@@ -551,30 +583,10 @@ class FhirDataSource {
                 base_version, parsedArgs, resourceType, operation: READ
             }
         );
-        if (headers) {
-            parsedArgs.headers = headers;
+        headers = {
+            prefer: 'global_id=true',
+            ...headers
         }
-        return parsedArgs;
-    }
-
-    /**
-     * Parse arguments
-     * @param {Object} args
-     * @param {string} resourceType
-     * @param {Object|undefined} headers
-     * @return {Promise<ParsedArgs>}
-     */
-    async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = this.r4ArgsParser.parseArgs(
-            {
-                resourceType,
-                args,
-                useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
-            }
-        );
         if (headers) {
             parsedArgs.headers = headers;
         }
@@ -622,6 +634,64 @@ class FhirDataSource {
         }
         const extension = resource.extension.find(e => e.url === url);
         return extension ? extension[valueType] : null;
+    }
+
+    /**
+     * Resolves entity by reference
+     * @param {{__typename: string, id: string}} reference
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @param {string} requestedResource
+     */
+    async resolveEntityByReference(reference, context, info, requestedResource) {
+        if (!reference || !reference.id) {
+            return null;
+        }
+
+        /**
+         * @type {string[]}
+         */
+        const references = reference.id.split('/');
+        let referenceObj;
+        // We can receive either reference or just the id
+        if (references.length === 1) {
+            referenceObj = { resourceType: null, id: references[0] }
+        }
+        else if (references.length === 2) {
+            referenceObj = { resourceType: references[0], id: references[1] };
+        }
+        else{
+            return null;
+        }
+
+        const { resourceType, id } = referenceObj;
+
+        if (resourceType && requestedResource !== resourceType) {
+            return null;
+        }
+
+        try {
+            this.createDataLoader({});
+            // noinspection JSValidateTypes
+            let resource = await this.dataLoader.load(
+                ResourceWithId.getReferenceKey(requestedResource, id)
+            );
+            return resource;
+        } catch (e) {
+            if (e.name === 'NotFound') {
+                // noinspection JSUnresolvedReference
+                logWarn('resolveEntityByReference: Resource not found', {
+                    user: context.user,
+                    args: {
+                        requestedResource,
+                        id
+                    }
+                });
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 }
 

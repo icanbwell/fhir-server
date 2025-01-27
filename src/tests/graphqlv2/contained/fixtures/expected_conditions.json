@@ -1,0 +1,52 @@
+{
+    "data": {
+        "conditions": {
+            "entry": [
+                {
+                    "resource": {
+                        "id": "4d331e30-dc2a-83a3-ff37-edd60dad69cf",
+                        "onsetDateTime": "1973-02-01T20:50:45-05:00",
+                        "code": {
+                            "text": "Risk activity involvement (finding)"
+                        },
+                        "contained": [
+                            {
+                                "resourceType": "Location",
+                                "name": "Primary Care Clinic",
+                                "address": {
+                                    "city": "Somerset",
+                                    "country": "USA",
+                                    "state": "NJ",
+                                    "postalCode": "08873",
+                                    "line": ["123 Medical Drive"]
+                                }
+                            },
+                            {
+                                "resourceType": "Organization",
+                                "name": "Primary Care Clinic",
+                                "type": [
+                                    {
+                                        "coding": [
+                                            {
+                                                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                                                "code": "prov",
+                                                "display": "Healthcare Provider"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "telecom": [
+                                    {
+                                        "system": "phone",
+                                        "value": "732-555-1234"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "meta": null
+        }
+    }
+}

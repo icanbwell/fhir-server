@@ -3,7 +3,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CoverageEligibilityResponseBenefit from "../backbone_elements/coverageEligibilityResponseBenefit.graphql"
-# import uri from "../simple_types/uri.graphql"
+# import URI from "../simple_types/uri.graphql"
 
 union CoverageEligibilityResponseItemProvider = Practitioner | PractitionerRole
 
@@ -13,8 +13,9 @@ Reference type for Provider
 type CoverageEligibilityResponseItemProviderReference {
     id: String
     extension: [Extension]
-    reference: CoverageEligibilityResponseItemProvider
-    type: uri
+    reference: String
+    resource: CoverageEligibilityResponseItemProvider
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -117,5 +118,5 @@ type CoverageEligibilityResponseItem {
     A web location for obtaining requirements or descriptive information regarding
     the preauthorization.
     """
-    authorizationUrl: uri
+    authorizationUrl: URI
 }

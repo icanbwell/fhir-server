@@ -49,9 +49,10 @@ describe('AccessLogs Tests', () => {
 
             // Using mocked access logger to test creation of access logs in db
             container.register('accessLogger', (c) => new MockAccessLogger({
-                databaseUpdateFactory: c.databaseUpdateFactory,
                 scopesManager: c.scopesManager,
-                fhirOperationsManager: c.fhirOperationsManager
+                fhirOperationsManager: c.fhirOperationsManager,
+                configManager: c.configManager,
+                databaseBulkInserter: c.databaseBulkInserter
             }));
             const accessLogger = container.accessLogger;
 

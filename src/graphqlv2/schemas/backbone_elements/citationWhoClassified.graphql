@@ -10,8 +10,9 @@ Reference type for Person
 type CitationWhoClassifiedPersonReference {
     id: String
     extension: [Extension]
-    reference: CitationWhoClassifiedPerson
-    type: uri
+    reference: String
+    resource: CitationWhoClassifiedPerson
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -22,8 +23,9 @@ Reference type for Organization
 type CitationWhoClassifiedOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -34,8 +36,9 @@ Reference type for Publisher
 type CitationWhoClassifiedPublisherReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

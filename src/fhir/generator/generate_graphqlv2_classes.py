@@ -1,8 +1,10 @@
 # This file implements the code generator for generating schema and resolvers for FHIR
 # It reads the FHIR XML schema and generates resolvers in the resolvers folder and schema in the schema folder
 
+import json
 import os
 import shutil
+from jinja2 import Template
 from os import path
 from pathlib import Path
 from typing import Union, List, Dict, Any
@@ -10,6 +12,7 @@ from typing import Union, List, Dict, Any
 from fhir_xml_schema_parser import FhirXmlSchemaParser
 from search_parameters import search_parameter_queries
 from fhir_xml_schema_parser import FhirEntity
+from generate_non_clinical_fields import get_clinical_resources_and_filters
 
 
 def my_copytree(
@@ -62,6 +65,11 @@ def main() -> int:
         shutil.rmtree(resources_folder)
     os.mkdir(resources_folder)
 
+    interfaces_folder = graphql_schema_dir.joinpath("interfaces")
+    if os.path.exists(interfaces_folder):
+        shutil.rmtree(interfaces_folder)
+    os.mkdir(interfaces_folder)
+
     queries_folder = graphql_schema_dir.joinpath("queries")
     if os.path.exists(queries_folder):
         shutil.rmtree(queries_folder)
@@ -71,6 +79,11 @@ def main() -> int:
     if os.path.exists(resource_resolvers_folder):
         shutil.rmtree(resource_resolvers_folder)
     os.mkdir(resource_resolvers_folder)
+
+    interface_resolvers_folder = graphql_resolvers_dir.joinpath("interfaces")
+    if os.path.exists(interface_resolvers_folder):
+        shutil.rmtree(interface_resolvers_folder)
+    os.mkdir(interface_resolvers_folder)
 
     complex_types_folder = graphql_schema_dir.joinpath("complex_types")
     if os.path.exists(complex_types_folder):
@@ -102,19 +115,19 @@ def main() -> int:
         shutil.rmtree(backbone_elements_resolvers_folder)
     os.mkdir(backbone_elements_resolvers_folder)
 
-    value_sets_folder = graphql_schema_dir.joinpath("value_sets")
-    if os.path.exists(value_sets_folder):
-        shutil.rmtree(value_sets_folder)
-    os.mkdir(value_sets_folder)
+    custom_patient_schema = graphql_schema_dir.joinpath("./custom/patient.graphql")
+    if os.path.exists(custom_patient_schema):
+        os.remove(custom_patient_schema)
+
+    custom_patient_resolver = graphql_resolvers_dir.joinpath("./custom/patient.js")
+    if os.path.exists(custom_patient_resolver):
+        os.remove(custom_patient_resolver)
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
-    resource_list = FhirXmlSchemaParser.get_list_of_resources()
-    total_resources_count = len(resource_list)
 
     # generate schema.graphql
     with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
         template_contents = file.read()
-        from jinja2 import Template
 
         file_path = graphql_schema_dir.joinpath("schema.graphql")
         template = Template(
@@ -135,6 +148,39 @@ def main() -> int:
         if fhir_entity.is_value_set:  # valueset
             pass
 
+        elif fhir_entity.is_resource and fhir_entity.fhir_name in ["Resource", "DomainResource"]:
+            # write interface schema
+            with open(data_dir.joinpath("graphqlv2/schema/template.interface.jinja2"), "r") as file:
+                template_contents = file.read()
+
+                file_path = interfaces_folder.joinpath(f"{entity_file_name}.graphql")
+                print(f"Writing interface: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
+
+            # write interface resolvers
+            with open(data_dir.joinpath("graphqlv2/resolvers/template.interface.jinja2"), "r") as file:
+                template_contents = file.read()
+
+                file_path = interface_resolvers_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing interface resolver: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
+
         elif fhir_entity.is_resource:
             search_parameters_for_all_resources: Dict[str, Dict[str, Any]] = (
                 search_parameter_queries.get("Resource", {}) if fhir_entity.fhir_name != "Resource" else {}
@@ -145,7 +191,6 @@ def main() -> int:
             # write schema
             with open(data_dir.joinpath("graphqlv2/schema/template.resource.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = resources_folder.joinpath(f"{entity_file_name}.graphql")
                 print(f"Writing domain resource: {entity_file_name} to {file_path}...")
@@ -153,11 +198,9 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -165,7 +208,6 @@ def main() -> int:
             # write queries
             with open(data_dir.joinpath("template.resource_queriesv2.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = queries_folder.joinpath(f"{entity_file_name}.graphql")
                 print(f"Writing query: {entity_file_name} to {file_path}...")
@@ -176,7 +218,6 @@ def main() -> int:
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -184,7 +225,6 @@ def main() -> int:
             # write resolvers
             with open(data_dir.joinpath("graphqlv2/resolvers/template.resource.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = resource_resolvers_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing domain resource resolver: {entity_file_name} to {file_path}...")
@@ -193,7 +233,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -203,7 +242,6 @@ def main() -> int:
                     data_dir.joinpath("graphqlv2/schema/template.backbone_element.jinja2"), "r"
             ) as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = backbone_elements_folder.joinpath(f"{entity_file_name}.graphql")
                 print(
@@ -213,9 +251,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -224,7 +260,6 @@ def main() -> int:
             # write resolvers
             with open(data_dir.joinpath("graphqlv2/resolvers/template.backbone_element.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = backbone_elements_resolvers_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing domain resource resolver: {entity_file_name} to {file_path}...")
@@ -233,7 +268,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -242,7 +276,6 @@ def main() -> int:
         elif fhir_entity.is_extension:  # valueset
             with open(data_dir.joinpath("graphqlv2/schema/template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = extensions_folder.joinpath(f"{entity_file_name}.graphql")
                 print(f"Writing extension: {entity_file_name} to {file_path}...")
@@ -250,9 +283,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             with open(file_path, "w") as file2:
@@ -260,7 +291,6 @@ def main() -> int:
             # write resolvers
             with open(data_dir.joinpath("graphqlv2/resolvers/template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = extensions_resolvers_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing extension resolver: {entity_file_name} to {file_path}...")
@@ -269,7 +299,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -278,7 +307,6 @@ def main() -> int:
         elif fhir_entity.type_ == "Element":  # valueset
             with open(data_dir.joinpath("graphqlv2/schema/template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = complex_types_folder.joinpath(f"{entity_file_name}.graphql")
                 print(f"Writing complex_type: {entity_file_name} to {file_path}...")
@@ -286,9 +314,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -297,7 +323,6 @@ def main() -> int:
             # write resolvers
             with open(data_dir.joinpath("graphqlv2/resolvers/template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = complex_resolvers_types_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing domain resource resolver: {entity_file_name} to {file_path}...")
@@ -306,7 +331,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -315,7 +339,6 @@ def main() -> int:
         elif fhir_entity.type_ in ["Quantity"]:  # valueset
             with open(data_dir.joinpath("graphqlv2/schema/template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
-                from jinja2 import Template
 
                 file_path = complex_types_folder.joinpath(f"{entity_file_name}.graphql")
                 print(f"Writing complex_type: {entity_file_name} to {file_path}...")
@@ -323,9 +346,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    all_resources_string=" | ".join(resource_list),
                     fhir_entity=fhir_entity,
-                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -334,6 +355,45 @@ def main() -> int:
         else:
             print(f"{resource_name}: {fhir_entity.type_} is not supported")
         # print(result)
+
+    # write custom patient schema using patient everything.json graph definition
+    patient_graphs: Path = Path(__file__).parent.joinpath("./../../graphs/patient")
+    json_file_path = patient_graphs.joinpath("everything.json")
+    with open(json_file_path, "r") as json_file:
+        patient_everything_graph = json.load(json_file)
+
+    clinical_resources, patient_resources_search_param_dict = list(get_clinical_resources_and_filters(patient_everything_graph))
+    clinical_resources.remove("Patient")
+
+    patient_entities = [fhir_entity for fhir_entity in fhir_entities if fhir_entity.is_resource and fhir_entity.fhir_name in clinical_resources]
+    with open(data_dir.joinpath("graphqlv2/schema/template.patient_custom.jinja2"), "r") as file:
+        template_contents = file.read()
+
+        print(f"Writing custom patient queries to {custom_patient_schema}...")
+        template = Template(
+            template_contents, trim_blocks=True, lstrip_blocks=True
+        )
+        result = template.render(
+            fhir_entities=patient_entities,
+        )
+        if not path.exists(custom_patient_schema):
+            with open(custom_patient_schema, "w") as file2:
+                file2.write(result)
+
+    with open(data_dir.joinpath("graphqlv2/resolvers/template.patient_custom.jinja2"), "r") as file:
+        template_contents = file.read()
+
+        print(f"Writing custom patient resolver to {custom_patient_resolver}...")
+        template = Template(
+            template_contents, trim_blocks=True, lstrip_blocks=True
+        )
+        result = template.render(
+            fhir_entities=patient_entities,
+            patient_resources_search_param_dict = patient_resources_search_param_dict
+        )
+        if not path.exists(custom_patient_resolver):
+            with open(custom_patient_resolver, "w") as file2:
+                file2.write(result)
 
     print("------ Finished generating classes ------")
     return 0

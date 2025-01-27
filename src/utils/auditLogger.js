@@ -207,10 +207,6 @@ class AuditLogger {
 
         await this.preSaveManager.preSaveAsync({ resource: doc });
         this.queue.push({ doc, requestInfo });
-
-        if (this.queue.length >= this.configManager.postRequestBufferSize) {
-            await this.flushAsync();
-        }
     }
 
     /**
@@ -235,7 +231,6 @@ class AuditLogger {
          */
         const resourceType = 'AuditEvent';
         let requestId;
-        const currentDate = moment.utc().format('YYYY-MM-DD');
 
         /**
          * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
@@ -267,7 +262,6 @@ class AuditLogger {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
-                currentDate,
                 base_version: this.base_version,
                 operationsMap,
                 maintainOrder: false

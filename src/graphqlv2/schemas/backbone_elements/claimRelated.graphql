@@ -10,8 +10,9 @@ Reference type for Claim
 type ClaimRelatedClaimReference {
     id: String
     extension: [Extension]
-    reference: Claim
-    type: uri
+    reference: String
+    resource: Claim
+    type: URI
     identifier: Identifier
     display: String
 }

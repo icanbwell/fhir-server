@@ -5,7 +5,7 @@
 module.exports = {
     ClinicalUseDefinitionIndicationDiseaseSymptomProcedureReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -17,7 +17,7 @@ module.exports = {
     },
     ClinicalUseDefinitionIndicationDiseaseStatusReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -29,7 +29,7 @@ module.exports = {
     },
     ClinicalUseDefinitionIndicationComorbidityReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -41,7 +41,7 @@ module.exports = {
     },
     ClinicalUseDefinitionIndicationIntendedEffectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -53,7 +53,7 @@ module.exports = {
     },
     ClinicalUseDefinitionIndicationUndesirableEffectReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

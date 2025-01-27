@@ -1,6 +1,6 @@
-# Write your query or mutation here
+# Write your query here
 query {
-  person(
+  persons(
     identifier: {
       value: {
         system: "http://www.client.com/profileid"
@@ -21,7 +21,7 @@ query {
           }
           assurance
           target {
-            reference {
+            resource {
               ... on Patient {
                 id
               }

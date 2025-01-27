@@ -1,5 +1,5 @@
 query {
-    carePlan(patient: { value: "8ba1017f-0aad-1b91-ff9e-416a96e11f0b" }) {
+    carePlans(patient: { value: "8ba1017f-0aad-1b91-ff9e-416a96e11f0b" }) {
         entry {
             resource {
                 id
@@ -17,7 +17,7 @@ query {
                     }
                     outcomeReference {
                         id
-                        reference {
+                        resource {
                             ... on Observation {
                                 id
                                 resourceType
@@ -26,7 +26,7 @@ query {
                     }
                 }
                 encounter {
-                    reference {
+                    resource {
                         extension{
                             id
                             url
@@ -36,7 +36,7 @@ query {
                     }
                 }
                 author {
-                    reference {
+                    resource {
                         ... on Patient {
                             extension{
                                 id
@@ -48,7 +48,7 @@ query {
                     }
                 }
                 careTeam {
-                    reference {
+                    resource {
                         ... on CareTeam {
                             extension {
                                 id

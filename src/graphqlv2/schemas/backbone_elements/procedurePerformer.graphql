@@ -11,8 +11,9 @@ Reference type for Actor
 type ProcedurePerformerActorReference {
     id: String
     extension: [Extension]
-    reference: ProcedurePerformerActor
-    type: uri
+    reference: String
+    resource: ProcedurePerformerActor
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -23,8 +24,9 @@ Reference type for OnBehalfOf
 type ProcedurePerformerOnBehalfOfReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

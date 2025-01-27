@@ -1,0 +1,204 @@
+{
+    "data": {
+        "conditions": {
+            "entry": [
+                {
+                    "resource": {
+                        "id": "4d331e30-dc2a-83a3-ff37-edd60dad69cf",
+                        "onsetDateTime": "1973-02-01T20:50:45-05:00",
+                        "code": {
+                            "text": "Risk activity involvement (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "6013c774-7faa-2363-0d83-48f51300cf1f",
+                        "onsetDateTime": "1974-02-07T21:53:47-04:00",
+                        "code": {
+                            "text": "Received certificate of high school equivalency (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "7e0d64d0-43c1-865d-6ece-73f421b743d3",
+                        "onsetDateTime": "1984-04-05T20:21:20-05:00",
+                        "code": {
+                            "text": "Anemia (disorder)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "7e8e1597-cc13-84da-71a3-b1c675c9f31f",
+                        "onsetDateTime": "1974-02-07T21:53:47-04:00",
+                        "code": {
+                            "text": "Unemployed (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "7efc99cb-d1db-272f-27f2-b094f164a03f",
+                        "onsetDateTime": "1983-08-11T21:21:20-04:00",
+                        "code": {
+                            "text": "Miscarriage in first trimester"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "8778a0f3-b2c6-dd1e-6e7f-5f75b5765dcd",
+                        "onsetDateTime": "1975-02-13T21:00:49-05:00",
+                        "code": {
+                            "text": "Limited social contact (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "9368d222-af5f-1fa8-53f3-1312669b4409",
+                        "onsetDateTime": "1982-03-25T20:51:33-05:00",
+                        "code": {
+                            "text": "Limited social contact (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "a517c03f-87e6-c9b1-aad1-8691cf8c20cb",
+                        "onsetDateTime": "1992-05-21T22:01:33-04:00",
+                        "code": {
+                            "text": "Limited social contact (finding)"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "d2025dd8-d6fe-4149-b892-50dd4fac0252",
+                        "onsetDateTime": "1974-02-07T21:21:20-04:00",
+                        "code": {
+                            "text": "Hypertension"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                },
+                {
+                    "resource": {
+                        "id": "dac12b2f-9021-6645-5ce4-7bb472675338",
+                        "onsetDateTime": "1982-03-25T20:21:20-05:00",
+                        "code": {
+                            "text": "Prediabetes"
+                        },
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "resource": {
+                                "__typename": "Patient",
+                                "birthDate": "1955-12-15"
+                            }
+                        }
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.Condition_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.Patient_4_0_0.find({'_uuid':'8ba1017f-0aad-1b91-ff9e-416a96e11f0b'}, {}).sort({'_uuid':1}).limit(1000)]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryCollection",
+                        "code": ""
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':1000,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['subject._uuid','meta.tag.system','meta.tag.code','_uuid'],['_uuid']]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryTime",
+                        "display": "[0.007,0.003]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Condition_4_0_0\",\"parsedQuery\":{\"$and\":[{\"subject._uuid\":{\"$eq\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"planCacheShapeHash\":\"221FDF6F\",\"planCacheKey\":\"C436F096\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"subject._uuid\":1,\"_uuid\":1},\"indexName\":\"subjectUuid_uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"subject._uuid\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"subject._uuid\":[\"[\\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":10,\"executionTimeMillis\":0,\"totalKeysExamined\":10,\"totalDocsExamined\":10,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":10,\"executionTimeMillisEstimate\":0,\"works\":11,\"advanced\":10,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"nReturned\":10,\"executionTimeMillisEstimate\":0,\"works\":11,\"advanced\":10,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":10,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":10,\"executionTimeMillisEstimate\":0,\"works\":11,\"advanced\":10,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"subject._uuid\":1,\"_uuid\":1},\"indexName\":\"subjectUuid_uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"subject._uuid\":[],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"subject._uuid\":[\"[\\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":10,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"F9B0A74B8A7A546D4D9C54E9AAC103653BFFB03665207F084308389B2BF88B3D\",\"command\":{\"find\":\"Condition_4_0_0\",\"filter\":{\"$and\":[{\"subject._uuid\":\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":57037,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7450024712291221545\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7450024712291221545\"}}],[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Patient_4_0_0\",\"parsedQuery\":{\"_uuid\":{\"$eq\":\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"}},\"indexFilterSet\":false,\"planCacheShapeHash\":\"F083C9C1\",\"planCacheKey\":\"B9B447D4\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":1000,\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":1000,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"1F8C4ED36A6D74325F48F1F93EA41330BF5DA9AE759FC38A75AB725A25D23563\",\"command\":{\"find\":\"Patient_4_0_0\",\"filter\":{\"_uuid\":\"8ba1017f-0aad-1b91-ff9e-416a96e11f0b\"},\"sort\":{\"_uuid\":1},\"limit\":1000,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":57037,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7450024712291221545\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7450024712291221545\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"subjectUuid_uuid\",\"keysExamined\":10,\"nReturned\":10,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"docsExamined\":10,\"nReturned\":10,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":10,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":10,\"executionTimeMillis\":0,\"totalKeysExamined\":10,\"totalDocsExamined\":10},\"query\":\"db.Condition_4_0_0.find({'$and':[{'subject._uuid':'Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}],[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Patient_4_0_0.find({'_uuid':'8ba1017f-0aad-1b91-ff9e-416a96e11f0b'}, {}).sort({'_uuid':1}).limit(1000)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}

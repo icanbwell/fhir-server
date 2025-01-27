@@ -12,7 +12,7 @@ extend type Query {
     use, or drug catalogs).
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    medicinalProductDefinition(
+    medicinalProductDefinitions(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

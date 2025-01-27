@@ -11,8 +11,9 @@ Reference type for SourceDocument
 type SubstanceDefinitionStructureSourceDocumentReference {
     id: String
     extension: [Extension]
-    reference: DocumentReference
-    type: uri
+    reference: String
+    resource: DocumentReference
+    type: URI
     identifier: Identifier
     display: String
 }

@@ -11,8 +11,9 @@ Reference type for Reference
 type ConsentActorReferenceReference {
     id: String
     extension: [Extension]
-    reference: ConsentActorReference
-    type: uri
+    reference: String
+    resource: ConsentActorReference
+    type: URI
     identifier: Identifier
     display: String
 }

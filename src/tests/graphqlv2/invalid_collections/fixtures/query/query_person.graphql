@@ -1,5 +1,5 @@
 query {
-  person(id: {value: "1"}) {
+  persons(id: {value: "1"}) {
     entry {
       resource {
         id
@@ -8,7 +8,7 @@ query {
         }
         link {
           target {
-            reference {
+            resource {
               ... on Patient {
                 id
               }

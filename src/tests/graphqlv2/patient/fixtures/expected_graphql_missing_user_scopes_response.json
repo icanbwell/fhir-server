@@ -1,6 +1,6 @@
 {
   "data": {
-    "patient": null
+    "patients": null
   },
   "errors": [
     {
@@ -15,7 +15,7 @@
       ],
       "message": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Practitioner.read] failed access check to [Patient.read]",
       "path": [
-        "patient"
+        "patients"
       ]
     }
   ]

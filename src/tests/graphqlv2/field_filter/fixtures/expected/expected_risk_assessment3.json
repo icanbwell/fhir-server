@@ -1,7 +1,7 @@
 {
     "data": {
-        "riskAssessment": {
-            "entry": [{ "resource": { "id": "2" } }, { "resource": { "id": "1" } }],
+        "riskAssessments": {
+            "entry": [{ "resource": { "id": "941f082a-39a9-5f55-9630-5839a010e1bc" } }, { "resource": { "id": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15" } }],
             "meta": {
                 "tag": [
                     {

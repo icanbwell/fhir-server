@@ -11,8 +11,9 @@ Reference type for IndicationReference
 type MedicationKnowledgeAdministrationGuidelinesIndicationReferenceReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
-    type: uri
+    reference: String
+    resource: ObservationDefinition
+    type: URI
     identifier: Identifier
     display: String
 }

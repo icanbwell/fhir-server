@@ -3,14 +3,9 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    LinkageItemResource: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     LinkageItemResourceReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

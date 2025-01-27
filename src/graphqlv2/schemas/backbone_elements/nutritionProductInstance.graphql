@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 
 
 """
@@ -55,10 +55,10 @@ type NutritionProductInstance {
     The time after which the product is no longer expected to be in proper
     condition, or its use is not advised or not allowed.
     """
-    expiry: dateTime
+    expiry: DateTime
     """
     The time after which the product is no longer expected to be in proper
     condition, or its use is not advised or not allowed.
     """
-    useBy: dateTime
+    useBy: DateTime
 }

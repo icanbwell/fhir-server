@@ -9,7 +9,7 @@ extend type Query {
     informing the subscriber of the benefits provided.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    explanationOfBenefit(
+    explanationOfBenefits(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

@@ -2,14 +2,12 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import date from "../simple_types/date.graphql"
+# import Date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import Resource from "../resources/resource.graphql"
 # import Coding from "../complex_types/coding.graphql"
-
-union ExplanationOfBenefitSupportingInfoValueReference =Account | ActivityDefinition | AdministrableProductDefinition | AdverseEvent | AllergyIntolerance | Appointment | AppointmentResponse | AuditEvent | Basic | Binary | BiologicallyDerivedProduct | BodyStructure | Bundle | CapabilityStatement | CarePlan | CareTeam | CatalogEntry | ChargeItem | ChargeItemDefinition | Citation | Claim | ClaimResponse | ClinicalImpression | ClinicalUseDefinition | CodeSystem | Communication | CommunicationRequest | CompartmentDefinition | Composition | ConceptMap | Condition | Consent | Contract | Coverage | CoverageEligibilityRequest | CoverageEligibilityResponse | DetectedIssue | Device | DeviceDefinition | DeviceMetric | DeviceRequest | DeviceUseStatement | DiagnosticReport | DocumentManifest | DocumentReference | Encounter | Endpoint | EnrollmentRequest | EnrollmentResponse | EpisodeOfCare | EventDefinition | Evidence | EvidenceReport | EvidenceVariable | ExampleScenario | ExplanationOfBenefit | FamilyMemberHistory | Flag | Goal | GraphDefinition | Group | GuidanceResponse | HealthcareService | ImagingStudy | Immunization | ImmunizationEvaluation | ImmunizationRecommendation | ImplementationGuide | Ingredient | InsurancePlan | Invoice | Library | Linkage | List | Location | ManufacturedItemDefinition | Measure | MeasureReport | Media | Medication | MedicationAdministration | MedicationDispense | MedicationKnowledge | MedicationRequest | MedicationStatement | MedicinalProductDefinition | MessageDefinition | MessageHeader | MolecularSequence | NamingSystem | NutritionOrder | NutritionProduct | Observation | ObservationDefinition | OperationDefinition | OperationOutcome | Organization | OrganizationAffiliation | PackagedProductDefinition | Patient | PaymentNotice | PaymentReconciliation | Person | PlanDefinition | Practitioner | PractitionerRole | Procedure | Provenance | Questionnaire | QuestionnaireResponse | RegulatedAuthorization | RelatedPerson | RequestGroup | ResearchDefinition | ResearchElementDefinition | ResearchStudy | ResearchSubject | RiskAssessment | Schedule | SearchParameter | ServiceRequest | Slot | Specimen | SpecimenDefinition | StructureDefinition | StructureMap | Subscription | SubscriptionStatus | SubscriptionTopic | Substance | SubstanceDefinition | SupplyDelivery | SupplyRequest | Task | TerminologyCapabilities | TestReport | TestScript | ValueSet | VerificationResult | VisionPrescription | Parameters | Resource
 
 """
 Reference type for ValueReference
@@ -17,8 +15,9 @@ Reference type for ValueReference
 type ExplanationOfBenefitSupportingInfoValueReferenceReference {
     id: String
     extension: [Extension]
-    reference: ExplanationOfBenefitSupportingInfoValueReference
-    type: uri
+    reference: String
+    resource: Resource
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -77,7 +76,7 @@ type ExplanationOfBenefitSupportingInfo {
     """
     None
     """
-    timingDate: date
+    timingDate: Date
     """
     None
     """

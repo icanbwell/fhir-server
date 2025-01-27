@@ -10,8 +10,9 @@ Reference type for DiseaseSymptomProcedure
 type ClinicalUseDefinitionContraindicationDiseaseSymptomProcedureReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
-    type: uri
+    reference: String
+    resource: ObservationDefinition
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -22,8 +23,9 @@ Reference type for DiseaseStatus
 type ClinicalUseDefinitionContraindicationDiseaseStatusReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
-    type: uri
+    reference: String
+    resource: ObservationDefinition
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -34,8 +36,9 @@ Reference type for Comorbidity
 type ClinicalUseDefinitionContraindicationComorbidityReference {
     id: String
     extension: [Extension]
-    reference: ObservationDefinition
-    type: uri
+    reference: String
+    resource: ObservationDefinition
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -46,8 +49,9 @@ Reference type for Indication
 type ClinicalUseDefinitionContraindicationIndicationReference {
     id: String
     extension: [Extension]
-    reference: ClinicalUseDefinition
-    type: uri
+    reference: String
+    resource: ClinicalUseDefinition
+    type: URI
     identifier: Identifier
     display: String
 }

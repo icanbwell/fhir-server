@@ -1129,12 +1129,151 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "linkage1",
+            "resource": {
+                "id": "linkage1",
+                "item": [
+                    {
+                        "resource": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/patient1"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "healthsystem1"
+                                }
+                            ],
+                            "reference": "Patient/patient1"
+                        },
+                        "type": "source"
+                    }
+                ],
+                "meta": {
+                    "security": [
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/owner"
+                        },
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/access"
+                        },
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                        }
+                    ],
+                    "source": "https://www.icanbwell.com",
+                    "versionId": "1"
+                },
+                "resourceType": "Linkage"
+            }
+        },
+        {
+            "id": "paymentNotice1",
+            "resource": {
+                "amount": {
+                    "currency": "USD",
+                    "value": 12500
+                },
+                "created": "2014-08-15",
+                "id": "paymentNotice1",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "paymentNotice1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "c0f015df-96a2-565f-aa33-e8603472d2f0"
+                    }
+                ],
+                "meta": {
+                    "security": [
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/owner"
+                        },
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/access"
+                        },
+                        {
+                            "code": "healthsystem1",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                        }
+                    ],
+                    "source": "https://www.icanbwell.com",
+                    "versionId": "1"
+                },
+                "payment": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "PaymentReconciliation/ER2500"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "PaymentReconciliation/d45e43c6-170f-52e1-a157-692ee5c9704b"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "PaymentReconciliation/ER2500"
+                },
+                "recipient": {
+                    "identifier": {
+                        "system": "http://regulators.gov",
+                        "value": "AB123"
+                    }
+                },
+                "request": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/patient1"
+                },
+                "resourceType": "PaymentNotice",
+                "status": "active"
+            }
         }
     ],
     "resourceType": "Bundle",
     "type": "searchset",
     "timestamp": "2023-12-20T03:31:07.077Z",
-    "total": 11,
+    "total": 13,
     "link": [
         {
             "relation": "self",

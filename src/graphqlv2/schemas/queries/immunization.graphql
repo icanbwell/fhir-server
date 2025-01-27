@@ -8,7 +8,7 @@ extend type Query {
     an immunization as reported by a patient, a clinician or another party.
         If the element is present, it must have either a @value, an @id, or extensions
     """
-    immunization(
+    immunizations(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """

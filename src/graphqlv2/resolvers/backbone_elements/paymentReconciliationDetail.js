@@ -3,17 +3,7 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    PaymentReconciliationDetailRequest: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
     PaymentReconciliationDetailSubmitter: {
-        __resolveType (obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        }
-    },
-    PaymentReconciliationDetailResponse: {
         __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
@@ -25,7 +15,7 @@ module.exports = {
     },
     PaymentReconciliationDetailRequestReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -37,7 +27,7 @@ module.exports = {
     },
     PaymentReconciliationDetailSubmitterReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -49,7 +39,7 @@ module.exports = {
     },
     PaymentReconciliationDetailResponseReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -61,7 +51,7 @@ module.exports = {
     },
     PaymentReconciliationDetailResponsibleReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,
@@ -73,7 +63,7 @@ module.exports = {
     },
     PaymentReconciliationDetailPayeeReference: {
         // noinspection JSUnusedLocalSymbols
-        reference: async (parent, args, context, info) => {
+        resource: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
                 args,

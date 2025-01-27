@@ -9,8 +9,9 @@ Reference type for Reference
 type MedicationKnowledgeRelatedMedicationKnowledgeReferenceReference {
     id: String
     extension: [Extension]
-    reference: MedicationKnowledge
-    type: uri
+    reference: String
+    resource: MedicationKnowledge
+    type: URI
     identifier: Identifier
     display: String
 }

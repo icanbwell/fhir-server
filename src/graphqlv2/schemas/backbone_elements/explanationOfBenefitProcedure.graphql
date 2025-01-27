@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Procedure from "../resources/procedure.graphql"
 
 """
@@ -11,8 +11,9 @@ Reference type for ProcedureReference
 type ExplanationOfBenefitProcedureProcedureReferenceReference {
     id: String
     extension: [Extension]
-    reference: Procedure
-    type: uri
+    reference: String
+    resource: Procedure
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -23,8 +24,9 @@ Reference type for Udi
 type ExplanationOfBenefitProcedureUdiReference {
     id: String
     extension: [Extension]
-    reference: Device
-    type: uri
+    reference: String
+    resource: Device
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -76,7 +78,7 @@ type ExplanationOfBenefitProcedure {
     """
     Date and optionally time the procedure was performed.
     """
-    date: dateTime
+    date: DateTime
     """
     None
     """

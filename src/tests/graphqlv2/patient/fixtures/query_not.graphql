@@ -1,5 +1,5 @@
 query my_patient {
-    patient(_debug: true,
+    patients(_debug: true,
             id: {
                 notEquals: {value: "WPS-0559166162"}
             }
@@ -13,14 +13,14 @@ query my_patient {
                     given
                 }
                 birthDate
-                explanationOfBenefit {
+                explanationOfBenefits {
                     id
                     identifier {
                         system
                         value
                     }
                 }
-                allergyIntolerance {
+                allergyIntolerances {
                     id
                     type
                     category
@@ -29,7 +29,7 @@ query my_patient {
                         text
                     }
                 }
-                careTeam {
+                careTeams {
                     id
                     resourceType
                     category {

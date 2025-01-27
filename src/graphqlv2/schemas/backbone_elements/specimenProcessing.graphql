@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 
 """
@@ -11,8 +11,9 @@ Reference type for Additive
 type SpecimenProcessingAdditiveReference {
     id: String
     extension: [Extension]
-    reference: Substance
-    type: uri
+    reference: String
+    resource: Substance
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -66,7 +67,7 @@ type SpecimenProcessing {
     """
     None
     """
-    timeDateTime: dateTime
+    timeDateTime: DateTime
     """
     None
     """

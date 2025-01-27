@@ -1,9 +1,9 @@
 query Totals {
-  communication {
+  communications {
     entry {
       resource {
         about {
-          reference {
+          resource {
             ... on Patient {
               id
               resourceType

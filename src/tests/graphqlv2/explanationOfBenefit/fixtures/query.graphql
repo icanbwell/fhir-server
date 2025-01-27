@@ -1,5 +1,5 @@
 query {
-    explanationOfBenefit(
+    explanationOfBenefits(
         id: { values: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"] }
         _sort: ["id"]
         _count: 2
@@ -30,7 +30,7 @@ query {
                 careTeam {
                     sequence
                     provider {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -61,13 +61,13 @@ query {
                 insurance {
                     focal
                     coverage {
-                        reference {
+                        resource {
                             id
                         }
                     }
                 }
                 insurer {
-                    reference {
+                    resource {
                         id
                     }
                 }
@@ -130,7 +130,7 @@ query {
                         }
                     }
                     party {
-                        reference {
+                        resource {
                             __typename
                         }
                     }
@@ -145,7 +145,7 @@ query {
                     }
                 }
                 provider {
-                    reference {
+                    resource {
                         __typename
                         ... on Organization {
                             id
@@ -183,7 +183,7 @@ query {
                 }
                 use
                 patient {
-                    reference {
+                    resource {
                         id
                     }
                 }

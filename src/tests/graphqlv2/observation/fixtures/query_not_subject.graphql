@@ -1,5 +1,5 @@
 query OnNotSubject {
-  observation(_count: 10,
+  observations(_count: 10,
       subject: {
         notEquals: {
           target: "Patient",

@@ -177,12 +177,15 @@ class MongoDatabaseManager {
      * @returns {Promise<import('mongodb').MongoClient>}
      */
     async createClientAsync (clientConfig) {
+        const parts = clientConfig.connection.split(':');
+        const server = clientConfig.connection.substring(clientConfig.connection.indexOf('@'));
+        const maskedConnection = `${parts[0]}:${parts[1]}:***********${server}`;
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
                 {
                     event: 'dbConnect',
-                    message: `Connecting to ${clientConfig.connection}`,
+                    message: `Connecting to ${maskedConnection}`,
                     args: { db: clientConfig.db_name }
                 }
             );
@@ -196,13 +199,13 @@ class MongoDatabaseManager {
         try {
             await client.connect();
         } catch (e) {
-            logError(`Failed to connect to ${clientConfig.connection}`, { error: e });
+            logError(`Failed to connect to ${maskedConnection}`, { error: e });
             throw e;
         }
         try {
             await client.db('admin').command({ ping: 1 });
         } catch (e) {
-            logError(`Failed to execute ping on ${clientConfig.connection}`, { error: e });
+            logError(`Failed to execute ping on ${maskedConnection}`, { error: e });
             throw e;
         }
         await logSystemEventAsync(

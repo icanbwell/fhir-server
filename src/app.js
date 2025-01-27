@@ -27,7 +27,7 @@ const { handleLogout } = require('./routeHandlers/logout');
 const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
 const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleLivenessCheck } = require('./routeHandlers/probeChecker.js');
 const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('./routeHandlers/admin');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
@@ -37,6 +37,7 @@ const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
 const { generateLogDetail } = require('./utils/requestCompletionLogData.js');
+const { incrementRequestCount, decrementRequestCount, getRequestCount } = require('./utils/requestCounter');
 
 /**
  * Creates the FHIR app
@@ -102,6 +103,8 @@ function createApp ({ fnGetContainer }) {
      */
     const configManager = container.configManager;
 
+    const accessLogger = container.accessLogger;
+
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
     // Urls to be ignored for which access logs are to be created in db.
@@ -109,15 +112,42 @@ function createApp ({ fnGetContainer }) {
 
     // log every incoming request and every outgoing response
     app.use((req, res, next) => {
+        // Generates a unique uuid and store in req and later used for operations
+        const uniqueRequestId = generateUUID();
+        req.uniqueRequestId = uniqueRequestId;
+        // Stores the userRequestId in req and later used for logging and creating bundles.
+        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
+
+        // Check if the current request count exceeds the configured limit
+        if (getRequestCount() > configManager.noOfRequestsPerPod) {
+            logInfo('Too Many Requests', {
+                path: reqPath,
+                method: reqMethod,
+                request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                requestCount: getRequestCount()
+            });
+            res.status(429).send('Too Many Requests');
+            return;
+        } else {
+            // Increment the request count
+            incrementRequestCount();
+
+            logInfo('Incoming Request', {
+                path: reqPath,
+                method: reqMethod,
+                request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                requestCount: getRequestCount()
+            });
+        }
         const startTime = new Date().getTime();
         res.on('finish', () => {
-            const finishTime = new Date().getTime();
             const username = req.authInfo?.context?.username ||
                 req.authInfo?.context?.subject ||
                 ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+            const finishTime = new Date().getTime();
             const logData = {
                 status: res.statusCode,
                 responseTime: `${(finishTime - startTime) / 1000}s`,
@@ -126,7 +156,8 @@ function createApp ({ fnGetContainer }) {
                 userAgent: req.headers['user-agent'],
                 originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
-                altId: username
+                altId: username,
+                requestCount: getRequestCount()
             };
             if (res.statusCode === 401 || res.statusCode === 403) {
                 logData.detail = generateLogDetail({
@@ -148,7 +179,7 @@ function createApp ({ fnGetContainer }) {
                 configManager.enableAccessLogsMiddleware &&
                 !ignoredUrls.some(url => reqPath.startsWith(url))
             ) {
-                container.accessLogger.logAccessLogAsync({
+                accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
@@ -156,6 +187,21 @@ function createApp ({ fnGetContainer }) {
                 });
             }
             logInfo('Request Completed', logData);
+        });
+        res.on('close', () => {
+            // Decrement the request count
+            decrementRequestCount();
+
+            if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))){
+                const abortTime = new Date().getTime();
+                logInfo('Request Aborted', {
+                    abortTime: `${(abortTime - startTime) / 1000}s`,
+                    requestUrl: reqPath,
+                    method: reqMethod,
+                    request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                    requestCount: getRequestCount()
+                });
+            }
         });
         next();
     });
@@ -199,6 +245,25 @@ function createApp ({ fnGetContainer }) {
     // Used to initialize context for each request
     app.use(httpContext.middleware);
 
+    /**
+     * Generate a unique ID for each request at earliest.
+     * Use x-request-id in header if sent.
+     */
+    app.use(
+        (
+            /** @type {import('http').IncomingMessage} **/ req,
+            /** @type {import('http').ServerResponse} **/ res,
+            next
+        ) => {
+            // Stores uniqueRequestId in httpContext and later used for logging
+            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, req.uniqueRequestId);
+
+            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+            next();
+        }
+    );
+
     // generate nonce, and add to httpContext
     app.use((req, res, next) => {
         const nonce = generateNonce();
@@ -226,27 +291,6 @@ function createApp ({ fnGetContainer }) {
             }
         }
     };
-
-    /**
-     * Generate a unique ID for each request at earliest.
-     * Use x-request-id in header if sent.
-     */
-    app.use(
-        (
-            /** @type {import('http').IncomingMessage} **/ req,
-            /** @type {import('http').ServerResponse} **/ res,
-            next
-        ) => {
-            // Generates a unique uuid that is used for operations
-            const uniqueRequestId = generateUUID();
-            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
-
-            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
-            next();
-        }
-    );
 
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
@@ -281,7 +325,7 @@ function createApp ({ fnGetContainer }) {
         fnGetContainer, req, res
     ));
 
-    app.get('/live', (req, res) => handleMemoryCheck(req, res));
+    app.get('/live', (req, res) => handleLivenessCheck(req, res));
 
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {

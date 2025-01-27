@@ -53,6 +53,8 @@ services:
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
+      ENABLE_GRAPHQLV2_PLAYGROUND: '1'
+      ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
@@ -62,6 +64,9 @@ services:
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'
+      ENABLE_MEMORY_CHECK: '1'
+      CONTAINER_MEM_REQUEST: 1000000000
+      NO_OF_REQUESTS_PER_POD: 10
     ports:
       - '3000:3000'
     volumes:
@@ -73,7 +78,7 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:7.0.12
+    image: mongo:8.0.4
     ports:
       - '27017:27017'
     environment:

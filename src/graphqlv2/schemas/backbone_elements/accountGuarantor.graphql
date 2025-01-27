@@ -11,8 +11,9 @@ Reference type for Party
 type AccountGuarantorPartyReference {
     id: String
     extension: [Extension]
-    reference: AccountGuarantorParty
-    type: uri
+    reference: String
+    resource: AccountGuarantorParty
+    type: URI
     identifier: Identifier
     display: String
 }

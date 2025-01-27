@@ -2,9 +2,9 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
-# import dateTime from "../simple_types/dateTime.graphql"
-# import code from "../simple_types/code.graphql"
-# import markdown from "../simple_types/markdown.graphql"
+# import DateTime from "../simple_types/dateTime.graphql"
+# import Code from "../simple_types/code.graphql"
+# import Markdown from "../simple_types/markdown.graphql"
 
 union ContractContentDefinitionPublisher = Practitioner | PractitionerRole | Organization
 
@@ -14,8 +14,9 @@ Reference type for Publisher
 type ContractContentDefinitionPublisherReference {
     id: String
     extension: [Extension]
-    reference: ContractContentDefinitionPublisher
-    type: uri
+    reference: String
+    resource: ContractContentDefinitionPublisher
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -75,17 +76,17 @@ type ContractContentDefinition {
     changes. In addition, it should change when the substantive content of the
     contract changes.
     """
-    publicationDate: dateTime
+    publicationDate: DateTime
     """
     amended | appended | cancelled | disputed | entered-in-error | executable |
     executed | negotiable | offered | policy | rejected | renewed | revoked |
     resolved | terminated.
     """
-    publicationStatus: code
+    publicationStatus: Code
     """
     A copyright statement relating to Contract precursor content. Copyright
     statements are generally legal restrictions on the use and publishing of the
     Contract precursor content.
     """
-    copyright: markdown
+    copyright: Markdown
 }

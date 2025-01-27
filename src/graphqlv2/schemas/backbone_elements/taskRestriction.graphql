@@ -12,8 +12,9 @@ Reference type for Recipient
 type TaskRestrictionRecipientReference {
     id: String
     extension: [Extension]
-    reference: TaskRestrictionRecipient
-    type: uri
+    reference: String
+    resource: TaskRestrictionRecipient
+    type: URI
     identifier: Identifier
     display: String
 }

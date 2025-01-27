@@ -9,8 +9,9 @@ Reference type for Code
 type IngredientSubstanceCodeReference {
     id: String
     extension: [Extension]
-    reference: SubstanceDefinition
-    type: uri
+    reference: String
+    resource: SubstanceDefinition
+    type: URI
     identifier: Identifier
     display: String
 }

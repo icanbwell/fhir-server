@@ -4,7 +4,7 @@ This FHIR server implements support for querying FHIR data using GraphQL(https:/
 
 ### Playground
 
-You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., <base_url>/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground. Here all the GraphQL entities and properties have inline documentation based on the FHIR specifications.
+You can access the GraphQLv2 playground by going to the /$graphqlv2 url in your browser e.g., <base_url>/4_0_0/$graphqlv2. This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground. Here all the GraphQL entities and properties have inline documentation based on the FHIR specifications.
 
 ### Making GraphQL calls to the server
 
@@ -16,14 +16,15 @@ Query to fetch practitionerRole whose owner is set to bwell.
 
 ```graphql
 query getPractitionerRole {
-    practitionerRole(
+    practitionerRoles(
         _security: { value: { system: "https://www.icanbwell.com/owner", code: "bwell" } }
     ) {
         entry {
             resource {
                 id
                 practitioner {
-                    reference {
+                    reference 
+                    resource {
                         name {
                             family
                             given
@@ -31,17 +32,20 @@ query getPractitionerRole {
                     }
                 }
                 organization {
-                    reference {
+                    reference
+                    resource {
                         name
                     }
                 }
                 healthcareService {
-                    reference {
+                    reference
+                    resource {
                         name
                     }
                 }
                 location {
-                    reference {
+                    reference
+                    resource {
                         name
                     }
                 }
@@ -54,13 +58,15 @@ query getPractitionerRole {
 ### Addition of reference fields in GraphQL V2
 
 Earlier in Graphqlv1, we were directly returning resource instead of reference type object in reference fields. Due to this we were adding some fields of reference like display and type in extension key of resource. But this won't work in case we don't have any resource but just display or type in reference field.
-To overcome this we updated the schema to return resource inside reference type object. Allowing us to access following fields of reference: type, identifier, id, display, extension,
+To overcome this we updated the schema to return resource inside reference type object. Allowing us to access following fields of reference: type, identifier, id, display, extension
 
-Eg- Query to fetch Observations along with data of subject of observation
+Additionally we can now also fetch just the reference of resource without resolving the nested resource.
+
+Eg- Query to fetch Observations along with data of subject of observations
 
 ```graphql
 query OnObservation {
-    observation {
+    observations {
         entry {
             resource {
                 id
@@ -70,7 +76,8 @@ query OnObservation {
                         id
                     }
                     display
-                    reference {
+                    reference
+                    resource {
                         ... on Patient {
                             id
                         }
@@ -90,11 +97,12 @@ Eg- Query to fetch claims that are created after 4 April 2024 along with info of
 
 ```graphql
 query claim {
-    claim(created: { value: { greaterThan: "2024-04-04" } }) {
+    claims(created: { value: { greaterThan: "2024-04-04" } }) {
         entry {
             resource {
                 provider {
-                    reference {
+                    reference
+                    resource {
                         __typename
                         ... on Organization {
                             id
@@ -182,19 +190,20 @@ fragment PatientInfo on Patient {
 }
 
 query getObservationsAndPatients {
-    observation(patient: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
+    observations(patient: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
         entry {
             resource {
                 id
                 subject {
-                    reference {
+                    reference
+                    resource {
                         ...PatientInfo
                     }
                 }
             }
         }
     }
-    patient(id: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
+    patients(id: { value: "d0554652-cd35-55b7-aa90-ef4bca7479ae" }) {
         entry {
             resource {
                 ...PatientInfo
@@ -214,7 +223,7 @@ Eg- Query to get 10 conditions
 
 ```graphql
 query getCondition($FHIR_DEFAULT_COUNT: Int, $withMeta: Boolean! = false) {
-    condition(_count: $FHIR_DEFAULT_COUNT) {
+    conditions(_count: $FHIR_DEFAULT_COUNT) {
         entry {
             resource {
                 id
@@ -242,7 +251,7 @@ Variables json
 
 ```graphql
 query OnObservation {
-    observation(
+    observations(
         _total: accurate
         _security: { value: { system: "https://www.icanbwell.com/owner", code: "bwell" } }
     ) {
@@ -259,7 +268,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_sort: ["id", "-meta.lastUpdated"]) {
+    observations(_sort: ["id", "-meta.lastUpdated"]) {
         entry {
             resource {
                 id
@@ -273,7 +282,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_count: 5) {
+    observations(_count: 5) {
         entry {
             resource {
                 id
@@ -287,7 +296,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_getpagesoffset: 2) {
+    observations(_getpagesoffset: 2) {
         entry {
             resource {
                 id
@@ -301,7 +310,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_debug: true) {
+    observations(_debug: true) {
         entry {
             resource {
                 id
@@ -315,7 +324,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_explain: true) {
+    observations(_explain: true) {
         entry {
             resource {
                 id
@@ -329,7 +338,7 @@ query OnObservation {
 
 ```graphql
 query OnObservation {
-    observation(_setIndexHint: "uuid") {
+    observations(_setIndexHint: "uuid") {
         entry {
             resource {
                 id
@@ -345,7 +354,7 @@ query OnObservation {
 - `value` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `notEquals`]
 ```
 query {
-  observation(
+  observations(
     status: {
         value: {
             value: "completed"
@@ -363,7 +372,7 @@ query {
 - `values` [List format of `value`]
 ```graphql
 query {
-  observation(
+  observations(
     status: {
         values: [
             {
@@ -383,7 +392,7 @@ query {
 - `notEquals` [Below example uses nested `value` field. Other nested options are: `system`, `code` & `value`]
 ```graphql
 query {
-  observation(
+  observations(
     status: {
         notEquals: {
             value: "completed"
@@ -401,7 +410,7 @@ query {
 - `missing`
 ```graphql
 query {
-  observation(
+  observations(
     status: {
         missing: true
     }
@@ -418,7 +427,7 @@ query {
 Eg- Query to get conditions where text portion of a CodeableConcept or the display portion contains text 'headache'
 ```graphql
 query getCondition {
-    condition(code: { text: "headache" }) {
+    conditions(code: { text: "headache" }) {
         entry {
             resource {
                 id
@@ -431,7 +440,7 @@ query getCondition {
 Can only be used with identifier and require system, code and value to be defined.
 ```graphql
 query {
-    condition(
+    conditions(
         identifier: {
             ofType: {
                 system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -463,7 +472,7 @@ query {
 - `value`
 ```graphql
 query {
-  person(
+  persons(
     name: {
         value: "test"
     }
@@ -479,7 +488,7 @@ query {
 - `values`
 ```graphql
 query {
-  person(
+  persons(
     name: {
         values: ["test1", "test2"]
     }
@@ -495,7 +504,7 @@ query {
 - `notEquals` [Below example uses nested `value` field. Other nested option is: `values` which is just list of `value`]
 ```graphql
 query {
-  person(
+  persons(
     name: {
         notEquals: {
             value: "testing"
@@ -513,7 +522,7 @@ query {
 - `missing`
 ```graphql
 query {
-  person(
+  persons(
     name: {
         missing: true
     }
@@ -529,7 +538,7 @@ query {
 - `contains`
 ```graphql
 query {
-  person(
+  persons(
     name: {
         contains: "test"
     }
@@ -545,7 +554,7 @@ query {
 - `exact`
 ```graphql
 query {
-  person(
+  persons(
     name: {
         exact: "test"
     }
@@ -563,7 +572,7 @@ query {
 - `value`
 ```graphql
 query {
-  procedure(
+  procedures(
     encounter: {
         value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
     }
@@ -579,7 +588,7 @@ query {
 - `target` [To be used with `value`]
 ```graphql
 query {
-  procedure(
+  procedures(
     encounter: {
         target: "Encounter",
         value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
@@ -596,7 +605,7 @@ query {
 - `notEquals` [Also supports `target` inside `notEquals`]
 ```graphql
 query {
-  procedure(
+  procedures(
     encounter: {
         notEquals: {
             value: "5abd4446-938e-40ab-b5f2-50c3f74cfa73"
@@ -614,7 +623,7 @@ query {
 - `missing`
 ```graphql
 query {
-  procedure(
+  procedures(
     encounter: {
         missing: true
     }
@@ -632,7 +641,7 @@ query {
 - `value` [Supported operations on Date/DateTime are: `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo`]
 ```graphql
 query {
-    immunization(
+    immunizations(
         date: {
             # Below filter does an AND operation of all items in "value"
             value: {
@@ -652,7 +661,7 @@ query {
 - `values` [List format of `value`]
 ```graphql
 query {
-    immunization(
+    immunizations(
         date: {
             # Below filters does an OR operation of all items in "values"
             values: [
@@ -672,7 +681,7 @@ query {
 - `missing`
 ```graphql
 query {
-  immunization(
+  immunizations(
     date: {
         missing: true
     }
@@ -690,7 +699,7 @@ query {
 - `value` [Also supports `notEquals` along with `url` and `valueString`]
 ```graphql
 query {
-    condition(
+    conditions(
         extension: {
             value: {
                 url: "https://www.icanbwell.com",
@@ -709,7 +718,7 @@ query {
 - `values` [List format of `value`]
 ```graphql
 query {
-    condition(
+    conditions(
         extension: {
             values: [
                 {
@@ -730,7 +739,7 @@ query {
 - `notEquals` [Also supports `values` along with `url` and `valueString`]
 ```graphql
 query {
-    condition(
+    conditions(
         extension: {
             notEquals: {
                 url: "https://www.icanbwell.com",
@@ -749,7 +758,7 @@ query {
 - `missing`
 ```graphql
 query {
-    condition(
+    conditions(
         extension: {
             missing: true
         }
@@ -767,7 +776,7 @@ query {
 - `value` [Also supports `equals`, `notEquals`, `greaterThan`, `greaterThanOrEqualTo`, `lessThan`, `lessThanOrEqualTo` and `approximately`]
 ```graphql
 query getriskAssessment {
-    riskAssessment(
+    riskAssessments(
         probability: { 
             # Below filter does an AND operation of all items in "value"
             value: { 
@@ -787,7 +796,7 @@ query getriskAssessment {
 - `values` [List format of `value`]
 ```graphql
 query getriskAssessment {
-    riskAssessment(
+    riskAssessments(
         probability: { 
             # Below filters does an OR operation of all items in "values"
             values: [
@@ -807,7 +816,7 @@ query getriskAssessment {
 - `missing`
 ```graphql
 query {
-    riskAssessment(
+    riskAssessments(
         probability: { 
             missing: true
         }
@@ -833,7 +842,7 @@ Values of prefix can be following:
 
 ```graphql
 query getObservation {
-    observation(
+    observations(
       value_quantity: { 
         value: "5.4", 
         prefix: "lt",
@@ -857,7 +866,7 @@ query getObservation {
 - `missing`
 ```graphql
 query {
-    observation(
+    observations(
         value_quantity: {
             missing: true
         }
@@ -877,7 +886,129 @@ query {
 -   In GraphQL V1 the endpoint to access was `<base_url>/$graphql`
 -   In GraphQL V2 it is updated to `<base_url>/4_0_0/$graphqlv2`
 
-### In GraphQLv2, the reference resources are now returned inside a reference object.
+### Support for mutations are removed from GraphQLv2
+
+### In GraphQLv2, the resource names are now updated with their plurals for top level.
+Complete mapping for plural names of resources can be found [here](https://github.com/icanbwell/fhir-server/blob/main/src/fhir/generator/fhir_xml_schema_parser.py#L117).
+Additionally field names of [patient custom queries](https://github.com/icanbwell/fhir-server/blob/main/src/graphqlv2/schemas/custom/patient.graphql) for fetching linked clinical resources are also updated to their plural names.
+
+GraphQLv1:
+
+Eg- Query to fetch observation
+
+```graphql
+query OnObservation {
+    observation{
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+Graphqlv2:
+
+Eg- Query to fetch observation
+
+```graphql
+query OnObservation {
+    observations{
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+### In GraphQLv2, in `id` field, `uuid` is returned by default for all resources.
+To revert to previous behaviour and fetch sourceId in `id` field, following header can be sent.
+```
+{
+    prefer: 'global_id=false'
+}
+```
+
+GraphQLv1:
+
+Eg- Query to fetch patient by sourceId
+
+```graphql
+query patient {
+    patient (
+        id: {
+            value: "example"
+        }
+    ){
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+Expected Response in GraphQLv1
+```
+{
+  "data": {
+    "patient": {
+      "entry": [
+        {
+          "resource": {
+            "id": "example"
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}
+```
+
+Graphqlv2:
+
+Eg- Query to fetch patient by sourceId
+
+```graphql
+query patient {
+    patients (
+        id: {
+            value: "example"
+        }
+    ){
+        entry {
+            resource {
+                id
+            }
+        }
+    }
+}
+```
+
+Expected Response in GraphQLv2
+```
+{
+  "data": {
+    "patients": {
+      "entry": [
+        {
+          "resource": {
+            "id": "0edf0234-7de6-5c86-ac23-3136e9f131e2"
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}
+```
+
+### In GraphQLv2, the reference resources are now returned inside a reference object. And we can also just fetch the reference as string instead of resolving the nested resource
 
 GraphQLv1:
 
@@ -906,7 +1037,7 @@ Eg- Query to fetch Observations along with data of subject of observation
 
 ```graphql
 query OnObservation {
-    observation {
+    observations {
         entry {
             resource {
                 id
@@ -916,7 +1047,8 @@ query OnObservation {
                         id
                     }
                     display
-                    reference {
+                    reference
+                    resource {
                         ... on Patient {
                             id
                         }
@@ -952,7 +1084,7 @@ Eg- Query to fetch observation with id '001'
 
 ```graphql
 query OnObservation {
-    observation(id: { value: "001" }) {
+    observations(id: { value: "001" }) {
         entry {
             resource {
                 id
@@ -961,3 +1093,33 @@ query OnObservation {
     }
 }
 ```
+
+## Custom queries in Patient resource
+
+We can fetch the clinical resources of a patient directly in patient resource. Custom fields for patient resources are defines [here](src/graphqlv2/schemas/custom/patient.graphql)
+
+Example query for fetching clinical resources for a patient
+```graphql
+query patient_data {
+  patients(id: { value: "01bc85aa-63d3-54ed-8907-c6a7c513db66" }) {
+    entry {
+      resource {
+        id
+        resourceType
+        observations {
+          id
+          resourceType
+        }
+        conditions {
+          id
+          resourceType
+        }
+      }
+    }
+  }
+}
+```
+
+### Patient Resource Not Supported in custom query
+Currently [BiologicallyDerivedProduct](https://www.hl7.org/fhir/r4b/BiologicallyDerivedProduct.html) is not supported in custom queries of patient as there are no search parameters for this resource.
+

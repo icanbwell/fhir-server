@@ -14,7 +14,7 @@ extend type Query {
         {{ documentation_item | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     {%  endfor %}
     """
-    {{  lower_case_first_letter(fhir_entity.cleaned_name) }}(
+    {{  lower_case_first_letter(fhir_entity.plural_name) }}(
 
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
@@ -73,8 +73,6 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type in [ 'date'] %}
         {{ search_parameter_name.replace("-", "_") }}: SearchDate
-        {% elif search_parameter.type in ['dateTime', 'period', 'instant'] %}
-        {{ search_parameter_name.replace("-", "_") }}: SearchDateTime
         {% elif search_parameter.type == "token" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchToken
         {% elif search_parameter.type == "uri" %}

@@ -9,8 +9,9 @@ Reference type for VariantPointer
 type MolecularSequenceVariantVariantPointerReference {
     id: String
     extension: [Extension]
-    reference: Observation
-    type: uri
+    reference: String
+    resource: Observation
+    type: URI
     identifier: Identifier
     display: String
 }

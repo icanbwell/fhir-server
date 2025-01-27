@@ -1,5 +1,5 @@
 query {
-    immunization(_count: 100, date: { value: { greaterThan: "2021-01-01" } }) {
+    immunizations(_count: 100, date: { value: { greaterThan: "2021-01-01" } }) {
         entry {
             resource {
                 id

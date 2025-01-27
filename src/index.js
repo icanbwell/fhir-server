@@ -2,6 +2,7 @@
  * Implements the main function
  */
 // Load the rest of the modules
+const cluster = require('cluster');
 const Sentry = require('@sentry/node');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
@@ -26,12 +27,40 @@ const main = async function () {
     }
 };
 
-(async () => {
-    try {
-        // Your async code here
-        await main();
-    } catch (error) {
-        console.error('Error in main function:', error);
-        process.exit(1); // Exit with a failure code
+const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
+if (cluster.isMaster && numCPUs > 1) {
+    console.log(JSON.stringify({message: `Master ${process.pid} is running`}));
+
+    // Fork workers
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
     }
-})();
+
+    // Forward all signals to the worker processes
+    const forwardSignal = (signal) => {
+        for (const id in cluster.workers) {
+            cluster.workers[id].process.kill(signal);
+        }
+    };
+
+    process.on('SIGTERM', () => forwardSignal('SIGTERM'));
+    process.on('SIGINT', () => forwardSignal('SIGINT'));
+    process.on('SIGQUIT', () => forwardSignal('SIGQUIT'));
+
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(JSON.stringify({message: `Worker ${worker.process.pid} died`}));
+        // Optionally, you can fork a new worker here
+        cluster.fork();
+    });
+} else {
+    (async () => {
+        try {
+            console.log(JSON.stringify({message: `Worker ${process.pid} started`}));
+            // Your async code here
+            await main();
+        } catch (error) {
+            console.error('Error in main function:', error);
+            process.exit(1); // Exit with a failure code
+        }
+    })();
+}

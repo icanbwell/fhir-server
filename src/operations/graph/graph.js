@@ -127,10 +127,6 @@ class GraphOperation {
              * @type {boolean}
              */
             const contained = isTrue(parsedArgs.contained);
-            /**
-             * @type {string}
-             */
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             // We accept the resource in the two forms allowed in FHIR:
             // https://www.hl7.org/fhir/operation-resource-graph.json.html
             // 1. Resource is sent in the body
@@ -172,8 +168,7 @@ class GraphOperation {
                     id: graphDefinitionRaw.id,
                     resourceType: 'GraphDefinition',
                     resourceToValidate: graphDefinitionRaw,
-                    path,
-                    currentDate
+                    path
                 }
             );
             if (validationOperationOutcome) {

@@ -14,8 +14,9 @@ Reference type for Type
 type MedicinalProductDefinitionOperationTypeReference {
     id: String
     extension: [Extension]
-    reference: MedicinalProductDefinitionOperationType
-    type: uri
+    reference: String
+    resource: MedicinalProductDefinitionOperationType
+    type: URI
     identifier: Identifier
     display: String
 }
@@ -26,8 +27,9 @@ Reference type for Organization
 type MedicinalProductDefinitionOperationOrganizationReference {
     id: String
     extension: [Extension]
-    reference: Organization
-    type: uri
+    reference: String
+    resource: Organization
+    type: URI
     identifier: Identifier
     display: String
 }

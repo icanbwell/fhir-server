@@ -1,23 +1,23 @@
 {
   "data": {
-    "explanationOfBenefit": {
+    "explanationOfBenefits": {
       "entry": [
         {
           "resource": {
-            "id": "2",
+            "id": "941f082a-39a9-5f55-9630-5839a010e1bc",
             "provider": {
-              "reference": {
+              "resource": {
                 "__typename": "Practitioner",
                 "name": [{ "family": "Azamar", "given": ["Daniel"] }]
               }
             }
           }
         },
-        { "resource": { "id": "3", "provider": { "reference": null } } },
+        { "resource": { "id": "aef217d8-2f34-56f7-b748-b24a120b2654", "provider": { "resource": null } } },
         {
           "resource": {
-            "id": "1",
-            "provider": { "reference": { "__typename": "Organization", "orgName": "Testing" } }
+            "id": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15",
+            "provider": { "resource": { "__typename": "Organization", "orgName": "Testing" } }
           }
         }
       ],

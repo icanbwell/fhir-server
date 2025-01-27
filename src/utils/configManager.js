@@ -520,14 +520,6 @@ class ConfigManager {
     }
 
     /**
-     * returns the buffer size for post request processes
-     * @returns {number|number}
-     */
-    get postRequestBufferSize () {
-        return parseInt(env.POST_REQUEST_BUFFER_SIZE) || 100;
-    }
-
-    /**
      * S3 bucket name to export data to S3
      */
     get bulkExportS3BucketName () {
@@ -576,6 +568,16 @@ class ConfigManager {
             ? parseInt(env.ACCESS_LOG_RESULT_SIZE_LIMIT)
             : 7 * 1024 * 1024; // 7 MB
     }
+
+    /**
+     * Gets the number of requests allowed per pod.
+     * @returns {number} The number of requests allowed per pod.
+     */
+    get noOfRequestsPerPod () {
+        return env.NO_OF_REQUESTS_PER_POD? parseInt(env.NO_OF_REQUESTS_PER_POD): 1000;
+    }
+
+
 }
 
 module.exports = {
