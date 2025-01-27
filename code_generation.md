@@ -12,6 +12,7 @@ Currently we generate the following code:
 6. Resources Non-clinical fields in `src/graphs/patient`
 7. Validation schema in `src/fhir/generator/json`
 8. Resource field types in `src/fhir/generator/json`
+9. Resource DB Schema in `src/fhir/generator/json/fhir-generated.db-schema/`
 
 ## Schema files
 
@@ -126,6 +127,14 @@ This is run by the command `make resourceFieldTypes`.
 This runs `src/fhir/generator/generate_resource_fields_type.py`.
 
 It reads `src/fhir/generator/xsd/definitions.xml/profiles-resources.xml` file and generates `src/fhir/generator/json/fhir-generated.field-types.json` file used for getting field types while making queries.
+
+### 9. Resource DB Schema in `src/fhir/generator/json/fhir-generated.db-schema/`
+
+This is run by the command `make dbSchema`.
+
+This runs `src/fhir/generator/generate_db_schema.py`.
+
+It reads generates `src/fhir/generator/json/fhir-generated.db-schema/*.json` containing the DB schema for all fields of all resources.
 
 ## FHIR Schema files used
 
