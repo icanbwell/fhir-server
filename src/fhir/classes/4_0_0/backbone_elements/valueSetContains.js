@@ -41,7 +41,7 @@ class ValueSetContains extends Element {
             code,
             display,
             designation,
-            contains,
+            contains
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class ValueSetContains extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -296,7 +296,7 @@ class ValueSetContains extends Element {
             code,
             display,
             designation,
-            contains,
+            contains
         });
     }
 
@@ -316,7 +316,7 @@ class ValueSetContains extends Element {
             code: this.code,
             display: this.display,
             designation: this.designation && this.designation.map(v => v.toJSON()),
-            contains: this.contains && this.contains.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON())
         });
     }
 
@@ -348,7 +348,7 @@ class ValueSetContains extends Element {
             code: this.code,
             display: this.display,
             designation: this.designation && this.designation.map(v => v.toJSONInternal()),
-            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

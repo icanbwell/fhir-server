@@ -41,7 +41,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class NutritionOrderEnteralFormula extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -324,7 +324,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         });
     }
 
@@ -345,7 +345,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSON(),
             administration: this.administration && this.administration.map(v => v.toJSON()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSON(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         });
     }
 
@@ -382,7 +382,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSONInternal(),
             administration: this.administration && this.administration.map(v => v.toJSONInternal()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSONInternal(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         };
 
         return removeNull(json);

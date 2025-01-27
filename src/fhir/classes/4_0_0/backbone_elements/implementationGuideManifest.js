@@ -35,7 +35,7 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ImplementationGuideManifest extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -226,7 +226,7 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         });
     }
 
@@ -243,7 +243,7 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.map(v => v.toJSON()),
             image: this.image,
-            other: this.other,
+            other: this.other
         });
     }
 
@@ -272,7 +272,7 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSONInternal()),
             page: this.page && this.page.map(v => v.toJSONInternal()),
             image: this.image,
-            other: this.other,
+            other: this.other
         };
 
         return removeNull(json);

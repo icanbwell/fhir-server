@@ -30,7 +30,7 @@ class CitationClassification extends Element {
             extension,
             modifierExtension,
             type,
-            classifier,
+            classifier
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class CitationClassification extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -158,7 +158,7 @@ class CitationClassification extends Element {
             extension,
             modifierExtension,
             type,
-            classifier,
+            classifier
         });
     }
 
@@ -172,7 +172,7 @@ class CitationClassification extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            classifier: this.classifier && this.classifier.map(v => v.toJSON()),
+            classifier: this.classifier && this.classifier.map(v => v.toJSON())
         });
     }
 
@@ -198,7 +198,7 @@ class CitationClassification extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            classifier: this.classifier && this.classifier.map(v => v.toJSONInternal()),
+            classifier: this.classifier && this.classifier.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

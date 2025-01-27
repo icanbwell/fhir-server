@@ -42,7 +42,7 @@ class PackagedProductDefinitionPackage extends Element {
             manufacturer,
             property,
             containedItem,
-            package: _package,
+            package: _package
         }
     ) {
         super({});
@@ -101,7 +101,7 @@ class PackagedProductDefinitionPackage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -342,7 +342,7 @@ class PackagedProductDefinitionPackage extends Element {
             manufacturer,
             property,
             containedItem,
-            package: _package,
+            package: _package
         });
     }
 
@@ -364,7 +364,7 @@ class PackagedProductDefinitionPackage extends Element {
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
             containedItem: this.containedItem && this.containedItem.map(v => v.toJSON()),
-            package: this.package && this.package.map(v => v.toJSON()),
+            package: this.package && this.package.map(v => v.toJSON())
         });
     }
 
@@ -405,7 +405,7 @@ class PackagedProductDefinitionPackage extends Element {
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
             containedItem: this.containedItem && this.containedItem.map(v => v.toJSONInternal()),
-            package: this.package && this.package.map(v => v.toJSONInternal()),
+            package: this.package && this.package.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -26,7 +26,7 @@ class PackagedProductDefinitionContainedItem extends Element {
             extension,
             modifierExtension,
             item,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class PackagedProductDefinitionContainedItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -160,7 +160,7 @@ class PackagedProductDefinitionContainedItem extends Element {
             extension,
             modifierExtension,
             item,
-            amount,
+            amount
         });
     }
 
@@ -174,7 +174,7 @@ class PackagedProductDefinitionContainedItem extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             item: this.item && this.item.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class PackagedProductDefinitionContainedItem extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             item: this.item && this.item.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
         return removeNull(json);

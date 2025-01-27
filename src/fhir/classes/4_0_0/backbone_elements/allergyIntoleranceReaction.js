@@ -37,7 +37,7 @@ class AllergyIntoleranceReaction extends Element {
             onset,
             severity,
             exposureRoute,
-            note,
+            note
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class AllergyIntoleranceReaction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -277,7 +277,7 @@ class AllergyIntoleranceReaction extends Element {
             onset,
             severity,
             exposureRoute,
-            note,
+            note
         });
     }
 
@@ -296,7 +296,7 @@ class AllergyIntoleranceReaction extends Element {
             onset: this.onset,
             severity: this.severity,
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -329,7 +329,7 @@ class AllergyIntoleranceReaction extends Element {
             onset: this.onset,
             severity: this.severity,
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

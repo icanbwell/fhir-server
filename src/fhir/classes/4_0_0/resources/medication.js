@@ -58,7 +58,7 @@ class Medication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -226,7 +226,7 @@ class Medication extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -488,7 +488,7 @@ class Medication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -556,7 +556,7 @@ class Medication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Medication({
@@ -579,7 +579,7 @@ class Medication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -613,7 +613,7 @@ class Medication extends Resource {
             form: this.form && this.form.toJSON(),
             amount: this.amount && this.amount.toJSON(),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
-            batch: this.batch && this.batch.toJSON(),
+            batch: this.batch && this.batch.toJSON()
         });
     }
 
@@ -659,7 +659,7 @@ class Medication extends Resource {
             form: this.form && this.form.toJSONInternal(),
             amount: this.amount && this.amount.toJSONInternal(),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
-            batch: this.batch && this.batch.toJSONInternal(),
+            batch: this.batch && this.batch.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

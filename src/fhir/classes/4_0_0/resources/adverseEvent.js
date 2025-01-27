@@ -83,7 +83,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -251,7 +251,7 @@ class AdverseEvent extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -766,7 +766,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -858,7 +858,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AdverseEvent({
@@ -893,7 +893,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -939,7 +939,7 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSON()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSON()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSON()),
-            study: this.study && this.study.map(v => v.toJSON()),
+            study: this.study && this.study.map(v => v.toJSON())
         });
     }
 
@@ -1006,7 +1006,7 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSONInternal()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSONInternal()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSONInternal()),
-            study: this.study && this.study.map(v => v.toJSONInternal()),
+            study: this.study && this.study.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

@@ -94,7 +94,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -262,7 +262,7 @@ class Device extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -892,7 +892,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -996,7 +996,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Device({
@@ -1037,7 +1037,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1089,7 +1089,7 @@ class Device extends Resource {
             url: this.url,
             note: this.note && this.note.map(v => v.toJSON()),
             safety: this.safety && this.safety.map(v => v.toJSON()),
-            parent: this.parent && this.parent.toJSON(),
+            parent: this.parent && this.parent.toJSON()
         });
     }
 
@@ -1162,7 +1162,7 @@ class Device extends Resource {
             url: this.url,
             note: this.note && this.note.map(v => v.toJSONInternal()),
             safety: this.safety && this.safety.map(v => v.toJSONInternal()),
-            parent: this.parent && this.parent.toJSONInternal(),
+            parent: this.parent && this.parent.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

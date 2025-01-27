@@ -33,7 +33,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ElementDefinitionSlicing extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -206,7 +206,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         });
     }
 
@@ -222,7 +222,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSON()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         });
     }
 
@@ -249,7 +249,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSONInternal()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         };
 
         return removeNull(json);

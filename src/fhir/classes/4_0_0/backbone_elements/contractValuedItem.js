@@ -53,7 +53,7 @@ class ContractValuedItem extends Element {
             responsible,
             recipient,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         }
     ) {
         super({});
@@ -112,7 +112,7 @@ class ContractValuedItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -452,7 +452,7 @@ class ContractValuedItem extends Element {
             responsible,
             recipient,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         });
     }
 
@@ -479,7 +479,7 @@ class ContractValuedItem extends Element {
             responsible: this.responsible && this.responsible.toJSON(),
             recipient: this.recipient && this.recipient.toJSON(),
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         });
     }
 
@@ -524,7 +524,7 @@ class ContractValuedItem extends Element {
             responsible: this.responsible && this.responsible.toJSONInternal(),
             recipient: this.recipient && this.recipient.toJSONInternal(),
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         };
 
         return removeNull(json);

@@ -96,7 +96,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -264,7 +264,7 @@ class StructureDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -934,7 +934,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1040,7 +1040,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new StructureDefinition({
@@ -1082,7 +1082,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1135,7 +1135,7 @@ class StructureDefinition extends Resource {
             baseDefinition: this.baseDefinition,
             derivation: this.derivation,
             snapshot: this.snapshot && this.snapshot.toJSON(),
-            differential: this.differential && this.differential.toJSON(),
+            differential: this.differential && this.differential.toJSON()
         });
     }
 
@@ -1202,7 +1202,7 @@ class StructureDefinition extends Resource {
             baseDefinition: this.baseDefinition,
             derivation: this.derivation,
             snapshot: this.snapshot && this.snapshot.toJSONInternal(),
-            differential: this.differential && this.differential.toJSONInternal(),
+            differential: this.differential && this.differential.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -30,7 +30,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension,
             condition,
             role,
-            rank,
+            rank
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class EpisodeOfCareDiagnosis extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -179,7 +179,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension,
             condition,
             role,
-            rank,
+            rank
         });
     }
 
@@ -194,7 +194,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             condition: this.condition && this.condition.toJSON(),
             role: this.role && this.role.toJSON(),
-            rank: this.rank,
+            rank: this.rank
         });
     }
 
@@ -221,7 +221,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.toJSONInternal(),
             role: this.role && this.role.toJSONInternal(),
-            rank: this.rank,
+            rank: this.rank
         };
 
         return removeNull(json);

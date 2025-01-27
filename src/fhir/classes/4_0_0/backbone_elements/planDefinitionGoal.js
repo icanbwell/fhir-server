@@ -40,7 +40,7 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class PlanDefinitionGoal extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -279,7 +279,7 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         });
     }
 
@@ -298,7 +298,7 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSON(),
             addresses: this.addresses && this.addresses.map(v => v.toJSON()),
             documentation: this.documentation && this.documentation.map(v => v.toJSON()),
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -334,7 +334,7 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSONInternal(),
             addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
             documentation: this.documentation && this.documentation.map(v => v.toJSONInternal()),
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

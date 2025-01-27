@@ -26,7 +26,7 @@ class Period extends Element {
             id,
             extension,
             start,
-            end,
+            end
         }
     ) {
         super({});
@@ -120,7 +120,7 @@ class Period extends Element {
             id,
             extension,
             start,
-            end,
+            end
         });
     }
 
@@ -133,7 +133,7 @@ class Period extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             start: this.start,
-            end: this.end,
+            end: this.end
         });
     }
 
@@ -155,7 +155,7 @@ class Period extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             start: this.start,
-            end: this.end,
+            end: this.end
         };
 
         return removeNull(json);

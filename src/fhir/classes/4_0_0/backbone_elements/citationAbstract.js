@@ -34,7 +34,7 @@ class CitationAbstract extends Element {
             type,
             language,
             text,
-            copyright,
+            copyright
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class CitationAbstract extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -200,7 +200,7 @@ class CitationAbstract extends Element {
             type,
             language,
             text,
-            copyright,
+            copyright
         });
     }
 
@@ -216,7 +216,7 @@ class CitationAbstract extends Element {
             type: this.type && this.type.toJSON(),
             language: this.language && this.language.toJSON(),
             text: this.text,
-            copyright: this.copyright,
+            copyright: this.copyright
         });
     }
 
@@ -244,7 +244,7 @@ class CitationAbstract extends Element {
             type: this.type && this.type.toJSONInternal(),
             language: this.language && this.language.toJSONInternal(),
             text: this.text,
-            copyright: this.copyright,
+            copyright: this.copyright
         };
 
         return removeNull(json);

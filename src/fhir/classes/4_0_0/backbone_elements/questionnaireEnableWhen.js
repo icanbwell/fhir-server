@@ -48,7 +48,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString,
             answerCoding,
             answerQuantity,
-            answerReference,
+            answerReference
         }
     ) {
         super({});
@@ -107,7 +107,7 @@ class QuestionnaireEnableWhen extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -369,7 +369,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString,
             answerCoding,
             answerQuantity,
-            answerReference,
+            answerReference
         });
     }
 
@@ -393,7 +393,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString: this.answerString,
             answerCoding: this.answerCoding && this.answerCoding.toJSON(),
             answerQuantity: this.answerQuantity && this.answerQuantity.toJSON(),
-            answerReference: this.answerReference && this.answerReference.toJSON(),
+            answerReference: this.answerReference && this.answerReference.toJSON()
         });
     }
 
@@ -430,7 +430,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString: this.answerString,
             answerCoding: this.answerCoding && this.answerCoding.toJSONInternal(),
             answerQuantity: this.answerQuantity && this.answerQuantity.toJSONInternal(),
-            answerReference: this.answerReference && this.answerReference.toJSONInternal(),
+            answerReference: this.answerReference && this.answerReference.toJSONInternal()
         };
 
         return removeNull(json);

@@ -65,7 +65,7 @@ class OrganizationAffiliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -233,7 +233,7 @@ class OrganizationAffiliation extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -576,7 +576,7 @@ class OrganizationAffiliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -652,7 +652,7 @@ class OrganizationAffiliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new OrganizationAffiliation({
@@ -679,7 +679,7 @@ class OrganizationAffiliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -717,7 +717,7 @@ class OrganizationAffiliation extends Resource {
             location: this.location && this.location.map(v => v.toJSON()),
             healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSON()),
             telecom: this.telecom && this.telecom.map(v => v.toJSON()),
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON())
         });
     }
 
@@ -771,7 +771,7 @@ class OrganizationAffiliation extends Resource {
             location: this.location && this.location.map(v => v.toJSONInternal()),
             healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSONInternal()),
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

@@ -85,7 +85,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -253,7 +253,7 @@ class SubscriptionTopic extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -813,7 +813,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -909,7 +909,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubscriptionTopic({
@@ -946,7 +946,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -994,7 +994,7 @@ class SubscriptionTopic extends Resource {
             resourceTrigger: this.resourceTrigger && this.resourceTrigger.map(v => v.toJSON()),
             eventTrigger: this.eventTrigger && this.eventTrigger.map(v => v.toJSON()),
             canFilterBy: this.canFilterBy && this.canFilterBy.map(v => v.toJSON()),
-            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSON()),
+            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSON())
         });
     }
 
@@ -1056,7 +1056,7 @@ class SubscriptionTopic extends Resource {
             resourceTrigger: this.resourceTrigger && this.resourceTrigger.map(v => v.toJSONInternal()),
             eventTrigger: this.eventTrigger && this.eventTrigger.map(v => v.toJSONInternal()),
             canFilterBy: this.canFilterBy && this.canFilterBy.map(v => v.toJSONInternal()),
-            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSONInternal()),
+            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

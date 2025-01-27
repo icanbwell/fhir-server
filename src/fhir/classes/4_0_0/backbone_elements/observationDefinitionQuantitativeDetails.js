@@ -31,7 +31,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         });
     }
 
@@ -217,7 +217,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         });
     }
 
@@ -245,7 +245,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSONInternal(),
             unit: this.unit && this.unit.toJSONInternal(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         };
 
         return removeNull(json);

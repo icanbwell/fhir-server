@@ -40,7 +40,7 @@ class SpecimenCollection extends Element {
             method,
             bodySite,
             fastingStatusCodeableConcept,
-            fastingStatusDuration,
+            fastingStatusDuration
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class SpecimenCollection extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -316,7 +316,7 @@ class SpecimenCollection extends Element {
             method,
             bodySite,
             fastingStatusCodeableConcept,
-            fastingStatusDuration,
+            fastingStatusDuration
         });
     }
 
@@ -337,7 +337,7 @@ class SpecimenCollection extends Element {
             method: this.method && this.method.toJSON(),
             bodySite: this.bodySite && this.bodySite.toJSON(),
             fastingStatusCodeableConcept: this.fastingStatusCodeableConcept && this.fastingStatusCodeableConcept.toJSON(),
-            fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSON(),
+            fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSON()
         });
     }
 
@@ -376,7 +376,7 @@ class SpecimenCollection extends Element {
             method: this.method && this.method.toJSONInternal(),
             bodySite: this.bodySite && this.bodySite.toJSONInternal(),
             fastingStatusCodeableConcept: this.fastingStatusCodeableConcept && this.fastingStatusCodeableConcept.toJSONInternal(),
-            fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSONInternal(),
+            fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSONInternal()
         };
 
         return removeNull(json);

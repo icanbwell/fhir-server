@@ -46,7 +46,7 @@ class ClaimSupportingInfo extends Element {
             valueQuantity,
             valueAttachment,
             valueReference,
-            reason,
+            reason
         }
     ) {
         super({});
@@ -105,7 +105,7 @@ class ClaimSupportingInfo extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -359,7 +359,7 @@ class ClaimSupportingInfo extends Element {
             valueQuantity,
             valueAttachment,
             valueReference,
-            reason,
+            reason
         });
     }
 
@@ -382,7 +382,7 @@ class ClaimSupportingInfo extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
+            reason: this.reason && this.reason.toJSON()
         });
     }
 
@@ -422,7 +422,7 @@ class ClaimSupportingInfo extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            reason: this.reason && this.reason.toJSONInternal(),
+            reason: this.reason && this.reason.toJSONInternal()
         };
 
         return removeNull(json);

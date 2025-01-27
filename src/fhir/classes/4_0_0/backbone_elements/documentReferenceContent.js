@@ -30,7 +30,7 @@ class DocumentReferenceContent extends Element {
             extension,
             modifierExtension,
             attachment,
-            format,
+            format
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class DocumentReferenceContent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -160,7 +160,7 @@ class DocumentReferenceContent extends Element {
             extension,
             modifierExtension,
             attachment,
-            format,
+            format
         });
     }
 
@@ -174,7 +174,7 @@ class DocumentReferenceContent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             attachment: this.attachment && this.attachment.toJSON(),
-            format: this.format && this.format.toJSON(),
+            format: this.format && this.format.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class DocumentReferenceContent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             attachment: this.attachment && this.attachment.toJSONInternal(),
-            format: this.format && this.format.toJSONInternal(),
+            format: this.format && this.format.toJSONInternal()
         };
 
         return removeNull(json);

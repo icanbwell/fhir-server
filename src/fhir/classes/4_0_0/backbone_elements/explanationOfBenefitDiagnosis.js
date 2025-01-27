@@ -36,7 +36,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             diagnosisReference,
             type,
             onAdmission,
-            packageCode,
+            packageCode
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -248,7 +248,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             diagnosisReference,
             type,
             onAdmission,
-            packageCode,
+            packageCode
         });
     }
 
@@ -266,7 +266,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSON(),
             type: this.type && this.type.map(v => v.toJSON()),
             onAdmission: this.onAdmission && this.onAdmission.toJSON(),
-            packageCode: this.packageCode && this.packageCode.toJSON(),
+            packageCode: this.packageCode && this.packageCode.toJSON()
         });
     }
 
@@ -299,7 +299,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSONInternal(),
             type: this.type && this.type.map(v => v.toJSONInternal()),
             onAdmission: this.onAdmission && this.onAdmission.toJSONInternal(),
-            packageCode: this.packageCode && this.packageCode.toJSONInternal(),
+            packageCode: this.packageCode && this.packageCode.toJSONInternal()
         };
 
         return removeNull(json);

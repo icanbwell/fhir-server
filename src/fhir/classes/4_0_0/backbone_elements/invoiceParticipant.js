@@ -27,7 +27,7 @@ class InvoiceParticipant extends Element {
             extension,
             modifierExtension,
             role,
-            actor,
+            actor
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class InvoiceParticipant extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -157,7 +157,7 @@ class InvoiceParticipant extends Element {
             extension,
             modifierExtension,
             role,
-            actor,
+            actor
         });
     }
 
@@ -171,7 +171,7 @@ class InvoiceParticipant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             role: this.role && this.role.toJSON(),
-            actor: this.actor && this.actor.toJSON(),
+            actor: this.actor && this.actor.toJSON()
         });
     }
 
@@ -197,7 +197,7 @@ class InvoiceParticipant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             role: this.role && this.role.toJSONInternal(),
-            actor: this.actor && this.actor.toJSONInternal(),
+            actor: this.actor && this.actor.toJSONInternal()
         };
 
         return removeNull(json);

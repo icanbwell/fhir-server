@@ -52,7 +52,7 @@ class Dosage extends Element {
             doseAndRate,
             maxDosePerPeriod,
             maxDosePerAdministration,
-            maxDosePerLifetime,
+            maxDosePerLifetime
         }
     ) {
         super({});
@@ -111,7 +111,7 @@ class Dosage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -428,7 +428,7 @@ class Dosage extends Element {
             doseAndRate,
             maxDosePerPeriod,
             maxDosePerAdministration,
-            maxDosePerLifetime,
+            maxDosePerLifetime
         });
     }
 
@@ -454,7 +454,7 @@ class Dosage extends Element {
             doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSON()),
             maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSON(),
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSON(),
-            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSON(),
+            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSON()
         });
     }
 
@@ -500,7 +500,7 @@ class Dosage extends Element {
             doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSONInternal()),
             maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSONInternal(),
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSONInternal(),
-            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal(),
+            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal()
         };
 
         return removeNull(json);

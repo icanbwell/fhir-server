@@ -21,12 +21,12 @@ class Element {
     constructor (
         {
             id,
-            extension,
+            extension
         }
     ) {
         // Create an object to store all props
         Object.defineProperty(this, '__data', {
-            value: {},
+            value: {}
         });
 
         // ---- Define getters and setters as enumerable ---
@@ -77,7 +77,7 @@ class Element {
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
-            extension,
+            extension
         });
     }
 
@@ -88,7 +88,7 @@ class Element {
     toJSON () {
         return removeNull({
             id: this.id,
-            extension: this.extension && this.extension.map(v => v.toJSON()),
+            extension: this.extension && this.extension.map(v => v.toJSON())
         });
     }
 
@@ -108,7 +108,7 @@ class Element {
     toJSONInternal () {
         const json = {
             id: this.id,
-            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

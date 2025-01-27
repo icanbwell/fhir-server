@@ -99,7 +99,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -267,7 +267,7 @@ class EventDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -979,7 +979,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1089,7 +1089,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EventDefinition({
@@ -1133,7 +1133,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1188,7 +1188,7 @@ class EventDefinition extends Resource {
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSON()),
             endorser: this.endorser && this.endorser.map(v => v.toJSON()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
-            trigger: this.trigger && this.trigger.map(v => v.toJSON()),
+            trigger: this.trigger && this.trigger.map(v => v.toJSON())
         });
     }
 
@@ -1262,7 +1262,7 @@ class EventDefinition extends Resource {
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSONInternal()),
             endorser: this.endorser && this.endorser.map(v => v.toJSONInternal()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
-            trigger: this.trigger && this.trigger.map(v => v.toJSONInternal()),
+            trigger: this.trigger && this.trigger.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

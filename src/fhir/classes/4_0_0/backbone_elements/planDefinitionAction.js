@@ -96,7 +96,7 @@ class PlanDefinitionAction extends Element {
             definitionUri,
             transform,
             dynamicValue,
-            action,
+            action
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class PlanDefinitionAction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -909,7 +909,7 @@ class PlanDefinitionAction extends Element {
             definitionUri,
             transform,
             dynamicValue,
-            action,
+            action
         });
     }
 
@@ -956,7 +956,7 @@ class PlanDefinitionAction extends Element {
             definitionUri: this.definitionUri,
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -1032,7 +1032,7 @@ class PlanDefinitionAction extends Element {
             definitionUri: this.definitionUri,
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

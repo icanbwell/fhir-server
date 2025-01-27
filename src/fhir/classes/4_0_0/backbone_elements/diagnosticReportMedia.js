@@ -30,7 +30,7 @@ class DiagnosticReportMedia extends Element {
             extension,
             modifierExtension,
             comment,
-            link,
+            link
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class DiagnosticReportMedia extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -158,7 +158,7 @@ class DiagnosticReportMedia extends Element {
             extension,
             modifierExtension,
             comment,
-            link,
+            link
         });
     }
 
@@ -172,7 +172,7 @@ class DiagnosticReportMedia extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             comment: this.comment,
-            link: this.link && this.link.toJSON(),
+            link: this.link && this.link.toJSON()
         });
     }
 
@@ -197,7 +197,7 @@ class DiagnosticReportMedia extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             comment: this.comment,
-            link: this.link && this.link.toJSONInternal(),
+            link: this.link && this.link.toJSONInternal()
         };
 
         return removeNull(json);

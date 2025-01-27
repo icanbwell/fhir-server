@@ -29,7 +29,7 @@ class ContractContext extends Element {
             modifierExtension,
             reference,
             code,
-            text,
+            text
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class ContractContext extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -179,7 +179,7 @@ class ContractContext extends Element {
             modifierExtension,
             reference,
             code,
-            text,
+            text
         });
     }
 
@@ -194,7 +194,7 @@ class ContractContext extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
             code: this.code && this.code.map(v => v.toJSON()),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -221,7 +221,7 @@ class ContractContext extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             reference: this.reference && this.reference.toJSONInternal(),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            text: this.text,
+            text: this.text
         };
 
         return removeNull(json);

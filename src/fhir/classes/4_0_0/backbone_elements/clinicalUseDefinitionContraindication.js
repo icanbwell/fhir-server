@@ -33,7 +33,7 @@ class ClinicalUseDefinitionContraindication extends Element {
             diseaseStatus,
             comorbidity,
             indication,
-            otherTherapy,
+            otherTherapy
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ClinicalUseDefinitionContraindication extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -226,7 +226,7 @@ class ClinicalUseDefinitionContraindication extends Element {
             diseaseStatus,
             comorbidity,
             indication,
-            otherTherapy,
+            otherTherapy
         });
     }
 
@@ -243,7 +243,7 @@ class ClinicalUseDefinitionContraindication extends Element {
             diseaseStatus: this.diseaseStatus && this.diseaseStatus.toJSON(),
             comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSON()),
             indication: this.indication && this.indication.map(v => v.toJSON()),
-            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON()),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON())
         });
     }
 
@@ -275,7 +275,7 @@ class ClinicalUseDefinitionContraindication extends Element {
             diseaseStatus: this.diseaseStatus && this.diseaseStatus.toJSONInternal(),
             comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSONInternal()),
             indication: this.indication && this.indication.map(v => v.toJSONInternal()),
-            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

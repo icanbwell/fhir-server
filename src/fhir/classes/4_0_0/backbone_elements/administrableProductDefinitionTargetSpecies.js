@@ -28,7 +28,7 @@ class AdministrableProductDefinitionTargetSpecies extends Element {
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class AdministrableProductDefinitionTargetSpecies extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -157,7 +157,7 @@ class AdministrableProductDefinitionTargetSpecies extends Element {
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         });
     }
 
@@ -171,7 +171,7 @@ class AdministrableProductDefinitionTargetSpecies extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON())
         });
     }
 
@@ -197,7 +197,7 @@ class AdministrableProductDefinitionTargetSpecies extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -66,7 +66,7 @@ class List extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -234,7 +234,7 @@ class List extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -593,7 +593,7 @@ class List extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -671,7 +671,7 @@ class List extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new List({
@@ -699,7 +699,7 @@ class List extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -738,7 +738,7 @@ class List extends Resource {
             orderedBy: this.orderedBy && this.orderedBy.toJSON(),
             note: this.note && this.note.map(v => v.toJSON()),
             entry: this.entry && this.entry.map(v => v.toJSON()),
-            emptyReason: this.emptyReason && this.emptyReason.toJSON(),
+            emptyReason: this.emptyReason && this.emptyReason.toJSON()
         });
     }
 
@@ -791,7 +791,7 @@ class List extends Resource {
             orderedBy: this.orderedBy && this.orderedBy.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
-            emptyReason: this.emptyReason && this.emptyReason.toJSONInternal(),
+            emptyReason: this.emptyReason && this.emptyReason.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

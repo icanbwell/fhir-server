@@ -96,7 +96,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -264,7 +264,7 @@ class MedicationDispense extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -911,7 +911,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1015,7 +1015,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicationDispense({
@@ -1056,7 +1056,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1108,7 +1108,7 @@ class MedicationDispense extends Resource {
             dosageInstruction: this.dosageInstruction && this.dosageInstruction.map(v => v.toJSON()),
             substitution: this.substitution && this.substitution.toJSON(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSON()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON())
         });
     }
 
@@ -1188,7 +1188,7 @@ class MedicationDispense extends Resource {
             dosageInstruction: this.dosageInstruction && this.dosageInstruction.map(v => v.toJSONInternal()),
             substitution: this.substitution && this.substitution.toJSONInternal(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSONInternal()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

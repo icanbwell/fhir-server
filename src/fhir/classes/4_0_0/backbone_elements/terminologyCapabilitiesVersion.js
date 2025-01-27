@@ -36,7 +36,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class TerminologyCapabilitiesVersion extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -239,7 +239,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         });
     }
 
@@ -257,7 +257,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSON()),
-            property: this.property,
+            property: this.property
         });
     }
 
@@ -286,7 +286,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
-            property: this.property,
+            property: this.property
         };
 
         return removeNull(json);

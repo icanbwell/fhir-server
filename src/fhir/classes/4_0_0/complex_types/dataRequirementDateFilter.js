@@ -33,7 +33,7 @@ class DataRequirementDateFilter extends Element {
             searchParam,
             valueDateTime,
             valuePeriod,
-            valueDuration,
+            valueDuration
         }
     ) {
         super({});
@@ -194,7 +194,7 @@ class DataRequirementDateFilter extends Element {
             searchParam,
             valueDateTime,
             valuePeriod,
-            valueDuration,
+            valueDuration
         });
     }
 
@@ -210,7 +210,7 @@ class DataRequirementDateFilter extends Element {
             searchParam: this.searchParam,
             valueDateTime: this.valueDateTime,
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
-            valueDuration: this.valueDuration && this.valueDuration.toJSON(),
+            valueDuration: this.valueDuration && this.valueDuration.toJSON()
         });
     }
 
@@ -237,7 +237,7 @@ class DataRequirementDateFilter extends Element {
             searchParam: this.searchParam,
             valueDateTime: this.valueDateTime,
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
-            valueDuration: this.valueDuration && this.valueDuration.toJSONInternal(),
+            valueDuration: this.valueDuration && this.valueDuration.toJSONInternal()
         };
 
         return removeNull(json);

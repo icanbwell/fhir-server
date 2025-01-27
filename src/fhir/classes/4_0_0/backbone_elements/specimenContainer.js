@@ -36,7 +36,7 @@ class SpecimenContainer extends Element {
             capacity,
             specimenQuantity,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class SpecimenContainer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -271,7 +271,7 @@ class SpecimenContainer extends Element {
             capacity,
             specimenQuantity,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         });
     }
 
@@ -290,7 +290,7 @@ class SpecimenContainer extends Element {
             capacity: this.capacity && this.capacity.toJSON(),
             specimenQuantity: this.specimenQuantity && this.specimenQuantity.toJSON(),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSON(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSON(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSON()
         });
     }
 
@@ -325,7 +325,7 @@ class SpecimenContainer extends Element {
             capacity: this.capacity && this.capacity.toJSONInternal(),
             specimenQuantity: this.specimenQuantity && this.specimenQuantity.toJSONInternal(),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
 
         return removeNull(json);

@@ -73,7 +73,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -241,7 +241,7 @@ class CoverageEligibilityResponse extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -659,7 +659,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -743,7 +743,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CoverageEligibilityResponse({
@@ -774,7 +774,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -816,7 +816,7 @@ class CoverageEligibilityResponse extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             preAuthRef: this.preAuthRef,
             form: this.form && this.form.toJSON(),
-            error: this.error && this.error.map(v => v.toJSON()),
+            error: this.error && this.error.map(v => v.toJSON())
         });
     }
 
@@ -872,7 +872,7 @@ class CoverageEligibilityResponse extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             preAuthRef: this.preAuthRef,
             form: this.form && this.form.toJSONInternal(),
-            error: this.error && this.error.map(v => v.toJSONInternal()),
+            error: this.error && this.error.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

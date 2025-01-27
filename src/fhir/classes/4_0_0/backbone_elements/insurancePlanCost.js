@@ -30,7 +30,7 @@ class InsurancePlanCost extends Element {
             type,
             applicability,
             qualifiers,
-            value,
+            value
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class InsurancePlanCost extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class InsurancePlanCost extends Element {
             type,
             applicability,
             qualifiers,
-            value,
+            value
         });
     }
 
@@ -219,7 +219,7 @@ class InsurancePlanCost extends Element {
             type: this.type && this.type.toJSON(),
             applicability: this.applicability && this.applicability.toJSON(),
             qualifiers: this.qualifiers && this.qualifiers.map(v => v.toJSON()),
-            value: this.value && this.value.toJSON(),
+            value: this.value && this.value.toJSON()
         });
     }
 
@@ -249,7 +249,7 @@ class InsurancePlanCost extends Element {
             type: this.type && this.type.toJSONInternal(),
             applicability: this.applicability && this.applicability.toJSONInternal(),
             qualifiers: this.qualifiers && this.qualifiers.map(v => v.toJSONInternal()),
-            value: this.value && this.value.toJSONInternal(),
+            value: this.value && this.value.toJSONInternal()
         };
 
         return removeNull(json);

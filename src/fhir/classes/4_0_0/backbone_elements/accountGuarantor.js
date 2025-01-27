@@ -29,7 +29,7 @@ class AccountGuarantor extends Element {
             modifierExtension,
             party,
             onHold,
-            period,
+            period
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class AccountGuarantor extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class AccountGuarantor extends Element {
             modifierExtension,
             party,
             onHold,
-            period,
+            period
         });
     }
 
@@ -193,7 +193,7 @@ class AccountGuarantor extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             party: this.party && this.party.toJSON(),
             onHold: this.onHold,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -220,7 +220,7 @@ class AccountGuarantor extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             party: this.party && this.party.toJSONInternal(),
             onHold: this.onHold,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

@@ -36,7 +36,7 @@ class MessageHeaderSource extends Element {
             software,
             version,
             contact,
-            endpoint,
+            endpoint
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class MessageHeaderSource extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -221,7 +221,7 @@ class MessageHeaderSource extends Element {
             software,
             version,
             contact,
-            endpoint,
+            endpoint
         });
     }
 
@@ -238,7 +238,7 @@ class MessageHeaderSource extends Element {
             software: this.software,
             version: this.version,
             contact: this.contact && this.contact.toJSON(),
-            endpoint: this.endpoint,
+            endpoint: this.endpoint
         });
     }
 
@@ -266,7 +266,7 @@ class MessageHeaderSource extends Element {
             software: this.software,
             version: this.version,
             contact: this.contact && this.contact.toJSONInternal(),
-            endpoint: this.endpoint,
+            endpoint: this.endpoint
         };
 
         return removeNull(json);

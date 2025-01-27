@@ -30,7 +30,7 @@ class DeviceProperty extends Element {
             modifierExtension,
             type,
             valueQuantity,
-            valueCode,
+            valueCode
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class DeviceProperty extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -179,7 +179,7 @@ class DeviceProperty extends Element {
             modifierExtension,
             type,
             valueQuantity,
-            valueCode,
+            valueCode
         });
     }
 
@@ -194,7 +194,7 @@ class DeviceProperty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSON()),
-            valueCode: this.valueCode && this.valueCode.map(v => v.toJSON()),
+            valueCode: this.valueCode && this.valueCode.map(v => v.toJSON())
         });
     }
 
@@ -222,7 +222,7 @@ class DeviceProperty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSONInternal()),
-            valueCode: this.valueCode && this.valueCode.map(v => v.toJSONInternal()),
+            valueCode: this.valueCode && this.valueCode.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

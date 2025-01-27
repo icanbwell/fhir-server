@@ -89,7 +89,7 @@ class EvidenceVariable extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -257,7 +257,7 @@ class EvidenceVariable extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -863,7 +863,7 @@ class EvidenceVariable extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -963,7 +963,7 @@ class EvidenceVariable extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EvidenceVariable({
@@ -1002,7 +1002,7 @@ class EvidenceVariable extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1052,7 +1052,7 @@ class EvidenceVariable extends Resource {
             characteristicCombination: this.characteristicCombination,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
             handling: this.handling,
-            category: this.category && this.category.map(v => v.toJSON()),
+            category: this.category && this.category.map(v => v.toJSON())
         });
     }
 
@@ -1118,7 +1118,7 @@ class EvidenceVariable extends Resource {
             characteristicCombination: this.characteristicCombination,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
             handling: this.handling,
-            category: this.category && this.category.map(v => v.toJSONInternal()),
+            category: this.category && this.category.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

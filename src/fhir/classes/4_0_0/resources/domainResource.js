@@ -39,7 +39,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class DomainResource extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -295,7 +295,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -347,7 +347,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DomainResource({
@@ -362,7 +362,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -388,7 +388,7 @@ class DomainResource extends Resource {
             text: this.text && this.text.toJSON(),
             contained: this.contained && this.contained.map(v => v.toJSON()),
             extension: this.extension && this.extension.map(v => v.toJSON()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON())
         });
     }
 
@@ -419,7 +419,7 @@ class DomainResource extends Resource {
             text: this.text && this.text.toJSONInternal(),
             contained: this.contained && this.contained.map(v => v.toJSONInternal()),
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

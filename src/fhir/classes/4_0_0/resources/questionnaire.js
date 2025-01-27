@@ -86,7 +86,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -254,7 +254,7 @@ class Questionnaire extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -811,7 +811,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -907,7 +907,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Questionnaire({
@@ -944,7 +944,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -992,7 +992,7 @@ class Questionnaire extends Resource {
             lastReviewDate: this.lastReviewDate,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
             code: this.code && this.code.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -1052,7 +1052,7 @@ class Questionnaire extends Resource {
             lastReviewDate: this.lastReviewDate,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

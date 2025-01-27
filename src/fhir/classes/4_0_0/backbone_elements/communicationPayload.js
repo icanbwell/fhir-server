@@ -30,7 +30,7 @@ class CommunicationPayload extends Element {
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class CommunicationPayload extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -177,7 +177,7 @@ class CommunicationPayload extends Element {
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         });
     }
 
@@ -192,7 +192,7 @@ class CommunicationPayload extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
+            contentReference: this.contentReference && this.contentReference.toJSON()
         });
     }
 
@@ -219,7 +219,7 @@ class CommunicationPayload extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
-            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
 
         return removeNull(json);

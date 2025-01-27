@@ -26,7 +26,7 @@ class HealthcareServiceEligibility extends Element {
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class HealthcareServiceEligibility extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -152,7 +152,7 @@ class HealthcareServiceEligibility extends Element {
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         });
     }
 
@@ -166,7 +166,7 @@ class HealthcareServiceEligibility extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -191,7 +191,7 @@ class HealthcareServiceEligibility extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
 
         return removeNull(json);

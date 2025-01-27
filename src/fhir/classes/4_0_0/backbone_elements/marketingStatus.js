@@ -35,7 +35,7 @@ class MarketingStatus extends Element {
             jurisdiction,
             status,
             dateRange,
-            restoreDate,
+            restoreDate
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class MarketingStatus extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -239,7 +239,7 @@ class MarketingStatus extends Element {
             jurisdiction,
             status,
             dateRange,
-            restoreDate,
+            restoreDate
         });
     }
 
@@ -256,7 +256,7 @@ class MarketingStatus extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
             status: this.status && this.status.toJSON(),
             dateRange: this.dateRange && this.dateRange.toJSON(),
-            restoreDate: this.restoreDate,
+            restoreDate: this.restoreDate
         });
     }
 
@@ -287,7 +287,7 @@ class MarketingStatus extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSONInternal(),
             status: this.status && this.status.toJSONInternal(),
             dateRange: this.dateRange && this.dateRange.toJSONInternal(),
-            restoreDate: this.restoreDate,
+            restoreDate: this.restoreDate
         };
 
         return removeNull(json);

@@ -71,7 +71,7 @@ class RequestGroupAction extends Element {
             precheckBehavior,
             cardinalityBehavior,
             resource,
-            action,
+            action
         }
     ) {
         super({});
@@ -130,7 +130,7 @@ class RequestGroupAction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -647,7 +647,7 @@ class RequestGroupAction extends Element {
             precheckBehavior,
             cardinalityBehavior,
             resource,
-            action,
+            action
         });
     }
 
@@ -683,7 +683,7 @@ class RequestGroupAction extends Element {
             precheckBehavior: this.precheckBehavior,
             cardinalityBehavior: this.cardinalityBehavior,
             resource: this.resource && this.resource.toJSON(),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -742,7 +742,7 @@ class RequestGroupAction extends Element {
             precheckBehavior: this.precheckBehavior,
             cardinalityBehavior: this.cardinalityBehavior,
             resource: this.resource && this.resource.toJSONInternal(),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

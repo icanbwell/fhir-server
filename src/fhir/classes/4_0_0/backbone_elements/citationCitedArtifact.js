@@ -56,7 +56,7 @@ class CitationCitedArtifact extends Element {
             webLocation,
             classification,
             contributorship,
-            note,
+            note
         }
     ) {
         super({});
@@ -115,7 +115,7 @@ class CitationCitedArtifact extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -460,7 +460,7 @@ class CitationCitedArtifact extends Element {
             webLocation,
             classification,
             contributorship,
-            note,
+            note
         });
     }
 
@@ -487,7 +487,7 @@ class CitationCitedArtifact extends Element {
             webLocation: this.webLocation && this.webLocation.map(v => v.toJSON()),
             classification: this.classification && this.classification.map(v => v.toJSON()),
             contributorship: this.contributorship && this.contributorship.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -538,7 +538,7 @@ class CitationCitedArtifact extends Element {
             webLocation: this.webLocation && this.webLocation.map(v => v.toJSONInternal()),
             classification: this.classification && this.classification.map(v => v.toJSONInternal()),
             contributorship: this.contributorship && this.contributorship.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

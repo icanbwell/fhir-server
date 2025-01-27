@@ -64,7 +64,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -232,7 +232,7 @@ class BiologicallyDerivedProduct extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -553,7 +553,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -627,7 +627,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new BiologicallyDerivedProduct({
@@ -653,7 +653,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -690,7 +690,7 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSON(),
             processing: this.processing && this.processing.map(v => v.toJSON()),
             manipulation: this.manipulation && this.manipulation.toJSON(),
-            storage: this.storage && this.storage.map(v => v.toJSON()),
+            storage: this.storage && this.storage.map(v => v.toJSON())
         });
     }
 
@@ -740,7 +740,7 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSONInternal(),
             processing: this.processing && this.processing.map(v => v.toJSONInternal()),
             manipulation: this.manipulation && this.manipulation.toJSONInternal(),
-            storage: this.storage && this.storage.map(v => v.toJSONInternal()),
+            storage: this.storage && this.storage.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

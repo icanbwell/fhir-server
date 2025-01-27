@@ -28,7 +28,7 @@ class SubstanceInstance extends Element {
             modifierExtension,
             identifier,
             expiry,
-            quantity,
+            quantity
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class SubstanceInstance extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -177,7 +177,7 @@ class SubstanceInstance extends Element {
             modifierExtension,
             identifier,
             expiry,
-            quantity,
+            quantity
         });
     }
 
@@ -192,7 +192,7 @@ class SubstanceInstance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             expiry: this.expiry,
-            quantity: this.quantity && this.quantity.toJSON(),
+            quantity: this.quantity && this.quantity.toJSON()
         });
     }
 
@@ -219,7 +219,7 @@ class SubstanceInstance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier && this.identifier.toJSONInternal(),
             expiry: this.expiry,
-            quantity: this.quantity && this.quantity.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal()
         };
 
         return removeNull(json);

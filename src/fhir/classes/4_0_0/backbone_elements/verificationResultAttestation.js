@@ -39,7 +39,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate,
             proxyIdentityCertificate,
             proxySignature,
-            sourceSignature,
+            sourceSignature
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class VerificationResultAttestation extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -291,7 +291,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate,
             proxyIdentityCertificate,
             proxySignature,
-            sourceSignature,
+            sourceSignature
         });
     }
 
@@ -311,7 +311,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate: this.sourceIdentityCertificate,
             proxyIdentityCertificate: this.proxyIdentityCertificate,
             proxySignature: this.proxySignature && this.proxySignature.toJSON(),
-            sourceSignature: this.sourceSignature && this.sourceSignature.toJSON(),
+            sourceSignature: this.sourceSignature && this.sourceSignature.toJSON()
         });
     }
 
@@ -346,7 +346,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate: this.sourceIdentityCertificate,
             proxyIdentityCertificate: this.proxyIdentityCertificate,
             proxySignature: this.proxySignature && this.proxySignature.toJSONInternal(),
-            sourceSignature: this.sourceSignature && this.sourceSignature.toJSONInternal(),
+            sourceSignature: this.sourceSignature && this.sourceSignature.toJSONInternal()
         };
 
         return removeNull(json);

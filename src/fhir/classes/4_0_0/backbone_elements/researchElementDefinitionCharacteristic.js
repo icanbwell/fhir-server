@@ -65,7 +65,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             participantEffectiveTimeFromStart,
-            participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure
         }
     ) {
         super({});
@@ -124,7 +124,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -577,7 +577,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             participantEffectiveTimeFromStart,
-            participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure
         });
     }
 
@@ -610,7 +610,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSON(),
-            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure
         });
     }
 
@@ -666,7 +666,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSONInternal(),
-            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure
         };
 
         return removeNull(json);

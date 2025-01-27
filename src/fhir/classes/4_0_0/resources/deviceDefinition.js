@@ -87,7 +87,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -255,7 +255,7 @@ class DeviceDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -828,7 +828,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -926,7 +926,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DeviceDefinition({
@@ -964,7 +964,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1013,7 +1013,7 @@ class DeviceDefinition extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             parentDevice: this.parentDevice && this.parentDevice.toJSON(),
-            material: this.material && this.material.map(v => v.toJSON()),
+            material: this.material && this.material.map(v => v.toJSON())
         });
     }
 
@@ -1085,7 +1085,7 @@ class DeviceDefinition extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             parentDevice: this.parentDevice && this.parentDevice.toJSONInternal(),
-            material: this.material && this.material.map(v => v.toJSONInternal()),
+            material: this.material && this.material.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

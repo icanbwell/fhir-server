@@ -56,7 +56,7 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         }
     ) {
         super({});
@@ -115,7 +115,7 @@ class QuestionnaireItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -165,7 +165,7 @@ class QuestionnaireItem extends Element {
     present then the following element values MAY be derived from the Element
     Definition if the corresponding elements of this Questionnaire resource
     instance have no value:
-    
+
     * code (ElementDefinition.code)
     * type (ElementDefinition.type)
     * required (ElementDefinition.min)
@@ -487,7 +487,7 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         });
     }
 
@@ -515,7 +515,7 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSON()),
             initial: this.initial && this.initial.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -558,7 +558,7 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSONInternal()),
             initial: this.initial && this.initial.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

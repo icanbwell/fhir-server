@@ -52,7 +52,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -220,7 +220,7 @@ class Basic extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -414,7 +414,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -476,7 +476,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Basic({
@@ -496,7 +496,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -527,7 +527,7 @@ class Basic extends Resource {
             code: this.code && this.code.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             created: this.created,
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.toJSON()
         });
     }
 
@@ -567,7 +567,7 @@ class Basic extends Resource {
             code: this.code && this.code.toJSONInternal(),
             subject: this.subject && this.subject.toJSONInternal(),
             created: this.created,
-            author: this.author && this.author.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

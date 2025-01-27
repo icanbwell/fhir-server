@@ -33,7 +33,7 @@ class SubstanceDefinitionCode extends Element {
             status,
             statusDate,
             note,
-            source,
+            source
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class SubstanceDefinitionCode extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -223,7 +223,7 @@ class SubstanceDefinitionCode extends Element {
             status,
             statusDate,
             note,
-            source,
+            source
         });
     }
 
@@ -240,7 +240,7 @@ class SubstanceDefinitionCode extends Element {
             status: this.status && this.status.toJSON(),
             statusDate: this.statusDate,
             note: this.note && this.note.map(v => v.toJSON()),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -271,7 +271,7 @@ class SubstanceDefinitionCode extends Element {
             status: this.status && this.status.toJSONInternal(),
             statusDate: this.statusDate,
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

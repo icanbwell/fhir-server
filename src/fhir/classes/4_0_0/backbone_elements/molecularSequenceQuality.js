@@ -52,7 +52,7 @@ class MolecularSequenceQuality extends Element {
             precision,
             recall,
             fScore,
-            roc,
+            roc
         }
     ) {
         super({});
@@ -111,7 +111,7 @@ class MolecularSequenceQuality extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -451,7 +451,7 @@ class MolecularSequenceQuality extends Element {
             precision,
             recall,
             fScore,
-            roc,
+            roc
         });
     }
 
@@ -478,7 +478,7 @@ class MolecularSequenceQuality extends Element {
             precision: this.precision,
             recall: this.recall,
             fScore: this.fScore,
-            roc: this.roc && this.roc.toJSON(),
+            roc: this.roc && this.roc.toJSON()
         });
     }
 
@@ -519,7 +519,7 @@ class MolecularSequenceQuality extends Element {
             precision: this.precision,
             recall: this.recall,
             fScore: this.fScore,
-            roc: this.roc && this.roc.toJSONInternal(),
+            roc: this.roc && this.roc.toJSONInternal()
         };
 
         return removeNull(json);

@@ -62,7 +62,7 @@ class TimingRepeat extends Element {
             dayOfWeek,
             timeOfDay,
             when,
-            offset,
+            offset
         }
     ) {
         super({});
@@ -121,7 +121,7 @@ class TimingRepeat extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -493,7 +493,7 @@ class TimingRepeat extends Element {
             dayOfWeek,
             timeOfDay,
             when,
-            offset,
+            offset
         });
     }
 
@@ -522,7 +522,7 @@ class TimingRepeat extends Element {
             dayOfWeek: this.dayOfWeek,
             timeOfDay: this.timeOfDay,
             when: this.when,
-            offset: this.offset,
+            offset: this.offset
         });
     }
 
@@ -564,7 +564,7 @@ class TimingRepeat extends Element {
             dayOfWeek: this.dayOfWeek,
             timeOfDay: this.timeOfDay,
             when: this.when,
-            offset: this.offset,
+            offset: this.offset
         };
 
         return removeNull(json);

@@ -39,7 +39,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk,
             whenPeriod,
             whenRange,
-            rationale,
+            rationale
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class RiskAssessmentPrediction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -292,7 +292,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk,
             whenPeriod,
             whenRange,
-            rationale,
+            rationale
         });
     }
 
@@ -312,7 +312,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk: this.relativeRisk,
             whenPeriod: this.whenPeriod && this.whenPeriod.toJSON(),
             whenRange: this.whenRange && this.whenRange.toJSON(),
-            rationale: this.rationale,
+            rationale: this.rationale
         });
     }
 
@@ -347,7 +347,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk: this.relativeRisk,
             whenPeriod: this.whenPeriod && this.whenPeriod.toJSONInternal(),
             whenRange: this.whenRange && this.whenRange.toJSONInternal(),
-            rationale: this.rationale,
+            rationale: this.rationale
         };
 
         return removeNull(json);

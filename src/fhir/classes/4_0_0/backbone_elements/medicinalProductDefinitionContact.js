@@ -31,7 +31,7 @@ class MedicinalProductDefinitionContact extends Element {
             extension,
             modifierExtension,
             type,
-            contact,
+            contact
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class MedicinalProductDefinitionContact extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -160,7 +160,7 @@ class MedicinalProductDefinitionContact extends Element {
             extension,
             modifierExtension,
             type,
-            contact,
+            contact
         });
     }
 
@@ -174,7 +174,7 @@ class MedicinalProductDefinitionContact extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
+            contact: this.contact && this.contact.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class MedicinalProductDefinitionContact extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            contact: this.contact && this.contact.toJSONInternal(),
+            contact: this.contact && this.contact.toJSONInternal()
         };
 
         return removeNull(json);

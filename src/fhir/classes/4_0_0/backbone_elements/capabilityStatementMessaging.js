@@ -33,7 +33,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class CapabilityStatementMessaging extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -204,7 +204,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         });
     }
 
@@ -220,7 +220,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON())
         });
     }
 
@@ -248,7 +248,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

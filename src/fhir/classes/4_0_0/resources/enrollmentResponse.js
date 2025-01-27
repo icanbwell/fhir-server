@@ -57,7 +57,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class EnrollmentResponse extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -473,7 +473,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -541,7 +541,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EnrollmentResponse({
@@ -564,7 +564,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -598,7 +598,7 @@ class EnrollmentResponse extends Resource {
             disposition: this.disposition,
             created: this.created,
             organization: this.organization && this.organization.toJSON(),
-            requestProvider: this.requestProvider && this.requestProvider.toJSON(),
+            requestProvider: this.requestProvider && this.requestProvider.toJSON()
         });
     }
 
@@ -641,7 +641,7 @@ class EnrollmentResponse extends Resource {
             disposition: this.disposition,
             created: this.created,
             organization: this.organization && this.organization.toJSONInternal(),
-            requestProvider: this.requestProvider && this.requestProvider.toJSONInternal(),
+            requestProvider: this.requestProvider && this.requestProvider.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

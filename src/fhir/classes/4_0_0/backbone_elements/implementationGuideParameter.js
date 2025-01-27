@@ -29,7 +29,7 @@ class ImplementationGuideParameter extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class ImplementationGuideParameter extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -155,7 +155,7 @@ class ImplementationGuideParameter extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         });
     }
 
@@ -169,7 +169,7 @@ class ImplementationGuideParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -193,7 +193,7 @@ class ImplementationGuideParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
-            value: this.value,
+            value: this.value
         };
 
         return removeNull(json);

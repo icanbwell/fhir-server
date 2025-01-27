@@ -40,7 +40,7 @@ class DocumentReferenceContext extends Element {
             facilityType,
             practiceSetting,
             sourcePatientInfo,
-            related,
+            related
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class DocumentReferenceContext extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -280,7 +280,7 @@ class DocumentReferenceContext extends Element {
             facilityType,
             practiceSetting,
             sourcePatientInfo,
-            related,
+            related
         });
     }
 
@@ -299,7 +299,7 @@ class DocumentReferenceContext extends Element {
             facilityType: this.facilityType && this.facilityType.toJSON(),
             practiceSetting: this.practiceSetting && this.practiceSetting.toJSON(),
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSON(),
-            related: this.related && this.related.map(v => v.toJSON()),
+            related: this.related && this.related.map(v => v.toJSON())
         });
     }
 
@@ -335,7 +335,7 @@ class DocumentReferenceContext extends Element {
             facilityType: this.facilityType && this.facilityType.toJSONInternal(),
             practiceSetting: this.practiceSetting && this.practiceSetting.toJSONInternal(),
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSONInternal(),
-            related: this.related && this.related.map(v => v.toJSONInternal()),
+            related: this.related && this.related.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

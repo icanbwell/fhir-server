@@ -130,7 +130,7 @@ class ParametersParameter extends Element {
             valueDosage,
             valueMeta,
             resource,
-            part,
+            part
         }
     ) {
         super({});
@@ -189,7 +189,7 @@ class ParametersParameter extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1288,7 +1288,7 @@ class ParametersParameter extends Element {
             valueDosage,
             valueMeta,
             resource,
-            part,
+            part
         });
     }
 
@@ -1353,7 +1353,7 @@ class ParametersParameter extends Element {
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
             valueMeta: this.valueMeta && this.valueMeta.toJSON(),
             resource: this.resource && this.resource.toJSON(),
-            part: this.part && this.part.map(v => v.toJSON()),
+            part: this.part && this.part.map(v => v.toJSON())
         });
     }
 
@@ -1461,7 +1461,7 @@ class ParametersParameter extends Element {
             valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
             valueMeta: this.valueMeta && this.valueMeta.toJSONInternal(),
             resource: this.resource && this.resource.toJSONInternal(),
-            part: this.part && this.part.map(v => v.toJSONInternal()),
+            part: this.part && this.part.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

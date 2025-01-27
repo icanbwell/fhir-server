@@ -30,7 +30,7 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class MeasureSupplementalData extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -208,7 +208,7 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         });
     }
 
@@ -224,7 +224,7 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSON(),
             usage: this.usage && this.usage.map(v => v.toJSON()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSON(),
+            criteria: this.criteria && this.criteria.toJSON()
         });
     }
 
@@ -253,7 +253,7 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSONInternal(),
             usage: this.usage && this.usage.map(v => v.toJSONInternal()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSONInternal(),
+            criteria: this.criteria && this.criteria.toJSONInternal()
         };
 
         return removeNull(json);

@@ -36,7 +36,7 @@ class CompositionRelatesTo extends Element {
             modifierExtension,
             code,
             targetIdentifier,
-            targetReference,
+            targetReference
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class CompositionRelatesTo extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -184,7 +184,7 @@ class CompositionRelatesTo extends Element {
             modifierExtension,
             code,
             targetIdentifier,
-            targetReference,
+            targetReference
         });
     }
 
@@ -199,7 +199,7 @@ class CompositionRelatesTo extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             targetIdentifier: this.targetIdentifier && this.targetIdentifier.toJSON(),
-            targetReference: this.targetReference && this.targetReference.toJSON(),
+            targetReference: this.targetReference && this.targetReference.toJSON()
         });
     }
 
@@ -226,7 +226,7 @@ class CompositionRelatesTo extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
             targetIdentifier: this.targetIdentifier && this.targetIdentifier.toJSONInternal(),
-            targetReference: this.targetReference && this.targetReference.toJSONInternal(),
+            targetReference: this.targetReference && this.targetReference.toJSONInternal()
         };
 
         return removeNull(json);

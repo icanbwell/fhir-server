@@ -31,7 +31,7 @@ class PractitionerQualification extends Element {
             identifier,
             code,
             period,
-            issuer,
+            issuer
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class PractitionerQualification extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class PractitionerQualification extends Element {
             identifier,
             code,
             period,
-            issuer,
+            issuer
         });
     }
 
@@ -217,7 +217,7 @@ class PractitionerQualification extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             period: this.period && this.period.toJSON(),
-            issuer: this.issuer && this.issuer.toJSON(),
+            issuer: this.issuer && this.issuer.toJSON()
         });
     }
 
@@ -247,7 +247,7 @@ class PractitionerQualification extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
-            issuer: this.issuer && this.issuer.toJSONInternal(),
+            issuer: this.issuer && this.issuer.toJSONInternal()
         };
 
         return removeNull(json);

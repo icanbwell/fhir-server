@@ -82,7 +82,7 @@ class Task extends Resource {
             code,
             description,
             focus,
-            'for': for_,
+            for: for_,
             encounter,
             executionPeriod,
             authoredOn,
@@ -102,7 +102,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -270,7 +270,7 @@ class Task extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -993,7 +993,7 @@ class Task extends Resource {
             code,
             description,
             focus,
-            'for': for_,
+            for: for_,
             encounter,
             executionPeriod,
             authoredOn,
@@ -1013,7 +1013,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1107,7 +1107,7 @@ class Task extends Resource {
             code,
             description,
             focus,
-            'for': for_,
+            for: for_,
             encounter,
             executionPeriod,
             authoredOn,
@@ -1127,7 +1127,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Task({
@@ -1153,7 +1153,7 @@ class Task extends Resource {
             code,
             description,
             focus,
-            'for': for_,
+            for: for_,
             encounter,
             executionPeriod,
             authoredOn,
@@ -1173,7 +1173,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1230,7 +1230,7 @@ class Task extends Resource {
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
             restriction: this.restriction && this.restriction.toJSON(),
             input: this.input && this.input.map(v => v.toJSON()),
-            output: this.output && this.output.map(v => v.toJSON()),
+            output: this.output && this.output.map(v => v.toJSON())
         });
     }
 
@@ -1315,7 +1315,7 @@ class Task extends Resource {
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
             restriction: this.restriction && this.restriction.toJSONInternal(),
             input: this.input && this.input.map(v => v.toJSONInternal()),
-            output: this.output && this.output.map(v => v.toJSONInternal()),
+            output: this.output && this.output.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

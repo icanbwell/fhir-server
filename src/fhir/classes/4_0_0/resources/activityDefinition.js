@@ -150,7 +150,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -318,7 +318,7 @@ class ActivityDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1563,7 +1563,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1723,7 +1723,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ActivityDefinition({
@@ -1792,7 +1792,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1872,7 +1872,7 @@ class ActivityDefinition extends Resource {
             observationRequirement: this.observationRequirement && this.observationRequirement.map(v => v.toJSON()),
             observationResultRequirement: this.observationResultRequirement && this.observationResultRequirement.map(v => v.toJSON()),
             transform: this.transform,
-            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON()),
+            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON())
         });
     }
 
@@ -1987,7 +1987,7 @@ class ActivityDefinition extends Resource {
             observationRequirement: this.observationRequirement && this.observationRequirement.map(v => v.toJSONInternal()),
             observationResultRequirement: this.observationResultRequirement && this.observationResultRequirement.map(v => v.toJSONInternal()),
             transform: this.transform,
-            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal()),
+            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

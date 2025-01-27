@@ -57,7 +57,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class AppointmentResponse extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -482,7 +482,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -550,7 +550,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AppointmentResponse({
@@ -573,7 +573,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -607,7 +607,7 @@ class AppointmentResponse extends Resource {
             participantType: this.participantType && this.participantType.map(v => v.toJSON()),
             actor: this.actor && this.actor.toJSON(),
             participantStatus: this.participantStatus,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -650,7 +650,7 @@ class AppointmentResponse extends Resource {
             participantType: this.participantType && this.participantType.map(v => v.toJSONInternal()),
             actor: this.actor && this.actor.toJSONInternal(),
             participantStatus: this.participantStatus,
-            comment: this.comment,
+            comment: this.comment
         };
         if (this._access) {
             json._access = this._access;

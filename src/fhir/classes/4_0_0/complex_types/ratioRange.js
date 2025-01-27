@@ -28,7 +28,7 @@ class RatioRange extends Element {
             extension,
             lowNumerator,
             highNumerator,
-            denominator,
+            denominator
         }
     ) {
         super({});
@@ -144,7 +144,7 @@ class RatioRange extends Element {
             extension,
             lowNumerator,
             highNumerator,
-            denominator,
+            denominator
         });
     }
 
@@ -158,7 +158,7 @@ class RatioRange extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             lowNumerator: this.lowNumerator && this.lowNumerator.toJSON(),
             highNumerator: this.highNumerator && this.highNumerator.toJSON(),
-            denominator: this.denominator && this.denominator.toJSON(),
+            denominator: this.denominator && this.denominator.toJSON()
         });
     }
 
@@ -184,7 +184,7 @@ class RatioRange extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             lowNumerator: this.lowNumerator && this.lowNumerator.toJSONInternal(),
             highNumerator: this.highNumerator && this.highNumerator.toJSONInternal(),
-            denominator: this.denominator && this.denominator.toJSONInternal(),
+            denominator: this.denominator && this.denominator.toJSONInternal()
         };
 
         return removeNull(json);

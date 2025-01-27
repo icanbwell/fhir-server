@@ -34,7 +34,7 @@ class PackagedProductDefinitionProperty extends Element {
             valueQuantity,
             valueDate,
             valueBoolean,
-            valueAttachment,
+            valueAttachment
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class PackagedProductDefinitionProperty extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -242,7 +242,7 @@ class PackagedProductDefinitionProperty extends Element {
             valueQuantity,
             valueDate,
             valueBoolean,
-            valueAttachment,
+            valueAttachment
         });
     }
 
@@ -260,7 +260,7 @@ class PackagedProductDefinitionProperty extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueDate: this.valueDate,
             valueBoolean: this.valueBoolean,
-            valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
+            valueAttachment: this.valueAttachment && this.valueAttachment.toJSON()
         });
     }
 
@@ -292,7 +292,7 @@ class PackagedProductDefinitionProperty extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueDate: this.valueDate,
             valueBoolean: this.valueBoolean,
-            valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
+            valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal()
         };
 
         return removeNull(json);

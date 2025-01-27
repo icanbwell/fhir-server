@@ -39,7 +39,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor,
             net,
             noteNumber,
-            adjudication,
+            adjudication
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class ClaimResponseSubDetail1 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -298,7 +298,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor,
             net,
             noteNumber,
-            adjudication,
+            adjudication
         });
     }
 
@@ -318,7 +318,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSON(),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON())
         });
     }
 
@@ -354,7 +354,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSONInternal(),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

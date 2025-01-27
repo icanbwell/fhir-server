@@ -68,7 +68,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -236,7 +236,7 @@ class MessageHeader extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -581,7 +581,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -657,7 +657,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MessageHeader({
@@ -684,7 +684,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -722,7 +722,7 @@ class MessageHeader extends Resource {
             reason: this.reason && this.reason.toJSON(),
             response: this.response && this.response.toJSON(),
             focus: this.focus && this.focus.map(v => v.toJSON()),
-            definition: this.definition,
+            definition: this.definition
         });
     }
 
@@ -775,7 +775,7 @@ class MessageHeader extends Resource {
             reason: this.reason && this.reason.toJSONInternal(),
             response: this.response && this.response.toJSONInternal(),
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
-            definition: this.definition,
+            definition: this.definition
         };
         if (this._access) {
             json._access = this._access;

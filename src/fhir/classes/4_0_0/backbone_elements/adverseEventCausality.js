@@ -33,7 +33,7 @@ class AdverseEventCausality extends Element {
             assessment,
             productRelatedness,
             author,
-            method,
+            method
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class AdverseEventCausality extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class AdverseEventCausality extends Element {
             assessment,
             productRelatedness,
             author,
-            method,
+            method
         });
     }
 
@@ -217,7 +217,7 @@ class AdverseEventCausality extends Element {
             assessment: this.assessment && this.assessment.toJSON(),
             productRelatedness: this.productRelatedness,
             author: this.author && this.author.toJSON(),
-            method: this.method && this.method.toJSON(),
+            method: this.method && this.method.toJSON()
         });
     }
 
@@ -246,7 +246,7 @@ class AdverseEventCausality extends Element {
             assessment: this.assessment && this.assessment.toJSONInternal(),
             productRelatedness: this.productRelatedness,
             author: this.author && this.author.toJSONInternal(),
-            method: this.method && this.method.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal()
         };
 
         return removeNull(json);

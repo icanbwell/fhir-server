@@ -40,7 +40,7 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -257,7 +257,7 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -307,7 +307,7 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Binary({
@@ -321,7 +321,7 @@ class Binary extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -346,7 +346,7 @@ class Binary extends Resource {
             language: this.language,
             contentType: this.contentType,
             securityContext: this.securityContext && this.securityContext.toJSON(),
-            data: this.data,
+            data: this.data
         });
     }
 
@@ -373,7 +373,7 @@ class Binary extends Resource {
             language: this.language,
             contentType: this.contentType,
             securityContext: this.securityContext && this.securityContext.toJSONInternal(),
-            data: this.data,
+            data: this.data
         };
         if (this._access) {
             json._access = this._access;

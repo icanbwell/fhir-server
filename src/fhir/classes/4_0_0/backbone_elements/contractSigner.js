@@ -29,7 +29,7 @@ class ContractSigner extends Element {
             modifierExtension,
             type,
             party,
-            signature,
+            signature
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class ContractSigner extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class ContractSigner extends Element {
             modifierExtension,
             type,
             party,
-            signature,
+            signature
         });
     }
 
@@ -193,7 +193,7 @@ class ContractSigner extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             party: this.party && this.party.toJSON(),
-            signature: this.signature && this.signature.map(v => v.toJSON()),
+            signature: this.signature && this.signature.map(v => v.toJSON())
         });
     }
 
@@ -221,7 +221,7 @@ class ContractSigner extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             party: this.party && this.party.toJSONInternal(),
-            signature: this.signature && this.signature.map(v => v.toJSONInternal()),
+            signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

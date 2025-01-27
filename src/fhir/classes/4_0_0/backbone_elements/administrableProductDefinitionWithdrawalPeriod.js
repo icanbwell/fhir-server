@@ -30,7 +30,7 @@ class AdministrableProductDefinitionWithdrawalPeriod extends Element {
             modifierExtension,
             tissue,
             value,
-            supportingInformation,
+            supportingInformation
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class AdministrableProductDefinitionWithdrawalPeriod extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class AdministrableProductDefinitionWithdrawalPeriod extends Element {
             modifierExtension,
             tissue,
             value,
-            supportingInformation,
+            supportingInformation
         });
     }
 
@@ -193,7 +193,7 @@ class AdministrableProductDefinitionWithdrawalPeriod extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             tissue: this.tissue && this.tissue.toJSON(),
             value: this.value && this.value.toJSON(),
-            supportingInformation: this.supportingInformation,
+            supportingInformation: this.supportingInformation
         });
     }
 
@@ -220,7 +220,7 @@ class AdministrableProductDefinitionWithdrawalPeriod extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             tissue: this.tissue && this.tissue.toJSONInternal(),
             value: this.value && this.value.toJSONInternal(),
-            supportingInformation: this.supportingInformation,
+            supportingInformation: this.supportingInformation
         };
 
         return removeNull(json);

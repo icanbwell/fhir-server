@@ -41,7 +41,7 @@ class SubstanceDefinitionMoiety extends Element {
             molecularFormula,
             amountQuantity,
             amountString,
-            measurementType,
+            measurementType
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class SubstanceDefinitionMoiety extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -314,7 +314,7 @@ class SubstanceDefinitionMoiety extends Element {
             molecularFormula,
             amountQuantity,
             amountString,
-            measurementType,
+            measurementType
         });
     }
 
@@ -335,7 +335,7 @@ class SubstanceDefinitionMoiety extends Element {
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
             amountString: this.amountString,
-            measurementType: this.measurementType && this.measurementType.toJSON(),
+            measurementType: this.measurementType && this.measurementType.toJSON()
         });
     }
 
@@ -372,7 +372,7 @@ class SubstanceDefinitionMoiety extends Element {
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
             amountString: this.amountString,
-            measurementType: this.measurementType && this.measurementType.toJSONInternal(),
+            measurementType: this.measurementType && this.measurementType.toJSONInternal()
         };
 
         return removeNull(json);

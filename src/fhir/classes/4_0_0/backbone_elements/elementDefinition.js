@@ -425,7 +425,7 @@ class ElementDefinition extends Element {
             isModifierReason,
             isSummary,
             binding,
-            mapping,
+            mapping
         }
     ) {
         super({});
@@ -484,7 +484,7 @@ class ElementDefinition extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -4581,7 +4581,7 @@ class ElementDefinition extends Element {
             isModifierReason,
             isSummary,
             binding,
-            mapping,
+            mapping
         });
     }
 
@@ -4793,7 +4793,7 @@ class ElementDefinition extends Element {
             isModifierReason: this.isModifierReason,
             isSummary: this.isSummary,
             binding: this.binding && this.binding.toJSON(),
-            mapping: this.mapping && this.mapping.map(v => v.toJSON()),
+            mapping: this.mapping && this.mapping.map(v => v.toJSON())
         });
     }
 
@@ -5121,7 +5121,7 @@ class ElementDefinition extends Element {
             isModifierReason: this.isModifierReason,
             isSummary: this.isSummary,
             binding: this.binding && this.binding.toJSONInternal(),
-            mapping: this.mapping && this.mapping.map(v => v.toJSONInternal()),
+            mapping: this.mapping && this.mapping.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -33,7 +33,7 @@ class ContactPoint extends Element {
             value,
             use,
             rank,
-            period,
+            period
         }
     ) {
         super({});
@@ -186,7 +186,7 @@ class ContactPoint extends Element {
             value,
             use,
             rank,
-            period,
+            period
         });
     }
 
@@ -202,7 +202,7 @@ class ContactPoint extends Element {
             value: this.value,
             use: this.use,
             rank: this.rank,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -228,7 +228,7 @@ class ContactPoint extends Element {
             value: this.value,
             use: this.use,
             rank: this.rank,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

@@ -38,7 +38,7 @@ class CitationRelatesTo extends Element {
             targetUri,
             targetIdentifier,
             targetReference,
-            targetAttachment,
+            targetAttachment
         }
     ) {
         super({});
@@ -97,7 +97,7 @@ class CitationRelatesTo extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -248,7 +248,7 @@ class CitationRelatesTo extends Element {
             targetUri,
             targetIdentifier,
             targetReference,
-            targetAttachment,
+            targetAttachment
         });
     }
 
@@ -266,7 +266,7 @@ class CitationRelatesTo extends Element {
             targetUri: this.targetUri,
             targetIdentifier: this.targetIdentifier && this.targetIdentifier.toJSON(),
             targetReference: this.targetReference && this.targetReference.toJSON(),
-            targetAttachment: this.targetAttachment && this.targetAttachment.toJSON(),
+            targetAttachment: this.targetAttachment && this.targetAttachment.toJSON()
         });
     }
 
@@ -299,7 +299,7 @@ class CitationRelatesTo extends Element {
             targetUri: this.targetUri,
             targetIdentifier: this.targetIdentifier && this.targetIdentifier.toJSONInternal(),
             targetReference: this.targetReference && this.targetReference.toJSONInternal(),
-            targetAttachment: this.targetAttachment && this.targetAttachment.toJSONInternal(),
+            targetAttachment: this.targetAttachment && this.targetAttachment.toJSONInternal()
         };
 
         return removeNull(json);

@@ -40,7 +40,7 @@ class Signature extends Element {
             onBehalfOf,
             targetFormat,
             sigFormat,
-            data,
+            data
         }
     ) {
         super({});
@@ -240,7 +240,7 @@ class Signature extends Element {
             onBehalfOf,
             targetFormat,
             sigFormat,
-            data,
+            data
         });
     }
 
@@ -258,7 +258,7 @@ class Signature extends Element {
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
             targetFormat: this.targetFormat,
             sigFormat: this.sigFormat,
-            data: this.data,
+            data: this.data
         });
     }
 
@@ -288,7 +288,7 @@ class Signature extends Element {
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
             targetFormat: this.targetFormat,
             sigFormat: this.sigFormat,
-            data: this.data,
+            data: this.data
         };
 
         return removeNull(json);

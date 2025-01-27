@@ -36,7 +36,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason,
             date,
             amount,
-            identifier,
+            identifier
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class ExplanationOfBenefitPayment extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -247,7 +247,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason,
             date,
             amount,
-            identifier,
+            identifier
         });
     }
 
@@ -265,7 +265,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason: this.adjustmentReason && this.adjustmentReason.toJSON(),
             date: this.date,
             amount: this.amount && this.amount.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            identifier: this.identifier && this.identifier.toJSON()
         });
     }
 
@@ -298,7 +298,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason: this.adjustmentReason && this.adjustmentReason.toJSONInternal(),
             date: this.date,
             amount: this.amount && this.amount.toJSONInternal(),
-            identifier: this.identifier && this.identifier.toJSONInternal(),
+            identifier: this.identifier && this.identifier.toJSONInternal()
         };
 
         return removeNull(json);

@@ -35,7 +35,7 @@ class ElementDefinitionType extends Element {
             profile,
             targetProfile,
             aggregation,
-            versioning,
+            versioning
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ElementDefinitionType extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -236,7 +236,7 @@ class ElementDefinitionType extends Element {
             profile,
             targetProfile,
             aggregation,
-            versioning,
+            versioning
         });
     }
 
@@ -253,7 +253,7 @@ class ElementDefinitionType extends Element {
             profile: this.profile,
             targetProfile: this.targetProfile,
             aggregation: this.aggregation,
-            versioning: this.versioning,
+            versioning: this.versioning
         });
     }
 
@@ -280,7 +280,7 @@ class ElementDefinitionType extends Element {
             profile: this.profile,
             targetProfile: this.targetProfile,
             aggregation: this.aggregation,
-            versioning: this.versioning,
+            versioning: this.versioning
         };
 
         return removeNull(json);

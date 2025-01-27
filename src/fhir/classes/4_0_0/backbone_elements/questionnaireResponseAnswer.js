@@ -50,7 +50,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding,
             valueQuantity,
             valueReference,
-            item,
+            item
         }
     ) {
         super({});
@@ -109,7 +109,7 @@ class QuestionnaireResponseAnswer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -393,7 +393,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding,
             valueQuantity,
             valueReference,
-            item,
+            item
         });
     }
 
@@ -418,7 +418,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -458,7 +458,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

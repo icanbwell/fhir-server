@@ -30,7 +30,7 @@ class AuditEventDetail extends Element {
             modifierExtension,
             type,
             valueString,
-            valueBase64Binary,
+            valueBase64Binary
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class AuditEventDetail extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -173,7 +173,7 @@ class AuditEventDetail extends Element {
             modifierExtension,
             type,
             valueString,
-            valueBase64Binary,
+            valueBase64Binary
         });
     }
 
@@ -188,7 +188,7 @@ class AuditEventDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             valueString: this.valueString,
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         });
     }
 
@@ -213,7 +213,7 @@ class AuditEventDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             valueString: this.valueString,
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         };
 
         return removeNull(json);

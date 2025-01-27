@@ -35,7 +35,7 @@ class ObservationReferenceRange extends Element {
             type,
             appliesTo,
             age,
-            text,
+            text
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ObservationReferenceRange extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -260,7 +260,7 @@ class ObservationReferenceRange extends Element {
             type,
             appliesTo,
             age,
-            text,
+            text
         });
     }
 
@@ -278,7 +278,7 @@ class ObservationReferenceRange extends Element {
             type: this.type && this.type.toJSON(),
             appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSON()),
             age: this.age && this.age.toJSON(),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -311,7 +311,7 @@ class ObservationReferenceRange extends Element {
             type: this.type && this.type.toJSONInternal(),
             appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSONInternal()),
             age: this.age && this.age.toJSONInternal(),
-            text: this.text,
+            text: this.text
         };
 
         return removeNull(json);

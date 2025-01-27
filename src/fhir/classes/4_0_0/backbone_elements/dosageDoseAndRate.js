@@ -36,7 +36,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity,
             rateRatio,
             rateRange,
-            rateQuantity,
+            rateQuantity
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class DosageDoseAndRate extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -248,7 +248,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity,
             rateRatio,
             rateRange,
-            rateQuantity,
+            rateQuantity
         });
     }
 
@@ -266,7 +266,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity: this.doseQuantity && this.doseQuantity.toJSON(),
             rateRatio: this.rateRatio && this.rateRatio.toJSON(),
             rateRange: this.rateRange && this.rateRange.toJSON(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON()
         });
     }
 
@@ -300,7 +300,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity: this.doseQuantity && this.doseQuantity.toJSONInternal(),
             rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
             rateRange: this.rateRange && this.rateRange.toJSONInternal(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
 
         return removeNull(json);

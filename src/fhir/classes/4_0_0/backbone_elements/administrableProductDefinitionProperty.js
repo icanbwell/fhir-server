@@ -38,7 +38,7 @@ class AdministrableProductDefinitionProperty extends Element {
             valueDate,
             valueBoolean,
             valueAttachment,
-            status,
+            status
         }
     ) {
         super({});
@@ -97,7 +97,7 @@ class AdministrableProductDefinitionProperty extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -267,7 +267,7 @@ class AdministrableProductDefinitionProperty extends Element {
             valueDate,
             valueBoolean,
             valueAttachment,
-            status,
+            status
         });
     }
 
@@ -286,7 +286,7 @@ class AdministrableProductDefinitionProperty extends Element {
             valueDate: this.valueDate,
             valueBoolean: this.valueBoolean,
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status && this.status.toJSON()
         });
     }
 
@@ -320,7 +320,7 @@ class AdministrableProductDefinitionProperty extends Element {
             valueDate: this.valueDate,
             valueBoolean: this.valueBoolean,
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
-            status: this.status && this.status.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal()
         };
 
         return removeNull(json);

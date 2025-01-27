@@ -36,7 +36,7 @@ class Meta extends Element {
             source,
             profile,
             security,
-            tag,
+            tag
         }
     ) {
         super({});
@@ -216,7 +216,7 @@ class Meta extends Element {
             source,
             profile,
             security,
-            tag,
+            tag
         });
     }
 
@@ -233,7 +233,7 @@ class Meta extends Element {
             source: this.source,
             profile: this.profile,
             security: this.security && this.security.map(v => v.toJSON()),
-            tag: this.tag && this.tag.map(v => v.toJSON()),
+            tag: this.tag && this.tag.map(v => v.toJSON())
         });
     }
 
@@ -261,7 +261,7 @@ class Meta extends Element {
             source: this.source,
             profile: this.profile,
             security: this.security && this.security.map(v => v.toJSONInternal()),
-            tag: this.tag && this.tag.map(v => v.toJSONInternal()),
+            tag: this.tag && this.tag.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

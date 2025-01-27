@@ -33,7 +33,7 @@ class StructureMapParameter extends Element {
             valueString,
             valueBoolean,
             valueInteger,
-            valueDecimal,
+            valueDecimal
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class StructureMapParameter extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -214,7 +214,7 @@ class StructureMapParameter extends Element {
             valueString,
             valueBoolean,
             valueInteger,
-            valueDecimal,
+            valueDecimal
         });
     }
 
@@ -231,7 +231,7 @@ class StructureMapParameter extends Element {
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         });
     }
 
@@ -258,7 +258,7 @@ class StructureMapParameter extends Element {
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         };
 
         return removeNull(json);

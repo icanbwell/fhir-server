@@ -32,7 +32,7 @@ class ConceptMapUnmapped extends Element {
             mode,
             code,
             display,
-            url,
+            url
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class ConceptMapUnmapped extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class ConceptMapUnmapped extends Element {
             mode,
             code,
             display,
-            url,
+            url
         });
     }
 
@@ -219,7 +219,7 @@ class ConceptMapUnmapped extends Element {
             mode: this.mode,
             code: this.code,
             display: this.display,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -245,7 +245,7 @@ class ConceptMapUnmapped extends Element {
             mode: this.mode,
             code: this.code,
             display: this.display,
-            url: this.url,
+            url: this.url
         };
 
         return removeNull(json);

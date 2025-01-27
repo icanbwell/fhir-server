@@ -57,7 +57,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class ResearchSubject extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -477,7 +477,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -545,7 +545,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchSubject({
@@ -568,7 +568,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -602,7 +602,7 @@ class ResearchSubject extends Resource {
             individual: this.individual && this.individual.toJSON(),
             assignedArm: this.assignedArm,
             actualArm: this.actualArm,
-            consent: this.consent && this.consent.toJSON(),
+            consent: this.consent && this.consent.toJSON()
         });
     }
 
@@ -646,7 +646,7 @@ class ResearchSubject extends Resource {
             individual: this.individual && this.individual.toJSONInternal(),
             assignedArm: this.assignedArm,
             actualArm: this.actualArm,
-            consent: this.consent && this.consent.toJSONInternal(),
+            consent: this.consent && this.consent.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

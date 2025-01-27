@@ -101,7 +101,7 @@ class MedicinalProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -269,7 +269,7 @@ class MedicinalProductDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -981,7 +981,7 @@ class MedicinalProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1089,7 +1089,7 @@ class MedicinalProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductDefinition({
@@ -1132,7 +1132,7 @@ class MedicinalProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1186,7 +1186,7 @@ class MedicinalProductDefinition extends Resource {
             name: this.name && this.name.map(v => v.toJSON()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSON()),
             operation: this.operation && this.operation.map(v => v.toJSON()),
-            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON())
         });
     }
 
@@ -1269,7 +1269,7 @@ class MedicinalProductDefinition extends Resource {
             name: this.name && this.name.map(v => v.toJSONInternal()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.map(v => v.toJSONInternal()),
-            characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

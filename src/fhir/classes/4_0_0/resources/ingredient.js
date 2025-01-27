@@ -47,16 +47,16 @@ class Ingredient extends Resource {
             modifierExtension,
             identifier,
             status,
-            'for': for_,
+            for: for_,
             role,
-            'function': function_,
+            function: function_,
             allergenicIndicator,
             manufacturer,
             substance,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -224,7 +224,7 @@ class Ingredient extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -479,16 +479,16 @@ class Ingredient extends Resource {
             modifierExtension,
             identifier,
             status,
-            'for': for_,
+            for: for_,
             role,
-            'function': function_,
+            function: function_,
             allergenicIndicator,
             manufacturer,
             substance,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -547,16 +547,16 @@ class Ingredient extends Resource {
             modifierExtension,
             identifier,
             status,
-            'for': for_,
+            for: for_,
             role,
-            'function': function_,
+            function: function_,
             allergenicIndicator,
             manufacturer,
             substance,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Ingredient({
@@ -570,16 +570,16 @@ class Ingredient extends Resource {
             modifierExtension,
             identifier,
             status,
-            'for': for_,
+            for: for_,
             role,
-            'function': function_,
+            function: function_,
             allergenicIndicator,
             manufacturer,
             substance,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -613,7 +613,7 @@ class Ingredient extends Resource {
             function: this.function && this.function.map(v => v.toJSON()),
             allergenicIndicator: this.allergenicIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
-            substance: this.substance && this.substance.toJSON(),
+            substance: this.substance && this.substance.toJSON()
         });
     }
 
@@ -658,7 +658,7 @@ class Ingredient extends Resource {
             function: this.function && this.function.map(v => v.toJSONInternal()),
             allergenicIndicator: this.allergenicIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
-            substance: this.substance && this.substance.toJSONInternal(),
+            substance: this.substance && this.substance.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

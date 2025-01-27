@@ -112,7 +112,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -280,7 +280,7 @@ class ResearchDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1122,7 +1122,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1244,7 +1244,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchDefinition({
@@ -1294,7 +1294,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1355,7 +1355,7 @@ class ResearchDefinition extends Resource {
             population: this.population && this.population.toJSON(),
             exposure: this.exposure && this.exposure.toJSON(),
             exposureAlternative: this.exposureAlternative && this.exposureAlternative.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome && this.outcome.toJSON()
         });
     }
 
@@ -1438,7 +1438,7 @@ class ResearchDefinition extends Resource {
             population: this.population && this.population.toJSONInternal(),
             exposure: this.exposure && this.exposure.toJSONInternal(),
             exposureAlternative: this.exposureAlternative && this.exposureAlternative.toJSONInternal(),
-            outcome: this.outcome && this.outcome.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

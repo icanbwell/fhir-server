@@ -61,7 +61,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -229,7 +229,7 @@ class Practitioner extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -529,7 +529,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -601,7 +601,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Practitioner({
@@ -626,7 +626,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -662,7 +662,7 @@ class Practitioner extends Resource {
             birthDate: this.birthDate,
             photo: this.photo && this.photo.map(v => v.toJSON()),
             qualification: this.qualification && this.qualification.map(v => v.toJSON()),
-            communication: this.communication && this.communication.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON())
         });
     }
 
@@ -710,7 +710,7 @@ class Practitioner extends Resource {
             birthDate: this.birthDate,
             photo: this.photo && this.photo.map(v => v.toJSONInternal()),
             qualification: this.qualification && this.qualification.map(v => v.toJSONInternal()),
-            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

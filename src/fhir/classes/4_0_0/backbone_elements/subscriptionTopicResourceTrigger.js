@@ -33,7 +33,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource,
             supportedInteraction,
             queryCriteria,
-            fhirPathCriteria,
+            fhirPathCriteria
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class SubscriptionTopicResourceTrigger extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -227,7 +227,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource,
             supportedInteraction,
             queryCriteria,
-            fhirPathCriteria,
+            fhirPathCriteria
         });
     }
 
@@ -244,7 +244,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource: this.resource,
             supportedInteraction: this.supportedInteraction,
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSON(),
-            fhirPathCriteria: this.fhirPathCriteria,
+            fhirPathCriteria: this.fhirPathCriteria
         });
     }
 
@@ -272,7 +272,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource: this.resource,
             supportedInteraction: this.supportedInteraction,
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSONInternal(),
-            fhirPathCriteria: this.fhirPathCriteria,
+            fhirPathCriteria: this.fhirPathCriteria
         };
 
         return removeNull(json);

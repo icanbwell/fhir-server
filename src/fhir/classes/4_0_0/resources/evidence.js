@@ -95,7 +95,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -263,7 +263,7 @@ class Evidence extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -903,7 +903,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1007,7 +1007,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Evidence({
@@ -1048,7 +1048,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1100,7 +1100,7 @@ class Evidence extends Resource {
             synthesisType: this.synthesisType && this.synthesisType.toJSON(),
             studyType: this.studyType && this.studyType.toJSON(),
             statistic: this.statistic && this.statistic.map(v => v.toJSON()),
-            certainty: this.certainty && this.certainty.map(v => v.toJSON()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSON())
         });
     }
 
@@ -1172,7 +1172,7 @@ class Evidence extends Resource {
             synthesisType: this.synthesisType && this.synthesisType.toJSONInternal(),
             studyType: this.studyType && this.studyType.toJSONInternal(),
             statistic: this.statistic && this.statistic.map(v => v.toJSONInternal()),
-            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

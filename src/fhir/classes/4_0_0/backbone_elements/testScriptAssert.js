@@ -67,7 +67,7 @@ class TestScriptAssert extends Element {
             sourceId,
             validateProfileId,
             value,
-            warningOnly,
+            warningOnly
         }
     ) {
         super({});
@@ -126,7 +126,7 @@ class TestScriptAssert extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -586,7 +586,7 @@ class TestScriptAssert extends Element {
             sourceId,
             validateProfileId,
             value,
-            warningOnly,
+            warningOnly
         });
     }
 
@@ -620,7 +620,7 @@ class TestScriptAssert extends Element {
             sourceId: this.sourceId,
             validateProfileId: this.validateProfileId,
             value: this.value,
-            warningOnly: this.warningOnly,
+            warningOnly: this.warningOnly
         });
     }
 
@@ -664,7 +664,7 @@ class TestScriptAssert extends Element {
             sourceId: this.sourceId,
             validateProfileId: this.validateProfileId,
             value: this.value,
-            warningOnly: this.warningOnly,
+            warningOnly: this.warningOnly
         };
 
         return removeNull(json);

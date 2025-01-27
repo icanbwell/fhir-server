@@ -90,7 +90,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -258,7 +258,7 @@ class TerminologyCapabilities extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -866,7 +866,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -966,7 +966,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new TerminologyCapabilities({
@@ -1005,7 +1005,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1055,7 +1055,7 @@ class TerminologyCapabilities extends Resource {
             codeSearch: this.codeSearch,
             validateCode: this.validateCode && this.validateCode.toJSON(),
             translation: this.translation && this.translation.toJSON(),
-            closure: this.closure && this.closure.toJSON(),
+            closure: this.closure && this.closure.toJSON()
         });
     }
 
@@ -1120,7 +1120,7 @@ class TerminologyCapabilities extends Resource {
             codeSearch: this.codeSearch,
             validateCode: this.validateCode && this.validateCode.toJSONInternal(),
             translation: this.translation && this.translation.toJSONInternal(),
-            closure: this.closure && this.closure.toJSONInternal(),
+            closure: this.closure && this.closure.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

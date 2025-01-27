@@ -37,7 +37,7 @@ class EvidenceVariableDefinition extends Element {
             variableRole,
             observed,
             intended,
-            directnessMatch,
+            directnessMatch
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class EvidenceVariableDefinition extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -248,7 +248,7 @@ class EvidenceVariableDefinition extends Element {
             variableRole,
             observed,
             intended,
-            directnessMatch,
+            directnessMatch
         });
     }
 
@@ -266,7 +266,7 @@ class EvidenceVariableDefinition extends Element {
             variableRole: this.variableRole && this.variableRole.toJSON(),
             observed: this.observed && this.observed.toJSON(),
             intended: this.intended && this.intended.toJSON(),
-            directnessMatch: this.directnessMatch && this.directnessMatch.toJSON(),
+            directnessMatch: this.directnessMatch && this.directnessMatch.toJSON()
         });
     }
 
@@ -299,7 +299,7 @@ class EvidenceVariableDefinition extends Element {
             variableRole: this.variableRole && this.variableRole.toJSONInternal(),
             observed: this.observed && this.observed.toJSONInternal(),
             intended: this.intended && this.intended.toJSONInternal(),
-            directnessMatch: this.directnessMatch && this.directnessMatch.toJSONInternal(),
+            directnessMatch: this.directnessMatch && this.directnessMatch.toJSONInternal()
         };
 
         return removeNull(json);

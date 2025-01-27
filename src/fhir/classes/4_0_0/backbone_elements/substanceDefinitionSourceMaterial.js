@@ -33,7 +33,7 @@ class SubstanceDefinitionSourceMaterial extends Element {
             genus,
             species,
             part,
-            countryOfOrigin,
+            countryOfOrigin
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class SubstanceDefinitionSourceMaterial extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -227,7 +227,7 @@ class SubstanceDefinitionSourceMaterial extends Element {
             genus,
             species,
             part,
-            countryOfOrigin,
+            countryOfOrigin
         });
     }
 
@@ -244,7 +244,7 @@ class SubstanceDefinitionSourceMaterial extends Element {
             genus: this.genus && this.genus.toJSON(),
             species: this.species && this.species.toJSON(),
             part: this.part && this.part.toJSON(),
-            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSON()),
+            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSON())
         });
     }
 
@@ -276,7 +276,7 @@ class SubstanceDefinitionSourceMaterial extends Element {
             genus: this.genus && this.genus.toJSONInternal(),
             species: this.species && this.species.toJSONInternal(),
             part: this.part && this.part.toJSONInternal(),
-            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSONInternal()),
+            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

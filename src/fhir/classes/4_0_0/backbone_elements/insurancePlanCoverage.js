@@ -28,7 +28,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class InsurancePlanCoverage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         });
     }
 
@@ -193,7 +193,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             network: this.network && this.network.map(v => v.toJSON()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON())
         });
     }
 
@@ -221,7 +221,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             network: this.network && this.network.map(v => v.toJSONInternal()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

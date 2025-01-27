@@ -29,7 +29,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension,
             type,
             state,
-            time,
+            time
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class DeviceMetricCalibration extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -172,7 +172,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension,
             type,
             state,
-            time,
+            time
         });
     }
 
@@ -187,7 +187,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             state: this.state,
-            time: this.time,
+            time: this.time
         });
     }
 
@@ -212,7 +212,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             state: this.state,
-            time: this.time,
+            time: this.time
         };
 
         return removeNull(json);

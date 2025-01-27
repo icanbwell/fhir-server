@@ -51,7 +51,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration,
             color,
             brand,
-            note,
+            note
         }
     ) {
         super({});
@@ -110,7 +110,7 @@ class VisionPrescriptionLensSpecification extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -412,7 +412,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration,
             color,
             brand,
-            note,
+            note
         });
     }
 
@@ -438,7 +438,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration: this.duration && this.duration.toJSON(),
             color: this.color,
             brand: this.brand,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -478,7 +478,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration: this.duration && this.duration.toJSONInternal(),
             color: this.color,
             brand: this.brand,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

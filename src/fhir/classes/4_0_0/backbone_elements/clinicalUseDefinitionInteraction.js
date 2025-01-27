@@ -33,7 +33,7 @@ class ClinicalUseDefinitionInteraction extends Element {
             type,
             effect,
             incidence,
-            management,
+            management
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ClinicalUseDefinitionInteraction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -226,7 +226,7 @@ class ClinicalUseDefinitionInteraction extends Element {
             type,
             effect,
             incidence,
-            management,
+            management
         });
     }
 
@@ -243,7 +243,7 @@ class ClinicalUseDefinitionInteraction extends Element {
             type: this.type && this.type.toJSON(),
             effect: this.effect && this.effect.toJSON(),
             incidence: this.incidence && this.incidence.toJSON(),
-            management: this.management && this.management.map(v => v.toJSON()),
+            management: this.management && this.management.map(v => v.toJSON())
         });
     }
 
@@ -275,7 +275,7 @@ class ClinicalUseDefinitionInteraction extends Element {
             type: this.type && this.type.toJSONInternal(),
             effect: this.effect && this.effect.toJSONInternal(),
             incidence: this.incidence && this.incidence.toJSONInternal(),
-            management: this.management && this.management.map(v => v.toJSONInternal()),
+            management: this.management && this.management.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

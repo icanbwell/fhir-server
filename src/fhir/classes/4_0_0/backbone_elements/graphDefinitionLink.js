@@ -36,7 +36,7 @@ class GraphDefinitionLink extends Element {
             min,
             max,
             description,
-            target,
+            target
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class GraphDefinitionLink extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -238,7 +238,7 @@ class GraphDefinitionLink extends Element {
             min,
             max,
             description,
-            target,
+            target
         });
     }
 
@@ -256,7 +256,7 @@ class GraphDefinitionLink extends Element {
             min: this.min,
             max: this.max,
             description: this.description,
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -285,7 +285,7 @@ class GraphDefinitionLink extends Element {
             min: this.min,
             max: this.max,
             description: this.description,
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

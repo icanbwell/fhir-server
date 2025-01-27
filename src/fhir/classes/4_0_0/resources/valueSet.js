@@ -79,7 +79,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -247,7 +247,7 @@ class ValueSet extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -725,7 +725,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -813,7 +813,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ValueSet({
@@ -846,7 +846,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -890,7 +890,7 @@ class ValueSet extends Resource {
             purpose: this.purpose,
             copyright: this.copyright,
             compose: this.compose && this.compose.toJSON(),
-            expansion: this.expansion && this.expansion.toJSON(),
+            expansion: this.expansion && this.expansion.toJSON()
         });
     }
 
@@ -945,7 +945,7 @@ class ValueSet extends Resource {
             purpose: this.purpose,
             copyright: this.copyright,
             compose: this.compose && this.compose.toJSONInternal(),
-            expansion: this.expansion && this.expansion.toJSONInternal(),
+            expansion: this.expansion && this.expansion.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -27,7 +27,7 @@ class Ratio extends Element {
             id,
             extension,
             numerator,
-            denominator,
+            denominator
         }
     ) {
         super({});
@@ -122,7 +122,7 @@ class Ratio extends Element {
             id,
             extension,
             numerator,
-            denominator,
+            denominator
         });
     }
 
@@ -135,7 +135,7 @@ class Ratio extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             numerator: this.numerator && this.numerator.toJSON(),
-            denominator: this.denominator && this.denominator.toJSON(),
+            denominator: this.denominator && this.denominator.toJSON()
         });
     }
 
@@ -159,7 +159,7 @@ class Ratio extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             numerator: this.numerator && this.numerator.toJSONInternal(),
-            denominator: this.denominator && this.denominator.toJSONInternal(),
+            denominator: this.denominator && this.denominator.toJSONInternal()
         };
 
         return removeNull(json);

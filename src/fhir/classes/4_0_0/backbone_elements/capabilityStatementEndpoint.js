@@ -29,7 +29,7 @@ class CapabilityStatementEndpoint extends Element {
             extension,
             modifierExtension,
             protocol,
-            address,
+            address
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class CapabilityStatementEndpoint extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -157,7 +157,7 @@ class CapabilityStatementEndpoint extends Element {
             extension,
             modifierExtension,
             protocol,
-            address,
+            address
         });
     }
 
@@ -171,7 +171,7 @@ class CapabilityStatementEndpoint extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             protocol: this.protocol && this.protocol.toJSON(),
-            address: this.address,
+            address: this.address
         });
     }
 
@@ -196,7 +196,7 @@ class CapabilityStatementEndpoint extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             protocol: this.protocol && this.protocol.toJSONInternal(),
-            address: this.address,
+            address: this.address
         };
 
         return removeNull(json);

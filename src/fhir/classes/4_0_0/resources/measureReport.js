@@ -64,7 +64,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -232,7 +232,7 @@ class MeasureReport extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -554,7 +554,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -628,7 +628,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MeasureReport({
@@ -654,7 +654,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -691,7 +691,7 @@ class MeasureReport extends Resource {
             period: this.period && this.period.toJSON(),
             improvementNotation: this.improvementNotation && this.improvementNotation.toJSON(),
             group: this.group && this.group.map(v => v.toJSON()),
-            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSON()),
+            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSON())
         });
     }
 
@@ -740,7 +740,7 @@ class MeasureReport extends Resource {
             period: this.period && this.period.toJSONInternal(),
             improvementNotation: this.improvementNotation && this.improvementNotation.toJSONInternal(),
             group: this.group && this.group.map(v => v.toJSONInternal()),
-            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSONInternal()),
+            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

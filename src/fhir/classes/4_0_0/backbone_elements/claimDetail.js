@@ -48,7 +48,7 @@ class ClaimDetail extends Element {
             factor,
             net,
             udi,
-            subDetail,
+            subDetail
         }
     ) {
         super({});
@@ -107,7 +107,7 @@ class ClaimDetail extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -392,7 +392,7 @@ class ClaimDetail extends Element {
             factor,
             net,
             udi,
-            subDetail,
+            subDetail
         });
     }
 
@@ -416,7 +416,7 @@ class ClaimDetail extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSON(),
             udi: this.udi && this.udi.map(v => v.toJSON()),
-            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON())
         });
     }
 
@@ -460,7 +460,7 @@ class ClaimDetail extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSONInternal(),
             udi: this.udi && this.udi.map(v => v.toJSONInternal()),
-            subDetail: this.subDetail && this.subDetail.map(v => v.toJSONInternal()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

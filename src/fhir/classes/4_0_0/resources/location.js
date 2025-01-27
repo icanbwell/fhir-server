@@ -76,7 +76,7 @@ class Location extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -244,7 +244,7 @@ class Location extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -689,7 +689,7 @@ class Location extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -775,7 +775,7 @@ class Location extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Location({
@@ -807,7 +807,7 @@ class Location extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -850,7 +850,7 @@ class Location extends Resource {
             partOf: this.partOf && this.partOf.toJSON(),
             hoursOfOperation: this.hoursOfOperation && this.hoursOfOperation.map(v => v.toJSON()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON())
         });
     }
 
@@ -909,7 +909,7 @@ class Location extends Resource {
             partOf: this.partOf && this.partOf.toJSONInternal(),
             hoursOfOperation: this.hoursOfOperation && this.hoursOfOperation.map(v => v.toJSONInternal()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

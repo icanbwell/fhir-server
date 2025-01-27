@@ -112,7 +112,7 @@ class MedicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -280,7 +280,7 @@ class MedicationRequest extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1103,7 +1103,7 @@ class MedicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1223,7 +1223,7 @@ class MedicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicationRequest({
@@ -1272,7 +1272,7 @@ class MedicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1332,7 +1332,7 @@ class MedicationRequest extends Resource {
             substitution: this.substitution && this.substitution.toJSON(),
             priorPrescription: this.priorPrescription && this.priorPrescription.toJSON(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSON()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON())
         });
     }
 
@@ -1423,7 +1423,7 @@ class MedicationRequest extends Resource {
             substitution: this.substitution && this.substitution.toJSONInternal(),
             priorPrescription: this.priorPrescription && this.priorPrescription.toJSONInternal(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSONInternal()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

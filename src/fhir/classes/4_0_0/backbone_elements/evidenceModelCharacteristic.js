@@ -33,7 +33,7 @@ class EvidenceModelCharacteristic extends Element {
             code,
             value,
             variable,
-            attributeEstimate,
+            attributeEstimate
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class EvidenceModelCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -204,7 +204,7 @@ class EvidenceModelCharacteristic extends Element {
             code,
             value,
             variable,
-            attributeEstimate,
+            attributeEstimate
         });
     }
 
@@ -220,7 +220,7 @@ class EvidenceModelCharacteristic extends Element {
             code: this.code && this.code.toJSON(),
             value: this.value && this.value.toJSON(),
             variable: this.variable && this.variable.map(v => v.toJSON()),
-            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSON()),
+            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSON())
         });
     }
 
@@ -250,7 +250,7 @@ class EvidenceModelCharacteristic extends Element {
             code: this.code && this.code.toJSONInternal(),
             value: this.value && this.value.toJSONInternal(),
             variable: this.variable && this.variable.map(v => v.toJSONInternal()),
-            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSONInternal()),
+            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

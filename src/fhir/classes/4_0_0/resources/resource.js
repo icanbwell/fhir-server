@@ -31,7 +31,7 @@ class Resource extends ResourceContainer {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class Resource extends ResourceContainer {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -224,7 +224,7 @@ class Resource extends ResourceContainer {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Resource({
@@ -235,7 +235,7 @@ class Resource extends ResourceContainer {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -257,7 +257,7 @@ class Resource extends ResourceContainer {
             id: this.id,
             meta: this.meta && this.meta.toJSON(),
             implicitRules: this.implicitRules,
-            language: this.language,
+            language: this.language
         });
     }
 
@@ -280,7 +280,7 @@ class Resource extends ResourceContainer {
             id: this.id,
             meta: this.meta && this.meta.toJSONInternal(),
             implicitRules: this.implicitRules,
-            language: this.language,
+            language: this.language
         };
         if (this._access) {
             json._access = this._access;

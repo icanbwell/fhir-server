@@ -37,7 +37,7 @@ class PatientContact extends Element {
             address,
             gender,
             organization,
-            period,
+            period
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class PatientContact extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -271,7 +271,7 @@ class PatientContact extends Element {
             address,
             gender,
             organization,
-            period,
+            period
         });
     }
 
@@ -290,7 +290,7 @@ class PatientContact extends Element {
             address: this.address && this.address.toJSON(),
             gender: this.gender,
             organization: this.organization && this.organization.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -325,7 +325,7 @@ class PatientContact extends Element {
             address: this.address && this.address.toJSONInternal(),
             gender: this.gender,
             organization: this.organization && this.organization.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

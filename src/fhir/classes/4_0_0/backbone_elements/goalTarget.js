@@ -44,7 +44,7 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         }
     ) {
         super({});
@@ -103,7 +103,7 @@ class GoalTarget extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -333,7 +333,7 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         });
     }
 
@@ -355,7 +355,7 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSON(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSON(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSON()
         });
     }
 
@@ -393,7 +393,7 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSONInternal(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal()
         };
 
         return removeNull(json);

@@ -55,7 +55,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -223,7 +223,7 @@ class SubscriptionStatus extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -455,7 +455,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -521,7 +521,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubscriptionStatus({
@@ -543,7 +543,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -576,7 +576,7 @@ class SubscriptionStatus extends Resource {
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSON()),
             subscription: this.subscription && this.subscription.toJSON(),
             topic: this.topic,
-            error: this.error && this.error.map(v => v.toJSON()),
+            error: this.error && this.error.map(v => v.toJSON())
         });
     }
 
@@ -617,7 +617,7 @@ class SubscriptionStatus extends Resource {
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSONInternal()),
             subscription: this.subscription && this.subscription.toJSONInternal(),
             topic: this.topic,
-            error: this.error && this.error.map(v => v.toJSONInternal()),
+            error: this.error && this.error.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

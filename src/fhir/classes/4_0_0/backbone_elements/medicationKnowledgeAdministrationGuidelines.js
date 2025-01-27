@@ -30,7 +30,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         });
     }
 
@@ -217,7 +217,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSON()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSON(),
             indicationReference: this.indicationReference && this.indicationReference.toJSON(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON())
         });
     }
 
@@ -247,7 +247,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSONInternal()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSONInternal(),
             indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

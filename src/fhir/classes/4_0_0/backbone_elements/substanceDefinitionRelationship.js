@@ -43,7 +43,7 @@ class SubstanceDefinitionRelationship extends Element {
             amountString,
             ratioHighLimitAmount,
             comparator,
-            source,
+            source
         }
     ) {
         super({});
@@ -102,7 +102,7 @@ class SubstanceDefinitionRelationship extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -339,7 +339,7 @@ class SubstanceDefinitionRelationship extends Element {
             amountString,
             ratioHighLimitAmount,
             comparator,
-            source,
+            source
         });
     }
 
@@ -361,7 +361,7 @@ class SubstanceDefinitionRelationship extends Element {
             amountString: this.amountString,
             ratioHighLimitAmount: this.ratioHighLimitAmount && this.ratioHighLimitAmount.toJSON(),
             comparator: this.comparator && this.comparator.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -401,7 +401,7 @@ class SubstanceDefinitionRelationship extends Element {
             amountString: this.amountString,
             ratioHighLimitAmount: this.ratioHighLimitAmount && this.ratioHighLimitAmount.toJSONInternal(),
             comparator: this.comparator && this.comparator.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

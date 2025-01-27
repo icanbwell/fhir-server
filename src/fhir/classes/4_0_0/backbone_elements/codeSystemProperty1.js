@@ -40,7 +40,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class CodeSystemProperty1 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -280,7 +280,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         });
     }
 
@@ -300,7 +300,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         });
     }
 
@@ -331,7 +331,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         };
 
         return removeNull(json);

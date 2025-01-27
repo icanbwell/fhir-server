@@ -33,7 +33,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class SubscriptionTopicCanFilterBy extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -224,7 +224,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         });
     }
 
@@ -241,7 +241,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         });
     }
 
@@ -268,7 +268,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         };
 
         return removeNull(json);

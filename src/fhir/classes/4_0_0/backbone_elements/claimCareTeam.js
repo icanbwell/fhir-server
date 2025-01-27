@@ -34,7 +34,7 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class ClaimCareTeam extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -223,7 +223,7 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         });
     }
 
@@ -240,7 +240,7 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSON(),
             responsible: this.responsible,
             role: this.role && this.role.toJSON(),
-            qualification: this.qualification && this.qualification.toJSON(),
+            qualification: this.qualification && this.qualification.toJSON()
         });
     }
 
@@ -270,7 +270,7 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSONInternal(),
             responsible: this.responsible,
             role: this.role && this.role.toJSONInternal(),
-            qualification: this.qualification && this.qualification.toJSONInternal(),
+            qualification: this.qualification && this.qualification.toJSONInternal()
         };
 
         return removeNull(json);

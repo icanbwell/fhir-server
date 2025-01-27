@@ -37,7 +37,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus,
             validationDate,
             canPushUpdates,
-            pushTypeAvailable,
+            pushTypeAvailable
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class VerificationResultPrimarySource extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -272,7 +272,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus,
             validationDate,
             canPushUpdates,
-            pushTypeAvailable,
+            pushTypeAvailable
         });
     }
 
@@ -291,7 +291,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus: this.validationStatus && this.validationStatus.toJSON(),
             validationDate: this.validationDate,
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSON(),
-            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON()),
+            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON())
         });
     }
 
@@ -326,7 +326,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus: this.validationStatus && this.validationStatus.toJSONInternal(),
             validationDate: this.validationDate,
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSONInternal(),
-            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSONInternal()),
+            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

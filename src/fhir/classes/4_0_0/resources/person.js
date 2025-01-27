@@ -61,7 +61,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -229,7 +229,7 @@ class Person extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -522,7 +522,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -594,7 +594,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Person({
@@ -619,7 +619,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -655,7 +655,7 @@ class Person extends Resource {
             photo: this.photo && this.photo.toJSON(),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSON(),
             active: this.active,
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -703,7 +703,7 @@ class Person extends Resource {
             photo: this.photo && this.photo.toJSONInternal(),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSONInternal(),
             active: this.active,
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

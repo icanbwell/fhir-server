@@ -29,7 +29,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension,
             resource,
             include,
-            revInclude,
+            revInclude
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class SubscriptionTopicNotificationShape extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -182,7 +182,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension,
             resource,
             include,
-            revInclude,
+            revInclude
         });
     }
 
@@ -197,7 +197,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             resource: this.resource,
             include: this.include,
-            revInclude: this.revInclude,
+            revInclude: this.revInclude
         });
     }
 
@@ -222,7 +222,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             resource: this.resource,
             include: this.include,
-            revInclude: this.revInclude,
+            revInclude: this.revInclude
         };
 
         return removeNull(json);

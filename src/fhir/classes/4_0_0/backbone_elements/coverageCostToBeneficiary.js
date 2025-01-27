@@ -31,7 +31,7 @@ class CoverageCostToBeneficiary extends Element {
             type,
             valueQuantity,
             valueMoney,
-            exception,
+            exception
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class CoverageCostToBeneficiary extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -202,7 +202,7 @@ class CoverageCostToBeneficiary extends Element {
             type,
             valueQuantity,
             valueMoney,
-            exception,
+            exception
         });
     }
 
@@ -218,7 +218,7 @@ class CoverageCostToBeneficiary extends Element {
             type: this.type && this.type.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueMoney: this.valueMoney && this.valueMoney.toJSON(),
-            exception: this.exception && this.exception.map(v => v.toJSON()),
+            exception: this.exception && this.exception.map(v => v.toJSON())
         });
     }
 
@@ -248,7 +248,7 @@ class CoverageCostToBeneficiary extends Element {
             type: this.type && this.type.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueMoney: this.valueMoney && this.valueMoney.toJSONInternal(),
-            exception: this.exception && this.exception.map(v => v.toJSONInternal()),
+            exception: this.exception && this.exception.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

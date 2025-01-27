@@ -34,7 +34,7 @@ class Population extends Element {
             ageCodeableConcept,
             gender,
             race,
-            physiologicalCondition,
+            physiologicalCondition
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class Population extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -226,7 +226,7 @@ class Population extends Element {
             ageCodeableConcept,
             gender,
             race,
-            physiologicalCondition,
+            physiologicalCondition
         });
     }
 
@@ -243,7 +243,7 @@ class Population extends Element {
             ageCodeableConcept: this.ageCodeableConcept && this.ageCodeableConcept.toJSON(),
             gender: this.gender && this.gender.toJSON(),
             race: this.race && this.race.toJSON(),
-            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSON(),
+            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSON()
         });
     }
 
@@ -275,7 +275,7 @@ class Population extends Element {
             ageCodeableConcept: this.ageCodeableConcept && this.ageCodeableConcept.toJSONInternal(),
             gender: this.gender && this.gender.toJSONInternal(),
             race: this.race && this.race.toJSONInternal(),
-            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal(),
+            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal()
         };
 
         return removeNull(json);

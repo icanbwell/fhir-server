@@ -32,7 +32,7 @@ class IngredientReferenceStrength extends Element {
             strengthRatio,
             strengthRatioRange,
             measurementPoint,
-            country,
+            country
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class IngredientReferenceStrength extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -221,7 +221,7 @@ class IngredientReferenceStrength extends Element {
             strengthRatio,
             strengthRatioRange,
             measurementPoint,
-            country,
+            country
         });
     }
 
@@ -238,7 +238,7 @@ class IngredientReferenceStrength extends Element {
             strengthRatio: this.strengthRatio && this.strengthRatio.toJSON(),
             strengthRatioRange: this.strengthRatioRange && this.strengthRatioRange.toJSON(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.map(v => v.toJSON()),
+            country: this.country && this.country.map(v => v.toJSON())
         });
     }
 
@@ -269,7 +269,7 @@ class IngredientReferenceStrength extends Element {
             strengthRatio: this.strengthRatio && this.strengthRatio.toJSONInternal(),
             strengthRatioRange: this.strengthRatioRange && this.strengthRatioRange.toJSONInternal(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.map(v => v.toJSONInternal()),
+            country: this.country && this.country.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

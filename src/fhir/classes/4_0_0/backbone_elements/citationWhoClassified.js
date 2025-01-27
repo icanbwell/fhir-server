@@ -36,7 +36,7 @@ class CitationWhoClassified extends Element {
             organization,
             publisher,
             classifierCopyright,
-            freeToShare,
+            freeToShare
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class CitationWhoClassified extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -224,7 +224,7 @@ class CitationWhoClassified extends Element {
             organization,
             publisher,
             classifierCopyright,
-            freeToShare,
+            freeToShare
         });
     }
 
@@ -241,7 +241,7 @@ class CitationWhoClassified extends Element {
             organization: this.organization && this.organization.toJSON(),
             publisher: this.publisher && this.publisher.toJSON(),
             classifierCopyright: this.classifierCopyright,
-            freeToShare: this.freeToShare,
+            freeToShare: this.freeToShare
         });
     }
 
@@ -271,7 +271,7 @@ class CitationWhoClassified extends Element {
             organization: this.organization && this.organization.toJSONInternal(),
             publisher: this.publisher && this.publisher.toJSONInternal(),
             classifierCopyright: this.classifierCopyright,
-            freeToShare: this.freeToShare,
+            freeToShare: this.freeToShare
         };
 
         return removeNull(json);

@@ -50,7 +50,7 @@ class CompositionSection extends Element {
             orderedBy,
             entry,
             emptyReason,
-            section,
+            section
         }
     ) {
         super({});
@@ -109,7 +109,7 @@ class CompositionSection extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -359,7 +359,7 @@ class CompositionSection extends Element {
             orderedBy,
             entry,
             emptyReason,
-            section,
+            section
         });
     }
 
@@ -381,7 +381,7 @@ class CompositionSection extends Element {
             orderedBy: this.orderedBy && this.orderedBy.toJSON(),
             entry: this.entry && this.entry.map(v => v.toJSON()),
             emptyReason: this.emptyReason && this.emptyReason.toJSON(),
-            section: this.section && this.section.map(v => v.toJSON()),
+            section: this.section && this.section.map(v => v.toJSON())
         });
     }
 
@@ -421,7 +421,7 @@ class CompositionSection extends Element {
             orderedBy: this.orderedBy && this.orderedBy.toJSONInternal(),
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
             emptyReason: this.emptyReason && this.emptyReason.toJSONInternal(),
-            section: this.section && this.section.map(v => v.toJSONInternal()),
+            section: this.section && this.section.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -106,7 +106,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -274,7 +274,7 @@ class Procedure extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1046,7 +1046,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1162,7 +1162,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Procedure({
@@ -1209,7 +1209,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1267,7 +1267,7 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSON()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSON()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON())
         });
     }
 
@@ -1357,7 +1357,7 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSONInternal()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSONInternal()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

@@ -89,7 +89,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -257,7 +257,7 @@ class TestScript extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -862,7 +862,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -962,7 +962,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new TestScript({
@@ -1001,7 +1001,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1051,7 +1051,7 @@ class TestScript extends Resource {
             variable: this.variable && this.variable.map(v => v.toJSON()),
             setup: this.setup && this.setup.toJSON(),
             test: this.test && this.test.map(v => v.toJSON()),
-            teardown: this.teardown && this.teardown.toJSON(),
+            teardown: this.teardown && this.teardown.toJSON()
         });
     }
 
@@ -1119,7 +1119,7 @@ class TestScript extends Resource {
             variable: this.variable && this.variable.map(v => v.toJSONInternal()),
             setup: this.setup && this.setup.toJSONInternal(),
             test: this.test && this.test.map(v => v.toJSONInternal()),
-            teardown: this.teardown && this.teardown.toJSONInternal(),
+            teardown: this.teardown && this.teardown.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

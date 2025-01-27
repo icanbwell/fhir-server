@@ -26,7 +26,7 @@ class ContactDetail extends Element {
             id,
             extension,
             name,
-            telecom,
+            telecom
         }
     ) {
         super({});
@@ -120,7 +120,7 @@ class ContactDetail extends Element {
             id,
             extension,
             name,
-            telecom,
+            telecom
         });
     }
 
@@ -133,7 +133,7 @@ class ContactDetail extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             name: this.name,
-            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON())
         });
     }
 
@@ -156,7 +156,7 @@ class ContactDetail extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             name: this.name,
-            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -30,7 +30,7 @@ class ExplanationOfBenefitRelated extends Element {
             modifierExtension,
             claim,
             relationship,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class ExplanationOfBenefitRelated extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -180,7 +180,7 @@ class ExplanationOfBenefitRelated extends Element {
             modifierExtension,
             claim,
             relationship,
-            reference,
+            reference
         });
     }
 
@@ -195,7 +195,7 @@ class ExplanationOfBenefitRelated extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             claim: this.claim && this.claim.toJSON(),
             relationship: this.relationship && this.relationship.toJSON(),
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -223,7 +223,7 @@ class ExplanationOfBenefitRelated extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             claim: this.claim && this.claim.toJSONInternal(),
             relationship: this.relationship && this.relationship.toJSONInternal(),
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
         return removeNull(json);

@@ -82,7 +82,7 @@ class ConceptMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -250,7 +250,7 @@ class ConceptMap extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -757,7 +757,7 @@ class ConceptMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -849,7 +849,7 @@ class ConceptMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ConceptMap({
@@ -884,7 +884,7 @@ class ConceptMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -930,7 +930,7 @@ class ConceptMap extends Resource {
             sourceCanonical: this.sourceCanonical,
             targetUri: this.targetUri,
             targetCanonical: this.targetCanonical,
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -986,7 +986,7 @@ class ConceptMap extends Resource {
             sourceCanonical: this.sourceCanonical,
             targetUri: this.targetUri,
             targetCanonical: this.targetCanonical,
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

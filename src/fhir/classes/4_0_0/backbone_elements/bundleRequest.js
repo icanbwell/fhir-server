@@ -34,7 +34,7 @@ class BundleRequest extends Element {
             ifNoneMatch,
             ifModifiedSince,
             ifMatch,
-            ifNoneExist,
+            ifNoneExist
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class BundleRequest extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -242,7 +242,7 @@ class BundleRequest extends Element {
             ifNoneMatch,
             ifModifiedSince,
             ifMatch,
-            ifNoneExist,
+            ifNoneExist
         });
     }
 
@@ -260,7 +260,7 @@ class BundleRequest extends Element {
             ifNoneMatch: this.ifNoneMatch,
             ifModifiedSince: this.ifModifiedSince,
             ifMatch: this.ifMatch,
-            ifNoneExist: this.ifNoneExist,
+            ifNoneExist: this.ifNoneExist
         });
     }
 
@@ -288,7 +288,7 @@ class BundleRequest extends Element {
             ifNoneMatch: this.ifNoneMatch,
             ifModifiedSince: this.ifModifiedSince,
             ifMatch: this.ifMatch,
-            ifNoneExist: this.ifNoneExist,
+            ifNoneExist: this.ifNoneExist
         };
 
         return removeNull(json);

@@ -30,7 +30,7 @@ class ExampleScenarioActor extends Element {
             actorId,
             type,
             name,
-            description,
+            description
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class ExampleScenarioActor extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -192,7 +192,7 @@ class ExampleScenarioActor extends Element {
             actorId,
             type,
             name,
-            description,
+            description
         });
     }
 
@@ -208,7 +208,7 @@ class ExampleScenarioActor extends Element {
             actorId: this.actorId,
             type: this.type,
             name: this.name,
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -234,7 +234,7 @@ class ExampleScenarioActor extends Element {
             actorId: this.actorId,
             type: this.type,
             name: this.name,
-            description: this.description,
+            description: this.description
         };
 
         return removeNull(json);

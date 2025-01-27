@@ -77,7 +77,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -245,7 +245,7 @@ class Patient extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -292,9 +292,9 @@ class Patient extends Resource {
     Many systems use this property to mark as non-current patients, such as those
     that have not been seen for a period of time based on an organization's
     business rules.
-    
+
     It is often used to filter patient lists to exclude inactive patients
-    
+
     Deceased patients may also be marked as inactive for the same reasons, but may
     be active for some time after death.
          * @property {Boolean|undefined}
@@ -708,7 +708,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -796,7 +796,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Patient({
@@ -829,7 +829,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -873,7 +873,7 @@ class Patient extends Resource {
             communication: this.communication && this.communication.map(v => v.toJSON()),
             generalPractitioner: this.generalPractitioner && this.generalPractitioner.map(v => v.toJSON()),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSON(),
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -933,7 +933,7 @@ class Patient extends Resource {
             communication: this.communication && this.communication.map(v => v.toJSONInternal()),
             generalPractitioner: this.generalPractitioner && this.generalPractitioner.map(v => v.toJSONInternal()),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSONInternal(),
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

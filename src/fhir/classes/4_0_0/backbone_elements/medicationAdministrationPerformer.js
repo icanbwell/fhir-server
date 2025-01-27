@@ -29,8 +29,8 @@ class MedicationAdministrationPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
-            actor,
+            function: function_,
+            actor
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class MedicationAdministrationPerformer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -158,8 +158,8 @@ class MedicationAdministrationPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
-            actor,
+            function: function_,
+            actor
         });
     }
 
@@ -173,7 +173,7 @@ class MedicationAdministrationPerformer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             function: this.function && this.function.toJSON(),
-            actor: this.actor && this.actor.toJSON(),
+            actor: this.actor && this.actor.toJSON()
         });
     }
 
@@ -199,7 +199,7 @@ class MedicationAdministrationPerformer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             function: this.function && this.function.toJSONInternal(),
-            actor: this.actor && this.actor.toJSONInternal(),
+            actor: this.actor && this.actor.toJSONInternal()
         };
 
         return removeNull(json);

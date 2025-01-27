@@ -57,7 +57,7 @@ class VisionPrescription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class VisionPrescription extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -478,7 +478,7 @@ class VisionPrescription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -546,7 +546,7 @@ class VisionPrescription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new VisionPrescription({
@@ -569,7 +569,7 @@ class VisionPrescription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -603,7 +603,7 @@ class VisionPrescription extends Resource {
             encounter: this.encounter && this.encounter.toJSON(),
             dateWritten: this.dateWritten,
             prescriber: this.prescriber && this.prescriber.toJSON(),
-            lensSpecification: this.lensSpecification && this.lensSpecification.map(v => v.toJSON()),
+            lensSpecification: this.lensSpecification && this.lensSpecification.map(v => v.toJSON())
         });
     }
 
@@ -647,7 +647,7 @@ class VisionPrescription extends Resource {
             encounter: this.encounter && this.encounter.toJSONInternal(),
             dateWritten: this.dateWritten,
             prescriber: this.prescriber && this.prescriber.toJSONInternal(),
-            lensSpecification: this.lensSpecification && this.lensSpecification.map(v => v.toJSONInternal()),
+            lensSpecification: this.lensSpecification && this.lensSpecification.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

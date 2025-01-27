@@ -51,7 +51,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit,
             authorizationRequired,
             authorizationSupporting,
-            authorizationUrl,
+            authorizationUrl
         }
     ) {
         super({});
@@ -110,7 +110,7 @@ class CoverageEligibilityResponseItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -429,7 +429,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit,
             authorizationRequired,
             authorizationSupporting,
-            authorizationUrl,
+            authorizationUrl
         });
     }
 
@@ -455,7 +455,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit: this.benefit && this.benefit.map(v => v.toJSON()),
             authorizationRequired: this.authorizationRequired,
             authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.map(v => v.toJSON()),
-            authorizationUrl: this.authorizationUrl,
+            authorizationUrl: this.authorizationUrl
         });
     }
 
@@ -500,7 +500,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
             authorizationRequired: this.authorizationRequired,
             authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.map(v => v.toJSONInternal()),
-            authorizationUrl: this.authorizationUrl,
+            authorizationUrl: this.authorizationUrl
         };
 
         return removeNull(json);

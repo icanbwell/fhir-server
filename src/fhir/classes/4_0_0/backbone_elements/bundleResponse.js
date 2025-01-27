@@ -32,7 +32,7 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class BundleResponse extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -221,7 +221,7 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         });
     }
 
@@ -238,7 +238,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome && this.outcome.toJSON()
         });
     }
 
@@ -266,7 +266,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal()
         };
 
         return removeNull(json);

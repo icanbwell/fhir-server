@@ -26,7 +26,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension,
             modifierExtension,
             resourceId,
-            versionId,
+            versionId
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class ExampleScenarioContainedInstance extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -150,7 +150,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension,
             modifierExtension,
             resourceId,
-            versionId,
+            versionId
         });
     }
 
@@ -164,7 +164,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             resourceId: this.resourceId,
-            versionId: this.versionId,
+            versionId: this.versionId
         });
     }
 
@@ -188,7 +188,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             resourceId: this.resourceId,
-            versionId: this.versionId,
+            versionId: this.versionId
         };
 
         return removeNull(json);

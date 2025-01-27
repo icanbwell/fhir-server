@@ -41,7 +41,7 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class ValueSetParameter extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -281,7 +281,7 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         });
     }
 
@@ -301,7 +301,7 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         });
     }
 
@@ -331,7 +331,7 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         };
 
         return removeNull(json);

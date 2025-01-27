@@ -38,7 +38,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement,
             retentionTime,
             rejectionCriterion,
-            handling,
+            handling
         }
     ) {
         super({});
@@ -97,7 +97,7 @@ class SpecimenDefinitionTypeTested extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -289,7 +289,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement,
             retentionTime,
             rejectionCriterion,
-            handling,
+            handling
         });
     }
 
@@ -309,7 +309,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement: this.requirement,
             retentionTime: this.retentionTime && this.retentionTime.toJSON(),
             rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSON()),
-            handling: this.handling && this.handling.map(v => v.toJSON()),
+            handling: this.handling && this.handling.map(v => v.toJSON())
         });
     }
 
@@ -344,7 +344,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement: this.requirement,
             retentionTime: this.retentionTime && this.retentionTime.toJSONInternal(),
             rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSONInternal()),
-            handling: this.handling && this.handling.map(v => v.toJSONInternal()),
+            handling: this.handling && this.handling.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

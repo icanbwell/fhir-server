@@ -34,7 +34,7 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class GraphDefinitionTarget extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -219,7 +219,7 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         });
     }
 
@@ -236,7 +236,7 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSON()),
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -265,7 +265,7 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSONInternal()),
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

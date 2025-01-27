@@ -37,7 +37,7 @@ class SampledData extends Element {
             lowerLimit,
             upperLimit,
             dimensions,
-            data,
+            data
         }
     ) {
         super({});
@@ -233,7 +233,7 @@ class SampledData extends Element {
             lowerLimit,
             upperLimit,
             dimensions,
-            data,
+            data
         });
     }
 
@@ -251,7 +251,7 @@ class SampledData extends Element {
             lowerLimit: this.lowerLimit,
             upperLimit: this.upperLimit,
             dimensions: this.dimensions,
-            data: this.data,
+            data: this.data
         });
     }
 
@@ -279,7 +279,7 @@ class SampledData extends Element {
             lowerLimit: this.lowerLimit,
             upperLimit: this.upperLimit,
             dimensions: this.dimensions,
-            data: this.data,
+            data: this.data
         };
 
         return removeNull(json);

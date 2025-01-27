@@ -41,7 +41,7 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class CapabilityStatementRest extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -299,7 +299,7 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         });
     }
 
@@ -319,7 +319,7 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSON()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
             operation: this.operation && this.operation.map(v => v.toJSON()),
-            compartment: this.compartment,
+            compartment: this.compartment
         });
     }
 
@@ -354,7 +354,7 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSONInternal()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.map(v => v.toJSONInternal()),
-            compartment: this.compartment,
+            compartment: this.compartment
         };
 
         return removeNull(json);

@@ -31,7 +31,7 @@ class ClaimResponseError extends Element {
             itemSequence,
             detailSequence,
             subDetailSequence,
-            code,
+            code
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class ClaimResponseError extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class ClaimResponseError extends Element {
             itemSequence,
             detailSequence,
             subDetailSequence,
-            code,
+            code
         });
     }
 
@@ -217,7 +217,7 @@ class ClaimResponseError extends Element {
             itemSequence: this.itemSequence,
             detailSequence: this.detailSequence,
             subDetailSequence: this.subDetailSequence,
-            code: this.code && this.code.toJSON(),
+            code: this.code && this.code.toJSON()
         });
     }
 
@@ -244,7 +244,7 @@ class ClaimResponseError extends Element {
             itemSequence: this.itemSequence,
             detailSequence: this.detailSequence,
             subDetailSequence: this.subDetailSequence,
-            code: this.code && this.code.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal()
         };
 
         return removeNull(json);

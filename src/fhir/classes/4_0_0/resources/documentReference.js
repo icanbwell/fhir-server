@@ -76,7 +76,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -244,7 +244,7 @@ class DocumentReference extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -677,7 +677,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -761,7 +761,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DocumentReference({
@@ -792,7 +792,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -834,7 +834,7 @@ class DocumentReference extends Resource {
             description: this.description,
             securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
             content: this.content && this.content.map(v => v.toJSON()),
-            context: this.context && this.context.toJSON(),
+            context: this.context && this.context.toJSON()
         });
     }
 
@@ -893,7 +893,7 @@ class DocumentReference extends Resource {
             description: this.description,
             securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSONInternal()),
             content: this.content && this.content.map(v => v.toJSONInternal()),
-            context: this.context && this.context.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -66,7 +66,7 @@ class Coverage extends Resource {
             relationship,
             period,
             payor,
-            'class': class_,
+            class: class_,
             order,
             network,
             costToBeneficiary,
@@ -75,7 +75,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -243,7 +243,7 @@ class Coverage extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -681,7 +681,7 @@ class Coverage extends Resource {
             relationship,
             period,
             payor,
-            'class': class_,
+            class: class_,
             order,
             network,
             costToBeneficiary,
@@ -690,7 +690,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -767,7 +767,7 @@ class Coverage extends Resource {
             relationship,
             period,
             payor,
-            'class': class_,
+            class: class_,
             order,
             network,
             costToBeneficiary,
@@ -776,7 +776,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Coverage({
@@ -799,7 +799,7 @@ class Coverage extends Resource {
             relationship,
             period,
             payor,
-            'class': class_,
+            class: class_,
             order,
             network,
             costToBeneficiary,
@@ -808,7 +808,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -851,7 +851,7 @@ class Coverage extends Resource {
             network: this.network,
             costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSON()),
             subrogation: this.subrogation,
-            contract: this.contract && this.contract.map(v => v.toJSON()),
+            contract: this.contract && this.contract.map(v => v.toJSON())
         });
     }
 
@@ -910,7 +910,7 @@ class Coverage extends Resource {
             network: this.network,
             costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSONInternal()),
             subrogation: this.subrogation,
-            contract: this.contract && this.contract.map(v => v.toJSONInternal()),
+            contract: this.contract && this.contract.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

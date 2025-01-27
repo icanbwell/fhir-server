@@ -47,7 +47,7 @@ class ProdCharacteristic extends Element {
             color,
             imprint,
             image,
-            scoring,
+            scoring
         }
     ) {
         super({});
@@ -106,7 +106,7 @@ class ProdCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -380,7 +380,7 @@ class ProdCharacteristic extends Element {
             color,
             imprint,
             image,
-            scoring,
+            scoring
         });
     }
 
@@ -403,7 +403,7 @@ class ProdCharacteristic extends Element {
             color: this.color,
             imprint: this.imprint,
             image: this.image && this.image.map(v => v.toJSON()),
-            scoring: this.scoring && this.scoring.toJSON(),
+            scoring: this.scoring && this.scoring.toJSON()
         });
     }
 
@@ -444,7 +444,7 @@ class ProdCharacteristic extends Element {
             color: this.color,
             imprint: this.imprint,
             image: this.image && this.image.map(v => v.toJSONInternal()),
-            scoring: this.scoring && this.scoring.toJSONInternal(),
+            scoring: this.scoring && this.scoring.toJSONInternal()
         };
 
         return removeNull(json);

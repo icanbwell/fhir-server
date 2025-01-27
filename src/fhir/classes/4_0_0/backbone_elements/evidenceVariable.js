@@ -35,7 +35,7 @@ class EvidenceVariable extends Element {
             handling,
             valueCategory,
             valueQuantity,
-            valueRange,
+            valueRange
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class EvidenceVariable extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -224,7 +224,7 @@ class EvidenceVariable extends Element {
             handling,
             valueCategory,
             valueQuantity,
-            valueRange,
+            valueRange
         });
     }
 
@@ -241,7 +241,7 @@ class EvidenceVariable extends Element {
             handling: this.handling,
             valueCategory: this.valueCategory && this.valueCategory.map(v => v.toJSON()),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSON()),
-            valueRange: this.valueRange && this.valueRange.map(v => v.toJSON()),
+            valueRange: this.valueRange && this.valueRange.map(v => v.toJSON())
         });
     }
 
@@ -272,7 +272,7 @@ class EvidenceVariable extends Element {
             handling: this.handling,
             valueCategory: this.valueCategory && this.valueCategory.map(v => v.toJSONInternal()),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSONInternal()),
-            valueRange: this.valueRange && this.valueRange.map(v => v.toJSONInternal()),
+            valueRange: this.valueRange && this.valueRange.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

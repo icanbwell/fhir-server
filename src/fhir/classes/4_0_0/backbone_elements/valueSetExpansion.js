@@ -37,7 +37,7 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class ValueSetExpansion extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -252,7 +252,7 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         });
     }
 
@@ -270,7 +270,7 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            contains: this.contains && this.contains.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON())
         });
     }
 
@@ -300,7 +300,7 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

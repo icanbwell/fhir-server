@@ -31,7 +31,7 @@ class MedicinalProductDefinitionCrossReference extends Element {
             extension,
             modifierExtension,
             product,
-            type,
+            type
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class MedicinalProductDefinitionCrossReference extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -162,7 +162,7 @@ class MedicinalProductDefinitionCrossReference extends Element {
             extension,
             modifierExtension,
             product,
-            type,
+            type
         });
     }
 
@@ -176,7 +176,7 @@ class MedicinalProductDefinitionCrossReference extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             product: this.product && this.product.toJSON(),
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class MedicinalProductDefinitionCrossReference extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             product: this.product && this.product.toJSONInternal(),
-            type: this.type && this.type.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal()
         };
 
         return removeNull(json);

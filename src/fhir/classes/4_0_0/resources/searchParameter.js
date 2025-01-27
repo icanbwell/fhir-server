@@ -93,7 +93,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -261,7 +261,7 @@ class SearchParameter extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -892,7 +892,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -996,7 +996,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SearchParameter({
@@ -1037,7 +1037,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1089,7 +1089,7 @@ class SearchParameter extends Resource {
             comparator: this.comparator,
             modifier: this.modifier,
             chain: this.chain,
-            component: this.component && this.component.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON())
         });
     }
 
@@ -1150,7 +1150,7 @@ class SearchParameter extends Resource {
             comparator: this.comparator,
             modifier: this.modifier,
             chain: this.chain,
-            component: this.component && this.component.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

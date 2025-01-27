@@ -73,7 +73,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -241,7 +241,7 @@ class Invoice extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -666,7 +666,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -750,7 +750,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Invoice({
@@ -781,7 +781,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -823,7 +823,7 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSON(),
             totalGross: this.totalGross && this.totalGross.toJSON(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -882,7 +882,7 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSONInternal(),
             totalGross: this.totalGross && this.totalGross.toJSONInternal(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

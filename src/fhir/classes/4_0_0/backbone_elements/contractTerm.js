@@ -49,7 +49,7 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         }
     ) {
         super({});
@@ -108,7 +108,7 @@ class ContractTerm extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -408,7 +408,7 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         });
     }
 
@@ -433,7 +433,7 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSON(),
             asset: this.asset && this.asset.map(v => v.toJSON()),
             action: this.action && this.action.map(v => v.toJSON()),
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -479,7 +479,7 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSONInternal(),
             asset: this.asset && this.asset.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal()),
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

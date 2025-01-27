@@ -111,7 +111,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -279,7 +279,7 @@ class Contract extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1134,7 +1134,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1256,7 +1256,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Contract({
@@ -1306,7 +1306,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1367,7 +1367,7 @@ class Contract extends Resource {
             legal: this.legal && this.legal.map(v => v.toJSON()),
             rule: this.rule && this.rule.map(v => v.toJSON()),
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSON(),
-            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSON(),
+            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSON()
         });
     }
 
@@ -1459,7 +1459,7 @@ class Contract extends Resource {
             legal: this.legal && this.legal.map(v => v.toJSONInternal()),
             rule: this.rule && this.rule.map(v => v.toJSONInternal()),
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSONInternal(),
-            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal(),
+            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

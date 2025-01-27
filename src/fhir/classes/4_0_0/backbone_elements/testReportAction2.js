@@ -24,7 +24,7 @@ class TestReportAction2 extends Element {
             id,
             extension,
             modifierExtension,
-            operation,
+            operation
         }
     ) {
         super({});
@@ -83,7 +83,7 @@ class TestReportAction2 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -131,7 +131,7 @@ class TestReportAction2 extends Element {
             id,
             extension,
             modifierExtension,
-            operation,
+            operation
         });
     }
 
@@ -144,7 +144,7 @@ class TestReportAction2 extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            operation: this.operation && this.operation.toJSON(),
+            operation: this.operation && this.operation.toJSON()
         });
     }
 
@@ -168,7 +168,7 @@ class TestReportAction2 extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            operation: this.operation && this.operation.toJSONInternal(),
+            operation: this.operation && this.operation.toJSONInternal()
         };
 
         return removeNull(json);

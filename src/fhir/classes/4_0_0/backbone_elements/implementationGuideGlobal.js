@@ -29,7 +29,7 @@ class ImplementationGuideGlobal extends Element {
             extension,
             modifierExtension,
             type,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class ImplementationGuideGlobal extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -153,7 +153,7 @@ class ImplementationGuideGlobal extends Element {
             extension,
             modifierExtension,
             type,
-            profile,
+            profile
         });
     }
 
@@ -167,7 +167,7 @@ class ImplementationGuideGlobal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         });
     }
 
@@ -191,7 +191,7 @@ class ImplementationGuideGlobal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         };
 
         return removeNull(json);

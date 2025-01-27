@@ -72,12 +72,12 @@ class StructureMap extends Resource {
             purpose,
             copyright,
             structure,
-            'import': import_,
+            import: import_,
             group,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -245,7 +245,7 @@ class StructureMap extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -715,12 +715,12 @@ class StructureMap extends Resource {
             purpose,
             copyright,
             structure,
-            'import': import_,
+            import: import_,
             group,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -803,12 +803,12 @@ class StructureMap extends Resource {
             purpose,
             copyright,
             structure,
-            'import': import_,
+            import: import_,
             group,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new StructureMap({
@@ -836,12 +836,12 @@ class StructureMap extends Resource {
             purpose,
             copyright,
             structure,
-            'import': import_,
+            import: import_,
             group,
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -885,7 +885,7 @@ class StructureMap extends Resource {
             copyright: this.copyright,
             structure: this.structure && this.structure.map(v => v.toJSON()),
             import: this.import,
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -940,7 +940,7 @@ class StructureMap extends Resource {
             copyright: this.copyright,
             structure: this.structure && this.structure.map(v => v.toJSONInternal()),
             import: this.import,
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

@@ -26,7 +26,7 @@ class IngredientManufacturer extends Element {
             extension,
             modifierExtension,
             role,
-            manufacturer,
+            manufacturer
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class IngredientManufacturer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -155,7 +155,7 @@ class IngredientManufacturer extends Element {
             extension,
             modifierExtension,
             role,
-            manufacturer,
+            manufacturer
         });
     }
 
@@ -169,7 +169,7 @@ class IngredientManufacturer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             role: this.role,
-            manufacturer: this.manufacturer && this.manufacturer.toJSON(),
+            manufacturer: this.manufacturer && this.manufacturer.toJSON()
         });
     }
 
@@ -194,7 +194,7 @@ class IngredientManufacturer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             role: this.role,
-            manufacturer: this.manufacturer && this.manufacturer.toJSONInternal(),
+            manufacturer: this.manufacturer && this.manufacturer.toJSONInternal()
         };
 
         return removeNull(json);

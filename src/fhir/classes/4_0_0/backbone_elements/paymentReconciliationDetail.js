@@ -43,7 +43,7 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -102,7 +102,7 @@ class PaymentReconciliationDetail extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -338,7 +338,7 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         });
     }
 
@@ -360,7 +360,7 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSON(),
             payee: this.payee && this.payee.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -401,7 +401,7 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSONInternal(),
             payee: this.payee && this.payee.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
         return removeNull(json);

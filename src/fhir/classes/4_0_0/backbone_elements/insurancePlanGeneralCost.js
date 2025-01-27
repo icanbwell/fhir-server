@@ -30,7 +30,7 @@ class InsurancePlanGeneralCost extends Element {
             type,
             groupSize,
             cost,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class InsurancePlanGeneralCost extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -196,7 +196,7 @@ class InsurancePlanGeneralCost extends Element {
             type,
             groupSize,
             cost,
-            comment,
+            comment
         });
     }
 
@@ -212,7 +212,7 @@ class InsurancePlanGeneralCost extends Element {
             type: this.type && this.type.toJSON(),
             groupSize: this.groupSize,
             cost: this.cost && this.cost.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -240,7 +240,7 @@ class InsurancePlanGeneralCost extends Element {
             type: this.type && this.type.toJSONInternal(),
             groupSize: this.groupSize,
             cost: this.cost && this.cost.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
 
         return removeNull(json);

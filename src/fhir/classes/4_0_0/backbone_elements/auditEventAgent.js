@@ -46,7 +46,7 @@ class AuditEventAgent extends Element {
             policy,
             media,
             network,
-            purposeOfUse,
+            purposeOfUse
         }
     ) {
         super({});
@@ -105,7 +105,7 @@ class AuditEventAgent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -367,7 +367,7 @@ class AuditEventAgent extends Element {
             policy,
             media,
             network,
-            purposeOfUse,
+            purposeOfUse
         });
     }
 
@@ -390,7 +390,7 @@ class AuditEventAgent extends Element {
             policy: this.policy,
             media: this.media && this.media.toJSON(),
             network: this.network && this.network.toJSON(),
-            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON()),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON())
         });
     }
 
@@ -430,7 +430,7 @@ class AuditEventAgent extends Element {
             policy: this.policy,
             media: this.media && this.media.toJSONInternal(),
             network: this.network && this.network.toJSONInternal(),
-            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal()),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

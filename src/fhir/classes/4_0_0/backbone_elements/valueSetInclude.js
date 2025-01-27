@@ -35,7 +35,7 @@ class ValueSetInclude extends Element {
             version,
             concept,
             filter,
-            valueSet,
+            valueSet
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ValueSetInclude extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -227,7 +227,7 @@ class ValueSetInclude extends Element {
             version,
             concept,
             filter,
-            valueSet,
+            valueSet
         });
     }
 
@@ -244,7 +244,7 @@ class ValueSetInclude extends Element {
             version: this.version,
             concept: this.concept && this.concept.map(v => v.toJSON()),
             filter: this.filter && this.filter.map(v => v.toJSON()),
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         });
     }
 
@@ -273,7 +273,7 @@ class ValueSetInclude extends Element {
             version: this.version,
             concept: this.concept && this.concept.map(v => v.toJSONInternal()),
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         };
 
         return removeNull(json);

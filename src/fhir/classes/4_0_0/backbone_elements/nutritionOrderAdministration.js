@@ -31,7 +31,7 @@ class NutritionOrderAdministration extends Element {
             schedule,
             quantity,
             rateQuantity,
-            rateRatio,
+            rateRatio
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class NutritionOrderAdministration extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class NutritionOrderAdministration extends Element {
             schedule,
             quantity,
             rateQuantity,
-            rateRatio,
+            rateRatio
         });
     }
 
@@ -219,7 +219,7 @@ class NutritionOrderAdministration extends Element {
             schedule: this.schedule && this.schedule.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
-            rateRatio: this.rateRatio && this.rateRatio.toJSON(),
+            rateRatio: this.rateRatio && this.rateRatio.toJSON()
         });
     }
 
@@ -249,7 +249,7 @@ class NutritionOrderAdministration extends Element {
             schedule: this.schedule && this.schedule.toJSONInternal(),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
-            rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
+            rateRatio: this.rateRatio && this.rateRatio.toJSONInternal()
         };
 
         return removeNull(json);

@@ -30,7 +30,7 @@ class LocationPosition extends Element {
             modifierExtension,
             longitude,
             latitude,
-            altitude,
+            altitude
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class LocationPosition extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -176,7 +176,7 @@ class LocationPosition extends Element {
             modifierExtension,
             longitude,
             latitude,
-            altitude,
+            altitude
         });
     }
 
@@ -191,7 +191,7 @@ class LocationPosition extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             longitude: this.longitude,
             latitude: this.latitude,
-            altitude: this.altitude,
+            altitude: this.altitude
         });
     }
 
@@ -216,7 +216,7 @@ class LocationPosition extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             longitude: this.longitude,
             latitude: this.latitude,
-            altitude: this.altitude,
+            altitude: this.altitude
         };
 
         return removeNull(json);

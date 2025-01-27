@@ -36,7 +36,7 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class CodeSystemConcept extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -249,7 +249,7 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         });
     }
 
@@ -267,7 +267,7 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
-            concept: this.concept && this.concept.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON())
         });
     }
 
@@ -298,7 +298,7 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
-            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

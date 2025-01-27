@@ -32,7 +32,7 @@ class MeasureReportStratum extends Element {
             value,
             component,
             population,
-            measureScore,
+            measureScore
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class MeasureReportStratum extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -206,7 +206,7 @@ class MeasureReportStratum extends Element {
             value,
             component,
             population,
-            measureScore,
+            measureScore
         });
     }
 
@@ -222,7 +222,7 @@ class MeasureReportStratum extends Element {
             value: this.value && this.value.toJSON(),
             component: this.component && this.component.map(v => v.toJSON()),
             population: this.population && this.population.map(v => v.toJSON()),
-            measureScore: this.measureScore && this.measureScore.toJSON(),
+            measureScore: this.measureScore && this.measureScore.toJSON()
         });
     }
 
@@ -252,7 +252,7 @@ class MeasureReportStratum extends Element {
             value: this.value && this.value.toJSONInternal(),
             component: this.component && this.component.map(v => v.toJSONInternal()),
             population: this.population && this.population.map(v => v.toJSONInternal()),
-            measureScore: this.measureScore && this.measureScore.toJSONInternal(),
+            measureScore: this.measureScore && this.measureScore.toJSONInternal()
         };
 
         return removeNull(json);

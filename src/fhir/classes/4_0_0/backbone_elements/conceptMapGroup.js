@@ -36,7 +36,7 @@ class ConceptMapGroup extends Element {
             target,
             targetVersion,
             element,
-            unmapped,
+            unmapped
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class ConceptMapGroup extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -247,7 +247,7 @@ class ConceptMapGroup extends Element {
             target,
             targetVersion,
             element,
-            unmapped,
+            unmapped
         });
     }
 
@@ -265,7 +265,7 @@ class ConceptMapGroup extends Element {
             target: this.target,
             targetVersion: this.targetVersion,
             element: this.element && this.element.map(v => v.toJSON()),
-            unmapped: this.unmapped && this.unmapped.toJSON(),
+            unmapped: this.unmapped && this.unmapped.toJSON()
         });
     }
 
@@ -295,7 +295,7 @@ class ConceptMapGroup extends Element {
             target: this.target,
             targetVersion: this.targetVersion,
             element: this.element && this.element.map(v => v.toJSONInternal()),
-            unmapped: this.unmapped && this.unmapped.toJSONInternal(),
+            unmapped: this.unmapped && this.unmapped.toJSONInternal()
         };
 
         return removeNull(json);

@@ -34,7 +34,7 @@ class ImagingStudyInstance extends Element {
             uid,
             sopClass,
             number,
-            title,
+            title
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class ImagingStudyInstance extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -198,7 +198,7 @@ class ImagingStudyInstance extends Element {
             uid,
             sopClass,
             number,
-            title,
+            title
         });
     }
 
@@ -214,7 +214,7 @@ class ImagingStudyInstance extends Element {
             uid: this.uid,
             sopClass: this.sopClass && this.sopClass.toJSON(),
             number: this.number,
-            title: this.title,
+            title: this.title
         });
     }
 
@@ -241,7 +241,7 @@ class ImagingStudyInstance extends Element {
             uid: this.uid,
             sopClass: this.sopClass && this.sopClass.toJSONInternal(),
             number: this.number,
-            title: this.title,
+            title: this.title
         };
 
         return removeNull(json);

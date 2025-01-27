@@ -36,7 +36,7 @@ class CompositionEvent extends Element {
             modifierExtension,
             code,
             period,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class CompositionEvent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -191,7 +191,7 @@ class CompositionEvent extends Element {
             modifierExtension,
             code,
             period,
-            detail,
+            detail
         });
     }
 
@@ -206,7 +206,7 @@ class CompositionEvent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -234,7 +234,7 @@ class CompositionEvent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.map(v => v.toJSONInternal()),
             period: this.period && this.period.toJSONInternal(),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -40,7 +40,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed,
             quantity,
             expectedSupplyDuration,
-            performer,
+            performer
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class MedicationRequestDispenseRequest extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -280,7 +280,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed,
             quantity,
             expectedSupplyDuration,
-            performer,
+            performer
         });
     }
 
@@ -299,7 +299,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
             quantity: this.quantity && this.quantity.toJSON(),
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
+            performer: this.performer && this.performer.toJSON()
         });
     }
 
@@ -334,7 +334,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
             quantity: this.quantity && this.quantity.toJSONInternal(),
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSONInternal(),
-            performer: this.performer && this.performer.toJSONInternal(),
+            performer: this.performer && this.performer.toJSONInternal()
         };
 
         return removeNull(json);

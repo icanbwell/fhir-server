@@ -39,7 +39,7 @@ class TestScriptVariable extends Element {
             headerField,
             hint,
             path,
-            sourceId,
+            sourceId
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class TestScriptVariable extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -283,7 +283,7 @@ class TestScriptVariable extends Element {
             headerField,
             hint,
             path,
-            sourceId,
+            sourceId
         });
     }
 
@@ -303,7 +303,7 @@ class TestScriptVariable extends Element {
             headerField: this.headerField,
             hint: this.hint,
             path: this.path,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         });
     }
 
@@ -333,7 +333,7 @@ class TestScriptVariable extends Element {
             headerField: this.headerField,
             hint: this.hint,
             path: this.path,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         };
 
         return removeNull(json);

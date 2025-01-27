@@ -129,7 +129,7 @@ class ElementDefinitionExample extends Element {
             valueRelatedArtifact,
             valueTriggerDefinition,
             valueUsageContext,
-            valueDosage,
+            valueDosage
         }
     ) {
         super({});
@@ -188,7 +188,7 @@ class ElementDefinitionExample extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -1267,7 +1267,7 @@ class ElementDefinitionExample extends Element {
             valueRelatedArtifact,
             valueTriggerDefinition,
             valueUsageContext,
-            valueDosage,
+            valueDosage
         });
     }
 
@@ -1331,7 +1331,7 @@ class ElementDefinitionExample extends Element {
             valueRelatedArtifact: this.valueRelatedArtifact && this.valueRelatedArtifact.toJSON(),
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSON(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
-            valueDosage: this.valueDosage && this.valueDosage.toJSON(),
+            valueDosage: this.valueDosage && this.valueDosage.toJSON()
         });
     }
 
@@ -1437,7 +1437,7 @@ class ElementDefinitionExample extends Element {
             valueRelatedArtifact: this.valueRelatedArtifact && this.valueRelatedArtifact.toJSONInternal(),
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSONInternal(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSONInternal(),
-            valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
+            valueDosage: this.valueDosage && this.valueDosage.toJSONInternal()
         };
 
         return removeNull(json);

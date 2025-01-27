@@ -33,7 +33,7 @@ class ProductShelfLife extends Element {
             identifier,
             type,
             period,
-            specialPrecautionsForStorage,
+            specialPrecautionsForStorage
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ProductShelfLife extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -213,7 +213,7 @@ class ProductShelfLife extends Element {
             identifier,
             type,
             period,
-            specialPrecautionsForStorage,
+            specialPrecautionsForStorage
         });
     }
 
@@ -229,7 +229,7 @@ class ProductShelfLife extends Element {
             identifier: this.identifier && this.identifier.toJSON(),
             type: this.type && this.type.toJSON(),
             period: this.period && this.period.toJSON(),
-            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSON()),
+            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSON())
         });
     }
 
@@ -259,7 +259,7 @@ class ProductShelfLife extends Element {
             identifier: this.identifier && this.identifier.toJSONInternal(),
             type: this.type && this.type.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
-            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSONInternal()),
+            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

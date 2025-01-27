@@ -43,7 +43,7 @@ class ContractOffer extends Element {
             answer,
             text,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         }
     ) {
         super({});
@@ -102,7 +102,7 @@ class ContractOffer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -338,7 +338,7 @@ class ContractOffer extends Element {
             answer,
             text,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         });
     }
 
@@ -360,7 +360,7 @@ class ContractOffer extends Element {
             answer: this.answer && this.answer.map(v => v.toJSON()),
             text: this.text,
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         });
     }
 
@@ -399,7 +399,7 @@ class ContractOffer extends Element {
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
             text: this.text,
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         };
 
         return removeNull(json);

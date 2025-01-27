@@ -30,7 +30,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension,
             action,
             date,
-            author,
+            author
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class DetectedIssueMitigation extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -179,7 +179,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension,
             action,
             date,
-            author,
+            author
         });
     }
 
@@ -194,7 +194,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             action: this.action && this.action.toJSON(),
             date: this.date,
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.toJSON()
         });
     }
 
@@ -221,7 +221,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             action: this.action && this.action.toJSONInternal(),
             date: this.date,
-            author: this.author && this.author.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal()
         };
 
         return removeNull(json);

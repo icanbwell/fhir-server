@@ -31,7 +31,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class PractitionerRoleAvailableTime extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -196,7 +196,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         });
     }
 
@@ -212,7 +212,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         });
     }
 
@@ -238,7 +238,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         };
 
         return removeNull(json);

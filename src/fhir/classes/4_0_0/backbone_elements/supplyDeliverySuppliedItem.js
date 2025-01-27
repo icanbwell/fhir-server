@@ -28,7 +28,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class SupplyDeliverySuppliedItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -177,7 +177,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         });
     }
 
@@ -192,7 +192,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
-            itemReference: this.itemReference && this.itemReference.toJSON(),
+            itemReference: this.itemReference && this.itemReference.toJSON()
         });
     }
 
@@ -220,7 +220,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
-            itemReference: this.itemReference && this.itemReference.toJSONInternal(),
+            itemReference: this.itemReference && this.itemReference.toJSONInternal()
         };
 
         return removeNull(json);

@@ -34,7 +34,7 @@ class CitationPeriodicRelease extends Element {
             citedMedium,
             volume,
             issue,
-            dateOfPublication,
+            dateOfPublication
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class CitationPeriodicRelease extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class CitationPeriodicRelease extends Element {
             citedMedium,
             volume,
             issue,
-            dateOfPublication,
+            dateOfPublication
         });
     }
 
@@ -217,7 +217,7 @@ class CitationPeriodicRelease extends Element {
             citedMedium: this.citedMedium && this.citedMedium.toJSON(),
             volume: this.volume,
             issue: this.issue,
-            dateOfPublication: this.dateOfPublication && this.dateOfPublication.toJSON(),
+            dateOfPublication: this.dateOfPublication && this.dateOfPublication.toJSON()
         });
     }
 
@@ -245,7 +245,7 @@ class CitationPeriodicRelease extends Element {
             citedMedium: this.citedMedium && this.citedMedium.toJSONInternal(),
             volume: this.volume,
             issue: this.issue,
-            dateOfPublication: this.dateOfPublication && this.dateOfPublication.toJSONInternal(),
+            dateOfPublication: this.dateOfPublication && this.dateOfPublication.toJSONInternal()
         };
 
         return removeNull(json);

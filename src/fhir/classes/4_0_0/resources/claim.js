@@ -96,7 +96,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -264,7 +264,7 @@ class Claim extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -932,7 +932,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1038,7 +1038,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Claim({
@@ -1080,7 +1080,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1133,7 +1133,7 @@ class Claim extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             accident: this.accident && this.accident.toJSON(),
             item: this.item && this.item.map(v => v.toJSON()),
-            total: this.total && this.total.toJSON(),
+            total: this.total && this.total.toJSON()
         });
     }
 
@@ -1215,7 +1215,7 @@ class Claim extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             accident: this.accident && this.accident.toJSONInternal(),
             item: this.item && this.item.map(v => v.toJSONInternal()),
-            total: this.total && this.total.toJSONInternal(),
+            total: this.total && this.total.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

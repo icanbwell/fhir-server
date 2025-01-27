@@ -66,7 +66,7 @@ class ExplanationOfBenefitAddItem extends Element {
             subSite,
             noteNumber,
             adjudication,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -125,7 +125,7 @@ class ExplanationOfBenefitAddItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -592,7 +592,7 @@ class ExplanationOfBenefitAddItem extends Element {
             subSite,
             noteNumber,
             adjudication,
-            detail,
+            detail
         });
     }
 
@@ -625,7 +625,7 @@ class ExplanationOfBenefitAddItem extends Element {
             subSite: this.subSite && this.subSite.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -683,7 +683,7 @@ class ExplanationOfBenefitAddItem extends Element {
             subSite: this.subSite && this.subSite.map(v => v.toJSONInternal()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

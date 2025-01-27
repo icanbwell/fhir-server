@@ -35,7 +35,7 @@ class ImplementationGuideDefinition extends Element {
             resource,
             page,
             parameter,
-            template,
+            template
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ImplementationGuideDefinition extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -230,7 +230,7 @@ class ImplementationGuideDefinition extends Element {
             resource,
             page,
             parameter,
-            template,
+            template
         });
     }
 
@@ -247,7 +247,7 @@ class ImplementationGuideDefinition extends Element {
             resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.toJSON(),
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            template: this.template && this.template.map(v => v.toJSON()),
+            template: this.template && this.template.map(v => v.toJSON())
         });
     }
 
@@ -279,7 +279,7 @@ class ImplementationGuideDefinition extends Element {
             resource: this.resource && this.resource.map(v => v.toJSONInternal()),
             page: this.page && this.page.toJSONInternal(),
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            template: this.template && this.template.map(v => v.toJSONInternal()),
+            template: this.template && this.template.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

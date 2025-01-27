@@ -39,7 +39,7 @@ class SubstanceDefinitionStructure extends Element {
             molecularWeight,
             technique,
             sourceDocument,
-            representation,
+            representation
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class SubstanceDefinitionStructure extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -292,7 +292,7 @@ class SubstanceDefinitionStructure extends Element {
             molecularWeight,
             technique,
             sourceDocument,
-            representation,
+            representation
         });
     }
 
@@ -312,7 +312,7 @@ class SubstanceDefinitionStructure extends Element {
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
             technique: this.technique && this.technique.map(v => v.toJSON()),
             sourceDocument: this.sourceDocument && this.sourceDocument.map(v => v.toJSON()),
-            representation: this.representation && this.representation.map(v => v.toJSON()),
+            representation: this.representation && this.representation.map(v => v.toJSON())
         });
     }
 
@@ -348,7 +348,7 @@ class SubstanceDefinitionStructure extends Element {
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal(),
             technique: this.technique && this.technique.map(v => v.toJSONInternal()),
             sourceDocument: this.sourceDocument && this.sourceDocument.map(v => v.toJSONInternal()),
-            representation: this.representation && this.representation.map(v => v.toJSONInternal()),
+            representation: this.representation && this.representation.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

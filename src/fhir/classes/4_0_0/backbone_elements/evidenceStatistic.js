@@ -45,7 +45,7 @@ class EvidenceStatistic extends Element {
             numberAffected,
             sampleSize,
             attributeEstimate,
-            modelCharacteristic,
+            modelCharacteristic
         }
     ) {
         super({});
@@ -104,7 +104,7 @@ class EvidenceStatistic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -339,7 +339,7 @@ class EvidenceStatistic extends Element {
             numberAffected,
             sampleSize,
             attributeEstimate,
-            modelCharacteristic,
+            modelCharacteristic
         });
     }
 
@@ -361,7 +361,7 @@ class EvidenceStatistic extends Element {
             numberAffected: this.numberAffected,
             sampleSize: this.sampleSize && this.sampleSize.toJSON(),
             attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSON()),
-            modelCharacteristic: this.modelCharacteristic && this.modelCharacteristic.map(v => v.toJSON()),
+            modelCharacteristic: this.modelCharacteristic && this.modelCharacteristic.map(v => v.toJSON())
         });
     }
 
@@ -400,7 +400,7 @@ class EvidenceStatistic extends Element {
             numberAffected: this.numberAffected,
             sampleSize: this.sampleSize && this.sampleSize.toJSONInternal(),
             attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSONInternal()),
-            modelCharacteristic: this.modelCharacteristic && this.modelCharacteristic.map(v => v.toJSONInternal()),
+            modelCharacteristic: this.modelCharacteristic && this.modelCharacteristic.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -35,7 +35,7 @@ class StructureMapRule extends Element {
             target,
             rule,
             dependent,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class StructureMapRule extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -242,7 +242,7 @@ class StructureMapRule extends Element {
             target,
             rule,
             dependent,
-            documentation,
+            documentation
         });
     }
 
@@ -260,7 +260,7 @@ class StructureMapRule extends Element {
             target: this.target && this.target.map(v => v.toJSON()),
             rule: this.rule && this.rule.map(v => v.toJSON()),
             dependent: this.dependent && this.dependent.map(v => v.toJSON()),
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -292,7 +292,7 @@ class StructureMapRule extends Element {
             target: this.target && this.target.map(v => v.toJSONInternal()),
             rule: this.rule && this.rule.map(v => v.toJSONInternal()),
             dependent: this.dependent && this.dependent.map(v => v.toJSONInternal()),
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
         return removeNull(json);

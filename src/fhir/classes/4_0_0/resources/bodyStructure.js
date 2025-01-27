@@ -57,7 +57,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class BodyStructure extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -480,7 +480,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -548,7 +548,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new BodyStructure({
@@ -571,7 +571,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -605,7 +605,7 @@ class BodyStructure extends Resource {
             locationQualifier: this.locationQualifier && this.locationQualifier.map(v => v.toJSON()),
             description: this.description,
             image: this.image && this.image.map(v => v.toJSON()),
-            patient: this.patient && this.patient.toJSON(),
+            patient: this.patient && this.patient.toJSON()
         });
     }
 
@@ -650,7 +650,7 @@ class BodyStructure extends Resource {
             locationQualifier: this.locationQualifier && this.locationQualifier.map(v => v.toJSONInternal()),
             description: this.description,
             image: this.image && this.image.map(v => v.toJSONInternal()),
-            patient: this.patient && this.patient.toJSONInternal(),
+            patient: this.patient && this.patient.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -34,7 +34,7 @@ class CarePlanActivity extends Element {
             outcomeReference,
             progress,
             reference,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class CarePlanActivity extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -233,7 +233,7 @@ class CarePlanActivity extends Element {
             outcomeReference,
             progress,
             reference,
-            detail,
+            detail
         });
     }
 
@@ -250,7 +250,7 @@ class CarePlanActivity extends Element {
             outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSON()),
             progress: this.progress && this.progress.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            detail: this.detail && this.detail.toJSON()
         });
     }
 
@@ -282,7 +282,7 @@ class CarePlanActivity extends Element {
             outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal()),
             progress: this.progress && this.progress.map(v => v.toJSONInternal()),
             reference: this.reference && this.reference.toJSONInternal(),
-            detail: this.detail && this.detail.toJSONInternal(),
+            detail: this.detail && this.detail.toJSONInternal()
         };
 
         return removeNull(json);

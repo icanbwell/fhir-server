@@ -26,7 +26,7 @@ class BundleLink extends Element {
             extension,
             modifierExtension,
             relation,
-            url,
+            url
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class BundleLink extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -153,7 +153,7 @@ class BundleLink extends Element {
             extension,
             modifierExtension,
             relation,
-            url,
+            url
         });
     }
 
@@ -167,7 +167,7 @@ class BundleLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             relation: this.relation,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -191,7 +191,7 @@ class BundleLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             relation: this.relation,
-            url: this.url,
+            url: this.url
         };
 
         return removeNull(json);

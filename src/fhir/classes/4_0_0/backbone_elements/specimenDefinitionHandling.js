@@ -30,7 +30,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class SpecimenDefinitionHandling extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -202,7 +202,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         });
     }
 
@@ -218,7 +218,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSON(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSON(),
             maxDuration: this.maxDuration && this.maxDuration.toJSON(),
-            instruction: this.instruction,
+            instruction: this.instruction
         });
     }
 
@@ -247,7 +247,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSONInternal(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSONInternal(),
             maxDuration: this.maxDuration && this.maxDuration.toJSONInternal(),
-            instruction: this.instruction,
+            instruction: this.instruction
         };
 
         return removeNull(json);

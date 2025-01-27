@@ -28,7 +28,7 @@ class MedicationBatch extends Element {
             extension,
             modifierExtension,
             lotNumber,
-            expirationDate,
+            expirationDate
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class MedicationBatch extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -152,7 +152,7 @@ class MedicationBatch extends Element {
             extension,
             modifierExtension,
             lotNumber,
-            expirationDate,
+            expirationDate
         });
     }
 
@@ -166,7 +166,7 @@ class MedicationBatch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             lotNumber: this.lotNumber,
-            expirationDate: this.expirationDate,
+            expirationDate: this.expirationDate
         });
     }
 
@@ -190,7 +190,7 @@ class MedicationBatch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             lotNumber: this.lotNumber,
-            expirationDate: this.expirationDate,
+            expirationDate: this.expirationDate
         };
 
         return removeNull(json);

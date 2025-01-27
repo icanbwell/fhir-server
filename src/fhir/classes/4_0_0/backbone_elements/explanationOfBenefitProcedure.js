@@ -36,7 +36,7 @@ class ExplanationOfBenefitProcedure extends Element {
             date,
             procedureCodeableConcept,
             procedureReference,
-            udi,
+            udi
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class ExplanationOfBenefitProcedure extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -244,7 +244,7 @@ class ExplanationOfBenefitProcedure extends Element {
             date,
             procedureCodeableConcept,
             procedureReference,
-            udi,
+            udi
         });
     }
 
@@ -262,7 +262,7 @@ class ExplanationOfBenefitProcedure extends Element {
             date: this.date,
             procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSON(),
             procedureReference: this.procedureReference && this.procedureReference.toJSON(),
-            udi: this.udi && this.udi.map(v => v.toJSON()),
+            udi: this.udi && this.udi.map(v => v.toJSON())
         });
     }
 
@@ -294,7 +294,7 @@ class ExplanationOfBenefitProcedure extends Element {
             date: this.date,
             procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSONInternal(),
             procedureReference: this.procedureReference && this.procedureReference.toJSONInternal(),
-            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

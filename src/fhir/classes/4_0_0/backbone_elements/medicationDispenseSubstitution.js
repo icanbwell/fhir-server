@@ -34,7 +34,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class MedicationDispenseSubstitution extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -206,7 +206,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         });
     }
 
@@ -222,7 +222,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSON(),
             reason: this.reason && this.reason.map(v => v.toJSON()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON())
         });
     }
 
@@ -251,7 +251,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSONInternal(),
             reason: this.reason && this.reason.map(v => v.toJSONInternal()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

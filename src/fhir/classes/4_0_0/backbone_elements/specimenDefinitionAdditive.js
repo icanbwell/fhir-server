@@ -26,7 +26,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         }
     ) {
         super({});
@@ -85,7 +85,7 @@ class SpecimenDefinitionAdditive extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -154,7 +154,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         });
     }
 
@@ -168,7 +168,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSON(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSON(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSON()
         });
     }
 
@@ -194,7 +194,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
 
         return removeNull(json);

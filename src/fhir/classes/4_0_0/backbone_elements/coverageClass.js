@@ -29,7 +29,7 @@ class CoverageClass extends Element {
             modifierExtension,
             type,
             value,
-            name,
+            name
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class CoverageClass extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -176,7 +176,7 @@ class CoverageClass extends Element {
             modifierExtension,
             type,
             value,
-            name,
+            name
         });
     }
 
@@ -191,7 +191,7 @@ class CoverageClass extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             value: this.value,
-            name: this.name,
+            name: this.name
         });
     }
 
@@ -217,7 +217,7 @@ class CoverageClass extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             value: this.value,
-            name: this.name,
+            name: this.name
         };
 
         return removeNull(json);

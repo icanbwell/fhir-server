@@ -34,7 +34,7 @@ class CitationSummary1 extends Element {
             type,
             style,
             source,
-            value,
+            value
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class CitationSummary1 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class CitationSummary1 extends Element {
             type,
             style,
             source,
-            value,
+            value
         });
     }
 
@@ -219,7 +219,7 @@ class CitationSummary1 extends Element {
             type: this.type && this.type.toJSON(),
             style: this.style && this.style.toJSON(),
             source: this.source && this.source.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -248,7 +248,7 @@ class CitationSummary1 extends Element {
             type: this.type && this.type.toJSONInternal(),
             style: this.style && this.style.toJSONInternal(),
             source: this.source && this.source.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
         return removeNull(json);

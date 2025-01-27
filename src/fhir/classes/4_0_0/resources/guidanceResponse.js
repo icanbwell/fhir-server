@@ -76,7 +76,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -244,7 +244,7 @@ class GuidanceResponse extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -703,7 +703,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -789,7 +789,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new GuidanceResponse({
@@ -821,7 +821,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -864,7 +864,7 @@ class GuidanceResponse extends Resource {
             evaluationMessage: this.evaluationMessage && this.evaluationMessage.map(v => v.toJSON()),
             outputParameters: this.outputParameters && this.outputParameters.toJSON(),
             result: this.result && this.result.toJSON(),
-            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON()),
+            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON())
         });
     }
 
@@ -925,7 +925,7 @@ class GuidanceResponse extends Resource {
             evaluationMessage: this.evaluationMessage && this.evaluationMessage.map(v => v.toJSONInternal()),
             outputParameters: this.outputParameters && this.outputParameters.toJSONInternal(),
             result: this.result && this.result.toJSONInternal(),
-            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal()),
+            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

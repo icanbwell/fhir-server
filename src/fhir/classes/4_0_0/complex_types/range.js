@@ -26,7 +26,7 @@ class Range extends Element {
             id,
             extension,
             low,
-            high,
+            high
         }
     ) {
         super({});
@@ -121,7 +121,7 @@ class Range extends Element {
             id,
             extension,
             low,
-            high,
+            high
         });
     }
 
@@ -134,7 +134,7 @@ class Range extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             low: this.low && this.low.toJSON(),
-            high: this.high && this.high.toJSON(),
+            high: this.high && this.high.toJSON()
         });
     }
 
@@ -158,7 +158,7 @@ class Range extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             low: this.low && this.low.toJSONInternal(),
-            high: this.high && this.high.toJSONInternal(),
+            high: this.high && this.high.toJSONInternal()
         };
 
         return removeNull(json);

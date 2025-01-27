@@ -84,7 +84,7 @@ class MedicationKnowledge extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -252,7 +252,7 @@ class MedicationKnowledge extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -814,7 +814,7 @@ class MedicationKnowledge extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -910,7 +910,7 @@ class MedicationKnowledge extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicationKnowledge({
@@ -947,7 +947,7 @@ class MedicationKnowledge extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -995,7 +995,7 @@ class MedicationKnowledge extends Resource {
             drugCharacteristic: this.drugCharacteristic && this.drugCharacteristic.map(v => v.toJSON()),
             contraindication: this.contraindication && this.contraindication.map(v => v.toJSON()),
             regulatory: this.regulatory && this.regulatory.map(v => v.toJSON()),
-            kinetics: this.kinetics && this.kinetics.map(v => v.toJSON()),
+            kinetics: this.kinetics && this.kinetics.map(v => v.toJSON())
         });
     }
 
@@ -1067,7 +1067,7 @@ class MedicationKnowledge extends Resource {
             drugCharacteristic: this.drugCharacteristic && this.drugCharacteristic.map(v => v.toJSONInternal()),
             contraindication: this.contraindication && this.contraindication.map(v => v.toJSONInternal()),
             regulatory: this.regulatory && this.regulatory.map(v => v.toJSONInternal()),
-            kinetics: this.kinetics && this.kinetics.map(v => v.toJSONInternal()),
+            kinetics: this.kinetics && this.kinetics.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

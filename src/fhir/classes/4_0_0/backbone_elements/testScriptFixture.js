@@ -29,7 +29,7 @@ class TestScriptFixture extends Element {
             modifierExtension,
             autocreate,
             autodelete,
-            resource,
+            resource
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class TestScriptFixture extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -181,7 +181,7 @@ class TestScriptFixture extends Element {
             modifierExtension,
             autocreate,
             autodelete,
-            resource,
+            resource
         });
     }
 
@@ -196,7 +196,7 @@ class TestScriptFixture extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             autocreate: this.autocreate,
             autodelete: this.autodelete,
-            resource: this.resource && this.resource.toJSON(),
+            resource: this.resource && this.resource.toJSON()
         });
     }
 
@@ -222,7 +222,7 @@ class TestScriptFixture extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             autocreate: this.autocreate,
             autodelete: this.autodelete,
-            resource: this.resource && this.resource.toJSONInternal(),
+            resource: this.resource && this.resource.toJSONInternal()
         };
 
         return removeNull(json);

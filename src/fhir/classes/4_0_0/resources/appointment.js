@@ -86,7 +86,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -254,7 +254,7 @@ class Appointment extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -714,7 +714,7 @@ class Appointment extends Resource {
         /**
          * @description A set of date ranges (potentially including times) that the appointment is
     preferred to be scheduled within.
-    
+
     The duration (usually in minutes) could also be provided to indicate the
     length of the appointment to fill and populate the start/end times for the
     actual allocated time. However, in other situations the duration may be
@@ -825,7 +825,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -921,7 +921,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Appointment({
@@ -958,7 +958,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1006,7 +1006,7 @@ class Appointment extends Resource {
             patientInstruction: this.patientInstruction,
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
             participant: this.participant && this.participant.map(v => v.toJSON()),
-            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSON()),
+            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSON())
         });
     }
 
@@ -1072,7 +1072,7 @@ class Appointment extends Resource {
             patientInstruction: this.patientInstruction,
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
             participant: this.participant && this.participant.map(v => v.toJSONInternal()),
-            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSONInternal()),
+            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

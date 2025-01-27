@@ -31,7 +31,7 @@ class ContractSecurityLabel extends Element {
             number,
             classification,
             category,
-            control,
+            control
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class ContractSecurityLabel extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class ContractSecurityLabel extends Element {
             number,
             classification,
             category,
-            control,
+            control
         });
     }
 
@@ -219,7 +219,7 @@ class ContractSecurityLabel extends Element {
             number: this.number,
             classification: this.classification && this.classification.toJSON(),
             category: this.category && this.category.map(v => v.toJSON()),
-            control: this.control && this.control.map(v => v.toJSON()),
+            control: this.control && this.control.map(v => v.toJSON())
         });
     }
 
@@ -248,7 +248,7 @@ class ContractSecurityLabel extends Element {
             number: this.number,
             classification: this.classification && this.classification.toJSONInternal(),
             category: this.category && this.category.map(v => v.toJSONInternal()),
-            control: this.control && this.control.map(v => v.toJSONInternal()),
+            control: this.control && this.control.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

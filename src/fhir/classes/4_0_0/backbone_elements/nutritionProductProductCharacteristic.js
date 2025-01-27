@@ -36,7 +36,7 @@ class NutritionProductProductCharacteristic extends Element {
             valueQuantity,
             valueBase64Binary,
             valueAttachment,
-            valueBoolean,
+            valueBoolean
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class NutritionProductProductCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -264,7 +264,7 @@ class NutritionProductProductCharacteristic extends Element {
             valueQuantity,
             valueBase64Binary,
             valueAttachment,
-            valueBoolean,
+            valueBoolean
         });
     }
 
@@ -283,7 +283,7 @@ class NutritionProductProductCharacteristic extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueBase64Binary: this.valueBase64Binary,
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         });
     }
 
@@ -316,7 +316,7 @@ class NutritionProductProductCharacteristic extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueBase64Binary: this.valueBase64Binary,
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         };
 
         return removeNull(json);

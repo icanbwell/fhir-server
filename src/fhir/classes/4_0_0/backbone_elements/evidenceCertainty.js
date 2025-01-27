@@ -37,7 +37,7 @@ class EvidenceCertainty extends Element {
             type,
             rating,
             rater,
-            subcomponent,
+            subcomponent
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class EvidenceCertainty extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -244,7 +244,7 @@ class EvidenceCertainty extends Element {
             type,
             rating,
             rater,
-            subcomponent,
+            subcomponent
         });
     }
 
@@ -262,7 +262,7 @@ class EvidenceCertainty extends Element {
             type: this.type && this.type.toJSON(),
             rating: this.rating && this.rating.toJSON(),
             rater: this.rater,
-            subcomponent: this.subcomponent && this.subcomponent.map(v => v.toJSON()),
+            subcomponent: this.subcomponent && this.subcomponent.map(v => v.toJSON())
         });
     }
 
@@ -294,7 +294,7 @@ class EvidenceCertainty extends Element {
             type: this.type && this.type.toJSONInternal(),
             rating: this.rating && this.rating.toJSONInternal(),
             rater: this.rater,
-            subcomponent: this.subcomponent && this.subcomponent.map(v => v.toJSONInternal()),
+            subcomponent: this.subcomponent && this.subcomponent.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

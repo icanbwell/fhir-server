@@ -31,7 +31,7 @@ class EvidenceVariableCategory extends Element {
             name,
             valueCodeableConcept,
             valueQuantity,
-            valueRange,
+            valueRange
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class EvidenceVariableCategory extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -199,7 +199,7 @@ class EvidenceVariableCategory extends Element {
             name,
             valueCodeableConcept,
             valueQuantity,
-            valueRange,
+            valueRange
         });
     }
 
@@ -215,7 +215,7 @@ class EvidenceVariableCategory extends Element {
             name: this.name,
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueRange: this.valueRange && this.valueRange.toJSON(),
+            valueRange: this.valueRange && this.valueRange.toJSON()
         });
     }
 
@@ -244,7 +244,7 @@ class EvidenceVariableCategory extends Element {
             name: this.name,
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueRange: this.valueRange && this.valueRange.toJSONInternal(),
+            valueRange: this.valueRange && this.valueRange.toJSONInternal()
         };
 
         return removeNull(json);

@@ -32,7 +32,7 @@ class SpecimenProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class SpecimenProcessing extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -219,7 +219,7 @@ class SpecimenProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         });
     }
 
@@ -236,7 +236,7 @@ class SpecimenProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSON(),
             additive: this.additive && this.additive.map(v => v.toJSON()),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSON(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSON()
         });
     }
 
@@ -266,7 +266,7 @@ class SpecimenProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSONInternal(),
             additive: this.additive && this.additive.map(v => v.toJSONInternal()),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal()
         };
 
         return removeNull(json);

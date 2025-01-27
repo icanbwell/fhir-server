@@ -28,7 +28,7 @@ class ConsentData extends Element {
             extension,
             modifierExtension,
             meaning,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class ConsentData extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -155,7 +155,7 @@ class ConsentData extends Element {
             extension,
             modifierExtension,
             meaning,
-            reference,
+            reference
         });
     }
 
@@ -169,7 +169,7 @@ class ConsentData extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             meaning: this.meaning,
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -194,7 +194,7 @@ class ConsentData extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             meaning: this.meaning,
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
         return removeNull(json);

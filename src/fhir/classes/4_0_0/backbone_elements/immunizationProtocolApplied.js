@@ -37,7 +37,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt,
             doseNumberString,
             seriesDosesPositiveInt,
-            seriesDosesString,
+            seriesDosesString
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class ImmunizationProtocolApplied extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -262,7 +262,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt,
             doseNumberString,
             seriesDosesPositiveInt,
-            seriesDosesString,
+            seriesDosesString
         });
     }
 
@@ -281,7 +281,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         });
     }
 
@@ -312,7 +312,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         };
 
         return removeNull(json);

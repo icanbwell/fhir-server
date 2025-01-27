@@ -42,11 +42,11 @@ class ConsentProvision extends Element {
             action,
             securityLabel,
             purpose,
-            'class': class_,
+            class: class_,
             code,
             dataPeriod,
             data,
-            provision,
+            provision
         }
     ) {
         super({});
@@ -105,7 +105,7 @@ class ConsentProvision extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -363,11 +363,11 @@ class ConsentProvision extends Element {
             action,
             securityLabel,
             purpose,
-            'class': class_,
+            class: class_,
             code,
             dataPeriod,
             data,
-            provision,
+            provision
         });
     }
 
@@ -390,7 +390,7 @@ class ConsentProvision extends Element {
             code: this.code && this.code.map(v => v.toJSON()),
             dataPeriod: this.dataPeriod && this.dataPeriod.toJSON(),
             data: this.data && this.data.map(v => v.toJSON()),
-            provision: this.provision && this.provision.map(v => v.toJSON()),
+            provision: this.provision && this.provision.map(v => v.toJSON())
         });
     }
 
@@ -433,7 +433,7 @@ class ConsentProvision extends Element {
             code: this.code && this.code.map(v => v.toJSONInternal()),
             dataPeriod: this.dataPeriod && this.dataPeriod.toJSONInternal(),
             data: this.data && this.data.map(v => v.toJSONInternal()),
-            provision: this.provision && this.provision.map(v => v.toJSONInternal()),
+            provision: this.provision && this.provision.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

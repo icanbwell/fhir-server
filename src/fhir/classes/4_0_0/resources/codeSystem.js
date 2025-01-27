@@ -94,7 +94,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -262,7 +262,7 @@ class CodeSystem extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -900,7 +900,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1004,7 +1004,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CodeSystem({
@@ -1045,7 +1045,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1097,7 +1097,7 @@ class CodeSystem extends Resource {
             count: this.count,
             filter: this.filter && this.filter.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
-            concept: this.concept && this.concept.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON())
         });
     }
 
@@ -1161,7 +1161,7 @@ class CodeSystem extends Resource {
             count: this.count,
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
-            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

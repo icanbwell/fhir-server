@@ -47,7 +47,7 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         }
     ) {
         super({});
@@ -106,7 +106,7 @@ class ContractAnswer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -369,7 +369,7 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         });
     }
 
@@ -393,7 +393,7 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueReference: this.valueReference && this.valueReference.toJSON(),
+            valueReference: this.valueReference && this.valueReference.toJSON()
         });
     }
 
@@ -431,7 +431,7 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal()
         };
 
         return removeNull(json);

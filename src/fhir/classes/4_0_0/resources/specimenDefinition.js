@@ -52,7 +52,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -220,7 +220,7 @@ class SpecimenDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -432,7 +432,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -496,7 +496,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SpecimenDefinition({
@@ -517,7 +517,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -549,7 +549,7 @@ class SpecimenDefinition extends Resource {
             patientPreparation: this.patientPreparation && this.patientPreparation.map(v => v.toJSON()),
             timeAspect: this.timeAspect,
             collection: this.collection && this.collection.map(v => v.toJSON()),
-            typeTested: this.typeTested && this.typeTested.map(v => v.toJSON()),
+            typeTested: this.typeTested && this.typeTested.map(v => v.toJSON())
         });
     }
 
@@ -591,7 +591,7 @@ class SpecimenDefinition extends Resource {
             patientPreparation: this.patientPreparation && this.patientPreparation.map(v => v.toJSONInternal()),
             timeAspect: this.timeAspect,
             collection: this.collection && this.collection.map(v => v.toJSONInternal()),
-            typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal()),
+            typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

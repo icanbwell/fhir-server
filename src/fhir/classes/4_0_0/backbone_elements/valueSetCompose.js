@@ -33,7 +33,7 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ValueSetCompose extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -207,7 +207,7 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         });
     }
 
@@ -223,7 +223,7 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSON()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSON()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSON())
         });
     }
 
@@ -251,7 +251,7 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSONInternal()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

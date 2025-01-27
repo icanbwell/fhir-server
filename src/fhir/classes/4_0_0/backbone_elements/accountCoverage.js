@@ -27,7 +27,7 @@ class AccountCoverage extends Element {
             extension,
             modifierExtension,
             coverage,
-            priority,
+            priority
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class AccountCoverage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -111,7 +111,7 @@ class AccountCoverage extends Element {
         /**
          * @description The party(s) that contribute to payment (or part of) of the charges applied to
     this account (including self-pay).
-    
+
     A coverage may only be responsible for specific types of charges, and the
     sequence of the coverages in the account could be important when processing
     billing.
@@ -158,7 +158,7 @@ class AccountCoverage extends Element {
             extension,
             modifierExtension,
             coverage,
-            priority,
+            priority
         });
     }
 
@@ -172,7 +172,7 @@ class AccountCoverage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             coverage: this.coverage && this.coverage.toJSON(),
-            priority: this.priority,
+            priority: this.priority
         });
     }
 
@@ -197,7 +197,7 @@ class AccountCoverage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             coverage: this.coverage && this.coverage.toJSONInternal(),
-            priority: this.priority,
+            priority: this.priority
         };
 
         return removeNull(json);

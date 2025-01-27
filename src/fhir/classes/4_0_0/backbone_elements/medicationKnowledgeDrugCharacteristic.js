@@ -32,7 +32,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -220,7 +220,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         });
     }
 
@@ -237,7 +237,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         });
     }
 
@@ -267,7 +267,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         };
 
         return removeNull(json);

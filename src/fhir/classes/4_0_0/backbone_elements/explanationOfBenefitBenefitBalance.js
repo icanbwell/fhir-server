@@ -40,7 +40,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network,
             unit,
             term,
-            financial,
+            financial
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -292,7 +292,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network,
             unit,
             term,
-            financial,
+            financial
         });
     }
 
@@ -312,7 +312,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network: this.network && this.network.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             term: this.term && this.term.toJSON(),
-            financial: this.financial && this.financial.map(v => v.toJSON()),
+            financial: this.financial && this.financial.map(v => v.toJSON())
         });
     }
 
@@ -347,7 +347,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network: this.network && this.network.toJSONInternal(),
             unit: this.unit && this.unit.toJSONInternal(),
             term: this.term && this.term.toJSONInternal(),
-            financial: this.financial && this.financial.map(v => v.toJSONInternal()),
+            financial: this.financial && this.financial.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

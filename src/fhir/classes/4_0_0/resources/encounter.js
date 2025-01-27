@@ -64,7 +64,7 @@ class Encounter extends Resource {
             identifier,
             status,
             statusHistory,
-            'class': class_,
+            class: class_,
             classHistory,
             type,
             serviceType,
@@ -87,7 +87,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -255,7 +255,7 @@ class Encounter extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -828,7 +828,7 @@ class Encounter extends Resource {
             identifier,
             status,
             statusHistory,
-            'class': class_,
+            class: class_,
             classHistory,
             type,
             serviceType,
@@ -851,7 +851,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -926,7 +926,7 @@ class Encounter extends Resource {
             identifier,
             status,
             statusHistory,
-            'class': class_,
+            class: class_,
             classHistory,
             type,
             serviceType,
@@ -949,7 +949,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Encounter({
@@ -964,7 +964,7 @@ class Encounter extends Resource {
             identifier,
             status,
             statusHistory,
-            'class': class_,
+            class: class_,
             classHistory,
             type,
             serviceType,
@@ -987,7 +987,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1036,7 +1036,7 @@ class Encounter extends Resource {
             hospitalization: this.hospitalization && this.hospitalization.toJSON(),
             location: this.location && this.location.map(v => v.toJSON()),
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
+            partOf: this.partOf && this.partOf.toJSON()
         });
     }
 
@@ -1112,7 +1112,7 @@ class Encounter extends Resource {
             hospitalization: this.hospitalization && this.hospitalization.toJSONInternal(),
             location: this.location && this.location.map(v => v.toJSONInternal()),
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSONInternal(),
-            partOf: this.partOf && this.partOf.toJSONInternal(),
+            partOf: this.partOf && this.partOf.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

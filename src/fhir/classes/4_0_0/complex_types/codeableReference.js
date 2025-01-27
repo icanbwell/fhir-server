@@ -27,7 +27,7 @@ class CodeableReference extends Element {
             id,
             extension,
             concept,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -124,7 +124,7 @@ class CodeableReference extends Element {
             id,
             extension,
             concept,
-            reference,
+            reference
         });
     }
 
@@ -137,7 +137,7 @@ class CodeableReference extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             concept: this.concept && this.concept.toJSON(),
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -161,7 +161,7 @@ class CodeableReference extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             concept: this.concept && this.concept.toJSONInternal(),
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
         return removeNull(json);

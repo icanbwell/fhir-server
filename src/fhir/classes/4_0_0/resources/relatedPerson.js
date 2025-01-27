@@ -66,7 +66,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -234,7 +234,7 @@ class RelatedPerson extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -570,7 +570,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -646,7 +646,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RelatedPerson({
@@ -673,7 +673,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -711,7 +711,7 @@ class RelatedPerson extends Resource {
             address: this.address && this.address.map(v => v.toJSON()),
             photo: this.photo && this.photo.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
-            communication: this.communication && this.communication.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON())
         });
     }
 
@@ -763,7 +763,7 @@ class RelatedPerson extends Resource {
             address: this.address && this.address.map(v => v.toJSONInternal()),
             photo: this.photo && this.photo.map(v => v.toJSONInternal()),
             period: this.period && this.period.toJSONInternal(),
-            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

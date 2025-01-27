@@ -40,7 +40,7 @@ class EvidenceReportCharacteristic extends Element {
             valueQuantity,
             valueRange,
             exclude,
-            period,
+            period
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class EvidenceReportCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -290,7 +290,7 @@ class EvidenceReportCharacteristic extends Element {
             valueQuantity,
             valueRange,
             exclude,
-            period,
+            period
         });
     }
 
@@ -310,7 +310,7 @@ class EvidenceReportCharacteristic extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueRange: this.valueRange && this.valueRange.toJSON(),
             exclude: this.exclude,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -346,7 +346,7 @@ class EvidenceReportCharacteristic extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
             exclude: this.exclude,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

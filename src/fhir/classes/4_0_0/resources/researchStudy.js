@@ -93,7 +93,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -261,7 +261,7 @@ class ResearchStudy extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -866,7 +866,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -966,7 +966,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchStudy({
@@ -1005,7 +1005,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1055,7 +1055,7 @@ class ResearchStudy extends Resource {
             reasonStopped: this.reasonStopped && this.reasonStopped.toJSON(),
             note: this.note && this.note.map(v => v.toJSON()),
             arm: this.arm && this.arm.map(v => v.toJSON()),
-            objective: this.objective && this.objective.map(v => v.toJSON()),
+            objective: this.objective && this.objective.map(v => v.toJSON())
         });
     }
 
@@ -1131,7 +1131,7 @@ class ResearchStudy extends Resource {
             reasonStopped: this.reasonStopped && this.reasonStopped.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             arm: this.arm && this.arm.map(v => v.toJSONInternal()),
-            objective: this.objective && this.objective.map(v => v.toJSONInternal()),
+            objective: this.objective && this.objective.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

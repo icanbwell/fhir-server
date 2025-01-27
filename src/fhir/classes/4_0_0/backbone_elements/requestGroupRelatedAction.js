@@ -31,7 +31,7 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class RequestGroupRelatedAction extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -197,7 +197,7 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         });
     }
 
@@ -213,7 +213,7 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSON(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSON(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSON()
         });
     }
 
@@ -241,7 +241,7 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal()
         };
 
         return removeNull(json);

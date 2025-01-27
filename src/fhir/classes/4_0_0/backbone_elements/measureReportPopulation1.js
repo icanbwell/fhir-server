@@ -30,7 +30,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension,
             code,
             count,
-            subjectResults,
+            subjectResults
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class MeasureReportPopulation1 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension,
             code,
             count,
-            subjectResults,
+            subjectResults
         });
     }
 
@@ -193,7 +193,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             count: this.count,
-            subjectResults: this.subjectResults && this.subjectResults.toJSON(),
+            subjectResults: this.subjectResults && this.subjectResults.toJSON()
         });
     }
 
@@ -220,7 +220,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
             count: this.count,
-            subjectResults: this.subjectResults && this.subjectResults.toJSONInternal(),
+            subjectResults: this.subjectResults && this.subjectResults.toJSONInternal()
         };
 
         return removeNull(json);

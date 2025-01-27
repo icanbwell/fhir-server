@@ -28,7 +28,7 @@ class MeasureReportStratifier extends Element {
             extension,
             modifierExtension,
             code,
-            stratum,
+            stratum
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class MeasureReportStratifier extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -158,7 +158,7 @@ class MeasureReportStratifier extends Element {
             extension,
             modifierExtension,
             code,
-            stratum,
+            stratum
         });
     }
 
@@ -172,7 +172,7 @@ class MeasureReportStratifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.map(v => v.toJSON()),
-            stratum: this.stratum && this.stratum.map(v => v.toJSON()),
+            stratum: this.stratum && this.stratum.map(v => v.toJSON())
         });
     }
 
@@ -198,7 +198,7 @@ class MeasureReportStratifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            stratum: this.stratum && this.stratum.map(v => v.toJSONInternal()),
+            stratum: this.stratum && this.stratum.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

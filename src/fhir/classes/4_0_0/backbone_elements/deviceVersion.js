@@ -30,7 +30,7 @@ class DeviceVersion extends Element {
             modifierExtension,
             type,
             component,
-            value,
+            value
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class DeviceVersion extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -177,7 +177,7 @@ class DeviceVersion extends Element {
             modifierExtension,
             type,
             component,
-            value,
+            value
         });
     }
 
@@ -192,7 +192,7 @@ class DeviceVersion extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             component: this.component && this.component.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -219,7 +219,7 @@ class DeviceVersion extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             component: this.component && this.component.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
         return removeNull(json);

@@ -71,7 +71,7 @@ class RegulatedAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -239,7 +239,7 @@ class RegulatedAuthorization extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -633,7 +633,7 @@ class RegulatedAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -713,7 +713,7 @@ class RegulatedAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RegulatedAuthorization({
@@ -742,7 +742,7 @@ class RegulatedAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -782,7 +782,7 @@ class RegulatedAuthorization extends Resource {
             basis: this.basis && this.basis.map(v => v.toJSON()),
             holder: this.holder && this.holder.toJSON(),
             regulator: this.regulator && this.regulator.toJSON(),
-            case: this.case && this.case.toJSON(),
+            case: this.case && this.case.toJSON()
         });
     }
 
@@ -839,7 +839,7 @@ class RegulatedAuthorization extends Resource {
             basis: this.basis && this.basis.map(v => v.toJSONInternal()),
             holder: this.holder && this.holder.toJSONInternal(),
             regulator: this.regulator && this.regulator.toJSONInternal(),
-            case: this.case && this.case.toJSONInternal(),
+            case: this.case && this.case.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

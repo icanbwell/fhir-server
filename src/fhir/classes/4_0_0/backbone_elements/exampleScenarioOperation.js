@@ -42,7 +42,7 @@ class ExampleScenarioOperation extends Element {
             initiatorActive,
             receiverActive,
             request,
-            response,
+            response
         }
     ) {
         super({});
@@ -101,7 +101,7 @@ class ExampleScenarioOperation extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -322,7 +322,7 @@ class ExampleScenarioOperation extends Element {
             initiatorActive,
             receiverActive,
             request,
-            response,
+            response
         });
     }
 
@@ -344,7 +344,7 @@ class ExampleScenarioOperation extends Element {
             initiatorActive: this.initiatorActive,
             receiverActive: this.receiverActive,
             request: this.request && this.request.toJSON(),
-            response: this.response && this.response.toJSON(),
+            response: this.response && this.response.toJSON()
         });
     }
 
@@ -378,7 +378,7 @@ class ExampleScenarioOperation extends Element {
             initiatorActive: this.initiatorActive,
             receiverActive: this.receiverActive,
             request: this.request && this.request.toJSONInternal(),
-            response: this.response && this.response.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal()
         };
 
         return removeNull(json);

@@ -50,7 +50,7 @@ class CitationEntry extends Element {
             role,
             contributionInstance,
             correspondingContact,
-            listOrder,
+            listOrder
         }
     ) {
         super({});
@@ -109,7 +109,7 @@ class CitationEntry extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -381,7 +381,7 @@ class CitationEntry extends Element {
             role,
             contributionInstance,
             correspondingContact,
-            listOrder,
+            listOrder
         });
     }
 
@@ -405,7 +405,7 @@ class CitationEntry extends Element {
             role: this.role && this.role.toJSON(),
             contributionInstance: this.contributionInstance && this.contributionInstance.map(v => v.toJSON()),
             correspondingContact: this.correspondingContact,
-            listOrder: this.listOrder,
+            listOrder: this.listOrder
         });
     }
 
@@ -447,7 +447,7 @@ class CitationEntry extends Element {
             role: this.role && this.role.toJSONInternal(),
             contributionInstance: this.contributionInstance && this.contributionInstance.map(v => v.toJSONInternal()),
             correspondingContact: this.correspondingContact,
-            listOrder: this.listOrder,
+            listOrder: this.listOrder
         };
 
         return removeNull(json);

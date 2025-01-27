@@ -46,7 +46,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -342,7 +342,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -400,7 +400,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Bundle({
@@ -418,7 +418,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -447,7 +447,7 @@ class Bundle extends Resource {
             total: this.total,
             link: this.link && this.link.map(v => v.toJSON()),
             entry: this.entry && this.entry.map(v => v.toJSON()),
-            signature: this.signature && this.signature.toJSON(),
+            signature: this.signature && this.signature.toJSON()
         });
     }
 
@@ -481,7 +481,7 @@ class Bundle extends Resource {
             total: this.total,
             link: this.link && this.link.map(v => v.toJSONInternal()),
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
-            signature: this.signature && this.signature.toJSONInternal(),
+            signature: this.signature && this.signature.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

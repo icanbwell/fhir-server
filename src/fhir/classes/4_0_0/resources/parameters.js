@@ -36,7 +36,7 @@ class Parameters extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -206,7 +206,7 @@ class Parameters extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -252,7 +252,7 @@ class Parameters extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Parameters({
@@ -264,7 +264,7 @@ class Parameters extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -287,7 +287,7 @@ class Parameters extends Resource {
             meta: this.meta && this.meta.toJSON(),
             implicitRules: this.implicitRules,
             language: this.language,
-            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON())
         });
     }
 
@@ -312,7 +312,7 @@ class Parameters extends Resource {
             meta: this.meta && this.meta.toJSONInternal(),
             implicitRules: this.implicitRules,
             language: this.language,
-            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

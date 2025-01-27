@@ -63,7 +63,7 @@ class ClinicalUseDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -231,7 +231,7 @@ class ClinicalUseDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -554,7 +554,7 @@ class ClinicalUseDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -628,7 +628,7 @@ class ClinicalUseDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ClinicalUseDefinition({
@@ -654,7 +654,7 @@ class ClinicalUseDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -691,7 +691,7 @@ class ClinicalUseDefinition extends Resource {
             interaction: this.interaction && this.interaction.toJSON(),
             population: this.population && this.population.map(v => v.toJSON()),
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.toJSON(),
-            warning: this.warning && this.warning.toJSON(),
+            warning: this.warning && this.warning.toJSON()
         });
     }
 
@@ -743,7 +743,7 @@ class ClinicalUseDefinition extends Resource {
             interaction: this.interaction && this.interaction.toJSONInternal(),
             population: this.population && this.population.map(v => v.toJSONInternal()),
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.toJSONInternal(),
-            warning: this.warning && this.warning.toJSONInternal(),
+            warning: this.warning && this.warning.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

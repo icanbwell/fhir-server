@@ -31,7 +31,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber,
             timestamp,
             focus,
-            additionalContext,
+            additionalContext
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class SubscriptionStatusNotificationEvent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber,
             timestamp,
             focus,
-            additionalContext,
+            additionalContext
         });
     }
 
@@ -217,7 +217,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber: this.eventNumber,
             timestamp: this.timestamp,
             focus: this.focus && this.focus.toJSON(),
-            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSON()),
+            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSON())
         });
     }
 
@@ -245,7 +245,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber: this.eventNumber,
             timestamp: this.timestamp,
             focus: this.focus && this.focus.toJSONInternal(),
-            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSONInternal()),
+            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -28,7 +28,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension,
             areaUnderCurve,
             lethalDose50,
-            halfLifePeriod,
+            halfLifePeriod
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class MedicationKnowledgeKinetics extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension,
             areaUnderCurve,
             lethalDose50,
-            halfLifePeriod,
+            halfLifePeriod
         });
     }
 
@@ -193,7 +193,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSON()),
             lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSON()),
-            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON(),
+            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON()
         });
     }
 
@@ -221,7 +221,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSONInternal()),
             lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSONInternal()),
-            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSONInternal(),
+            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSONInternal()
         };
 
         return removeNull(json);

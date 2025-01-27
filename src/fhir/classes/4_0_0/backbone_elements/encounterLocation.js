@@ -31,7 +31,7 @@ class EncounterLocation extends Element {
             location,
             status,
             physicalType,
-            period,
+            period
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class EncounterLocation extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -202,7 +202,7 @@ class EncounterLocation extends Element {
             location,
             status,
             physicalType,
-            period,
+            period
         });
     }
 
@@ -218,7 +218,7 @@ class EncounterLocation extends Element {
             location: this.location && this.location.toJSON(),
             status: this.status,
             physicalType: this.physicalType && this.physicalType.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -247,7 +247,7 @@ class EncounterLocation extends Element {
             location: this.location && this.location.toJSONInternal(),
             status: this.status,
             physicalType: this.physicalType && this.physicalType.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

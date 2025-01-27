@@ -40,7 +40,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity,
             minimumVolumeString,
             additive,
-            preparation,
+            preparation
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class SpecimenDefinitionContainer extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -311,7 +311,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity,
             minimumVolumeString,
             additive,
-            preparation,
+            preparation
         });
     }
 
@@ -332,7 +332,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity: this.minimumVolumeQuantity && this.minimumVolumeQuantity.toJSON(),
             minimumVolumeString: this.minimumVolumeString,
             additive: this.additive && this.additive.map(v => v.toJSON()),
-            preparation: this.preparation,
+            preparation: this.preparation
         });
     }
 
@@ -369,7 +369,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity: this.minimumVolumeQuantity && this.minimumVolumeQuantity.toJSONInternal(),
             minimumVolumeString: this.minimumVolumeString,
             additive: this.additive && this.additive.map(v => v.toJSONInternal()),
-            preparation: this.preparation,
+            preparation: this.preparation
         };
 
         return removeNull(json);

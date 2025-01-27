@@ -39,7 +39,7 @@ class ClinicalUseDefinitionIndication extends Element {
             durationRange,
             durationString,
             undesirableEffect,
-            otherTherapy,
+            otherTherapy
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class ClinicalUseDefinitionIndication extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -294,7 +294,7 @@ class ClinicalUseDefinitionIndication extends Element {
             durationRange,
             durationString,
             undesirableEffect,
-            otherTherapy,
+            otherTherapy
         });
     }
 
@@ -314,7 +314,7 @@ class ClinicalUseDefinitionIndication extends Element {
             durationRange: this.durationRange && this.durationRange.toJSON(),
             durationString: this.durationString,
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.map(v => v.toJSON()),
-            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON()),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON())
         });
     }
 
@@ -351,7 +351,7 @@ class ClinicalUseDefinitionIndication extends Element {
             durationRange: this.durationRange && this.durationRange.toJSONInternal(),
             durationString: this.durationString,
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.map(v => v.toJSONInternal()),
-            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -31,7 +31,7 @@ class EvidenceVariableTimeFromStart extends Element {
             description,
             quantity,
             range,
-            note,
+            note
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class EvidenceVariableTimeFromStart extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -200,7 +200,7 @@ class EvidenceVariableTimeFromStart extends Element {
             description,
             quantity,
             range,
-            note,
+            note
         });
     }
 
@@ -216,7 +216,7 @@ class EvidenceVariableTimeFromStart extends Element {
             description: this.description,
             quantity: this.quantity && this.quantity.toJSON(),
             range: this.range && this.range.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -245,7 +245,7 @@ class EvidenceVariableTimeFromStart extends Element {
             description: this.description,
             quantity: this.quantity && this.quantity.toJSONInternal(),
             range: this.range && this.range.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

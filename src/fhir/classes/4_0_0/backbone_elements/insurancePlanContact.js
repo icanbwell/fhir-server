@@ -30,7 +30,7 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class InsurancePlanContact extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         });
     }
 
@@ -217,7 +217,7 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSON(),
             name: this.name && this.name.toJSON(),
             telecom: this.telecom && this.telecom.map(v => v.toJSON()),
-            address: this.address && this.address.toJSON(),
+            address: this.address && this.address.toJSON()
         });
     }
 
@@ -247,7 +247,7 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSONInternal(),
             name: this.name && this.name.toJSONInternal(),
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
-            address: this.address && this.address.toJSONInternal(),
+            address: this.address && this.address.toJSONInternal()
         };
 
         return removeNull(json);

@@ -39,7 +39,7 @@ class StructureMapTarget extends Element {
             listMode,
             listRuleId,
             transform,
-            parameter,
+            parameter
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class StructureMapTarget extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -279,7 +279,7 @@ class StructureMapTarget extends Element {
             listMode,
             listRuleId,
             transform,
-            parameter,
+            parameter
         });
     }
 
@@ -299,7 +299,7 @@ class StructureMapTarget extends Element {
             listMode: this.listMode,
             listRuleId: this.listRuleId,
             transform: this.transform,
-            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON())
         });
     }
 
@@ -330,7 +330,7 @@ class StructureMapTarget extends Element {
             listMode: this.listMode,
             listRuleId: this.listRuleId,
             transform: this.transform,
-            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

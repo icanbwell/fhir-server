@@ -31,7 +31,7 @@ class CareTeamParticipant extends Element {
             role,
             member,
             onBehalfOf,
-            period,
+            period
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class CareTeamParticipant extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -205,7 +205,7 @@ class CareTeamParticipant extends Element {
             role,
             member,
             onBehalfOf,
-            period,
+            period
         });
     }
 
@@ -221,7 +221,7 @@ class CareTeamParticipant extends Element {
             role: this.role && this.role.map(v => v.toJSON()),
             member: this.member && this.member.toJSON(),
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -251,7 +251,7 @@ class CareTeamParticipant extends Element {
             role: this.role && this.role.map(v => v.toJSONInternal()),
             member: this.member && this.member.toJSONInternal(),
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

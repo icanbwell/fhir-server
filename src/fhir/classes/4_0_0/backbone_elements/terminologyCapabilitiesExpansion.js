@@ -34,7 +34,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging,
             incomplete,
             parameter,
-            textFilter,
+            textFilter
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class TerminologyCapabilitiesExpansion extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -217,7 +217,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging,
             incomplete,
             parameter,
-            textFilter,
+            textFilter
         });
     }
 
@@ -234,7 +234,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging: this.paging,
             incomplete: this.incomplete,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            textFilter: this.textFilter,
+            textFilter: this.textFilter
         });
     }
 
@@ -262,7 +262,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging: this.paging,
             incomplete: this.incomplete,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            textFilter: this.textFilter,
+            textFilter: this.textFilter
         };
 
         return removeNull(json);

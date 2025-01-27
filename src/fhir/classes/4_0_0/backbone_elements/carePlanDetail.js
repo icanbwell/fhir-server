@@ -64,7 +64,7 @@ class CarePlanDetail extends Element {
             productReference,
             dailyAmount,
             quantity,
-            description,
+            description
         }
     ) {
         super({});
@@ -123,7 +123,7 @@ class CarePlanDetail extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -576,7 +576,7 @@ class CarePlanDetail extends Element {
             productReference,
             dailyAmount,
             quantity,
-            description,
+            description
         });
     }
 
@@ -608,7 +608,7 @@ class CarePlanDetail extends Element {
             productReference: this.productReference && this.productReference.toJSON(),
             dailyAmount: this.dailyAmount && this.dailyAmount.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -663,7 +663,7 @@ class CarePlanDetail extends Element {
             productReference: this.productReference && this.productReference.toJSONInternal(),
             dailyAmount: this.dailyAmount && this.dailyAmount.toJSONInternal(),
             quantity: this.quantity && this.quantity.toJSONInternal(),
-            description: this.description,
+            description: this.description
         };
 
         return removeNull(json);

@@ -53,7 +53,7 @@ class ObservationComponent extends Element {
             valuePeriod,
             dataAbsentReason,
             interpretation,
-            referenceRange,
+            referenceRange
         }
     ) {
         super({});
@@ -112,7 +112,7 @@ class ObservationComponent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -447,7 +447,7 @@ class ObservationComponent extends Element {
             valuePeriod,
             dataAbsentReason,
             interpretation,
-            referenceRange,
+            referenceRange
         });
     }
 
@@ -474,7 +474,7 @@ class ObservationComponent extends Element {
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSON(),
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSON()),
-            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON())
         });
     }
 
@@ -521,7 +521,7 @@ class ObservationComponent extends Element {
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSONInternal(),
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSONInternal()),
-            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

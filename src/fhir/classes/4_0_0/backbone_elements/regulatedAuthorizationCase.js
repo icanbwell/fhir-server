@@ -37,7 +37,7 @@ class RegulatedAuthorizationCase extends Element {
             status,
             datePeriod,
             dateDateTime,
-            application,
+            application
         }
     ) {
         super({});
@@ -96,7 +96,7 @@ class RegulatedAuthorizationCase extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -250,7 +250,7 @@ class RegulatedAuthorizationCase extends Element {
             status,
             datePeriod,
             dateDateTime,
-            application,
+            application
         });
     }
 
@@ -268,7 +268,7 @@ class RegulatedAuthorizationCase extends Element {
             status: this.status && this.status.toJSON(),
             datePeriod: this.datePeriod && this.datePeriod.toJSON(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSON()),
+            application: this.application && this.application.map(v => v.toJSON())
         });
     }
 
@@ -301,7 +301,7 @@ class RegulatedAuthorizationCase extends Element {
             status: this.status && this.status.toJSONInternal(),
             datePeriod: this.datePeriod && this.datePeriod.toJSONInternal(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSONInternal()),
+            application: this.application && this.application.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

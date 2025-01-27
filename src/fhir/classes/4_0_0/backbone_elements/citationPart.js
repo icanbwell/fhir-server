@@ -32,7 +32,7 @@ class CitationPart extends Element {
             modifierExtension,
             type,
             value,
-            baseCitation,
+            baseCitation
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class CitationPart extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -179,7 +179,7 @@ class CitationPart extends Element {
             modifierExtension,
             type,
             value,
-            baseCitation,
+            baseCitation
         });
     }
 
@@ -194,7 +194,7 @@ class CitationPart extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             value: this.value,
-            baseCitation: this.baseCitation && this.baseCitation.toJSON(),
+            baseCitation: this.baseCitation && this.baseCitation.toJSON()
         });
     }
 
@@ -221,7 +221,7 @@ class CitationPart extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             value: this.value,
-            baseCitation: this.baseCitation && this.baseCitation.toJSONInternal(),
+            baseCitation: this.baseCitation && this.baseCitation.toJSONInternal()
         };
 
         return removeNull(json);

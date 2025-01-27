@@ -27,7 +27,7 @@ class NutritionOrderTexture extends Element {
             extension,
             modifierExtension,
             modifier,
-            foodType,
+            foodType
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class NutritionOrderTexture extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -157,7 +157,7 @@ class NutritionOrderTexture extends Element {
             extension,
             modifierExtension,
             modifier,
-            foodType,
+            foodType
         });
     }
 
@@ -171,7 +171,7 @@ class NutritionOrderTexture extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             modifier: this.modifier && this.modifier.toJSON(),
-            foodType: this.foodType && this.foodType.toJSON(),
+            foodType: this.foodType && this.foodType.toJSON()
         });
     }
 
@@ -197,7 +197,7 @@ class NutritionOrderTexture extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             modifier: this.modifier && this.modifier.toJSONInternal(),
-            foodType: this.foodType && this.foodType.toJSONInternal(),
+            foodType: this.foodType && this.foodType.toJSONInternal()
         };
 
         return removeNull(json);

@@ -70,7 +70,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -238,7 +238,7 @@ class Consent extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -626,7 +626,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -706,7 +706,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Consent({
@@ -735,7 +735,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -775,7 +775,7 @@ class Consent extends Resource {
             policy: this.policy && this.policy.map(v => v.toJSON()),
             policyRule: this.policyRule && this.policyRule.toJSON(),
             verification: this.verification && this.verification.map(v => v.toJSON()),
-            provision: this.provision && this.provision.toJSON(),
+            provision: this.provision && this.provision.toJSON()
         });
     }
 
@@ -832,7 +832,7 @@ class Consent extends Resource {
             policy: this.policy && this.policy.map(v => v.toJSONInternal()),
             policyRule: this.policyRule && this.policyRule.toJSONInternal(),
             verification: this.verification && this.verification.map(v => v.toJSONInternal()),
-            provision: this.provision && this.provision.toJSONInternal(),
+            provision: this.provision && this.provision.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

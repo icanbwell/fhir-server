@@ -79,7 +79,7 @@ class SubstanceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -247,7 +247,7 @@ class SubstanceDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -736,7 +736,7 @@ class SubstanceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -826,7 +826,7 @@ class SubstanceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceDefinition({
@@ -860,7 +860,7 @@ class SubstanceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -905,7 +905,7 @@ class SubstanceDefinition extends Resource {
             code: this.code && this.code.map(v => v.toJSON()),
             name: this.name && this.name.map(v => v.toJSON()),
             relationship: this.relationship && this.relationship.map(v => v.toJSON()),
-            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSON(),
+            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSON()
         });
     }
 
@@ -972,7 +972,7 @@ class SubstanceDefinition extends Resource {
             code: this.code && this.code.map(v => v.toJSONInternal()),
             name: this.name && this.name.map(v => v.toJSONInternal()),
             relationship: this.relationship && this.relationship.map(v => v.toJSONInternal()),
-            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSONInternal(),
+            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

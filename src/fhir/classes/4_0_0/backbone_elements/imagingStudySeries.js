@@ -50,7 +50,7 @@ class ImagingStudySeries extends Element {
             specimen,
             started,
             performer,
-            instance,
+            instance
         }
     ) {
         super({});
@@ -109,7 +109,7 @@ class ImagingStudySeries extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -391,7 +391,7 @@ class ImagingStudySeries extends Element {
             specimen,
             started,
             performer,
-            instance,
+            instance
         });
     }
 
@@ -415,7 +415,7 @@ class ImagingStudySeries extends Element {
             specimen: this.specimen && this.specimen.map(v => v.toJSON()),
             started: this.started,
             performer: this.performer && this.performer.map(v => v.toJSON()),
-            instance: this.instance && this.instance.map(v => v.toJSON()),
+            instance: this.instance && this.instance.map(v => v.toJSON())
         });
     }
 
@@ -456,7 +456,7 @@ class ImagingStudySeries extends Element {
             specimen: this.specimen && this.specimen.map(v => v.toJSONInternal()),
             started: this.started,
             performer: this.performer && this.performer.map(v => v.toJSONInternal()),
-            instance: this.instance && this.instance.map(v => v.toJSONInternal()),
+            instance: this.instance && this.instance.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

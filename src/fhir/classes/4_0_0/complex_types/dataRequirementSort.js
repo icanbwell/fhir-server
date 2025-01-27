@@ -27,7 +27,7 @@ class DataRequirementSort extends Element {
             id,
             extension,
             path,
-            direction,
+            direction
         }
     ) {
         super({});
@@ -121,7 +121,7 @@ class DataRequirementSort extends Element {
             id,
             extension,
             path,
-            direction,
+            direction
         });
     }
 
@@ -134,7 +134,7 @@ class DataRequirementSort extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             path: this.path,
-            direction: this.direction,
+            direction: this.direction
         });
     }
 
@@ -156,7 +156,7 @@ class DataRequirementSort extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             path: this.path,
-            direction: this.direction,
+            direction: this.direction
         };
 
         return removeNull(json);

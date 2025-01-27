@@ -30,7 +30,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension,
             language,
             use,
-            value,
+            value
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class CodeSystemDesignation extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -175,7 +175,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension,
             language,
             use,
-            value,
+            value
         });
     }
 
@@ -190,7 +190,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             language: this.language,
             use: this.use && this.use.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -216,7 +216,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             language: this.language,
             use: this.use && this.use.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
         return removeNull(json);

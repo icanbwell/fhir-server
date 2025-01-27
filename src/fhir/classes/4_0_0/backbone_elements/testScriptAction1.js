@@ -27,7 +27,7 @@ class TestScriptAction1 extends Element {
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class TestScriptAction1 extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -156,7 +156,7 @@ class TestScriptAction1 extends Element {
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         });
     }
 
@@ -170,7 +170,7 @@ class TestScriptAction1 extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             operation: this.operation && this.operation.toJSON(),
-            assert: this.assert && this.assert.toJSON(),
+            assert: this.assert && this.assert.toJSON()
         });
     }
 
@@ -196,7 +196,7 @@ class TestScriptAction1 extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.toJSONInternal(),
-            assert: this.assert && this.assert.toJSONInternal(),
+            assert: this.assert && this.assert.toJSONInternal()
         };
 
         return removeNull(json);

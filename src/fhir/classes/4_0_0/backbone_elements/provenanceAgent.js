@@ -38,7 +38,7 @@ class ProvenanceAgent extends Element {
             type,
             role,
             who,
-            onBehalfOf,
+            onBehalfOf
         }
     ) {
         super({});
@@ -97,7 +97,7 @@ class ProvenanceAgent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -209,7 +209,7 @@ class ProvenanceAgent extends Element {
             type,
             role,
             who,
-            onBehalfOf,
+            onBehalfOf
         });
     }
 
@@ -225,7 +225,7 @@ class ProvenanceAgent extends Element {
             type: this.type && this.type.toJSON(),
             role: this.role && this.role.map(v => v.toJSON()),
             who: this.who && this.who.toJSON(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON()
         });
     }
 
@@ -255,7 +255,7 @@ class ProvenanceAgent extends Element {
             type: this.type && this.type.toJSONInternal(),
             role: this.role && this.role.map(v => v.toJSONInternal()),
             who: this.who && this.who.toJSONInternal(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal()
         };
 
         return removeNull(json);

@@ -28,7 +28,7 @@ class EvidenceReportSubject extends Element {
             extension,
             modifierExtension,
             characteristic,
-            note,
+            note
         }
     ) {
         super({});
@@ -87,7 +87,7 @@ class EvidenceReportSubject extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -156,7 +156,7 @@ class EvidenceReportSubject extends Element {
             extension,
             modifierExtension,
             characteristic,
-            note,
+            note
         });
     }
 
@@ -170,7 +170,7 @@ class EvidenceReportSubject extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -196,7 +196,7 @@ class EvidenceReportSubject extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

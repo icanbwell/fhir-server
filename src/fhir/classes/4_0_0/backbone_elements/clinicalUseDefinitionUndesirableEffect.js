@@ -29,7 +29,7 @@ class ClinicalUseDefinitionUndesirableEffect extends Element {
             modifierExtension,
             symptomConditionEffect,
             classification,
-            frequencyOfOccurrence,
+            frequencyOfOccurrence
         }
     ) {
         super({});
@@ -88,7 +88,7 @@ class ClinicalUseDefinitionUndesirableEffect extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -178,7 +178,7 @@ class ClinicalUseDefinitionUndesirableEffect extends Element {
             modifierExtension,
             symptomConditionEffect,
             classification,
-            frequencyOfOccurrence,
+            frequencyOfOccurrence
         });
     }
 
@@ -193,7 +193,7 @@ class ClinicalUseDefinitionUndesirableEffect extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             symptomConditionEffect: this.symptomConditionEffect && this.symptomConditionEffect.toJSON(),
             classification: this.classification && this.classification.toJSON(),
-            frequencyOfOccurrence: this.frequencyOfOccurrence && this.frequencyOfOccurrence.toJSON(),
+            frequencyOfOccurrence: this.frequencyOfOccurrence && this.frequencyOfOccurrence.toJSON()
         });
     }
 
@@ -221,7 +221,7 @@ class ClinicalUseDefinitionUndesirableEffect extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             symptomConditionEffect: this.symptomConditionEffect && this.symptomConditionEffect.toJSONInternal(),
             classification: this.classification && this.classification.toJSONInternal(),
-            frequencyOfOccurrence: this.frequencyOfOccurrence && this.frequencyOfOccurrence.toJSONInternal(),
+            frequencyOfOccurrence: this.frequencyOfOccurrence && this.frequencyOfOccurrence.toJSONInternal()
         };
 
         return removeNull(json);

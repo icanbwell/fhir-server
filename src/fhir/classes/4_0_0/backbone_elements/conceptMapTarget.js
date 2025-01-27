@@ -36,7 +36,7 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class ConceptMapTarget extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -250,7 +250,7 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         });
     }
 
@@ -268,7 +268,7 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
-            product: this.product && this.product.map(v => v.toJSON()),
+            product: this.product && this.product.map(v => v.toJSON())
         });
     }
 
@@ -298,7 +298,7 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
-            product: this.product && this.product.map(v => v.toJSONInternal()),
+            product: this.product && this.product.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

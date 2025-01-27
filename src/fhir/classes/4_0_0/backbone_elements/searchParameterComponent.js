@@ -27,7 +27,7 @@ class SearchParameterComponent extends Element {
             extension,
             modifierExtension,
             definition,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class SearchParameterComponent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -152,7 +152,7 @@ class SearchParameterComponent extends Element {
             extension,
             modifierExtension,
             definition,
-            expression,
+            expression
         });
     }
 
@@ -166,7 +166,7 @@ class SearchParameterComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             definition: this.definition,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -190,7 +190,7 @@ class SearchParameterComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             definition: this.definition,
-            expression: this.expression,
+            expression: this.expression
         };
 
         return removeNull(json);

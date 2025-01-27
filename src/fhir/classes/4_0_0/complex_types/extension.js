@@ -126,7 +126,7 @@ class Extension extends Element {
             valueRelatedArtifact,
             valueTriggerDefinition,
             valueUsageContext,
-            valueDosage,
+            valueDosage
         }
     ) {
         super({});
@@ -1230,7 +1230,7 @@ class Extension extends Element {
             valueRelatedArtifact,
             valueTriggerDefinition,
             valueUsageContext,
-            valueDosage,
+            valueDosage
         });
     }
 
@@ -1293,7 +1293,7 @@ class Extension extends Element {
             valueRelatedArtifact: this.valueRelatedArtifact && this.valueRelatedArtifact.toJSON(),
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSON(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
-            valueDosage: this.valueDosage && this.valueDosage.toJSON(),
+            valueDosage: this.valueDosage && this.valueDosage.toJSON()
         });
     }
 
@@ -1397,7 +1397,7 @@ class Extension extends Element {
             valueRelatedArtifact: this.valueRelatedArtifact && this.valueRelatedArtifact.toJSONInternal(),
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSONInternal(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSONInternal(),
-            valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
+            valueDosage: this.valueDosage && this.valueDosage.toJSONInternal()
         };
 
         return removeNull(json);

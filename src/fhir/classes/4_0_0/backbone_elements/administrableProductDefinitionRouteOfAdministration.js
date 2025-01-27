@@ -38,7 +38,7 @@ class AdministrableProductDefinitionRouteOfAdministration extends Element {
             maxDosePerDay,
             maxDosePerTreatmentPeriod,
             maxTreatmentPeriod,
-            targetSpecies,
+            targetSpecies
         }
     ) {
         super({});
@@ -97,7 +97,7 @@ class AdministrableProductDefinitionRouteOfAdministration extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -274,7 +274,7 @@ class AdministrableProductDefinitionRouteOfAdministration extends Element {
             maxDosePerDay,
             maxDosePerTreatmentPeriod,
             maxTreatmentPeriod,
-            targetSpecies,
+            targetSpecies
         });
     }
 
@@ -293,7 +293,7 @@ class AdministrableProductDefinitionRouteOfAdministration extends Element {
             maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSON(),
             maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSON(),
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSON(),
-            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON()),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON())
         });
     }
 
@@ -329,7 +329,7 @@ class AdministrableProductDefinitionRouteOfAdministration extends Element {
             maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSONInternal(),
             maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSONInternal(),
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSONInternal(),
-            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal()),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

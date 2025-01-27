@@ -31,11 +31,11 @@ class StructureMapGroup extends Element {
             extension,
             modifierExtension,
             name,
-            'extends': extends_,
+            extends: extends_,
             typeMode,
             documentation,
             input,
-            rule,
+            rule
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class StructureMapGroup extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -238,11 +238,11 @@ class StructureMapGroup extends Element {
             extension,
             modifierExtension,
             name,
-            'extends': extends_,
+            extends: extends_,
             typeMode,
             documentation,
             input,
-            rule,
+            rule
         });
     }
 
@@ -260,7 +260,7 @@ class StructureMapGroup extends Element {
             typeMode: this.typeMode,
             documentation: this.documentation,
             input: this.input && this.input.map(v => v.toJSON()),
-            rule: this.rule && this.rule.map(v => v.toJSON()),
+            rule: this.rule && this.rule.map(v => v.toJSON())
         });
     }
 
@@ -290,7 +290,7 @@ class StructureMapGroup extends Element {
             typeMode: this.typeMode,
             documentation: this.documentation,
             input: this.input && this.input.map(v => v.toJSONInternal()),
-            rule: this.rule && this.rule.map(v => v.toJSONInternal()),
+            rule: this.rule && this.rule.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

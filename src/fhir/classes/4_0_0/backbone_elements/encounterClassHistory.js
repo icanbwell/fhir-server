@@ -26,8 +26,8 @@ class EncounterClassHistory extends Element {
             id,
             extension,
             modifierExtension,
-            'class': class_,
-            period,
+            class: class_,
+            period
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class EncounterClassHistory extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -154,8 +154,8 @@ class EncounterClassHistory extends Element {
             id,
             extension,
             modifierExtension,
-            'class': class_,
-            period,
+            class: class_,
+            period
         });
     }
 
@@ -169,7 +169,7 @@ class EncounterClassHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             class: this.class && this.class.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -195,7 +195,7 @@ class EncounterClassHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             class: this.class && this.class.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
         return removeNull(json);

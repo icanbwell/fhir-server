@@ -68,7 +68,7 @@ class PackagedProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -236,7 +236,7 @@ class PackagedProductDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -635,7 +635,7 @@ class PackagedProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -715,7 +715,7 @@ class PackagedProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new PackagedProductDefinition({
@@ -744,7 +744,7 @@ class PackagedProductDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -784,7 +784,7 @@ class PackagedProductDefinition extends Resource {
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
             copackagedIndicator: this.copackagedIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
-            package: this.package && this.package.toJSON(),
+            package: this.package && this.package.toJSON()
         });
     }
 
@@ -839,7 +839,7 @@ class PackagedProductDefinition extends Resource {
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
             copackagedIndicator: this.copackagedIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
-            package: this.package && this.package.toJSONInternal(),
+            package: this.package && this.package.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -46,7 +46,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice,
             facility,
             diagnosis,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -105,7 +105,7 @@ class CoverageEligibilityRequestItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -344,7 +344,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice,
             facility,
             diagnosis,
-            detail,
+            detail
         });
     }
 
@@ -366,7 +366,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
             facility: this.facility && this.facility.toJSON(),
             diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -407,7 +407,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
             facility: this.facility && this.facility.toJSONInternal(),
             diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

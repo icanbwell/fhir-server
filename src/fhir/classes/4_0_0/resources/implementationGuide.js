@@ -83,7 +83,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -251,7 +251,7 @@ class ImplementationGuide extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -774,7 +774,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -866,7 +866,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImplementationGuide({
@@ -901,7 +901,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -947,7 +947,7 @@ class ImplementationGuide extends Resource {
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
             global: this.global && this.global.map(v => v.toJSON()),
             definition: this.definition && this.definition.toJSON(),
-            manifest: this.manifest && this.manifest.toJSON(),
+            manifest: this.manifest && this.manifest.toJSON()
         });
     }
 
@@ -1005,7 +1005,7 @@ class ImplementationGuide extends Resource {
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
             global: this.global && this.global.map(v => v.toJSONInternal()),
             definition: this.definition && this.definition.toJSONInternal(),
-            manifest: this.manifest && this.manifest.toJSONInternal(),
+            manifest: this.manifest && this.manifest.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

@@ -69,6 +69,6 @@ module.exports = {
     codeablereference,
     signature,
     codeableconcept,
-    parameterdefinition,
+    parameterdefinition
 };
 

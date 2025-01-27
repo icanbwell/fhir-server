@@ -89,7 +89,7 @@ class ChargeItemDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -257,7 +257,7 @@ class ChargeItemDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -843,7 +843,7 @@ class ChargeItemDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -941,7 +941,7 @@ class ChargeItemDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ChargeItemDefinition({
@@ -979,7 +979,7 @@ class ChargeItemDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1028,7 +1028,7 @@ class ChargeItemDefinition extends Resource {
             code: this.code && this.code.toJSON(),
             instance: this.instance && this.instance.map(v => v.toJSON()),
             applicability: this.applicability && this.applicability.map(v => v.toJSON()),
-            propertyGroup: this.propertyGroup && this.propertyGroup.map(v => v.toJSON()),
+            propertyGroup: this.propertyGroup && this.propertyGroup.map(v => v.toJSON())
         });
     }
 
@@ -1091,7 +1091,7 @@ class ChargeItemDefinition extends Resource {
             code: this.code && this.code.toJSONInternal(),
             instance: this.instance && this.instance.map(v => v.toJSONInternal()),
             applicability: this.applicability && this.applicability.map(v => v.toJSONInternal()),
-            propertyGroup: this.propertyGroup && this.propertyGroup.map(v => v.toJSONInternal()),
+            propertyGroup: this.propertyGroup && this.propertyGroup.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

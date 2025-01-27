@@ -32,7 +32,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class BiologicallyDerivedProductStorage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -196,7 +196,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         });
     }
 
@@ -212,7 +212,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSON(),
+            duration: this.duration && this.duration.toJSON()
         });
     }
 
@@ -239,7 +239,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSONInternal(),
+            duration: this.duration && this.duration.toJSONInternal()
         };
 
         return removeNull(json);

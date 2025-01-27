@@ -51,7 +51,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -219,7 +219,7 @@ class ImmunizationRecommendation extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -410,7 +410,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -472,7 +472,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImmunizationRecommendation({
@@ -492,7 +492,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -523,7 +523,7 @@ class ImmunizationRecommendation extends Resource {
             patient: this.patient && this.patient.toJSON(),
             date: this.date,
             authority: this.authority && this.authority.toJSON(),
-            recommendation: this.recommendation && this.recommendation.map(v => v.toJSON()),
+            recommendation: this.recommendation && this.recommendation.map(v => v.toJSON())
         });
     }
 
@@ -563,7 +563,7 @@ class ImmunizationRecommendation extends Resource {
             patient: this.patient && this.patient.toJSONInternal(),
             date: this.date,
             authority: this.authority && this.authority.toJSONInternal(),
-            recommendation: this.recommendation && this.recommendation.map(v => v.toJSONInternal()),
+            recommendation: this.recommendation && this.recommendation.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

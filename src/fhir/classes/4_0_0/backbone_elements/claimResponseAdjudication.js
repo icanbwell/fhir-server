@@ -31,7 +31,7 @@ class ClaimResponseAdjudication extends Element {
             category,
             reason,
             amount,
-            value,
+            value
         }
     ) {
         super({});
@@ -90,7 +90,7 @@ class ClaimResponseAdjudication extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -205,7 +205,7 @@ class ClaimResponseAdjudication extends Element {
             category,
             reason,
             amount,
-            value,
+            value
         });
     }
 
@@ -221,7 +221,7 @@ class ClaimResponseAdjudication extends Element {
             category: this.category && this.category.toJSON(),
             reason: this.reason && this.reason.toJSON(),
             amount: this.amount && this.amount.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -250,7 +250,7 @@ class ClaimResponseAdjudication extends Element {
             category: this.category && this.category.toJSONInternal(),
             reason: this.reason && this.reason.toJSONInternal(),
             amount: this.amount && this.amount.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
         return removeNull(json);

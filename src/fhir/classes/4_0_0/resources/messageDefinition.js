@@ -92,7 +92,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -260,7 +260,7 @@ class MessageDefinition extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -873,7 +873,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -975,7 +975,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MessageDefinition({
@@ -1015,7 +1015,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1066,7 +1066,7 @@ class MessageDefinition extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSON()),
             responseRequired: this.responseRequired,
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSON()),
-            graph: this.graph,
+            graph: this.graph
         });
     }
 
@@ -1129,7 +1129,7 @@ class MessageDefinition extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
             responseRequired: this.responseRequired,
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSONInternal()),
-            graph: this.graph,
+            graph: this.graph
         };
         if (this._access) {
             json._access = this._access;

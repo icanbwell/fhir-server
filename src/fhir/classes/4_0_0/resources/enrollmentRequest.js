@@ -55,7 +55,7 @@ class EnrollmentRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -223,7 +223,7 @@ class EnrollmentRequest extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -454,7 +454,7 @@ class EnrollmentRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -520,7 +520,7 @@ class EnrollmentRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EnrollmentRequest({
@@ -542,7 +542,7 @@ class EnrollmentRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -575,7 +575,7 @@ class EnrollmentRequest extends Resource {
             insurer: this.insurer && this.insurer.toJSON(),
             provider: this.provider && this.provider.toJSON(),
             candidate: this.candidate && this.candidate.toJSON(),
-            coverage: this.coverage && this.coverage.toJSON(),
+            coverage: this.coverage && this.coverage.toJSON()
         });
     }
 
@@ -618,7 +618,7 @@ class EnrollmentRequest extends Resource {
             insurer: this.insurer && this.insurer.toJSONInternal(),
             provider: this.provider && this.provider.toJSONInternal(),
             candidate: this.candidate && this.candidate.toJSONInternal(),
-            coverage: this.coverage && this.coverage.toJSONInternal(),
+            coverage: this.coverage && this.coverage.toJSONInternal()
         };
         if (this._access) {
             json._access = this._access;

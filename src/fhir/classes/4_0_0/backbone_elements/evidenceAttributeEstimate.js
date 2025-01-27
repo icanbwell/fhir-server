@@ -39,7 +39,7 @@ class EvidenceAttributeEstimate extends Element {
             quantity,
             level,
             range,
-            attributeEstimate,
+            attributeEstimate
         }
     ) {
         super({});
@@ -98,7 +98,7 @@ class EvidenceAttributeEstimate extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -269,7 +269,7 @@ class EvidenceAttributeEstimate extends Element {
             quantity,
             level,
             range,
-            attributeEstimate,
+            attributeEstimate
         });
     }
 
@@ -288,7 +288,7 @@ class EvidenceAttributeEstimate extends Element {
             quantity: this.quantity && this.quantity.toJSON(),
             level: this.level,
             range: this.range && this.range.toJSON(),
-            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSON()),
+            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSON())
         });
     }
 
@@ -322,7 +322,7 @@ class EvidenceAttributeEstimate extends Element {
             quantity: this.quantity && this.quantity.toJSONInternal(),
             level: this.level,
             range: this.range && this.range.toJSONInternal(),
-            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSONInternal()),
+            attributeEstimate: this.attributeEstimate && this.attributeEstimate.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

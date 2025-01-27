@@ -53,7 +53,7 @@ class ContractAsset extends Element {
             linkId,
             answer,
             securityLabelNumber,
-            valuedItem,
+            valuedItem
         }
     ) {
         super({});
@@ -112,7 +112,7 @@ class ContractAsset extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -451,7 +451,7 @@ class ContractAsset extends Element {
             linkId,
             answer,
             securityLabelNumber,
-            valuedItem,
+            valuedItem
         });
     }
 
@@ -478,7 +478,7 @@ class ContractAsset extends Element {
             linkId: this.linkId,
             answer: this.answer && this.answer.map(v => v.toJSON()),
             securityLabelNumber: this.securityLabelNumber,
-            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSON()),
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSON())
         });
     }
 
@@ -526,7 +526,7 @@ class ContractAsset extends Element {
             linkId: this.linkId,
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
             securityLabelNumber: this.securityLabelNumber,
-            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal()),
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

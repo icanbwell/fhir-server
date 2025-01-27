@@ -33,7 +33,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate,
             current,
             resultForDelete,
-            requireBoth,
+            requireBoth
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class SubscriptionTopicQueryCriteria extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -220,7 +220,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate,
             current,
             resultForDelete,
-            requireBoth,
+            requireBoth
         });
     }
 
@@ -237,7 +237,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate: this.resultForCreate,
             current: this.current,
             resultForDelete: this.resultForDelete,
-            requireBoth: this.requireBoth,
+            requireBoth: this.requireBoth
         });
     }
 
@@ -264,7 +264,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate: this.resultForCreate,
             current: this.current,
             resultForDelete: this.resultForDelete,
-            requireBoth: this.requireBoth,
+            requireBoth: this.requireBoth
         };
 
         return removeNull(json);

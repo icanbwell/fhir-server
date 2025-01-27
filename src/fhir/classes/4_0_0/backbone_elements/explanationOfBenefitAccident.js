@@ -32,7 +32,7 @@ class ExplanationOfBenefitAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class ExplanationOfBenefitAccident extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -203,7 +203,7 @@ class ExplanationOfBenefitAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         });
     }
 
@@ -219,7 +219,7 @@ class ExplanationOfBenefitAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSON(),
             locationAddress: this.locationAddress && this.locationAddress.toJSON(),
-            locationReference: this.locationReference && this.locationReference.toJSON(),
+            locationReference: this.locationReference && this.locationReference.toJSON()
         });
     }
 
@@ -248,7 +248,7 @@ class ExplanationOfBenefitAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSONInternal(),
             locationAddress: this.locationAddress && this.locationAddress.toJSONInternal(),
-            locationReference: this.locationReference && this.locationReference.toJSONInternal(),
+            locationReference: this.locationReference && this.locationReference.toJSONInternal()
         };
 
         return removeNull(json);

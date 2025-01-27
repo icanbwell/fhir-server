@@ -34,7 +34,7 @@ class Quantity extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         }
     ) {
         super({});
@@ -185,7 +185,7 @@ class Quantity extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         });
     }
 
@@ -201,7 +201,7 @@ class Quantity extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         });
     }
 
@@ -226,7 +226,7 @@ class Quantity extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         };
 
         return removeNull(json);

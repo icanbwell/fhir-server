@@ -28,7 +28,7 @@ class Age extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         }
     ) {
         super({});
@@ -135,7 +135,7 @@ class Age extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         });
     }
 
@@ -149,7 +149,7 @@ class Age extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         });
     }
 
@@ -171,7 +171,7 @@ class Age extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         };
 
         return removeNull(json);

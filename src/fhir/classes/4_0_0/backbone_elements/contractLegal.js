@@ -27,7 +27,7 @@ class ContractLegal extends Element {
             extension,
             modifierExtension,
             contentAttachment,
-            contentReference,
+            contentReference
         }
     ) {
         super({});
@@ -86,7 +86,7 @@ class ContractLegal extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -155,7 +155,7 @@ class ContractLegal extends Element {
             extension,
             modifierExtension,
             contentAttachment,
-            contentReference,
+            contentReference
         });
     }
 
@@ -169,7 +169,7 @@ class ContractLegal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
+            contentReference: this.contentReference && this.contentReference.toJSON()
         });
     }
 
@@ -195,7 +195,7 @@ class ContractLegal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
-            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
 
         return removeNull(json);

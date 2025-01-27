@@ -41,7 +41,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy,
             specialArrangement,
             destination,
-            dischargeDisposition,
+            dischargeDisposition
         }
     ) {
         super({});
@@ -100,7 +100,7 @@ class EncounterHospitalization extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -317,7 +317,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy,
             specialArrangement,
             destination,
-            dischargeDisposition,
+            dischargeDisposition
         });
     }
 
@@ -338,7 +338,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSON()),
             specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSON()),
             destination: this.destination && this.destination.toJSON(),
-            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSON(),
+            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSON()
         });
     }
 
@@ -378,7 +378,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSONInternal()),
             specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSONInternal()),
             destination: this.destination && this.destination.toJSONInternal(),
-            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal(),
+            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal()
         };
 
         return removeNull(json);

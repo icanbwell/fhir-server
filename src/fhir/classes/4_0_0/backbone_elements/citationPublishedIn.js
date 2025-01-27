@@ -36,7 +36,7 @@ class CitationPublishedIn extends Element {
             identifier,
             title,
             publisher,
-            publisherLocation,
+            publisherLocation
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class CitationPublishedIn extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -224,7 +224,7 @@ class CitationPublishedIn extends Element {
             identifier,
             title,
             publisher,
-            publisherLocation,
+            publisherLocation
         });
     }
 
@@ -241,7 +241,7 @@ class CitationPublishedIn extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             title: this.title,
             publisher: this.publisher && this.publisher.toJSON(),
-            publisherLocation: this.publisherLocation,
+            publisherLocation: this.publisherLocation
         });
     }
 
@@ -271,7 +271,7 @@ class CitationPublishedIn extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
             title: this.title,
             publisher: this.publisher && this.publisher.toJSONInternal(),
-            publisherLocation: this.publisherLocation,
+            publisherLocation: this.publisherLocation
         };
 
         return removeNull(json);

@@ -68,7 +68,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -236,7 +236,7 @@ class NamingSystem extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -600,7 +600,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -678,7 +678,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new NamingSystem({
@@ -706,7 +706,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -745,7 +745,7 @@ class NamingSystem extends Resource {
             useContext: this.useContext && this.useContext.map(v => v.toJSON()),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
             usage: this.usage,
-            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSON()),
+            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSON())
         });
     }
 
@@ -794,7 +794,7 @@ class NamingSystem extends Resource {
             useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
             usage: this.usage,
-            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSONInternal()),
+            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

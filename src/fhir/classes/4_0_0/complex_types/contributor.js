@@ -29,7 +29,7 @@ class Contributor extends Element {
             extension,
             type,
             name,
-            contact,
+            contact
         }
     ) {
         super({});
@@ -142,7 +142,7 @@ class Contributor extends Element {
             extension,
             type,
             name,
-            contact,
+            contact
         });
     }
 
@@ -156,7 +156,7 @@ class Contributor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             type: this.type,
             name: this.name,
-            contact: this.contact && this.contact.map(v => v.toJSON()),
+            contact: this.contact && this.contact.map(v => v.toJSON())
         });
     }
 
@@ -180,7 +180,7 @@ class Contributor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             type: this.type,
             name: this.name,
-            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            contact: this.contact && this.contact.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

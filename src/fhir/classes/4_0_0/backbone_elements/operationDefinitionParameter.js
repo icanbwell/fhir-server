@@ -45,7 +45,7 @@ class OperationDefinitionParameter extends Element {
             searchType,
             binding,
             referencedFrom,
-            part,
+            part
         }
     ) {
         super({});
@@ -104,7 +104,7 @@ class OperationDefinitionParameter extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -357,7 +357,7 @@ class OperationDefinitionParameter extends Element {
             searchType,
             binding,
             referencedFrom,
-            part,
+            part
         });
     }
 
@@ -380,7 +380,7 @@ class OperationDefinitionParameter extends Element {
             searchType: this.searchType,
             binding: this.binding && this.binding.toJSON(),
             referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSON()),
-            part: this.part && this.part.map(v => v.toJSON()),
+            part: this.part && this.part.map(v => v.toJSON())
         });
     }
 
@@ -416,7 +416,7 @@ class OperationDefinitionParameter extends Element {
             searchType: this.searchType,
             binding: this.binding && this.binding.toJSONInternal(),
             referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSONInternal()),
-            part: this.part && this.part.map(v => v.toJSONInternal()),
+            part: this.part && this.part.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

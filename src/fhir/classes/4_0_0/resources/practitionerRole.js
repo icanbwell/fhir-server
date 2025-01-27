@@ -69,7 +69,7 @@ class PractitionerRole extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -237,7 +237,7 @@ class PractitionerRole extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -623,7 +623,7 @@ class PractitionerRole extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -703,7 +703,7 @@ class PractitionerRole extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new PractitionerRole({
@@ -732,7 +732,7 @@ class PractitionerRole extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -772,7 +772,7 @@ class PractitionerRole extends Resource {
             availableTime: this.availableTime && this.availableTime.map(v => v.toJSON()),
             notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSON()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON())
         });
     }
 
@@ -829,7 +829,7 @@ class PractitionerRole extends Resource {
             availableTime: this.availableTime && this.availableTime.map(v => v.toJSONInternal()),
             notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSONInternal()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

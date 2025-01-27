@@ -56,7 +56,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -224,7 +224,7 @@ class Schedule extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -485,7 +485,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -553,7 +553,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Schedule({
@@ -576,7 +576,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -610,7 +610,7 @@ class Schedule extends Resource {
             specialty: this.specialty && this.specialty.map(v => v.toJSON()),
             actor: this.actor && this.actor.map(v => v.toJSON()),
             planningHorizon: this.planningHorizon && this.planningHorizon.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -655,7 +655,7 @@ class Schedule extends Resource {
             specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
             actor: this.actor && this.actor.map(v => v.toJSONInternal()),
             planningHorizon: this.planningHorizon && this.planningHorizon.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
         if (this._access) {
             json._access = this._access;

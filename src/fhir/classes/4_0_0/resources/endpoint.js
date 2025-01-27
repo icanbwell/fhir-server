@@ -64,7 +64,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -232,7 +232,7 @@ class Endpoint extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -550,7 +550,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -624,7 +624,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Endpoint({
@@ -650,7 +650,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -687,7 +687,7 @@ class Endpoint extends Resource {
             payloadType: this.payloadType && this.payloadType.map(v => v.toJSON()),
             payloadMimeType: this.payloadMimeType,
             address: this.address,
-            header: this.header,
+            header: this.header
         });
     }
 
@@ -735,7 +735,7 @@ class Endpoint extends Resource {
             payloadType: this.payloadType && this.payloadType.map(v => v.toJSONInternal()),
             payloadMimeType: this.payloadMimeType,
             address: this.address,
-            header: this.header,
+            header: this.header
         };
         if (this._access) {
             json._access = this._access;

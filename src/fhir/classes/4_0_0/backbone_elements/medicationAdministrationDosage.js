@@ -40,7 +40,7 @@ class MedicationAdministrationDosage extends Element {
             method,
             dose,
             rateRatio,
-            rateQuantity,
+            rateQuantity
         }
     ) {
         super({});
@@ -99,7 +99,7 @@ class MedicationAdministrationDosage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -125,7 +125,7 @@ class MedicationAdministrationDosage extends Element {
          * @description Free text dosage can be used for cases where the dosage administered is too
     complex to code. When coded dosage is present, the free text dosage may still
     be present for display to humans.
-    
+
     The dosage instructions should reflect the dosage of the medication that was
     administered.
          * @property {String|undefined}
@@ -284,7 +284,7 @@ class MedicationAdministrationDosage extends Element {
             method,
             dose,
             rateRatio,
-            rateQuantity,
+            rateQuantity
         });
     }
 
@@ -303,7 +303,7 @@ class MedicationAdministrationDosage extends Element {
             method: this.method && this.method.toJSON(),
             dose: this.dose && this.dose.toJSON(),
             rateRatio: this.rateRatio && this.rateRatio.toJSON(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON()
         });
     }
 
@@ -338,7 +338,7 @@ class MedicationAdministrationDosage extends Element {
             method: this.method && this.method.toJSONInternal(),
             dose: this.dose && this.dose.toJSONInternal(),
             rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
 
         return removeNull(json);

@@ -43,7 +43,7 @@ class EvidenceVariableCharacteristic extends Element {
             device,
             exclude,
             timeFromStart,
-            groupMeasure,
+            groupMeasure
         }
     ) {
         super({});
@@ -102,7 +102,7 @@ class EvidenceVariableCharacteristic extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -333,7 +333,7 @@ class EvidenceVariableCharacteristic extends Element {
             device,
             exclude,
             timeFromStart,
-            groupMeasure,
+            groupMeasure
         });
     }
 
@@ -355,7 +355,7 @@ class EvidenceVariableCharacteristic extends Element {
             device: this.device && this.device.toJSON(),
             exclude: this.exclude,
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSON(),
-            groupMeasure: this.groupMeasure,
+            groupMeasure: this.groupMeasure
         });
     }
 
@@ -393,7 +393,7 @@ class EvidenceVariableCharacteristic extends Element {
             device: this.device && this.device.toJSONInternal(),
             exclude: this.exclude,
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSONInternal(),
-            groupMeasure: this.groupMeasure,
+            groupMeasure: this.groupMeasure
         };
 
         return removeNull(json);

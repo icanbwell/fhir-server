@@ -30,7 +30,7 @@ class MeasureStratifier extends Element {
             code,
             description,
             criteria,
-            component,
+            component
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class MeasureStratifier extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -204,7 +204,7 @@ class MeasureStratifier extends Element {
             code,
             description,
             criteria,
-            component,
+            component
         });
     }
 
@@ -220,7 +220,7 @@ class MeasureStratifier extends Element {
             code: this.code && this.code.toJSON(),
             description: this.description,
             criteria: this.criteria && this.criteria.toJSON(),
-            component: this.component && this.component.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON())
         });
     }
 
@@ -249,7 +249,7 @@ class MeasureStratifier extends Element {
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
             criteria: this.criteria && this.criteria.toJSONInternal(),
-            component: this.component && this.component.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

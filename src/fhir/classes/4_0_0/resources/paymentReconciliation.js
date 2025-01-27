@@ -71,7 +71,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -239,7 +239,7 @@ class PaymentReconciliation extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -634,7 +634,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -716,7 +716,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new PaymentReconciliation({
@@ -746,7 +746,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -787,7 +787,7 @@ class PaymentReconciliation extends Resource {
             paymentIdentifier: this.paymentIdentifier && this.paymentIdentifier.toJSON(),
             detail: this.detail && this.detail.map(v => v.toJSON()),
             formCode: this.formCode && this.formCode.toJSON(),
-            processNote: this.processNote && this.processNote.map(v => v.toJSON()),
+            processNote: this.processNote && this.processNote.map(v => v.toJSON())
         });
     }
 
@@ -843,7 +843,7 @@ class PaymentReconciliation extends Resource {
             paymentIdentifier: this.paymentIdentifier && this.paymentIdentifier.toJSONInternal(),
             detail: this.detail && this.detail.map(v => v.toJSONInternal()),
             formCode: this.formCode && this.formCode.toJSONInternal(),
-            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
+            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal())
         };
         if (this._access) {
             json._access = this._access;

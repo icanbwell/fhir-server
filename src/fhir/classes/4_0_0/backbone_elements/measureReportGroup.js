@@ -32,7 +32,7 @@ class MeasureReportGroup extends Element {
             code,
             population,
             measureScore,
-            stratifier,
+            stratifier
         }
     ) {
         super({});
@@ -91,7 +91,7 @@ class MeasureReportGroup extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -206,7 +206,7 @@ class MeasureReportGroup extends Element {
             code,
             population,
             measureScore,
-            stratifier,
+            stratifier
         });
     }
 
@@ -222,7 +222,7 @@ class MeasureReportGroup extends Element {
             code: this.code && this.code.toJSON(),
             population: this.population && this.population.map(v => v.toJSON()),
             measureScore: this.measureScore && this.measureScore.toJSON(),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON())
         });
     }
 
@@ -252,7 +252,7 @@ class MeasureReportGroup extends Element {
             code: this.code && this.code.toJSONInternal(),
             population: this.population && this.population.map(v => v.toJSONInternal()),
             measureScore: this.measureScore && this.measureScore.toJSONInternal(),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

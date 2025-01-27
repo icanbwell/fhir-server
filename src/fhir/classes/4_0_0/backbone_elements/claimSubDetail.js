@@ -46,7 +46,7 @@ class ClaimSubDetail extends Element {
             unitPrice,
             factor,
             net,
-            udi,
+            udi
         }
     ) {
         super({});
@@ -105,7 +105,7 @@ class ClaimSubDetail extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -368,7 +368,7 @@ class ClaimSubDetail extends Element {
             unitPrice,
             factor,
             net,
-            udi,
+            udi
         });
     }
 
@@ -391,7 +391,7 @@ class ClaimSubDetail extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
             factor: this.factor,
             net: this.net && this.net.toJSON(),
-            udi: this.udi && this.udi.map(v => v.toJSON()),
+            udi: this.udi && this.udi.map(v => v.toJSON())
         });
     }
 
@@ -433,7 +433,7 @@ class ClaimSubDetail extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
             factor: this.factor,
             net: this.net && this.net.toJSONInternal(),
-            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

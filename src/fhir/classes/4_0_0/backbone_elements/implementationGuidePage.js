@@ -35,7 +35,7 @@ class ImplementationGuidePage extends Element {
             nameReference,
             title,
             generation,
-            page,
+            page
         }
     ) {
         super({});
@@ -94,7 +94,7 @@ class ImplementationGuidePage extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -220,7 +220,7 @@ class ImplementationGuidePage extends Element {
             nameReference,
             title,
             generation,
-            page,
+            page
         });
     }
 
@@ -237,7 +237,7 @@ class ImplementationGuidePage extends Element {
             nameReference: this.nameReference && this.nameReference.toJSON(),
             title: this.title,
             generation: this.generation,
-            page: this.page && this.page.map(v => v.toJSON()),
+            page: this.page && this.page.map(v => v.toJSON())
         });
     }
 
@@ -266,7 +266,7 @@ class ImplementationGuidePage extends Element {
             nameReference: this.nameReference && this.nameReference.toJSONInternal(),
             title: this.title,
             generation: this.generation,
-            page: this.page && this.page.map(v => v.toJSONInternal()),
+            page: this.page && this.page.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

@@ -33,7 +33,7 @@ class ChargeItemDefinitionPriceComponent extends Element {
             type,
             code,
             factor,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -92,7 +92,7 @@ class ChargeItemDefinitionPriceComponent extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -201,7 +201,7 @@ class ChargeItemDefinitionPriceComponent extends Element {
             type,
             code,
             factor,
-            amount,
+            amount
         });
     }
 
@@ -217,7 +217,7 @@ class ChargeItemDefinitionPriceComponent extends Element {
             type: this.type,
             code: this.code && this.code.toJSON(),
             factor: this.factor,
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -245,7 +245,7 @@ class ChargeItemDefinitionPriceComponent extends Element {
             type: this.type,
             code: this.code && this.code.toJSONInternal(),
             factor: this.factor,
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
         return removeNull(json);

@@ -32,7 +32,7 @@ class Duration extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         }
     ) {
         super({});
@@ -183,7 +183,7 @@ class Duration extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         });
     }
 
@@ -199,7 +199,7 @@ class Duration extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         });
     }
 
@@ -224,7 +224,7 @@ class Duration extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         };
 
         return removeNull(json);

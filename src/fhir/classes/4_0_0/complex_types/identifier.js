@@ -35,7 +35,7 @@ class Identifier extends Element {
             system,
             value,
             period,
-            assigner,
+            assigner
         }
     ) {
         super({});
@@ -211,7 +211,7 @@ class Identifier extends Element {
             system,
             value,
             period,
-            assigner,
+            assigner
         });
     }
 
@@ -228,7 +228,7 @@ class Identifier extends Element {
             system: this.system,
             value: this.value,
             period: this.period && this.period.toJSON(),
-            assigner: this.assigner && this.assigner.toJSON(),
+            assigner: this.assigner && this.assigner.toJSON()
         });
     }
 
@@ -257,7 +257,7 @@ class Identifier extends Element {
             system: this.system,
             value: this.value,
             period: this.period && this.period.toJSONInternal(),
-            assigner: this.assigner && this.assigner.toJSONInternal(),
+            assigner: this.assigner && this.assigner.toJSONInternal()
         };
 
         return removeNull(json);

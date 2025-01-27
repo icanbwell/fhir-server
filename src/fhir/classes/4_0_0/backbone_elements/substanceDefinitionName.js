@@ -45,7 +45,7 @@ class SubstanceDefinitionName extends Element {
             synonym,
             translation,
             official,
-            source,
+            source
         }
     ) {
         super({});
@@ -104,7 +104,7 @@ class SubstanceDefinitionName extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -357,7 +357,7 @@ class SubstanceDefinitionName extends Element {
             synonym,
             translation,
             official,
-            source,
+            source
         });
     }
 
@@ -380,7 +380,7 @@ class SubstanceDefinitionName extends Element {
             synonym: this.synonym && this.synonym.map(v => v.toJSON()),
             translation: this.translation && this.translation.map(v => v.toJSON()),
             official: this.official && this.official.map(v => v.toJSON()),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -422,7 +422,7 @@ class SubstanceDefinitionName extends Element {
             synonym: this.synonym && this.synonym.map(v => v.toJSONInternal()),
             translation: this.translation && this.translation.map(v => v.toJSONInternal()),
             official: this.official && this.official.map(v => v.toJSONInternal()),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

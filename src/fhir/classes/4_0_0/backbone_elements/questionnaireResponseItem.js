@@ -34,7 +34,7 @@ class QuestionnaireResponseItem extends Element {
             definition,
             text,
             answer,
-            item,
+            item
         }
     ) {
         super({});
@@ -93,7 +93,7 @@ class QuestionnaireResponseItem extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -221,7 +221,7 @@ class QuestionnaireResponseItem extends Element {
             definition,
             text,
             answer,
-            item,
+            item
         });
     }
 
@@ -238,7 +238,7 @@ class QuestionnaireResponseItem extends Element {
             definition: this.definition,
             text: this.text,
             answer: this.answer && this.answer.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -267,7 +267,7 @@ class QuestionnaireResponseItem extends Element {
             definition: this.definition,
             text: this.text,
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
         return removeNull(json);

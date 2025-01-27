@@ -30,7 +30,7 @@ class ListEntry extends Element {
             flag,
             deleted,
             date,
-            item,
+            item
         }
     ) {
         super({});
@@ -89,7 +89,7 @@ class ListEntry extends Element {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
@@ -197,7 +197,7 @@ class ListEntry extends Element {
             flag,
             deleted,
             date,
-            item,
+            item
         });
     }
 
@@ -213,7 +213,7 @@ class ListEntry extends Element {
             flag: this.flag && this.flag.toJSON(),
             deleted: this.deleted,
             date: this.date,
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.toJSON()
         });
     }
 
@@ -241,7 +241,7 @@ class ListEntry extends Element {
             flag: this.flag && this.flag.toJSONInternal(),
             deleted: this.deleted,
             date: this.date,
-            item: this.item && this.item.toJSONInternal(),
+            item: this.item && this.item.toJSONInternal()
         };
 
         return removeNull(json);
