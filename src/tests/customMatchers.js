@@ -768,7 +768,7 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
     let receivedQueryOptions = "";
     requestTag.forEach((t) => {
         if (t.system === 'https://www.icanbwell.com/queryOptions') {
-            receivedQueryOptions = t.display;
+            receivedQueryOptions = JSON.parse(t.display.replace(/'/g, '"'));
             t.display = '';
         }
     });
@@ -776,20 +776,20 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
     let expectedQueryOptions = "";
     expectedTag.forEach((t) => {
         if (t.system === 'https://www.icanbwell.com/queryOptions') {
-            expectedQueryOptions = t.display;
+            expectedQueryOptions = JSON.parse(t.display.replace(/'/g, '"'));
             t.display = '';
         }
     });
 
     // Compare query options
     expect(
-        JSON.parse(receivedQueryOptions.replace(/'/g, '"'))
-            .map((element) => JSON.stringify(element))
-            .sort()
+        Array.isArray(receivedQueryOptions)
+            ? receivedQueryOptions.map((element) => JSON.stringify(element)).sort()
+            : receivedQueryOptions
     ).toEqual(
-        JSON.parse(expectedQueryOptions.replace(/'/g, '"'))
-            .map((element) => JSON.stringify(element))
-            .sort()
+        Array.isArray(expectedQueryOptions)
+            ? expectedQueryOptions.map((element) => JSON.stringify(element)).sort()
+            : expectedQueryOptions
     );
 
     return { actual: resp, expected, message: '', pass: true };
