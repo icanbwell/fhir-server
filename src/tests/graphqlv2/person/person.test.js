@@ -94,7 +94,7 @@ describe('GraphQLV2 Patient Tests', () => {
                 resp.body.data.persons.meta.tag.find(
                     t => t.system === 'https://www.icanbwell.com/query'
                 ).display
-            ).toEqual("[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'healthsystemId1'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.Patient_4_0_0.find({'_uuid':'6bcdef66-b41c-413b-b9e3-40ffe20dd18e'}, {}).sort({'_uuid':1}).limit(1000)]");
+            ).toEqual("[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'healthsystemId1'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'identifier':1,'meta':1,'link':1,'implicitRules':1,'name':1,'address':1,'gender':1,'photo':1,'language':1,'telecom':1,'_id':0}).sort({'_uuid':1}).limit(100),db.Patient_4_0_0.find({'_uuid':'6bcdef66-b41c-413b-b9e3-40ffe20dd18e'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)]");
 
             // uncomment this to test out timing of events
             // await new Promise(resolve => setTimeout(resolve, 30 * 1000));
