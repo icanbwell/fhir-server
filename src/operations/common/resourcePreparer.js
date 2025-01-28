@@ -66,7 +66,10 @@ class ResourcePreparer {
              */
             for (const property of properties_to_return_list) {
                 if (property in element_to_return) {
-                    element_to_return[`${property}`] = element[`${property}`];
+                    // for handling non-writable field 'resourceType'
+                    if (property !== 'resourceType') {
+                        element_to_return[`${property}`] = element[`${property}`];
+                    }
                 }
             }
         }
@@ -86,36 +89,27 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync ({
-                                   parsedArgs, element, resourceType
-                               }) {
-        /**
-         * @type {Resource[]}
-         */
-        let resources = [];
+    async prepareResourceAsync({ parsedArgs, element, resourceType }) {
         if (parsedArgs.get('_elements')) {
             /**
              * @type {Resource}
              */
-            const element_to_return = this.selectSpecificElements(
-                {
-                    parsedArgs,
-                    element,
-                    resourceType
-                }
-            );
-            resources.push(element_to_return);
-        } else {
+            element = this.selectSpecificElements({
+                parsedArgs,
+                element,
+                resourceType
+            });
+        }
+        if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource[]}
              */
-            const enrichedResources = await this.enrichmentManager.enrichAsync({
-                    resources: [element], parsedArgs
-                }
-            );
-            resources = resources.concat(enrichedResources);
+            [element] = await this.enrichmentManager.enrichAsync({
+                resources: [element],
+                parsedArgs
+            });
         }
-        return resources;
+        return [element];
     }
 }
 
