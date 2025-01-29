@@ -37,6 +37,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                   "code": "claimnumber",
                   "display": "Claim Number",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -88,6 +89,7 @@
         "type": {
           "coding": [
             {
+              "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
               "code": "Institutional",
               "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }

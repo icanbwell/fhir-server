@@ -374,6 +374,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code": "NPI"
                 }

@@ -20,6 +20,7 @@
                 "type": {
                     "coding": [
                         {
+                            "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                             "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
                             "code": "claimnumber",
                             "display": "Claim Number"
@@ -36,6 +37,7 @@
         "type": {
             "coding": [
                 {
+                    "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
                     "system": "https://hl7.org/FHIR/codesystem-claim-type.html",
                     "code": "Institutional"
                 }
@@ -84,6 +86,7 @@
                 "type": {
                     "coding": [
                         {
+                            "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                             "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
                             "code": "claimnumber",
                             "display": "Claim Number"
@@ -100,6 +103,7 @@
         "type": {
             "coding": [
                 {
+                    "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
                     "system": "https://hl7.org/FHIR/codesystem-claim-type.html",
                     "code": "Institutional"
                 }
@@ -120,6 +124,7 @@
             "type": {
                 "coding": [
                     {
+                        "id": "5d7ec20f-c0d9-54c9-aafb-61c43b4c4e21",
                         "system": "http://terminology.hl7.org/CodeSystem/payeetype",
                         "code": "Provider"
                     }
