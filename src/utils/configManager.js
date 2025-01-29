@@ -577,7 +577,13 @@ class ConfigManager {
         return env.NO_OF_REQUESTS_PER_POD? parseInt(env.NO_OF_REQUESTS_PER_POD): 1000;
     }
 
-
+    /**
+     * whether to enable cohort queries
+     * @return {boolean}
+     */
+    get enableCohortQuery () {
+        return isTrue(env.ENABLE_COHORT_QUERY);
+    }
 }
 
 module.exports = {
