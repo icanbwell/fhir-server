@@ -577,7 +577,13 @@ class ConfigManager {
         return env.NO_OF_REQUESTS_PER_POD? parseInt(env.NO_OF_REQUESTS_PER_POD): 1000;
     }
 
-
+    /**
+     * whether to enable Vulcan IG queries
+     * @return {boolean}
+     */
+    get enableVulcanIgQuery () {
+        return isTrue(env.ENABLE_VULCAN_IG_QUERY);
+    }
 }
 
 module.exports = {

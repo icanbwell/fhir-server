@@ -33,6 +33,10 @@ const { ExportByIdOperation } = require('./export/exportById');
 const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
 const accepts = require("accepts");
+const { vulcanIgSearchQueries } = require('./query/customQueries');
+const { ParsedArgs } = require('./query/parsedArgs');
+const { getNestedValueByPath } = require('../utils/object');
+const { ConfigManager } = require('../utils/configManager');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -58,6 +62,7 @@ class FhirOperationsManager {
      * @param exportByIdOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
@@ -79,7 +84,8 @@ class FhirOperationsManager {
             exportOperation,
             exportByIdOperation,
             r4ArgsParser,
-            queryRewriterManager
+            queryRewriterManager,
+            configManager
         }
     ) {
         /**
@@ -179,6 +185,12 @@ class FhirOperationsManager {
          */
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -350,6 +362,7 @@ class FhirOperationsManager {
          */
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
+        const requestInfo = this.getRequestInfo(req)
 
         /**
          * @type {ParsedArgs}
@@ -358,9 +371,110 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers, operation: READ
             }
         );
+
+        if (this.configManager.enableVulcanIgQuery) {
+            for (const parsedArg of parsedArgs.parsedArgItems) {
+                const vulcanIgSearchQuery =
+                    vulcanIgSearchQueries?.[resourceType]?.[parsedArg.queryParameter];
+                if (vulcanIgSearchQuery) {
+                    const combinedFilterValues = new Set();
+                    // combine if single filter corresponds to multiple filters
+                    for (const vulcanIgFilter of vulcanIgSearchQuery.filters) {
+                        const vulcanIgFilterArgs = {
+                            _debug: true,
+                            base_version: '4_0_0',
+                            _elements: vulcanIgFilter.filterField.split('.')[0]
+                        };
+
+                        // for missing modifier handling needs to be done while applying filter to parent
+                        if (
+                            (parsedArg.modifiers.length == 0 ||
+                                !parsedArg.modifiers[0] === 'missing') &&
+                            vulcanIgFilter.searchParam
+                        ) {
+                            vulcanIgFilterArgs[vulcanIgFilter.searchParam] =
+                                parsedArg.queryParameterValue.value;
+                        }
+
+                        const bundle = await this.searchBundleOperation.searchBundleAsync({
+                            requestInfo,
+                            resourceType: vulcanIgFilter.resourceType,
+                            parsedArgs: await this.getParsedArgsAsync({
+                                args: vulcanIgFilterArgs,
+                                resourceType: vulcanIgFilter.resourceType,
+                                operation: READ
+                            }),
+                            useAggregationPipeline: false
+                        });
+
+                        bundle?.entry?.forEach((element) => {
+                            let value = getNestedValueByPath(
+                                element.resource,
+                                vulcanIgFilter.filterField
+                            );
+                            if (vulcanIgFilter.extractValueFn) {
+                                const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
+                                value = extractValue(value);
+                            }
+                            combinedFilterValues.add(value);
+                        });
+                    }
+
+                    /**
+                     * @type {string[]}
+                     */
+                    let parentResourceFilterValue = [];
+                    let existingFilterValues = null;
+
+                    // for taking union with existing filter
+                    const existingParseArgItem = parsedArgs.parsedArgItems.find(
+                        (a) =>
+                            a.queryParameter ===
+                                (vulcanIgSearchQuery.resultSearchParam === 'id'
+                                    ? '_id'
+                                    : vulcanIgSearchQuery.resultSearchParam) &&
+                            a.modifiers.length === 0
+                    );
+                    if (existingParseArgItem) {
+                        existingFilterValues =
+                            existingParseArgItem.queryParameterValue.value.split(',');
+                        for (const filterValue of combinedFilterValues) {
+                            if (existingFilterValues.includes(filterValue)) {
+                                parentResourceFilterValue.push(filterValue);
+                            }
+                        }
+                    } else {
+                        parentResourceFilterValue = Array.from(combinedFilterValues);
+                    }
+
+                    // for handling missing modifier to reverse the search applied to parent resource
+                    const parentResourceArgName =
+                        vulcanIgSearchQuery.resultSearchParam +
+                        (parsedArg.modifiers[0] === 'missing' &&
+                        parsedArg.queryParameterValue.value === 'true'
+                            ? ':not'
+                            : '');
+
+                    const parentResourceParsedArg = await this.getParsedArgsAsync({
+                        args: {
+                            base_version: '4_0_0',
+                            [parentResourceArgName]:
+                                parentResourceFilterValue.length > 0
+                                    ? parentResourceFilterValue.join(',')
+                                    : '__invalid__' // for handling case when no result is found
+                        },
+                        resourceType,
+                        operation: READ
+                    });
+
+                    parsedArgs.add(parentResourceParsedArg.parsedArgItems[1]);
+                }
+            }
+        }
+
         return await this.searchStreamingOperation.searchStreamingAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo,
                 res,
                 parsedArgs,
                 resourceType
