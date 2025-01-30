@@ -19,6 +19,7 @@
       "valueCodeableConcept": {
         "coding": [
           {
+            "id": "d0366451-b257-53f5-bb44-962a89cbf23b",
             "code": "RX_AUTH",
             "display": "RX_AUTH",
             "system": "https://icanbwell.com/userType"
@@ -34,6 +35,7 @@
       "valueCodeableConcept": {
         "coding": [
           {
+            "id": "3f5e82f4-81bf-5f21-8a48-27a63d2927ea",
             "code": "TMW",
             "display": "TMW",
             "system": "https://icanbwell.com/programs"
@@ -49,6 +51,7 @@
       "valueCodeableConcept": {
         "coding": [
           {
+            "id": "d0366451-b257-53f5-bb44-962a89cbf23b",
             "code": "RX_AUTH",
             "display": "RX_AUTH",
             "system": "https://icanbwell.com/userType"
@@ -64,6 +67,7 @@
       "valueCodeableConcept": {
         "coding": [
           {
+            "id": "3f5e82f4-81bf-5f21-8a48-27a63d2927ea",
             "code": "TMW",
             "display": "TMW",
             "system": "https://icanbwell.com/programs"
@@ -82,6 +86,7 @@
       "type": {
         "coding": [
           {
+            "id": "8a646969-9339-5f6c-b292-15c53a63f265",
             "code": "user-identifier",
             "system": "http://www.icanbwell.com/identifier-types"
           }

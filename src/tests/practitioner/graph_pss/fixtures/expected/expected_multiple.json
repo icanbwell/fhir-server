@@ -8,6 +8,7 @@
           {
             "coding": [
               {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                 "code": "en",
                 "display": "English",
                 "system": "urn:ietf:bcp:47"
@@ -43,6 +44,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "967872e8-d30f-53b6-a396-91b9906004ec",
                       "code": "PractitionerAffiliation",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -196,6 +198,7 @@
                     "system": "http://terminology.hl7.org/CodeSystem/service-category"
                   },
                   {
+                    "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
                     "code": "PrimaryCare",
                     "display": "PrimaryCare",
                     "system": "http://clienthealth.org/protocol"
@@ -273,6 +276,7 @@
                     "system": "http://terminology.hl7.org/CodeSystem/service-category"
                   },
                   {
+                    "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
                     "code": "PrimaryCare",
                     "display": "PrimaryCare",
                     "system": "http://clienthealth.org/protocol"
@@ -341,6 +345,7 @@
                     "type": {
                       "coding": [
                         {
+                          "id": "cc5da82b-8514-5ba8-bb5a-7a274efd7a96",
                           "code": "XV",
                           "display": "Health Plan",
                           "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -404,6 +409,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "83e1851c-3caa-5dc3-a7d0-e1ae368e7106",
                       "code": "alias",
                       "system": "http://myhealthsystemhealth.org"
                     }
@@ -417,6 +423,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "76152d15-97d3-5037-aca5-a3d5917441f6",
                       "code": "FI",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -430,6 +437,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "32b90942-0441-5adf-9fb6-1a24894bf405",
                       "code": "XX",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -443,6 +451,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "c11d019c-bf6e-5fbd-a4d2-0719bc5ca316",
                       "code": "DeptMnem",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -456,6 +465,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "da8f2a8f-dacd-5eca-9be0-9b1873dff28b",
                       "code": "DeptNo",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -518,6 +528,7 @@
             "physicalType": {
               "coding": [
                 {
+                  "id": "76df0919-3bc2-5b22-b96f-c6950c2a6236",
                   "code": "bu",
                   "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
                 }
@@ -556,6 +567,7 @@
               {
                 "coding": [
                   {
+                    "id": "915b0e86-78a9-54e4-a92e-3acb6383bcf6",
                     "code": "Primary Care and Student Health",
                     "display": "Primary Care and Student Health",
                     "system": "http://myhealthsystemhealth.org"
@@ -615,6 +627,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "83e1851c-3caa-5dc3-a7d0-e1ae368e7106",
                       "code": "alias",
                       "system": "http://myhealthsystemhealth.org"
                     }
@@ -628,6 +641,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "76152d15-97d3-5037-aca5-a3d5917441f6",
                       "code": "FI",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -641,6 +655,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "32b90942-0441-5adf-9fb6-1a24894bf405",
                       "code": "XX",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -654,6 +669,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "c11d019c-bf6e-5fbd-a4d2-0719bc5ca316",
                       "code": "DeptMnem",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -667,6 +683,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "da8f2a8f-dacd-5eca-9be0-9b1873dff28b",
                       "code": "DeptNo",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -729,6 +746,7 @@
             "physicalType": {
               "coding": [
                 {
+                  "id": "76df0919-3bc2-5b22-b96f-c6950c2a6236",
                   "code": "bu",
                   "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
                 }
@@ -767,6 +785,7 @@
               {
                 "coding": [
                   {
+                    "id": "915b0e86-78a9-54e4-a92e-3acb6383bcf6",
                     "code": "Primary Care and Student Health",
                     "display": "Primary Care and Student Health",
                     "system": "http://myhealthsystemhealth.org"
@@ -792,6 +811,7 @@
                 "purpose": {
                   "coding": [
                     {
+                      "id": "641d2e29-10a3-5c73-be58-211711aab554",
                       "code": "Central Scheduling",
                       "system": "http://myhealthsystemhealth.org"
                     }
@@ -902,6 +922,7 @@
               {
                 "coding": [
                   {
+                    "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
                     "code": "prov",
                     "display": "Healthcare Provider",
                     "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -927,6 +948,7 @@
                 "purpose": {
                   "coding": [
                     {
+                      "id": "641d2e29-10a3-5c73-be58-211711aab554",
                       "code": "Central Scheduling",
                       "system": "http://myhealthsystemhealth.org"
                     }
@@ -1037,6 +1059,7 @@
               {
                 "coding": [
                   {
+                    "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
                     "code": "prov",
                     "display": "Healthcare Provider",
                     "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -1052,6 +1075,7 @@
               {
                 "coding": [
                   {
+                    "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                     "code": "doctor",
                     "display": "Doctor",
                     "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
@@ -1069,6 +1093,7 @@
                     "valueCodeableConcept": {
                       "coding": [
                         {
+                          "id": "6b83f020-765f-5b98-8ec9-23b7a3bf35f3",
                           "code": "newpt",
                           "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
                         }
@@ -1231,6 +1256,7 @@
               {
                 "coding": [
                   {
+                    "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                     "code": "doctor",
                     "display": "Doctor",
                     "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
@@ -1248,6 +1274,7 @@
                     "valueCodeableConcept": {
                       "coding": [
                         {
+                          "id": "6b83f020-765f-5b98-8ec9-23b7a3bf35f3",
                           "code": "newpt",
                           "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
                         }
@@ -1598,6 +1625,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                   "code": "PRN",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1611,6 +1639,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1624,6 +1653,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "709d0658-4b86-5eb3-940d-63a8f6bd6b73",
                   "code": "TAX",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1672,6 +1702,7 @@
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 },
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1693,6 +1724,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "709d0658-4b86-5eb3-940d-63a8f6bd6b73",
                   "code": "TAX",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1777,6 +1809,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "56b2fde8-629a-52a8-9df0-7d5b09c77508",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-0360"
                 },
@@ -1854,6 +1887,7 @@
           {
             "coding": [
               {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                 "code": "en",
                 "display": "English",
                 "system": "urn:ietf:bcp:47"
@@ -1887,6 +1921,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                   "code": "PRN",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1900,6 +1935,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1913,6 +1949,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "709d0658-4b86-5eb3-940d-63a8f6bd6b73",
                   "code": "TAX",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1961,6 +1998,7 @@
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 },
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -1982,6 +2020,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "709d0658-4b86-5eb3-940d-63a8f6bd6b73",
                   "code": "TAX",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -2066,6 +2105,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "56b2fde8-629a-52a8-9df0-7d5b09c77508",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-0360"
                 },
