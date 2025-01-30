@@ -33,7 +33,7 @@ const { ExportByIdOperation } = require('./export/exportById');
 const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
 const accepts = require("accepts");
-const { cohortSearchQueries } = require('./query/customQueries');
+const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
@@ -372,50 +372,48 @@ class FhirOperationsManager {
             }
         );
 
-        if (this.configManager.enableCohortQuery) {
+        if (this.configManager.enableVulcanIgQuery) {
             for (const parsedArg of parsedArgs.parsedArgItems) {
-                const cohortSearchQuery =
-                    cohortSearchQueries?.[resourceType]?.[parsedArg.queryParameter];
-                if (cohortSearchQuery) {
+                const vulcanIgSearchQuery =
+                    vulcanIgSearchQueries?.[resourceType]?.[parsedArg.queryParameter];
+                if (vulcanIgSearchQuery) {
                     const combinedFilterValues = new Set();
                     // combine if single filter corresponds to multiple filters
-                    for (const cohortFilter of cohortSearchQuery.filters) {
-                        const cohortFilterArgs = {
+                    for (const vulcanIgFilter of vulcanIgSearchQuery.filters) {
+                        const vulcanIgFilterArgs = {
                             _debug: true,
                             base_version: '4_0_0',
-                            _elements: cohortFilter.filterField.split('.')[0]
+                            _elements: vulcanIgFilter.filterField.split('.')[0]
                         };
 
                         // for missing modifier handling needs to be done while applying filter to parent
                         if (
                             (parsedArg.modifiers.length == 0 ||
                                 !parsedArg.modifiers[0] === 'missing') &&
-                            cohortFilter.searchParam
+                            vulcanIgFilter.searchParam
                         ) {
-                            cohortFilterArgs[cohortFilter.searchParam] =
+                            vulcanIgFilterArgs[vulcanIgFilter.searchParam] =
                                 parsedArg.queryParameterValue.value;
                         }
 
-                        const cohortFilterparsedArgs = await this.getParsedArgsAsync({
-                            args: cohortFilterArgs,
-                            resourceType: cohortFilter.resourceType,
-                            operation: READ
-                        });
-
                         const bundle = await this.searchBundleOperation.searchBundleAsync({
                             requestInfo,
-                            resourceType: cohortFilter.resourceType,
-                            parsedArgs: cohortFilterparsedArgs,
+                            resourceType: vulcanIgFilter.resourceType,
+                            parsedArgs: await this.getParsedArgsAsync({
+                                args: vulcanIgFilterArgs,
+                                resourceType: vulcanIgFilter.resourceType,
+                                operation: READ
+                            }),
                             useAggregationPipeline: false
                         });
 
                         bundle?.entry?.forEach((element) => {
                             let value = getNestedValueByPath(
                                 element.resource,
-                                cohortFilter.filterField
+                                vulcanIgFilter.filterField
                             );
-                            if (cohortFilter.extractValueFn) {
-                                const extractValue = new Function('x', cohortFilter.extractValueFn);
+                            if (vulcanIgFilter.extractValueFn) {
+                                const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
                                 value = extractValue(value);
                             }
                             combinedFilterValues.add(value);
@@ -432,9 +430,9 @@ class FhirOperationsManager {
                     const existingParseArgItem = parsedArgs.parsedArgItems.find(
                         (a) =>
                             a.queryParameter ===
-                                (cohortSearchQuery.resultSearchParam === 'id'
+                                (vulcanIgSearchQuery.resultSearchParam === 'id'
                                     ? '_id'
-                                    : cohortSearchQuery.resultSearchParam) &&
+                                    : vulcanIgSearchQuery.resultSearchParam) &&
                             a.modifiers.length === 0
                     );
                     if (existingParseArgItem) {
@@ -451,7 +449,7 @@ class FhirOperationsManager {
 
                     // for handling missing modifier to reverse the search applied to parent resource
                     const parentResourceArgName =
-                        cohortSearchQuery.resultSearchParam +
+                        vulcanIgSearchQuery.resultSearchParam +
                         (parsedArg.modifiers[0] === 'missing' &&
                         parsedArg.queryParameterValue.value === 'true'
                             ? ':not'

@@ -68,7 +68,7 @@ const fhirFilterTypes = {
     number: 'number'
 };
 
-const cohortSearchQueries = {
+const vulcanIgSearchQueries = {
     Patient: {
         condition: {
             filters: [
@@ -115,5 +115,5 @@ const cohortSearchQueries = {
 
 module.exports = {
     fhirFilterTypes,
-    cohortSearchQueries
+    vulcanIgSearchQueries
 };

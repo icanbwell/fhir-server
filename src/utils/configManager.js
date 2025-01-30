@@ -578,11 +578,11 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable cohort queries
+     * whether to enable Vulcan IG queries
      * @return {boolean}
      */
-    get enableCohortQuery () {
-        return isTrue(env.ENABLE_COHORT_QUERY);
+    get enableVulcanIgQuery () {
+        return isTrue(env.ENABLE_VULCAN_IG_QUERY);
     }
 }
 
