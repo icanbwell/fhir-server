@@ -2,6 +2,7 @@
   "code": {
     "coding": [
       {
+        "id": "9738db8f-1a7d-5d3e-baf9-916ed1260e3c",
         "code": "11557-6",
         "display": "Carbon dioxide in blood",
         "system": "URN:OID:2.16.840.1.113883.6.96"
@@ -46,6 +47,7 @@
     {
       "coding": [
         {
+          "id": "d7ba137b-dacd-562f-894f-6af4a2a76242",
           "code": "H",
           "display": "High",
           "system": "urn:oid:2.16.840.1.113883.6.96"

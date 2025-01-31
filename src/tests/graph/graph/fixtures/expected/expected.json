@@ -10,6 +10,7 @@
               {
                 "coding": [
                   {
+                    "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                     "code": "en",
                     "system": "urn:ietf:bcp:47"
                   }
@@ -24,6 +25,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                       "code": "NPI",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -88,6 +90,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                   "code": "claimnumber",
                   "display": "Claim Number",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -196,6 +199,7 @@
           "type": {
             "coding": [
               {
+                "id": "5d7ec20f-c0d9-54c9-aafb-61c43b4c4e21",
                 "code": "Provider",
                 "system": "http://terminology.hl7.org/CodeSystem/payeetype"
               }
@@ -228,6 +232,7 @@
         "type": {
           "coding": [
             {
+              "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
               "code": "Institutional",
               "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }
@@ -279,6 +284,7 @@
               {
                 "coding": [
                   {
+                    "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
                     "code": "prov",
                     "display": "Healthcare Provider",
                     "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -296,6 +302,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                   "code": "claimnumber",
                   "display": "Claim Number",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -426,6 +433,7 @@
         "type": {
           "coding": [
             {
+              "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
               "code": "Institutional",
               "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }

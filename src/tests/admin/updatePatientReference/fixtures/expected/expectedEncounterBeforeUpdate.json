@@ -84,6 +84,7 @@
         {
           "coding": [
             {
+              "id": "6067bd90-7d0f-5fa5-ab3c-32182b099c1a",
               "code": "PPRF",
               "display": "primary performer",
               "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
@@ -144,6 +145,7 @@
     {
       "coding": [
         {
+          "id": "7cd1df1f-b82a-5e27-82bb-cd6df77190f4",
           "code": "185349003",
           "display": "Encounter for 'check-up'",
           "system": "http://snomed.info/sct"

@@ -37,6 +37,7 @@
       {
         "coding": [
           {
+            "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
             "code": "prov",
             "display": "Healthcare Provider",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -67,6 +68,7 @@
         "purpose": {
           "coding": [
             {
+              "id": "83763aef-2839-5dcb-bb58-f09a287be950",
               "code": "Central Scheduling",
               "system": "ClientHealth.org"
             }
@@ -144,6 +146,7 @@
       {
         "coding": [
           {
+            "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
             "code": "prov",
             "display": "Healthcare Provider",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -154,6 +157,7 @@
       {
         "coding": [
           {
+            "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
             "code": "prov",
             "display": "Emergency Room",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"

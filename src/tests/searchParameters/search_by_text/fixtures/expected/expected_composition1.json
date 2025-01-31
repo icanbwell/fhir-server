@@ -39,16 +39,19 @@
                 "type": {
                     "coding": [
                         {
+                            "id": "5fad82fa-4e23-59eb-9d79-cbe37c09ed54",
                             "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
                             "code": "encounter_summary_document",
                             "display": "b.Well Encounter Summary Composition Document"
                         },
                         {
+                            "id": "80611ec8-4d5e-5d05-bb85-44ab6f6c8719",
                             "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
                             "code": "encounter_group_class_and_type",
                             "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
                         },
                         {
+                            "id": "1ccad4a8-2e0f-58fd-b01b-559dbbc59328",
                             "system": "https://hl7.org/fhir/allergyintolerance",
                             "code": "Encounter",
                             "display": "FHIR resource type"
@@ -110,11 +113,13 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "ab6dbc9c-735d-5cec-84af-bfa4f9efffb5",
                                     "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
                                     "code": "4",
                                     "display": "HOV"
                                 },
                                 {
+                                    "id": "776d344a-1d23-5349-8f0c-489d3671da85",
                                     "system": "urn:oid:1.2.840.114350.1.13.300.2.7.10.698084.10110",
                                     "code": "102",
                                     "display": "Outpatient"
@@ -125,6 +130,7 @@
                         "orderedBy": {
                             "coding": [
                                 {
+                                    "id": "6bbecb9e-a623-50c6-8b4a-050611db9029",
                                     "system": "http://terminology.hl7.org/CodeSystem/list-order",
                                     "code": "event-date",
                                     "display": "Sorted by Event Date"
@@ -213,11 +219,13 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "660baf80-528d-5f12-bd20-6808106a28b4",
                                     "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
                                     "code": "5",
                                     "display": "Appointment"
                                 },
                                 {
+                                    "id": "1a4ad982-0cd2-5d5e-8e8e-b5ac2eddc646",
                                     "system": "urn:oid:1.2.840.114350.1.13.300.2.7.10.698084.30",
                                     "code": "101",
                                     "display": "Office Visit"
@@ -228,6 +236,7 @@
                         "orderedBy": {
                             "coding": [
                                 {
+                                    "id": "6bbecb9e-a623-50c6-8b4a-050611db9029",
                                     "system": "http://terminology.hl7.org/CodeSystem/list-order",
                                     "code": "event-date",
                                     "display": "Sorted by Event Date"

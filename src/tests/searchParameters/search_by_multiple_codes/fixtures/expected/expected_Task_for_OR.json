@@ -5,10 +5,12 @@
         "code": {
           "coding": [
             {
+              "id": "089b930f-38e9-56df-8120-54779a5f9710",
               "code": "health-activity",
               "system": "https://www.icanbwell.com/activityType"
             },
             {
+              "id": "9d16e6a3-6843-592a-98ba-ae34709bf414",
               "code": "education",
               "system": "https://www.icanbwell.com/activityTopic"
             }
@@ -95,10 +97,12 @@
         "code": {
           "coding": [
             {
+              "id": "089b930f-38e9-56df-8120-54779a5f9710",
               "code": "health-activity",
               "system": "https://www.icanbwell.com/activityType"
             },
             {
+              "id": "9296eaad-fb31-5f2c-a46b-a9565701ab8a",
               "code": "prevention",
               "system": "https://www.icanbwell.com/activityTopic"
             }
@@ -189,10 +193,12 @@
         "code": {
           "coding": [
             {
+              "id": "79b7b2c9-4e20-5fbc-82af-619b4531d689",
               "code": "care-need",
               "system": "https://www.icanbwell.com/activityType"
             },
             {
+              "id": "9d16e6a3-6843-592a-98ba-ae34709bf414",
               "code": "education",
               "system": "https://www.icanbwell.com/activityTopic"
             }

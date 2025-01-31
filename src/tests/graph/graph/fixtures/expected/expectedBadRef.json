@@ -223,6 +223,7 @@
                             "id": "3865dc99-5dc3-4639-8112-0784409b8cdf",
                             "coding": [
                                 {
+                                    "id": "d0366451-b257-53f5-bb44-962a89cbf23b",
                                     "system": "https://icanbwell.com/userType",
                                     "code": "RX_AUTH",
                                     "display": "RX_AUTH"
@@ -237,6 +238,7 @@
                         "type": {
                             "coding": [
                                 {
+                                    "id": "8a646969-9339-5f6c-b292-15c53a63f265",
                                     "system": "http://www.icanbwell.com/identifier-types",
                                     "code": "user-identifier"
                                 }

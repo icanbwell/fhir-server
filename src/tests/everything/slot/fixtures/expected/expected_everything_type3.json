@@ -61,6 +61,7 @@
           {
             "coding": [
               {
+                "id": "d2c54220-f5a5-5fef-a4bf-02f462ab23ac",
                 "code": "LNG",
                 "display": "LNG",
                 "system": "http://clienthealth.org/appointment-type"
@@ -71,6 +72,7 @@
           {
             "coding": [
               {
+                "id": "bb9d7634-0c9e-587a-a9f3-c59348b15f12",
                 "code": "EV4",
                 "display": "EV4",
                 "system": "http://clienthealth.org/appointment-type"
@@ -81,6 +83,7 @@
           {
             "coding": [
               {
+                "id": "1ca85247-b391-58b3-9adf-6c45f340c1c6",
                 "code": "SHT",
                 "display": "SHT",
                 "system": "http://clienthealth.org/appointment-type"
@@ -91,6 +94,7 @@
           {
             "coding": [
               {
+                "id": "02b5eab5-a884-50e3-9a31-e528b0f94953",
                 "code": "ERN",
                 "display": "ERN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -101,6 +105,7 @@
           {
             "coding": [
               {
+                "id": "f53ca44a-3ccf-5e7c-9b40-ff363ba08cc7",
                 "code": "PHN",
                 "display": "PHN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -111,6 +116,7 @@
           {
             "coding": [
               {
+                "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
                 "code": "PrimaryCare",
                 "display": "PrimaryCare",
                 "system": "http://clienthealth.org/protocol"
@@ -128,6 +134,7 @@
           {
             "coding": [
               {
+                "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                 "code": "doctor",
                 "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
               }
@@ -136,6 +143,7 @@
           {
             "coding": [
               {
+                "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                 "code": "doctor",
                 "display": "Doctor",
                 "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
@@ -173,6 +181,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "0ca37d31-8d6c-5599-aabe-cda73e1923c5",
                   "code": "Client Provider-Protocol",
                   "display": "Client Provider-Protocol",
                   "system": "http://clienthealth.org"
@@ -278,6 +287,7 @@
           {
             "coding": [
               {
+                "id": "cb2125ad-b545-55bc-9457-288161868a5c",
                 "code": "261QP2300X",
                 "display": "Primary Care",
                 "system": "http://nucc.org/provider-taxonomy"

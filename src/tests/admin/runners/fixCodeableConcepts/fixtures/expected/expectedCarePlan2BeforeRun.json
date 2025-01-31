@@ -5,6 +5,7 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "d031bf91-cea9-502e-98d0-cc0726f57818",
                             "code": "160670007",
                             "display": "Diabetic diet",
                             "system": "http://snomed.info/sct"
@@ -20,6 +21,7 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "d69d144f-975d-5487-bd99-8b369ef8a06e",
                             "code": "229065009",
                             "display": "Exercise therapy",
                             "system": "http://snomed.info/sct"
@@ -35,6 +37,7 @@
         {
             "coding": [
                 {
+                    "id": "ab22e646-0212-52c1-af4f-125d2495a60c",
                     "code": "assess-plan",
                     "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category"
                 }
@@ -43,6 +46,7 @@
         {
             "coding": [
                 {
+                    "id": "c16ee791-4ce2-523e-a4b9-2976445416fa",
                     "code": "698360004",
                     "display": "Diabetes self management plan",
                     "system": "http://snomed.info/sct"

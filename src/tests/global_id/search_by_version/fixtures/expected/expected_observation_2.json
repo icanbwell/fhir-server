@@ -2,6 +2,7 @@
   "code": {
     "coding": [
       {
+        "id": "c57df200-b841-581e-9a6a-0b7067efc296",
         "code": "APH1",
         "system": "http://www.icanbwell.com/cql/library"
       },
@@ -9,6 +10,7 @@
         "system": "http://www.icanbwell.com/cql/libraryVersion"
       },
       {
+        "id": "82fb6f97-ee79-52cd-b9b0-07043129e8df",
         "code": "Completed_Output_Obs",
         "system": "http://www.icanbwell.com/cql/rule"
       }

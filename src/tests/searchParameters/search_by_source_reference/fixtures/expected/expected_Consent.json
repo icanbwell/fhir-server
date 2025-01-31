@@ -6,6 +6,7 @@
           {
             "coding": [
               {
+                "id": "7ef3140f-b442-5347-a6d3-50454da9fb7a",
                 "code": "59284-0",
                 "system": "http://loinc.org"
               }
@@ -71,6 +72,7 @@
         "scope": {
           "coding": [
             {
+              "id": "402a7d2e-3eb0-5e9a-9af5-cf374c9ca561",
               "code": "patient-privacy",
               "system": "http://terminology.hl7.org/CodeSystem/consentscope"
             }

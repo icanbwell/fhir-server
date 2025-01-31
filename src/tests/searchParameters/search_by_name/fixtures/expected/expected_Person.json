@@ -28,6 +28,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -149,6 +150,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -270,6 +272,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -381,6 +384,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -502,6 +506,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -612,6 +617,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"
@@ -722,6 +728,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "system": "https://www.icanbwell.com",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id"

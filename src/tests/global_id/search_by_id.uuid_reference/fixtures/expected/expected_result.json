@@ -118,6 +118,7 @@
                     {
                         "coding": [
                             {
+                                "id": "5f3f7e1e-4e16-5be3-bf51-8567c7008bb5",
                                 "code": "162673000",
                                 "display": "General examination of patient (procedure)",
                                 "system": "http://snomed.info/sct"

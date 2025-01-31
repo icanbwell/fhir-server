@@ -42,6 +42,7 @@
           {
             "coding": [
               {
+                "id": "e7a166cc-6aae-55d6-8049-636187989902",
                 "system": "http://terminology.hl7.org/CodeSystem/observation-category",
                 "code": "vital-signs"
               }
@@ -50,7 +51,12 @@
         ],
         "code": {
           "coding": [
-            { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
+            {
+              "id": "8582cf29-199b-5943-a95a-17faecbec38a",
+              "system": "http://loinc.org",
+              "code": "8302-2",
+              "display": "Body height"
+            }
           ]
         },
         "valueQuantity": {
@@ -103,6 +109,7 @@
           {
             "coding": [
               {
+                "id": "e7a166cc-6aae-55d6-8049-636187989902",
                 "system": "http://terminology.hl7.org/CodeSystem/observation-category",
                 "code": "vital-signs",
                 "display": "Vital Signs"
@@ -113,6 +120,7 @@
         "code": {
           "coding": [
             {
+              "id": "0f7610d2-62be-5b35-9837-9eb9a2251e46",
               "system": "http://loinc.org",
               "code": "8310-5",
               "display": "Body temperature"
@@ -184,6 +192,7 @@
           {
             "coding": [
               {
+                "id": "e7a166cc-6aae-55d6-8049-636187989902",
                 "system": "http://terminology.hl7.org/CodeSystem/observation-category",
                 "code": "vital-signs"
               }
@@ -192,7 +201,12 @@
         ],
         "code": {
           "coding": [
-            { "system": "http://loinc.org", "code": "8302-2", "display": "Body height" }
+            {
+              "id": "8582cf29-199b-5943-a95a-17faecbec38a",
+              "system": "http://loinc.org",
+              "code": "8302-2",
+              "display": "Body height"
+            }
           ]
         },
         "valueQuantity": {

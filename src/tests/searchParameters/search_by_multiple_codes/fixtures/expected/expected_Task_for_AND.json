@@ -5,10 +5,12 @@
         "code": {
           "coding": [
             {
+              "id": "089b930f-38e9-56df-8120-54779a5f9710",
               "code": "health-activity",
               "system": "https://www.icanbwell.com/activityType"
             },
             {
+              "id": "9d16e6a3-6843-592a-98ba-ae34709bf414",
               "code": "education",
               "system": "https://www.icanbwell.com/activityTopic"
             }

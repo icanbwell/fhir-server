@@ -53,6 +53,7 @@
         "type": {
           "coding": [
             {
+              "id": "76152d15-97d3-5037-aca5-a3d5917441f6",
               "code": "FI",
               "display": "Facility ID",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -67,6 +68,7 @@
         "type": {
           "coding": [
             {
+              "id": "32b90942-0441-5adf-9fb6-1a24894bf405",
               "code": "XX",
               "display": "Organization Identifier",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -122,6 +124,7 @@
         "type": {
           "coding": [
             {
+              "id": "76152d15-97d3-5037-aca5-a3d5917441f6",
               "code": "FI",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -135,6 +138,7 @@
         "type": {
           "coding": [
             {
+              "id": "32b90942-0441-5adf-9fb6-1a24894bf405",
               "code": "XX",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -148,6 +152,7 @@
         "type": {
           "coding": [
             {
+              "id": "849d1f08-e71e-581c-814c-d442b94d5ce3",
               "code": "DepartmentName",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -161,6 +166,7 @@
         "type": {
           "coding": [
             {
+              "id": "c11d019c-bf6e-5fbd-a4d2-0719bc5ca316",
               "code": "DeptMnem",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -174,6 +180,7 @@
         "type": {
           "coding": [
             {
+              "id": "da8f2a8f-dacd-5eca-9be0-9b1873dff28b",
               "code": "DeptNo",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -237,6 +244,7 @@
     "physicalType": {
       "coding": [
         {
+          "id": "76df0919-3bc2-5b22-b96f-c6950c2a6236",
           "code": "bu",
           "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
         }
@@ -272,6 +280,7 @@
       {
         "coding": [
           {
+            "id": "fe5c9c17-9227-53bb-9537-b89cb398c090",
             "code": "Dermatology",
             "display": "Dermatology",
             "system": "ClientHealth.org"
@@ -282,6 +291,7 @@
       {
         "coding": [
           {
+            "id": "26adb81b-bce9-5ace-a80f-253535780ece",
             "code": "ER",
             "display": "ER Indicator",
             "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode"

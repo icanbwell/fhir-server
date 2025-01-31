@@ -6,6 +6,7 @@
           {
             "coding": [
               {
+                "id": "e7a166cc-6aae-55d6-8049-636187989902",
                 "code": "vital-signs",
                 "display": "Vital Signs",
                 "system": "http://terminology.hl7.org/CodeSystem/observation-category"
@@ -16,6 +17,7 @@
         "code": {
           "coding": [
             {
+              "id": "7ad9befe-6163-5656-9515-e02b3806814a",
               "code": "96607-7",
               "display": "Blood pressure panel mean systolic and mean diastolic",
               "system": "http://loinc.org"
@@ -27,6 +29,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "bc76a69b-7d71-55a6-90aa-9ff533b2d3ce",
                   "code": "96608-5",
                   "display": "Systolic blood pressure mean",
                   "system": "http://loinc.org"
@@ -44,6 +47,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "2e0b5c87-bebe-5f06-a8fe-3e0bc974d8e7",
                   "code": "96609-3",
                   "display": "Diastolic blood pressure mean",
                   "system": "http://loinc.org"

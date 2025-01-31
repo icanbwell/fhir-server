@@ -42,31 +42,38 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
                             "system": "urn:oid:2.16.840.1.113883.6.253",
                             "code": "135615"
                         },
                         {
+                            "id": "ac0558be-374e-5668-8c03-83a02425e99e",
                             "system": "urn:oid:2.16.840.1.113883.6.68",
                             "code": "61100020102020"
                         },
                         {
+                            "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
                             "system": "urn:oid:2.16.840.1.113883.6.162",
                             "code": "59073"
                         },
                         {
+                            "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                             "code": "3287"
                         },
                         {
+                            "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                             "code": "3288"
                         },
                         {
+                            "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                             "code": "822929",
                             "display": "prednisolone 1 MG/ML [Pediapred]"
                         },
                         {
+                            "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
                             "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                             "code": "884522"
                         }
@@ -76,6 +83,7 @@
                 "form": {
                     "coding": [
                         {
+                            "id": "fbee3e10-1f81-564f-b1c8-3a6c55007bbf",
                             "system": "urn:oid:1.2.840.114350.1.13.283.3.7.4.698288.310",
                             "code": "SOLN",
                             "display": "Solution"
@@ -88,30 +96,37 @@
                         "itemCodeableConcept": {
                             "coding": [
                                 {
+                                    "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
                                     "system": "urn:oid:2.16.840.1.113883.6.253",
                                     "code": "135615"
                                 },
                                 {
+                                    "id": "ac0558be-374e-5668-8c03-83a02425e99e",
                                     "system": "urn:oid:2.16.840.1.113883.6.68",
                                     "code": "61100020102020"
                                 },
                                 {
+                                    "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
                                     "system": "urn:oid:2.16.840.1.113883.6.162",
                                     "code": "59073"
                                 },
                                 {
+                                    "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                                     "code": "3287"
                                 },
                                 {
+                                    "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                                     "code": "3288"
                                 },
                                 {
+                                    "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                                     "code": "822929"
                                 },
                                 {
+                                    "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
                                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                                     "code": "884522"
                                 }

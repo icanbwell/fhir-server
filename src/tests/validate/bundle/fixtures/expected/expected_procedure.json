@@ -6,6 +6,7 @@
           {
             "coding": [
               {
+                "id": "bcc22397-c8eb-527c-9375-f042b1594fcc",
                 "code": "30",
                 "display": "Anus",
                 "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.2015"
@@ -17,6 +18,7 @@
         "category": {
           "coding": [
             {
+              "id": "2966a5f4-858e-5a32-a5db-a339bd974ce9",
               "code": "387713003",
               "display": "Surgical procedure",
               "system": "http://snomed.info/sct"
@@ -127,6 +129,7 @@
         "outcome": {
           "coding": [
             {
+              "id": "8db2f4dc-9ea4-55fa-ab43-aa168f2141b9",
               "code": "1",
               "display": "Home or Self Care",
               "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.402"
@@ -168,6 +171,7 @@
           {
             "coding": [
               {
+                "id": "10e0c6de-4cd4-5797-ae35-b990c8dd9b05",
                 "code": "565.0",
                 "display": "Anal fissure, unspecified",
                 "system": "http://hl7.org/fhir/sid/icd-9-cm/diagnosis"

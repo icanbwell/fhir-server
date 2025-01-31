@@ -8,6 +8,7 @@
           {
             "coding": [
               {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                 "code": "en",
                 "system": "urn:ietf:bcp:47"
               }
@@ -53,6 +54,7 @@
               {
                 "coding": [
                   {
+                    "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
                     "code": "prov",
                     "display": "Healthcare Provider",
                     "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -68,6 +70,7 @@
               {
                 "coding": [
                   {
+                    "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                     "code": "doctor",
                     "display": "Doctor",
                     "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
@@ -85,6 +88,7 @@
                     "valueCodeableConcept": {
                       "coding": [
                         {
+                          "id": "18efea08-ec56-5b8b-914e-2236e2bbd2cf",
                           "code": "existptonly",
                           "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
                         }
@@ -213,6 +217,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                   "code": "PRN",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -226,6 +231,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -278,6 +284,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
@@ -308,6 +315,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
@@ -342,6 +350,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }

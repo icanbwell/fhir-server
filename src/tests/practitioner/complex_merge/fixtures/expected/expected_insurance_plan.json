@@ -81,6 +81,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "cc5da82b-8514-5ba8-bb5a-7a274efd7a96",
                   "code": "XV",
                   "display": "Health Plan",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"

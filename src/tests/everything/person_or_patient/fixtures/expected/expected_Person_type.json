@@ -124,6 +124,7 @@
         "type": {
           "coding": [
             {
+              "id": "335d2e6f-c389-590f-ade8-d44615adebd2",
               "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
               "code": "PBILLACCT",
               "display": "patient billing account"

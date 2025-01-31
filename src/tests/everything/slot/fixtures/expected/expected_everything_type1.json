@@ -61,6 +61,7 @@
           {
             "coding": [
               {
+                "id": "d97be5e4-8e83-5919-8ac1-c6f558ccbeb4",
                 "code": "EXISTING",
                 "system": "http://clienthealth.org"
               }
