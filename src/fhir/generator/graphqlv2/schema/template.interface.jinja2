@@ -17,7 +17,7 @@
         {% elif property.is_resource %}
 # import {{ property.type_ | replace(".","") }} from "../resources/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_extension %}
-# import {{ property.type_ | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
+# import {{ property.graphqlv2_type | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.fhir_type == "BackboneElement" %}
 # import {{ property.type_ | replace(".","") }} from "../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_complex or property.fhir_type == "Element" %}
@@ -64,7 +64,7 @@ interface {{ fhir_entity.cleaned_name }} {
         {% if property.name == "id" %}
         {{- 'ID!' -}}
         {% elif property.cleaned_type == "Extension" %}
-        {{- 'Extension' -}}
+        {{- property.graphqlv2_type -}}
         {% elif property.is_code %}
         {{- 'Code' -}}
         {% elif property.reference_target_resources -%}

@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import Account from "../resources/account.graphql"
@@ -161,7 +161,7 @@ Reference type for BasedOn
 """
 type TaskBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -174,7 +174,7 @@ Reference type for PartOf
 """
 type TaskPartOfReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Task
     type: URI
@@ -187,7 +187,7 @@ Reference type for Focus
 """
 type TaskFocusReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -200,7 +200,7 @@ Reference type for For
 """
 type TaskForReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -213,7 +213,7 @@ Reference type for Encounter
 """
 type TaskEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -228,7 +228,7 @@ Reference type for Requester
 """
 type TaskRequesterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: TaskRequester
     type: URI
@@ -243,7 +243,7 @@ Reference type for Owner
 """
 type TaskOwnerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: TaskOwner
     type: URI
@@ -256,7 +256,7 @@ Reference type for Location
 """
 type TaskLocationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -269,7 +269,7 @@ Reference type for ReasonReference
 """
 type TaskReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -284,7 +284,7 @@ Reference type for Insurance
 """
 type TaskInsuranceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: TaskInsurance
     type: URI
@@ -297,7 +297,7 @@ Reference type for RelevantHistory
 """
 type TaskRelevantHistoryReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Provenance
     type: URI
@@ -357,7 +357,7 @@ type Task implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -373,7 +373,7 @@ type Task implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     The business identifier for this task.
     """

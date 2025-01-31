@@ -14,7 +14,7 @@ module.exports = {
             );
         }
     },
-    Subscription: {
+    FhirSubscription: {
         __resolveReference: async (reference, context, info) => {
             return await context.dataApi.resolveEntityByReference(
                 reference,

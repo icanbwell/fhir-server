@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
@@ -20,7 +20,7 @@ Reference type for BasedOn
 """
 type DiagnosticReportBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DiagnosticReportBasedOn
     type: URI
@@ -35,7 +35,7 @@ Reference type for Subject
 """
 type DiagnosticReportSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DiagnosticReportSubject
     type: URI
@@ -48,7 +48,7 @@ Reference type for Encounter
 """
 type DiagnosticReportEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -63,7 +63,7 @@ Reference type for Performer
 """
 type DiagnosticReportPerformerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DiagnosticReportPerformer
     type: URI
@@ -78,7 +78,7 @@ Reference type for ResultsInterpreter
 """
 type DiagnosticReportResultsInterpreterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DiagnosticReportResultsInterpreter
     type: URI
@@ -91,7 +91,7 @@ Reference type for Specimen
 """
 type DiagnosticReportSpecimenReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Specimen
     type: URI
@@ -104,7 +104,7 @@ Reference type for Result
 """
 type DiagnosticReportResultReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Observation
     type: URI
@@ -117,7 +117,7 @@ Reference type for ImagingStudy
 """
 type DiagnosticReportImagingStudyReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ImagingStudy
     type: URI
@@ -181,7 +181,7 @@ type DiagnosticReport implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -197,7 +197,7 @@ type DiagnosticReport implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Identifiers assigned to this report by the performer or other systems.
     """

@@ -1,4 +1,4 @@
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Base64Binary from "../simple_types/base64Binary.graphql"
 # import URL from "../simple_types/url.graphql"
@@ -23,7 +23,7 @@ type DocumentReferenceAttachment {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     Identifies the type of the data in the attachment and allows a method to be
     chosen to interpret or render the data. Includes mime type parameters such as

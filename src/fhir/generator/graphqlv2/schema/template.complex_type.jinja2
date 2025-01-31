@@ -17,7 +17,7 @@
         {% elif property.is_resource %}
 # import {{ property.type_ | replace(".","") }} from "../resources/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_extension %}
-# import {{ property.type_ | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
+# import {{ property.graphqlv2_type | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.fhir_type == "BackboneElement" %}
 # import {{ property.type_ | replace(".","") }} from "../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_complex or property.fhir_type == "Element" %}
@@ -40,13 +40,13 @@
 
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
-{% if property.reference_target_resources | length == 1 and property.reference_target_resources_names [0] == "Resource" %}
+{% if property.reference_target_resources | length == 1 and property.graphqlv2_reference_target_resources_names [0] == "Resource" %}
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -55,14 +55,14 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
 }
 
 {% elif property.reference_target_resources | length > 1 %}
-union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{ property.reference_target_resources_names | unique | join(" | ") }}
+union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{ property.graphqlv2_reference_target_resources_names | unique | join(" | ") }}
 
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
     type: URI
@@ -74,11 +74,17 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
-type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
+type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference 
+{%- if (fhir_entity.cleaned_name ~ upper_case_first_letter(property.name) ~ 
+        (upper_case_first_letter(property.name_suffix) if property.name_suffix is not none else '') ~ 
+        'Reference') in custom_data["shareable_directive"] -%}
+    {{- ' @shareable' -}}
+{%- endif -%}
+{{- ' {' }}
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
-    resource: {{ property.reference_target_resources_names [0] }}
+    resource: {{ property.graphqlv2_reference_target_resources_names [0] }}
     type: URI
     identifier: Identifier
     display: String
@@ -94,7 +100,11 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
     {{ documentation_item | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
 {%  endfor %}
 """
-type {{fhir_entity.cleaned_name}} {
+type {{ fhir_entity.graphqlv2_type -}} 
+{% if fhir_entity.cleaned_name in custom_data["shareable_directive"] -%}
+    {{- ' @shareable' -}}
+{%- endif -%}
+{{- ' {' }}
 {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}
     """
@@ -106,7 +116,7 @@ type {{fhir_entity.cleaned_name}} {
             {{ '[' -}}
         {% endif -%}
         {% if property.cleaned_type == "Extension" %}
-        {{- 'Extension' -}}
+        {{- property.graphqlv2_type -}}
         {% elif property.is_code %}
         {{- 'Code' -}}
         {% elif property.reference_target_resources -%}
@@ -118,7 +128,10 @@ type {{fhir_entity.cleaned_name}} {
         {%  endif %}
         {% if property.is_list -%}
             {{ ']' -}}
-        {% endif -%}
+        {%- endif -%}
+        {%- if property.name in custom_data["inaccessible_directive"].get(fhir_entity.graphqlv2_type, []) -%}
+            {{- ' @inaccessible' -}}
+        {%- endif -%}
         {{ '' }}
     {% endif %}
 {% endfor %}

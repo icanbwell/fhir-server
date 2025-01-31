@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import Reference from "../complex_types/reference.graphql"
@@ -23,7 +23,7 @@ Reference type for BasedOn
 """
 type ProcedureBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureBasedOn
     type: URI
@@ -38,7 +38,7 @@ Reference type for PartOf
 """
 type ProcedurePartOfReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedurePartOf
     type: URI
@@ -53,7 +53,7 @@ Reference type for Subject
 """
 type ProcedureSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureSubject
     type: URI
@@ -66,7 +66,7 @@ Reference type for Encounter
 """
 type ProcedureEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -81,7 +81,7 @@ Reference type for Recorder
 """
 type ProcedureRecorderReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureRecorder
     type: URI
@@ -96,7 +96,7 @@ Reference type for Asserter
 """
 type ProcedureAsserterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureAsserter
     type: URI
@@ -109,7 +109,7 @@ Reference type for Location
 """
 type ProcedureLocationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -124,7 +124,7 @@ Reference type for ReasonReference
 """
 type ProcedureReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureReasonReference
     type: URI
@@ -139,7 +139,7 @@ Reference type for Report
 """
 type ProcedureReportReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureReport
     type: URI
@@ -152,7 +152,7 @@ Reference type for ComplicationDetail
 """
 type ProcedureComplicationDetailReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Condition
     type: URI
@@ -167,7 +167,7 @@ Reference type for UsedReference
 """
 type ProcedureUsedReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ProcedureUsedReference
     type: URI
@@ -229,7 +229,7 @@ type Procedure implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -245,7 +245,7 @@ type Procedure implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Business identifiers assigned to this procedure by the performer or other
     systems which remain constant as the resource is updated and is propagated

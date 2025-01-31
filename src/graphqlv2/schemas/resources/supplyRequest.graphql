@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Medication from "../resources/medication.graphql"
@@ -22,7 +22,7 @@ Reference type for ItemReference
 """
 type SupplyRequestItemReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestItemReference
     type: URI
@@ -37,7 +37,7 @@ Reference type for Requester
 """
 type SupplyRequestRequesterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestRequester
     type: URI
@@ -52,7 +52,7 @@ Reference type for Supplier
 """
 type SupplyRequestSupplierReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestSupplier
     type: URI
@@ -67,7 +67,7 @@ Reference type for ReasonReference
 """
 type SupplyRequestReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestReasonReference
     type: URI
@@ -82,7 +82,7 @@ Reference type for DeliverFrom
 """
 type SupplyRequestDeliverFromReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestDeliverFrom
     type: URI
@@ -97,7 +97,7 @@ Reference type for DeliverTo
 """
 type SupplyRequestDeliverToReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SupplyRequestDeliverTo
     type: URI
@@ -158,7 +158,7 @@ type SupplyRequest implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -174,7 +174,7 @@ type SupplyRequest implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Business identifiers assigned to this SupplyRequest by the author and/or other
     systems. These identifiers remain constant as the resource is updated and

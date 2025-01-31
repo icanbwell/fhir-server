@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import Account from "../resources/account.graphql"
@@ -158,7 +158,7 @@ Reference type for BasedOn
 """
 type CommunicationBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -171,7 +171,7 @@ Reference type for PartOf
 """
 type CommunicationPartOfReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -184,7 +184,7 @@ Reference type for InResponseTo
 """
 type CommunicationInResponseToReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Communication
     type: URI
@@ -199,7 +199,7 @@ Reference type for Subject
 """
 type CommunicationSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: CommunicationSubject
     type: URI
@@ -212,7 +212,7 @@ Reference type for About
 """
 type CommunicationAboutReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -225,7 +225,7 @@ Reference type for Encounter
 """
 type CommunicationEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -240,7 +240,7 @@ Reference type for Recipient
 """
 type CommunicationRecipientReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: CommunicationRecipient
     type: URI
@@ -255,7 +255,7 @@ Reference type for Sender
 """
 type CommunicationSenderReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: CommunicationSender
     type: URI
@@ -270,7 +270,7 @@ Reference type for ReasonReference
 """
 type CommunicationReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: CommunicationReasonReference
     type: URI
@@ -332,7 +332,7 @@ type Communication implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -348,7 +348,7 @@ type Communication implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Business identifiers assigned to this communication by the performer or other
     systems which remain constant as the resource is updated and propagates from
