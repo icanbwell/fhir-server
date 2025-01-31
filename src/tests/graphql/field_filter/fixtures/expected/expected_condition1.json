@@ -13,12 +13,12 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.Condition_4_0_0.find({'$and':[{'$or':[{'onsetAge.value':{'$gte':51.5,'$lt':52.5}},{'onsetRange.value':{'$gte':51.5,'$lt':52.5}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'meta':1,'_id':0}).sort({'_uuid':1}).limit(100)]"
+                        "display": "[db.Condition_4_0_0.find({'$and':[{'$or':[{'onsetAge.value':{'$gte':51.5,'$lt':52.5}},{'onsetRange.value':{'$gte':51.5,'$lt':52.5}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
                     },
-                    { "system": "https://www.icanbwell.com/queryCollection", "code": "[Condition_4_0_0]" },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'meta':1,'_id':0},'limit':100,'sort':{'_uuid':1}}]"
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
@@ -27,7 +27,7 @@
                     { "system": "https://www.icanbwell.com/queryTime", "display": "[0.042]" },
                     {
                         "system": "https://www.icanbwell.com/queryOptimization",
-                        "display": "[{'useTwoStepSearchOptimization':false}]"
+                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryExplain",

@@ -6,12 +6,12 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.RiskAssessment_4_0_0.find({'$and':[{'$or':[{'$and':[{'prediction.probabilityDecimal':{'$gt':2002}},{'prediction.probabilityDecimal':{'$lt':2004}}]},{'$and':[{'prediction.probabilityRange':{'$gt':2002}},{'prediction.probabilityRange':{'$lt':2004}}]}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]"
+                        "display": "[db.RiskAssessment_4_0_0.find({'$and':[{'$or':[{'$and':[{'prediction.probabilityDecimal':{'$gt':2002}},{'prediction.probabilityDecimal':{'$lt':2004}}]},{'$and':[{'prediction.probabilityRange':{'$gt':2002}},{'prediction.probabilityRange':{'$lt':2004}}]}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
                     },
-                    { "system": "https://www.icanbwell.com/queryCollection", "code": "[RiskAssessment_4_0_0]" },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]"
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
@@ -20,7 +20,7 @@
                     { "system": "https://www.icanbwell.com/queryTime", "display": "[0.009]" },
                     {
                         "system": "https://www.icanbwell.com/queryOptimization",
-                        "display": "[{'useTwoStepSearchOptimization':false}]"
+                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryExplain",

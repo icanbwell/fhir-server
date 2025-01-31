@@ -6,12 +6,12 @@
         "tag": [
           {
             "system": "https://www.icanbwell.com/query",
-            "display": "[db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurance':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'use':1,'patient':1,'_id':0}).sort({'id':1,'_uuid':1}).limit(2)]"
+            "display": "[db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {}).sort({'id':1,'_uuid':1}).limit(2)]"
           },
-          { "system": "https://www.icanbwell.com/queryCollection", "code": "[ExplanationOfBenefit_4_0_0]" },
+          { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
           {
             "system": "https://www.icanbwell.com/queryOptions",
-            "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurance':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'use':1,'patient':1,'_id':0},'sort':{'id':1,'_uuid':1},'limit':2}]"
+            "display": "[{'sort':{'id':1,'_uuid':1},'limit':2}]"
           },
           {
             "system": "https://www.icanbwell.com/queryFields",
