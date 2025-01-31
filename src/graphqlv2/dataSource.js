@@ -1,7 +1,7 @@
 const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { OPERATIONS: { READ }, COLLECTION } = require('../constants');
+const { OPERATIONS: { READ } } = require('../constants');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
@@ -12,9 +12,6 @@ const { ReferenceParser } = require('../utils/referenceParser');
 const { ConfigManager } = require('../utils/configManager');
 const { isUuid, generateUUIDv5 } = require('../utils/uid.util');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
-const { parseResolveInfo } = require('graphql-parse-resolve-info');
-const { getResource } = require('../operations/common/getResource');
-const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQLV2 resolvers to load the data
@@ -80,12 +77,6 @@ class FhirDataSource {
          * @type {boolean}
          */
         this.debugMode = false;
-
-        /**
-         * contains list of all fields requested for each resource
-         * @type {object|null}
-         */
-        this.resourceProjections = null;
     }
 
     /**
@@ -178,11 +169,6 @@ class FhirDataSource {
                     // Initialize an array to hold the combined results from all batches
                     let combinedResults = [];
                     const batchSize = this.configManager.graphQLFetchResourceBatchSize;
-                    let projections = null;
-
-                    if (this.resourceProjections[resourceType]) {
-                        projections = Array.from(this.resourceProjections[resourceType]);
-                    }
 
                     // Process the IDs in batches
                     for (let i = 0; i < idsOfReference.length; i += batchSize) {
@@ -197,10 +183,6 @@ class FhirDataSource {
 
                         if (!args1._debug && this.debugMode) {
                             args1._debug = true;
-                        }
-                        if (projections) {
-                            args1._elements = projections;
-                            args1._isGraphQLRequest = true;
                         }
 
                         const bundle = await this.searchBundleOperation.searchBundleAsync({
@@ -422,7 +404,6 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
-        this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -432,13 +413,6 @@ class FhirDataSource {
         // if _debug is not set and we are in debug mode, set it
         if (!args1._debug && this.debugMode) {
             args1._debug = true;
-        }
-        if (this.resourceProjections[resourceType]) {
-            const elements = Array.from(this.resourceProjections[resourceType])
-            if (elements){
-                args1._elements = elements;
-                args1._isGraphQLRequest = true;
-            }
         }
         return this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
@@ -469,9 +443,8 @@ class FhirDataSource {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>}
      */
-    async getResourcesBundle (parent, args, context, info, resourceType) {
+    async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
         this.createDataLoader(args);
-        this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
         context.req.resourceType = resourceType;
@@ -484,13 +457,6 @@ class FhirDataSource {
         if (!args1._debug && this.debugMode) {
             args1._debug = true;
         }
-        if (this.resourceProjections[resourceType]) {
-            const elements = Array.from(this.resourceProjections[resourceType])
-            if (elements){
-                args1._elements = elements;
-                args1._isGraphQLRequest = true;
-            }
-        }
         const bundle = await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: context.fhirRequestInfo,
@@ -502,7 +468,7 @@ class FhirDataSource {
                         headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                     }
                 ),
-                useAggregationPipeline: false
+                useAggregationPipeline
             }
         );
         if (bundle.meta) {
@@ -533,60 +499,6 @@ class FhirDataSource {
             if (args._debug) {
                 this.debugMode = true;
             }
-        }
-    }
-
-    /**
-     * Extracts the list of all top level fields requested for
-     * each resource from nested fields data
-     * @param {Object} resolvedFieldsInfo
-     */
-    extractFieldsForResource (resolvedFieldsInfo) {
-        if (resolvedFieldsInfo instanceof Object){
-            for (const [key, value] of Object.entries(resolvedFieldsInfo)) {
-                if (Object.values(COLLECTION).includes(key)) {
-                    let resourceType = key;
-                    /**
-                     * @type {Resource}
-                     */
-                    const resource = getResource(VERSIONS['4_0_0'], resourceType);
-                    /**
-                     * @type {string[]}
-                     */
-                    const resourceFields = Object.getOwnPropertyNames(new resource({}));
-
-                    if (!this.resourceProjections[resourceType]) {
-                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority'])
-                    }
-                    Object.values(value).forEach(field => {
-                        // check if field is valid for resource type as some resources have custom fields
-                        if (resourceFields.includes(field.name)) {
-                            this.resourceProjections[resourceType].add(field.name);
-                        }
-                        else {
-                            // handling for custom fields
-                            if (resourceType === 'SubscriptionStatus' && field.name === 'subscriptionTopic') {
-                                this.resourceProjections[resourceType].add('topic');
-                            }
-                        }
-                    });
-                }
-                if (value instanceof Object) {
-                    this.extractFieldsForResource(value);
-                }
-            }
-        }
-    }
-
-    /**
-     * Creates the list of all fields requested for each resource
-     * @param {Object} info
-     */
-    generateResourceProjections (info) {
-        if (!this.resourceProjections) {
-            this.resourceProjections = {};
-            const resolvedFieldsInfo = parseResolveInfo(info, {});
-            this.extractFieldsForResource(resolvedFieldsInfo)
         }
     }
 
@@ -760,7 +672,6 @@ class FhirDataSource {
 
         try {
             this.createDataLoader({});
-            this.generateResourceProjections(info);
             // noinspection JSValidateTypes
             let resource = await this.dataLoader.load(
                 ResourceWithId.getReferenceKey(requestedResource, id)

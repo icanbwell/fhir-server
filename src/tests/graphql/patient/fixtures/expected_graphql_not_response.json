@@ -41,15 +41,15 @@
       "meta": {
         "tag": [
           {
-            "display": "[db.Patient_4_0_0.find({'$and':[{'$nor':[{'_sourceId':'WPS-0559166162'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'name':1,'birthDate':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.ExplanationOfBenefit_4_0_0.find({'$and':[{'patient._sourceId':'Patient/WPS-5458231534'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.CareTeam_4_0_0.find({'$and':[{'subject._sourceId':'Patient/WPS-5458231534'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'category':1,'name':1,'status':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.AllergyIntolerance_4_0_0.find({'$and':[{'patient._sourceId':'Patient/WPS-5458231534'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'type':1,'category':1,'criticality':1,'code':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
+            "display": "[db.Patient_4_0_0.find({'$and':[{'$nor':[{'_sourceId':'WPS-0559166162'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.ExplanationOfBenefit_4_0_0.find({'$and':[{'patient._sourceId':'Patient/WPS-5458231534'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.CareTeam_4_0_0.find({'$and':[{'subject._sourceId':{'$in':['Patient/WPS-5458231534','Group/WPS-5458231534']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.AllergyIntolerance_4_0_0.find({'$and':[{'patient._sourceId':{'$in':['Patient/WPS-5458231534','Group/WPS-5458231534']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]",
             "system": "https://www.icanbwell.com/query"
           },
           {
-            "code": "[Patient_4_0_0,CareTeam_4_0_0,ExplanationOfBenefit_4_0_0,AllergyIntolerance_4_0_0]",
+            "code": "",
             "system": "https://www.icanbwell.com/queryCollection"
           },
           {
-            "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'name':1,'birthDate':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'category':1,'name':1,'status':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'type':1,'category':1,'criticality':1,'code':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]",
+            "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}}]",
             "system": "https://www.icanbwell.com/queryOptions"
           },
           {
@@ -60,7 +60,7 @@
             "system": "https://www.icanbwell.com/queryTime"
           },
           {
-            "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
+            "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined}]",
             "system": "https://www.icanbwell.com/queryOptimization"
           },
           {

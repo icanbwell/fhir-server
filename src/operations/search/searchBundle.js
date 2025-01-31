@@ -266,11 +266,6 @@ class SearchBundleOperation {
             const cursor = __ret.cursor;
 
             /**
-             * @type {string[]}
-             */
-            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
-
-            /**
              * @type {import('mongodb').Document[]}
              */
             const explanations = (cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
@@ -339,6 +334,10 @@ class SearchBundleOperation {
              */
             const defaultSortId = this.configManager.defaultSortId;
             const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
+            /**
+             * @type {string[]}
+             */
+            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
             /**
              * @type {Bundle}
              */

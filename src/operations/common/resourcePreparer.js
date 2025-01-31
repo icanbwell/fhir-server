@@ -66,10 +66,7 @@ class ResourcePreparer {
              */
             for (const property of properties_to_return_list) {
                 if (property in element_to_return) {
-                    // for handling non-writable field 'resourceType'
-                    if (property !== 'resourceType') {
-                        element_to_return[`${property}`] = element[`${property}`];
-                    }
+                    element_to_return[`${property}`] = element[`${property}`];
                 }
             }
         }
@@ -89,27 +86,36 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({ parsedArgs, element, resourceType }) {
+    async prepareResourceAsync ({
+                                   parsedArgs, element, resourceType
+                               }) {
+        /**
+         * @type {Resource[]}
+         */
+        let resources = [];
         if (parsedArgs.get('_elements')) {
             /**
              * @type {Resource}
              */
-            element = this.selectSpecificElements({
-                parsedArgs,
-                element,
-                resourceType
-            });
-        }
-        if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
+            const element_to_return = this.selectSpecificElements(
+                {
+                    parsedArgs,
+                    element,
+                    resourceType
+                }
+            );
+            resources.push(element_to_return);
+        } else {
             /**
              * @type {Resource[]}
              */
-            [element] = await this.enrichmentManager.enrichAsync({
-                resources: [element],
-                parsedArgs
-            });
+            const enrichedResources = await this.enrichmentManager.enrichAsync({
+                    resources: [element], parsedArgs
+                }
+            );
+            resources = resources.concat(enrichedResources);
         }
-        return [element];
+        return resources;
     }
 }
 

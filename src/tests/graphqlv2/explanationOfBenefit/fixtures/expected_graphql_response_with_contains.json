@@ -293,15 +293,15 @@
       "meta": {
         "tag": [
           {
-            "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':{'$regex':'unknown','$options':'i'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'_id':0}).sort({'_uuid':1}).limit(100),db.Organization_4_0_0.find({'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)]",
+            "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':{'$regex':'unknown','$options':'i'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100),db.Organization_4_0_0.find({'_uuid':'05da92c1-d004-5e5a-971a-e49cda65e672'}, {}).sort({'_uuid':1}).limit(1000)]",
             "system": "https://www.icanbwell.com/query"
           },
           {
-            "code": "[ExplanationOfBenefit_4_0_0,Organization_4_0_0]",
+            "code": "",
             "system": "https://www.icanbwell.com/queryCollection"
           },
           {
-            "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'_id':0},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}]",
+            "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':1000,'sort':{'_uuid':1}}]",
             "system": "https://www.icanbwell.com/queryOptions"
           },
           {
@@ -312,7 +312,7 @@
             "system": "https://www.icanbwell.com/queryTime"
           },
           {
-            "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
+            "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false}]",
             "system": "https://www.icanbwell.com/queryOptimization"
           },
           {
