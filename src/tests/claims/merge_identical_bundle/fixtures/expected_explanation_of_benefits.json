@@ -7,6 +7,7 @@
             "diagnosisCodeableConcept": {
               "coding": [
                 {
+                  "id": "4e71996f-b238-5b02-a9eb-3e324683f104",
                   "code": "N921",
                   "system": "http://hl7.org/fhir/sid/icd-10",
                   "version": "ICD10"
@@ -39,6 +40,7 @@
             "diagnosisCodeableConcept": {
               "coding": [
                 {
+                  "id": "45ece4a0-5569-591d-ac2f-df6a50b6917b",
                   "code": "Z113",
                   "system": "http://hl7.org/fhir/sid/icd-10",
                   "version": "ICD10"
@@ -263,6 +265,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "a0af273f-fefb-5a75-bc81-56cb16542666",
                   "code": "260385009",
                   "display": "Negative",
                   "system": "http://snomed.info/sct"
@@ -326,6 +329,7 @@
           "type": {
             "coding": [
               {
+                "id": "5d7ec20f-c0d9-54c9-aafb-61c43b4c4e21",
                 "code": "Provider",
                 "system": "http://terminology.hl7.org/CodeSystem/payeetype"
               }
@@ -337,6 +341,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "bdbc01a6-f74f-50e7-be9b-9fbb6cf37b58",
                   "code": "87591",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -372,6 +377,7 @@
             "category": {
               "coding": [
                 {
+                  "id": "34caed79-303a-5739-9eb5-617bf531bc73",
                   "code": "Discharge",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 }
@@ -383,6 +389,7 @@
         "type": {
           "coding": [
             {
+              "id": "0c5f062c-f707-5f7a-b5ce-10b4ca230404",
               "code": "Institutional",
               "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }
