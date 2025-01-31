@@ -151,7 +151,7 @@ Reference type for SecurityContext
 """
 type BinarySecurityContextReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI

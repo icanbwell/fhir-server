@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import EpisodeOfCareStatusHistory from "../backbone_elements/episodeOfCareStatusHistory.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
@@ -16,7 +16,7 @@ Reference type for Patient
 """
 type EpisodeOfCarePatientReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Patient
     type: URI
@@ -29,7 +29,7 @@ Reference type for ManagingOrganization
 """
 type EpisodeOfCareManagingOrganizationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Organization
     type: URI
@@ -42,7 +42,7 @@ Reference type for ReferralRequest
 """
 type EpisodeOfCareReferralRequestReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequest
     type: URI
@@ -57,7 +57,7 @@ Reference type for CareManager
 """
 type EpisodeOfCareCareManagerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: EpisodeOfCareCareManager
     type: URI
@@ -70,7 +70,7 @@ Reference type for Team
 """
 type EpisodeOfCareTeamReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: CareTeam
     type: URI
@@ -83,7 +83,7 @@ Reference type for Account
 """
 type EpisodeOfCareAccountReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Account
     type: URI
@@ -145,7 +145,7 @@ type EpisodeOfCare implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -161,7 +161,7 @@ type EpisodeOfCare implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     The EpisodeOfCare may be known by different identifiers for different contexts
     of use, such as when an external agency is tracking the Episode for funding

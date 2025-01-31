@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Account from "../resources/account.graphql"
 # import ActivityDefinition from "../resources/activityDefinition.graphql"
 # import AdministrableProductDefinition from "../resources/administrableProductDefinition.graphql"
@@ -159,7 +159,7 @@ Reference type for Target
 """
 type ProvenanceTargetReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -172,7 +172,7 @@ Reference type for Location
 """
 type ProvenanceLocationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -240,7 +240,7 @@ type Provenance implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -256,7 +256,7 @@ type Provenance implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     The Reference(s) that were generated or updated by  the activity described in
     this resource. A provenance can point to more than one target if multiple

@@ -51,7 +51,7 @@ Reference type for ValueReference
 """
 type ExtensionValueReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -66,7 +66,7 @@ Extension
     If the element is present, it must have a value for at least one of the
     defined elements, an @id referenced from the Narrative, or extensions
 """
-type Extension {
+type FhirExtension {
     """
     None
     """
@@ -78,7 +78,7 @@ type Extension {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension] @inaccessible
     """
     None
     """
@@ -86,7 +86,7 @@ type Extension {
     """
     None
     """
-    valueBase64Binary: Base64Binary
+    valueBase64Binary: Base64Binary @inaccessible
     """
     None
     """
@@ -94,31 +94,31 @@ type Extension {
     """
     None
     """
-    valueCanonical: Canonical
+    valueCanonical: Canonical @inaccessible
     """
     None
     """
-    valueCode: Code
+    valueCode: Code @inaccessible
     """
     None
     """
-    valueDate: Date
+    valueDate: Date @inaccessible
     """
     None
     """
-    valueDateTime: DateTime
+    valueDateTime: DateTime @inaccessible
     """
     None
     """
-    valueDecimal: Float
+    valueDecimal: Float @inaccessible
     """
     None
     """
-    valueId: ID
+    valueId: ID @inaccessible
     """
     None
     """
-    valueInstant: Instant
+    valueInstant: Instant @inaccessible
     """
     None
     """
@@ -126,15 +126,15 @@ type Extension {
     """
     None
     """
-    valueMarkdown: Markdown
+    valueMarkdown: Markdown @inaccessible
     """
     None
     """
-    valueOid: OID
+    valueOid: OID @inaccessible
     """
     None
     """
-    valuePositiveInt: Int
+    valuePositiveInt: Int @inaccessible
     """
     None
     """
@@ -142,39 +142,39 @@ type Extension {
     """
     None
     """
-    valueTime: Time
+    valueTime: Time @inaccessible
     """
     None
     """
-    valueUnsignedInt: Int
+    valueUnsignedInt: Int @inaccessible
     """
     None
     """
-    valueUri: URI
+    valueUri: URI @inaccessible
     """
     None
     """
-    valueUrl: URL
+    valueUrl: URL @inaccessible
     """
     None
     """
-    valueUuid: UUID
+    valueUuid: UUID @inaccessible
     """
     None
     """
-    valueAddress: Address
+    valueAddress: Address @inaccessible
     """
     None
     """
-    valueAge: Quantity
+    valueAge: Quantity @inaccessible
     """
     None
     """
-    valueAnnotation: Annotation
+    valueAnnotation: Annotation @inaccessible
     """
     None
     """
-    valueAttachment: Attachment
+    valueAttachment: Attachment @inaccessible
     """
     None
     """
@@ -182,87 +182,87 @@ type Extension {
     """
     None
     """
-    valueCodeableReference: CodeableReference
+    valueCodeableReference: CodeableReference @inaccessible
     """
     None
     """
-    valueCoding: Coding
+    valueCoding: Coding @inaccessible
     """
     None
     """
-    valueContactPoint: ContactPoint
+    valueContactPoint: ContactPoint @inaccessible
     """
     None
     """
-    valueCount: Quantity
+    valueCount: Quantity @inaccessible
     """
     None
     """
-    valueDistance: Quantity
+    valueDistance: Quantity @inaccessible
     """
     None
     """
-    valueDuration: Quantity
+    valueDuration: Quantity @inaccessible
     """
     None
     """
-    valueHumanName: HumanName
+    valueHumanName: HumanName @inaccessible
     """
     None
     """
-    valueIdentifier: Identifier
+    valueIdentifier: Identifier @inaccessible
     """
     None
     """
-    valueMoney: Money
+    valueMoney: Money @inaccessible
     """
     None
     """
-    valuePeriod: Period
+    valuePeriod: Period @inaccessible
     """
     None
     """
-    valueQuantity: Quantity
+    valueQuantity: Quantity @inaccessible
     """
     None
     """
-    valueRange: Range
+    valueRange: Range @inaccessible
     """
     None
     """
-    valueRatio: Ratio
+    valueRatio: Ratio @inaccessible
     """
     None
     """
-    valueRatioRange: RatioRange
+    valueRatioRange: RatioRange @inaccessible
     """
     None
     """
-    valueReference: ExtensionValueReferenceReference
+    valueReference: ExtensionValueReferenceReference @inaccessible
     """
     None
     """
-    valueSampledData: SampledData
+    valueSampledData: SampledData @inaccessible
     """
     None
     """
-    valueSignature: Signature
+    valueSignature: Signature @inaccessible
     """
     None
     """
-    valueTiming: Timing
+    valueTiming: Timing @inaccessible
     """
     None
     """
-    valueContactDetail: ContactDetail
+    valueContactDetail: ContactDetail @inaccessible
     """
     None
     """
-    valueContributor: Contributor
+    valueContributor: Contributor @inaccessible
     """
     None
     """
-    valueDataRequirement: DataRequirement
+    valueDataRequirement: DataRequirement @inaccessible
     """
     None
     """
@@ -270,21 +270,21 @@ type Extension {
     """
     None
     """
-    valueParameterDefinition: ParameterDefinition
+    valueParameterDefinition: ParameterDefinition @inaccessible
     """
     None
     """
-    valueRelatedArtifact: RelatedArtifact
+    valueRelatedArtifact: RelatedArtifact @inaccessible
     """
     None
     """
-    valueTriggerDefinition: TriggerDefinition
+    valueTriggerDefinition: TriggerDefinition @inaccessible
     """
     None
     """
-    valueUsageContext: UsageContext
+    valueUsageContext: UsageContext @inaccessible
     """
     None
     """
-    valueDosage: Dosage
+    valueDosage: Dosage @inaccessible
 }

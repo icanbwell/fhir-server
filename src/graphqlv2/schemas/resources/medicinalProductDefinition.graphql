@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import DateTime from "../simple_types/dateTime.graphql"
@@ -23,7 +23,7 @@ Reference type for Impurity
 """
 type MedicinalProductDefinitionImpurityReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SubstanceDefinition
     type: URI
@@ -36,7 +36,7 @@ Reference type for AttachedDocument
 """
 type MedicinalProductDefinitionAttachedDocumentReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DocumentReference
     type: URI
@@ -49,7 +49,7 @@ Reference type for MasterFile
 """
 type MedicinalProductDefinitionMasterFileReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DocumentReference
     type: URI
@@ -62,7 +62,7 @@ Reference type for ClinicalTrial
 """
 type MedicinalProductDefinitionClinicalTrialReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ResearchStudy
     type: URI
@@ -127,7 +127,7 @@ type MedicinalProductDefinition implements DomainResource & Resource @key(fields
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -143,7 +143,7 @@ type MedicinalProductDefinition implements DomainResource & Resource @key(fields
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Business identifier for this product. Could be an MPID. When in development or
     being regulated, products are typically referenced by official identifiers,

@@ -71,8 +71,10 @@ class FhirProperty:
     fhir_type: Optional[str]
     reference_target_resources: List[SmartName]
     reference_target_resources_names: List[str]
+    graphqlv2_reference_target_resources_names: List[str]
     is_back_bone_element: bool
     is_basic_type: bool
+    graphqlv2_type: str
     codeable_type: Optional[SmartName]
     scalar_type: Optional[str] = None
     is_resource: bool = False
@@ -96,6 +98,7 @@ class FhirEntity:
     base_type: Optional[str]
     base_type_list: List[str]
     source: str
+    graphqlv2_type: str
     is_value_set: bool = False
     value_set_concepts: Optional[List[FhirValueSetConcept]] = None
     value_set_url: Optional[str] = None
@@ -277,7 +280,13 @@ property_scalar_types_mapping: Dict[str, str] = {
     "uri": "URI",
     "url": "URL",
     "uuid": "UUID",
-    "xhtml": "XHTML",
+    "xhtml": "XHTML"
+}
+
+# when updating this, update in 'graphqlv2/*/custom' folder and in jinja templates if any
+graphqlv2_custom_resource_type: Dict[str, str] = {
+    "Subscription": "FhirSubscription",
+    "Extension": "FhirExtension"
 }
 
 class FhirXmlSchemaParser:
@@ -437,6 +446,7 @@ class FhirXmlSchemaParser:
                     if property_fhir_entity.base_type not in ["Element", "Reference", "BackboneElement"]:
                         fhir_property.is_complex = True
                         fhir_property.cleaned_type = fhir_property.fhir_type
+                        fhir_property.graphqlv2_type = graphqlv2_custom_resource_type.get(fhir_property.fhir_type, fhir_property.fhir_type)
                         fhir_property.type_snake_case = FhirXmlSchemaParser.camel_to_snake(fhir_property.fhir_type)
                         fhir_property.scalar_type = property_scalar_types_mapping.get(fhir_property.type_snake_case)
                     fhir_property.is_resource = property_fhir_entity.is_resource
@@ -492,6 +502,7 @@ class FhirXmlSchemaParser:
                     fhir_name=c.fhir_name,
                     name_snake_case=c.name_snake_case,
                     cleaned_name=c.cleaned_name,
+                    graphqlv2_type=graphqlv2_custom_resource_type.get(c.cleaned_name, c.cleaned_name),
                     plural_name=resources_plural_names_mapping.get(c.cleaned_name, c.cleaned_name),
                     documentation=c.documentation,
                     properties=[],
@@ -798,6 +809,12 @@ class FhirXmlSchemaParser:
                             else c.name
                             for c in fhir_property.reference_target_resources
                         ]
+                        fhir_property.graphqlv2_reference_target_resources_names = [
+                            graphqlv2_custom_resource_type.get(FhirXmlSchemaParser.cleaned_type_mapping[c.name], FhirXmlSchemaParser.cleaned_type_mapping[c.name])
+                            if c.name in FhirXmlSchemaParser.cleaned_type_mapping
+                            else graphqlv2_custom_resource_type.get(c.name, c.name)
+                            for c in fhir_property.reference_target_resources
+                        ]
 
         # set generic type for everything else
         for fhir_entity in fhir_entities:
@@ -817,6 +834,7 @@ class FhirXmlSchemaParser:
                         )
                     ]
                     property_.reference_target_resources_names = ["Resource"]
+                    property_.graphqlv2_reference_target_resources_names = ["Resource"]
 
     @staticmethod
     def _generate_classes_for_resource(resource_xsd_file: Path) -> List[FhirEntity]:
@@ -889,6 +907,7 @@ class FhirXmlSchemaParser:
                 fhir_entity: FhirEntity = FhirEntity(
                     fhir_name=complex_type_name,
                     cleaned_name=cleaned_complex_type_name,
+                    graphqlv2_type=graphqlv2_custom_resource_type.get(cleaned_complex_type_name, cleaned_complex_type_name),
                     plural_name=resources_plural_names_mapping.get(cleaned_complex_type_name, cleaned_complex_type_name),
                     name_snake_case=complex_type_name_snake_case,
                     type_=entity_type,
@@ -987,6 +1006,7 @@ class FhirXmlSchemaParser:
                             javascript_clean_name=f'{FhirXmlSchemaParser.fix_javascript_keywords(property_name)}V2',
                             type_=property_type,
                             cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
+                            graphqlv2_type=graphqlv2_custom_resource_type.get(cleaned_type, cleaned_type),
                             type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                                 FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
                             ),
@@ -1003,6 +1023,7 @@ class FhirXmlSchemaParser:
                             fhir_type=None,
                             reference_target_resources=[],
                             reference_target_resources_names=[],
+                            graphqlv2_reference_target_resources_names = [],
                             is_back_bone_element="." in property_type,
                             is_basic_type=cleaned_type
                                         in FhirXmlSchemaParser.cleaned_type_mapping,
@@ -1017,6 +1038,7 @@ class FhirXmlSchemaParser:
                         javascript_clean_name=FhirXmlSchemaParser.fix_javascript_keywords(property_name),
                         type_=property_type,
                         cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
+                        graphqlv2_type=graphqlv2_custom_resource_type.get(cleaned_type, cleaned_type),
                         type_snake_case=FhirXmlSchemaParser.camel_to_snake(
                             FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
                         ),
@@ -1033,6 +1055,7 @@ class FhirXmlSchemaParser:
                         fhir_type=None,
                         reference_target_resources=[],
                         reference_target_resources_names=[],
+                        graphqlv2_reference_target_resources_names = [],
                         is_back_bone_element="." in property_type,
                         is_basic_type=cleaned_type
                                       in FhirXmlSchemaParser.cleaned_type_mapping,
@@ -1107,6 +1130,7 @@ class FhirXmlSchemaParser:
                         fhir_name=name,
                         type_=type_,
                         cleaned_type=type_,
+                        graphqlv2_type=graphqlv2_custom_resource_type.get(type_, type_),
                         type_snake_case=type_,
                         documentation=documentation,
                         is_back_bone_element=False,
@@ -1116,6 +1140,7 @@ class FhirXmlSchemaParser:
                         is_list=False,
                         optional=False,
                         reference_target_resources_names=[],
+                        graphqlv2_reference_target_resources_names = [],
                         reference_target_resources=[],
                     )
                 )

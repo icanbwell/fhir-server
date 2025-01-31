@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
@@ -19,7 +19,7 @@ Reference type for PartOf
 """
 type MedicationDispensePartOfReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Procedure
     type: URI
@@ -32,7 +32,7 @@ Reference type for StatusReasonReference
 """
 type MedicationDispenseStatusReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DetectedIssue
     type: URI
@@ -45,7 +45,7 @@ Reference type for MedicationReference
 """
 type MedicationDispenseMedicationReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Medication
     type: URI
@@ -60,7 +60,7 @@ Reference type for Subject
 """
 type MedicationDispenseSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: MedicationDispenseSubject
     type: URI
@@ -75,7 +75,7 @@ Reference type for Context
 """
 type MedicationDispenseContextReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: MedicationDispenseContext
     type: URI
@@ -88,7 +88,7 @@ Reference type for SupportingInformation
 """
 type MedicationDispenseSupportingInformationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -101,7 +101,7 @@ Reference type for Location
 """
 type MedicationDispenseLocationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -114,7 +114,7 @@ Reference type for AuthorizingPrescription
 """
 type MedicationDispenseAuthorizingPrescriptionReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: MedicationRequest
     type: URI
@@ -127,7 +127,7 @@ Reference type for Destination
 """
 type MedicationDispenseDestinationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -142,7 +142,7 @@ Reference type for Receiver
 """
 type MedicationDispenseReceiverReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: MedicationDispenseReceiver
     type: URI
@@ -155,7 +155,7 @@ Reference type for DetectedIssue
 """
 type MedicationDispenseDetectedIssueReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DetectedIssue
     type: URI
@@ -168,7 +168,7 @@ Reference type for EventHistory
 """
 type MedicationDispenseEventHistoryReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Provenance
     type: URI
@@ -232,7 +232,7 @@ type MedicationDispense implements DomainResource & Resource @key(fields: "id") 
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -248,7 +248,7 @@ type MedicationDispense implements DomainResource & Resource @key(fields: "id") 
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Identifiers associated with this Medication Dispense that are defined by
     business processes and/or used to refer to it when a direct URL reference to

@@ -14,6 +14,79 @@ from search_parameters import search_parameter_queries
 from fhir_xml_schema_parser import FhirEntity
 from generate_non_clinical_fields import get_clinical_resources_and_filters
 
+# data for applying custom directives to graphql types or fields
+custom_data = {
+    "shareable_directive": [
+        "CodeSystemProperty",
+        "OperationOutcomeIssue",
+        "PatientCommunication",
+        "Address",
+        "Attachment",
+        "CodeableConcept",
+        "Coding",
+        "ContactPoint",
+        "Expression",
+        "IdentifierAssignerReference",
+        "Identifier",
+        "Meta",
+        "Period",
+        "Reference",
+    ],
+    "inaccessible_directive": {
+        "Identifier": ["extension", "use", "period", "assigner"],
+        "Period": ["id", "extension"],
+        "Reference": ["id", "extension"],
+        "FhirExtension": [
+            "extension",
+            "valueBase64Binary",
+            "valueCanonical",
+            "valueCode",
+            "valueDate",
+            "valueDateTime",
+            "valueDecimal",
+            "valueId",
+            "valueInstant",
+            "valueMarkdown",
+            "valueOid",
+            "valuePositiveInt",
+            "valueTime",
+            "valueUnsignedInt",
+            "valueUri",
+            "valueUrl",
+            "valueUuid",
+            "valueAddress",
+            "valueAge",
+            "valueAnnotation",
+            "valueAttachment",
+            "valueCodeableReference",
+            "valueCoding",
+            "valueContactPoint",
+            "valueCount",
+            "valueDistance",
+            "valueDuration",
+            "valueHumanName",
+            "valueIdentifier",
+            "valueMoney",
+            "valuePeriod",
+            "valueQuantity",
+            "valueRange",
+            "valueRatio",
+            "valueRatioRange",
+            "valueReference",
+            "valueSampledData",
+            "valueSignature",
+            "valueTiming",
+            "valueContactDetail",
+            "valueContributor",
+            "valueDataRequirement",
+            "valueParameterDefinition",
+            "valueRelatedArtifact",
+            "valueTriggerDefinition",
+            "valueUsageContext",
+            "valueDosage"
+        ]
+    },
+}
 
 def my_copytree(
         src: Union[Path, str],
@@ -126,7 +199,7 @@ def main() -> int:
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
 
     # generate schema.graphql
-    with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
+    with open(data_dir.joinpath("graphqlv2/template.query.jinja2"), "r") as file:
         template_contents = file.read()
 
         file_path = graphql_schema_dir.joinpath("schema.graphql")
@@ -251,7 +324,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    fhir_entity=fhir_entity,
+                    fhir_entity=fhir_entity, custom_data=custom_data
                 )
 
             if not path.exists(file_path):
@@ -283,7 +356,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    fhir_entity=fhir_entity,
+                    fhir_entity=fhir_entity, custom_data=custom_data
                 )
 
             with open(file_path, "w") as file2:
@@ -314,7 +387,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    fhir_entity=fhir_entity,
+                    fhir_entity=fhir_entity, custom_data=custom_data
                 )
 
             if not path.exists(file_path):
@@ -346,7 +419,7 @@ def main() -> int:
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    fhir_entity=fhir_entity,
+                    fhir_entity=fhir_entity, custom_data=custom_data
                 )
 
             if not path.exists(file_path):

@@ -17,7 +17,7 @@
         {% elif property.is_resource %}
 # import {{ property.type_ | replace(".","") }} from "../resources/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_extension %}
-# import {{ property.type_ | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
+# import {{ property.graphqlv2_type | replace(".","") }} from "../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.fhir_type == "BackboneElement" %}
 # import {{ property.type_ | replace(".","") }} from "../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.graphql"
         {% elif property.is_complex or property.fhir_type == "Element" %}
@@ -42,13 +42,13 @@
 
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
-{% if property.reference_target_resources | length == 1 and property.reference_target_resources_names [0] == "Resource" %}
+{% if property.reference_target_resources | length == 1 and property.graphqlv2_reference_target_resources_names [0] == "Resource" %}
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -57,14 +57,14 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
 }
 
 {% elif property.reference_target_resources | length > 1 %}
-union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{ property.reference_target_resources_names | unique | join(" | ") }}
+union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{ property.graphqlv2_reference_target_resources_names | unique | join(" | ") }}
 
 """
 Reference type for {{ upper_case_first_letter(property.name) }}
 """
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}
     type: URI
@@ -78,9 +78,9 @@ Reference type for {{ upper_case_first_letter(property.name) }}
 """
 type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }}Reference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
-    resource: {{ property.reference_target_resources_names [0] }}
+    resource: {{ property.graphqlv2_reference_target_resources_names [0] }}
     type: URI
     identifier: Identifier
     display: String
@@ -97,9 +97,9 @@ type {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ 
 {%  endfor %}
 """
 {% if fhir_entity.base_type_list | length > 0 %}
-type {{ fhir_entity.cleaned_name }} implements {{ fhir_entity.base_type_list | unique | join(" & ") }} @key(fields: "id") {
+type {{ fhir_entity.graphqlv2_type }} implements {{ fhir_entity.base_type_list | unique | join(" & ") }} @key(fields: "id") {
 {% else %}
-type {{ fhir_entity.cleaned_name }} @key(fields: "id") {
+type {{ fhir_entity.graphqlv2_type }} @key(fields: "id") {
 {% endif %}
     resourceType: String
 {% for property in fhir_entity.properties %}
@@ -115,7 +115,7 @@ type {{ fhir_entity.cleaned_name }} @key(fields: "id") {
         {% if property.name == "id" %}
         {{- 'ID!' -}}
         {% elif property.cleaned_type == "Extension" %}
-        {{- 'Extension' -}}
+        {{- property.graphqlv2_type -}}
         {% elif property.cleaned_type == "ResourceContainer" %}
         {{- 'Resource' -}}
         {% elif property.is_code %}
@@ -158,7 +158,7 @@ type {{fhir_entity.cleaned_name}}BundleEntry {
     """
     {{fhir_entity.cleaned_name}} resource
     """
-    resource: {{fhir_entity.cleaned_name}}
+    resource: {{fhir_entity.graphqlv2_type}}
 
     """
     Information about the search process that lead to the creation of this entry.

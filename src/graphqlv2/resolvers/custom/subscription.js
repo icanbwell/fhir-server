@@ -1,5 +1,5 @@
 module.exports = {
-    Subscription: {
+    FhirSubscription: {
         /**
          * @param {Resource|null} parent
          * @param {Object} args

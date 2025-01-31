@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
@@ -17,7 +17,7 @@ Reference type for BasedOn
 """
 type DeviceUseStatementBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequest
     type: URI
@@ -32,7 +32,7 @@ Reference type for Subject
 """
 type DeviceUseStatementSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceUseStatementSubject
     type: URI
@@ -47,7 +47,7 @@ Reference type for DerivedFrom
 """
 type DeviceUseStatementDerivedFromReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceUseStatementDerivedFrom
     type: URI
@@ -62,7 +62,7 @@ Reference type for Source
 """
 type DeviceUseStatementSourceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceUseStatementSource
     type: URI
@@ -75,7 +75,7 @@ Reference type for Device
 """
 type DeviceUseStatementDeviceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Device
     type: URI
@@ -90,7 +90,7 @@ Reference type for ReasonReference
 """
 type DeviceUseStatementReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceUseStatementReasonReference
     type: URI
@@ -151,7 +151,7 @@ type DeviceUseStatement implements DomainResource & Resource @key(fields: "id") 
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -167,7 +167,7 @@ type DeviceUseStatement implements DomainResource & Resource @key(fields: "id") 
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     An external identifier for this statement such as an IRI.
     """

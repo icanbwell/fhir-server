@@ -145,6 +145,26 @@
 # import VerificationResult from "./resources/verificationResult.graphql"
 # import VisionPrescription from "./resources/visionPrescription.graphql"
 
-type Query {
+enum link__Purpose {
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+}
+
+scalar link__Import
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
+
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.5", import: ["@key", "@shareable", "@inaccessible", "@authenticated"])
+
+type Query @authenticated {
     id: String
 }
