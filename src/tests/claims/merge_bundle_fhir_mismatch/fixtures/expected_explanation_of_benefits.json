@@ -7,6 +7,7 @@
             "diagnosisCodeableConcept": {
               "coding": [
                 {
+                  "id": "4244eabe-c0ee-5d86-8d41-e5e6a0967ed9",
                   "code": "R0789",
                   "system": "http://hl7.org/fhir/sid/icd-10",
                   "version": "ICD10"
@@ -27,6 +28,7 @@
               {
                 "coding": [
                   {
+                    "id": "4d0b6ba5-d73c-5976-a3c7-640ffa0107c9",
                     "code": "RetrospectiveDiagnosis",
                     "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
                   }
@@ -43,6 +45,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                   "code": "claimnumber",
                   "display": "Claim Number",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -118,6 +121,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "64b1c135-ea21-53b0-afee-4f8ab8091bd0",
                       "code": "submittedamount",
                       "display": "Submitted Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -132,6 +136,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "0f1f61f9-ee1b-5b8e-b8ca-3fa953048812",
                       "code": "allowedamount",
                       "display": "Allowed Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -146,6 +151,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "9d5d5300-6e11-5508-b0c9-f436f9ce557d",
                       "code": "deductibleamount",
                       "display": "Deductible",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -160,6 +166,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "4fb8b738-d204-5ec4-8d62-d1389651148a",
                       "code": "coinsuranceamount",
                       "display": "CoInsurance Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -174,6 +181,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "88e98b26-b9d7-56af-bfe5-bbb40da05b2e",
                       "code": "copayamount",
                       "display": "Copay Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -188,6 +196,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "8837dbd8-c971-5714-b599-3d92bd4b46e6",
                       "code": "cobamount",
                       "display": "Coordination of Benefit Paid Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -202,6 +211,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "c58452ac-9e72-56bf-a442-8cf1ff7535fb",
                       "code": "paymentamount",
                       "display": "Amount Paid",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -214,6 +224,7 @@
             "locationCodeableConcept": {
               "coding": [
                 {
+                  "id": "55e259b0-3084-540b-86fb-96e1b433a59e",
                   "code": "NA",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
@@ -222,6 +233,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "dbc29b57-57fe-5f15-a267-268e6144058e",
                   "code": "80061",
                   "system": "http://hl7.org/fhir/sid/icd-10"
                 }
@@ -233,6 +245,7 @@
             "revenue": {
               "coding": [
                 {
+                  "id": "09b9f992-2ef4-511f-8954-9814f80e31b8",
                   "code": "0258",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-revenue-center"
                 }
@@ -249,6 +262,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "64b1c135-ea21-53b0-afee-4f8ab8091bd0",
                       "code": "submittedamount",
                       "display": "Submitted Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -263,6 +277,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "0f1f61f9-ee1b-5b8e-b8ca-3fa953048812",
                       "code": "allowedamount",
                       "display": "Allowed Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -277,6 +292,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "9d5d5300-6e11-5508-b0c9-f436f9ce557d",
                       "code": "deductibleamount",
                       "display": "Deductible",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -291,6 +307,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "4fb8b738-d204-5ec4-8d62-d1389651148a",
                       "code": "coinsuranceamount",
                       "display": "CoInsurance Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -305,6 +322,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "88e98b26-b9d7-56af-bfe5-bbb40da05b2e",
                       "code": "copayamount",
                       "display": "Copay Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -319,6 +337,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "8837dbd8-c971-5714-b599-3d92bd4b46e6",
                       "code": "cobamount",
                       "display": "Coordination of Benefit Paid Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -333,6 +352,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "c58452ac-9e72-56bf-a442-8cf1ff7535fb",
                       "code": "paymentamount",
                       "display": "Amount Paid",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -345,6 +365,7 @@
             "locationCodeableConcept": {
               "coding": [
                 {
+                  "id": "55e259b0-3084-540b-86fb-96e1b433a59e",
                   "code": "NA",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
@@ -353,6 +374,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "dbc29b57-57fe-5f15-a267-268e6144058e",
                   "code": "80061",
                   "system": "http://hl7.org/fhir/sid/icd-10"
                 }
@@ -364,6 +386,7 @@
             "revenue": {
               "coding": [
                 {
+                  "id": "7df9c111-941e-5c00-bdf5-75d62b210a09",
                   "code": "0350",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-revenue-center"
                 }
@@ -380,6 +403,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "64b1c135-ea21-53b0-afee-4f8ab8091bd0",
                       "code": "submittedamount",
                       "display": "Submitted Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -394,6 +418,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "0f1f61f9-ee1b-5b8e-b8ca-3fa953048812",
                       "code": "allowedamount",
                       "display": "Allowed Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -408,6 +433,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "9d5d5300-6e11-5508-b0c9-f436f9ce557d",
                       "code": "deductibleamount",
                       "display": "Deductible",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -422,6 +448,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "4fb8b738-d204-5ec4-8d62-d1389651148a",
                       "code": "coinsuranceamount",
                       "display": "CoInsurance Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -436,6 +463,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "88e98b26-b9d7-56af-bfe5-bbb40da05b2e",
                       "code": "copayamount",
                       "display": "Copay Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -450,6 +478,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "8837dbd8-c971-5714-b599-3d92bd4b46e6",
                       "code": "cobamount",
                       "display": "Coordination of Benefit Paid Amount",
                       "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
@@ -464,6 +493,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "c58452ac-9e72-56bf-a442-8cf1ff7535fb",
                       "code": "paymentamount",
                       "display": "Amount Paid",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -476,6 +506,7 @@
             "locationCodeableConcept": {
               "coding": [
                 {
+                  "id": "55e259b0-3084-540b-86fb-96e1b433a59e",
                   "code": "NA",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
@@ -484,6 +515,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "dbc29b57-57fe-5f15-a267-268e6144058e",
                   "code": "80061",
                   "system": "http://hl7.org/fhir/sid/icd-10"
                 }
@@ -495,6 +527,7 @@
             "revenue": {
               "coding": [
                 {
+                  "id": "96a33317-6689-55d2-9d13-c95492fc1b0e",
                   "code": "0730",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-revenue-center"
                 }
@@ -546,6 +579,7 @@
           "type": {
             "coding": [
               {
+                "id": "5d7ec20f-c0d9-54c9-aafb-61c43b4c4e21",
                 "code": "Provider",
                 "system": "http://terminology.hl7.org/CodeSystem/payeetype"
               }
@@ -557,6 +591,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "d86652ba-45b5-538c-9f8c-f651004265d7",
                   "code": "93005",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -568,6 +603,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "20ea5ca4-f702-5b40-a856-8875d4f1332c",
                   "code": "Q9967",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -579,6 +615,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "97b73a71-24e7-5838-a72b-53a83aed04c5",
                   "code": "71275",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -590,6 +627,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "cc74c4eb-8f49-5a8d-ab30-2935f777ca95",
                   "code": "J3490",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -601,6 +639,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "4bec6c83-a421-53dc-8db6-9305342bbe0b",
                   "code": "84484",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -612,6 +651,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "73f4cf90-cea5-53ef-9222-20351719fe51",
                   "code": "80048",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -623,6 +663,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "245f3ec3-9825-5bde-9482-c7925908531d",
                   "code": "99284",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -634,6 +675,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "c2fbca22-0140-5b0d-98d6-10d6f7c99326",
                   "code": "71045",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -645,6 +687,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "88681480-395f-57e4-ad57-31ba21167955",
                   "code": "85380",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -656,6 +699,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "fc0ff88e-150b-50fe-bbfd-caa63363656a",
                   "code": "96374",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -667,6 +711,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "429fc798-74dc-5add-b02e-d3aedf641054",
                   "code": "85610",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -678,6 +723,7 @@
             "procedureCodeableConcept": {
               "coding": [
                 {
+                  "id": "2545d9d4-271d-5c65-b31b-19a7578dd731",
                   "code": "85025",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -737,10 +783,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "51ed1de6-4c3c-5289-b000-a0a37f2b1e0a",
                   "code": "type-of-bill",
                   "display": "Type of bill",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -754,10 +802,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "281e4ebb-e62e-5873-82f1-cceb552d1468",
                   "code": "discharge",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "5538b68c-9cb4-5f60-946d-7c6512a921a7",
                   "code": "discharge-status",
                   "display": "Discharge Status",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -767,6 +817,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "065e44bc-b003-53e5-8bf8-866802f4da78",
                   "code": "01",
                   "system": "http//www.nubc.org/patient-discharge"
                 }
@@ -778,10 +829,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "8ec68b08-50d6-5dc8-9e20-2a61fb729a70",
                   "code": "admsrc",
                   "display": "Admission Source",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -791,6 +844,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "d8b5e087-ca79-5328-aa99-1014f860ed5e",
                   "code": "1",
                   "system": "https://www.nubc.org/point-of-origin-for-admission-or-visit"
                 }
@@ -802,10 +856,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "d75e2fa1-825f-537c-8b63-085442477121",
                   "code": "admtype",
                   "display": "Admission Type",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -815,6 +871,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "d75e2fa1-825f-537c-8b63-085442477121",
                   "code": "1",
                   "system": "http//www.nubc.org/priority-type-of-admission-or-visit"
                 }
@@ -826,10 +883,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "64774335-7080-5c20-b489-8dfb9ab48abd",
                   "code": "tob-typeoffacility",
                   "display": "Type of facility",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -839,6 +898,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "6efc921e-5050-57ac-a859-cdf90f953f5e",
                   "code": "1",
                   "system": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-Items/CMS1196256.html"
                 }
@@ -850,10 +910,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "6029620d-0adb-54b1-a891-2e4fe496163e",
                   "code": "tob-billclassification",
                   "display": "Bill Classification",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -863,6 +925,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "3c8055f1-2e7f-5426-b4a1-69395ed7aba5",
                   "code": "3",
                   "system": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-Items/CMS1196256.html"
                 }
@@ -874,10 +937,12 @@
             "category": {
               "coding": [
                 {
+                  "id": "3c76394e-beb4-5a2f-b439-3282f8ad927d",
                   "code": "info",
                   "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
                 },
                 {
+                  "id": "d9f2d542-ba86-5f39-98a6-59613ab7246b",
                   "code": "tob-frequency",
                   "display": "Frequency",
                   "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
@@ -887,6 +952,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "6efc921e-5050-57ac-a859-cdf90f953f5e",
                   "code": "1",
                   "system": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-Items/CMS1196256.html"
                 }
@@ -898,6 +964,7 @@
         "type": {
           "coding": [
             {
+              "id": "7e46c030-fce0-57d0-9fda-a4632c90d6ea",
               "code": "institutional",
               "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }

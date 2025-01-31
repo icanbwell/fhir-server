@@ -141,6 +141,7 @@
           {
             "coding": [
               {
+                "id": "8b1a486e-3550-5b27-8fa4-45c0335a539d",
                 "code": "NEW",
                 "display": "NEW",
                 "system": "http://clienthealth.org/appointment-type"
@@ -151,6 +152,7 @@
           {
             "coding": [
               {
+                "id": "fc57d33d-8a19-54a7-9f47-700949978886",
                 "code": "RET",
                 "display": "RET",
                 "system": "http://clienthealth.org/appointment-type"
@@ -161,6 +163,7 @@
           {
             "coding": [
               {
+                "id": "e5b4d889-612f-5990-8b4e-e905233347a3",
                 "code": "REX",
                 "display": "REX",
                 "system": "http://clienthealth.org/appointment-type"
@@ -171,6 +174,7 @@
           {
             "coding": [
               {
+                "id": "bb9d7634-0c9e-587a-a9f3-c59348b15f12",
                 "code": "EV4",
                 "display": "EV4",
                 "system": "http://clienthealth.org/appointment-type"
@@ -181,6 +185,7 @@
           {
             "coding": [
               {
+                "id": "02b5eab5-a884-50e3-9a31-e528b0f94953",
                 "code": "ERN",
                 "display": "ERN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -191,6 +196,7 @@
           {
             "coding": [
               {
+                "id": "71ae0613-8c80-542a-97d2-90a74ad667a7",
                 "code": "ERX",
                 "display": "ERX",
                 "system": "http://clienthealth.org/appointment-type"
@@ -201,6 +207,7 @@
           {
             "coding": [
               {
+                "id": "f53ca44a-3ccf-5e7c-9b40-ff363ba08cc7",
                 "code": "PHN",
                 "display": "PHN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -211,6 +218,7 @@
           {
             "coding": [
               {
+                "id": "5bf60543-fb3b-5fec-ab3b-8a127920c7b9",
                 "code": "PHY",
                 "display": "PHY",
                 "system": "http://clienthealth.org/appointment-type"
@@ -221,6 +229,7 @@
           {
             "coding": [
               {
+                "id": "06b95594-a0af-5744-9590-627865a992e1",
                 "code": "MEW",
                 "display": "MEW",
                 "system": "http://clienthealth.org/appointment-type"
@@ -231,6 +240,7 @@
           {
             "coding": [
               {
+                "id": "b0dceb6c-121e-5a96-8a26-8f96fe034867",
                 "code": "PH2",
                 "display": "PH2",
                 "system": "http://clienthealth.org/appointment-type"
@@ -241,6 +251,7 @@
           {
             "coding": [
               {
+                "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
                 "code": "PrimaryCare",
                 "display": "PrimaryCare",
                 "system": "http://clienthealth.org/protocol"

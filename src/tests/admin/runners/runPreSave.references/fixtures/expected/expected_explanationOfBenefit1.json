@@ -37,6 +37,7 @@
       "role": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -52,6 +53,7 @@
       "diagnosisCodeableConcept": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -63,6 +65,7 @@
         {
           "coding": [
             {
+              "id": "5450ec88-2560-5069-a87e-662399205b8c",
               "code": "unknown",
               "display": "Unknown",
               "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -75,6 +78,7 @@
       "diagnosisCodeableConcept": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -86,6 +90,7 @@
         {
           "coding": [
             {
+              "id": "5450ec88-2560-5069-a87e-662399205b8c",
               "code": "unknown",
               "display": "Unknown",
               "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -98,6 +103,7 @@
       "diagnosisCodeableConcept": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -109,6 +115,7 @@
         {
           "coding": [
             {
+              "id": "5450ec88-2560-5069-a87e-662399205b8c",
               "code": "unknown",
               "display": "Unknown",
               "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -125,6 +132,7 @@
       "type": {
         "coding": [
           {
+            "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
             "code": "claimnumber",
             "display": "Claim Number",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -206,6 +214,7 @@
           "category": {
             "coding": [
               {
+                "id": "48f669ab-044c-558a-b03f-5c84dbc9b371",
                 "code": "drugcost",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -219,6 +228,7 @@
           "category": {
             "coding": [
               {
+                "id": "ec8db224-f910-5221-b607-e8c417f10d51",
                 "code": "memberliability",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -232,6 +242,7 @@
           "category": {
             "coding": [
               {
+                "id": "fc48a951-42bf-5b99-95e5-c9a2ecd9048c",
                 "code": "priorpayerpaid",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -245,6 +256,7 @@
           "category": {
             "coding": [
               {
+                "id": "75a049e0-cc59-59cb-aa52-bdbf347f7d1b",
                 "code": "noncovered",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -258,6 +270,7 @@
           "category": {
             "coding": [
               {
+                "id": "bce740c5-8bbd-5a02-a606-0e097cb00eb8",
                 "code": "paidbypatient",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -271,6 +284,7 @@
           "category": {
             "coding": [
               {
+                "id": "821b80b0-3976-5774-a5cd-3e298505c87b",
                 "code": "eligible",
                 "system": "http://terminology.hl7.org/CodeSystem/adjudication"
               }
@@ -284,6 +298,7 @@
           "category": {
             "coding": [
               {
+                "id": "a4e4c4bc-1a1f-57f5-8ca8-9a53ee057abe",
                 "code": "paidtopatient",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -297,6 +312,7 @@
           "category": {
             "coding": [
               {
+                "id": "abfef336-253c-5342-a620-e80c2a962cab",
                 "code": "discount",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -310,6 +326,7 @@
           "category": {
             "coding": [
               {
+                "id": "886ee30d-9072-5a88-a3f7-fa2d40762f84",
                 "code": "coinsurance",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -323,6 +340,7 @@
           "category": {
             "coding": [
               {
+                "id": "dc634038-f819-51b2-af40-dd4a77be6c9d",
                 "code": "paidtoprovider",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
               }
@@ -333,6 +351,7 @@
           "category": {
             "coding": [
               {
+                "id": "286ec805-990d-5791-bf09-d597306c6335",
                 "code": "denialreason",
                 "display": "Denial Reason",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator"
@@ -342,6 +361,7 @@
           "reason": {
             "coding": [
               {
+                "id": "5450ec88-2560-5069-a87e-662399205b8c",
                 "code": "unknown",
                 "display": "Unknown",
                 "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -353,6 +373,7 @@
           "category": {
             "coding": [
               {
+                "id": "88744b67-7d0c-5ad4-9b71-7f888d598fc9",
                 "code": "allowedunits",
                 "display": "allowed units",
                 "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator"
@@ -368,6 +389,7 @@
       "productOrService": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -380,6 +402,7 @@
       "revenue": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -466,6 +489,7 @@
     "type": {
       "coding": [
         {
+          "id": "33b6332a-25f9-5fee-b162-904acccc37ad",
           "code": "beneficiary",
           "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType"
         }
@@ -477,6 +501,7 @@
     "type": {
       "coding": [
         {
+          "id": "72b6d935-ce9c-5512-bf9f-80ea34fc02fb",
           "code": "denied",
           "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus"
         }
@@ -489,6 +514,7 @@
       "procedureCodeableConcept": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -500,6 +526,7 @@
         {
           "coding": [
             {
+              "id": "5450ec88-2560-5069-a87e-662399205b8c",
               "code": "unknown",
               "display": "Unknown",
               "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -548,6 +575,7 @@
       "relationship": {
         "coding": [
           {
+            "id": "134bb94f-db67-57b3-8a52-dc13db42a5a7",
             "code": "prior",
             "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship"
           }
@@ -560,6 +588,7 @@
   "subType": {
     "coding": [
       {
+        "id": "c9ca2dff-84eb-5bb4-a316-89b1746b18cd",
         "code": "inpatient",
         "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBInstitutionalClaimSubType"
       }
@@ -570,6 +599,7 @@
       "category": {
         "coding": [
           {
+            "id": "82ee0652-0bd5-5fd5-b12f-023124d94180",
             "code": "billingnetworkcontractingstatus",
             "display": "Billing Network Contracting Status",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -579,6 +609,7 @@
       "code": {
         "coding": [
           {
+            "id": "de385e20-97a4-580d-a334-8d02b5b2f064",
             "code": "contracted",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus"
           }
@@ -590,6 +621,7 @@
       "category": {
         "coding": [
           {
+            "id": "a355714a-def1-50c2-92b8-f83a98772711",
             "code": "medicalrecordnumber",
             "display": "Medical Record Number",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -603,6 +635,7 @@
       "category": {
         "coding": [
           {
+            "id": "4012d836-b736-5519-8d0c-0cf66372057e",
             "code": "patientaccountnumber",
             "display": "Patient Account Number",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -616,6 +649,7 @@
       "category": {
         "coding": [
           {
+            "id": "2f719548-098a-53ad-8ffc-75164e07d1db",
             "code": "admissionperiod",
             "display": "Admission Period",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -632,6 +666,7 @@
       "category": {
         "coding": [
           {
+            "id": "548a9214-a56c-566b-9a94-a73d7e500b1f",
             "code": "clmrecvddate",
             "display": "Claim Received Date",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -645,6 +680,7 @@
       "category": {
         "coding": [
           {
+            "id": "2ba5e1c0-a8ee-5e83-8e83-e3c9c3fd1ab4",
             "code": "typeofbill",
             "display": "Type of Bill",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -654,6 +690,7 @@
       "code": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -666,6 +703,7 @@
       "category": {
         "coding": [
           {
+            "id": "4ca4802d-79d0-52bb-ba8b-f92d9ff9f155",
             "code": "pointoforigin",
             "display": "Point Of Origin",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -675,6 +713,7 @@
       "code": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -687,6 +726,7 @@
       "category": {
         "coding": [
           {
+            "id": "cd0f4bd6-eed9-55bf-a482-652d7858e7cc",
             "code": "admtype",
             "display": "Admission Type",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -696,6 +736,7 @@
       "code": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -708,6 +749,7 @@
       "category": {
         "coding": [
           {
+            "id": "ec96ee24-fedd-51ae-902d-81ac3dee586a",
             "code": "discharge-status",
             "display": "Discharge Status",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -717,6 +759,7 @@
       "code": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -729,6 +772,7 @@
       "category": {
         "coding": [
           {
+            "id": "21df46d9-02f5-5882-8b72-331c9d732114",
             "code": "drg",
             "display": "DRG",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
@@ -738,6 +782,7 @@
       "code": {
         "coding": [
           {
+            "id": "5450ec88-2560-5069-a87e-662399205b8c",
             "code": "unknown",
             "display": "Unknown",
             "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
@@ -755,6 +800,7 @@
       "category": {
         "coding": [
           {
+            "id": "48f669ab-044c-558a-b03f-5c84dbc9b371",
             "code": "drugcost",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -768,6 +814,7 @@
       "category": {
         "coding": [
           {
+            "id": "ec8db224-f910-5221-b607-e8c417f10d51",
             "code": "memberliability",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -781,6 +828,7 @@
       "category": {
         "coding": [
           {
+            "id": "fc48a951-42bf-5b99-95e5-c9a2ecd9048c",
             "code": "priorpayerpaid",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -794,6 +842,7 @@
       "category": {
         "coding": [
           {
+            "id": "75a049e0-cc59-59cb-aa52-bdbf347f7d1b",
             "code": "noncovered",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -807,6 +856,7 @@
       "category": {
         "coding": [
           {
+            "id": "821b80b0-3976-5774-a5cd-3e298505c87b",
             "code": "eligible",
             "system": "http://terminology.hl7.org/CodeSystem/adjudication"
           }
@@ -820,6 +870,7 @@
       "category": {
         "coding": [
           {
+            "id": "bce740c5-8bbd-5a02-a606-0e097cb00eb8",
             "code": "paidbypatient",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -833,6 +884,7 @@
       "category": {
         "coding": [
           {
+            "id": "a4e4c4bc-1a1f-57f5-8ca8-9a53ee057abe",
             "code": "paidtopatient",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -846,6 +898,7 @@
       "category": {
         "coding": [
           {
+            "id": "abfef336-253c-5342-a620-e80c2a962cab",
             "code": "discount",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -859,6 +912,7 @@
       "category": {
         "coding": [
           {
+            "id": "886ee30d-9072-5a88-a3f7-fa2d40762f84",
             "code": "coinsurance",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -872,6 +926,7 @@
       "category": {
         "coding": [
           {
+            "id": "dc634038-f819-51b2-af40-dd4a77be6c9d",
             "code": "paidtoprovider",
             "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
           }
@@ -882,6 +937,7 @@
   "type": {
     "coding": [
       {
+        "id": "63666d30-7b8d-5674-97f4-bda270072f58",
         "code": "institutional",
         "system": "http://terminology.hl7.org/CodeSystem/claim-type"
       }

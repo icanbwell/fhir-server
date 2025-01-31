@@ -7,6 +7,7 @@
             "diagnosisCodeableConcept": {
               "coding": [
                 {
+                  "id": "2e3362f7-af8e-529c-bb18-3e8c823d3acb",
                   "code": "M25571",
                   "system": "http://hl7.org/fhir/sid/icd-10",
                   "version": "ICD10"
@@ -27,6 +28,7 @@
               {
                 "coding": [
                   {
+                    "id": "4d0b6ba5-d73c-5976-a3c7-640ffa0107c9",
                     "code": "RetrospectiveDiagnosis",
                     "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
                   }
@@ -38,6 +40,7 @@
             "diagnosisCodeableConcept": {
               "coding": [
                 {
+                  "id": "3c1706f5-966c-598e-8798-5d714eac2237",
                   "code": "E063",
                   "system": "http://hl7.org/fhir/sid/icd-10",
                   "version": "ICD10"
@@ -58,6 +61,7 @@
               {
                 "coding": [
                   {
+                    "id": "4d0b6ba5-d73c-5976-a3c7-640ffa0107c9",
                     "code": "RetrospectiveDiagnosis",
                     "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
                   }
@@ -73,6 +77,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "04804649-c5ed-5b42-8a0d-beb6f75a13f8",
                   "code": "claimnumber",
                   "display": "Claim Number",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -171,6 +176,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "e436baef-8c84-502b-951d-48ce56cb511a",
                       "code": "submitted",
                       "display": "Submitted Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -185,6 +191,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "821b80b0-3976-5774-a5cd-3e298505c87b",
                       "code": "eligible",
                       "display": "Eligible Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -199,6 +206,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "590b08c9-8ca8-5ee9-a62b-5855bca8ab01",
                       "code": "deductible",
                       "display": "Deductible",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -213,6 +221,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "6cfe176f-c12c-5ccd-a288-fa3cbfa0663f",
                       "code": "coins",
                       "display": "CoInsurance Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -227,6 +236,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "490fe637-095e-55b7-8e10-5d22a9194928",
                       "code": "copay",
                       "display": "Copay Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -241,6 +251,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "b3a54b28-1fc5-5f3b-89fc-539d052bb004",
                       "code": "cob",
                       "display": "Coordination of Benefit Paid Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -255,6 +266,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "915cdb1b-d723-5c9b-b5b3-633557e506ee",
                       "code": "paidtoprovider",
                       "display": "Amount Paid to Provider",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -267,6 +279,7 @@
             "locationCodeableConcept": {
               "coding": [
                 {
+                  "id": "ae6f9487-18d9-5a1a-8b3a-8da3b1f31689",
                   "code": "11",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
@@ -275,6 +288,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "903f7cc2-03b0-5e72-8249-fcb1be233946",
                   "code": "A",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }
@@ -301,6 +315,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "e436baef-8c84-502b-951d-48ce56cb511a",
                       "code": "submitted",
                       "display": "Submitted Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -315,6 +330,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "821b80b0-3976-5774-a5cd-3e298505c87b",
                       "code": "eligible",
                       "display": "Eligible Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -329,6 +345,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "590b08c9-8ca8-5ee9-a62b-5855bca8ab01",
                       "code": "deductible",
                       "display": "Deductible",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -343,6 +360,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "6cfe176f-c12c-5ccd-a288-fa3cbfa0663f",
                       "code": "coins",
                       "display": "CoInsurance Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -357,6 +375,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "490fe637-095e-55b7-8e10-5d22a9194928",
                       "code": "copay",
                       "display": "Copay Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -371,6 +390,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "b3a54b28-1fc5-5f3b-89fc-539d052bb004",
                       "code": "cob",
                       "display": "Coordination of Benefit Paid Amount",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -385,6 +405,7 @@
                 "category": {
                   "coding": [
                     {
+                      "id": "915cdb1b-d723-5c9b-b5b3-633557e506ee",
                       "code": "paidtoprovider",
                       "display": "Amount Paid to Provider",
                       "system": "http://terminology.hl7.org/CodeSystem/adjudication"
@@ -397,6 +418,7 @@
             "locationCodeableConcept": {
               "coding": [
                 {
+                  "id": "ae6f9487-18d9-5a1a-8b3a-8da3b1f31689",
                   "code": "11",
                   "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
@@ -415,6 +437,7 @@
             "productOrService": {
               "coding": [
                 {
+                  "id": "903f7cc2-03b0-5e72-8249-fcb1be233946",
                   "code": "A",
                   "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
                 }

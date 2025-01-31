@@ -49,7 +49,7 @@
       "code": {
         "coding": [
           {
-            "id": "ab6dbc9c-735d-5cec-84af-bfa4f9efffb5",
+            "id": "917422fb-7dc7-5603-bdf3-17733c9ee798",
             "code": "4",
             "display": "HOV",
             "system": "1.2.840.114350.1.72.1.7.7.10.696784.13260"
@@ -115,7 +115,7 @@
       "code": {
         "coding": [
           {
-            "id": "660baf80-528d-5f12-bd20-6808106a28b4",
+            "id": "3b432b5b-49f8-5706-909b-eefb281416f2",
             "code": "5",
             "display": "Appointment",
             "system": "1.2.840.114350.1.72.1.7.7.10.696784.13260"
