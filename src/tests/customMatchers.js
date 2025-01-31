@@ -654,8 +654,9 @@ function toHaveResourceCount (resp, expected) {
  * and removes query part from received and expected reponse
  * @param {import('http').ServerResponse} resp
  * @param {Object|Object[]} expected
+ * @param {string} expectedTagPath
  */
-function toHaveMongoQuery(resp, expected) {
+function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
     const sortNestedArrays = (obj) => {
         if (Array.isArray(obj)) {
             return obj.map(sortNestedArrays);
@@ -712,8 +713,15 @@ function toHaveMongoQuery(resp, expected) {
         };
     };
 
+    let requestTag = resp?.body?.meta?.tag;
+    let expectedTag = expected?.meta?.tag;
+    if (expectedTagPath) {
+        requestTag = `body.${expectedTagPath}`.split('.').reduce((p,c)=>p&&p[c]||null, resp)
+        expectedTag = `${expectedTagPath}`.split('.').reduce((p,c)=>p&&p[c]||null, expected)
+    }
+
     let receivedQuery = [];
-    resp.body.meta.tag.forEach((t) => {
+    requestTag.forEach((t) => {
         if (t.system === 'https://www.icanbwell.com/query') {
             receivedQuery = t.display.split('|').sort();
             t.display = '';
@@ -721,7 +729,7 @@ function toHaveMongoQuery(resp, expected) {
     });
 
     let expectedQuery = [];
-    expected.meta.tag.forEach((t) => {
+    expectedTag.forEach((t) => {
         if (t.system === 'https://www.icanbwell.com/query') {
             expectedQuery = t.display.split('|').sort();
             t.display = '';
@@ -735,6 +743,54 @@ function toHaveMongoQuery(resp, expected) {
     receivedQuery.forEach((element, index) => {
         expect(parseQueryString(element)).toEqual(parseQueryString(expectedQuery[index]));
     });
+
+    let receivedCollections = "";
+    requestTag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/queryCollection') {
+            receivedCollections = t.code;
+            t.code = '';
+        }
+    });
+
+    let expectedCollections = "";
+    expectedTag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/queryCollection') {
+            expectedCollections = t.code;
+            t.code = '';
+        }
+    });
+
+    // Compare query collections
+    expect(receivedCollections.replace(/[[\]]/g, '').split(',').sort()).toEqual(
+        expectedCollections.replace(/[[\]]/g, '').split(',').sort()
+    );
+
+    let receivedQueryOptions = "";
+    requestTag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/queryOptions') {
+            receivedQueryOptions = JSON.parse(t.display.replace(/'/g, '"'));
+            t.display = '';
+        }
+    });
+
+    let expectedQueryOptions = "";
+    expectedTag.forEach((t) => {
+        if (t.system === 'https://www.icanbwell.com/queryOptions') {
+            expectedQueryOptions = JSON.parse(t.display.replace(/'/g, '"'));
+            t.display = '';
+        }
+    });
+
+    // Compare query options
+    expect(
+        Array.isArray(receivedQueryOptions)
+            ? receivedQueryOptions.map((element) => JSON.stringify(element)).sort()
+            : receivedQueryOptions
+    ).toEqual(
+        Array.isArray(expectedQueryOptions)
+            ? expectedQueryOptions.map((element) => JSON.stringify(element)).sort()
+            : expectedQueryOptions
+    );
 
     return { actual: resp, expected, message: '', pass: true };
 }

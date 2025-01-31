@@ -3,15 +3,15 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'1000000-a-01'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]",
+        "display": "[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'1000000-a-01'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'link':1,'implicitRules':1,'meta':1,'name':1,'address':1,'gender':1,'photo':1,'language':1,'telecom':1,'_id':0}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "",
+        "code": "[Person_4_0_0]",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'limit':100,'sort':{'_uuid':1}}]",
+        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'link':1,'implicitRules':1,'meta':1,'name':1,'address':1,'gender':1,'photo':1,'language':1,'telecom':1,'_id':0},'limit':100,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
@@ -22,7 +22,7 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':undefined}]",
+        "display": "[{'useTwoStepSearchOptimization':false}]",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {

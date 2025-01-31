@@ -229,6 +229,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedNotGraphQlResponse, 'data.patients.meta.tag');
             expect(resp).toHaveResponse(expectedNotGraphQlResponse, r => {
                     const bundle = r.data?.patients;
                     if (bundle?.meta && bundle.meta.tag) {

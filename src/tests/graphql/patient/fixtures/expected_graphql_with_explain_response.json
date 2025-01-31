@@ -3,15 +3,15 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Patient_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100)]",
+        "display": "[db.Patient_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'name':1,'birthDate':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "",
+        "code": "[Patient_4_0_0]",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'limit':100,'sort':{'_uuid':1}}]",
+        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'name':1,'birthDate':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
@@ -22,7 +22,7 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':undefined}]",
+        "display": "[{'useTwoStepSearchOptimization':false}]",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {

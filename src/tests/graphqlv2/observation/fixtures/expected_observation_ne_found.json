@@ -83,15 +83,15 @@
         "meta": {
           "tag": [
             {
-              "display": "[db.Observation_4_0_0.find({'$and':[{'$or':[{'valueQuantity.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueCodeableConcept.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueString.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueBoolean.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueInteger.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueRange.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueRatio.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueSampledData.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueTime.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueDateTime.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valuePeriod.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'subject._uuid':{'$in':['Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454','Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)]",
+              "display": "[db.Observation_4_0_0.find({'$and':[{'$or':[{'valueQuantity.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueCodeableConcept.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueString.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueBoolean.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueInteger.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueRange.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueRatio.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueSampledData.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueTime.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valueDateTime.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}},{'valuePeriod.value':{'$exists':true,'$not':{'$gte':100.005,'$lt':100.015}}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'subject._uuid':{'$in':['Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454','Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'meta':1,'component':1,'valueQuantity':1,'_id':0}).sort({'_uuid':1}).limit(100)]",
               "system": "https://www.icanbwell.com/query"
             },
             {
-              "code": "",
+              "code": "[Observation_4_0_0]",
               "system": "https://www.icanbwell.com/queryCollection"
             },
             {
-              "display": "[{'limit':100,'sort':{'_uuid':1}}]",
+              "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'meta':1,'component':1,'valueQuantity':1,'_id':0},'limit':100,'sort':{'_uuid':1}}]",
               "system": "https://www.icanbwell.com/queryOptions"
             },
             {
@@ -102,7 +102,7 @@
               "system": "https://www.icanbwell.com/queryTime"
             },
             {
-              "display": "[{'useTwoStepSearchOptimization':undefined}]",
+              "display": "[{'useTwoStepSearchOptimization':false}]",
               "system": "https://www.icanbwell.com/queryOptimization"
             },
             {
