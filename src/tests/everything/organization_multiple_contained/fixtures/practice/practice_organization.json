@@ -34,7 +34,6 @@
     {
       "coding": [
         {
-          "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
           "system": "http://terminology.hl7.org/CodeSystem/organization-type",
           "code": "prov",
           "display": "Healthcare Provider"
@@ -45,7 +44,6 @@
     {
       "coding": [
         {
-          "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
           "system": "http://terminology.hl7.org/CodeSystem/organization-type",
           "code": "prov",
           "display": "Emergency Room"
@@ -88,7 +86,6 @@
       "purpose": {
         "coding": [
           {
-            "id": "83763aef-2839-5dcb-bb58-f09a287be950",
             "system": "ClientHealth.org",
             "code": "Central Scheduling"
           }

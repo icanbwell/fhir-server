@@ -47,7 +47,6 @@
             "text": "SubscriptionStatus error message",
             "coding": [
               {
-                "id": "c5d18b73-9f0b-54af-a1c8-ab136f427401",
                 "system": "http://terminology.hl7.org/CodeSystem/subscription-error",
                 "code": "error-response"
               }

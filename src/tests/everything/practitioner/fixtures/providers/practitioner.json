@@ -22,7 +22,6 @@
       "type": {
         "coding": [
           {
-            "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code": "PRN"
           }
@@ -36,7 +35,6 @@
       "type": {
         "coding": [
           {
-            "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
             "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code": "NPI"
           }
@@ -70,7 +68,6 @@
       "code": {
         "coding": [
           {
-            "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
             "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
             "code": "MD"
           }
@@ -81,7 +78,6 @@
       "code": {
         "coding": [
           {
-            "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
             "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
             "code": "MD"
           }
@@ -100,7 +96,6 @@
     {
       "coding": [
         {
-          "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
           "code": "en",
           "system": "urn:ietf:bcp:47"
         }
