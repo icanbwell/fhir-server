@@ -1,0 +1,120 @@
+{
+    "code": {
+        "coding": [
+            {
+                "code": "135615",
+                "system": "urn:oid:2.16.840.1.113883.6.253"
+            },
+            {
+                "code": "61100020102020",
+                "system": "urn:oid:2.16.840.1.113883.6.68"
+            },
+            {
+                "code": "59073",
+                "system": "urn:oid:2.16.840.1.113883.6.162"
+            },
+            {
+                "code": "3287",
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            },
+            {
+                "code": "3288",
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            },
+            {
+                "code": "822929",
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            },
+            {
+                "code": "884522",
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            }
+        ],
+        "text": "prednisolone 1 MG/ML [Pediapred]"
+    },
+    "form": {
+        "coding": [
+            {
+                "code": "SOLN",
+                "display": "Solution",
+                "system": "urn:oid:1.2.840.114350.1.13.283.3.7.4.698288.310"
+            }
+        ],
+        "text": "Solution"
+    },
+    "id": "medication-prednisolone",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medication-prednisolone"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "b0e0113d-23a0-5742-a054-c8afe008010b"
+        }
+    ],
+    "ingredient": [
+        {
+            "itemCodeableConcept": {
+                "coding": [
+                    {
+                        "code": "135615",
+                        "system": "urn:oid:2.16.840.1.113883.6.253"
+                    },
+                    {
+                        "code": "61100020102020",
+                        "system": "urn:oid:2.16.840.1.113883.6.68"
+                    },
+                    {
+                        "code": "59073",
+                        "system": "urn:oid:2.16.840.1.113883.6.162"
+                    },
+                    {
+                        "code": "3287",
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                    },
+                    {
+                        "code": "3288",
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                    },
+                    {
+                        "code": "822929",
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                    },
+                    {
+                        "code": "884522",
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                    }
+                ],
+                "text": "Dextroamphetamine Sulfate 5 MG/5ML Soln oral solution"
+            },
+            "strength": {
+                "denominator": {
+                    "unit": "MG/5ML",
+                    "value": 5
+                },
+                "numerator": {
+                    "unit": "MG/5ML",
+                    "value": 5
+                }
+            }
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "client",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "client",
+                "system": "https://www.icanbwell.com/access"
+            }
+        ],
+        "source": "test",
+        "versionId": "1"
+    },
+    "resourceType": "Medication"
+}

@@ -544,7 +544,10 @@ class FhirDataSource {
      */
     extractFieldsForResource (resolvedFieldsInfo) {
         if (resolvedFieldsInfo instanceof Object){
-            for (const [key, value] of Object.entries(resolvedFieldsInfo)) {
+            for (let [key, value] of Object.entries(resolvedFieldsInfo)) {
+                if (key.startsWith('Subscription_')) {
+                    key = key.replace("Subscription_", "")
+                }
                 if (Object.values(COLLECTION).includes(key)) {
                     let resourceType = key;
                     /**
@@ -560,14 +563,33 @@ class FhirDataSource {
                         this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority'])
                     }
                     Object.values(value).forEach(field => {
+                        // for handling custom reference fields
+                        if (field.name.endsWith('V2')) {
+                            field.name = field.name.replace('V2', '');
+                        }
                         // check if field is valid for resource type as some resources have custom fields
                         if (resourceFields.includes(field.name)) {
                             this.resourceProjections[resourceType].add(field.name);
                         }
                         else {
                             // handling for custom fields
-                            if (resourceType === 'SubscriptionStatus' && field.name === 'subscriptionTopic') {
+                            if (
+                                resourceType === 'SubscriptionStatus' &&
+                                field.name === 'subscriptionTopic'
+                            ) {
                                 this.resourceProjections[resourceType].add('topic');
+                            } else if (
+                                resourceType === 'Subscription' &&
+                                [
+                                    'master_person_id',
+                                    'client_person_id',
+                                    'source_patient_id',
+                                    'connection_type',
+                                    'connection_name',
+                                    'service_slug'
+                                ].includes(field.name)
+                            ) {
+                                this.resourceProjections[resourceType].add('extension');
                             }
                         }
                     });

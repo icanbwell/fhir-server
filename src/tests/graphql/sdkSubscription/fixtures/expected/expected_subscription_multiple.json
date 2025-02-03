@@ -200,7 +200,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':100,'sort':{'_uuid':1}},{'limit':1000,'sort':{'_uuid':1}}]",
+        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'topic':1,'status':1,'type':1,'error':1,'notificationEvent':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'topic':1,'status':1,'type':1,'error':1,'notificationEvent':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'url':1,'version':1,'resourceTrigger':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
@@ -211,7 +211,7 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false}]",
+        "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {

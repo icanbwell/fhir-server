@@ -543,7 +543,10 @@ class FhirDataSource {
      */
     extractFieldsForResource (resolvedFieldsInfo) {
         if (resolvedFieldsInfo instanceof Object){
-            for (const [key, value] of Object.entries(resolvedFieldsInfo)) {
+            for (let [key, value] of Object.entries(resolvedFieldsInfo)) {
+                if (key === 'FhirSubscription') {
+                    key = 'Subscription'
+                }
                 if (Object.values(COLLECTION).includes(key)) {
                     let resourceType = key;
                     /**
