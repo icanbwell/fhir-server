@@ -31,6 +31,8 @@ custom_data = {
         "Meta",
         "Period",
         "Reference",
+        "Extension",
+        "HumanName"
     ],
     "inaccessible_directive": {
         "Identifier": ["extension", "use", "period", "assigner"],
