@@ -37,7 +37,6 @@ const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
-const { isStringObject } = require('util/types');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
