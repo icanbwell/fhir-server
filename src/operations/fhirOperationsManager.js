@@ -37,6 +37,7 @@ const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
+const { isStringObject } = require('util/types');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -412,11 +413,13 @@ class FhirOperationsManager {
                                 element.resource,
                                 vulcanIgFilter.filterField
                             );
-                            if (vulcanIgFilter.extractValueFn) {
-                                const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
-                                value = extractValue(value);
+                            if (typeof value === 'string' && value !== '') {
+                                if (vulcanIgFilter.extractValueFn) {
+                                    const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
+                                    value = extractValue(value);
+                                }
+                                combinedFilterValues.add(value);
                             }
-                            combinedFilterValues.add(value);
                         });
                     }
 
