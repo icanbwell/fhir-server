@@ -412,11 +412,13 @@ class FhirOperationsManager {
                                 element.resource,
                                 vulcanIgFilter.filterField
                             );
-                            if (vulcanIgFilter.extractValueFn) {
-                                const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
-                                value = extractValue(value);
+                            if (typeof value === 'string' && value !== '') {
+                                if (vulcanIgFilter.extractValueFn) {
+                                    const extractValue = new Function('x', vulcanIgFilter.extractValueFn);
+                                    value = extractValue(value);
+                                }
+                                combinedFilterValues.add(value);
                             }
-                            combinedFilterValues.add(value);
                         });
                     }
 
