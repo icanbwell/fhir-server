@@ -8,6 +8,8 @@
     {{- text[0]|upper }}{{ text[1:] -}}
 {% endmacro %}
 
+const { removeNull } = require('../../../../utils/nullRemover');
+
 {% if fhir_entity.cleaned_name == 'Resource' %}
 const ResourceContainer = require('../simple_types/resourceContainer');
 {%  elif fhir_entity.is_resource %}
@@ -376,8 +378,6 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      * @return {Object}
      */
     toJSON () {
-        const { removeNull } = require('../../../../utils/nullRemover');
-
         return removeNull({
         {% if fhir_entity.is_resource %}
             resourceType: this.resourceType,
@@ -439,7 +439,6 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
         {% if fhir_entity.is_resource %}
             resourceType: this.resourceType,
