@@ -142,6 +142,52 @@ const vulcanIgSearchQueries = {
                 }
             ],
             resultSearchParam: 'id'
+        },
+        "medication-status": {
+            filters: [
+                {
+                    resourceType: 'MedicationStatement',
+                    searchParam: 'status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                },
+                {
+                    resourceType: 'MedicationAdministration',
+                    searchParam: 'status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                },
+                {
+                    resourceType: 'MedicationRequest',
+                    searchParam: 'status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "medication-date":  {
+            filters: [
+                {
+                    resourceType: 'MedicationStatement',
+                    searchParam: 'effective',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                },
+                {
+                    resourceType: 'MedicationAdministration',
+                    searchParam: 'effective-time',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                },
+                {
+                    resourceType: 'MedicationRequest',
+                    searchParam: 'date',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
         }
     }
 };
