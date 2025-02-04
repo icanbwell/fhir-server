@@ -121,24 +121,6 @@ const vulcanIgSearchQueries = {
                     searchParam: 'code',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationAdministration',
-                    searchParam: 'code',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationDispense',
-                    searchParam: 'code',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationRequest',
-                    searchParam: 'code',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
                 }
             ],
             resultSearchParam: 'id'
@@ -147,18 +129,6 @@ const vulcanIgSearchQueries = {
             filters: [
                 {
                     resourceType: 'MedicationStatement',
-                    searchParam: 'status',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationAdministration',
-                    searchParam: 'status',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationRequest',
                     searchParam: 'status',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
@@ -171,18 +141,6 @@ const vulcanIgSearchQueries = {
                 {
                     resourceType: 'MedicationStatement',
                     searchParam: 'effective',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationAdministration',
-                    searchParam: 'effective-time',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationRequest',
-                    searchParam: 'date',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
                 }
