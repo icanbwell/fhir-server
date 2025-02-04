@@ -81,6 +81,39 @@ const vulcanIgSearchQueries = {
             ],
             resultSearchParam: 'id'
         },
+        "condition-clinical-status": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'clinical-status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "condition-verification-status": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'verification-status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "condition-onset-date": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'onset-date',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
         medication: {
             filters: [
                 {
@@ -88,22 +121,26 @@ const vulcanIgSearchQueries = {
                     searchParam: 'code',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
-                },
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "medication-status": {
+            filters: [
                 {
-                    resourceType: 'MedicationAdministration',
-                    searchParam: 'code',
+                    resourceType: 'MedicationStatement',
+                    searchParam: 'status',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
-                },
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "medication-date":  {
+            filters: [
                 {
-                    resourceType: 'MedicationDispense',
-                    searchParam: 'code',
-                    filterField: 'subject._uuid',
-                    extractValueFn: "return x.split('/')[1]"
-                },
-                {
-                    resourceType: 'MedicationRequest',
-                    searchParam: 'code',
+                    resourceType: 'MedicationStatement',
+                    searchParam: 'effective',
                     filterField: 'subject._uuid',
                     extractValueFn: "return x.split('/')[1]"
                 }
