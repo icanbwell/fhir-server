@@ -81,6 +81,39 @@ const vulcanIgSearchQueries = {
             ],
             resultSearchParam: 'id'
         },
+        "condition-clinical-status": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'clinical-status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "condition-verification-status": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'verification-status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "condition-onset-date": {
+            filters: [
+                {
+                    resourceType: 'Condition',
+                    searchParam: 'onset-date',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
         medication: {
             filters: [
                 {
