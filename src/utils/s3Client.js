@@ -64,7 +64,43 @@ class S3Client {
                 args: {
                     filePath
                 }
-            })
+            });
+        }
+    }
+
+    /**
+     * Upload files in parallel to s3 in given batch size
+     * @typedef {Object} uploadInBatchAsyncParams
+     * @property {{filePath: string, data: Buffer}[]} fileDataWithPath
+     * @property {number} batch
+     *
+     * @param {uploadInBatchAsyncParams}
+     */
+    async uploadInBatchAsync({ fileDataWithPath, batch }) {
+        try {
+            for (let i = 0; i < fileDataWithPath.length; i += batch) {
+                const batchFiles = fileDataWithPath.slice(i, i + batch);
+
+                const uploadPromises = batchFiles.map(async (file) => {
+                    return new Upload({
+                        client: this.client,
+                        params: {
+                            Bucket: this.bucketName,
+                            Key: file.filePath,
+                            Body: file.data
+                        }
+                    }).done().catch((error) => {
+                        logError(`Error in uploading file to S3 at: ${file.filePath}`, {error})
+                    });
+                });
+                await Promise.all(uploadPromises);
+            }
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in uploadInBatchAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client'
+            });
         }
     }
 

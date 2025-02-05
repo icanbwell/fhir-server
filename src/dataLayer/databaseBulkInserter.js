@@ -36,6 +36,8 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { S3Client } = require('../utils/s3Client');
+const { generateUUID } = require('../utils/uid.util');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -54,6 +56,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {S3Client | null} historyResourceS3Client
      */
     constructor ({
                     resourceManager,
@@ -66,7 +69,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceMerger,
                     configManager,
                     mongoFilterGenerator,
-                    postSaveProcessor
+                    postSaveProcessor,
+                    historyResourceS3Client
                 }) {
         super();
 
@@ -136,6 +140,14 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {S3Client | null}
+         */
+        this.historyResourceS3Client = historyResourceS3Client;
+        if (historyResourceS3Client) {
+            assertTypeEquals(historyResourceS3Client, S3Client);
+        }
     }
 
     /**
@@ -158,6 +170,15 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     getHistoryOperationsByResourceTypeMap ({ requestId }) {
         return this.requestSpecificCache.getMap({ requestId, name: 'HistoryOperationsByResourceTypeMap' });
+    }
+
+    /**
+     * This array stores entry for all history data to be uploaded to S3
+     * @param {string} requestId
+     * @return {{filePath: string, data: object}[]>}
+     */
+    getS3ResourceHistoryUploadList ({ requestId }) {
+        return this.requestSpecificCache.getList({ requestId, name: 'S3ResourceHistoryUploadList' });
     }
 
     /**
@@ -422,48 +443,61 @@ class DatabaseBulkInserter extends EventEmitter {
         const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
-            this.addHistoryOperationForResourceType({
-                    requestId,
+            const history_doc_json = new BundleEntry({
+                id: doc._uuid,
+                resource: doc,
+                request: new BundleRequest({
+                    id: userRequestId,
+                    method,
+                    url: `/${base_version}/${resourceType}/${doc.id}`
+                }),
+                response: patches
+                    ? new BundleResponse({
+                          status: '200',
+                          outcome: new OperationOutcome({
+                              issue: patches.map(
+                                  (p) =>
+                                      new OperationOutcomeIssue({
+                                          severity: 'information',
+                                          code: 'informational',
+                                          diagnostics: JSON.stringify(p, getCircularReplacer())
+                                      })
+                              )
+                          })
+                      })
+                    : null
+            }).toJSONInternal();
+
+            if (this.historyResourceS3Client && this.configManager.s3HistoryResources.includes(resourceType)) {
+                const s3ResourceHistoryUploadList = this.getS3ResourceHistoryUploadList({
+                    requestId
+                });
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
                     resourceType,
-                    resource: doc,
-                    operationType: 'insert', // history operations are blind merges without checking id
-                    operation: {
-                        insertOne: {
-                            document: new BundleEntry(
-                                {
-                                    id: doc._uuid,
-                                    resource: doc,
-                                    request: new BundleRequest(
-                                        {
-                                            id: userRequestId,
-                                            method,
-                                            url: `/${base_version}/${resourceType}/${doc.id}`
-                                        }
-                                    ),
-                                    response: patches
-                                        ? new BundleResponse(
-                                            {
-                                                status: '200',
-                                                outcome: new OperationOutcome({
-                                                        issue: patches.map(p => new OperationOutcomeIssue(
-                                                                {
-                                                                    severity: 'information',
-                                                                    code: 'informational',
-                                                                    diagnostics: JSON.stringify(p, getCircularReplacer())
-                                                                }
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        ) : null
-                                }
-                            ).toJSONInternal()
-                        }
-                    },
-                    patches
-                }
-            );
+                    base_version
+                });
+                const collectionName = await resourceLocator.getHistoryCollectionNameAsync(doc);
+                const file_path = `${collectionName}/${generateUUID()}.json`;
+                s3ResourceHistoryUploadList.push({
+                    data: Buffer.from(JSON.stringify(history_doc_json)),
+                    filePath: file_path
+                });
+
+                history_doc_json['_fullObjPath'] = this.historyResourceS3Client.getPublicS3FilePath(file_path);
+            }
+
+            this.addHistoryOperationForResourceType({
+                requestId,
+                resourceType,
+                resource: doc,
+                operationType: 'insert', // history operations are blind merges without checking id
+                operation: {
+                    insertOne: {
+                        document: history_doc_json
+                    }
+                },
+                patches
+            });
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -782,6 +816,21 @@ class DatabaseBulkInserter extends EventEmitter {
     async executeHistoryInPostRequestAsync ({ requestInfo, base_version }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
+
+        const s3ResourceHistoryUploadList = this.getS3ResourceHistoryUploadList({ requestId });
+        if (s3ResourceHistoryUploadList.length > 0) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    await this.historyResourceS3Client.uploadInBatchAsync({
+                        fileDataWithPath: s3ResourceHistoryUploadList,
+                        batch: this.configManager.s3UploadBatchSize
+                    });
+                    s3ResourceHistoryUploadList.length = 0;
+                }
+            });
+        }
+
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
