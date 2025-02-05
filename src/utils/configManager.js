@@ -606,6 +606,33 @@ class ConfigManager {
         }
         return isTrue(env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2);
     }
+
+    /**
+     * Size for number of parallel uploads to S3
+     * @returns {number}
+     */
+    get s3UploadBatchSize () {
+        return env.S3_UPLOAD_BATCH_SIZE || 100;
+    }
+
+    /**
+     * whether to enable history resource upload to s3
+     * @return {boolean}
+     */
+    get enableHistoryResourceS3Upload () {
+        return isTrue(env.ENABLE_HISTORY_RESOURCE_S3_UPLOAD);
+    }
+
+    /**
+     * returns list of history resources that needs to be uploaded to S3
+     * @return {string[]}
+     */
+    get s3HistoryResources() {
+        return (
+            (env.S3_HISTORY_RESOURCES &&
+                env.S3_HISTORY_RESOURCES.split(',').map((col) => col.trim())) || ['Binary']
+        );
+    }
 }
 
 module.exports = {
