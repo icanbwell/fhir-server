@@ -146,7 +146,74 @@ const vulcanIgSearchQueries = {
                 }
             ],
             resultSearchParam: 'id'
+        },
+        "encounter-type": {
+            filters: [
+                {
+                    resourceType: 'Encounter',
+                    searchParam: 'type',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "encounter-status": {
+            filters: [
+                {
+                    resourceType: 'Encounter',
+                    searchParam: 'status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        observation: {
+            filters: [
+                {
+                    resourceType: 'Observation',
+                    searchParam: 'code',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "observation-value-quantity": {
+            filters: [
+                {
+                    resourceType: 'Observation',
+                    searchParam: 'value-quantity',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "consent-status": {
+            filters: [
+                {
+                    resourceType: 'Consent',
+                    searchParam: 'status',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
+        },
+        "consent-scope": {
+            filters: [
+                {
+                    resourceType: 'Consent',
+                    searchParam: 'scope',
+                    filterField: 'subject._uuid',
+                    extractValueFn: "return x.split('/')[1]"
+                }
+            ],
+            resultSearchParam: 'id'
         }
+
     }
 };
 
