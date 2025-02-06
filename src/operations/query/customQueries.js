@@ -196,7 +196,7 @@ const vulcanIgSearchQueries = {
                 {
                     resourceType: 'Consent',
                     searchParam: 'status',
-                    filterField: 'subject._uuid',
+                    filterField: 'patient._uuid',
                     extractValueFn: "return x.split('/')[1]"
                 }
             ],
@@ -207,7 +207,7 @@ const vulcanIgSearchQueries = {
                 {
                     resourceType: 'Consent',
                     searchParam: 'scope',
-                    filterField: 'subject._uuid',
+                    filterField: 'patient._uuid',
                     extractValueFn: "return x.split('/')[1]"
                 }
             ],
