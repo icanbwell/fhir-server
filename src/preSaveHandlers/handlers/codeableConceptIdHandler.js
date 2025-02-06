@@ -1,5 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const CodeableConcept = require("../../fhir/classes/4_0_0/complex_types/codeableConcept");
+const Coding = require("../../fhir/classes/4_0_0/complex_types/coding")
 const { generateUUIDv5 } = require('../../utils/uid.util');
 /**
  * @classdesc Converts date field from string to Date()
@@ -35,12 +36,11 @@ class CodeableConceptIdHandler extends PreSaveHandler {
      * @returns {boolean}
      */
     updateIfNeeded (resource) {
-        if (resource instanceof CodeableConcept && resource.coding) {
-            for (const coding of resource.coding) {
-                if (coding.system && coding.code && !coding.id) {
-                    coding.id = generateUUIDv5(`${coding.system}|${coding.code}`);                }
+        if (resource instanceof Coding) {
+            if (resource.system && resource.code && !resource.id) {
+                resource.id = generateUUIDv5(`${resource.system}|${resource.code}`);
+                return true;
             }
-            return true;
         }
 
         let updated = false;
