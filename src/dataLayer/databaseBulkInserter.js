@@ -38,6 +38,7 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 const { S3Client } = require('../utils/s3Client');
 const { generateUUID } = require('../utils/uid.util');
+const { filterJsonByKeys } = require('../utils/object');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -443,7 +444,7 @@ class DatabaseBulkInserter extends EventEmitter {
         const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
-            const history_doc_json = new BundleEntry({
+            let history_doc_json = new BundleEntry({
                 id: doc._uuid,
                 resource: doc,
                 request: new BundleRequest({
@@ -483,6 +484,11 @@ class DatabaseBulkInserter extends EventEmitter {
                     filePath: file_path
                 });
 
+                // filter only required fields to be saved in MongoDB
+                history_doc_json = filterJsonByKeys(
+                    history_doc_json,
+                    this.configManager.historyResourceMongodbFields
+                );
                 history_doc_json['_fullObjPath'] = this.historyResourceS3Client.getPublicS3FilePath(file_path);
             }
 
