@@ -1,0 +1,46 @@
+[
+    {
+        "_id": null,
+        "id": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
+        "resource": {
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": null,
+                "source": "https://connect.medlineplus.gov/service",
+                "security": [
+                    { "system": "https://www.icanbwell.com/owner", "code": "client1" },
+                    { "system": "https://www.icanbwell.com/access", "code": "client1" },
+                    {
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "client1"
+                    }
+                ]
+            },
+            "_uuid": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
+            "_sourceId": "binary1"
+        },
+        "_fullObjPath": "s3://test/Binary_4_0_0_History/randomUUID.json"
+    },
+    {
+        "_id": null,
+        "id": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
+        "resource": {
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": null,
+                "source": "https://connect.medlineplus.gov/service",
+                "security": [
+                    { "system": "https://www.icanbwell.com/owner", "code": "client1" },
+                    { "system": "https://www.icanbwell.com/access", "code": "client1" },
+                    {
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "client1"
+                    }
+                ]
+            },
+            "_uuid": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
+            "_sourceId": "binary2"
+        },
+        "_fullObjPath": "s3://test/Binary_4_0_0_History/randomUUID.json"
+    }
+]

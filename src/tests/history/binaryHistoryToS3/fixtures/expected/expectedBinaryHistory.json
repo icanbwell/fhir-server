@@ -25,8 +25,7 @@
             "_uuid": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
             "_sourceId": "binary1"
         },
-        "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary1" },
-        "_fullObjPath": "s3://test/Binary_4_0_0_History/randomUUID.json"
+        "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary1" }
     },
     {
         "_id": null,
@@ -54,7 +53,6 @@
             "_uuid": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
             "_sourceId": "binary2"
         },
-        "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary2" },
-        "_fullObjPath": "s3://test/Binary_4_0_0_History/randomUUID.json"
+        "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary2" }
     }
 ]
