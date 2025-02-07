@@ -1,0 +1,24 @@
+query {
+  medicationStatement(_debug: true) {
+    entry {
+      resource {
+        id
+        resourceType
+        status
+        derivedFromV2 {
+          ... on Medication {
+            id
+            resourceType
+            code {
+              coding {
+                code
+                system
+              }
+              text
+            }
+          }
+        }
+      }
+    }
+  }
+}

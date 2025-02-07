@@ -902,7 +902,7 @@ class SearchManager {
         }
     ) {
         // set a limit so the server does not come down due to volume of data
-        if (!parsedArgs.id && !parsedArgs._elements) {
+        if (!parsedArgs.id && (!parsedArgs._elements || parsedArgs._isGraphQLRequest) ) {
             options.limit = DB_SEARCH_LIMIT;
         } else {
             options.limit = DB_SEARCH_LIMIT_FOR_IDS;

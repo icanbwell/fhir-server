@@ -39,15 +39,15 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.DocumentReference_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100),db.Binary_4_0_0.find({'_uuid':{'$in':['99d6be4d-5ca7-5cbb-9127-9acf58f73774','c15b781e-a52d-527f-a43b-9bb39a920fa0']}}, {}).sort({'_uuid':1}).limit(1000)]"
+                        "display": "[db.DocumentReference_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'content':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.Binary_4_0_0.find({'_uuid':{'$in':['99d6be4d-5ca7-5cbb-9127-9acf58f73774','c15b781e-a52d-527f-a43b-9bb39a920fa0']}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'contentType':1,'data':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryCollection",
-                        "code": ""
+                        "code": "[DocumentReference_4_0_0,Binary_4_0_0]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'limit':100,'sort':{'_uuid':1}},{'limit':1000,'sort':{'_uuid':1}}]"
+                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'content':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'contentType':1,'data':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
@@ -59,7 +59,7 @@
                     },
                     {
                         "system": "https://www.icanbwell.com/queryOptimization",
-                        "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false}]"
+                        "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryExplain",
