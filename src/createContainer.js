@@ -411,7 +411,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                historyResourceS3Client: c.configManager.enableHistoryResourceS3Upload ? c.historyResourceS3Client : null
+                historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
             }
         )
     );
@@ -860,8 +860,8 @@ const createContainer = function () {
         bulkExportEventProducer: c.bulkExportEventProducer
     }));
 
-    container.register('historyResourceS3Client', (c) => new S3Client({
-        bucketName: env.HISTORY_RESOURCE_S3_BUCKET,
+    container.register('historyResourceCloudStorageClient', (c) => new S3Client({
+        bucketName: env.HISTORY_RESOURCE_BUCKET,
         region: c.configManager.awsRegion || 'us-east-1'
     }));
 

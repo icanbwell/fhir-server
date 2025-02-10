@@ -3,8 +3,9 @@ const { Upload } = require('@aws-sdk/lib-storage');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
 const { logError } = require('../operations/common/logging');
+const { CloudStorageClient } = require('./cloudStorageClient');
 
-class S3Client {
+class S3Client extends CloudStorageClient {
     /**
      * @typedef {Object} ConstructorParams
      * @property {string} bucketName
@@ -13,17 +14,10 @@ class S3Client {
      * @param {ConstructorParams}
      */
     constructor({ bucketName, region }) {
-        /**
-         * @type {string}
-         */
-        this.bucketName = bucketName;
-        assertIsValid(bucketName, 'Cannot initialize S3Client without bucketName');
-
-        /**
-         * @type {string}
-         */
-        this.region = region;
-        assertIsValid(region, 'Cannot initialize S3Client without region');
+        super({
+            bucketName,
+            region
+        });
 
         /**
          * @type {S3}
@@ -35,7 +29,7 @@ class S3Client {
      * Converts the filePath passed into s3 url
      * @param {string} filePath
      */
-    getPublicS3FilePath(filePath) {
+    getPublicFilePath(filePath) {
         return `s3://${this.bucketName}/${filePath}`;
     }
 

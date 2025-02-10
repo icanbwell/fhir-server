@@ -608,29 +608,21 @@ class ConfigManager {
     }
 
     /**
-     * Size for number of parallel uploads to S3
+     * Cloud storage batch upload size
      * @returns {number}
      */
-    get s3UploadBatchSize () {
-        return env.S3_UPLOAD_BATCH_SIZE || 100;
+    get cloudStorageBatchUploadSize () {
+        return env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE || 100;
     }
 
     /**
-     * whether to enable history resource upload to s3
-     * @return {boolean}
-     */
-    get enableHistoryResourceS3Upload () {
-        return isTrue(env.ENABLE_HISTORY_RESOURCE_S3_UPLOAD);
-    }
-
-    /**
-     * returns list of history resources that needs to be uploaded to S3
+     * returns list of history resources that are stored in cloud storage
      * @return {string[]}
      */
-    get s3HistoryResources() {
+    get cloudStorageHistoryResources() {
         return (
-            (env.S3_HISTORY_RESOURCES &&
-                env.S3_HISTORY_RESOURCES.split(',').map((col) => col.trim())) || ['Binary']
+            (env.CLOUD_STORAGE_HISTORY_RESOURCES &&
+                env.CLOUD_STORAGE_HISTORY_RESOURCES.split(',').map((col) => col.trim())) || ['Binary']
         );
     }
 

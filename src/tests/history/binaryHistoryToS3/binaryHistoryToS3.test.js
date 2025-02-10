@@ -35,15 +35,15 @@ const expectedBinaryHistoryS3Data = require('./fixtures/expected/expectedBinaryH
 
 describe('Binary history resource should be written to S3', () => {
     let requestId;
-    let enableHistoryResourceS3Upload;
+    let historyResourceCloudStorageBucket;
 
     beforeAll(() => {
-        enableHistoryResourceS3Upload = env.ENABLE_HISTORY_RESOURCE_S3_UPLOAD;
-        env.ENABLE_HISTORY_RESOURCE_S3_UPLOAD = 'true';
+        historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET;
+        env.HISTORY_RESOURCE_BUCKET = 'bucket-name';
     });
 
     afterAll(() => {
-        env.ENABLE_HISTORY_RESOURCE_S3_UPLOAD = enableHistoryResourceS3Upload;
+        env.HISTORY_RESOURCE_BUCKET = historyResourceCloudStorageBucket;
     });
 
     beforeEach(async () => {
@@ -58,7 +58,7 @@ describe('Binary history resource should be written to S3', () => {
     test('Binary history resource should be written to S3 and MongoDB document should have S3 file path', async () => {
         const request = await createTestRequest((c) => {
             c.register(
-                'historyResourceS3Client',
+                'historyResourceCloudStorageClient',
                 (c) =>
                     new MockS3Client({
                         bucketName: 'test',
@@ -70,7 +70,7 @@ describe('Binary history resource should be written to S3', () => {
         const container = getTestContainer();
 
         const mockS3UploadInBatchAsync = jest.spyOn(
-            container.historyResourceS3Client,
+            container.historyResourceCloudStorageClient,
             'uploadInBatchAsync'
         );
 
@@ -122,12 +122,12 @@ describe('Binary history resource should be written to S3', () => {
 
 
     test('Binary history resource should not be written to S3 when configured', async () => {
-        let s3HistoryResources = env.S3_HISTORY_RESOURCES;
-        env.S3_HISTORY_RESOURCES = 'Observation';
+        let cloudStorageHistoryResources = env.CLOUD_STORAGE_HISTORY_RESOURCES;
+        env.CLOUD_STORAGE_HISTORY_RESOURCES = 'Observation';
 
         const request = await createTestRequest((c) => {
             c.register(
-                'historyResourceS3Client',
+                'historyResourceCloudStorageClient',
                 (c) =>
                     new MockS3Client({
                         bucketName: 'test',
@@ -139,7 +139,7 @@ describe('Binary history resource should be written to S3', () => {
         const container = getTestContainer();
 
         const mockS3UploadInBatchAsync = jest.spyOn(
-            container.historyResourceS3Client,
+            container.historyResourceCloudStorageClient,
             'uploadInBatchAsync'
         );
 
@@ -188,6 +188,6 @@ describe('Binary history resource should be written to S3', () => {
         expect(mockS3UploadInBatchAsync).toHaveBeenCalledTimes(0);
 
         mockS3UploadInBatchAsync.mockReset();
-        env.S3_HISTORY_RESOURCES = s3HistoryResources;
+        env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
     });
 });

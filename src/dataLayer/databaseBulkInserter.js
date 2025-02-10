@@ -36,7 +36,7 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
-const { S3Client } = require('../utils/s3Client');
+const { CloudStorageClient } = require('../utils/cloudStorageClient');
 const { generateUUID } = require('../utils/uid.util');
 const { filterJsonByKeys } = require('../utils/object');
 
@@ -57,7 +57,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
-     * @param {S3Client | null} historyResourceS3Client
+     * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor ({
                     resourceManager,
@@ -71,7 +71,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     configManager,
                     mongoFilterGenerator,
                     postSaveProcessor,
-                    historyResourceS3Client
+                    historyResourceCloudStorageClient
                 }) {
         super();
 
@@ -143,11 +143,11 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
-         * @type {S3Client | null}
+         * @type {CloudStorageClient | null}
          */
-        this.historyResourceS3Client = historyResourceS3Client;
-        if (historyResourceS3Client) {
-            assertTypeEquals(historyResourceS3Client, S3Client);
+        this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
+        if (historyResourceCloudStorageClient) {
+            assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
         }
     }
 
@@ -174,12 +174,12 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * This array stores entry for all history data to be uploaded to S3
+     * This array stores entry for all history data to be uploaded to cloud storage
      * @param {string} requestId
      * @return {{filePath: string, data: object}[]>}
      */
-    getS3ResourceHistoryUploadList ({ requestId }) {
-        return this.requestSpecificCache.getList({ requestId, name: 'S3ResourceHistoryUploadList' });
+    getResourceHistoryCloudStorageUploadList ({ requestId }) {
+        return this.requestSpecificCache.getList({ requestId, name: 'ResourceHistoryCloudStorageUploadList' });
     }
 
     /**
@@ -469,8 +469,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     : null
             }).toJSONInternal();
 
-            if (this.historyResourceS3Client && this.configManager.s3HistoryResources.includes(resourceType)) {
-                const s3ResourceHistoryUploadList = this.getS3ResourceHistoryUploadList({
+            if (this.historyResourceCloudStorageClient && this.configManager.cloudStorageHistoryResources.includes(resourceType)) {
+                const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({
                     requestId
                 });
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
@@ -479,7 +479,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 });
                 const collectionName = await resourceLocator.getHistoryCollectionNameAsync(doc);
                 const file_path = `${collectionName}/${generateUUID()}.json`;
-                s3ResourceHistoryUploadList.push({
+                resourceHistoryCloudStorageUploadList.push({
                     data: Buffer.from(JSON.stringify(history_doc_json)),
                     filePath: file_path
                 });
@@ -489,7 +489,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     history_doc_json,
                     this.configManager.historyResourceMongodbFields
                 );
-                history_doc_json['_fullObjPath'] = this.historyResourceS3Client.getPublicS3FilePath(file_path);
+                history_doc_json['_fullObjPath'] = this.historyResourceCloudStorageClient.getPublicFilePath(file_path);
             }
 
             this.addHistoryOperationForResourceType({
@@ -823,16 +823,16 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
 
-        const s3ResourceHistoryUploadList = this.getS3ResourceHistoryUploadList({ requestId });
-        if (s3ResourceHistoryUploadList.length > 0) {
+        const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({ requestId });
+        if (resourceHistoryCloudStorageUploadList.length > 0) {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.historyResourceS3Client.uploadInBatchAsync({
-                        fileDataWithPath: s3ResourceHistoryUploadList,
-                        batch: this.configManager.s3UploadBatchSize
+                    await this.historyResourceCloudStorageClient.uploadInBatchAsync({
+                        fileDataWithPath: resourceHistoryCloudStorageUploadList,
+                        batch: this.configManager.cloudStorageBatchUploadSize
                     });
-                    s3ResourceHistoryUploadList.length = 0;
+                    resourceHistoryCloudStorageUploadList.length = 0;
                 }
             });
         }
