@@ -177,7 +177,7 @@ class FhirDataSource {
                     const batchSize = this.configManager.graphQLFetchResourceBatchSize;
                     let projections = null;
 
-                    if (this.resourceProjections[resourceType]) {
+                    if (this.resourceProjections?.[resourceType]) {
                         projections = Array.from(this.resourceProjections[resourceType]);
                     }
 
@@ -396,7 +396,7 @@ class FhirDataSource {
         if (!args1._debug && this.debugMode) {
             args1._debug = true;
         }
-        if (this.resourceProjections[resourceType]) {
+        if (this.resourceProjections?.[resourceType]) {
             const elements = Array.from(this.resourceProjections[resourceType])
             if (elements){
                 args1._elements = elements;
@@ -485,7 +485,7 @@ class FhirDataSource {
         if (!args1._debug && this.debugMode) {
             args1._debug = true;
         }
-        if (!useAggregationPipeline && this.resourceProjections[resourceType]) {
+        if (!useAggregationPipeline && this.resourceProjections?.[resourceType]) {
             const elements = Array.from(this.resourceProjections[resourceType])
             if (elements){
                 args1._elements = elements;
@@ -606,7 +606,7 @@ class FhirDataSource {
      * @param {Object} info
      */
     generateResourceProjections (info) {
-        if (!this.resourceProjections) {
+        if (this.configManager.enableMongoProjectionsInGraphQL && !this.resourceProjections) {
             this.resourceProjections = {};
             const resolvedFieldsInfo = parseResolveInfo(info, {});
             this.extractFieldsForResource(resolvedFieldsInfo)
