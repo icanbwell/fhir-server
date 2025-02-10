@@ -23,6 +23,7 @@
             "purpose": {
               "coding": [
                 {
+                  "id": "8e593f28-1dcb-5ebd-8551-8a09769830ba",
                   "code": "Central Scheduling",
                   "system": "http://clienthealth.org"
                 }
@@ -70,10 +71,12 @@
                     "valueCodeableConcept": {
                       "coding": [
                         {
+                          "id": "d804eaf1-f38e-5554-9424-75f1b94c71c0",
                           "code": "Accepting",
                           "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
                         },
                         {
+                          "id": "6b83f020-765f-5b98-8ec9-23b7a3bf35f3",
                           "code": "newpt",
                           "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
                         }
@@ -169,6 +172,7 @@
               {
                 "coding": [
                   {
+                    "id": "0162b680-7a88-5ede-a826-cee1c2ebbd2a",
                     "code": "261QU0200X",
                     "display": "Urgent Care",
                     "system": "http://nucc.org/provider-taxonomy"
@@ -180,6 +184,7 @@
               {
                 "coding": [
                   {
+                    "id": "b501fc8d-9760-5c52-b3db-f4be132dbb46",
                     "code": "556",
                     "display": "Urgent Care",
                     "system": "http://terminology.hl7.org/CodeSystem/service-type"
@@ -269,6 +274,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "b1d17dd6-1276-56de-a11e-a71026393dcf",
                       "code": "alias",
                       "system": "http://clienthealth.org"
                     }
@@ -282,6 +288,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "76152d15-97d3-5037-aca5-a3d5917441f6",
                       "code": "FI",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -295,6 +302,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "32b90942-0441-5adf-9fb6-1a24894bf405",
                       "code": "XX",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -308,6 +316,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "849d1f08-e71e-581c-814c-d442b94d5ce3",
                       "code": "DepartmentName",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -321,6 +330,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "c11d019c-bf6e-5fbd-a4d2-0719bc5ca316",
                       "code": "DeptMnem",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -334,6 +344,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "da8f2a8f-dacd-5eca-9be0-9b1873dff28b",
                       "code": "DeptNo",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                     }
@@ -396,6 +407,7 @@
             "physicalType": {
               "coding": [
                 {
+                  "id": "76df0919-3bc2-5b22-b96f-c6950c2a6236",
                   "code": "bu",
                   "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
                 }
@@ -427,6 +439,7 @@
               {
                 "coding": [
                   {
+                    "id": "cb56cc67-c5f6-5bd6-ac24-d46c4b9ae3b6",
                     "code": "Urgent Care",
                     "display": "Urgent Care",
                     "system": "http://clienthealth.org"
@@ -510,6 +523,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "d2c6cb26-3e17-5242-a0bb-e58de918557e",
                       "code": "solv_queue_id_1",
                       "display": "Federal Hill - Medical Assistant Only Visit",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -524,6 +538,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "0ea416e0-4ac0-5c72-9206-7f88c20c57f8",
                       "code": "solv_queue_id_2",
                       "display": "Federal Hill - Physical",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -538,6 +553,7 @@
                 "type": {
                   "coding": [
                     {
+                      "id": "c3244b34-5b0d-517d-84af-1c40c604e9b5",
                       "code": "solv_queue_id_3",
                       "display": "Federal Hill - Urgent Care",
                       "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -718,6 +734,7 @@
           {
             "coding": [
               {
+                "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
                 "code": "prov",
                 "display": "Healthcare Provider",
                 "system": "http://terminology.hl7.org/CodeSystem/organization-type"

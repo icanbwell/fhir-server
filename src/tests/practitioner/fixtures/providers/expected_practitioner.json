@@ -24,6 +24,7 @@
         "type": {
           "coding": [
             {
+              "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
               "code": "PRN",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
@@ -37,6 +38,7 @@
         "type": {
           "coding": [
             {
+              "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
               "code": "NPI",
               "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }

@@ -17,10 +17,12 @@
             "code": {
               "coding": [
                 {
+                  "id": "fbe25978-7e95-5905-9622-1ad404f8f77b",
                   "code": "healthActivity",
                   "system": "https://www.icanbwell.com/activityType"
                 },
                 {
+                  "id": "ade47b70-b39f-5333-98c6-8c3c62b17edb",
                   "code": "Prevention",
                   "system": "https://www.icanbwell.com/activityClass"
                 }
@@ -109,10 +111,12 @@
             "code": {
               "coding": [
                 {
+                  "id": "fbe25978-7e95-5905-9622-1ad404f8f77b",
                   "code": "healthActivity",
                   "system": "https://www.icanbwell.com/activityType"
                 },
                 {
+                  "id": "ade47b70-b39f-5333-98c6-8c3c62b17edb",
                   "code": "Prevention",
                   "system": "https://www.icanbwell.com/activityClass"
                 }
@@ -206,6 +210,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id",
                   "system": "https://www.icanbwell.com"
@@ -219,6 +224,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "6cc93c8f-1db1-590d-a5d3-b97d4601558a",
                   "code": "user_id",
                   "display": "bWell App user_id",
                   "system": "https://www.icanbwell.com"
@@ -232,6 +238,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "aaa0e9f2-2b20-5a04-8823-d213dbf4bee7",
                   "code": "member_id",
                   "display": "bWell App member_id",
                   "system": "https://www.icanbwell.com"
@@ -377,6 +384,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
                   "code": "FHIR_id",
                   "display": "bWell FHIR id",
                   "system": "https://www.icanbwell.com"

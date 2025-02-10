@@ -37,6 +37,7 @@
       {
         "coding": [
           {
+            "id": "36ec0b43-52ba-5db7-a049-f524cea0147a",
             "code": "edu",
             "display": "Educational Institute",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -83,6 +84,7 @@
       {
         "coding": [
           {
+            "id": "36ec0b43-52ba-5db7-a049-f524cea0147a",
             "code": "edu",
             "display": "Educational Institute",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"
@@ -129,6 +131,7 @@
       {
         "coding": [
           {
+            "id": "36ec0b43-52ba-5db7-a049-f524cea0147a",
             "code": "edu",
             "display": "Educational Institute",
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"

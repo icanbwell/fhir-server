@@ -41,6 +41,7 @@
           "type": {
             "coding": [
               {
+                "id": "c2619b88-83dd-5f3f-b502-6aa7a2dd79bd",
                 "code": "RI",
                 "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
               }

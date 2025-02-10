@@ -2,6 +2,7 @@
     "code": {
         "coding": [
             {
+                "id": "9738db8f-1a7d-5d3e-baf9-916ed1260e3c",
                 "code": "11557-6",
                 "display": "Carbon dioxide in blood",
                 "system": "http://snomed.info/sct"
@@ -46,6 +47,7 @@
         {
             "coding": [
                 {
+                    "id": "16338da3-fc80-5463-9ee0-b2af39dd2e80",
                     "code": "H",
                     "display": "High",
                     "system": "2.16.840.1.113883.6.12345"
@@ -62,6 +64,7 @@
                 "valueCodeableConcept": {
                     "coding": [
                         {
+                            "id": "b765b00c-29bd-5ad0-a2b1-f42d7849e68c",
                             "code": "code-1",
                             "display": "some-display",
                             "system": "foo://example.com:8042/over/there?name=ferret#"

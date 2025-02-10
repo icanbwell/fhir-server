@@ -48,6 +48,7 @@
                     {
                         "coding": [
                             {
+                                "id": "e7a166cc-6aae-55d6-8049-636187989902",
                                 "system": "http://terminology.hl7.org/CodeSystem/observation-category",
                                 "code": "vital-signs",
                                 "display": "Vital Signs"
@@ -59,34 +60,41 @@
                 "code": {
                     "coding": [
                         {
+                            "id": "c80eae94-3c0b-534d-83ce-d2aad3d1aed4",
                             "system": "urn:oid:1.2.840.114350.1.13.360.2.7.2.707679",
                             "code": "5",
                             "display": "Blood Pressure"
                         },
                         {
+                            "id": "35e4f7bd-b2e0-5291-b320-e797a1aa67d5",
                             "system": "http://open.epic.com/FHIR/StructureDefinition/observation-flowsheet-id",
                             "code": "t1yjQnlQggaF5B8yu50JEag0",
                             "display": "Blood Pressure"
                         },
                         {
+                            "id": "f8c6be82-7cf9-5b52-af7c-db531557bf4e",
                             "system": "urn:oid:1.2.246.537.6.96",
                             "code": "8462-4"
                         },
                         {
+                            "id": "e226214d-b85b-5d2c-a1d9-7ade327d9c44",
                             "system": "urn:oid:1.2.246.537.6.96",
                             "code": "8480-6"
                         },
                         {
+                            "id": "3e7fa07d-c2bc-5979-97d6-0c9f6609016f",
                             "system": "http://loinc.org",
                             "code": "55284-4",
                             "display": "Blood pressure systolic and diastolic"
                         },
                         {
+                            "id": "c6300bfd-d60c-5c65-86dc-c49d6961ebda",
                             "system": "http://loinc.org",
                             "code": "85354-9",
                             "display": "Blood pressure panel with all children optional"
                         },
                         {
+                            "id": "d6accca3-1ca1-5ac8-97f0-39fae9bec2be",
                             "system": "http://loinc.org",
                             "code": "8716-3",
                             "display": "Vital signs"
@@ -169,6 +177,7 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "3a563066-d4db-51e8-b784-2fdc86f81d04",
                                     "system": "http://loinc.org",
                                     "code": "8480-6",
                                     "display": "Systolic blood pressure"
@@ -187,6 +196,7 @@
                         "code": {
                             "coding": [
                                 {
+                                    "id": "b721ce1f-156b-58b4-84cd-e4694630f9b4",
                                     "system": "http://loinc.org",
                                     "code": "8462-4",
                                     "display": "Diastolic blood pressure"

@@ -36,6 +36,7 @@
   "scope": {
     "coding": [
       {
+        "id": "402a7d2e-3eb0-5e9a-9af5-cf374c9ca561",
         "system": "http://terminology.hl7.org/CodeSystem/consentscope",
         "code": "patient-privacy"
       }
@@ -45,6 +46,7 @@
     {
       "coding": [
         {
+          "id": "7ef3140f-b442-5347-a6d3-50454da9fb7a",
           "system": "http://loinc.org",
           "code": "59284-0"
         }
@@ -99,6 +101,7 @@
         "role": {
           "coding": [
             {
+              "id": "ac233a7e-59c2-52b0-868f-7c81bf474f9e",
               "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
               "code": "CST"
             }
@@ -129,6 +132,7 @@
         "role": {
           "coding": [
             {
+              "id": "8dffd9c4-05ce-5760-b4c0-70ca86d39a0f",
               "system": "http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html",
               "code": "AUT"
             }

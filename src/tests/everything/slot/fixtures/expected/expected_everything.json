@@ -8,6 +8,7 @@
           {
             "coding": [
               {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
                 "code": "en",
                 "display": "English",
                 "system": "urn:ietf:bcp:47"
@@ -23,6 +24,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "709d0658-4b86-5eb3-940d-63a8f6bd6b73",
                   "code": "TAX",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -36,6 +38,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
                   "code": "PRN",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -49,6 +52,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
                   "code": "NPI",
                   "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
                 }
@@ -109,6 +113,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
@@ -119,6 +124,7 @@
             "code": {
               "coding": [
                 {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
                   "code": "MD",
                   "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
                 }
@@ -222,6 +228,7 @@
           {
             "coding": [
               {
+                "id": "d2c54220-f5a5-5fef-a4bf-02f462ab23ac",
                 "code": "LNG",
                 "display": "LNG",
                 "system": "http://clienthealth.org/appointment-type"
@@ -232,6 +239,7 @@
           {
             "coding": [
               {
+                "id": "bb9d7634-0c9e-587a-a9f3-c59348b15f12",
                 "code": "EV4",
                 "display": "EV4",
                 "system": "http://clienthealth.org/appointment-type"
@@ -242,6 +250,7 @@
           {
             "coding": [
               {
+                "id": "1ca85247-b391-58b3-9adf-6c45f340c1c6",
                 "code": "SHT",
                 "display": "SHT",
                 "system": "http://clienthealth.org/appointment-type"
@@ -252,6 +261,7 @@
           {
             "coding": [
               {
+                "id": "02b5eab5-a884-50e3-9a31-e528b0f94953",
                 "code": "ERN",
                 "display": "ERN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -262,6 +272,7 @@
           {
             "coding": [
               {
+                "id": "f53ca44a-3ccf-5e7c-9b40-ff363ba08cc7",
                 "code": "PHN",
                 "display": "PHN",
                 "system": "http://clienthealth.org/appointment-type"
@@ -272,6 +283,7 @@
           {
             "coding": [
               {
+                "id": "5fbb26ed-bf4b-514d-b1fd-29735b27c746",
                 "code": "PrimaryCare",
                 "display": "PrimaryCare",
                 "system": "http://clienthealth.org/protocol"
@@ -289,6 +301,7 @@
           {
             "coding": [
               {
+                "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                 "code": "doctor",
                 "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
               }
@@ -297,6 +310,7 @@
           {
             "coding": [
               {
+                "id": "a570c0a2-5ec8-56b1-9dea-e4cfcae9ed87",
                 "code": "doctor",
                 "display": "Doctor",
                 "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
@@ -334,6 +348,7 @@
             "type": {
               "coding": [
                 {
+                  "id": "0ca37d31-8d6c-5599-aabe-cda73e1923c5",
                   "code": "Client Provider-Protocol",
                   "display": "Client Provider-Protocol",
                   "system": "http://clienthealth.org"
@@ -439,6 +454,7 @@
           {
             "coding": [
               {
+                "id": "cb2125ad-b545-55bc-9457-288161868a5c",
                 "code": "261QP2300X",
                 "display": "Primary Care",
                 "system": "http://nucc.org/provider-taxonomy"
@@ -510,6 +526,7 @@
           {
             "coding": [
               {
+                "id": "d97be5e4-8e83-5919-8ac1-c6f558ccbeb4",
                 "code": "EXISTING",
                 "system": "http://clienthealth.org"
               }
