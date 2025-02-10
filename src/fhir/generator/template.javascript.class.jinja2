@@ -19,6 +19,9 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 {%  endif %}
 const async = require('async');
+{% if fhir_entity.cleaned_name == 'CodeableConcept' %}
+const { generateUUIDv5 } = require('../../../../utils/uid.util.js');
+{% endif %}
 
 /**
 {{ fhir_entity.fhir_name }}
@@ -107,6 +110,19 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         });
 {%  else %}
         super({});
+{% endif %}
+{% if fhir_entity.cleaned_name == 'CodeableConcept' %}
+
+        // Creating id of coding elements if not present
+        if (coding) {
+            for (const codingElement of coding) {
+                if (codingElement.system && codingElement.code && !codingElement.id) {
+                    codingElement.id = generateUUIDv5(
+                        `${codingElement.system}|${codingElement.code}`
+                    );
+                }
+            }
+        }
 {% endif %}
 
         // ---- Define getters and setters as enumerable ---

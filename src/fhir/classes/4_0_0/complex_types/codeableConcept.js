@@ -5,6 +5,7 @@
 const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
+const { generateUUIDv5 } = require('../../../../utils/uid.util.js');
 
 /**
 CodeableConcept
@@ -29,6 +30,17 @@ class CodeableConcept extends Element {
         }
     ) {
         super({});
+
+        // Creating id of coding elements if not present
+        if (coding) {
+            for (const codingElement of coding) {
+                if (codingElement.system && codingElement.code && !codingElement.id) {
+                    codingElement.id = generateUUIDv5(
+                        `${codingElement.system}|${codingElement.code}`
+                    );
+                }
+            }
+        }
 
         // ---- Define getters and setters as enumerable ---
 
