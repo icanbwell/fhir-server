@@ -584,6 +584,28 @@ class ConfigManager {
     get enableVulcanIgQuery () {
         return isTrue(env.ENABLE_VULCAN_IG_QUERY);
     }
+
+    /**
+     * whether to enable MongoDB projections in GraphQL
+     * @returns {boolean}
+     */
+    get enableMongoProjectionsInGraphQL () {
+        if (env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL === null || env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL);
+    }
+
+    /**
+     * whether to enable MongoDB projections in GraphQL V2
+     * @returns {boolean}
+     */
+    get enableMongoProjectionsInGraphQLv2 () {
+        if (env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2 === null || env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2 === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2);
+    }
 }
 
 module.exports = {
