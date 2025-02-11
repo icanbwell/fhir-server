@@ -256,10 +256,12 @@ describe('mongoJsonPatchHelper Tests', () => {
                     security: [
                         {
                             code: 'myAccess',
+                            id: "0ea8f3af-da66-5ab9-b05f-eab9de27a45c",
                             system: 'https://www.icanbwell.com/owner'
                         },
                         {
                             code: 'myAccess',
+                            id: "91aa7c1f-c873-5053-a672-043e8a88a7fa",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         }
                     ],
@@ -449,10 +451,12 @@ describe('mongoJsonPatchHelper Tests', () => {
                     security: [
                         {
                             code: 'myAccess',
+                            id: "0ea8f3af-da66-5ab9-b05f-eab9de27a45c",
                             system: 'https://www.icanbwell.com/owner'
                         },
                         {
                             code: 'myAccess',
+                            id: "91aa7c1f-c873-5053-a672-043e8a88a7fa",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         }
                     ],

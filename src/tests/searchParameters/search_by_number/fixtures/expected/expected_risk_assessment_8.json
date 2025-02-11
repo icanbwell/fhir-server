@@ -9,11 +9,16 @@
                     "lastUpdated": "2024-07-30T14:52:37.000Z",
                     "source": "test",
                     "security": [
-                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
-                        {
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "code": "client"
-                        }
+                      {
+                        "code": "client",
+                        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                        "system": "https://www.icanbwell.com/owner"
+                      },
+                      {
+                        "code": "client",
+                        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                      }
                     ]
                 },
                 "identifier": [
@@ -61,11 +66,16 @@
                     "lastUpdated": "2024-07-30T14:52:36.000Z",
                     "source": "test",
                     "security": [
-                        { "system": "https://www.icanbwell.com/owner", "code": "client" },
-                        {
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "code": "client"
-                        }
+                      {
+                        "code": "client",
+                        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                        "system": "https://www.icanbwell.com/owner"
+                      },
+                      {
+                        "code": "client",
+                        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                      }
                     ]
                 },
                 "identifier": [

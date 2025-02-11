@@ -55,27 +55,32 @@
       }
     ],
     "meta": {
-      "security": [
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/access"
-        },
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/owner"
-        },
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-        }
-      ],
+        "security": [
+          {
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+            "system": "https://www.icanbwell.com/access"
+          },
+          {
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+            "system": "https://www.icanbwell.com/owner"
+          },
+          {
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+          }
+        ],
       "tag": [
         {
           "code": "client",
+          "id": "0a38ccb1-9b7b-5b38-90cd-dc6954eef2cb",
           "system": "http://www.foo.com/bar"
         },
         {
           "code": "client-1",
+          "id": "5b81a3ac-f577-5574-a351-e753663c8907",
           "system": "http://www.foo.com/bar"
         }
       ],
@@ -205,23 +210,27 @@
       }
     ],
     "meta": {
-      "security": [
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/access"
-        },
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/owner"
-        },
-        {
-          "code": "client",
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-        }
-      ],
+        "security": [
+          {
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+            "system": "https://www.icanbwell.com/access"
+          },
+          {
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+            "system": "https://www.icanbwell.com/owner"
+          },
+          {
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+          }
+        ],
       "tag": [
         {
           "code": "client",
+          "id": "0a38ccb1-9b7b-5b38-90cd-dc6954eef2cb",
           "system": "http://www.foo.com/bar"
         }
       ],
