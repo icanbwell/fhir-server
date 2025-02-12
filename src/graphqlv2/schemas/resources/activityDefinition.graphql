@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Group from "../resources/group.graphql"
@@ -29,7 +29,7 @@ Reference type for SubjectReference
 """
 type ActivityDefinitionSubjectReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Group
     type: URI
@@ -42,7 +42,7 @@ Reference type for Location
 """
 type ActivityDefinitionLocationReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -57,7 +57,7 @@ Reference type for ProductReference
 """
 type ActivityDefinitionProductReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ActivityDefinitionProductReference
     type: URI
@@ -70,7 +70,7 @@ Reference type for SpecimenRequirement
 """
 type ActivityDefinitionSpecimenRequirementReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: SpecimenDefinition
     type: URI
@@ -83,7 +83,7 @@ Reference type for ObservationRequirement
 """
 type ActivityDefinitionObservationRequirementReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ObservationDefinition
     type: URI
@@ -96,7 +96,7 @@ Reference type for ObservationResultRequirement
 """
 type ActivityDefinitionObservationResultRequirementReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ObservationDefinition
     type: URI
@@ -158,7 +158,7 @@ type ActivityDefinition implements DomainResource & Resource @key(fields: "id") 
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -174,7 +174,7 @@ type ActivityDefinition implements DomainResource & Resource @key(fields: "id") 
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     An absolute URI that is used to identify this activity definition when it is
     referenced in a specification, model, design or an instance; also called its

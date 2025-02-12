@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import Account from "../resources/account.graphql"
@@ -160,7 +160,7 @@ Reference type for BasedOn
 """
 type DeviceRequestBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -173,7 +173,7 @@ Reference type for PriorRequest
 """
 type DeviceRequestPriorRequestReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -186,7 +186,7 @@ Reference type for CodeReference
 """
 type DeviceRequestCodeReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Device
     type: URI
@@ -201,7 +201,7 @@ Reference type for Subject
 """
 type DeviceRequestSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceRequestSubject
     type: URI
@@ -214,7 +214,7 @@ Reference type for Encounter
 """
 type DeviceRequestEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -229,7 +229,7 @@ Reference type for Requester
 """
 type DeviceRequestRequesterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceRequestRequester
     type: URI
@@ -244,7 +244,7 @@ Reference type for Performer
 """
 type DeviceRequestPerformerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceRequestPerformer
     type: URI
@@ -259,7 +259,7 @@ Reference type for ReasonReference
 """
 type DeviceRequestReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceRequestReasonReference
     type: URI
@@ -274,7 +274,7 @@ Reference type for Insurance
 """
 type DeviceRequestInsuranceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: DeviceRequestInsurance
     type: URI
@@ -287,7 +287,7 @@ Reference type for SupportingInfo
 """
 type DeviceRequestSupportingInfoReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -300,7 +300,7 @@ Reference type for RelevantHistory
 """
 type DeviceRequestRelevantHistoryReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Provenance
     type: URI
@@ -361,7 +361,7 @@ type DeviceRequest implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -377,7 +377,7 @@ type DeviceRequest implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Identifiers assigned to this order by the orderer or by the receiver.
     """

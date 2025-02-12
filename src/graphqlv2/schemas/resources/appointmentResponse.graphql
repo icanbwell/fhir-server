@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Reference from "../complex_types/reference.graphql"
 # import Instant from "../simple_types/instant.graphql"
@@ -14,7 +14,7 @@ Reference type for Appointment
 """
 type AppointmentResponseAppointmentReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Appointment
     type: URI
@@ -29,7 +29,7 @@ Reference type for Actor
 """
 type AppointmentResponseActorReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: AppointmentResponseActor
     type: URI
@@ -90,7 +90,7 @@ type AppointmentResponse implements DomainResource & Resource @key(fields: "id")
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -106,7 +106,7 @@ type AppointmentResponse implements DomainResource & Resource @key(fields: "id")
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     This records identifiers associated with this appointment response concern
     that are defined by business processes and/ or used to refer to it when a

@@ -141,7 +141,7 @@ extend type Patient {
     schedules: [Schedule]
     serviceRequests: [ServiceRequest]
     specimens: [Specimen]
-    subscriptions: [Subscription]
+    subscriptions: [FhirSubscription]
     subscriptionStatuses: [SubscriptionStatus]
     subscriptionTopics: [SubscriptionTopic]
     supplyDeliveries: [SupplyDelivery]

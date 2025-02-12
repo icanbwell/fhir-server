@@ -9,7 +9,7 @@
 
 extend type Patient {
     {% for fhir_entity in fhir_entities %}
-    {{ lower_case_first_letter(fhir_entity.plural_name) }}: [{{ fhir_entity.cleaned_name }}]
+    {{ lower_case_first_letter(fhir_entity.plural_name) }}: [{{ fhir_entity.graphqlv2_type }}]
     {% endfor %}
 }
 

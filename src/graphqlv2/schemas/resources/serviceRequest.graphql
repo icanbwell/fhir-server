@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Canonical from "../simple_types/canonical.graphql"
 # import Reference from "../complex_types/reference.graphql"
@@ -23,7 +23,7 @@ Reference type for BasedOn
 """
 type ServiceRequestBasedOnReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestBasedOn
     type: URI
@@ -36,7 +36,7 @@ Reference type for Replaces
 """
 type ServiceRequestReplacesReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequest
     type: URI
@@ -51,7 +51,7 @@ Reference type for Subject
 """
 type ServiceRequestSubjectReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestSubject
     type: URI
@@ -64,7 +64,7 @@ Reference type for Encounter
 """
 type ServiceRequestEncounterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Encounter
     type: URI
@@ -79,7 +79,7 @@ Reference type for Requester
 """
 type ServiceRequestRequesterReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestRequester
     type: URI
@@ -94,7 +94,7 @@ Reference type for Performer
 """
 type ServiceRequestPerformerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestPerformer
     type: URI
@@ -107,7 +107,7 @@ Reference type for LocationReference
 """
 type ServiceRequestLocationReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -122,7 +122,7 @@ Reference type for ReasonReference
 """
 type ServiceRequestReasonReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestReasonReference
     type: URI
@@ -137,7 +137,7 @@ Reference type for Insurance
 """
 type ServiceRequestInsuranceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ServiceRequestInsurance
     type: URI
@@ -150,7 +150,7 @@ Reference type for SupportingInfo
 """
 type ServiceRequestSupportingInfoReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -163,7 +163,7 @@ Reference type for Specimen
 """
 type ServiceRequestSpecimenReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Specimen
     type: URI
@@ -176,7 +176,7 @@ Reference type for RelevantHistory
 """
 type ServiceRequestRelevantHistoryReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Provenance
     type: URI
@@ -237,7 +237,7 @@ type ServiceRequest implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -253,7 +253,7 @@ type ServiceRequest implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Identifiers assigned to this order instance by the orderer and/or the receiver
     and/or order fulfiller.

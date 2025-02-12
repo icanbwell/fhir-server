@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import Period from "../complex_types/period.graphql"
 # import DateTime from "../simple_types/dateTime.graphql"
@@ -19,7 +19,7 @@ Reference type for PaymentIssuer
 """
 type PaymentReconciliationPaymentIssuerReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Organization
     type: URI
@@ -32,7 +32,7 @@ Reference type for Request
 """
 type PaymentReconciliationRequestReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Task
     type: URI
@@ -47,7 +47,7 @@ Reference type for Requestor
 """
 type PaymentReconciliationRequestorReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: PaymentReconciliationRequestor
     type: URI
@@ -108,7 +108,7 @@ type PaymentReconciliation implements DomainResource & Resource @key(fields: "id
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -124,7 +124,7 @@ type PaymentReconciliation implements DomainResource & Resource @key(fields: "id
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     A unique identifier assigned to this payment reconciliation.
     """

@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import DateTime from "../simple_types/dateTime.graphql"
 # import ContactDetail from "../complex_types/contactDetail.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
@@ -65,7 +65,7 @@ type NamingSystem implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -81,7 +81,7 @@ type NamingSystem implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     A natural language name identifying the naming system. This name should be
     usable as an identifier for the module by machine processing applications such

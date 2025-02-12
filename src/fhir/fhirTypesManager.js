@@ -9,6 +9,8 @@ const customDataElementsMap = new Map([
     ]
 ]);
 
+const combinedDataElementsMap = new Map([...dataElementMap, ...customDataElementsMap]);
+
 class FhirTypesManager {
     /**
      * gets type of field in resource
@@ -21,7 +23,6 @@ class FhirTypesManager {
      */
     getTypeForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
-        const combinedDataElementsMap = new Map([...dataElementMap, ...customDataElementsMap]);
         const dataType = combinedDataElementsMap.get(resourceAndField);
         return dataType && dataType.code;
     }

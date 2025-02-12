@@ -3,7 +3,7 @@
 # import URI from "../simple_types/uri.graphql"
 # import Code from "../simple_types/code.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
-# import Extension from "../extensions/extension.graphql"
+# import FhirExtension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Reference from "../complex_types/reference.graphql"
@@ -22,7 +22,7 @@ Reference type for InstantiatesCanonical
 """
 type ContractInstantiatesCanonicalReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Contract
     type: URI
@@ -35,7 +35,7 @@ Reference type for Subject
 """
 type ContractSubjectTypeReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -48,7 +48,7 @@ Reference type for Authority
 """
 type ContractAuthorityReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Organization
     type: URI
@@ -61,7 +61,7 @@ Reference type for Domain
 """
 type ContractDomainReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -74,7 +74,7 @@ Reference type for Site
 """
 type ContractSiteReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Location
     type: URI
@@ -89,7 +89,7 @@ Reference type for Author
 """
 type ContractAuthorReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ContractAuthor
     type: URI
@@ -102,7 +102,7 @@ Reference type for TopicReference
 """
 type ContractTopicReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -115,7 +115,7 @@ Reference type for SupportingInfo
 """
 type ContractSupportingInfoReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Resource
     type: URI
@@ -128,7 +128,7 @@ Reference type for RelevantHistory
 """
 type ContractRelevantHistoryReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: Provenance
     type: URI
@@ -143,7 +143,7 @@ Reference type for LegallyBindingReference
 """
 type ContractLegallyBindingReferenceReference {
     id: String
-    extension: [Extension]
+    extension: [FhirExtension]
     reference: String
     resource: ContractLegallyBindingReference
     type: URI
@@ -204,7 +204,7 @@ type Contract implements DomainResource & Resource @key(fields: "id") {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]
+    extension: [FhirExtension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -220,7 +220,7 @@ type Contract implements DomainResource & Resource @key(fields: "id") {
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]
+    modifierExtension: [FhirExtension]
     """
     Unique identifier for this Contract or a derivative that references a Source
     Contract.

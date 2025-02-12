@@ -1,0 +1,90 @@
+{
+    "data": {
+        "medicationStatement": {
+            "entry": [
+                {
+                    "resource": {
+                        "id": "1",
+                        "resourceType": "MedicationStatement",
+                        "status": "active",
+                        "derivedFromV2": [
+                            {
+                                "id": "medication-prednisolone",
+                                "resourceType": "Medication",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "code": "135615",
+                                            "system": "urn:oid:2.16.840.1.113883.6.253"
+                                        },
+                                        {
+                                            "code": "61100020102020",
+                                            "system": "urn:oid:2.16.840.1.113883.6.68"
+                                        },
+                                        {
+                                            "code": "59073",
+                                            "system": "urn:oid:2.16.840.1.113883.6.162"
+                                        },
+                                        {
+                                            "code": "3287",
+                                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                                        },
+                                        {
+                                            "code": "3288",
+                                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                                        },
+                                        {
+                                            "code": "822929",
+                                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                                        },
+                                        {
+                                            "code": "884522",
+                                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                                        }
+                                    ],
+                                    "text": "prednisolone 1 MG/ML [Pediapred]"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "meta": {
+                "tag": [
+                    {
+                        "system": "https://www.icanbwell.com/query",
+                        "display": "[db.MedicationStatement_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'status':1,'derivedFrom':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.Medication_4_0_0.find({'_uuid':'77a458ac-b1df-52df-a2cd-9b0627b6d403'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'code':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryCollection",
+                        "code": "[MedicationStatement_4_0_0,Medication_4_0_0]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptions",
+                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'status':1,'derivedFrom':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'code':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryFields",
+                        "display": "[['meta.tag.system','meta.tag.code','_uuid'],['_uuid']]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryTime",
+                        "display": "[0.052,0.002]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryOptimization",
+                        "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplain",
+                        "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.MedicationStatement_4_0_0\",\"parsedQuery\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"indexFilterSet\":false,\"planCacheShapeHash\":\"DDDA1865\",\"planCacheKey\":\"A3534BC4\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"PROJECTION_DEFAULT\",\"transformBy\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"status\":1,\"derivedFrom\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"PROJECTION_DEFAULT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"transformBy\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"status\":1,\"derivedFrom\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"ADE61A9D05F3D775C1F91BD89DA01D4973BB29939F3C245116470D4C1FE159EA\",\"command\":{\"find\":\"MedicationStatement_4_0_0\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},\"sort\":{\"_uuid\":1},\"projection\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"status\":1,\"derivedFrom\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":55163,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7466102909478895622\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7466102909478895622\"}}],[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Medication_4_0_0\",\"parsedQuery\":{\"_uuid\":{\"$eq\":\"77a458ac-b1df-52df-a2cd-9b0627b6d403\"}},\"indexFilterSet\":false,\"planCacheShapeHash\":\"DA86F698\",\"planCacheKey\":\"1D58D85C\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":1000,\"inputStage\":{\"stage\":\"PROJECTION_DEFAULT\",\"transformBy\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"code\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"77a458ac-b1df-52df-a2cd-9b0627b6d403\\\", \\\"77a458ac-b1df-52df-a2cd-9b0627b6d403\\\"]\"]}}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":1000,\"inputStage\":{\"stage\":\"PROJECTION_DEFAULT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"transformBy\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"code\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"77a458ac-b1df-52df-a2cd-9b0627b6d403\\\", \\\"77a458ac-b1df-52df-a2cd-9b0627b6d403\\\"]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"D4DE3C3A0EA9415E1755FF1F123FE4B73CDCA0E095DF202CE7C0740AEC736C87\",\"command\":{\"find\":\"Medication_4_0_0\",\"filter\":{\"_uuid\":\"77a458ac-b1df-52df-a2cd-9b0627b6d403\"},\"sort\":{\"_uuid\":1},\"projection\":{\"_uuid\":1,\"_sourceId\":1,\"_sourceAssigningAuthority\":1,\"id\":1,\"resourceType\":1,\"code\":1,\"_id\":0,\"meta.security.system\":1,\"meta.security.code\":1},\"limit\":1000,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":55163,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7466102909478895622\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7466102909478895622\"}}]]"
+                    },
+                    {
+                        "system": "https://www.icanbwell.com/queryExplainSimple",
+                        "display": "[[{\"step\":{\"children\":[{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"PROJECTION_DEFAULT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.MedicationStatement_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'status':1,'derivedFrom':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)\"}],[{\"step\":{\"children\":[{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"PROJECTION_DEFAULT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Medication_4_0_0.find({'_uuid':'77a458ac-b1df-52df-a2cd-9b0627b6d403'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'resourceType':1,'code':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)\"}]]"
+                    }
+                ]
+            }
+        }
+    }
+}

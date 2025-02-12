@@ -692,7 +692,8 @@ const createContainer = function () {
                 exportOperation: c.exportOperation,
                 exportByIdOperation: c.exportByIdOperation,
                 r4ArgsParser: c.r4ArgsParser,
-                queryRewriterManager: c.queryRewriterManager
+                queryRewriterManager: c.queryRewriterManager,
+                configManager: c.configManager
             }
         )
     );

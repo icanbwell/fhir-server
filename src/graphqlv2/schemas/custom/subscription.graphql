@@ -1,5 +1,5 @@
 # import SubscriptionStatus from 'SubscriptionStatus.graphql'
 
-extend type Subscription {
+extend type FhirSubscription {
     subscriptionStatus: [SubscriptionStatus]
 }

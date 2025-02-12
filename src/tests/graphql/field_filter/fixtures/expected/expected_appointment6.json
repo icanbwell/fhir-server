@@ -6,12 +6,12 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.Appointment_4_0_0.find({'$and':[{'basedOn':{'$exists':false}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)]"
+                        "display": "[db.Appointment_4_0_0.find({'$and':[{'basedOn':{'$exists':false}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]"
                     },
-                    { "system": "https://www.icanbwell.com/queryCollection", "code": "" },
+                    { "system": "https://www.icanbwell.com/queryCollection", "code": "[Appointment_4_0_0]" },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
+                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
@@ -20,7 +20,7 @@
                     { "system": "https://www.icanbwell.com/queryTime", "display": "[0.007]" },
                     {
                         "system": "https://www.icanbwell.com/queryOptimization",
-                        "display": "[{'useTwoStepSearchOptimization':undefined}]"
+                        "display": "[{'useTwoStepSearchOptimization':false}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryExplain",

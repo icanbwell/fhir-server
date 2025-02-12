@@ -20,7 +20,7 @@ module.exports = {
             );
         }
     },
-    {{ fhir_entity.cleaned_name }}: {
+    {{ fhir_entity.graphqlv2_type }}: {
         __resolveReference: async (reference, context, info) => {
             return await context.dataApi.resolveEntityByReference(
                 reference,
