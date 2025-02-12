@@ -317,11 +317,13 @@ describe('databaseBulkInserter Tests', () => {
                     versionId: '2',
                     security: [
                         new Coding({
-                            code: 'client',
-                            system: 'https://www.icanbwell.com/owner'
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -375,11 +377,13 @@ describe('databaseBulkInserter Tests', () => {
                     versionId: '2',
                     security: [
                         new Coding({
-                            code: 'client',
-                            system: 'https://www.icanbwell.com/owner'
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -517,11 +521,13 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -606,11 +612,13 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
+                                    id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     system: 'https://www.icanbwell.com/owner',
                                     code: 'client'
                                 }),
                                 new Coding({
                                     code: 'client',
+                                    id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                     system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
@@ -835,7 +843,13 @@ describe('databaseBulkInserter Tests', () => {
                     security: [
                         new Coding({
                             system: 'https://www.icanbwell.com/owner',
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
+                        }),
+                        new Coding({
+                            code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -889,7 +903,13 @@ describe('databaseBulkInserter Tests', () => {
                     security: [
                         new Coding({
                             system: 'https://www.icanbwell.com/owner',
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
+                        }),
+                        new Coding({
+                            code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -965,10 +985,12 @@ describe('databaseBulkInserter Tests', () => {
                     security: [
                         new Coding({
                             system: 'https://www.icanbwell.com/owner',
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -1054,10 +1076,12 @@ describe('databaseBulkInserter Tests', () => {
                             security: [
                                 new Coding({
                                     system: 'https://www.icanbwell.com/owner',
+                                    id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     code: 'client'
                                 }),
                                 new Coding({
                                     code: 'client',
+                                    id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                     system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
@@ -1150,7 +1174,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.identifier[1].value = actualCodeSystemHistoryEntry.resource.identifier[1].value;
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
-            actualCodeSystemHistoryEntry.response.outcome.issue.splice(2,1); // remove date update
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {
@@ -1341,10 +1364,12 @@ describe('databaseBulkInserter Tests', () => {
                     security: [
                         new Coding({
                             system: 'https://www.icanbwell.com/owner',
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -1546,12 +1571,14 @@ describe('databaseBulkInserter Tests', () => {
                         new Coding(
                             {
                                 system: 'https://www.icanbwell.com/owner',
+                                id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                 code: 'client'
                             }
                         ),
                         new Coding(
                             {
                                 code: 'client',
+                                id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                 system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                             }
                         )

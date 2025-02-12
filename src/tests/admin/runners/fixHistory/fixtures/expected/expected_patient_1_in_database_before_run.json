@@ -19,20 +19,20 @@
   ],
   "meta": {
     "lastUpdated": "2023-01-19T21:57:39.000Z",
-    "security": [
-      {
-        "code": "client",
-        "system": "https://www.icanbwell.com/access"
-      },
-      {
-        "code": "client",
-        "system": "https://www.icanbwell.com/owner"
-      },
-      {
-        "code": "client",
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-      }
-    ],
+      "security": [
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
     "source": "http://clienthealth.org/provider",
     "versionId": "1"
   },
