@@ -11,16 +11,16 @@
         "source": "proa",
         "security": [
             {
-                "system": "https://www.icanbwell.com/owner",
-                "code": "bwell"
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
             },
             {
-                "system": "https://www.icanbwell.com/access",
-                "code": "bwell"
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/access"
             },
             {
-                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "code": "bwell"
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
         ]
     },

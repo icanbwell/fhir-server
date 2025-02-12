@@ -6,28 +6,33 @@
       "versionId": "1",
       "lastUpdated": "2023-11-10T12:51:45.000Z",
       "source": "/patients",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/owner",
-          "code": "highmark"
-        },
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "highmark"
-        },
-        {
-          "system": "https://www.icanbwell.com/vendor",
-          "code": "highmark"
-        },
-        {
-          "system": "https://www.icanbwell.com/connectionType",
-          "code": "proa"
-        },
-        {
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "code": "highmark"
-        }
-      ]
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "id": "eae87972-b570-51a0-9628-732cdb06bd5d",
+              "code": "highmark"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "id": "59edcb62-f59d-58cf-b8f9-d0daa1a82fe0",
+              "code": "highmark"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "id": "401c0ce3-bda9-5adb-9a94-af50344f5e8a",
+              "code": "highmark"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
+              "code": "proa"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "27a87dfe-a760-59f9-b2b5-a3fb72e8396c",
+              "code": "highmark"
+            }
+          ]
     },
     "identifier": [
       {
@@ -95,28 +100,33 @@
       "versionId": "1",
       "lastUpdated": "2023-11-10T12:51:45.000Z",
       "source": "/patients",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/owner",
-          "code": "xyz"
-        },
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "xyz"
-        },
-        {
-          "system": "https://www.icanbwell.com/vendor",
-          "code": "xyz"
-        },
-        {
-          "system": "https://www.icanbwell.com/connectionType",
-          "code": "proa"
-        },
-        {
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "code": "xyz"
-        }
-      ]
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "id": "eb8865a8-51b3-555f-9f69-d5e2dd52036a",
+              "code": "xyz"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "id": "7263810a-b57b-5fdb-a673-89100bfd048f",
+              "code": "xyz"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "id": "e54d8448-99f3-53f0-a052-86cff6ceccc3",
+              "code": "xyz"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
+              "code": "proa"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "10ad1e30-ed55-56f3-beed-57992ee85a14",
+              "code": "xyz"
+            }
+          ]
     },
     "identifier": [
       {
@@ -184,24 +194,28 @@
       "versionId": "1",
       "lastUpdated": "2023-11-10T12:51:45.000Z",
       "source": "/patients",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/owner",
-          "code": "client-1"
-        },
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "client-1"
-        },
-        {
-          "system": "https://www.icanbwell.com/vendor",
-          "code": "client-1"
-        },
-        {
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "code": "client-1"
-        }
-      ]
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "id": "f0eb75ae-8b01-5624-b1c6-1d4b8fef9486",
+              "code": "client-1"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "id": "6ecd25a8-d651-54df-a87f-cf15a6096f1e",
+              "code": "client-1"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "id": "d8f8510a-f9e3-5d1d-b915-b1c81e6372c8",
+              "code": "client-1"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "a5eb71b9-d97f-5f50-80d8-9e78e0bfaea2",
+              "code": "client-1"
+            }
+          ]
     },
     "identifier": [
       {

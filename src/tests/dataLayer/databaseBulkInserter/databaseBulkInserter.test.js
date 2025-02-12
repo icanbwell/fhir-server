@@ -517,11 +517,13 @@ describe('databaseBulkInserter Tests', () => {
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
+                            id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
                         }),
                         new Coding({
                             code: 'client',
+                            id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
@@ -606,11 +608,13 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
+                                    id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     system: 'https://www.icanbwell.com/owner',
                                     code: 'client'
                                 }),
                                 new Coding({
                                     code: 'client',
+                                    id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]

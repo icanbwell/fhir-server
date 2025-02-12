@@ -11,18 +11,22 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
+              "id": "7263810a-b57b-5fdb-a673-89100bfd048f",
               "code": "xyz"
             },
             {
               "system": "https://www.icanbwell.com/owner",
+              "id": "eb8865a8-51b3-555f-9f69-d5e2dd52036a",
               "code": "xyz"
             },
             {
               "system": "https://www.icanbwell.com/connectionType",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
               "code": "proa"
             },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "10ad1e30-ed55-56f3-beed-57992ee85a14",
               "code": "xyz"
             }
           ]
@@ -64,18 +68,22 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
+              "id": "59edcb62-f59d-58cf-b8f9-d0daa1a82fe0",
               "code": "highmark"
             },
             {
               "system": "https://www.icanbwell.com/owner",
+              "id": "eae87972-b570-51a0-9628-732cdb06bd5d",
               "code": "highmark"
             },
             {
               "system": "https://www.icanbwell.com/connectionType",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
               "code": "proa"
             },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "27a87dfe-a760-59f9-b2b5-a3fb72e8396c",
               "code": "highmark"
             }
           ]
@@ -115,16 +123,19 @@
           "lastUpdated": "2023-11-10T14:34:58.000Z",
           "source": "client-1",
           "security": [
-            {
+           {
               "system": "https://www.icanbwell.com/access",
+              "id": "6ecd25a8-d651-54df-a87f-cf15a6096f1e",
               "code": "client-1"
             },
             {
               "system": "https://www.icanbwell.com/owner",
+              "id": "f0eb75ae-8b01-5624-b1c6-1d4b8fef9486",
               "code": "client-1"
             },
-            {
+             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "a5eb71b9-d97f-5f50-80d8-9e78e0bfaea2",
               "code": "client-1"
             }
           ]
