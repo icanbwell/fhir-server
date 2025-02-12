@@ -81,7 +81,6 @@ const { DummyKafkaClient } = require('./utils/dummyKafkaClient');
 const { PersonMatchManager } = require('./admin/personMatchManager');
 const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
 const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
-const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
 const { K8sClient } = require('./utils/k8sClient');
 const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -604,7 +603,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -618,7 +618,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -792,10 +793,6 @@ const createContainer = function () {
         fhirTypesManager: c.fhirTypesManager,
         configManager: c.configManager,
         searchParametersManager: c.searchParametersManager
-    }));
-
-    container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
-        databaseQueryFactory: c.databaseQueryFactory
     }));
 
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(

@@ -14,7 +14,8 @@ const { ResourceManager } = require('../common/resourceManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 
 class HistoryOperation {
     /**
@@ -28,6 +29,7 @@ class HistoryOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor (
         {
@@ -39,7 +41,8 @@ class HistoryOperation {
             configManager,
             searchManager,
             resourceManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            historyResourceCloudStorageClient
         }
     ) {
         /**
@@ -91,6 +94,14 @@ class HistoryOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {CloudStorageClient | null}
+         */
+        this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
+        if (historyResourceCloudStorageClient) {
+            assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
+        }
     }
 
     /**
@@ -210,28 +221,84 @@ class HistoryOperation {
         const collectionName = cursor.getFirstCollection();
 
         /**
-         * @type {Resource[]}
+         * @type {String[]|null}
          */
-        const resources = [];
+        let resourcesCloudStoragePaths =
+            this.historyResourceCloudStorageClient &&
+            this.configManager.cloudStorageHistoryResources.includes(resourceType)
+                ? []
+                : null;
+        let downloadedData = null;
+
+        /**
+         * @type {object[]}
+         */
+        let historyResources = [];
+
         while (await cursor.hasNext()) {
-            let resource = await cursor.next();
-            if (!resource) {
+            let historyResource = await cursor.nextRaw();
+            if (!historyResource) {
                 throw new NotFoundError('Resource not found');
             }
-            if (resource.resource) {
-                resource.resource = await this.databaseAttachmentManager.transformAttachments(
-                    resource.resource, RETRIEVE
-                );
-            } else {
-                resource = await this.databaseAttachmentManager.transformAttachments(
-                    resource, RETRIEVE
-                );
+
+            // save paths for cloud storage data to fetch in batch
+            if (
+                resourcesCloudStoragePaths &&
+                historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]
+            ) {
+                resourcesCloudStoragePaths.push(historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]);
             }
-            resources.push(resource);
+            historyResources.push(historyResource);
         }
-        if (resources.length === 0) {
+        if (historyResources.length === 0) {
             throw new NotFoundError('Resource not found');
         }
+
+        if (resourcesCloudStoragePaths && resourcesCloudStoragePaths.length > 0) {
+            downloadedData = await this.historyResourceCloudStorageClient.downloadInBatchAsync({
+                filePaths: resourcesCloudStoragePaths,
+                batch: this.configManager.cloudStorageBatchDownloadSize
+            });
+        }
+
+        // If doc is not BundleEntry then wrap it in a bundle entry
+        const entries = []
+        await Promise.all(
+            historyResources.map(async (historyResource) => {
+                if (downloadedData) {
+                    const resourceData = downloadedData[historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]];
+                    if (resourceData) {
+                        historyResource = JSON.parse(resourceData);
+                    }
+                }
+
+                if (historyResource.resource) {
+                    if (
+                        this.configManager.cloudStorageHistoryResources.includes(resourceType) &&
+                        !historyResource.resource.resourceType
+                    ) {
+                        historyResource.resource.resourceType = resourceType;
+                    }
+                    historyResource = new BundleEntry(historyResource);
+                } else {
+                    historyResource = new BundleEntry({
+                        historyResource,
+                        fullUrl: this.resourceManager.getFullUrlForResource({
+                            protocol,
+                            host,
+                            base_version,
+                            historyResource
+                        })
+                    });
+                }
+                historyResource.resource = await this.databaseAttachmentManager.transformAttachments(
+                    historyResource.resource,
+                    RETRIEVE
+                );
+                entries.push(historyResource);
+            })
+        );
+
         await this.fhirLoggingManager.logOperationSuccessAsync({
             requestInfo,
             args: parsedArgs.getRawArgs(),
@@ -243,17 +310,6 @@ class HistoryOperation {
          * @type {number}
          */
         const stopTime = Date.now();
-
-        // If doc is not BundleEntry then wrap it in a bundle entry
-        const entries = resources.map(
-            resource => resource.resource ? resource : new BundleEntry(
-                {
-                    resource,
-                    fullUrl: this.resourceManager.getFullUrlForResource(
-                        { protocol, host, base_version, resource })
-                }
-            )
-        );
 
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,

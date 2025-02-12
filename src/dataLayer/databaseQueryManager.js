@@ -388,62 +388,6 @@ cursors,
             });
         }
     }
-
-    /**
-     * Gets UUID from database
-     * @param {string} uuid
-     * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
-     */
-    async getIdAndSourceAssigningAuthorityForUuidAsync ({ uuid }) {
-        /**
-         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-         */
-        const query = this.mongoFilterGenerator.generateFilterForUuid(
-            {
-                uuid
-            }
-        );
-        /**
-         *
-         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-         */
-        const options = {
-            projection: {
-                id: 1,
-                _uuid: 1,
-                _sourceId: 1,
-                meta: 1
-            }
-        };
-        try {
-            /**
-             * @type {DatabasePartitionedCursor}
-             */
-            const cursor = await this.findAsync(
-                {
-                    query,
-                    options
-                }
-            );
-            if (await cursor.hasNext()) {
-                /**
-                 * @type {Object|null}
-                 */
-                const doc = await cursor.nextRaw();
-                if (!doc) {
-                    return null;
-                }
-                return { id: doc.id, securityTagStructure: SecurityTagStructure.fromDocument({ doc }) };
-            }
-            return null;
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in getIdAndSourceAssigningAuthorityForUuidAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
-                args: { query, options }
-            });
-        }
-    }
 }
 
 module.exports = {

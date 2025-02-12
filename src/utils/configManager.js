@@ -616,6 +616,14 @@ class ConfigManager {
     }
 
     /**
+     * Cloud storage batch download size
+     * @returns {number}
+     */
+    get cloudStorageBatchDownloadSize () {
+        return env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE || 100;
+    }
+
+    /**
      * returns list of history resources that are stored in cloud storage
      * @return {string[]}
      */

@@ -235,5 +235,6 @@ module.exports = {
             key: 'system',
             value: 'value'
         }
-    }
+    },
+    RESOURCE_CLOUD_STORAGE_PATH_KEY: '_fullObjPath'
 };

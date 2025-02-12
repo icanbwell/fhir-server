@@ -1,4 +1,12 @@
-const { S3Client: S3, PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, AbortMultipartUploadCommand, CompleteMultipartUploadCommand } = require('@aws-sdk/client-s3');
+const {
+    S3Client: S3,
+    PutObjectCommand,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    AbortMultipartUploadCommand,
+    CompleteMultipartUploadCommand,
+    GetObjectCommand
+} = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
@@ -92,6 +100,48 @@ class S3Client extends CloudStorageClient {
         } catch (err) {
             throw new RethrownError({
                 message: `Error in uploadInBatchAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client'
+            });
+        }
+    }
+
+    /**
+     * Download files in parallel from s3 in given batch size for provided paths
+     * @typedef {Object} downloadInBatchAsyncParams
+     * @property {string[]} filePaths
+     * @property {number} batch
+     *
+     * @param {downloadInBatchAsyncParams}
+     * @returns {object}
+     */
+    async downloadInBatchAsync({ filePaths, batch }) {
+        try {
+            const downloadedData = {};
+            for (let i = 0; i < filePaths.length; i += batch) {
+                const batchPaths = filePaths.slice(i, i + batch);
+
+                const downloadPromises = batchPaths.map(async (path) => {
+                    return this.client
+                        .send(
+                            new GetObjectCommand({
+                                Bucket: this.bucketName,
+                                Key: path.split(`${this.bucketName}/`)?.[1] || path
+                            })
+                        )
+                        .then(async (data) => {
+                            downloadedData[path] = await data.Body.transformToString();
+                        })
+                        .catch((error) => {
+                            logError(`Error in downloading file from S3 at: ${path}`, { error });
+                        });
+                });
+                await Promise.all(downloadPromises);
+            }
+            return downloadedData;
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in downloadInBatchAsync: ${err.message}`,
                 error: err,
                 source: 'S3Client'
             });

@@ -35,7 +35,7 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { ACCESS_LOGS_COLLECTION_NAME, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../constants');
 const { CloudStorageClient } = require('../utils/cloudStorageClient');
 const { generateUUID } = require('../utils/uid.util');
 const { filterJsonByKeys } = require('../utils/object');
@@ -489,7 +489,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     history_doc_json,
                     this.configManager.historyResourceMongodbFields
                 );
-                history_doc_json['_fullObjPath'] = this.historyResourceCloudStorageClient.getPublicFilePath(file_path);
+                history_doc_json[RESOURCE_CLOUD_STORAGE_PATH_KEY] =
+                    this.historyResourceCloudStorageClient.getPublicFilePath(file_path);
             }
 
             this.addHistoryOperationForResourceType({

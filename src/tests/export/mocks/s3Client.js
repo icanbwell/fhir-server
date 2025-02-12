@@ -1,6 +1,8 @@
 const { S3Client } = require('../../../utils/s3Client');
 
 class MockS3Client extends S3Client {
+    uploadedData = {}
+
     async uploadAsync() {
         // do nothing
     }
@@ -31,6 +33,7 @@ class MockS3Client extends S3Client {
         // hence comparing toHaveReturnedWith will be equal to comparing toHaveBeenCalledWith with following implementation
         let bufferToJsonData = fileDataWithPath.map((item) => {
             const jsonString = item.data.toString('utf-8');
+            this.uploadedData[this.getPublicFilePath(item.filePath)] = jsonString;
             return {
                 ...item,
                 data: JSON.parse(jsonString)
@@ -40,6 +43,16 @@ class MockS3Client extends S3Client {
             batch: batch,
             fileDataWithPath: bufferToJsonData
         };
+    }
+
+    downloadInBatchAsync({ filePaths, batch }){
+        let result = {}
+        filePaths.forEach(path => {
+            if(this.uploadedData[path]){
+                result[path] = this.uploadedData[path];
+            }
+        });
+        return result;
     }
 }
 
