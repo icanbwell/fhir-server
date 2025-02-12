@@ -109,6 +109,7 @@ const { ExportManager } = require('./operations/export/exportManager');
 const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
 const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
+const { S3Client } = require('./utils/s3Client');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -411,7 +412,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
             }
         )
     );
@@ -858,6 +860,11 @@ const createContainer = function () {
         scopesValidator: c.scopesValidator,
         postSaveProcessor: c.postSaveProcessor,
         bulkExportEventProducer: c.bulkExportEventProducer
+    }));
+
+    container.register('historyResourceCloudStorageClient', (c) => new S3Client({
+        bucketName: env.HISTORY_RESOURCE_BUCKET,
+        region: c.configManager.awsRegion || 'us-east-1'
     }));
 
     return container;

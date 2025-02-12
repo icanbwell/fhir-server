@@ -446,7 +446,7 @@ class BulkDataExportRunner {
                 this.exportStatusResource.errors.push(
                     new ExportStatusEntry({
                         type: 'OperationOutcome',
-                        url: this.s3Client.getPublicS3FilePath(filePath)
+                        url: this.s3Client.getPublicFilePath(filePath)
                     })
                 );
             }
@@ -631,7 +631,7 @@ class BulkDataExportRunner {
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: this.s3Client.getPublicS3FilePath(multipartContext.resourceFilePath)
+                    url: this.s3Client.getPublicFilePath(multipartContext.resourceFilePath)
                 })
             );
 
@@ -868,7 +868,7 @@ class BulkDataExportRunner {
             this.exportStatusResource.output.push(
                 new ExportStatusEntry({
                     type: resourceType,
-                    url: this.s3Client.getPublicS3FilePath(filePath)
+                    url: this.s3Client.getPublicFilePath(filePath)
                 })
             );
 

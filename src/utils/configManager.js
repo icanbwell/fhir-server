@@ -606,6 +606,41 @@ class ConfigManager {
         }
         return isTrue(env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2);
     }
+
+    /**
+     * Cloud storage batch upload size
+     * @returns {number}
+     */
+    get cloudStorageBatchUploadSize () {
+        return env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE || 100;
+    }
+
+    /**
+     * returns list of history resources that are stored in cloud storage
+     * @return {string[]}
+     */
+    get cloudStorageHistoryResources() {
+        return (
+            (env.CLOUD_STORAGE_HISTORY_RESOURCES &&
+                env.CLOUD_STORAGE_HISTORY_RESOURCES.split(',').map((col) => col.trim())) || ['Binary']
+        );
+    }
+
+    /**
+     * returns list of history resource's fields which are to be kept in MongoDB
+     * @return {string[]}
+     */
+    get historyResourceMongodbFields() {
+        return (
+            (env.HISTORY_RESOURCE_MONGODB_FIELDS &&
+                env.HISTORY_RESOURCE_MONGODB_FIELDS.split(',').map((col) => col.trim())) || [
+                'id',
+                'resource._uuid',
+                'resource._sourceId',
+                'resource.meta'
+            ]
+        );
+    }
 }
 
 module.exports = {
