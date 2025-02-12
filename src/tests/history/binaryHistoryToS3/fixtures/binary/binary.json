@@ -1,0 +1,40 @@
+[
+    {
+        "resourceType": "Binary",
+        "id": "binary1",
+        "meta": {
+            "source": "https://connect.medlineplus.gov/service",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "client1"
+                }
+            ]
+        },
+        "contentType": "text/html",
+        "data": "PGgyPldoYXQgaXMgYW4gZWxlY3Ryb2NhcmRpb2dyYW0gKEVLRykgdGVzdD88L2gyPjxwPkFuIGVsZWN0cm9jYXJkaW9ncmFtIChFS0cpIHRlc3QgaXMgYSBzaW1wbGUsIHBhaW5sZXNzIHByb2NlZHVyZSB0aGF0IG1lYXN1cmVzIGVsZWN0cmljYWwgc2lnbmFscyBpbiB5b3VyIGhlYXJ0LiBFYWNoIHRpbWUgeW91ciBoZWFydCBiZWF0cywgYW4gZWxlY3RyaWNhbCBzaWduYWwgdHJhdmVscyB0aHJvdWdoIHRoZSBoZWFydC4gQW4gRUtHIGNhbiBzaG93IGlmIHlvdXIgaGVhcnQgaXMgYmVhdGluZyBhdCBhIG5vcm1hbCByYXRlCjxsaT5Vbml2ZXJzaXR5IG9mIFJvY2hlc3RlciBNZWRpY2FsIENlbnRlciBbSW50ZXJuZXRdLiBSb2NoZXN0ZXIgKE5ZKTogVW5pdmVyc2l0eSBvZiBSb2NoZXN0ZXIgTWVkaWNhbCBDZW50ZXI7IGMyMDE4LiBIZWFsdGggRW5jeWNsb3BlZGlhOiBFbGVjdHJvY2FyZGlvZ3JhbTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3LnVybWMucm9jaGVzdGVyLmVkdS9lbmN5Y2xvcGVkaWEvY29udGVudC5hc3B4P2NvbnRlbnR0eXBlaWQ9OTImYW1wO2NvbnRlbnRpZD1QMDc5NzAiIHRhcmdldD0iYmlibGlvd2luIj5odHRwczovL3d3dy51cm1jLnJvY2hlc3Rlci5lZHUvZW5jeWNsb3BlZGlhL2NvbnRlbnQuYXNweD9jb250ZW50dHlwZWlkPTkyJmFtcDtjb250ZW50aWQ9UDA3OTcwPC9hPjwvbGk+CjxsaT5VUE1DIENoaWxkcmVuJ3MgSG9zcGl0YWwgb2YgUGl0dHNidXJnaCBbSW50ZXJuZXRdLiBQaXR0c2J1cmdoOiBVUE1DOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVLRyBvciBFQ0cpOyBbY2l0ZWQgMjAxOCBOb3YgM107IFthYm91dCA0IHNjcmVlbnNdLiBBdmFpbGFibGUgZnJvbTogPGEgaHJlZj0iaHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnPC9hPjwvbGk+Cjwvb2w+"
+    },
+    {
+        "resourceType": "Binary",
+        "id": "binary2",
+        "meta": {
+            "source": "https://connect.medlineplus.gov/service",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "client1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "client1"
+                }
+            ]
+        },
+        "contentType": "text/html",
+        "data": "PGgyPldoYXQgaXMgYW4gZWxlY3Ryb2NhcmRpb2dyYW0gKEVLRykgdGVzdD88L2gyPjxwPkFuIGVsZWN0cm9jYXJkaW9ncmFtIChFS0cpIHRlc3QgaXMgYSBzaW1wbGUsIHBhaW5sZXNzIHByb2NlZHVyZSB0aGF0IG1lYXN1cmVzIGVsZWN0cmljYWwgc2lnbmFscyBpbiB5b3VyIGhlYXJ0LiBFYWNoIHRpbWUgeW91ciBoZWFydCBiZWF0cywgYW4gZWxlY3RyaWNhbCBzaWduYWwgdHJhdmVscyB0aHJvdWdoIHRoZSBoZWFydC4gQW4gRUtHIGNhbiBzaG93IGlmIHlvdXIgaGVhcnQgaXMgYmVhdGluZyBhdCBhIG5vcm1hbCByYXRlIGFuZCBzdHJlbmd0aC4gSXQgYWxzbyBoZWxwcyBzaG93IHRoZSBzaXplIGFuZCBwb3NpdGlvbiBvZiB5b3VyIGhlYXJ0J3MgY2hhbWJlcnMuIEFuIGFibm9ybWFsIEVLRyBjYW4gYmUgYSBzaWduIG9mIDxhIGRhdGEtdGlkPSIyNzciIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2hlYXJ0ZGlzZWFzZXMuaHRtbCI+aGVhcnQgZGlzZWFzZTwvYT4gb3IgZGFtYWdlLjwvcD48cD5PdGhlciBuYW1lczogRUNHIHRlc3Q8L3A+PGgyPldoYXQgaXMgaXQgdXNlZCBmb3I/PC9oMj48cD5BbiBFS0cgdGVzdCBpcyB1c2VkIHRvIGZpbmQgYW5kL29yIG1vbml0b3IgdmFyaW91cyBoZWFydCBkaXNvcmRlcnMuIFRoZXNlIGluY2x1ZGU6PC9wPjx1bD48bGk"
+    }
+]

@@ -36,6 +36,9 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { CloudStorageClient } = require('../utils/cloudStorageClient');
+const { generateUUID } = require('../utils/uid.util');
+const { filterJsonByKeys } = require('../utils/object');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -54,6 +57,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor ({
                     resourceManager,
@@ -66,7 +70,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceMerger,
                     configManager,
                     mongoFilterGenerator,
-                    postSaveProcessor
+                    postSaveProcessor,
+                    historyResourceCloudStorageClient
                 }) {
         super();
 
@@ -136,6 +141,14 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {CloudStorageClient | null}
+         */
+        this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
+        if (historyResourceCloudStorageClient) {
+            assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
+        }
     }
 
     /**
@@ -158,6 +171,15 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     getHistoryOperationsByResourceTypeMap ({ requestId }) {
         return this.requestSpecificCache.getMap({ requestId, name: 'HistoryOperationsByResourceTypeMap' });
+    }
+
+    /**
+     * This array stores entry for all history data to be uploaded to cloud storage
+     * @param {string} requestId
+     * @return {{filePath: string, data: object}[]>}
+     */
+    getResourceHistoryCloudStorageUploadList ({ requestId }) {
+        return this.requestSpecificCache.getList({ requestId, name: 'ResourceHistoryCloudStorageUploadList' });
     }
 
     /**
@@ -422,48 +444,66 @@ class DatabaseBulkInserter extends EventEmitter {
         const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
-            this.addHistoryOperationForResourceType({
-                    requestId,
+            let history_doc_json = new BundleEntry({
+                id: doc._uuid,
+                resource: doc,
+                request: new BundleRequest({
+                    id: userRequestId,
+                    method,
+                    url: `/${base_version}/${resourceType}/${doc.id}`
+                }),
+                response: patches
+                    ? new BundleResponse({
+                          status: '200',
+                          outcome: new OperationOutcome({
+                              issue: patches.map(
+                                  (p) =>
+                                      new OperationOutcomeIssue({
+                                          severity: 'information',
+                                          code: 'informational',
+                                          diagnostics: JSON.stringify(p, getCircularReplacer())
+                                      })
+                              )
+                          })
+                      })
+                    : null
+            }).toJSONInternal();
+
+            if (this.historyResourceCloudStorageClient && this.configManager.cloudStorageHistoryResources.includes(resourceType)) {
+                const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({
+                    requestId
+                });
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
                     resourceType,
-                    resource: doc,
-                    operationType: 'insert', // history operations are blind merges without checking id
-                    operation: {
-                        insertOne: {
-                            document: new BundleEntry(
-                                {
-                                    id: doc._uuid,
-                                    resource: doc,
-                                    request: new BundleRequest(
-                                        {
-                                            id: userRequestId,
-                                            method,
-                                            url: `/${base_version}/${resourceType}/${doc.id}`
-                                        }
-                                    ),
-                                    response: patches
-                                        ? new BundleResponse(
-                                            {
-                                                status: '200',
-                                                outcome: new OperationOutcome({
-                                                        issue: patches.map(p => new OperationOutcomeIssue(
-                                                                {
-                                                                    severity: 'information',
-                                                                    code: 'informational',
-                                                                    diagnostics: JSON.stringify(p, getCircularReplacer())
-                                                                }
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        ) : null
-                                }
-                            ).toJSONInternal()
-                        }
-                    },
-                    patches
-                }
-            );
+                    base_version
+                });
+                const collectionName = await resourceLocator.getHistoryCollectionNameAsync(doc);
+                const file_path = `${collectionName}/${generateUUID()}.json`;
+                resourceHistoryCloudStorageUploadList.push({
+                    data: Buffer.from(JSON.stringify(history_doc_json)),
+                    filePath: file_path
+                });
+
+                // filter only required fields to be saved in MongoDB
+                history_doc_json = filterJsonByKeys(
+                    history_doc_json,
+                    this.configManager.historyResourceMongodbFields
+                );
+                history_doc_json['_fullObjPath'] = this.historyResourceCloudStorageClient.getPublicFilePath(file_path);
+            }
+
+            this.addHistoryOperationForResourceType({
+                requestId,
+                resourceType,
+                resource: doc,
+                operationType: 'insert', // history operations are blind merges without checking id
+                operation: {
+                    insertOne: {
+                        document: history_doc_json
+                    }
+                },
+                patches
+            });
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -782,6 +822,21 @@ class DatabaseBulkInserter extends EventEmitter {
     async executeHistoryInPostRequestAsync ({ requestInfo, base_version }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
+
+        const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({ requestId });
+        if (resourceHistoryCloudStorageUploadList.length > 0) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    await this.historyResourceCloudStorageClient.uploadInBatchAsync({
+                        fileDataWithPath: resourceHistoryCloudStorageUploadList,
+                        batch: this.configManager.cloudStorageBatchUploadSize
+                    });
+                    resourceHistoryCloudStorageUploadList.length = 0;
+                }
+            });
+        }
+
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
