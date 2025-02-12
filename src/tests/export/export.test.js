@@ -603,10 +603,10 @@ describe('Export Tests', () => {
 
             const exportStatusResource = await collection.find({}).toArray();
             expect(exportStatusResource[0].meta.security).toEqual([
-                { code: 'bwell', system: 'https://www.icanbwell.com/owner' },
-                { code: 'client', system: 'https://www.icanbwell.com/access' },
-                { code: 'client1', system: 'https://www.icanbwell.com/access' },
-                { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
+                { code: 'bwell', id: "70ae40c6-f2bd-54a0-aa66-656be4cce72b", system: 'https://www.icanbwell.com/owner' },
+                { code: 'client', id: "21b6850a-a1fb-5de3-8f69-7962d5394390", system: 'https://www.icanbwell.com/access' },
+                { code: 'client1', id: "d5ff7087-77ef-546b-8b12-05c74cec6b87", system: 'https://www.icanbwell.com/access' },
+                { code: 'bwell', id: "33ced3c5-0807-582a-b03a-df7d6e95a41c", system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
 
             resp = await request
@@ -751,10 +751,10 @@ describe('Export Tests', () => {
 
             const exportStatusResource = await collection.find({}).toArray();
             expect(exportStatusResource[0].meta.security).toEqual([
-                { code: 'bwell', system: 'https://www.icanbwell.com/owner' },
-                { code: 'client', system: 'https://www.icanbwell.com/access' },
-                { code: 'client2', system: 'https://www.icanbwell.com/access' },
-                { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
+                { code: 'bwell', id: "70ae40c6-f2bd-54a0-aa66-656be4cce72b", system: 'https://www.icanbwell.com/owner' },
+                { code: 'client', id: "21b6850a-a1fb-5de3-8f69-7962d5394390", system: 'https://www.icanbwell.com/access' },
+                { code: 'client2', id: "18393a00-dc69-5300-85d1-e62573be197c", system: 'https://www.icanbwell.com/access' },
+                { code: 'bwell', id: "33ced3c5-0807-582a-b03a-df7d6e95a41c", system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
 
             resp = await request
@@ -874,10 +874,10 @@ describe('Export Tests', () => {
 
             const exportStatusResource = await collection.find({}).toArray();
             expect(exportStatusResource[0].meta.security).toEqual([
-                { code: 'bwell', system: 'https://www.icanbwell.com/owner' },
-                { code: 'client', system: 'https://www.icanbwell.com/access' },
-                { code: 'client1', system: 'https://www.icanbwell.com/access' },
-                { code: 'bwell', system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
+                { code: 'bwell', id: "70ae40c6-f2bd-54a0-aa66-656be4cce72b", system: 'https://www.icanbwell.com/owner' },
+                { code: 'client', id: "21b6850a-a1fb-5de3-8f69-7962d5394390", system: 'https://www.icanbwell.com/access' },
+                { code: 'client1', id: "d5ff7087-77ef-546b-8b12-05c74cec6b87", system: 'https://www.icanbwell.com/access' },
+                { code: 'bwell', id: "33ced3c5-0807-582a-b03a-df7d6e95a41c", system: 'https://www.icanbwell.com/sourceAssigningAuthority' }
             ]);
 
             // Check if extension is created as expected
