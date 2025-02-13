@@ -236,7 +236,7 @@ module.exports = {
             value: 'value'
         }
     },
-    RESOURCE_CLOUD_STORAGE_PATH_KEY: '_fullObjPath',
+    RESOURCE_CLOUD_STORAGE_PATH_KEY: '_ref',
     CLOUD_STORAGE_CLIENTS: {
         S3_CLIENT: "S3Client"
     }
