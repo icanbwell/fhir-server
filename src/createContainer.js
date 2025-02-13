@@ -81,7 +81,6 @@ const { DummyKafkaClient } = require('./utils/dummyKafkaClient');
 const { PersonMatchManager } = require('./admin/personMatchManager');
 const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
 const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
-const { UuidToIdReplacer } = require('./utils/uuidToIdReplacer');
 const { K8sClient } = require('./utils/k8sClient');
 const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
 const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -110,6 +109,7 @@ const { ExportByIdOperation } = require('./operations/export/exportById');
 const { AdminExportManager } = require('./admin/adminExportManager');
 const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
 const { S3Client } = require('./utils/s3Client');
+const { CLOUD_STORAGE_CLIENTS } = require('./constants');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -415,7 +415,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
+                historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
             }
         )
     );
@@ -604,7 +604,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -618,7 +619,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -794,10 +796,6 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager
     }));
 
-    container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
-        databaseQueryFactory: c.databaseQueryFactory
-    }));
-
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
@@ -864,10 +862,15 @@ const createContainer = function () {
         bulkExportEventProducer: c.bulkExportEventProducer
     }));
 
-    container.register('historyResourceCloudStorageClient', (c) => new S3Client({
-        bucketName: env.HISTORY_RESOURCE_BUCKET,
-        region: c.configManager.awsRegion || 'us-east-1'
-    }));
+    container.register('historyResourceCloudStorageClient', (c) => {
+        if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
+            return new S3Client({
+                bucketName: c.configManager.historyResourceBucketName,
+                region: c.configManager.awsRegion
+            })
+        }
+        return null;
+    });
 
     return container;
 };

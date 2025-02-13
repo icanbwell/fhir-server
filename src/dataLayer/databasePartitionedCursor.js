@@ -188,8 +188,8 @@ class DatabasePartitionedCursor {
         while (this._cursors.length > 0) {
             await logTraceSystemEventAsync(
                 {
-                    event: 'DatabasePartitionedCursor: next',
-                    message: 'DatabasePartitionedCursor: next',
+                    event: 'DatabasePartitionedCursor: nextRaw',
+                    message: 'DatabasePartitionedCursor: nextRaw',
                     args: {
                         collections: this._cursors.map(c => c.collection),
                         query: this.query
@@ -201,14 +201,10 @@ class DatabasePartitionedCursor {
             try {
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
-                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                     try {
-                        if (resourceType === 'BundleEntry') {
-                            // noinspection JSCheckFunctionSignatures
-                            return new BundleEntry(result);
-                        }
                         return result;
                     } catch (e) {
+                        const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                         throw new RethrownError({
                             message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
                             collections: this._cursors.map(c => c.collection),
@@ -220,7 +216,7 @@ class DatabasePartitionedCursor {
                     }
                 } else {
                     assertFail({
-                        source: 'DatabasePartitionedCursor.next',
+                        source: 'DatabasePartitionedCursor.nextRaw',
                         message: 'Data is null',
                         args: {
                             value: result,

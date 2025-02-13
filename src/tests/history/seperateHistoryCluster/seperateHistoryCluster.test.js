@@ -180,12 +180,14 @@ describe('Seperate History Resource Database Cluster Tests', () => {
 });
 
 describe('Person Tests', () => {
+    let requestId;
     beforeEach(async () => {
         const container = getTestContainer();
         if (container) {
             delete container.services.changeSourceAssigningAuthorityRunner;
         }
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -205,6 +207,8 @@ describe('Person Tests', () => {
                 return c;
             });
 
+            const container = getTestContainer();
+
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/Person/$merge')
@@ -214,6 +218,9 @@ describe('Person Tests', () => {
 
             expect(resp).toHaveMergeResponse({ created: true });
 
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
             resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(person2Resource)
@@ -221,6 +228,8 @@ describe('Person Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get(`/4_0_0/Person/${expectedPerson1BeforeRun.id}`)
@@ -239,8 +248,6 @@ describe('Person Tests', () => {
             const person2BeforeRun = resp.body;
             delete person2BeforeRun.meta.lastUpdated;
             expect(person2BeforeRun).toEqual(expectedPerson2);
-
-            const container = getTestContainer();
 
             // run admin runner
             const collections = ['all'];

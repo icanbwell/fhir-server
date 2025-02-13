@@ -1,0 +1,49 @@
+{
+    "resourceType": "Bundle",
+    "type": "history",
+    "timestamp": "2025-02-11T03:49:51.5151Z",
+    "total": 2,
+    "link": [{ "relation": "self", "url": "http://localhost:3000/4_0_0/Binary/_history" }],
+    "entry": [
+        {
+            "id": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
+            "resource": {
+                "resourceType": "Binary",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-02-11T15:49:49.763Z",
+                    "source": "https://connect.medlineplus.gov/service",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/owner", "id": "34cb1d73-f93b-54c8-89a1-c0a6f8aa9acd", "code": "client1" },
+                        { "system": "https://www.icanbwell.com/access", "id": "d5ff7087-77ef-546b-8b12-05c74cec6b87", "code": "client1" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "id": "171f7c10-fa66-5272-91c5-6353567641e4",
+                            "code": "client1"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
+            "resource": {
+                "resourceType": "Binary",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-02-11T15:49:49.763Z",
+                    "source": "https://connect.medlineplus.gov/service",
+                    "security": [
+                        { "system": "https://www.icanbwell.com/owner", "id": "34cb1d73-f93b-54c8-89a1-c0a6f8aa9acd", "code": "client1" },
+                        { "system": "https://www.icanbwell.com/access", "id": "d5ff7087-77ef-546b-8b12-05c74cec6b87", "code": "client1" },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "id": "171f7c10-fa66-5272-91c5-6353567641e4",
+                            "code": "client1"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

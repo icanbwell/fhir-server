@@ -95,6 +95,19 @@ class CloudStorageClient {
     }
 
     /**
+     * Download files in parallel from cloud storage in given batch size for provided paths
+     * @typedef {Object} downloadInBatchAsyncParams
+     * @property {string[]} filePaths
+     * @property {number} batch
+     *
+     * @param {downloadInBatchAsyncParams}
+     * @returns {object}
+     */
+    async downloadInBatchAsync({ filePaths, batch }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Completes the multi-part upload
      * @typedef {Object} CompleteMultiPartUploadAsyncParams
      * @property {string} filePath

@@ -1,5 +1,6 @@
 const env = require('var');
 const { isTrue } = require('./isTrue');
+const { CLOUD_STORAGE_CLIENTS } = require('../constants');
 
 class ConfigManager {
     /**
@@ -530,7 +531,7 @@ class ConfigManager {
      * Region for AWS services to use
      */
     get awsRegion () {
-        return env.AWS_REGION;
+        return env.AWS_REGION || 'us-east-1';
     }
 
     /**
@@ -616,6 +617,14 @@ class ConfigManager {
     }
 
     /**
+     * Cloud storage batch download size
+     * @returns {number}
+     */
+    get cloudStorageBatchDownloadSize () {
+        return env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE || 100;
+    }
+
+    /**
      * returns list of history resources that are stored in cloud storage
      * @return {string[]}
      */
@@ -653,6 +662,22 @@ class ConfigManager {
                 env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
             []
         );
+    }
+
+    /**
+     * Cloud storage client for history resources
+     * @returns {string}
+     */
+    get historyResourceCloudStorageClient () {
+        return env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
+    }
+
+    /**
+     * Cloud storage bucket name for history resources
+     * @returns {string}
+     */
+    get historyResourceBucketName () {
+        return env.HISTORY_RESOURCE_BUCKET_NAME;
     }
 }
 
