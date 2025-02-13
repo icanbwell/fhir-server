@@ -126,7 +126,7 @@ class S3Client extends CloudStorageClient {
                         .send(
                             new GetObjectCommand({
                                 Bucket: this.bucketName,
-                                Key: path.split(`${this.bucketName}/`)?.[1] || path
+                                Key: path
                             })
                         )
                         .then(async (data) => {

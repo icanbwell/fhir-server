@@ -33,7 +33,7 @@ class MockS3Client extends S3Client {
         // hence comparing toHaveReturnedWith will be equal to comparing toHaveBeenCalledWith with following implementation
         let bufferToJsonData = fileDataWithPath.map((item) => {
             const jsonString = item.data.toString('utf-8');
-            this.uploadedData[this.getPublicFilePath(item.filePath)] = jsonString;
+            this.uploadedData[item.filePath] = jsonString;
             return {
                 ...item,
                 data: JSON.parse(jsonString)

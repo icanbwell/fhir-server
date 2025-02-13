@@ -153,12 +153,12 @@ describe('Binary history resource should be written to S3', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        's3://test/Binary_4_0_0_History/randomUUID-11.json',
-                        's3://test/Binary_4_0_0_History/randomUUID-12.json'
+                        'Binary_4_0_0_History/randomUUID-11.json',
+                        'Binary_4_0_0_History/randomUUID-12.json'
                     ]
                 }
             ],
-            [{ batch: 100, filePaths: ['s3://test/Binary_4_0_0_History/randomUUID-11.json'] }]
+            [{ batch: 100, filePaths: ['Binary_4_0_0_History/randomUUID-11.json'] }]
         ]);
 
         // partial history data is returned when response is not returned from S3

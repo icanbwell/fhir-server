@@ -478,10 +478,10 @@ class DatabaseBulkInserter extends EventEmitter {
                     base_version
                 });
                 const collectionName = await resourceLocator.getHistoryCollectionNameAsync(doc);
-                const file_path = `${collectionName}/${generateUUID()}.json`;
+                const file_id = generateUUID();
                 resourceHistoryCloudStorageUploadList.push({
                     data: Buffer.from(JSON.stringify(history_doc_json)),
-                    filePath: file_path
+                    filePath: `${collectionName}/${file_id}.json`
                 });
 
                 // filter only required fields to be saved in MongoDB
@@ -489,8 +489,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     history_doc_json,
                     this.configManager.historyResourceMongodbFields
                 );
-                history_doc_json[RESOURCE_CLOUD_STORAGE_PATH_KEY] =
-                    this.historyResourceCloudStorageClient.getPublicFilePath(file_path);
+                history_doc_json[RESOURCE_CLOUD_STORAGE_PATH_KEY] = file_id;
             }
 
             this.addHistoryOperationForResourceType({

@@ -231,7 +231,7 @@ class HistoryByIdOperation {
 
                 // save paths for cloud storage data to fetch in batch
                 if (historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]) {
-                    resourcesCloudStoragePaths.push(historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]);
+                    resourcesCloudStoragePaths.push(`${collectionName}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`);
                 }
                 historyResources.push(historyResource);
             }
@@ -253,7 +253,7 @@ class HistoryByIdOperation {
 
             await Promise.all(
                 historyResources.map(async (historyResource) => {
-                    const downloadedResourceData = downloadedData[historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]];
+                    const downloadedResourceData = downloadedData[`${collectionName}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`];
                     if (downloadedResourceData) {
                         historyResource = JSON.parse(downloadedResourceData);
                     }
