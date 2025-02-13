@@ -866,7 +866,7 @@ const createContainer = function () {
         if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
             return new S3Client({
                 bucketName: c.configManager.historyResourceBucketName,
-                region: c.configManager.awsRegion || 'us-east-1'
+                region: c.configManager.awsRegion
             })
         }
         return null;

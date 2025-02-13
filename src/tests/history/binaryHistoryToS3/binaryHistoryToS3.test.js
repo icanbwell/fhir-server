@@ -77,7 +77,7 @@ describe('Binary history resource should be written to S3', () => {
                     if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
                         return new MockS3Client({
                             bucketName: c.configManager.historyResourceBucketName,
-                            region: c.configManager.awsRegion || 'us-east-1'
+                            region: c.configManager.awsRegion
                         })
                     }
                     return null;
@@ -182,7 +182,7 @@ describe('Binary history resource should be written to S3', () => {
                     if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
                         return new MockS3Client({
                             bucketName: c.configManager.historyResourceBucketName,
-                            region: c.configManager.awsRegion || 'us-east-1'
+                            region: c.configManager.awsRegion
                         })
                     }
                     return null;

@@ -531,7 +531,7 @@ class ConfigManager {
      * Region for AWS services to use
      */
     get awsRegion () {
-        return env.AWS_REGION;
+        return env.AWS_REGION || 'us-east-1';
     }
 
     /**
