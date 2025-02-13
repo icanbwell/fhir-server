@@ -2,15 +2,25 @@ const { PreSaveHandler } = require('./preSaveHandler');
 const CodeableConcept = require("../../fhir/classes/4_0_0/complex_types/codeableConcept");
 const Coding = require("../../fhir/classes/4_0_0/complex_types/coding")
 const { generateUUIDv5 } = require('../../utils/uid.util');
+const { ConfigManager } = require('../../utils/configManager');
+const { assertTypeEquals } = require('../../utils/assertType');
+
 /**
  * @classdesc Converts date field from string to Date()
  */
 class CodeableConceptIdHandler extends PreSaveHandler {
     /**
      * constructor
+     * @param {ConfigManager} configManager
      */
-    constructor () {
+    constructor ({ configManager }) {
         super();
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -22,6 +32,13 @@ class CodeableConceptIdHandler extends PreSaveHandler {
      * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
     async preSaveAsync ({ resource }) {
+        if (
+            !this.configManager.preSaveCodingIdUpdateResources.some(
+                (e) => e === resource.resourceType || e === 'Resource'
+            )
+        ) {
+            return resource;
+        }
         await this.processResource(resource, '');
         return resource;
     }

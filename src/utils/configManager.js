@@ -641,6 +641,19 @@ class ConfigManager {
             ]
         );
     }
+
+    /**
+     * returns list of resources for which Coding element's id needs to be updated in pre save.
+     * Adding 'Resource' to list enables it for all resources
+     * @return {string[]}
+     */
+    get preSaveCodingIdUpdateResources() {
+        return (
+            (env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES &&
+                env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
+            []
+        );
+    }
 }
 
 module.exports = {

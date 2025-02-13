@@ -162,7 +162,9 @@ const createContainer = function () {
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
             new SourceAssigningAuthorityColumnHandler(),
-            new CodeableConceptIdHandler(),
+            new CodeableConceptIdHandler({
+                configManager: c.configManager
+            }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
             new UuidColumnHandler({
