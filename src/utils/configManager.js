@@ -669,7 +669,7 @@ class ConfigManager {
      * @returns {string}
      */
     get historyResourceCloudStorageClient () {
-        return env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT;
+        return env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
     }
 
     /**

@@ -211,12 +211,8 @@ class HistoryByIdOperation {
             /**
              * @type {String[]|null}
              */
-            let resourcesCloudStoragePaths =
-            this.historyResourceCloudStorageClient &&
-            this.configManager.cloudStorageHistoryResources.includes(resourceType)
-                ? []
-                : null;
-            let downloadedData = null;
+            let resourcesCloudStoragePaths = [];
+            let downloadedData = {};
 
             /**
              * @type {object[]}
@@ -234,10 +230,7 @@ class HistoryByIdOperation {
                 }
 
                 // save paths for cloud storage data to fetch in batch
-                if (
-                    resourcesCloudStoragePaths &&
-                    historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]
-                ) {
+                if (historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]) {
                     resourcesCloudStoragePaths.push(historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]);
                 }
                 historyResources.push(historyResource);
@@ -247,7 +240,11 @@ class HistoryByIdOperation {
                 throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
 
-            if (resourcesCloudStoragePaths && resourcesCloudStoragePaths.length > 0) {
+            if (
+                this.historyResourceCloudStorageClient &&
+                this.configManager.cloudStorageHistoryResources.includes(resourceType) &&
+                resourcesCloudStoragePaths.length > 0
+            ) {
                 downloadedData = await this.historyResourceCloudStorageClient.downloadInBatchAsync({
                     filePaths: resourcesCloudStoragePaths,
                     batch: this.configManager.cloudStorageBatchDownloadSize
@@ -256,18 +253,13 @@ class HistoryByIdOperation {
 
             await Promise.all(
                 historyResources.map(async (historyResource) => {
-                    if (downloadedData) {
-                        const resourceData = downloadedData[historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]];
-                        if (resourceData) {
-                            historyResource = JSON.parse(resourceData);
-                        }
+                    const downloadedResourceData = downloadedData[historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]];
+                    if (downloadedResourceData) {
+                        historyResource = JSON.parse(downloadedResourceData);
                     }
 
                     if (historyResource.resource) {
-                        if (
-                            this.configManager.cloudStorageHistoryResources.includes(resourceType) &&
-                            !historyResource.resource.resourceType
-                        ) {
+                        if (!historyResource.resource.resourceType) {
                             historyResource.resource.resourceType = resourceType;
                         }
                         historyResource = new BundleEntry(historyResource);

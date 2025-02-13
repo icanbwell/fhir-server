@@ -49,14 +49,14 @@ describe('Binary history resource should be written to S3', () => {
 
     beforeAll(() => {
         historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET_NAME;
-        historyResourceCloudStorageClient = env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT;
+        historyResourceCloudStorageClient = env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
         env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
-        env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
+        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
     });
 
     afterAll(() => {
         env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
-        env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
+        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
     });
 
     beforeEach(async () => {
