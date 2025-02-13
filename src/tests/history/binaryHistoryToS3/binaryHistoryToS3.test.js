@@ -40,18 +40,23 @@ const expectedPartialHistoryData = require('./expected/expected_partial_history.
 const expectedPartialHistoryByIdData = require('./expected/expected_partial_history_by_id.json');
 const expectedHistoryData = require('./expected/expected_history.json');
 const expectedHistoryByIdData = require('./expected/expected_history_by_id.json');
+const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
 
 describe('Binary history resource should be written to S3', () => {
     let requestId;
     let historyResourceCloudStorageBucket;
+    let historyResourceCloudStorageClient;
 
     beforeAll(() => {
-        historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET;
-        env.HISTORY_RESOURCE_BUCKET = 'bucket-name';
+        historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET_NAME;
+        historyResourceCloudStorageClient = env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT;
+        env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
+        env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
     });
 
     afterAll(() => {
-        env.HISTORY_RESOURCE_BUCKET = historyResourceCloudStorageBucket;
+        env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
+        env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
     });
 
     beforeEach(async () => {
@@ -68,11 +73,15 @@ describe('Binary history resource should be written to S3', () => {
         const request = await createTestRequest((c) => {
             c.register(
                 'historyResourceCloudStorageClient',
-                (c) =>
-                    new MockS3Client({
-                        bucketName: 'test',
-                        region: 'test'
-                    })
+                (c) => {
+                    if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
+                        return new MockS3Client({
+                            bucketName: c.configManager.historyResourceBucketName,
+                            region: c.configManager.awsRegion || 'us-east-1'
+                        })
+                    }
+                    return null;
+                }
             );
             return c;
         });
@@ -169,11 +178,15 @@ describe('Binary history resource should be written to S3', () => {
         const request = await createTestRequest((c) => {
             c.register(
                 'historyResourceCloudStorageClient',
-                (c) =>
-                    new MockS3Client({
-                        bucketName: 'test',
-                        region: 'test'
-                    })
+                (c) => {
+                    if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
+                        return new MockS3Client({
+                            bucketName: c.configManager.historyResourceBucketName,
+                            region: c.configManager.awsRegion || 'us-east-1'
+                        })
+                    }
+                    return null;
+                }
             );
             return c;
         });

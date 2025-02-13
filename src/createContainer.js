@@ -415,7 +415,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
+                historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
             }
         )
     );
@@ -605,7 +605,7 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -620,7 +620,7 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: env.HISTORY_RESOURCE_BUCKET ? c.historyResourceCloudStorageClient : null
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -865,10 +865,11 @@ const createContainer = function () {
     container.register('historyResourceCloudStorageClient', (c) => {
         if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
             return new S3Client({
-                bucketName: env.HISTORY_RESOURCE_BUCKET,
+                bucketName: c.configManager.historyResourceBucketName,
                 region: c.configManager.awsRegion || 'us-east-1'
             })
         }
+        return null;
     });
 
     return container;
