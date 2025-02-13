@@ -1,5 +1,6 @@
 const env = require('var');
 const { isTrue } = require('./isTrue');
+const { CLOUD_STORAGE_CLIENTS } = require('../constants');
 
 class ConfigManager {
     /**
@@ -661,6 +662,14 @@ class ConfigManager {
                 env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
             []
         );
+    }
+
+    /**
+     * Cloud storage client for history resources
+     * @returns {string}
+     */
+    get historyResourceCloudStorageClient () {
+        return env.HISTORY_RESOURCES_CLOUD_STORAGE_CLIENT || CLOUD_STORAGE_CLIENTS.S3_CLIENT;
     }
 }
 
