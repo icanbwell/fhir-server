@@ -163,15 +163,15 @@ describe('Binary history resource should be written to S3', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        'Binary_4_0_0_History/randomUUID-11.json',
-                        'Binary_4_0_0_History/randomUUID-12.json'
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-12.json'
                     ]
                 }
             ],
-            [{ batch: 100, filePaths: ['Binary_4_0_0_History/randomUUID-11.json'] }]
+            [{ batch: 100, filePaths: ['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json'] }]
         ]);
 
-        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/randomUUID-11.json']]);
+        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json']]);
 
         // partial history data is returned when response is not returned from S3
         mockDownloadInBatchAsync.mockReturnValue({});

@@ -215,7 +215,7 @@ class SearchByVersionIdOperation {
                 ) {
                     let downloadedResourceData =
                         await this.historyResourceCloudStorageClient.downloadAsync(
-                            `${collectionName}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`
+                            `${collectionName}/${historyResource?.resource?._uuid}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`
                         );
 
                     if (downloadedResourceData) {
