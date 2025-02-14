@@ -95,6 +95,16 @@ class CloudStorageClient {
     }
 
     /**
+     * Download file from cloud storage for provided path
+     * @param {string} filePath
+     * @returns {object|null}
+     */
+    async downloadAsync(filePath) {
+        throw Error('Not Implemented');
+
+    }
+
+    /**
      * Download files in parallel from cloud storage in given batch size for provided paths
      * @typedef {Object} downloadInBatchAsyncParams
      * @property {string[]} filePaths

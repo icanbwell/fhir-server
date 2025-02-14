@@ -5,7 +5,8 @@ const {
     UploadPartCommand,
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
-    GetObjectCommand
+    GetObjectCommand,
+    NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 const { RethrownError } = require('./rethrownError');
@@ -107,6 +108,33 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
+     * Download file from s3 for provided path
+     * @param {string} filePath
+     * @returns {object|null}
+     */
+    async downloadAsync(filePath) {
+        try {
+            const response = await this.client.send(
+                new GetObjectCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath
+                })
+            );
+            return await response.Body.transformToString();
+        } catch (err) {
+            if (err instanceof NoSuchKey) {
+                logError(`No file found for path: ${filePath}`, { err });
+                return null;
+            }
+            throw new RethrownError({
+                message: `Error in downloadAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client'
+            });
+        }
+    }
+
+    /**
      * Download files in parallel from s3 in given batch size for provided paths
      * @typedef {Object} downloadInBatchAsyncParams
      * @property {string[]} filePaths
@@ -133,7 +161,15 @@ class S3Client extends CloudStorageClient {
                             downloadedData[path] = await data.Body.transformToString();
                         })
                         .catch((error) => {
-                            logError(`Error in downloading file from S3 at: ${path}`, { error });
+                            if (error instanceof NoSuchKey) {
+                                logError(`No file found for path: ${path}`, { error });
+                            } else {
+                                throw new RethrownError({
+                                    message: `Error in downloadInBatchAsync: ${error.message}`,
+                                    error: error,
+                                    source: 'S3Client'
+                                });
+                            }
                         });
                 });
                 await Promise.all(downloadPromises);

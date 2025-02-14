@@ -54,6 +54,13 @@ class MockS3Client extends S3Client {
         });
         return result;
     }
+
+    downloadAsync( filePaths ){
+        if(this.uploadedData[filePaths]){
+            return this.uploadedData[filePaths];
+        }
+        return null;
+    }
 }
 
 module.exports = { MockS3Client };
