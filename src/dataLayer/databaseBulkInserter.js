@@ -481,7 +481,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 const file_id = generateUUID();
                 resourceHistoryCloudStorageUploadList.push({
                     data: Buffer.from(JSON.stringify(history_doc_json)),
-                    filePath: `${collectionName}/${file_id}.json`
+                    filePath: `${collectionName}/${doc._uuid}/${file_id}.json`
                 });
 
                 // filter only required fields to be saved in MongoDB
