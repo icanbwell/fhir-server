@@ -15,7 +15,9 @@ Note: Any insert or update requires write permission on that resource.
 
 ### Payload
 
-The $merge endpoint accepts a FHIR Bundle resource: https://www.hl7.org/fhir/bundle.html
+The $merge endpoint accepts data in following formats:
+1. A FHIR Bundle resource: https://www.hl7.org/fhir/bundle.html
+2. A of list of resources at top level (sample here: https://github.com/icanbwell/fhir-server/blob/main/src/tests/graphql/condition/fixtures/conditions.json)
 
 For each resource in the bundle, the FHIR server checks:
 
@@ -50,7 +52,9 @@ For each resource in the bundle, the FHIR server checks:
 1. A FHIR resource must be specified in the URL in order for the $merge call to be processed.
     * ex. https://fhir.icanbwell.com/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
 
-2. The $merge endpoint in the FHIR server behaves differently from other endpoints when it comes to HTTP status codes. Instead of returning 403 Forbidden or 400 Bad Request for validation errors or forbidden actions, it always returns a 200 OK status code. However, details related to validation and forbidden actions are included in the response body as operation outcome.
+2. If 'Bundle' resource containing different resources in entry is sent inside an array in payload, then it is treated as a single bundle resource and its containing entry resources are not treated as individual resources.
+
+3. The $merge endpoint in the FHIR server behaves differently from other endpoints when it comes to HTTP status codes. Instead of returning 403 Forbidden or 400 Bad Request for validation errors or forbidden actions, it always returns a 200 OK status code. However, details related to validation and forbidden actions are included in the response body as operation outcome.
     * Example of $merge response in case of validation error
     ```json
     {

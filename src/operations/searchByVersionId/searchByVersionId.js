@@ -1,4 +1,4 @@
-const { NotFoundError } = require('../../utils/httpErrors');
+const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -8,6 +8,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchManager } = require('../search/searchManager');
 const { ParsedArgs } = require('../query/parsedArgs');
+const { ScopesManager } = require('../security/scopesManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
@@ -20,6 +21,7 @@ class SearchByVersionIdOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
+     * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor (
@@ -30,6 +32,7 @@ class SearchByVersionIdOperation {
             enrichmentManager,
             configManager,
             searchManager,
+            scopesManager,
             databaseAttachmentManager
         }
     ) {
@@ -65,6 +68,11 @@ class SearchByVersionIdOperation {
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
         /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
          * @type {DatabaseAttachmentManager}
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
@@ -98,6 +106,22 @@ class SearchByVersionIdOperation {
             // /** @type {string} */
             // requestId
         } = requestInfo;
+
+        if (this.scopesManager.hasPatientScope({ scope })) {
+            const forbiddenError =  new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
+                    'history: Access to history resources not allowed if patient scope is present'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
 
         try {
             const { base_version, id, version_id } = parsedArgs;
