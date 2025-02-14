@@ -3,10 +3,6 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 
-// expected
-const expectedObservationByUuidResources = require('./fixtures/expected/expected_observation_by_uuid.json');
-const expectedObservationByAccessResources = require('./fixtures/expected/expected_observation_by_access.json');
-
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -91,9 +87,22 @@ describe('Observation Tests', () => {
             resp = await request
                 .get('/4_0_0/Observation/1/_history/1')
                 .set(headers)
-                .expect(200);
+                .expect(403);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByAccessResources.entry[0].resource);
+            expect(resp).toHaveResponse({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'forbidden',
+                        details: {
+                            text: "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                        },
+                        diagnostics:
+                            "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                    }
+                ]
+            });
         });
         test('using uuid', async () => {
             const request = await createTestRequest((c) => {
@@ -144,14 +153,27 @@ describe('Observation Tests', () => {
             resp = await request
                 .get(`/4_0_0/Observation/${uuid}/_history/1`)
                 .set(headers)
-                .expect(200);
+                .expect(403);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByUuidResources.entry[0].resource);
+            expect(resp).toHaveResponse({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'forbidden',
+                        details: {
+                            text: "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                        },
+                        diagnostics:
+                            "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                    }
+                ]
+            });
 
             await request
                 .get('/4_0_0/Observation/1|A/_history')
                 .set(headers)
-                .expect(404);
+                .expect(403);
         });
     });
 });
