@@ -1,4 +1,4 @@
-const { NotFoundError } = require('../../utils/httpErrors');
+const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
 const env = require('var');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -16,6 +16,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
+const { ScopesManager } = require('../security/scopesManager');
 
 class HistoryOperation {
     /**
@@ -29,6 +30,7 @@ class HistoryOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {ScopesManager} scopesManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor (
@@ -42,6 +44,7 @@ class HistoryOperation {
             searchManager,
             resourceManager,
             databaseAttachmentManager,
+            scopesManager,
             historyResourceCloudStorageClient
         }
     ) {
@@ -96,6 +99,12 @@ class HistoryOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
          * @type {CloudStorageClient | null}
          */
         this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
@@ -136,6 +145,22 @@ class HistoryOperation {
             /** @type {string} */
             personIdFromJwtToken
         } = requestInfo;
+
+        if (this.scopesManager.hasPatientScope({ scope })) {
+            const forbiddenError =  new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to ${resourceType}'s ` +
+                    'history: Access to history resources not allowed if patient scope is present'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,

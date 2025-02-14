@@ -52,5 +52,49 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
         });
+
+        test('History without id dont work for patient scope', async () => {
+            const request = await createTestRequest();
+
+            // get history with patient scope fails for clinical resource
+            let resp = await request
+                .get('/4_0_0/Observation/_history?_debug=1')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'forbidden',
+                        details: {
+                            text: "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                        },
+                        diagnostics:
+                            "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                    }
+                ]
+            });
+
+            // get history with patient scope fails for non-clinical resource
+            resp = await request
+                .get('/4_0_0/Practitioner/_history?_debug=1')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'forbidden',
+                        details: {
+                            text: "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
+                        },
+                        diagnostics:
+                            "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
+                    }
+                ]
+            });
+        });
     });
 });
