@@ -9,7 +9,9 @@ const { ConfigManager } = require('../../utils/configManager');
 const { SearchManager } = require('../search/searchManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { CloudStorageClient } = require('../../utils/cloudStorageClient');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 class SearchByVersionIdOperation {
     /**
@@ -21,6 +23,7 @@ class SearchByVersionIdOperation {
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor (
         {
@@ -30,7 +33,8 @@ class SearchByVersionIdOperation {
             enrichmentManager,
             configManager,
             searchManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            historyResourceCloudStorageClient
         }
     ) {
         /**
@@ -69,6 +73,14 @@ class SearchByVersionIdOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {CloudStorageClient | null}
+         */
+        this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
+        if (historyResourceCloudStorageClient) {
+            assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
+        }
     }
 
     /**
@@ -152,31 +164,55 @@ class SearchByVersionIdOperation {
                 };
             }
             /**
-             * @type {Resource|null}
+             * @type {{resource: object, collectionName: string}|null}
              */
-            let resource;
+            let result;
             try {
                 const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version
                     }
                 );
-                resource = await databaseHistoryManager.findOneAsync({
+                result = await databaseHistoryManager.findOneRawAsync({
                     query
                 });
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
 
-            if (resource) {
+            if (result) {
+                let { resource: historyResource, collectionName } = result;
+
+                // replace with cloud storage data if present
+                if (
+                    this.historyResourceCloudStorageClient &&
+                    this.configManager.cloudStorageHistoryResources.includes(resourceType) &&
+                    historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]
+                ) {
+                    let downloadedResourceData =
+                        await this.historyResourceCloudStorageClient.downloadAsync(
+                            `${collectionName}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`
+                        );
+
+                    if (downloadedResourceData) {
+                        historyResource = JSON.parse(downloadedResourceData);
+                    }
+                    // for handling missing history data on cloud storage
+                    else if (historyResource.resource && !historyResource.resource.resourceType) {
+                        historyResource.resource.resourceType = resourceType;
+                    }
+                }
+
+                historyResource = FhirResourceCreator.create(historyResource.resource || historyResource);
+
                 // run any enrichment
-                resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs
+                historyResource = (await this.enrichmentManager.enrichAsync({
+                            resources: [historyResource], parsedArgs
                         }
                     )
                 )[0];
 
-                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                historyResource = await this.databaseAttachmentManager.transformAttachments(historyResource, RETRIEVE);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),
@@ -184,7 +220,7 @@ class SearchByVersionIdOperation {
                     startTime,
                     action: currentOperationName
                 });
-                return resource;
+                return historyResource;
             } else {
                 throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);
             }

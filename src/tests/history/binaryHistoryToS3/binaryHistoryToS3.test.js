@@ -36,10 +36,12 @@ const binaryResources = require('./fixtures/binary/binary.json');
 const expectedBinaryHistory = require('./fixtures/expected/expectedBinaryHistory.json');
 const expectedBinaryHistoryWithS3Path = require('./fixtures/expected/expectedBinaryHistoryWithS3Path.json');
 const expectedBinaryHistoryS3Data = require('./fixtures/expected/expectedBinaryHistoryS3Data.json');
-const expectedPartialHistoryData = require('./expected/expected_partial_history.json');
-const expectedPartialHistoryByIdData = require('./expected/expected_partial_history_by_id.json');
-const expectedHistoryData = require('./expected/expected_history.json');
-const expectedHistoryByIdData = require('./expected/expected_history_by_id.json');
+const expectedPartialHistoryData = require('./fixtures/expected/expected_partial_history.json');
+const expectedPartialHistoryByIdData = require('./fixtures/expected/expected_partial_history_by_id.json');
+const expectedPartialHistoryByVersionIdData = require('./fixtures/expected/expected_partial_history_by_version_id.json');
+const expectedHistoryData = require('./fixtures/expected/expected_history.json');
+const expectedHistoryByIdData = require('./fixtures/expected/expected_history_by_id.json');
+const expectedHistoryByVersionIdData = require('./fixtures/expected/expected_history_by_version_id.json');
 const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
 
 describe('Binary history resource should be written to S3', () => {
@@ -97,8 +99,13 @@ describe('Binary history resource should be written to S3', () => {
             'downloadInBatchAsync'
         );
 
+        const mockDownloadAsync = jest.spyOn(
+            container.historyResourceCloudStorageClient,
+            'downloadAsync'
+        );
+
         // Create resource
-        resp = await request.post('/4_0_0/Binary/1/$merge').send(binaryResources).set(getHeaders());
+        let resp = await request.post('/4_0_0/Binary/1/$merge').send(binaryResources).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
@@ -148,6 +155,9 @@ describe('Binary history resource should be written to S3', () => {
         resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history').set(getHeaders());
         expect(resp).toHaveResponse(expectedHistoryByIdData);
 
+        resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history/1').set(getHeaders());
+        expect(resp).toHaveResponse(expectedHistoryByVersionIdData);
+
         expect(mockDownloadInBatchAsync.mock.calls).toEqual([
             [
                 {
@@ -161,14 +171,20 @@ describe('Binary history resource should be written to S3', () => {
             [{ batch: 100, filePaths: ['Binary_4_0_0_History/randomUUID-11.json'] }]
         ]);
 
+        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/randomUUID-11.json']]);
+
         // partial history data is returned when response is not returned from S3
         mockDownloadInBatchAsync.mockReturnValue({});
+        mockDownloadAsync.mockReturnValue(null);
 
         resp = await request.get('/4_0_0/Binary/_history').set(getHeaders());
         expect(resp).toHaveResponse(expectedPartialHistoryData);
 
         resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history').set(getHeaders());
         expect(resp).toHaveResponse(expectedPartialHistoryByIdData);
+
+        resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history/1').set(getHeaders());
+        expect(resp).toHaveResponse(expectedPartialHistoryByVersionIdData);
     });
 
     test('Binary history resource should not be written to S3 when configured', async () => {
@@ -202,8 +218,13 @@ describe('Binary history resource should be written to S3', () => {
             'downloadInBatchAsync'
         );
 
+        const mockDownloadAsync = jest.spyOn(
+            container.historyResourceCloudStorageClient,
+            'downloadAsync'
+        );
+
         // Create resource
-        resp = await request.post('/4_0_0/Binary/1/$merge').send(binaryResources).set(getHeaders());
+        let resp = await request.post('/4_0_0/Binary/1/$merge').send(binaryResources).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
@@ -252,7 +273,11 @@ describe('Binary history resource should be written to S3', () => {
         resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history').set(getHeaders());
         expect(resp).toHaveResponse(expectedHistoryByIdData);
 
+        resp = await request.get('/4_0_0/Binary/c15b781e-a52d-527f-a43b-9bb39a920fa0/_history/1').set(getHeaders());
+        expect(resp).toHaveResponse(expectedHistoryByVersionIdData);
+
         expect(mockDownloadInBatchAsync).toHaveBeenCalledTimes(0);
+        expect(mockDownloadAsync).toHaveBeenCalledTimes(0);
         env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
     });
 });

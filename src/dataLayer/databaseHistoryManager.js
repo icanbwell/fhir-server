@@ -51,9 +51,9 @@ class DatabaseHistoryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<Resource|null>}
+     * @return {Promise<{resource: object, collectionName: string}|null>}
      */
-    async findOneAsync ({ query, options = null }) {
+    async findOneRawAsync ({ query, options = null }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -63,15 +63,12 @@ class DatabaseHistoryManager {
             );
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 /**
-                 * @type {Resource|BundleEntry|null}
+                 * @type {object|null}
                  */
                 let resource = await collection.findOne(query, options);
 
                 if (resource !== null) {
-                    if (resource.resource) { // is a bundle entry
-                        resource = resource.resource;
-                    }
-                    return FhirResourceCreator.create(resource);
+                    return { resource, collectionName: collection.collectionName };
                 }
             }
             return null;

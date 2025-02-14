@@ -590,7 +590,8 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
             searchManager: c.searchManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
