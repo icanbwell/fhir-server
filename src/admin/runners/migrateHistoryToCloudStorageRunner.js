@@ -88,17 +88,16 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
-     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)|null>}
      */
     async processRecordAsync(doc) {
-        const operations = [];
         // skip if record is in old format where resource is stored at top level
         if (!doc.resource) {
             this.adminLogger.logError(
                 `Resource with _id: ${doc._id} is in old format of history and is skipped`
             );
             this.documentsSkipped += 1;
-            return [];
+            return null;
         }
         const fileId = generateUUID();
 
@@ -114,22 +113,24 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
                 `Failed to upload resource with _id: ${doc._id} to cloud storage and is skipped due to error: ${error}`
             );
             this.documentsSkipped += 1;
-            return [];
+            return null;
         }
+        this.adminLogger.logInfo(
+            `Successfully uploaded resource with _id: ${doc._id} to cloud storage at path ${filePath}`
+        );
 
         // filter only required fields to be saved in MongoDB
         let filteredDoc = filterJsonByKeys(doc, this.configManager.historyResourceMongodbFields);
         filteredDoc[RESOURCE_CLOUD_STORAGE_PATH_KEY] = fileId;
-        operations.push({
+        this.documentsUploaded += 1;
+        return {
             replaceOne: {
                 filter: {
                     _id: doc._id
                 },
                 replacement: filteredDoc
             }
-        });
-        this.documentsUploaded += 1;
-        return operations;
+        };
     }
 
     /**
@@ -145,7 +146,7 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
                 return await this.processRecordAsync(hisResource);
             })
         );
-        const bulkResult = await collection.bulkWrite(operations.flat(), {
+        const bulkResult = await collection.bulkWrite(operations.filter(item => item !== null), {
             session
         });
         this.lastProcessId = this.lastBatchDocId;
@@ -193,16 +194,12 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
                 this.adminLogger.logInfo('Started Mongo session', { 'session id': sessionId });
 
                 const historyDB = historyDBClient.db(historyDbConfig.db_name);
-                const historyCollection =
-                    await this.mongoCollectionManager.getOrCreateCollectionAsync({
-                        db: historyDB,
-                        collectionName: this.collectionName
-                    });
+                const historyCollection = historyDB.collection(this.collectionName);
 
                 /**
                  * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
                  */
-                let cursor = await historyCollection
+                let cursor = historyCollection
                     .find(query)
                     .sort({ _id: 1 })
                     .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
