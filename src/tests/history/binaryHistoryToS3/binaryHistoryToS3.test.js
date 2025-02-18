@@ -89,9 +89,9 @@ describe('Binary history resource should be written to S3', () => {
         });
         const container = getTestContainer();
 
-        const mockUploadInBatchAsync = jest.spyOn(
+        const mockUploadAsync = jest.spyOn(
             container.historyResourceCloudStorageClient,
-            'uploadInBatchAsync'
+            'uploadAsync'
         );
 
         const mockDownloadInBatchAsync = jest.spyOn(
@@ -141,12 +141,18 @@ describe('Binary history resource should be written to S3', () => {
 
         expect(binaryHistoryEntries).toEqual(expectedBinaryHistoryWithS3Path);
 
+        expect(mockUploadAsync).toHaveBeenCalledTimes(2);
         // to ignore updated lastUpdated field
-        expectedBinaryHistoryS3Data.fileDataWithPath.forEach((element) => {
-            element.data.resource.meta.lastUpdated = expect.any(String);
-            return element;
+        Object.keys(expectedBinaryHistoryS3Data).forEach(key => {
+            expectedBinaryHistoryS3Data[key].resource.meta.lastUpdated = expect.any(String);
         });
-        expect(mockUploadInBatchAsync).toHaveReturnedWith(expectedBinaryHistoryS3Data);
+
+        let filePaths = expectedBinaryHistoryWithS3Path.map((item) => `Binary_4_0_0_History/${item?.resource?._uuid}/${item._ref}.json`)
+        const cloudStorageData = container.historyResourceCloudStorageClient.downloadInBatchAsync({filePaths, batch: 100});
+        Object.keys(cloudStorageData).forEach(key => {
+            cloudStorageData[key] = JSON.parse(cloudStorageData[key]);
+        });
+        expect(cloudStorageData).toEqual(expectedBinaryHistoryS3Data);
 
         // complete history data is returned when response is returned from S3
         resp = await request.get('/4_0_0/Binary/_history').set(getHeaders());
@@ -159,6 +165,15 @@ describe('Binary history resource should be written to S3', () => {
         expect(resp).toHaveResponse(expectedHistoryByVersionIdData);
 
         expect(mockDownloadInBatchAsync.mock.calls).toEqual([
+            [
+                {
+                    batch: 100,
+                    filePaths: [
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-12.json'
+                    ]
+                }
+            ],
             [
                 {
                     batch: 100,
@@ -208,9 +223,9 @@ describe('Binary history resource should be written to S3', () => {
         });
         const container = getTestContainer();
 
-        const mockUploadInBatchAsync = jest.spyOn(
+        const mockUploadAsync = jest.spyOn(
             container.historyResourceCloudStorageClient,
-            'uploadInBatchAsync'
+            'uploadAsync'
         );
 
         const mockDownloadInBatchAsync = jest.spyOn(
@@ -260,12 +275,7 @@ describe('Binary history resource should be written to S3', () => {
 
         expect(binaryHistoryEntries).toEqual(expectedBinaryHistory);
 
-        // to ignore updated lastUpdated field
-        expectedBinaryHistoryS3Data.fileDataWithPath.forEach((element) => {
-            element.data.resource.meta.lastUpdated = expect.any(String);
-            return element;
-        });
-        expect(mockUploadInBatchAsync).toHaveBeenCalledTimes(0);
+        expect(mockUploadAsync).toHaveBeenCalledTimes(0);
 
         resp = await request.get('/4_0_0/Binary/_history').set(getHeaders());
         expect(resp).toHaveResponse(expectedHistoryData);

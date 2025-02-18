@@ -174,15 +174,6 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * This array stores entry for all history data to be uploaded to cloud storage
-     * @param {string} requestId
-     * @return {{filePath: string, data: object}[]>}
-     */
-    getResourceHistoryCloudStorageUploadList ({ requestId }) {
-        return this.requestSpecificCache.getList({ requestId, name: 'ResourceHistoryCloudStorageUploadList' });
-    }
-
-    /**
      * Adds an operation
      * @param {string | null} requestId
      * @param {string} resourceType
@@ -444,54 +435,6 @@ class DatabaseBulkInserter extends EventEmitter {
         const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
-            let history_doc_json = new BundleEntry({
-                id: doc._uuid,
-                resource: doc,
-                request: new BundleRequest({
-                    id: userRequestId,
-                    method,
-                    url: `/${base_version}/${resourceType}/${doc.id}`
-                }),
-                response: patches
-                    ? new BundleResponse({
-                          status: '200',
-                          outcome: new OperationOutcome({
-                              issue: patches.map(
-                                  (p) =>
-                                      new OperationOutcomeIssue({
-                                          severity: 'information',
-                                          code: 'informational',
-                                          diagnostics: JSON.stringify(p, getCircularReplacer())
-                                      })
-                              )
-                          })
-                      })
-                    : null
-            }).toJSONInternal();
-
-            if (this.historyResourceCloudStorageClient && this.configManager.cloudStorageHistoryResources.includes(resourceType)) {
-                const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({
-                    requestId
-                });
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
-                    resourceType,
-                    base_version
-                });
-                const collectionName = await resourceLocator.getHistoryCollectionNameAsync(doc);
-                const file_id = generateUUID();
-                resourceHistoryCloudStorageUploadList.push({
-                    data: Buffer.from(JSON.stringify(history_doc_json)),
-                    filePath: `${collectionName}/${doc._uuid}/${file_id}.json`
-                });
-
-                // filter only required fields to be saved in MongoDB
-                history_doc_json = filterJsonByKeys(
-                    history_doc_json,
-                    this.configManager.historyResourceMongodbFields
-                );
-                history_doc_json[RESOURCE_CLOUD_STORAGE_PATH_KEY] = file_id;
-            }
-
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -499,7 +442,30 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType: 'insert', // history operations are blind merges without checking id
                 operation: {
                     insertOne: {
-                        document: history_doc_json
+                        document: new BundleEntry({
+                            id: doc._uuid,
+                            resource: doc,
+                            request: new BundleRequest({
+                                id: userRequestId,
+                                method,
+                                url: `/${base_version}/${resourceType}/${doc.id}`
+                            }),
+                            response: patches
+                                ? new BundleResponse({
+                                      status: '200',
+                                      outcome: new OperationOutcome({
+                                          issue: patches.map(
+                                              (p) =>
+                                                  new OperationOutcomeIssue({
+                                                      severity: 'information',
+                                                      code: 'informational',
+                                                      diagnostics: JSON.stringify(p, getCircularReplacer())
+                                                  })
+                                          )
+                                      })
+                                  })
+                                : null
+                        }).toJSONInternal()
                     }
                 },
                 patches
@@ -823,25 +789,61 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
 
-        const resourceHistoryCloudStorageUploadList = this.getResourceHistoryCloudStorageUploadList({ requestId });
-        if (resourceHistoryCloudStorageUploadList.length > 0) {
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                    await this.historyResourceCloudStorageClient.uploadInBatchAsync({
-                        fileDataWithPath: resourceHistoryCloudStorageUploadList,
-                        batch: this.configManager.cloudStorageBatchUploadSize
-                    });
-                    resourceHistoryCloudStorageUploadList.length = 0;
-                }
-            });
-        }
-
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
+                requestId,
+                fnTask: async () => {
+                        if (this.historyResourceCloudStorageClient) {
+                            for (const [resource, historyResourcesForCloudStorage] of historyOperationsByResourceTypeMap) {
+                                // check if any resource is configured for cloud storage
+                                if (this.configManager.cloudStorageHistoryResources.includes(resource)) {
+                                    let batchSize = this.configManager.cloudStorageBatchUploadSize;
+
+                                    const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+                                        resourceType: historyResourcesForCloudStorage[0].resourceType,
+                                        base_version
+                                    });
+                                    const collectionName = await resourceLocator.getHistoryCollectionNameAsync(
+                                        historyResourcesForCloudStorage[0].resource
+                                    );
+                                    const updatedHistoryResourceOperations = [];
+                                    for (let i = 0; i < historyResourcesForCloudStorage.length; i += batchSize) {
+                                        const batchResources = historyResourcesForCloudStorage.slice(i, i + batchSize);
+
+                                        await Promise.all(
+                                            batchResources.map(async (historyResourceOperation) => {
+                                                // history operation is always insertOne
+                                                let historyResource = historyResourceOperation.operation.insertOne.document;
+                                                const file_id = generateUUID();
+                                                // upload doc to S3
+                                                try {
+                                                    await this.historyResourceCloudStorageClient.uploadAsync({
+                                                        filePath: `${collectionName}/${historyResource.resource._uuid}/${file_id}.json`,
+                                                        data: Buffer.from(JSON.stringify(historyResource))
+                                                    });
+                                                } catch (error) {
+                                                    logError(`Failed to upload history resource to cloud storage due to error: ${error}`, {
+                                                        collectionName,
+                                                        _uuid: historyResource.resource._uuid,
+                                                        versionId: historyResource.resource.meta.versionId
+                                                    });
+                                                    // if any error occurs while uplaoding to S3, we will save complete resource in MongoDB
+                                                    return historyResourceOperation;
+                                                }
+                                                // filter only required fields to be saved in MongoDB
+                                                historyResource = filterJsonByKeys(historyResource, this.configManager.historyResourceMongodbFields);
+                                                historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY] = file_id;
+                                                historyResourceOperation.operation.insertOne.document = historyResource;
+                                                return historyResourceOperation;
+                                            })
+                                        );
+                                        updatedHistoryResourceOperations.push(batchResources);
+                                    }
+                                    historyOperationsByResourceTypeMap[resource] = updatedHistoryResourceOperations;
+                                }
+                            }
+                        }
                         await async.map(
                             historyOperationsByResourceTypeMap.entries(),
                             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
