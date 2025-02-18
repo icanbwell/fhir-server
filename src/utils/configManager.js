@@ -613,7 +613,7 @@ class ConfigManager {
      * @returns {number}
      */
     get cloudStorageBatchUploadSize () {
-        return env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE || 100;
+        return env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE ? parseInt(env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE) : 100;
     }
 
     /**
@@ -621,7 +621,7 @@ class ConfigManager {
      * @returns {number}
      */
     get cloudStorageBatchDownloadSize () {
-        return env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE || 100;
+        return env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE ? parseInt(env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE) : 100
     }
 
     /**
@@ -678,6 +678,30 @@ class ConfigManager {
      */
     get historyResourceBucketName () {
         return env.HISTORY_RESOURCE_BUCKET_NAME;
+    }
+
+    /**
+     * Cloud storage client max retry attempt count
+     * @returns {number}
+     */
+    get cloudStorageClientMaxRetry () {
+        return env.CLOUD_STORAGE_CLIENT_MAX_RETRY ? parseInt(env.CLOUD_STORAGE_CLIENT_MAX_RETRY) : 3;
+    }
+
+    /**
+     * Cloud storage client limit for receiving response
+     * @returns {number}
+     */
+    get cloudStorageClientRequestTimeout () {
+        return env.CLOUD_STORAGE_CLIENT_REQUEST_TIMEOUT ? parseInt(env.CLOUD_STORAGE_CLIENT_REQUEST_TIMEOUT) : 10 * 1000; // 10 sec
+    }
+
+    /**
+     * Cloud storage client limit for establishing connection
+     * @returns {number}
+     */
+    get cloudStorageClientConnectionTimeout () {
+        return env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT ? parseInt(env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT) : 5 * 1000; // 5 sec
     }
 }
 

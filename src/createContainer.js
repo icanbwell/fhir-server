@@ -867,8 +867,18 @@ const createContainer = function () {
         if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
             return new S3Client({
                 bucketName: c.configManager.historyResourceBucketName,
-                region: c.configManager.awsRegion
-            })
+                region: c.configManager.awsRegion,
+                config: {
+                    // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html#correctClockSkew-property
+                    correctClockSkew: true,
+                    // https://github.com/aws/aws-sdk-js-v3/blob/main/supplemental-docs/CLIENTS.md#retry-strategy-retrystrategy-retrymode-maxattempts
+                    maxAttempts: c.configManager.cloudStorageClientMaxRetry,
+                    requestHandler: {
+                        requestTimeout: c.configManager.cloudStorageClientRequestTimeout,
+                        connectionTimeout: c.configManager.cloudStorageClientConnectionTimeout
+                    }
+                }
+            });
         }
         return null;
     });

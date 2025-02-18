@@ -46,18 +46,6 @@ class CloudStorageClient {
     }
 
     /**
-     * Upload files to cloud storage in given batch size
-     * @typedef {Object} uploadInBatchAsyncParams
-     * @property {{filePath: string, data: Buffer}[]} fileDataWithPath
-     * @property {number} batch
-     *
-     * @param {uploadInBatchAsyncParams}
-     */
-    async uploadInBatchAsync({ fileDataWithPath, batch }) {
-        throw Error('Not Implemented');
-    }
-
-    /**
      * Starts a multi-part upload for the file provided
      * @typedef {Object} CreateMultiPartUploadAsyncParams
      * @property {string} filePath
