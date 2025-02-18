@@ -825,7 +825,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                                 } catch (error) {
                                                     logError(`Failed to upload history resource to cloud storage due to error: ${error}`, {
                                                         collectionName,
-                                                        _id: historyResource._id
+                                                        _uuid: historyResource.resource._uuid,
+                                                        versionId: historyResource.resource.meta.versionId
                                                     });
                                                     // if any error occurs while uplaoding to S3, we will save complete resource in MongoDB
                                                     return historyResourceOperation;
