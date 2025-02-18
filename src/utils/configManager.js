@@ -609,14 +609,6 @@ class ConfigManager {
     }
 
     /**
-     * Cloud storage batch upload size
-     * @returns {number}
-     */
-    get cloudStorageBatchUploadSize () {
-        return env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE ? parseInt(env.CLOUD_STORAGE_BATCH_UPLOAD_SIZE) : 100;
-    }
-
-    /**
      * Cloud storage batch download size
      * @returns {number}
      */
