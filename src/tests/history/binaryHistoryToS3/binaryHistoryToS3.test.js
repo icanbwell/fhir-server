@@ -43,8 +43,10 @@ const expectedHistoryData = require('./fixtures/expected/expected_history.json')
 const expectedHistoryByIdData = require('./fixtures/expected/expected_history_by_id.json');
 const expectedHistoryByVersionIdData = require('./fixtures/expected/expected_history_by_version_id.json');
 const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
+const { MigrateHistoryToCloudStorageRunner } = require('../../../admin/runners/migrateHistoryToCloudStorageRunner');
+const { AdminLogger } = require('../../../admin/adminLogger');
 
-describe('Binary history resource should be written to S3', () => {
+describe('Binary history resource S3 read test', () => {
     let requestId;
     let historyResourceCloudStorageBucket;
     let historyResourceCloudStorageClient;
@@ -71,7 +73,7 @@ describe('Binary history resource should be written to S3', () => {
         jest.clearAllMocks();
     });
 
-    test('Binary history resource should be written to S3 and MongoDB document should have S3 file path', async () => {
+    test('Binary history resource should be read from S3 when MongoDB document have S3 file path', async () => {
         const request = await createTestRequest((c) => {
             c.register(
                 'historyResourceCloudStorageClient',
@@ -84,6 +86,20 @@ describe('Binary history resource should be written to S3', () => {
                     }
                     return null;
                 }
+            );
+            c.register(
+                'migrateHistoryToCloudStorageRunner',
+                (c) =>
+                    new MigrateHistoryToCloudStorageRunner({
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        collectionName: 'Binary_4_0_0_History',
+                        batchSize: 2,
+                        adminLogger: new AdminLogger(),
+                        limit: undefined,
+                        historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+                        configManager: c.configManager
+                    })
             );
             return c;
         });
@@ -129,6 +145,11 @@ describe('Binary history resource should be written to S3', () => {
             expect.arrayContaining(['Binary_4_0_0', 'Binary_4_0_0_History'])
         );
         const binaryHistoryCollection = resourceHistoryDb.collection('Binary_4_0_0_History');
+
+        // move history to S3
+        const migrateHistoryToCloudStorageRunner = container.migrateHistoryToCloudStorageRunner;
+        await migrateHistoryToCloudStorageRunner.processAsync();
+
         /**
          * @type {import('mongodb').DefaultSchema[]}
          */
@@ -145,6 +166,7 @@ describe('Binary history resource should be written to S3', () => {
         // to ignore updated lastUpdated field
         Object.keys(expectedBinaryHistoryS3Data).forEach(key => {
             expectedBinaryHistoryS3Data[key].resource.meta.lastUpdated = expect.any(String);
+            expectedBinaryHistoryS3Data[key]._id = expect.any(String);
         });
 
         let filePaths = expectedBinaryHistoryWithS3Path.map((item) => `Binary_4_0_0_History/${item?.resource?._uuid}/${item._ref}.json`)
@@ -169,8 +191,8 @@ describe('Binary history resource should be written to S3', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json',
-                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-12.json'
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-16.json'
                     ]
                 }
             ],
@@ -178,15 +200,15 @@ describe('Binary history resource should be written to S3', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json',
-                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-12.json'
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-16.json'
                     ]
                 }
             ],
-            [{ batch: 100, filePaths: ['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json'] }]
+            [{ batch: 100, filePaths: ['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json'] }]
         ]);
 
-        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json']]);
+        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json']]);
 
         // partial history data is returned when response is not returned from S3
         mockDownloadInBatchAsync.mockReturnValue({});

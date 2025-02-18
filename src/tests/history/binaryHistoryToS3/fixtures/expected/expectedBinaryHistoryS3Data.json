@@ -1,5 +1,6 @@
 {
-    "Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-11.json": {
+    "Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json": {
+        "_id": "67b4d3198db5044ab7394512",
         "id": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
         "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary1" },
         "resource": {
@@ -35,7 +36,8 @@
             "resourceType": "Binary"
         }
     },
-    "Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-12.json": {
+    "Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-16.json": {
+        "_id": "67b4d3198db5044ab7394513",
         "id": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
         "request": { "id": "1234", "method": "POST", "url": "/4_0_0/Binary/binary2" },
         "resource": {

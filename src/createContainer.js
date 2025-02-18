@@ -414,8 +414,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );

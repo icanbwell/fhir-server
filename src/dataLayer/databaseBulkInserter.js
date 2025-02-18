@@ -35,10 +35,7 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { ACCESS_LOGS_COLLECTION_NAME, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../constants');
-const { CloudStorageClient } = require('../utils/cloudStorageClient');
-const { generateUUID } = require('../utils/uid.util');
-const { filterJsonByKeys } = require('../utils/object');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -57,7 +54,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
-     * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor ({
                     resourceManager,
@@ -70,8 +66,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceMerger,
                     configManager,
                     mongoFilterGenerator,
-                    postSaveProcessor,
-                    historyResourceCloudStorageClient
+                    postSaveProcessor
                 }) {
         super();
 
@@ -141,14 +136,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
-
-        /**
-         * @type {CloudStorageClient | null}
-         */
-        this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
-        if (historyResourceCloudStorageClient) {
-            assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
-        }
     }
 
     /**
@@ -788,62 +775,11 @@ class DatabaseBulkInserter extends EventEmitter {
     async executeHistoryInPostRequestAsync ({ requestInfo, base_version }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
-
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                        if (this.historyResourceCloudStorageClient) {
-                            for (const [resource, historyResourcesForCloudStorage] of historyOperationsByResourceTypeMap) {
-                                // check if any resource is configured for cloud storage
-                                if (this.configManager.cloudStorageHistoryResources.includes(resource)) {
-                                    let batchSize = this.configManager.cloudStorageBatchUploadSize;
-
-                                    const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
-                                        resourceType: historyResourcesForCloudStorage[0].resourceType,
-                                        base_version
-                                    });
-                                    const collectionName = await resourceLocator.getHistoryCollectionNameAsync(
-                                        historyResourcesForCloudStorage[0].resource
-                                    );
-                                    const updatedHistoryResourceOperations = [];
-                                    for (let i = 0; i < historyResourcesForCloudStorage.length; i += batchSize) {
-                                        const batchResources = historyResourcesForCloudStorage.slice(i, i + batchSize);
-
-                                        await Promise.all(
-                                            batchResources.map(async (historyResourceOperation) => {
-                                                // history operation is always insertOne
-                                                let historyResource = historyResourceOperation.operation.insertOne.document;
-                                                const file_id = generateUUID();
-                                                // upload doc to S3
-                                                try {
-                                                    await this.historyResourceCloudStorageClient.uploadAsync({
-                                                        filePath: `${collectionName}/${historyResource.resource._uuid}/${file_id}.json`,
-                                                        data: Buffer.from(JSON.stringify(historyResource))
-                                                    });
-                                                } catch (error) {
-                                                    logError(`Failed to upload history resource to cloud storage due to error: ${error}`, {
-                                                        collectionName,
-                                                        _uuid: historyResource.resource._uuid,
-                                                        versionId: historyResource.resource.meta.versionId
-                                                    });
-                                                    // if any error occurs while uplaoding to S3, we will save complete resource in MongoDB
-                                                    return historyResourceOperation;
-                                                }
-                                                // filter only required fields to be saved in MongoDB
-                                                historyResource = filterJsonByKeys(historyResource, this.configManager.historyResourceMongodbFields);
-                                                historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY] = file_id;
-                                                historyResourceOperation.operation.insertOne.document = historyResource;
-                                                return historyResourceOperation;
-                                            })
-                                        );
-                                        updatedHistoryResourceOperations.push(batchResources);
-                                    }
-                                    historyOperationsByResourceTypeMap[resource] = updatedHistoryResourceOperations;
-                                }
-                            }
-                        }
+                    requestId,
+                    fnTask: async () => {
                         await async.map(
                             historyOperationsByResourceTypeMap.entries(),
                             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
