@@ -1,0 +1,432 @@
+[
+    {
+        "_id": 10,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee1",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee1",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.078Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee1",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee1"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee1"
+        }
+    },
+    {
+        "_id": 11,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee0",
+        "resource": {
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee0",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee0",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.078Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            }
+        },
+        "_ref": "already-updated"
+    },
+    {
+        "_id": 12,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee2",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee2",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.078Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee2",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee2"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee2"
+        }
+    },
+    {
+        "_id": 13,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee3",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee3",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.078Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee3",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee3"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee3"
+        }
+    },
+    {
+        "_id": 14,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee4",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee4",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.078Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee4",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee4"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee4"
+        }
+    },
+    {
+        "_id": 15,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee5",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee5",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.079Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee5",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee5"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee5"
+        }
+    },
+    {
+        "_id": 16,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee6",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee6",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.079Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee6",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee6"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee6"
+        }
+    },
+    {
+        "_id": 17,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee7",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee7",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.080Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee7",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee7"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee7"
+        }
+    },
+    {
+        "_id": 18,
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee8",
+        "resource": {
+            "resourceType": "Binary",
+            "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee8",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": {
+                    "$date": "2025-02-18T04:07:11.080Z"
+                },
+                "source": "https://www.icanbwell.com",
+                "security": [
+                    {
+                        "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                        "system": "https://www.icanbwell.com/access",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                        "system": "https://www.icanbwell.com/owner",
+                        "code": "bwell"
+                    },
+                    {
+                        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "code": "bwell"
+                    }
+                ]
+            },
+            "contentType": "image/jpeg",
+            "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+            "_access": {
+                "bwell": 1
+            },
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee8",
+            "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee8"
+        },
+        "request": {
+            "id": "8f8e4eb8-0315-43ea-9f28-9c94f62080f3",
+            "method": "POST",
+            "url": "/4_0_0/Binary/9a781b72-c2ae-4eb5-9b4a-ee306caa63ee8"
+        }
+    },
+    {
+        "_id": 19,
+        "resourceType": "Binary",
+        "id": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee9",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": {
+                "$date": "2025-02-18T04:07:11.080Z"
+            },
+            "source": "https://www.icanbwell.com",
+            "security": [
+                {
+                    "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "bwell"
+                },
+                {
+                    "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "bwell"
+                },
+                {
+                    "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "bwell"
+                }
+            ]
+        },
+        "contentType": "image/jpeg",
+        "data": "/9j/C2f9Wm4RjH4Z/Oiil0KNzQ7CP/AITiRcfu9EsV8hO2Wzk/kMVxMsF1qsrXTX00bXJMpUdF3c4/Wiirpgf/2Q==",
+        "_access": {
+            "bwell": 1
+        },
+        "_sourceAssigningAuthority": "bwell",
+        "_uuid": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee9",
+        "_sourceId": "9a781b72-c2ae-4eb5-9b4a-ee306caa63ee9"
+    }
+]

@@ -3,8 +3,8 @@ const { S3Client } = require('../../../utils/s3Client');
 class MockS3Client extends S3Client {
     uploadedData = {}
 
-    async uploadAsync() {
-        // do nothing
+    uploadAsync({ filePath, data }) {
+        this.uploadedData[filePath] = data.toString('utf-8');
     }
 
     async createMultiPartUploadAsync() {
