@@ -152,7 +152,10 @@ class PostRequestProcessor {
         if (queue.length === 0) {
             return true;
         }
-        assertIsValid(this.executionRunningForRequest({ requestId }) || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
+        // if execution is not triggered due to some error, trigger it
+        if (!this.executionRunningForRequest({ requestId })){
+            await this.executeAsync({ requestId });
+        }
         let secondsWaiting = 0;
         while (queue.length > 0) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
