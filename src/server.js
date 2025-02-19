@@ -24,6 +24,11 @@ const flushBuffer = async (fnGetContainer) => {
     const container = fnGetContainer();
 
     /**
+     * @type {import('./utils/postRequestProcessor').PostRequestProcessor}
+     */
+    const postRequestProcessor = container.postRequestProcessor;
+    await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: null});
+    /**
      * @type {import('./dataLayer/postSaveProcessor').PostSaveProcessor}
      */
     const postSaveProcessor = container.postSaveProcessor;
