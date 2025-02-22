@@ -201,7 +201,6 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
                  */
                 let cursor = historyCollection
                     .find(query)
-                    .sort({ _id: 1 })
                     .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
                     .batchSize(this.batchSize)
                     .addCursorFlag('noCursorTimeout', true);
