@@ -42,9 +42,8 @@ const expectedPartialHistoryByVersionIdData = require('./fixtures/expected/expec
 const expectedHistoryData = require('./fixtures/expected/expected_history.json');
 const expectedHistoryByIdData = require('./fixtures/expected/expected_history_by_id.json');
 const expectedHistoryByVersionIdData = require('./fixtures/expected/expected_history_by_version_id.json');
-const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
-const { MigrateHistoryToCloudStorageRunner } = require('../../../admin/runners/migrateHistoryToCloudStorageRunner');
-const { AdminLogger } = require('../../../admin/adminLogger');
+const { CLOUD_STORAGE_CLIENTS, HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
+const { MigrateToCloudStorageRunner } = require('../../../operations/history/script/migrateToCloudStorageRunner');
 
 describe('Binary history resource S3 read test', () => {
     let requestId;
@@ -88,15 +87,13 @@ describe('Binary history resource S3 read test', () => {
                 }
             );
             c.register(
-                'migrateHistoryToCloudStorageRunner',
+                'migrateToCloudStorageRunner',
                 (c) =>
-                    new MigrateHistoryToCloudStorageRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
+                    new MigrateToCloudStorageRunner({
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         collectionName: 'Binary_4_0_0_History',
-                        batchSize: 2,
-                        adminLogger: new AdminLogger(),
-                        limit: undefined,
+                        batchSize: 100,
+                        limit: 100000,
                         historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
                         configManager: c.configManager
                     })
@@ -145,10 +142,15 @@ describe('Binary history resource S3 read test', () => {
             expect.arrayContaining(['Binary_4_0_0', 'Binary_4_0_0_History'])
         );
         const binaryHistoryCollection = resourceHistoryDb.collection('Binary_4_0_0_History');
+        // Setting last updated of history to older than 1 hour
+        await binaryHistoryCollection.updateMany(
+            {},
+            { $set: { 'resource.meta.lastUpdated': new Date(Date.now() - 2 * HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME) } }
+        );
 
         // move history to S3
-        const migrateHistoryToCloudStorageRunner = container.migrateHistoryToCloudStorageRunner;
-        await migrateHistoryToCloudStorageRunner.processAsync();
+        const migrateToCloudStorageRunner = container.migrateToCloudStorageRunner;
+        await migrateToCloudStorageRunner.processAsync();
 
         /**
          * @type {import('mongodb').DefaultSchema[]}

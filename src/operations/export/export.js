@@ -156,7 +156,7 @@ class ExportOperation {
                         resourceType: 'ExportStatus',
                         operation: currentOperationName,
                         args,
-                        ids: [parametersResource.id]
+                        ids: [exportStatusResource.id]
                     });
                 }
             });

@@ -13,7 +13,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
-const { CronJobRunner } = require('../../operations/export/script/cronJobRunner');
+const { CronJobRunner } = require('../../cronJob/cronJobRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 
@@ -86,7 +86,8 @@ describe('Cron Job Tests', () => {
                         exportManager: c.exportManager,
                         configManager: c.configManager,
                         postSaveProcessor: c.postSaveProcessor,
-                        bulkExportEventProducer: c.bulkExportEventProducer
+                        bulkExportEventProducer: c.bulkExportEventProducer,
+                        k8sClient: c.k8sClient
                     })
             );
             const cronJobRunner = container.cronJobRunner;
@@ -110,9 +111,9 @@ describe('Cron Job Tests', () => {
             const resource4 = await collection.findOne({ id: exportStatus4Resource.id });
             expect(resource4.status).toEqual(exportStatus4Resource.status);
 
-            // Verifying if createJob function is called only 2 times and is passed ids of ExportStatus resource
+            // Verifying if createJob function is called only 3 times and is passed ids of ExportStatus resource
             // with 'accepted' status only
-            expect(mockK8sCreateJob).toHaveBeenCalledTimes(2);
+            expect(mockK8sCreateJob).toHaveBeenCalledTimes(3);
             expect(mockK8sCreateJob).toHaveBeenCalledWith(
                 expect.objectContaining({
                     scriptCommand: expect.stringContaining(`${exportStatus1Resource.id}`)
@@ -123,6 +124,11 @@ describe('Cron Job Tests', () => {
                     scriptCommand: expect.stringContaining(`${exportStatus2Resource.id}`)
                 })
             );
+            expect(mockK8sCreateJob).toHaveBeenCalledWith({
+                context: {},
+                scriptCommand:
+                    'node /srv/src/src/operations/history/script/migrateToCloudStorage.js --collection=Binary_4_0_0_History --limit=100000'
+            });
         });
     });
 });

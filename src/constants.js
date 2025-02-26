@@ -237,6 +237,7 @@ module.exports = {
         }
     },
     RESOURCE_CLOUD_STORAGE_PATH_KEY: '_ref',
+    HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME: 60 * 60 * 1000, // 1hr
     CLOUD_STORAGE_CLIENTS: {
         S3_CLIENT: "S3Client"
     }
