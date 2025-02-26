@@ -1,5 +1,6 @@
 const env = require('var');
-const k8s = require('@kubernetes/client-node');
+//const k8s = require('@kubernetes/client-node');
+const k8s = import('@kubernetes/client-node');
 const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { logError, logInfo } = require('../operations/common/logging');
