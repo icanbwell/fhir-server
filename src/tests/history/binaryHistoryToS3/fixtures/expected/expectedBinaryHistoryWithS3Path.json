@@ -20,7 +20,7 @@
             "_uuid": "c15b781e-a52d-527f-a43b-9bb39a920fa0",
             "_sourceId": "binary1"
         },
-        "_ref": "randomUUID-15"
+        "_ref": "randomUUID-16"
     },
     {
         "_id": null,
@@ -43,6 +43,6 @@
             "_uuid": "bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019",
             "_sourceId": "binary2"
         },
-        "_ref": "randomUUID-16"
+        "_ref": "randomUUID-17"
     }
 ]
