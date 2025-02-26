@@ -182,7 +182,7 @@ class EverythingOperation {
                     resourceFilterList
                 );
             }
-
+            console.time('graphOperation');
             const result = await this.graphOperation.graph({
                 requestInfo,
                 res,
@@ -193,6 +193,7 @@ class EverythingOperation {
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                 nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
             });
+            console.timeEnd('graphOperation');
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

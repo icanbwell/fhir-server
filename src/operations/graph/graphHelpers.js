@@ -665,11 +665,18 @@ class GraphHelper {
             }
             const collectionName = cursor.getFirstCollection();
 
+            console.time(collectionName);
+            let relatedResources = [];
             while (await cursor.hasNext()) {
+                const relatedResource = await cursor.next();
+                relatedResources.push(relatedResource);
+            }
+            console.timeEnd(collectionName);
+            for (let relatedResourcePropertyCurrent of relatedResources) {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResourcePropertyCurrent = await cursor.next();
+                // let relatedResourcePropertyCurrent = await cursor.next();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
@@ -1542,7 +1549,7 @@ class GraphHelper {
                 operation: READ,
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
             });
-
+            console.time('Top findAsync');
             /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
              */
@@ -1598,12 +1605,14 @@ class GraphHelper {
              */
             const topLevelBundleEntries = [];
 
+            console.time('Get Patient Resources');
             while (await cursor.hasNext()) {
                 /**
                  * element
                  * @type {Resource|null}
                  */
                 let startResource = await cursor.next();
+                console.timeEnd('Get Patient Resources');
                 if (startResource) {
                     /**
                      * @type {BundleEntry}
@@ -1621,6 +1630,8 @@ class GraphHelper {
                 }
             }
 
+            console.timeEnd('Top findAsync');
+
             /**
              * @type {Resource[]}
              */
@@ -1633,6 +1644,7 @@ class GraphHelper {
             /**
              * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
              */
+            console.time('processGraphLinksAsync');
             let { entities: allRelatedEntries, queryItems } = await this.processGraphLinksAsync(
                 {
                     requestInfo,
@@ -1648,6 +1660,7 @@ class GraphHelper {
                     proxyPatientResources
                 }
             );
+            console.timeEnd('processGraphLinksAsync');
 
             for (const q of queryItems) {
                 if (q) {
@@ -1803,6 +1816,7 @@ class GraphHelper {
                 }
 
                 if (responseStreamer) {
+                    console.time('writeBundleEntryAsync');
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                         const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
 
@@ -1815,6 +1829,7 @@ class GraphHelper {
                             idsOfBundleEntriesProcessed.push(resourceIdentifier);
                         }
                     }
+                    console.timeEnd('writeBundleEntryAsync');
                 } else {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                         const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
@@ -1964,6 +1979,7 @@ class GraphHelper {
                 /**
                  * @type {ProcessMultipleIdsAsyncResult}
                  */
+                console.time('processMultipleIdsAsync');
                 const {
                     entries: entries1,
                     queryItems: queryItems1,
@@ -1989,6 +2005,7 @@ class GraphHelper {
                         proxyPatientResources
                     }
                 );
+                console.timeEnd('processMultipleIdsAsync');
                 entries = entries.concat(entries1);
                 queryItems = queryItems.concat(queryItems1);
                 options = options.concat(options1);
@@ -2008,6 +2025,7 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
+            console.time('createBundle');
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',
@@ -2027,8 +2045,11 @@ class GraphHelper {
                     explanations
                 }
             );
+            console.timeEnd('createBundle');
             if (responseStreamer) {
+                console.time('writeBundle');
                 responseStreamer.setBundle({ bundle });
+                console.timeEnd('writeBundle');
             }
             return bundle;
         } catch (e) {

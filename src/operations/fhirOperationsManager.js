@@ -672,6 +672,7 @@ resourceType
                 /**
                  * @type {Bundle}
                  */
+                console.time('everythingOperation');
                 const result = await this.everythingOperation.everythingAsync(
                     {
                         requestInfo,
@@ -680,6 +681,7 @@ resourceType
                         resourceType,
                         responseStreamer
                     });
+                console.timeEnd('everythingOperation');
                 await responseStreamer.endAsync();
                 return result;
             } catch (err) {

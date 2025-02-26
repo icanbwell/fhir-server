@@ -86,6 +86,7 @@ class BundleManager {
         /**
          * @type {BundleEntry[]}
          */
+        console.time('createBundleFromEntries');
         const entries = resources.map((resource) => {
             return new BundleEntry(
                 {
@@ -96,6 +97,7 @@ class BundleManager {
                 }
             );
         });
+        console.timeEnd('createBundleFromEntries');
         /**
          * @type {Bundle}
          */
