@@ -143,7 +143,7 @@ describe('GraphQL CarePlan Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCarePlanBundle3Resource);
 
-            GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = envValue;
+            env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = envValue;
         });
     });
 });
