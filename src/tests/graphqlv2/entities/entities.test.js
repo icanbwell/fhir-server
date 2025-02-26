@@ -32,7 +32,7 @@ describe('GraphQL entities Tests', () => {
         const request = await createTestRequest();
         const entitiesQueryText = entitiesQuery.replace(/\\n/g, '');
 
-        resp = await request
+        let resp = await request
             .post('/4_0_0/Patient/1/$merge')
             .send(patientBundleResource)
             .set(getHeaders());
@@ -106,7 +106,7 @@ describe('GraphQL entities Tests', () => {
         const request = await createTestRequest();
         const entitiesQueryText = entitiesQuery.replace(/\\n/g, '');
 
-        resp = await request
+        let resp = await request
             .post('/4_0_0/Patient/1/$merge')
             .send(patientBundleResource)
             .set(getHeaders());
