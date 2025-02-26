@@ -190,6 +190,15 @@ module.exports = {
             },
             {
                 keys: {
+                    _ref: 1
+                },
+                options: {
+                    name: 'ref_1'
+                },
+                include: ['Binary_4_0_0']
+            },
+            {
+                keys: {
                     'resource._uuid': 1
                 },
                 options: {

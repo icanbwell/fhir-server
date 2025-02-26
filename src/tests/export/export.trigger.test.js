@@ -12,7 +12,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
-const { CronJobRunner } = require('../../operations/export/script/cronJobRunner');
+const { CronJobRunner } = require('../../cronJob/cronJobRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 
 describe('Export Trigger Tests', () => {

@@ -42,9 +42,8 @@ const expectedPartialHistoryByVersionIdData = require('./fixtures/expected/expec
 const expectedHistoryData = require('./fixtures/expected/expected_history.json');
 const expectedHistoryByIdData = require('./fixtures/expected/expected_history_by_id.json');
 const expectedHistoryByVersionIdData = require('./fixtures/expected/expected_history_by_version_id.json');
-const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
-const { MigrateHistoryToCloudStorageRunner } = require('../../../admin/runners/migrateHistoryToCloudStorageRunner');
-const { AdminLogger } = require('../../../admin/adminLogger');
+const { CLOUD_STORAGE_CLIENTS, HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
+const { MigrateToCloudStorageRunner } = require('../../../operations/history/script/migrateToCloudStorageRunner');
 
 describe('Binary history resource S3 read test', () => {
     let requestId;
@@ -88,15 +87,13 @@ describe('Binary history resource S3 read test', () => {
                 }
             );
             c.register(
-                'migrateHistoryToCloudStorageRunner',
+                'migrateToCloudStorageRunner',
                 (c) =>
-                    new MigrateHistoryToCloudStorageRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
+                    new MigrateToCloudStorageRunner({
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         collectionName: 'Binary_4_0_0_History',
-                        batchSize: 2,
-                        adminLogger: new AdminLogger(),
-                        limit: undefined,
+                        batchSize: 100,
+                        limit: 100000,
                         historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
                         configManager: c.configManager
                     })
@@ -145,10 +142,15 @@ describe('Binary history resource S3 read test', () => {
             expect.arrayContaining(['Binary_4_0_0', 'Binary_4_0_0_History'])
         );
         const binaryHistoryCollection = resourceHistoryDb.collection('Binary_4_0_0_History');
+        // Setting last updated of history to older than 1 hour
+        await binaryHistoryCollection.updateMany(
+            {},
+            { $set: { 'resource.meta.lastUpdated': new Date(Date.now() - 2 * HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME) } }
+        );
 
         // move history to S3
-        const migrateHistoryToCloudStorageRunner = container.migrateHistoryToCloudStorageRunner;
-        await migrateHistoryToCloudStorageRunner.processAsync();
+        const migrateToCloudStorageRunner = container.migrateToCloudStorageRunner;
+        await migrateToCloudStorageRunner.processAsync();
 
         /**
          * @type {import('mongodb').DefaultSchema[]}
@@ -191,8 +193,8 @@ describe('Binary history resource S3 read test', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json',
-                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-16.json'
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-16.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-17.json'
                     ]
                 }
             ],
@@ -200,15 +202,15 @@ describe('Binary history resource S3 read test', () => {
                 {
                     batch: 100,
                     filePaths: [
-                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json',
-                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-16.json'
+                        'Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-16.json',
+                        'Binary_4_0_0_History/bd19ed65-8e11-5dbd-bd68-c6c6d2e5e019/randomUUID-17.json'
                     ]
                 }
             ],
-            [{ batch: 100, filePaths: ['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json'] }]
+            [{ batch: 100, filePaths: ['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-16.json'] }]
         ]);
 
-        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-15.json']]);
+        expect(mockDownloadAsync.mock.calls).toEqual([['Binary_4_0_0_History/c15b781e-a52d-527f-a43b-9bb39a920fa0/randomUUID-16.json']]);
 
         // partial history data is returned when response is not returned from S3
         mockDownloadInBatchAsync.mockReturnValue({});
