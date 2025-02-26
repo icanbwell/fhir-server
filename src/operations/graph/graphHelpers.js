@@ -672,6 +672,7 @@ class GraphHelper {
                 relatedResources.push(relatedResource);
             }
             console.timeEnd(collectionName);
+            console.time(collectionName + ' Processing');
             for (let relatedResourcePropertyCurrent of relatedResources) {
                 /**
                  * @type {Resource|null}
@@ -784,6 +785,7 @@ class GraphHelper {
                     }
                 }
             }
+            console.timeEnd(collectionName + ' Processing');
             return new QueryItem({
                     query,
                     resourceType: relatedResourceType,
