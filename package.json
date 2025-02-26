@@ -13,6 +13,7 @@
     "dev": "NODE_ENV=development nodemon src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router node src/index.js;",
     "test": "NODE_ENV=test npm run lint && npm run test:jest",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:mem_leak": "NODE_ENV=test node --inspect-brk --expose-gc ./node_modules/.bin/jest --runInBand --logHeapUsage -i src/tests/performance/search_by_id_many/search_by_id_many.csv.test.js",
     "coverage": "NODE_ENV=test npm run lint && npm run test:jest_coverage",
     "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_cleanCache && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
@@ -83,7 +84,18 @@
     ],
     "testTimeout": 60000,
     "workerIdleMemoryLimit": "8MB",
-    "injectGlobals": false
+    "injectGlobals": false,
+    "transform": {
+      "^.+\\.js$": [
+        "babel-jest",
+        {
+          "configFile": "./babel.config.js"
+        }
+      ]
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@kubernetes/client-node|openid-client|openid-client|jose|oauth4webapi)/)"
+    ]
   },
   "graphql-schema-linter": {
     "rules": [
@@ -110,6 +122,7 @@
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@aws-sdk/client-s3": "^3.592.0",
     "@aws-sdk/lib-storage": "^3.609.0",
+    "@babel/preset-env": "^7.26.9",
     "@eslint/js": "^9.3.0",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/graphql-file-loader": "^8.0.1",
@@ -181,9 +194,10 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.6",
+    "@babel/core": "^7.26.9",
     "@graphql-eslint/eslint-plugin": "^3.20.1",
     "@jest/globals": "^29.7.0",
+    "babel-jest": "^29.7.0",
     "csv42": "^5.0.0",
     "dotenv": "^16.4.5",
     "eslint": "^9.3.0",
