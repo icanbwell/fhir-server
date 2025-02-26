@@ -78,6 +78,12 @@ class MigrateToCloudStorageRunner {
             this.documentsSkipped += 1;
             return null;
         }
+        // skip if record is already processed
+        if (doc._ref) {
+            logError(`Resource with _id: ${doc._id} is already migrated`);
+            this.documentsSkipped += 1;
+            return null;
+        }
         const fileId = generateUUID();
 
         const filePath = `${this.collectionName}/${doc.resource._uuid}/${fileId}.json`;
@@ -170,7 +176,6 @@ class MigrateToCloudStorageRunner {
                  */
                 let cursor = historyCollection
                     .find(query)
-                    .sort({ _id: 1 })
                     .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
                     .batchSize(this.batchSize)
                     .addCursorFlag('noCursorTimeout', true);
