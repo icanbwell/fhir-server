@@ -1,14 +1,15 @@
-const { logInfo, logError } = require('../../common/logging');
-const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
-const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { RethrownError } = require('../../../utils/rethrownError');
-const { DatabaseQueryManager } = require('../../../dataLayer/databaseQueryManager');
-const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../../../constants');
-const { ExportManager } = require('../exportManager');
-const { ConfigManager } = require('../../../utils/configManager');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
-const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
+const { logInfo, logError } = require('../operations/common/logging');
+const { DatabaseExportManager } = require('../dataLayer/databaseExportManager');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('../utils/assertType');
+const { RethrownError } = require('../utils/rethrownError');
+const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
+const { EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME } = require('../constants');
+const { ExportManager } = require('../operations/export/exportManager');
+const { ConfigManager } = require('../utils/configManager');
+const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { BulkExportEventProducer } = require('../utils/bulkExportEventProducer');
+const { K8sClient } = require('../utils/k8sClient');
 
 class CronJobRunner {
     /**
@@ -28,7 +29,8 @@ class CronJobRunner {
         exportManager,
         configManager,
         postSaveProcessor,
-        bulkExportEventProducer
+        bulkExportEventProducer,
+        k8sClient
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -65,6 +67,12 @@ class CronJobRunner {
          */
         this.bulkExportEventProducer = bulkExportEventProducer;
         assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
+
+        /**
+         * @type {K8sClient}
+         */
+        this.k8sClient = k8sClient;
+        assertTypeEquals(k8sClient, K8sClient);
     }
 
     /**
@@ -79,10 +87,34 @@ class CronJobRunner {
 
             await this.triggerK8JobForAcceptedResources({ databaseQueryManager });
             await this.updateInProgressResources({ databaseQueryManager });
+            await this.triggerHistoryMigrationJob();
         } catch (err) {
             logError(`Error in processAsync: ${err.message}`, {
                 error: err.stack
             });
+        }
+    }
+
+    async triggerHistoryMigrationJob() {
+        for (const collection of this.configManager.cloudStorageHistoryResources) {
+            let scriptCommand =
+            'node /srv/src/src/operations/history/script/migrateToCloudStorage.js ' +
+            `--collection=${collection}_4_0_0_History ` +
+            `--limit=${this.configManager.historyResourceCronJobMigrationLimit}`;
+
+            const jobResult = await this.k8sClient.createJob({
+                scriptCommand,
+                context: {}
+            });
+
+            // Break the loop if the job limit is exceeded
+            if (!jobResult) {
+                logInfo(
+                    'Maximum number of active jobs reached in the namespace, stopping History Migration job creation.'
+                );
+                break;
+            }
+            logInfo(`Successfully triggered History Migration k8sclient Job for: ${collection}`);
         }
     }
 

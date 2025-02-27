@@ -695,6 +695,14 @@ class ConfigManager {
     get cloudStorageClientConnectionTimeout () {
         return env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT ? parseInt(env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT) : 5 * 1000; // 5 sec
     }
+
+    /**
+     * Limit for number of History resources to Cloud storage in a cron job
+     * @returns {number}
+     */
+    get historyResourceCronJobMigrationLimit () {
+        return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
+    }
 }
 
 module.exports = {
