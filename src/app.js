@@ -88,6 +88,7 @@ function createFhirApp (fnGetContainer, app1) {
 function createApp ({ fnGetContainer }) {
     const swaggerUi = require('swagger-ui-express');
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
+    const patientSwaggerDocument = require('./swagger_patient_everything.json');
 
     /**
      * @type {import('express').Express}
@@ -294,6 +295,14 @@ function createApp ({ fnGetContainer }) {
 
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
+
+    let patientSwaggerString = JSON.stringify(patientSwaggerDocument)
+    patientSwaggerString = patientSwaggerString
+        .replace(/<HOST_SERVER>/g, env.HOST_SERVER + "/4_0_0")
+        .replace(/<ENVIRONMENT>/g, env.ENVIRONMENT);
+    const configuredPatientSwaggerDocument = JSON.parse(patientSwaggerString);
+    app.use("/Patient/\\$everything/swagger-docs", swaggerUi.serve, swaggerUi.setup(configuredPatientSwaggerDocument));
+    // /Patient/$everything
 
     app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
 

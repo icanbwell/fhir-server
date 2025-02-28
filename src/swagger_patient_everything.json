@@ -1,0 +1,153 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "b.Well FHIR Server Everything API for Patient",
+      "version": "1.0.0",
+      "description": "b.Well FHIR Server Everything API for Patient documentation",
+      "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+      {
+        "url": "<HOST_SERVER>",
+        "description": "<ENVIRONMENT> FHIR Server"
+      }
+    ],
+    "paths": {
+      "/Patient/{id}/$everything": {
+        "get": {
+          "summary": "FHIR $everything Operation",
+          "description": "The FHIR server supports the $everything endpoint of the FHIR specification. This operation is used to retrieve all resources related to the provided patient resource. The $everything operation internally uses graphs to fetch all the resources.\n\nIt is mandatory to provide id in path param.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The sourceId or UUID of the patient whose related resources are to be fetched."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A Bundle containing the related resources.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Bundle"
+                  },
+                  "example": {
+                    "entry": [
+                      {
+                        "resource": {
+                          "resourceType": "Observation",
+                          "id": "obs1"
+                        }
+                      }
+                    ],
+                    "id": "req-123456",
+                    "resourceType": "Bundle",
+                    "type": "searchset",
+                    "timestamp": "2021-12-31T23:59:59Z",
+                    "total": 1,
+                    "link": [
+                      {
+                        "relation": "self",
+                        "url": "http://localhost:5000/4_0_0/Patient/123/$everything"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized. JWT is missing, invalid, or expired.",
+              "content": {
+                "text/plain": {}
+              }
+            },
+            "404": {
+              "description": "Not Found. The endpoint or service does not exist.",
+              "content": {
+                "application/json": {}
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "JWT based authentication. Please enter your jwt token for authentication."
+        }
+      },
+      "schemas": {
+        "Bundle": {
+          "type": "object",
+          "properties": {
+            "entry": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "An individual resource entry."
+              },
+              "description": "Array of resource entries."
+            },
+            "id": {
+              "type": "string",
+              "description": "A unique identifier for this request."
+            },
+            "resourceType": {
+              "type": "string",
+              "example": "Bundle",
+              "description": "The type of resource returned, always 'Bundle'."
+            },
+            "type": {
+              "type": "string",
+              "example": "searchset",
+              "description": "The bundle type, e.g., 'searchset'."
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The time at which the bundle was generated."
+            },
+            "total": {
+              "type": "integer",
+              "description": "The total number of resources retrieved."
+            },
+            "link": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "relation": {
+                    "type": "string",
+                    "description": "The relation type, e.g., 'self'."
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "The URL for the corresponding relation."
+                  }
+                }
+              },
+              "description": "Link to the current request."
+            }
+          }
+        }
+      }
+    }
+  }
+  
