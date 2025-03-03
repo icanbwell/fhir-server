@@ -110,6 +110,7 @@ const { AdminExportManager } = require('./admin/adminExportManager');
 const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
 const { S3Client } = require('./utils/s3Client');
 const { CLOUD_STORAGE_CLIENTS } = require('./constants');
+const { MetaUuidEnrichmentProvider } = require('./enrich/providers/metaUuidEnrichmentProvider');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -141,10 +142,9 @@ const createContainer = function () {
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager
             }),
-            new GlobalIdEnrichmentProvider({
-                databaseQueryFactory: c.databaseQueryFactory
-            }),
-            new HashReferencesEnrichmentProvider()
+            new GlobalIdEnrichmentProvider(),
+            new HashReferencesEnrichmentProvider(),
+            new MetaUuidEnrichmentProvider()
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(

@@ -1,0 +1,335 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "1679033641",
+        "identifier": [
+          {
+            "system": "http://clienthealth.org",
+            "type": {
+              "coding": [
+                {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "source": "client",
+          "versionId": "1",
+          "tag": [
+            {
+              "system": "https://www.icanbwell.com/uuid",
+              "code": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          },
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "NAJJAR  MD, SAMER S.",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Organization/Stanford_Medical_School"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Organization/e72e1b5c-00ca-5961-acb4-2aa7a435c3e5"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client"
+                }
+              ],
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          },
+          {
+            "system": "phone",
+            "use": "work",
+            "value": "1234567890"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "2",
+        "identifier": [
+          {
+            "system": "http://clienthealth.org",
+            "type": {
+              "coding": [
+                {
+                  "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "941f082a-39a9-5f55-9630-5839a010e1bc"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "source": "client",
+          "versionId": "1",
+          "tag": [
+            {
+              "system": "https://www.icanbwell.com/uuid",
+              "code": "941f082a-39a9-5f55-9630-5839a010e1bc"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "LAST  MD",
+            "given": [
+              "FIRST S."
+            ],
+            "text": "FIRST S. LAST  MD",
+            "use": "usual"
+          },
+          {
+            "family": "LAST  MD",
+            "given": [
+              "FIRST S."
+            ],
+            "text": "LAST  MD, FIRST S.",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Organization/Stanford_Medical_School"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Organization/e72e1b5c-00ca-5961-acb4-2aa7a435c3e5"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client"
+                }
+              ],
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          },
+          {
+            "system": "phone",
+            "use": "work",
+            "value": "1234567890"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

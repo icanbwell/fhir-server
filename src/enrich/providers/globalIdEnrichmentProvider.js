@@ -1,6 +1,4 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { isUuid } = require('../../utils/uid.util');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
@@ -8,19 +6,6 @@ const { ReferenceParser } = require('../../utils/referenceParser');
  * @classdesc sets id to global id if the 'Prefer' header is set
  */
 class GlobalIdEnrichmentProvider extends EnrichmentProvider {
-    /**
-     * constructor
-     * @param {DatabaseQueryFactory} databaseQueryFactory
-     */
-    constructor ({ databaseQueryFactory }) {
-        super();
-
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-    }
 
     /**
      * enrich the specified resources
