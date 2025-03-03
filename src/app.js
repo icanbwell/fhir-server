@@ -86,9 +86,6 @@ function createFhirApp (fnGetContainer, app1) {
  * @return {import('express').Express}
  */
 function createApp ({ fnGetContainer }) {
-    const swaggerUi = require('swagger-ui-express');
-    const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
-
     /**
      * @type {import('express').Express}
      */
@@ -293,7 +290,17 @@ function createApp ({ fnGetContainer }) {
     };
 
     // noinspection JSCheckFunctionSignatures
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
+    // http://localhost:3000/api-docs
+    if(isTrue(env.ENABLE_SWAGGER_DOC)){
+        const swaggerUi = require('swagger-ui-express');
+        const swaggerDocument = require('./swagger_doc.json');
+        let swaggerString = JSON.stringify(swaggerDocument)
+        swaggerString = swaggerString
+            .replace(/<HOST_SERVER>/g, env.HOST_SERVER + "/4_0_0")
+            .replace(/<ENVIRONMENT>/g, env.ENVIRONMENT);
+        const configuredSwaggerDocument = JSON.parse(swaggerString);
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(configuredSwaggerDocument));
+    }
 
     app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
 
