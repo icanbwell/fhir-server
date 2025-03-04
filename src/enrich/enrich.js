@@ -34,7 +34,6 @@ class EnrichmentManager {
                         resources, parsedArgs
                     }
                 );
-                resources.forEach(resource => assertTypeEquals(resource, Resource));
             }
             return resources;
         } catch (e) {

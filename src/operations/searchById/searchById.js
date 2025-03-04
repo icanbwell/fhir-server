@@ -11,6 +11,7 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { getFirstResourceOrNull } = require('../../utils/list.util');
+const { removeUnderscoreProps } = require('../../utils/removeUnderscoreProps')
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -192,7 +193,13 @@ class SearchByIdOperation {
             /**
              * @type {Resource[]}
              */
-            const resources = await cursor.toArrayAsync();
+            const resources = [];
+            if(resourceType === "Composition"){
+                resources.push(...(await cursor.toArrayRawAsync()));
+            }
+            else{
+                resources.push(...(await cursor.toArrayAsync()));
+            }
             /**
              * @type {ParsedArgsItem|undefined}
              */
@@ -260,7 +267,9 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-
+                if(resourceType === "Composition"){
+                    removeUnderscoreProps(resource)
+                }
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
