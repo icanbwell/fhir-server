@@ -703,6 +703,17 @@ class ConfigManager {
     get historyResourceCronJobMigrationLimit () {
         return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
     }
+
+    /**
+     * returns list resources for which making resource class object step needs to be skipped
+     * @return {string[]}
+     */
+    get skipClassObjectResources() {
+        return (
+            (env.SKIP_CLASS_OBJECT_RESOURCES &&
+                env.SKIP_CLASS_OBJECT_RESOURCES.split(',').map((col) => col.trim())) || ['Composition']
+        );
+    }
 }
 
 module.exports = {

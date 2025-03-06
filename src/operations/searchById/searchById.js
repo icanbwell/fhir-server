@@ -193,13 +193,10 @@ class SearchByIdOperation {
             /**
              * @type {Resource[]}
              */
-            const resources = [];
-            if(resourceType === "Composition"){
-                resources.push(...(await cursor.toArrayRawAsync()));
-            }
-            else{
-                resources.push(...(await cursor.toArrayAsync()));
-            }
+            const resources = this.configManager.skipClassObjectResources.includes(resourceType)
+                ? await cursor.toArrayRawAsync()
+                : await cursor.toArrayAsync();
+
             /**
              * @type {ParsedArgsItem|undefined}
              */
@@ -267,7 +264,7 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                if(resourceType === "Composition"){
+                if(this.configManager.skipClassObjectResources.includes(resourceType)){
                     removeUnderscoreProps(resource)
                 }
                 return resource;
