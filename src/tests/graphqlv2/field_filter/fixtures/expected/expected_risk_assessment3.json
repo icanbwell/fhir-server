@@ -6,12 +6,12 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.RiskAssessment_4_0_0.find({'$and':[{'$or':[{'prediction.probabilityDecimal':{'$lt':2024}},{'prediction.probabilityDecimal':{'$exists':true,'$not':{'$gte':2001.5,'$lt':2002.5}}},{'prediction.probabilityRange':{'$lt':2024}},{'prediction.probabilityRange':{'$exists':true,'$not':{'$gte':2001.5,'$lt':2002.5}}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]"
+                        "display": "[db.RiskAssessment_4_0_0.find({'$and':[{'$or':[{'prediction.probabilityDecimal':{'$lt':2024}},{'prediction.probabilityDecimal':{'$exists':true,'$not':{'$gte':2001.5,'$lt':2002.5}}},{'prediction.probabilityRange':{'$lt':2024}},{'prediction.probabilityRange':{'$exists':true,'$not':{'$gte':2001.5,'$lt':2002.5}}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]"
                     },
                     { "system": "https://www.icanbwell.com/queryCollection", "code": "[RiskAssessment_4_0_0]" },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]"
+                        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",

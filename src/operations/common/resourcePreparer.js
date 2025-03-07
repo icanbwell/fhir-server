@@ -90,7 +90,7 @@ class ResourcePreparer {
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync({ parsedArgs, element, resourceType }) {
-        if (parsedArgs.get('_elements')) {
+        if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
              */

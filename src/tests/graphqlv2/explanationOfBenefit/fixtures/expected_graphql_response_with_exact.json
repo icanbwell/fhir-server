@@ -5,7 +5,7 @@
       "meta": {
         "tag": [
           {
-            "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':'unknown'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'_id':0}).sort({'_uuid':1}).limit(100)]",
+            "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'disposition':'unknown'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'status':1,'supportingInfo':1,'type':1,'_id':0}).sort({'_uuid':1}).limit(100)]",
             "system": "https://www.icanbwell.com/query"
           },
           {
@@ -13,7 +13,7 @@
             "system": "https://www.icanbwell.com/queryCollection"
           },
           {
-            "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'resourceType':1,'status':1,'supportingInfo':1,'type':1,'_id':0},'limit':100,'sort':{'_uuid':1}}]",
+            "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'identifier':1,'meta':1,'careTeam':1,'diagnosis':1,'insurer':1,'item':1,'outcome':1,'payee':1,'procedure':1,'provider':1,'status':1,'supportingInfo':1,'type':1,'_id':0},'limit':100,'sort':{'_uuid':1}}]",
             "system": "https://www.icanbwell.com/queryOptions"
           },
           {
