@@ -390,7 +390,7 @@ describe('GraphQL Subscription Tests', () => {
             };
 
             const headers = getHeadersWithCustomPayload(person_payload)
-            resp = await request
+            let resp = await request
                 .get('/4_0_0/Subscription/subscription4')
                 .set(headers)
                 .expect(404)

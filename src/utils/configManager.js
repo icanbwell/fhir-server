@@ -725,6 +725,17 @@ class ConfigManager {
         }
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_GRAPHQLV2);
     }
+
+    /**
+     * returns whether to skip class objection creation in graphql
+     * @return {Boolean}
+     */
+    get getRawGraphQLBundle() {
+        if (env.ENABLE_RAW_BUNDLE_IN_GRAPHQL === null || env.ENABLE_RAW_BUNDLE_IN_GRAPHQL === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_RAW_BUNDLE_IN_GRAPHQL);
+    }
 }
 
 module.exports = {
