@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Subscription_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'9999'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
+        "display": "[db.Subscription_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'9999'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,7 +11,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]",
+        "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {

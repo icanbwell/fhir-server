@@ -798,11 +798,12 @@ class SearchManager {
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
+     * @param {boolean} getRaw
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, parsedArgs, resourceType
+            cursor, user, parsedArgs, resourceType, getRaw = false
         }
     ) {
         /**
@@ -827,7 +828,8 @@ class SearchManager {
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
                 highWaterMark,
-                configManager: this.configManager
+                configManager: this.configManager,
+                getRaw
             });
 
             await pipeline(

@@ -35,7 +35,7 @@ describe('GraphQL v2 field test', () => {
         const request = await createTestRequest();
         // ARRANGE
         // add the resources to FHIR server
-        resp = await request
+        let resp = await request
             .post('/4_0_0/MedicationStatement/$merge')
             .send(medicationStatementResource)
             .set(getHeaders());

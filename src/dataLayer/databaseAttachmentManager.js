@@ -88,6 +88,9 @@ class DatabaseAttachmentManager {
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
                 if (enabledGridFsResources.includes(resources[parseInt(resourceIndex)].resourceType)) {
+                    if (resources[parseInt(resourceIndex)]._id) {
+                        delete resources[parseInt(resourceIndex)]._id;
+                    }
                     resources[parseInt(resourceIndex)] = await this.changeAttachmentWithGridFS({
                         resource: resources[parseInt(resourceIndex)],
                         resourceId: resources[parseInt(resourceIndex)].id,
@@ -99,6 +102,9 @@ class DatabaseAttachmentManager {
                 }
             }
         } else if (enabledGridFsResources.includes(resources.resourceType)) {
+            if (resources._id) {
+                delete resources._id;
+            }
             resources = await this.changeAttachmentWithGridFS({
                 resource: resources,
                 resourceId: resources.id,
@@ -134,7 +140,7 @@ class DatabaseAttachmentManager {
         if (!resource) {
             return resource;
         }
-        if (resource instanceof Attachment) {
+        if (resource instanceof Attachment || (resource instanceof Object && resource._file_id)) {
             let gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
             if (retryCount >= 2) {
                 gridFSBucket = new GridFSBucket(

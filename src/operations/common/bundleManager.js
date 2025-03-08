@@ -128,6 +128,216 @@ class BundleManager {
 
     /**
      * creates a bundle from the given resources
+     * @param {string|null} requestId
+     * @param {string} type
+     * @param {string | null} originalUrl
+     * @param {string | null} host
+     * @param {string | null} protocol
+     * @param {string | null} [last_id]
+     * @param {Resource[]} resources
+     * @param {string} base_version
+     * @param {number|null} [total_count]
+     * @param {ParsedArgs} parsedArgs
+     * @param {QueryItem|Query[]|QueryItem[]} originalQuery
+     * @param {string | undefined} [databaseName]
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]| import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]} originalOptions
+     * @param {Set|undefined} [columns]
+     * @param {number} stopTime
+     * @param {number} startTime
+     * @param {boolean|undefined} [useTwoStepSearchOptimization]
+     * @param {string|undefined} [indexHint]
+     * @param {number | undefined} [cursorBatchSize]
+     * @param {string | null} user
+     * @param {import('mongodb').Document[]} explanations
+     * @param {string[]|undefined} [allCollectionsToSearch]
+     * @return {Bundle}
+     */
+    createRawBundle({
+        requestId,
+        type,
+        originalUrl,
+        host,
+        protocol,
+        last_id,
+        resources,
+        base_version,
+        total_count,
+        parsedArgs,
+        originalQuery,
+        databaseName,
+        originalOptions,
+        columns,
+        stopTime,
+        startTime,
+        useTwoStepSearchOptimization,
+        indexHint,
+        cursorBatchSize,
+        user,
+        explanations,
+        allCollectionsToSearch
+    }) {
+        /**
+         * @type {BundleEntry[]}
+         */
+        const entries = resources.map((resource) => {
+            return {
+                id: resource.id,
+                resource,
+                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource })
+            };
+        });
+
+        if (Array.isArray(originalQuery)) {
+            for (const q of originalQuery) {
+                assertTypeEquals(q, QueryItem);
+            }
+        } else {
+            assertTypeEquals(originalQuery, QueryItem);
+        }
+
+        /**
+         * array of links
+         */
+        let link = [];
+        // find id of last resource
+        if (originalUrl) {
+            if (last_id) {
+                // have to use a base url or URL() errors
+                const baseUrl = 'https://example.org';
+                /**
+                 * url to get next page
+                 * @type {URL}
+                 */
+                const nextUrl = new URL(originalUrl, baseUrl);
+                // add or update the id:above param
+                nextUrl.searchParams.set('id:above', `${last_id}`);
+                // remove the _getpagesoffset param since that will skip again from this id
+                nextUrl.searchParams.delete('_getpagesoffset');
+                link = [
+                    {
+                        relation: 'self',
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                    },
+                    {
+                        relation: 'next',
+                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`)
+                    }
+                ];
+            } else {
+                link = [
+                    {
+                        relation: 'self',
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                    }
+                ];
+            }
+        }
+        // noinspection JSValidateTypes
+        /**
+         * @type {Bundle}
+         */
+        const bundle = {
+            type,
+            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+            entry: entries.length > 0 ? entries : null,
+            link
+        };
+        if (total_count !== null) {
+            bundle.total = total_count;
+        }
+        if (requestId) {
+            bundle.id = requestId;
+        }
+
+        if (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG') {
+            /**
+             * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
+             */
+            const tag = [
+                {
+                    system: 'https://www.icanbwell.com/query',
+                    display: mongoQueryAndOptionsStringify({ query: originalQuery, options: originalOptions })
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryCollection',
+                    code: Array.isArray(originalQuery)
+                        ? originalQuery.map((q) => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|')
+                        : this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName)
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryOptions',
+                    display: this.getQueryOptions(originalOptions)
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryFields',
+                    display: this.getQueryFields(columns)
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryTime',
+                    display: `${(stopTime - startTime) / 1000}`
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryOptimization',
+                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
+                }
+            ];
+            if (databaseName) {
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryDatabase',
+                    code: databaseName
+                });
+            }
+            if (indexHint) {
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryIndexHint',
+                    code: indexHint
+                });
+            }
+            if (explanations && explanations.length > 0) {
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryExplain',
+                    display: JSON.stringify(explanations, getCircularReplacer())
+                });
+                const explainer = new MongoExplainPlanHelper();
+                // noinspection JSCheckFunctionSignatures
+                const simpleExplanations = explanations
+                    ? explanations.map((/** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e, index) =>
+                          explainer.quick_explain({
+                              explanation: e,
+                              query:
+                                  Array.isArray(originalQuery) && originalQuery.length > index
+                                      ? mongoQueryAndOptionsStringify({
+                                            query: originalQuery[`${index}`],
+                                            options: originalOptions || {}
+                                        })
+                                      : mongoQueryAndOptionsStringify({
+                                            query: originalQuery,
+                                            options: originalOptions || {}
+                                        })
+                          })
+                      )
+                    : [];
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryExplainSimple',
+                    display: JSON.stringify(simpleExplanations, getCircularReplacer())
+                });
+            }
+            if (cursorBatchSize && cursorBatchSize > 0) {
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryCursorBatchSize',
+                    display: `${cursorBatchSize}`
+                });
+            }
+            bundle.meta = {
+                tag
+            };
+            logDebug('', { user, args: bundle });
+        }
+        return bundle;
+    }
+
+    /**
+     * creates a bundle from the given resources
      * @param {string} requestId
      * @param {string} type
      * @param {string | null} originalUrl
