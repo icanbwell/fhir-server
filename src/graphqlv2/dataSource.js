@@ -86,6 +86,12 @@ class FhirDataSource {
          * @type {object|null}
          */
         this.resourceProjections = null;
+
+        /**
+         * whether to disable class object creation while getting bundle
+         * @type {boolean}
+         */
+        this.getRawBundle = this.configManager.getRawGraphQLV2Bundle;
     }
 
     /**
@@ -211,7 +217,8 @@ class FhirDataSource {
                                 resourceType,
                                 headers: requestInfo.headers
                             }),
-                            useAggregationPipeline: false
+                            useAggregationPipeline: false,
+                            getRaw: this.getRawBundle
                         });
 
                         // Add results from this batch to the combined results array
@@ -452,7 +459,8 @@ class FhirDataSource {
                             headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                         }
                     ),
-                    useAggregationPipeline: false
+                    useAggregationPipeline: false,
+                    getRaw: this.getRawBundle
                 }
             )
         );
@@ -502,7 +510,8 @@ class FhirDataSource {
                         headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                     }
                 ),
-                useAggregationPipeline: false
+                useAggregationPipeline: false,
+                getRaw: this.getRawBundle
             }
         );
         if (bundle.meta) {
@@ -559,7 +568,7 @@ class FhirDataSource {
                     const resourceFields = Object.getOwnPropertyNames(new resource({}));
 
                     if (!this.resourceProjections[resourceType]) {
-                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority'])
+                        this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
                     }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields
