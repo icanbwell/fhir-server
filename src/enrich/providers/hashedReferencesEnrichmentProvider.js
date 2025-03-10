@@ -1,4 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
+const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
@@ -12,7 +13,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
 
-    async enrichAsync ({ resources, parsedArgs }) {
+    async enrichAsync ({ resources, parsedArgs, rawResources = false  }) {
         /**
          * @type {boolean}
          */
@@ -28,16 +29,26 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    await resource.updateReferencesAsync(
-                        {
-                            fnUpdateReferenceAsync: async (reference) => this.updateReferenceAsync(
-                                {
-                                    reference,
-                                    resourceTypeAndIdSet
-                                }
-                            )
-                        }
-                    );
+                    if (resource.updateReferencesAsync) {
+                        await resource.updateReferencesAsync(
+                            {
+                                fnUpdateReferenceAsync: async (reference) => this.updateReferenceAsync(
+                                    {
+                                        reference,
+                                        resourceTypeAndIdSet
+                                    }
+                                )
+                            }
+                        );
+                    }
+                    else if (rawResources){
+                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                            {
+                                reference,
+                                resourceTypeAndIdSet
+                            }
+                        ))
+                    }
                 }
             }
         }
@@ -51,7 +62,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<BundleEntry[]>}
      */
 
-    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false }) {
         /**
          * @type {boolean}
          */
@@ -71,16 +82,26 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    await resource.updateReferencesAsync(
-                        {
-                            fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                                {
-                                    reference,
-                                    resourceTypeAndIdSet
-                                }
-                            )
-                        }
-                    );
+                    if (resource.updateReferencesAsync) {
+                        await resource.updateReferencesAsync(
+                            {
+                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                                    {
+                                        reference,
+                                        resourceTypeAndIdSet
+                                    }
+                                )
+                            }
+                        );
+                    }
+                    else if (rawResources){
+                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                            {
+                                reference,
+                                resourceTypeAndIdSet
+                            }
+                        ))
+                    }
                 }
             }
         }

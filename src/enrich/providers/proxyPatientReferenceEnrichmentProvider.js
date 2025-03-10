@@ -4,6 +4,7 @@ const { ParsedArgs } = require('../../operations/query/parsedArgs');
 const { PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
+const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -25,7 +26,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync ({ resources, parsedArgs }) {
+    async enrichAsync ({ resources, parsedArgs, rawResources = false  }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const rewritePatientReference = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         // if rewrite is false, then don't enrich the resources
@@ -51,21 +52,28 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                         a.startsWith('Patient/') ? a : `Patient/${a}`
                     ) ?? [];
                 for (const resource of resources) {
-                    await resource.updateReferencesAsync({
-                        fnUpdateReferenceAsync: async (reference) => {
-                            /**
-                             * if reference is present in patientIdsWithProxyPatient,
-                             * then its patientReference and we need to replace it with correct proxy-patient
-                             */
-                            const patientReference = patientIdsFromQueryParam.find((v) => v === reference.reference || v === reference._uuid);
-                            if (patientReference && (patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`])) {
-                                // find person associated with it
-                                const person = patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`];
-                                reference.reference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${person}`;
+                    if (resource.updateReferencesAsync) {
+                        await resource.updateReferencesAsync(
+                            {
+                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                                    {
+                                        reference,
+                                        patientIdsFromQueryParam,
+                                        patientToPersonMap
+                                    }
+                                )
                             }
-                            return reference;
-                        }
-                    });
+                        );
+                    }
+                    else if (rawResources){
+                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                            {
+                                reference,
+                                patientIdsFromQueryParam,
+                                patientToPersonMap
+                            }
+                        ));
+                    }
                 }
                 // now copy the latest Patient and set the id to proxyPatient
                 const patientResources = resources.filter(r => r.resourceType === 'Patient');
@@ -140,13 +148,14 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false  }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
                     {
                         resources: [entry.resource],
-                        parsedArgs
+                        parsedArgs,
+                        rawResources
                     }
                 ))[0];
                 entry.id = entry.resource.id;
@@ -169,6 +178,27 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             }
             return reference;
         };
+    }
+
+    /**
+     * updates references
+     * @param {Reference} reference
+     * @param {string[]} patientIdsFromQueryParam
+     * @param {object} patientToPersonMap
+     * @return {Promise<Reference>}
+     */
+    async updateReferenceAsync({reference, patientIdsFromQueryParam, patientToPersonMap}) {
+        /**
+         * if reference is present in patientIdsWithProxyPatient,
+         * then its patientReference and we need to replace it with correct proxy-patient
+         */
+        const patientReference = patientIdsFromQueryParam.find((v) => v === reference.reference || v === reference._uuid);
+        if (patientReference && (patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`])) {
+            // find person associated with it
+            const person = patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`];
+            reference.reference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${person}`;
+        }
+        return reference;
     }
 }
 
