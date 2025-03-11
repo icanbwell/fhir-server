@@ -50,6 +50,7 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const { SearchBundleOperation } = require('../search/searchBundle');
+const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
@@ -383,7 +384,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResource = await cursor.next();
+                let relatedResource = await cursor.nextRaw();
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
@@ -527,7 +528,8 @@ class GraphHelper {
                                         debug,
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
-                                        proxyPatientResources = []
+                                        proxyPatientResources = [],
+                                        getRaw = true
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -669,7 +671,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResourcePropertyCurrent = await cursor.next();
+                let relatedResourcePropertyCurrent = await cursor.nextRaw();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
@@ -924,7 +926,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = true
         }
     ) {
         try {
@@ -1140,7 +1143,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = true
         }
     ) {
         try {
@@ -1222,7 +1226,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = true
         }
     ) {
         try {
@@ -1324,13 +1329,11 @@ class GraphHelper {
         if (entityAndContained.includeInOutput && entityAndContained.resource && entityAndContained.resource.id) { // only include entities the caller has requested and are defined
             result = result.concat(
                 [
-                    new BundleEntry(
-                        {
-                            id: entityAndContained.resource.id,
-                            fullUrl: entityAndContained.fullUrl,
-                            resource: entityAndContained.resource
-                        }
-                    )
+                    {
+                        id: entityAndContained.resource.id,
+                        fullUrl: entityAndContained.fullUrl,
+                        resource: entityAndContained.resource
+                    }
                 ]
             );
         }
@@ -1422,14 +1425,15 @@ class GraphHelper {
                     requestInfo,
                     resourceType,
                     parsedArgs: childParseArgs,
-                    useAggregationPipeline: false
+                    useAggregationPipeline: false,
+                    getRaw: true
                 });
 
                 for (let entry of bundle.entry || []) {
-                    const resourceBundleEntry = new BundleEntry({
+                    const resourceBundleEntry = {
                         id: entry.id,
                         resource: entry.resource
-                    });
+                    };
                     entities.push(resourceBundleEntry);
                 }
 
@@ -1514,7 +1518,8 @@ class GraphHelper {
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = true
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1603,7 +1608,7 @@ class GraphHelper {
                  * element
                  * @type {Resource|null}
                  */
-                let startResource = await cursor.next();
+                let startResource = await cursor.nextRaw();
                 if (startResource) {
                     /**
                      * @type {BundleEntry}
@@ -1612,10 +1617,10 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
-                    const current_entity = new BundleEntry({
+                    const current_entity = {
                         id: startResource.id,
                         resource: startResource
-                    });
+                    };
                     entries = entries.concat([current_entity]);
                     topLevelBundleEntries.push(current_entity);
                 }
@@ -1678,10 +1683,10 @@ class GraphHelper {
                 /**
                  * @type {BundleEntry}
                  */
-                const bundleEntry = new BundleEntry({
+                const bundleEntry = {
                     id: topLevelResource.id,
                     resource: topLevelResource
-                });
+                };
                 bundleEntriesForTopLevelResource.push(bundleEntry);
                 bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
@@ -1890,7 +1895,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1
+            nonClinicalResourcesDepth = 1,
+            getRaw = true
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);

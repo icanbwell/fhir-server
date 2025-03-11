@@ -3,6 +3,8 @@ const { removeNull } = require('./nullRemover');
 const { assertIsValid } = require('./assertType');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
+const { removeUnderscoreProps } = require('./removeUnderscoreProps');
+const { Resource } = require('@opentelemetry/resources');
 
 class FhirResponseStreamer extends BaseResponseStreamer {
     /**
@@ -77,10 +79,16 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      */
     async writeBundleEntryAsync ({ bundleEntry }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
+            if (bundleEntry instanceof Resource) {
+                bundleEntry = bundleEntry.toJSON();
+            }
+            else {
+                removeUnderscoreProps(bundleEntry);
+            }
             /**
              * @type {string}
              */
-            const bundleEntryJson = JSON.stringify(bundleEntry.toJSON());
+            const bundleEntryJson = JSON.stringify(bundleEntry);
             assertIsValid(bundleEntry.resource, `BundleEntry does not have a resource element: ${bundleEntryJson}`);
             if (this._first) {
                 // write the beginning json

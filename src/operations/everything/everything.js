@@ -12,6 +12,7 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
 const { isTrue } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
 
 class EverythingOperation {
     /**
@@ -19,12 +20,14 @@ class EverythingOperation {
      * @param {GraphOperation} graphOperation
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
             graphOperation,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            configManager
         }
     ) {
         /**
@@ -43,6 +46,12 @@ class EverythingOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -192,6 +201,7 @@ class EverythingOperation {
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                 nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
+                // getRaw: this.configManager.getRawEverythingOpBundle
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
