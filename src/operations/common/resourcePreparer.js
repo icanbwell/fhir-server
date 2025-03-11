@@ -87,9 +87,10 @@ class ResourcePreparer {
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
+     * @param {boolean} rawResources
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({ parsedArgs, element, resourceType }) {
+    async prepareResourceAsync({ parsedArgs, element, resourceType, rawResources }) {
         if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
@@ -106,7 +107,8 @@ class ResourcePreparer {
              */
             [element] = await this.enrichmentManager.enrichAsync({
                 resources: [element],
-                parsedArgs
+                parsedArgs,
+                rawResources
             });
         }
         return [element];

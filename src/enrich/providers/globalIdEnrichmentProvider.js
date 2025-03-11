@@ -1,6 +1,7 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { isUuid } = require('../../utils/uid.util');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
 
 /**
  * @classdesc sets id to global id if the 'Prefer' header is set
@@ -11,10 +12,11 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {ParsedArgs} parsedArgs
+     * @param {Boolean} rawResources
      * @return {Promise<Resource[]>}
      */
 
-    async enrichAsync ({ resources, parsedArgs }) {
+    async enrichAsync ({ resources, parsedArgs, rawResources = false }) {
         /**
          * @type {string}
          */
@@ -34,7 +36,8 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                         resource.contained = await this.enrichAsync(
                             {
                                 resources: resource.contained,
-                                parsedArgs
+                                parsedArgs,
+                                rawResources
                             }
                         );
                     }
@@ -49,6 +52,12 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                                 )
                             }
                         );
+                    } else if (rawResources) {
+                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                            {
+                                reference
+                            }
+                        ));
                     }
                 }
             }
@@ -76,15 +85,17 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
+     * @param {Boolean} rawResources
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false  }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
                     {
                         resources: [entry.resource],
-                        parsedArgs
+                        parsedArgs,
+                        rawResources
                     }
                 ))[0];
             }

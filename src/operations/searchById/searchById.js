@@ -182,6 +182,11 @@ class SearchByIdOperation {
                 requestId
             });
 
+            /**
+             * @type {Boolean}
+            */
+            const rawResourceQuery = this.configManager.skipClassObjectResources.includes(resourceType);
+
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
@@ -193,9 +198,7 @@ class SearchByIdOperation {
             /**
              * @type {Resource[]}
              */
-            const resources = this.configManager.skipClassObjectResources.includes(resourceType)
-                ? await cursor.toArrayRawAsync()
-                : await cursor.toArrayAsync();
+            const resources = rawResourceQuery ? await cursor.toArrayRawAsync() : await cursor.toArrayAsync();
 
             /**
              * @type {ParsedArgsItem|undefined}
@@ -230,7 +233,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs
+                            resources: [resource], parsedArgs, rawResources: rawResourceQuery
                         }
                     )
                 )[0];
@@ -264,8 +267,8 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                if(this.configManager.skipClassObjectResources.includes(resourceType)){
-                    removeUnderscoreProps(resource)
+                if (rawResourceQuery) {
+                    removeUnderscoreProps(resource);
                 }
                 return resource;
             } else {

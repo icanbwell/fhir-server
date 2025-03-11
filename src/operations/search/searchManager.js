@@ -842,7 +842,8 @@ class SearchManager {
                         signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
-                        configManager: this.configManager
+                        configManager: this.configManager,
+                        rawResources: getRaw
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang

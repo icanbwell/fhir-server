@@ -1,0 +1,17 @@
+{
+  "data": {
+    "composition": {
+      "entry": [
+        {
+          "resource": {
+            "id": "974d9837-460d-5647-95e9-7f0ffd4b199e",
+            "subject": {
+              "id": "5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30"
+            }
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}
