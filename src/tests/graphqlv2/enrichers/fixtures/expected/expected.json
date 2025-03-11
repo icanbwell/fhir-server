@@ -1,0 +1,17 @@
+{
+  "data": {
+    "compositions": {
+      "entry": [
+        {
+          "resource": {
+            "id": "974d9837-460d-5647-95e9-7f0ffd4b199e",
+            "subject": {
+              "reference": "Patient/person.b1ffae08-1054-4bdc-a057-12dd097be995"
+            }
+          }
+        }
+      ],
+      "meta": null
+    }
+  }
+}

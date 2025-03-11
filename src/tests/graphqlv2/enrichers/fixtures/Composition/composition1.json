@@ -1,0 +1,49 @@
+{
+  "resourceType": "Composition",
+  "id": "enrichGlobalId",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2024-03-14T16:52:54.000Z",
+    "source": "https://www.icanbwell.com/bwell",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "bwell"
+      }
+    ]
+  },
+  "status": "preliminary",
+  "type": {
+    "coding": [
+      {
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+        "code": "encounter_group_class_and_type",
+        "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
+      }
+    ],
+    "text": "Encounter Summary Composition Document"
+  },
+  "subject": {
+    "reference": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30",
+    "type": "Patient"
+  },
+  "date": "2024-03-14T16:52:11Z",
+  "author": [
+    {
+      "reference": "Organization/org1"
+    }
+  ],
+  "title": "Encounter Summary Grouped by Encounter Class and Type"
+}

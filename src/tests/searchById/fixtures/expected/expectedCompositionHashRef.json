@@ -1,0 +1,116 @@
+{
+  "author": [
+    {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Organization/enrichHashReference"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Organization/d3ef9af3-b21f-58f5-b953-4f665ccc35f9"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "Organization/#enrichHashReference"
+    }
+  ],
+  "contained": [
+    {
+      "resourceType": "Organization",
+      "id": "enrichHashReference",
+      "meta": {
+        "source": "https://www.anthem.com/medical_claims",
+        "security": [
+          { "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b", "system": "https://www.icanbwell.com/owner", "code": "bwell" }
+        ],
+        "tag": [
+          {
+            "id": "random",
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior",
+            "code": "random",
+            "display": "random"
+          }
+        ]
+      },
+      "endpoint": [
+        {
+          "extension": [
+            { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Endpoint/enp-2" },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Endpoint/612880eb-b68f-5ea9-b6ef-5f950320b03a"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
+          "reference": "Endpoint/enp-2"
+        }
+      ]
+    }
+  ],
+  "date": "2024-03-14T16:52:11Z",
+  "id": "composition2",
+  "identifier": {},
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2025-03-11T06:34:38.729Z",
+    "source": "https://www.icanbwell.com/bwell",
+    "security": [
+      { "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b", "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+      { "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2", "system": "https://www.icanbwell.com/access", "code": "bwell" },
+      { "id": "a49dbe6e-233b-5ae6-b71a-aaa3a06ed9b1", "system": "https://www.icanbwell.com/vendor", "code": "bwell" },
+      {
+        "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "bwell"
+      }
+    ],
+    "tag": [{ "system": "https://www.icanbwell.com/uuid", "code": "ef740ea0-bf24-5062-a807-1afa6aff0152" }]
+  },
+  "resourceType": "Composition",
+  "status": "preliminary",
+  "subject": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30",
+    "type": "Patient"
+  },
+  "title": "Encounter Summary Grouped by Encounter Class and Type",
+  "type": {
+    "coding": [
+      {
+        "id": "80611ec8-4d5e-5d05-bb85-44ab6f6c8719",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+        "code": "encounter_group_class_and_type",
+        "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
+      }
+    ],
+    "text": "Encounter Summary Composition Document"
+  }
+}

@@ -1,0 +1,12 @@
+query enrichersTest {
+    compositions(patient: { value: "Patient/person.b1ffae08-1054-4bdc-a057-12dd097be995" }) {
+        entry {
+            resource {
+                id
+                subject {
+                    reference
+                }
+            }
+        }
+    }
+}
