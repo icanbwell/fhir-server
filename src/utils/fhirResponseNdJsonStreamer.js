@@ -48,7 +48,7 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
             /**
              * @type {Resource}
              */
-            const resource = bundleEntry.resource;
+            let resource = bundleEntry.resource;
             if (resource !== null && resource !== undefined) {
                 if (rawResources) {
                     removeUnderscoreProps(resource);
