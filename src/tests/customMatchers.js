@@ -278,8 +278,12 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
     }
     if (Array.isArray(expected)) {
         expected.sort((a, b) => {
-            const uuidA = a.identifier?.find(identifier => identifier.id === 'uuid')?.value;
-            const uuidB = b.identifier?.find(identifier => identifier.id === 'uuid')?.value;
+            const uuidA = Array.isArray(a.identifier)
+                ? a.identifier.find((identifier) => identifier.id === 'uuid')?.value
+                : undefined;
+            const uuidB = Array.isArray(b.identifier)
+                ? b.identifier.find((identifier) => identifier.id === 'uuid')?.value
+                : undefined;
 
             // Check if both UUIDs exist before comparing
             if (uuidA && uuidB) {
