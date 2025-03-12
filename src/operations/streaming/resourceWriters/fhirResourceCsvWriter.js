@@ -3,6 +3,7 @@ const { flatten } = require('@json2csv/transforms');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo } = require('../../common/logging');
+const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirResourceCsvWriter extends Transform {
     /**
@@ -13,8 +14,9 @@ class FhirResourceCsvWriter extends Transform {
      * @param {string} contentType
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {Boolean} rawResources
      */
-    constructor ({ signal, delimiter, contentType, highWaterMark, configManager }) {
+    constructor ({ signal, delimiter, contentType, highWaterMark, configManager, rawResources = false }) {
         /**
          * @type {import('@json2csv/node').Json2CSVBaseOptions}
          */
@@ -55,6 +57,11 @@ class FhirResourceCsvWriter extends Transform {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {Boolean}
+         */
+        this.rawResources = rawResources;
     }
 
     /**
@@ -72,7 +79,14 @@ class FhirResourceCsvWriter extends Transform {
         if (this.configManager.logStreamSteps) {
             logInfo(`FhirResourceCsvWriter._transform${chunk.id}`, {});
         }
-        return super._transform(chunk.toJSON(), encoding, done);
+        let chunkJSON = chunk;
+        if (this.rawResources){
+            removeUnderscoreProps(chunkJSON);
+        }
+        else {
+            chunkJSON = chunk.toJSON();
+        }
+        return super._transform(chunkJSON, encoding, done);
     }
 
     /**

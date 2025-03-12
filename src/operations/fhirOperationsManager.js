@@ -479,7 +479,8 @@ class FhirOperationsManager {
                 requestInfo,
                 res,
                 parsedArgs,
-                resourceType
+                resourceType,
+                getRaw: this.configManager.skipClassObjectResourcesInList.includes(resourceType)
             });
     }
 

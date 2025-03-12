@@ -716,6 +716,17 @@ class ConfigManager {
     }
 
     /**
+     * returns list of resources for which making resource class object step needs to be skipped in get list
+     * @return {string[]}
+     */
+    get skipClassObjectResourcesInList() {
+        return (
+            (env.SKIP_CLASS_OBJECT_RESOURCES_IN_LIST &&
+                env.SKIP_CLASS_OBJECT_RESOURCES_IN_LIST.split(',').map((col) => col.trim())) || ['Composition']
+        );
+    }
+
+    /**
      * returns whether to skip class objection creation in graphqlv2
      * @return {Boolean}
      */

@@ -8,6 +8,7 @@ const { logInfo, logError } = require('../../common/logging');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../../common/sentry');
+const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -19,9 +20,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
+     * @param {Boolean} rawResources
      */
-    constructor ({ fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response }) {
-        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark, response });
+    constructor ({ fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response, rawResources = false }) {
+        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark, response, rawResources });
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -79,7 +81,13 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         let chunkJson = {};
         try {
             if (chunk !== null && chunk !== undefined) {
-                chunkJson = chunk.toJSON();
+                if (this.rawResources){
+                    chunkJson = chunk;
+                    removeUnderscoreProps(chunkJson);
+                }
+                else {
+                    chunkJson = chunk.toJSON();
+                }
                 const resourceJson = JSON.stringify(
                     {
                         resource: chunkJson
@@ -170,13 +178,18 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             /**
              * @type {Bundle}
              */
-            const bundle = this._fnBundle(this._lastid, stopTime);
+            let bundle = this._fnBundle(this._lastid, stopTime);
 
-            // noinspection JSUnresolvedFunction
+            if (this.rawResources){
+                removeUnderscoreProps(bundle);
+            }
+            else {
+                bundle = bundle.toJSON();
+            }
             /**
              * @type {Object}
              */
-            const cleanObject = removeNull(bundle.toJSON());
+            const cleanObject = removeNull(bundle);
             /**
              * @type {string}
              */

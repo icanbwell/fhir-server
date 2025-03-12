@@ -959,6 +959,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
+     * @param {boolean} getRaw
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (
@@ -973,7 +974,8 @@ class SearchManager {
             resourceType,
             accepts,
             defaultSortId,
-            params
+            params,
+            getRaw = false
         }
     ) {
         assertIsValid(requestId);
@@ -1017,7 +1019,8 @@ class SearchManager {
                 defaultSortId,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res
+                response: res,
+                rawResources: getRaw
             }
         );
 
@@ -1045,7 +1048,8 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res
+                response: res,
+                rawResources: getRaw
             }
         );
         /**
@@ -1071,7 +1075,8 @@ class SearchManager {
             highWaterMark,
             configManager: this.configManager,
             response: res,
-            params
+            params,
+            getRaw
         });
 
         try {
