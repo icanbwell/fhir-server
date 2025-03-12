@@ -9,6 +9,7 @@ const compositionResource2 = require('./fixtures/Composition/composition2.json')
 const expectedCompositionResource = require('./fixtures/expected/expectedComposition.json');
 const expectedCompositionResourceWithHashReference = require('./fixtures/expected/expectedCompositionHashRef.json');
 const expectedCompositionResourceWithGlobalId = require('./fixtures/expected/expectedCompositionGlobalId.json');
+const expectedCompositionResourceWithElementsParam = require('./fixtures/expected/expectedCompositionWithElementsParam.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 
@@ -42,6 +43,10 @@ describe('Search list Tests', () => {
         resp = await request.get('/4_0_0/Composition').set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedCompositionResource);
+
+        resp = await request.get('/4_0_0/Composition?_elements=author,id,subject').set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedCompositionResourceWithElementsParam);
 
         // enrichers works for get list
         resp = await request
@@ -81,6 +86,10 @@ describe('Search list Tests', () => {
         resp = await request.get('/4_0_0/Composition').set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedCompositionResource);
+
+        resp = await request.get('/4_0_0/Composition?_elements=author,id,subject').set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedCompositionResourceWithElementsParam);
 
         // enrichers works for get list
         resp = await request

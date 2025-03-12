@@ -49,26 +49,41 @@ class ResourcePreparer {
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
+     * @param {boolean} rawResources
      * @return {Resource}
      */
-    selectSpecificElements ({ parsedArgs, element, resourceType }) {
+    selectSpecificElements ({ parsedArgs, element, resourceType, rawResources = false }) {
         /**
          * @type {string[]|null}
          */
         const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
-        /**
-         * @type {Resource}
-         */
-        const element_to_return = element.create({});
-        if (properties_to_return_list) {
+
+        let element_to_return = null;
+
+        if (rawResources) {
+            element_to_return = Object.keys(element)
+                .filter((key) => properties_to_return_list.includes(key))
+                .reduce((acc, key) => {
+                    acc[key] = element[key];
+                    return acc;
+                }, {});
+                element_to_return.resourceType = resourceType;
+        }
+        else {
             /**
-             * @type {string}
+             * @type {Resource}
              */
-            for (const property of properties_to_return_list) {
-                if (property in element_to_return) {
-                    // for handling non-writable field 'resourceType'
-                    if (property !== 'resourceType') {
-                        element_to_return[`${property}`] = element[`${property}`];
+            element_to_return = element.create({});
+            if (properties_to_return_list) {
+                /**
+                 * @type {string}
+                 */
+                for (const property of properties_to_return_list) {
+                    if (property in element_to_return) {
+                        // for handling non-writable field 'resourceType'
+                        if (property !== 'resourceType') {
+                            element_to_return[`${property}`] = element[`${property}`];
+                        }
                     }
                 }
             }
@@ -91,14 +106,15 @@ class ResourcePreparer {
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync({ parsedArgs, element, resourceType, rawResources }) {
-        if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest') && !rawResources) {
+        if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
              */
             element = this.selectSpecificElements({
                 parsedArgs,
                 element,
-                resourceType
+                resourceType,
+                rawResources
             });
         }
         if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
