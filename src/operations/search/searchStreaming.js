@@ -96,10 +96,11 @@ class SearchStreamingOperation {
      * @param {import('express').Response} res
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
+     * @param {Boolean} getRaw
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreamingAsync (
-        { requestInfo, res, parsedArgs, resourceType }) {
+        { requestInfo, res, parsedArgs, resourceType, getRaw = false }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
@@ -317,7 +318,7 @@ class SearchStreamingOperation {
                  * @param {number} stopTime1
                  * @return {Bundle}
                  */
-                const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
+                const fnBundle = (last_id, stopTime1) => this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
                     {
                         type: 'searchset',
                         requestId: requestInfo.userRequestId,
@@ -361,7 +362,8 @@ class SearchStreamingOperation {
                         resourceType,
                         defaultSortId,
                         accepts: requestInfo.accept,
-                        params
+                        params,
+                        getRaw
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {

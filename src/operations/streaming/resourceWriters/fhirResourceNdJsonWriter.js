@@ -5,6 +5,7 @@ const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { captureException } = require('../../common/sentry');
+const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -15,9 +16,10 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
+     * @param {Boolean} rawResources
      */
-    constructor ({ signal, contentType, highWaterMark, configManager, response }) {
-        super({ objectMode: true, contentType, highWaterMark, response });
+    constructor ({ signal, contentType, highWaterMark, configManager, response, rawResources = false }) {
+        super({ objectMode: true, contentType, highWaterMark, response, rawResources });
         /**
          * @type {AbortSignal}
          * @private
@@ -48,7 +50,13 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 if (this.configManager.logStreamSteps) {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk.id}`, {});
                 }
-                const resourceJson = JSON.stringify(chunk.toJSON(), getCircularReplacer());
+                if (this.rawResources){
+                    removeUnderscoreProps(chunk);
+                }
+                else {
+                    chunk = chunk.toJSON();
+                }
+                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {

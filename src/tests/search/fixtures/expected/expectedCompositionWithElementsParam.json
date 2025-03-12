@@ -1,0 +1,98 @@
+[
+  {
+    "author": [
+      {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization",
+        "display": "bwell Connected Health"
+      }
+    ],
+    "id": "composition1",
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0",
+      "type": "Patient"
+    },
+    "resourceType": "Composition"
+  },
+  {
+    "author": [
+      {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/enrichHashReference"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/d3ef9af3-b21f-58f5-b953-4f665ccc35f9"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
+        "reference": "Organization/enrichHashReference"
+      }
+    ],
+    "id": "composition2",
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "bwell"
+        }
+      ],
+      "reference": "Patient/5c51ffc6-b79e-4d0c-8eca-216d9e1d2c30",
+      "type": "Patient"
+    },
+    "resourceType": "Composition"
+  }
+]
