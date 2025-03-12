@@ -81,6 +81,9 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         let chunkJson = {};
         try {
             if (chunk !== null && chunk !== undefined) {
+                // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
+                this._lastid = chunk[this.defaultSortId];
+
                 if (this.rawResources){
                     chunkJson = chunk;
                     removeUnderscoreProps(chunkJson);
@@ -104,8 +107,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
                 }
-                // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
-                this._lastid = chunk[this.defaultSortId];
             }
             callback();
         } catch (e) {

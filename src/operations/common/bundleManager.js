@@ -240,7 +240,8 @@ class BundleManager {
             type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries.length > 0 ? entries : null,
-            link
+            link,
+            resourceType: "Bundle"
         };
         if (total_count !== null) {
             bundle.total = total_count;
