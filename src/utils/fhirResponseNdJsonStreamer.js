@@ -1,5 +1,6 @@
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const { fhirContentTypes } = require('./contentTypes');
+const { removeUnderscoreProps } = require('./removeUnderscoreProps');
 
 class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
     /**
@@ -39,19 +40,26 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
+     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry }) {
+    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {Resource}
              */
             const resource = bundleEntry.resource;
             if (resource !== null && resource !== undefined) {
+                if (rawResources) {
+                    removeUnderscoreProps(resource);
+                }
+                else {
+                    resource = resource.toJSON();
+                }
                 /**
                  * @type {string}
                  */
-                const resourceJson = JSON.stringify(resource.toJSON());
+                const resourceJson = JSON.stringify(resource);
                 if (this._first) {
                     // write the beginning json
                     this._first = false;

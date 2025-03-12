@@ -565,7 +565,8 @@ const createContainer = function () {
     container.register('everythingOperation', (c) => new EverythingOperation({
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        configManager: c.configManager
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(

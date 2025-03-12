@@ -747,6 +747,17 @@ class ConfigManager {
         }
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_GRAPHQL);
     }
+
+    /**
+     * returns whether to skip class object creation in $everything operation
+     * @return {Boolean}
+     */
+    get getRawEverythingOpBundle() {
+        if (env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP);
+    }
 }
 
 module.exports = {
