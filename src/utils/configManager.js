@@ -754,7 +754,7 @@ class ConfigManager {
      */
     get getRawEverythingOpBundle() {
         if (env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
-            return true;
+            return false;
         }
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP);
     }
