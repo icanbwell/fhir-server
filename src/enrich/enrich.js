@@ -65,7 +65,9 @@ class EnrichmentManager {
                     }
                 );
             }
-            entries.forEach(entry => assertTypeEquals(entry, BundleEntry));
+            if(!rawResources) {
+                entries.forEach(entry => assertTypeEquals(entry, BundleEntry));
+            }
             return entries;
         } catch (e) {
             throw new RethrownError({
