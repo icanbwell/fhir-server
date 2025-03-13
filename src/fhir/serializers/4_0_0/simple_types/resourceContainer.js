@@ -1,7 +1,37 @@
+/** @type {import('../complex_types/meta.js')} */
+let Meta;
+
+/**
+ * Lazy loads the required serializers
+ * It esnures that require is called only once for each serializer to minimize the call stack for require()
+ * @returns {any}
+ */
+function initializeSerializers(serializerName) {
+    initializeResourceSerializer()
+    if (serializerName === 'Meta' && !Meta) {
+        Meta = require('../complex_types/meta.js');
+        return Meta;
+    }
+}
+
+/** @type {import('../../../fhirResourceSerializer.js').FhirResourceSerializer} */
+let FhirResourceSerializer;
+
+function initializeResourceSerializer() {
+    if (!FhirResourceSerializer) {
+        FhirResourceSerializer = require('../../../fhirResourceSerializer.js').FhirResourceSerializer;
+    }
+
+    return FhirResourceSerializer;
+}
+
 class ResourceContainerSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => MetaSerializer.serialize(value),
+        meta: (value) => {
+            initializeSerializers('Meta');
+            return FhirResourceSerializer.serialize(value, Meta);
+        },
         resourceType: null
     };
 
@@ -22,7 +52,7 @@ class ResourceContainerSerializer {
         // Handle non-object case
         if (typeof rawJson !== 'object') return rawJson;
 
-        Object.keys(propertyName => {
+        Object.keys(rawJson).forEach(propertyName => {
             const value = rawJson[propertyName];
 
             if (value === null || value === undefined) {
