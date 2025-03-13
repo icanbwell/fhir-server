@@ -24,7 +24,7 @@
 {# Generate lazy loaded imports #}
 {% for type, path in imported_types.items() %}
 /** @type {import('{{ path }}')} */
-let {{ type }};
+let {{ type }}Serializer;
 {% endfor %}
 
 /**
@@ -35,9 +35,9 @@ let {{ type }};
 function initializeSerializers(serializerName) {
     initializeResourceSerializer()
     {% for type, path in imported_types.items() %}
-    if (serializerName === '{{ type }}' && !{{ type }}) {
-        {{ type }} = require('{{ path }}');
-        return {{ type }};
+    if (serializerName === '{{ type }}' && !{{ type }}Serializer) {
+        {{ type }}Serializer = require('{{ path }}');
+        return {{ type }}Serializer;
     }
     {% endfor %}
 }
@@ -62,9 +62,9 @@ class {{ fhir_entity.cleaned_name }}Serializer {
             initializeSerializers('{{ property.cleaned_type }}');
             {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 {% if property.is_list %}
-            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }});
+            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }}Serializer);
                     {% else %}
-            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }});
+            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }}Serializer);
                     {% endif %}
             {% elif property.cleaned_type == "ResourceContainer" %}
                 {% if property.is_list %}
