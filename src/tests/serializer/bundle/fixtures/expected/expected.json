@@ -1,0 +1,58 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "birthDate": "2017-01-01",
+                "gender": "female",
+                "id": "00100000000",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "00100000000"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "5b8e2400-af14-56e1-9518-1d18625afe93"
+                    }
+                ],
+                "meta": {
+                    "security": [
+                        {
+                            "code": "client",
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access"
+                        },
+                        {
+                            "code": "client",
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner"
+                        },
+                        {
+                            "code": "client",
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                        }
+                    ],
+                    "source": "http://clienthealth.org/provider",
+                    "versionId": "1"
+                },
+                "name": [
+                    {
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ],
+                        "text": "t",
+                        "use": "usual"
+                    }
+                ],
+                "resourceType": "Patient"
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 0,
+    "type": "searchset"
+}
