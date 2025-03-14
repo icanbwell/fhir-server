@@ -53,7 +53,7 @@ class ProaResourcesStats {
                 const databaseCollection = db.collection(collection);
 
                 // count the proa resources
-                const documentCount = await databaseCollection.countDocuments(query);
+                const documentCount = await databaseCollection.countDocuments(query, {hint: 'security.system_code_1'});
 
                 this.adminLogger.logInfo(`Number of PROA resources in ${collection}: ${documentCount}}`);
             }
