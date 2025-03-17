@@ -120,9 +120,12 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({query: patientsUuidQuery} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable,
-                    operation: OPERATIONS.READ
+                ({ query: patientsUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType,
+                    parsedArgs,
+                    useHistoryTable,
+                    operation: OPERATIONS.READ,
+                    isUser: true
                 }));
             }
             if (patientsUuidQuery) {
@@ -194,9 +197,12 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({query: patientsNonUuidQuery} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable,
-                    operation: OPERATIONS.READ
+                ({ query: patientsNonUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType,
+                    parsedArgs,
+                    useHistoryTable,
+                    operation: OPERATIONS.READ,
+                    isUser: true
                 }));
             }
             if (patientsNonUuidQuery) {
@@ -268,9 +274,12 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({query: personsQuery} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable,
-                    operation: OPERATIONS.READ
+                ({ query: personsQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType,
+                    parsedArgs,
+                    useHistoryTable,
+                    operation: OPERATIONS.READ,
+                    isUser: true
                 }));
             }
             if (personsQuery) {

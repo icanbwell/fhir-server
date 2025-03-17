@@ -231,7 +231,8 @@ class SearchManager {
                 parsedArgs,
                 resourceType,
                 useHistoryTable,
-                operation
+                operation,
+                isUser
             }));
 
             if (accessViaPatientScopes) {
@@ -272,7 +273,8 @@ class SearchManager {
                         securityTags,
                         query,
                         useHistoryTable,
-                        requestId
+                        requestId,
+                        isUser
                     });
                 }
             }
