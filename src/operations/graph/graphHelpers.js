@@ -50,6 +50,7 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const { SearchBundleOperation } = require('../search/searchBundle');
+const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
@@ -73,21 +74,21 @@ class GraphHelper {
      * @param {SearchBundleOperation} searchParametersOperation
      */
     constructor ({
-                    databaseQueryFactory,
-                    securityTagManager,
-                    scopesManager,
-                    scopesValidator,
-                    configManager,
-                    bundleManager,
-                    resourceLocatorFactory,
-                    r4SearchQueryCreator,
-                    searchManager,
-                    enrichmentManager,
-                    r4ArgsParser,
-                    databaseAttachmentManager,
-                    searchParametersManager,
-                    searchBundleOperation
-                }) {
+        databaseQueryFactory,
+        securityTagManager,
+        scopesManager,
+        scopesValidator,
+        configManager,
+        bundleManager,
+        resourceLocatorFactory,
+        r4SearchQueryCreator,
+        searchManager,
+        enrichmentManager,
+        r4ArgsParser,
+        databaseAttachmentManager,
+        searchParametersManager,
+        searchBundleOperation
+    }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -273,17 +274,18 @@ class GraphHelper {
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync ({
-                                        requestInfo,
-                                        base_version,
-                                        resourceType,
-                                        parentEntities,
-                                        property,
-                                        filterProperty,
-                                        filterValue,
-                                        explain,
-                                        debug,
-                                        supportLegacyId = true
-                                    }) {
+        requestInfo,
+        base_version,
+        resourceType,
+        parentEntities,
+        property,
+        filterProperty,
+        filterValue,
+        explain,
+        debug,
+        supportLegacyId = true,
+        getRaw = false
+    }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
                 return; // nothing to do
@@ -383,7 +385,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResource = await cursor.next();
+                let relatedResource = getRaw ? await cursor.nextRaw() : await cursor.next();
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
@@ -515,20 +517,21 @@ class GraphHelper {
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync ({
-                                        requestInfo,
-                                        base_version,
-                                        parentResourceType,
-                                        relatedResourceType,
-                                        parentEntities,
-                                        filterProperty,
-                                        filterValue,
-                                        reverse_filter,
-                                        explain,
-                                        debug,
-                                        supportLegacyId = true,
-                                        proxyPatientIds = [],
-                                        proxyPatientResources = []
-                                    }) {
+        requestInfo,
+        base_version,
+        parentResourceType,
+        relatedResourceType,
+        parentEntities,
+        filterProperty,
+        filterValue,
+        reverse_filter,
+        explain,
+        debug,
+        supportLegacyId = true,
+        proxyPatientIds = [],
+        proxyPatientResources = [],
+        getRaw = false
+    }) {
         try {
             if (!(reverse_filter)) {
                 throw new Error('reverse_filter must be set');
@@ -669,7 +672,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResourcePropertyCurrent = await cursor.next();
+                let relatedResourcePropertyCurrent = getRaw ? await cursor.nextRaw() : await cursor.next();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
@@ -924,7 +927,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = false
         }
     ) {
         try {
@@ -981,7 +985,8 @@ class GraphHelper {
                             filterValue,
                             explain,
                             debug,
-                            supportLegacyId
+                            supportLegacyId,
+                            getRaw
                         }
                     );
                     if (queryItem) {
@@ -1042,7 +1047,8 @@ class GraphHelper {
                             debug,
                             supportLegacyId,
                             proxyPatientIds,
-                            proxyPatientResources
+                            proxyPatientResources,
+                            getRaw
                         }
                     );
                     if (queryItem) {
@@ -1086,7 +1092,8 @@ class GraphHelper {
                                 parsedArgs,
                                 supportLegacyId,
                                 proxyPatientIds,
-                                proxyPatientResources
+                                proxyPatientResources,
+                                getRaw
                             }
                         )
                     );
@@ -1140,7 +1147,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = false
         }
     ) {
         try {
@@ -1166,7 +1174,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        getRaw
                     }
                 )
             );
@@ -1222,7 +1231,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = false
         }
     ) {
         try {
@@ -1254,7 +1264,8 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        getRaw
                     }
                 )
             );
@@ -1280,63 +1291,37 @@ class GraphHelper {
     }
 
     /**
-     * prepends # character in references
-     * @param {Resource} parent_entity
-     * @param {reference:string[]} linkReferences
-     * @return {Promise<Resource>}
-     */
-    async convertToHashedReferencesAsync ({ parent_entity, linkReferences }) {
-        try {
-            /**
-             * @type {Set<string>}
-             */
-            const uniqueReferences = new Set(linkReferences);
-            if (parent_entity) {
-                /**
-                 * @type {string}
-                 */
-                for (const link_reference of uniqueReferences) {
-                    const re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
-                    parent_entity = JSON.parse(parent_entity.toJSONInternal().replace(re, '#'.concat(link_reference)));
-                }
-            }
-            return parent_entity;
-        } catch (e) {
-            logError(`Error in convertToHashedReferencesAsync(): ${e.message}`, { error: e });
-            throw new RethrownError({
-                message: 'Error in convertToHashedReferencesAsync(): ',
-                error: e,
-                args: { parent_entity, linkReferences }
-            });
-        }
-    }
-
-    /**
      * get all the contained entities recursively
      * @param {EntityAndContainedBase} entityAndContained
+     * @param {Boolean} getRaw
      * @returns {BundleEntry[]}
      */
-    getRecursiveContainedEntities (entityAndContained) {
+    getRecursiveContainedEntities(entityAndContained, getRaw = false) {
         /**
          * @type {BundleEntry[]}
          */
         let result = [];
-        if (entityAndContained.includeInOutput && entityAndContained.resource && entityAndContained.resource.id) { // only include entities the caller has requested and are defined
-            result = result.concat(
-                [
-                    new BundleEntry(
-                        {
-                            id: entityAndContained.resource.id,
-                            fullUrl: entityAndContained.fullUrl,
-                            resource: entityAndContained.resource
-                        }
-                    )
-                ]
+        if (entityAndContained.includeInOutput && entityAndContained.resource && entityAndContained.resource.id) {
+            // only include entities the caller has requested and are defined
+            result.push(
+                getRaw
+                    ? {
+                          id: entityAndContained.resource.id,
+                          fullUrl: entityAndContained.fullUrl,
+                          resource: entityAndContained.resource
+                      }
+                    : new BundleEntry({
+                          id: entityAndContained.resource.id,
+                          fullUrl: entityAndContained.fullUrl,
+                          resource: entityAndContained.resource
+                      })
             );
         }
 
         // now recurse
-        result = result.concat(entityAndContained.containedEntries.flatMap(c => this.getRecursiveContainedEntities(c)));
+        result.push(
+            ...entityAndContained.containedEntries.flatMap((c) => this.getRecursiveContainedEntities(c, getRaw))
+        );
         return result;
     }
 
@@ -1349,6 +1334,7 @@ class GraphHelper {
      * @param {string} base_version
      * @param {boolean} explain
      * @param {boolean} debug
+     * @param {boolean} getRaw
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
      */
     async getLinkedNonClinicalResources(
@@ -1358,7 +1344,8 @@ class GraphHelper {
         parsedArgs,
         base_version,
         explain,
-        debug
+        debug,
+        getRaw = false
     ) {
         try {
             /**
@@ -1422,14 +1409,20 @@ class GraphHelper {
                     requestInfo,
                     resourceType,
                     parsedArgs: childParseArgs,
-                    useAggregationPipeline: false
+                    useAggregationPipeline: false,
+                    getRaw
                 });
 
                 for (let entry of bundle.entry || []) {
-                    const resourceBundleEntry = new BundleEntry({
-                        id: entry.id,
-                        resource: entry.resource
-                    });
+                    const resourceBundleEntry = getRaw
+                        ? {
+                              id: entry.id,
+                              resource: entry.resource
+                          }
+                        : new BundleEntry({
+                              id: entry.id,
+                              resource: entry.resource
+                          });
                     entities.push(resourceBundleEntry);
                 }
 
@@ -1457,7 +1450,8 @@ class GraphHelper {
 
             entities = await this.enrichmentManager.enrichBundleEntriesAsync({
                 entries: entities,
-                parsedArgs
+                parsedArgs,
+                rawResources: getRaw
             });
 
             return { entities, queryItems };
@@ -1514,7 +1508,8 @@ class GraphHelper {
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
-            proxyPatientResources = []
+            proxyPatientResources = [],
+            getRaw = false
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1603,7 +1598,7 @@ class GraphHelper {
                  * element
                  * @type {Resource|null}
                  */
-                let startResource = await cursor.next();
+                let startResource = getRaw ? await cursor.nextRaw() : await cursor.next();
                 if (startResource) {
                     /**
                      * @type {BundleEntry}
@@ -1612,10 +1607,15 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
-                    const current_entity = new BundleEntry({
-                        id: startResource.id,
-                        resource: startResource
-                    });
+                    const current_entity = getRaw
+                        ? {
+                              id: startResource.id,
+                              resource: startResource
+                          }
+                        : new BundleEntry({
+                              id: startResource.id,
+                              resource: startResource
+                          });
                     entries = entries.concat([current_entity]);
                     topLevelBundleEntries.push(current_entity);
                 }
@@ -1645,7 +1645,8 @@ class GraphHelper {
                     parsedArgs,
                     supportLegacyId,
                     proxyPatientIds,
-                    proxyPatientResources
+                    proxyPatientResources,
+                    getRaw
                 }
             );
 
@@ -1678,58 +1679,38 @@ class GraphHelper {
                 /**
                  * @type {BundleEntry}
                  */
-                const bundleEntry = new BundleEntry({
-                    id: topLevelResource.id,
-                    resource: topLevelResource
-                });
+                const bundleEntry = getRaw
+                    ? {
+                          id: topLevelResource.id,
+                          resource: topLevelResource
+                      }
+                    : new BundleEntry({
+                          id: topLevelResource.id,
+                          resource: topLevelResource
+                      });
                 bundleEntriesForTopLevelResource.push(bundleEntry);
-                bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
-                    {
-                        entries: bundleEntriesForTopLevelResource,
-                        parsedArgs
-                    }
-                );
 
                 if (entity.containedEntries.length > 0) {
                     /**
                      * @type {BundleEntry[]}
                      */
-                    const recursiveEntries = entity.containedEntries.flatMap(
-                        e => this.getRecursiveContainedEntities(
-                            e
-                        )
+                    const recursiveEntries = entity.containedEntries.flatMap((e) =>
+                        this.getRecursiveContainedEntities(e, getRaw)
                     );
 
                     if (contained) {
-                        /**
-                         * @type {Resource[]}
-                         */
-                        let containedResources = recursiveEntries.map(e => e.resource);
-                        containedResources = await this.enrichmentManager.enrichAsync(
-                            {
-                                resources: containedResources,
-                                parsedArgs
-                            }
-                        );
-                        topLevelResource.contained = containedResources;
-                        // enrich again now that we've changed the resource
-                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
-                            {
-                                entries: bundleEntriesForTopLevelResource,
-                                parsedArgs
-                            }
-                        );
+                        topLevelResource.contained = recursiveEntries.map(e => e.resource);
                     } else {
                         bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
-                        // enrich again now that we've added new entries to bundle
-                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
-                            {
-                                entries: bundleEntriesForTopLevelResource,
-                                parsedArgs
-                            }
-                        );
                     }
                 }
+                bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                    {
+                        entries: bundleEntriesForTopLevelResource,
+                        parsedArgs,
+                        rawResources: getRaw
+                    }
+                );
                 // /**
                 //  * @type {string[]}
                 //  */
@@ -1767,7 +1748,8 @@ class GraphHelper {
                             parsedArgs,
                             base_version,
                             explain,
-                            debug
+                            debug,
+                            getRaw
                         );
 
                         if (contained) {
@@ -1809,7 +1791,8 @@ class GraphHelper {
                         if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
                             await responseStreamer.writeBundleEntryAsync(
                                 {
-                                    bundleEntry: bundleEntry1
+                                    bundleEntry: bundleEntry1,
+                                    rawResources: getRaw
                                 }
                             );
                             idsOfBundleEntriesProcessed.push(resourceIdentifier);
@@ -1890,7 +1873,8 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1
+            nonClinicalResourcesDepth = 1,
+            getRaw = false
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1986,7 +1970,8 @@ class GraphHelper {
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth,
                         proxyPatientIds,
-                        proxyPatientResources
+                        proxyPatientResources,
+                        getRaw
                     }
                 );
                 entries = entries.concat(entries1);
