@@ -88,6 +88,7 @@ describe('_includeHidden with Patient scope test', () => {
                 .get('/4_0_0/Observation?_debug=1&_includeHidden=true')
                 .set(headers);
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse2);
             expect(resp).toHaveResponse(expectedResponse2);
 
             jwt_payload.clientFhirPersonId = '98c81eef-dc76-52a0-a6ed-b5569e224f1c';
@@ -98,6 +99,7 @@ describe('_includeHidden with Patient scope test', () => {
                 .get('/4_0_0/Observation?_debug=1&_includeHidden=true')
                 .set(headers);
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse3);
             expect(resp).toHaveResponse(expectedResponse3);
 
             // _includeHidden tag is ignored with Patient scope for non-clinical resources too
@@ -105,6 +107,7 @@ describe('_includeHidden with Patient scope test', () => {
                 .get('/4_0_0/Practitioner?_debug=1&_includeHidden=true')
                 .set(headers);
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse4);
             expect(resp).toHaveResponse(expectedResponse4);
         });
     });
