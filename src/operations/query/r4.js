@@ -62,9 +62,10 @@ class R4SearchQueryCreator {
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
      * @param {string} operation
+     * @param {boolean} isUser
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable, operation }) {
+    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable, operation, isUser }) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -155,7 +156,7 @@ class R4SearchQueryCreator {
         // Handling case of 'hidden' tag in meta
         if (
             !parsedArgs.id &&
-            !isTrue(parsedArgs._includeHidden) &&
+            (isUser || !isTrue(parsedArgs._includeHidden)) &&
             operation !== DELETE &&
             !useHistoryTable &&
             resourceType !== 'AuditEvent'
