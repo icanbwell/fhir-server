@@ -88,6 +88,8 @@
             }
         ],
         "reference": "Patient/person.b8cb72dc-8b1a-4689-9de1-606b053069c2",
+        "_uuid": "person.b8cb72dc-8b1a-4689-9de1-606b053069c2",
+        "_id": "person.b8cb72dc-8b1a-4689-9de1-606b053069c2",
         "type": "Patient"
     },
     "date": "2025-03-11T10:02:28Z",

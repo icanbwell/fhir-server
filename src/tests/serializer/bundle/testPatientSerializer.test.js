@@ -1,3 +1,4 @@
+const deepcopy = require('deepcopy');
 const expectedPatient = require('./fixtures/expected/expected.json');
 const patientBundle = require('./fixtures/resources/patient.json');
 const combinedBundle = require('./fixtures/resources/patientCombinedBundle.json');
@@ -19,8 +20,8 @@ describe('Patient Serialzier Tests', () => {
     describe('Bundle Serializer Tests', () => {
         test('serializer should remove all extra fields from patient resource', async () => {
             await createTestRequest();
-            const serializedData = FhirResourceSerializer.serialize(patientBundle)
-            expect(serializedData).toMatchObject(expectedPatient)
+            const serializedData = FhirResourceSerializer.serialize(deepcopy(patientBundle))
+            expect(serializedData).toStrictEqual(expectedPatient)
         });
 
         test('serializer should handle if passed data is null', async () => {
@@ -31,8 +32,8 @@ describe('Patient Serialzier Tests', () => {
 
         test('should handle bundle containing composition and patient', async () => {
             await createTestRequest();
-            const serializeData = FhirResourceSerializer.serialize(combinedBundle);
-            expect(combinedBundle).toMatchObject(expectedCombinedBundle);
+            const serializeData = FhirResourceSerializer.serialize(deepcopy(combinedBundle));
+            expect(serializeData).toStrictEqual(expectedCombinedBundle);
         })
     });
 });
