@@ -1,0 +1,1132 @@
+{
+    "resourceType": "Composition",
+    "id": "0000f431-1958-5f5a-bc9f-6258e432fc0c",
+    "meta": {
+        "versionId": "2",
+        "lastUpdated": "2025-03-11T10:04:40.459Z",
+        "source": "https://www.icanbwell.com/intelligence-layer-pipeline",
+        "security": [
+            {
+                "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "id": "a49dbe6e-233b-5ae6-b71a-aaa3a06ed9b1",
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "bwell"
+            },
+            {
+                "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ],
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/uuid",
+                "code": "0000f431-1958-5f5a-bc9f-6258e432fc0c"
+            }
+        ]
+    },
+    "text": {
+        "status": "generated",
+        "div": "Encounter Summary Grouped by Encounter Class and Type"
+    },
+    "identifier": {
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+        "value": "bwell_composition_for_health_data_summary"
+    },
+    "status": "preliminary",
+    "type": {
+        "coding": [
+            {
+                "id": "0c782a9a-1fca-5328-b7ad-7534d57d0f42",
+                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+                "code": "encounter_summary_document",
+                "display": "b.Well Encounter Summary Composition Document"
+            },
+            {
+                "id": "53466ba6-4e95-573d-a12e-b789929cadfd",
+                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+                "code": "encounter_group_class_and_type",
+                "display": "Encounter Summary Composition Grouped by Encounter Class and Type"
+            },
+            {
+                "id": "e614a9ea-c703-5070-879e-3e6b7711734f",
+                "system": "https://hl7.org/fhir/encounter",
+                "code": "Encounter",
+                "display": "FHIR resource type"
+            }
+        ],
+        "text": "Encounter Summary Composition Document"
+    },
+    "subject": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/person.b8cb72dc-8b1a-4689-9de1-606b053069c2"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/person.b8cb72dc-8b1a-4689-9de1-606b053069c2"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Patient/person.b8cb72dc-8b1a-4689-9de1-606b053069c2",
+        "type": "Patient"
+    },
+    "date": "2025-03-11T10:02:28Z",
+    "author": [
+        {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Organization/c9511013-0862-4cdd-a466-c6e028d42bf1"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Organization/c9511013-0862-4cdd-a466-c6e028d42bf1"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "bwell"
+                }
+            ],
+            "reference": "Organization/c9511013-0862-4cdd-a466-c6e028d42bf1",
+            "type": "Organization",
+            "display": "bwell Connected Health"
+        }
+    ],
+    "title": "Encounter Summary Grouped by Encounter Class and Type",
+    "section": [
+        {
+            "id": "ef977b06-eedc-545c-8cc4-ddc2ebe1d45d",
+            "title": "Ambulatory - COVID-19 Consultation",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "a511fbf9-ad11-59bf-8c46-d9ad1302535d",
+                        "system": "http://snomed.info/sct",
+                        "code": "34729004",
+                        "display": "COVID-19 Consultation"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "a1738fe2-930a-5181-9886-7a71c863dd0e",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/2e37be60-2594-46f2-9bca-0e64f46f9645"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/2e37be60-2594-46f2-9bca-0e64f46f9645"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/2e37be60-2594-46f2-9bca-0e64f46f9645",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "89bc6a12-f65f-586a-b9f8-5b19b3c5a564",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - COVID-19 Consultation"
+                    }
+                },
+                {
+                    "id": "4c87f18d-a02a-5b6e-ba9b-5d663ae9d935",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "8fe4b737-ed5b-54f7-a9f4-b4e0b9a84624",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "COVID-19 Consultation"
+                    }
+                },
+                {
+                    "id": "4cfc442a-ae73-5e50-9bcd-40a50fe7d4f7",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "36ce2097-b959-5a6a-b3a5-33391f951dfd",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-12-15T11:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "a740aa41-3b2a-550e-b3eb-5fda3ffa2cd0",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "e8430894-5d85-5473-82d1-a08f3a0673b6",
+            "title": "Ambulatory - Consultation for Fever",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "a35642ae-4d05-5115-96d3-6de716eab5c5",
+                        "system": "http://snomed.info/sct",
+                        "code": "185349003",
+                        "display": "Consultation for Fever"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "56894fd7-8d56-557a-9eac-7756c432a353",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/903f6f68-2005-4089-902b-efee0c6157b7"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/903f6f68-2005-4089-902b-efee0c6157b7"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/903f6f68-2005-4089-902b-efee0c6157b7",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "cbff9c8f-a1b3-5318-9ceb-50dcc307e9e2",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/f3c0a42a-15a5-472b-9dad-da3c4da5f5e4"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/f3c0a42a-15a5-472b-9dad-da3c4da5f5e4"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/f3c0a42a-15a5-472b-9dad-da3c4da5f5e4",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "e3e3138c-caaf-5782-910f-4438a4151f6e",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/9973d5ce-b9ce-4aa3-a878-8f7bc4815430"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/9973d5ce-b9ce-4aa3-a878-8f7bc4815430"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/9973d5ce-b9ce-4aa3-a878-8f7bc4815430",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "965e7b5f-7c2a-584c-b942-964a65a05da4",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/829110ee-df57-4c81-a15c-8f7a34169d20"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/829110ee-df57-4c81-a15c-8f7a34169d20"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/829110ee-df57-4c81-a15c-8f7a34169d20",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "2be3e61c-dcb3-58cb-bb73-2c3e67422ac3",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Consultation for Fever"
+                    }
+                },
+                {
+                    "id": "94f968ce-bf99-5a31-afbf-b37cec06812e",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "7f3dbc52-9497-57df-9bc9-ff4e0e5ce4ec",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Consultation for Fever"
+                    }
+                },
+                {
+                    "id": "e7e56755-0c73-54f7-af88-40ff4d26a05a",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "f9148f97-2f3e-5527-b7be-c6961c029c3c",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-12-01T10:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "c279a47b-15d5-59a5-822b-d75a60821f14",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "cb9c5a37-452e-551c-a560-2eb5b4c5b10d",
+            "title": "Ambulatory - Routine Hypertension Follow-Up",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "d492a459-a505-5b86-bf09-2472a54a4dc4",
+                        "system": "http://snomed.info/sct",
+                        "code": "308335008",
+                        "display": "Routine Hypertension Follow-Up"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "c1982534-9b5c-5a3f-863d-9bac63ce1886",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/07b24e5d-49bf-4f5b-9f07-8cfca92dad27"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/07b24e5d-49bf-4f5b-9f07-8cfca92dad27"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/07b24e5d-49bf-4f5b-9f07-8cfca92dad27",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "8b85f3c3-2494-550b-b9ca-5578c51a4a3f",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Routine Hypertension Follow-Up"
+                    }
+                },
+                {
+                    "id": "c84b9f74-6503-56fa-97df-b0cde384fd6d",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "46f31c76-f3e4-5007-ac95-b86b49ffef06",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Routine Hypertension Follow-Up"
+                    }
+                },
+                {
+                    "id": "e04c0c1f-9cb6-53ec-bcd5-f7a3f509788d",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "855307cf-e9ec-5571-b5ba-9e626e70f121",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-09-10T10:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "b85f2caf-7397-5f5f-a3b4-eefc66e2f410",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "9910ad50-a7b6-5f58-971d-dd996b77b79e",
+            "title": "Ambulatory - Follow-Up Visit for Ankle Injury",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "a673366d-0fd9-522b-9a03-e0b627d0a053",
+                        "system": "http://snomed.info/sct",
+                        "code": "305408004",
+                        "display": "Follow-Up Visit for Ankle Injury"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "6dabc41c-f227-5234-a9cc-f8ec4af08ac9",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/4761e274-eb46-4797-b2d2-d273ebc32a92"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/4761e274-eb46-4797-b2d2-d273ebc32a92"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/4761e274-eb46-4797-b2d2-d273ebc32a92",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "b3216496-923b-5f5e-ac41-7a2282a24885",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Follow-Up Visit for Ankle Injury"
+                    }
+                },
+                {
+                    "id": "188655e4-d6c2-5183-8b01-5f218e04ee9d",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "ed6074a5-0358-5385-9e7a-062339bc1b99",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Follow-Up Visit for Ankle Injury"
+                    }
+                },
+                {
+                    "id": "de94a8c9-5fcc-5f99-9a44-e4aa2e40c65d",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "bb4f09a6-d6c8-558a-ac98-209689eaa181",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-08-05T14:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "982bee96-2a05-5a65-b01d-75aba10d6a9c",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "932e3342-fae5-5516-9a6b-073da1ff0b54",
+            "title": "Ambulatory - Office Visit for Sore Throat",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "24529578-b158-5fc4-9a7b-5ed1e9815bc5",
+                        "system": "http://snomed.info/sct",
+                        "code": "185345009",
+                        "display": "Office Visit for Sore Throat"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "65605554-6549-505b-abcb-d1ff3af4ce7b",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/986f7979-b8d2-4c8c-8244-06e02ff2364b"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/986f7979-b8d2-4c8c-8244-06e02ff2364b"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/986f7979-b8d2-4c8c-8244-06e02ff2364b",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "daca2ee9-0a08-5aba-b076-954684362537",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/7326dfb9-f601-4053-b746-1c50c50f1771"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/7326dfb9-f601-4053-b746-1c50c50f1771"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/7326dfb9-f601-4053-b746-1c50c50f1771",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "e27cbc71-ab3d-5f6f-bf76-2e4727f1e3d9",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Office Visit for Sore Throat"
+                    }
+                },
+                {
+                    "id": "82fcadf0-e38d-5182-ad6c-847789e0c25e",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "6bd2d9a2-9257-58af-a0b3-35eb6b9c1eec",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Office Visit for Sore Throat"
+                    }
+                },
+                {
+                    "id": "4701688d-4f42-5317-acdf-9f1fb245909d",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "b5a9c595-29bf-5155-8bd7-04778191e12a",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-07-20T09:30:00.000Z"
+                    }
+                },
+                {
+                    "id": "e149aa11-e13d-50c8-aac7-9480eda996b2",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "9cb73dad-d66c-5fd3-9b1a-77f85a4d33c4",
+            "title": "Ambulatory - Psychiatric Follow-Up",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "7e30bb52-cc8f-5385-b5a9-3f33150fe57a",
+                        "system": "http://snomed.info/sct",
+                        "code": "104091002",
+                        "display": "Psychiatric Follow-Up"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "73f33520-c57c-5097-9b50-a246606f1864",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/cb9324f3-8fa2-4a19-aa85-1511cdc6ddbf"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/cb9324f3-8fa2-4a19-aa85-1511cdc6ddbf"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/cb9324f3-8fa2-4a19-aa85-1511cdc6ddbf",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "445126d0-b4f5-5389-9d3b-4d4b87139faf",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Psychiatric Follow-Up"
+                    }
+                },
+                {
+                    "id": "b3c4c5b6-df87-5184-8c23-ad0e1bb02de1",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "f3eb6cfa-3933-55d2-a002-ddb4d4a9f591",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Psychiatric Follow-Up"
+                    }
+                },
+                {
+                    "id": "f0f9cd0a-51c4-5162-ae2e-6d3c78c267f6",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "2506809c-19b9-5c29-8904-cedb60c434eb",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-06-15T10:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "701bc457-3219-5ea6-b56c-bf05ec2a1fd8",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "ca20ae21-6f7d-5505-88b0-8930771ab4b8",
+            "title": "ambulatory - Diabetes Follow-up",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "ambulatory"
+                    },
+                    {
+                        "id": "4583c026-9f2d-5152-9b17-5fffd054dcbb",
+                        "system": "http://terminology.hl7.org/CodeSystem/encounter-type",
+                        "code": "diabfollowup",
+                        "display": "Diabetes Follow-up"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "e1f3b5b4-0006-5f53-9b50-3cc03ce74510",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/b49d0b0f-f66c-4949-8bd1-a9cc2bd49941"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/b49d0b0f-f66c-4949-8bd1-a9cc2bd49941"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/b49d0b0f-f66c-4949-8bd1-a9cc2bd49941",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "ea8d3027-4640-5a8b-b301-8db961ba4e72",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "ambulatory - Diabetes Follow-up"
+                    }
+                },
+                {
+                    "id": "883acfac-dce4-5703-8124-ba73f973441f",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "ambulatory"
+                    }
+                },
+                {
+                    "id": "a7cb0a27-8223-5820-b6fe-83bdef8a0ae1",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Diabetes Follow-up"
+                    }
+                },
+                {
+                    "id": "04cc29d0-f89f-54b3-9765-71e82bc58fb9",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "f3bb9b40-c4b2-59b6-8142-16c82b900202",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-04-05T09:30:00.000Z"
+                    }
+                },
+                {
+                    "id": "f6e296b0-7862-5280-9a05-8eaf74f7eb3a",
+                    "title": "Practitioner"
+                }
+            ]
+        },
+        {
+            "id": "0992ab4c-036b-5fb8-a430-bf4161839d50",
+            "title": "Ambulatory - Patient-initiated encounter",
+            "code": {
+                "coding": [
+                    {
+                        "id": "20b4a3d4-a059-51d5-9379-c0d3ff86c466",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code": "AMB",
+                        "display": "Ambulatory"
+                    },
+                    {
+                        "id": "cc52639f-621a-5fe4-8186-6249bb212602",
+                        "system": "http://snomed.info/sct",
+                        "code": "270427003",
+                        "display": "Patient-initiated encounter"
+                    }
+                ]
+            },
+            "mode": "working",
+            "orderedBy": {
+                "coding": [
+                    {
+                        "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                        "system": "http://terminology.hl7.org/CodeSystem/list-order",
+                        "code": "event-date",
+                        "display": "Sorted by Event Date"
+                    }
+                ],
+                "text": "Sorted by period.start DESC"
+            },
+            "entry": [
+                {
+                    "id": "922646b1-f981-5e6c-bcad-a046dee9f4e4",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/304470d9-48cb-4d92-88c9-36a4855c3583"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/304470d9-48cb-4d92-88c9-36a4855c3583"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/304470d9-48cb-4d92-88c9-36a4855c3583",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "ecaafcb1-a2dd-5723-917d-df7a079fe587",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/73f96d0c-b100-4d42-ad37-6eb3de0300b4"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/73f96d0c-b100-4d42-ad37-6eb3de0300b4"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/73f96d0c-b100-4d42-ad37-6eb3de0300b4",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "a23da058-08df-5c57-9007-345400663595",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/deda3267-94c2-4d42-85a0-7009d8b73993"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/deda3267-94c2-4d42-85a0-7009d8b73993"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/deda3267-94c2-4d42-85a0-7009d8b73993",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "f9bde94d-330b-5d6f-9800-6ebbccae3eb0",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/e1e751f0-e96d-4fa3-b2ab-7fe707a677c6"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/e1e751f0-e96d-4fa3-b2ab-7fe707a677c6"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/e1e751f0-e96d-4fa3-b2ab-7fe707a677c6",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "8793ab49-4f28-5147-98ce-3552339e98a4",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/6aa22ae4-0e89-420b-8ced-9995f6d7dc10"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/6aa22ae4-0e89-420b-8ced-9995f6d7dc10"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/6aa22ae4-0e89-420b-8ced-9995f6d7dc10",
+                    "type": "Encounter"
+                },
+                {
+                    "id": "84d2b44c-07b7-5df2-8a68-276638deed30",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Encounter/0dc7279e-14a0-464b-9633-29fa1c34d410"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Encounter/0dc7279e-14a0-464b-9633-29fa1c34d410"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Encounter/0dc7279e-14a0-464b-9633-29fa1c34d410",
+                    "type": "Encounter"
+                }
+            ],
+            "section": [
+                {
+                    "id": "d9494b1d-8009-5a0d-af91-fd420ec84ef3",
+                    "title": "Visit Name",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory - Patient-initiated encounter"
+                    }
+                },
+                {
+                    "id": "597c7412-b17b-5922-a0ec-54128ddb5671",
+                    "title": "class",
+                    "text": {
+                        "status": "generated",
+                        "div": "Ambulatory"
+                    }
+                },
+                {
+                    "id": "32cccd32-5e6d-5dd4-bfa8-67520993ab39",
+                    "title": "type",
+                    "text": {
+                        "status": "generated",
+                        "div": "Patient-initiated encounter"
+                    }
+                },
+                {
+                    "id": "035438de-ab9e-57f0-b878-50fac69d6db0",
+                    "title": "Source",
+                    "text": {
+                        "status": "generated",
+                        "div": "proa-samsung-demo"
+                    }
+                },
+                {
+                    "id": "47ffa811-79cc-5bc0-86ab-33878675ee3a",
+                    "title": "Date",
+                    "text": {
+                        "status": "generated",
+                        "div": "2023-01-20T00:00:00.000Z"
+                    }
+                },
+                {
+                    "id": "e5f59304-fd78-511f-92e4-a13f3a02707e",
+                    "title": "Practitioner"
+                }
+            ]
+        }
+    ]
+}

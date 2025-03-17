@@ -1,10 +1,7 @@
-// test file
-// const patient1Resource = require('./fixtures/Patient/patient1.json');
-
-// expected
-// const expectedPatientResources = require('./fixtures/expected/expected_patient.json');
 const expectedPatient = require('./fixtures/expected/expected.json');
 const patientBundle = require('./fixtures/resources/patient.json');
+const combinedBundle = require('./fixtures/resources/patientCombinedBundle.json');
+const expectedCombinedBundle = require('./fixtures/expected/expectedCombinedBundle.json');
 
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer.js')
 const { commonBeforeEach, commonAfterEach, createTestRequest } = require('../../common.js');
@@ -31,5 +28,11 @@ describe('Patient Serialzier Tests', () => {
             const serializedData = FhirResourceSerializer.serialize(null)
             expect(serializedData).toBeNull()
         });
+
+        test('should handle bundle containing composition and patient', async () => {
+            await createTestRequest();
+            const serializeData = FhirResourceSerializer.serialize(combinedBundle);
+            expect(combinedBundle).toMatchObject(expectedCombinedBundle);
+        })
     });
 });
