@@ -70,6 +70,7 @@ class GraphOperation {
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
      * @param {boolean} getRaw
+     * @param {boolean} useSerializerForRawResources
      * @return {Promise<Bundle>}
      */
     async graph({
@@ -81,7 +82,8 @@ class GraphOperation {
         supportLegacyId = true,
         includeNonClinicalResources = false,
         nonClinicalResourcesDepth = 1,
-        getRaw = false
+        getRaw = false,
+        useSerializerForRawResources = false
     }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
@@ -203,7 +205,8 @@ class GraphOperation {
                         supportLegacyId,
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth,
-                        getRaw
+                        getRaw,
+                        useSerializerForRawResources
                     }
                 );
 

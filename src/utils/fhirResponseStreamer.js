@@ -4,6 +4,8 @@ const { assertIsValid } = require('./assertType');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 const { removeUnderscoreProps } = require('./removeUnderscoreProps');
+const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
+const BundleEntrySerializer = require('../fhir/serializers/4_0_0/backbone_elements/bundleEntry');
 
 class FhirResponseStreamer extends BaseResponseStreamer {
     /**
@@ -12,7 +14,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {string} requestId
      * @param {string} bundleType
      */
-    constructor (
+    constructor(
         {
             response,
             requestId,
@@ -64,7 +66,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * Starts response
      * @return {Promise<void>}
      */
-    async startAsync () {
+    async startAsync() {
         const contentType = 'application/fhir+json';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
@@ -77,10 +79,14 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync ({ bundleEntry, rawResources = false }) {
+    async writeBundleEntryAsync({ bundleEntry, rawResources = false, useSerializerForRawResources = false }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             if (rawResources) {
-                removeUnderscoreProps(bundleEntry);
+                if (useSerializerForRawResources) {
+                    FhirResourceSerializer.serialize(bundleEntry, BundleEntrySerializer);
+                } else {
+                    removeUnderscoreProps(bundleEntry);
+                }
             }
             else {
                 bundleEntry = bundleEntry.toJSON();
@@ -107,7 +113,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * sets the bundle to use
      * @param {Bundle} bundle
      */
-    setBundle ({ bundle }) {
+    setBundle({ bundle }) {
         this._bundle = bundle;
     }
 
@@ -115,7 +121,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * ends response
      * @return {Promise<void>}
      */
-    async endAsync () {
+    async endAsync() {
         const bundle = this._bundle || new Bundle({
             id: this.requestId,
             type: this._bundleType,

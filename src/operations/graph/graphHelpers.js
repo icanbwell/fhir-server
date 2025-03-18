@@ -1490,6 +1490,8 @@ class GraphHelper {
      * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
+     * @param {boolean} getRaw
+     * @param {boolean} useSerializerForRawResources
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync (
@@ -1509,7 +1511,8 @@ class GraphHelper {
             nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
             proxyPatientResources = [],
-            getRaw = false
+            getRaw = false,
+            useSerializerForRawResources = false
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1792,7 +1795,8 @@ class GraphHelper {
                             await responseStreamer.writeBundleEntryAsync(
                                 {
                                     bundleEntry: bundleEntry1,
-                                    rawResources: getRaw
+                                    rawResources: getRaw,
+                                    useSerializerForRawResources: useSerializerForRawResources
                                 }
                             );
                             idsOfBundleEntriesProcessed.push(resourceIdentifier);
@@ -1860,6 +1864,8 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
+     * @param {boolean} getRaw
+     * @param {boolean} useSerializerForRawResources
      * @return {Promise<Bundle>}
      */
     async processGraphAsync (
@@ -1874,7 +1880,8 @@ class GraphHelper {
             supportLegacyId = true,
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1,
-            getRaw = false
+            getRaw = false,
+            useSerializerForRawResources = false
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1971,7 +1978,8 @@ class GraphHelper {
                         nonClinicalResourcesDepth,
                         proxyPatientIds,
                         proxyPatientResources,
-                        getRaw
+                        getRaw,
+                        useSerializerForRawResources
                     }
                 );
                 entries = entries.concat(entries1);

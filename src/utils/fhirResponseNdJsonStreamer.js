@@ -1,3 +1,4 @@
+const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const { fhirContentTypes } = require('./contentTypes');
 const { removeUnderscoreProps } = require('./removeUnderscoreProps');
@@ -43,7 +44,7 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
      * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
+    async writeBundleEntryAsync({ bundleEntry, rawResources = false, useSerializerForRawResources = false }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {Resource}
@@ -51,7 +52,11 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
             let resource = bundleEntry.resource;
             if (resource !== null && resource !== undefined) {
                 if (rawResources) {
-                    removeUnderscoreProps(resource);
+                    if (useSerializerForRawResources) {
+                        FhirResourceSerializer.serialize(rawResources);
+                    } else {
+                        removeUnderscoreProps(resource);
+                    }
                 }
                 else {
                     resource = resource.toJSON();

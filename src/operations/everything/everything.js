@@ -201,7 +201,8 @@ class EverythingOperation {
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                 nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                getRaw: this.configManager.getRawEverythingOpBundle
+                getRaw: this.configManager.getRawEverythingOpBundle,
+                useSerializerForRawResources: this.configManager.useResourceSerializerOnRawEverythingOpBundle
             });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

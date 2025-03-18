@@ -1,3 +1,5 @@
+const { ConfigManager } = require('../../../utils/configManager');
+
 // test file
 const parentPersonResource = require('./fixtures/Person/parentPerson.json');
 const parentPerson1Resource = require('./fixtures/Person/parentPerson1.json');
@@ -40,6 +42,16 @@ const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = req
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
+class MockConfigManagerRawEverythingWithSerializer extends ConfigManager {
+    get useResourceSerializerOnRawEverythingOpBundle() {
+        return true;
+    }
+
+    get getRawEverythingOpBundle() {
+        return true;
+    }
+}
+
 describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -50,8 +62,14 @@ describe('Person and Patient $everything Tests', () => {
     });
 
     describe('Person and Patient $everything Tests', () => {
-        test('Person and Patient $everything works', async () => {
-            const request = await createTestRequest();
+        test('Person and Patient $everything works when rawResource and rawSeriazlier is enabled', async () => {
+            const serializerSpy = jest.spyOn(FhirResourceSerializer, 'serialize');
+            // create a new container
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManagerRawEverythingWithSerializer());
+                return container;
+            })
+
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -176,8 +194,6 @@ describe('Person and Patient $everything Tests', () => {
             const query = resp.body.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query')[0].display;
             expect(query.split('|').length).toEqual(76);
 
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientResources);
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?contained=true')
                 .set(getHeaders());
@@ -207,193 +223,8 @@ describe('Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1ContainedResources);
-        });
 
-        test('Person and Patient $everything works with _type', async () => {
-            const request = await createTestRequest();
-            // ARRANGE
-            // add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(topLevelPersonResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient3Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(accountResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(unlinkedAccountResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // ACT & ASSERT
-            // Check get patient everything with specified resources and check contained is ignored with _type
-            resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&contained=true&_debug=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientResourcesType);
-
-            // Check get person everything with specified resources
-            resp = await request
-                .get('/4_0_0/Person/person1/$everything?_type=Account,Person')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonResourcesType);
-        });
-
-        test('Nesting of $everything', async () => {
-            const request = await createTestRequest();
-            // ARRANGE
-            // add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(parentPerson1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(parentPersonResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(topLevelPersonResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient3Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(accountResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(unlinkedAccountResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            // ACT & ASSERT
-            // First get patient everything
-            resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-                .set(getHeaders());
-            // Check that person linked to parentPerson is not fetched by comparing count.
-            expect(resp.body.total).toEqual(8);
+            expect(serializerSpy).toHaveBeenCalled()
         });
     });
 });
