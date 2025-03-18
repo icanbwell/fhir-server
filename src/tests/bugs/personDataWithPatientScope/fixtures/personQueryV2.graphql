@@ -1,0 +1,58 @@
+query {
+    persons(_debug: true) {
+        entry {
+            resource {
+                resourceType
+                id
+                identifier {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    system
+                    value
+                }
+                link {
+                    id
+                    extension {
+                        id
+                        url
+                    }
+                    assurance
+                    target {
+                        reference
+                        resource {
+                            ... on Patient {
+                                id
+                            }
+                        }
+                    }
+                }
+                implicitRules
+                meta {
+                    id
+                    extension {
+                        id
+                    }
+                    versionId
+                    source
+                    profile
+                    security {
+                        id
+                        system
+                        code
+                    }
+                    tag {
+                        id
+                    }
+                }
+                name {
+                    family
+                    given
+                }
+            }
+        }
+    }
+}

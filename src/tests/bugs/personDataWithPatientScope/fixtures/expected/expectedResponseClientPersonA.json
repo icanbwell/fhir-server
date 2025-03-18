@@ -1,0 +1,127 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-03-18T07:43:34.835Z",
+          "source": "test",
+          "security": [
+            {
+              "id": "c28b0f79-dbb5-5c24-b24f-3f834da35cc1",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client-p1"
+            },
+            {
+              "id": "3fac0bd8-6b2c-512f-9afe-40137819e973",
+              "system": "https://www.icanbwell.com/access",
+              "code": "client-p1"
+            },
+            {
+              "id": "3ee72569-2631-5a3e-b6e1-79463c4bfeda",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client-p1"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0"
+          },
+          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0" }
+        ],
+        "link": [
+          {
+            "id": "p1",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client-p1"
+                }
+              ],
+              "reference": "Patient/27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
+            }
+          },
+          {
+            "id": "proa",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "client-p1"
+                }
+              ],
+              "reference": "Patient/e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Person_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'_uuid':'a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0'},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      { "system": "https://www.icanbwell.com/queryCollection", "code": "Person_4_0_0" },
+      { "system": "https://www.icanbwell.com/queryOptions", "display": "{'limit':100,'sort':{'_uuid':1}}" },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['meta.tag.system','meta.tag.code','_uuid','meta.security.system','meta.security.code']"
+      },
+      { "system": "https://www.icanbwell.com/queryTime", "display": "0.142" },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      },
+      { "system": "https://www.icanbwell.com/queryDatabase", "code": "fhir" },
+      {
+        "system": "https://www.icanbwell.com/queryExplain",
+        "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Person_4_0_0\",\"parsedQuery\":{\"$and\":[{\"_uuid\":{\"$eq\":\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\"}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"planCacheShapeHash\":\"DCD654F2\",\"planCacheKey\":\"17976884\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\\\", \\\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\\\"]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$and\":[{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\\\", \\\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\\\"]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"2C7289DF0E0FB51022CA9FEAFD87009688A8098C6BC585AD95A8B1132F6CECD6\",\"command\":{\"find\":\"Person_4_0_0\",\"filter\":{\"$and\":[{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"_uuid\":\"a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0\"},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\",\"code\":\"R\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Shubham-Go-(2)-MacBook-Air\",\"port\":54291,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7483052005775114255\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7483052005775114255\"}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple",
+        "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$and\":[{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Person_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'_uuid':'a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0'},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)\"}]"
+      }
+    ]
+  },
+  "type": "searchset",
+  "timestamp": "2025-03-18T07:43:35.3535Z",
+  "total": 0,
+  "link": [
+    { "relation": "self", "url": "http://127.0.0.1:54330/4_0_0/Person?_debug=1" },
+    {
+      "relation": "next",
+      "url": "http://127.0.0.1:54330/4_0_0/Person?_debug=1&id%3Aabove=a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0"
+    }
+  ]
+}
