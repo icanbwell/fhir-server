@@ -758,6 +758,13 @@ class ConfigManager {
         }
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP);
     }
+
+    get useResourceSerializerOnRawEverythingOpBundle() {
+        if (env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP);
+    }
 }
 
 module.exports = {
