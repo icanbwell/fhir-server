@@ -99,17 +99,19 @@ class DataSharingManager {
      * @property {string[]} securityTags security Tags
      * @property {import('mongodb').Filter<import('mongodb').Document>} query
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @property {boolean} isUser whether request is with patient scope
      * @param {RewriteDataSharingQuery} param
      */
-    async updateQueryConsideringDataSharing ({
-                                                base_version,
-                                                resourceType,
-                                                parsedArgs,
-                                                securityTags,
-                                                query,
-                                                useHistoryTable,
-                                                requestId
-                                            }) {
+    async updateQueryConsideringDataSharing({
+        base_version,
+        resourceType,
+        parsedArgs,
+        securityTags,
+        query,
+        useHistoryTable,
+        requestId,
+        isUser
+    }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
@@ -198,7 +200,8 @@ class DataSharingManager {
                     parsedArgs,
                     allowedConnectionTypesList,
                     useHistoryTable,
-                    patientsList
+                    patientsList,
+                    isUser
                 });
             }
         }
@@ -220,7 +223,8 @@ class DataSharingManager {
                     parsedArgs,
                     allowedConnectionTypesList,
                     useHistoryTable,
-                    patientsList
+                    patientsList,
+                    isUser
                 });
             }
         }
@@ -303,17 +307,19 @@ class DataSharingManager {
      * @property {string[]} allowedConnectionTypesList Allowed connection types list
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {any[]} patientsList List of patients containing id, _sourceId, _uuid & meta.security
+     * @property {boolean} isUser whether request is with patient scope
      * @param {RewriteDataSharingQuery2} param
      */
-    getConnectionTypeFilteredQuery ({
-                                       base_version,
-                                       resourceType,
-                                       allowedPatientIds,
-                                       parsedArgs,
-                                       allowedConnectionTypesList,
-                                       useHistoryTable,
-                                       patientsList
-                                   }) {
+    getConnectionTypeFilteredQuery({
+        base_version,
+        resourceType,
+        allowedPatientIds,
+        parsedArgs,
+        allowedConnectionTypesList,
+        useHistoryTable,
+        patientsList,
+        isUser
+    }) {
         /**
          * Clone of the original parsed arguments
          * @type {ParsedArgs}
@@ -383,7 +389,8 @@ class DataSharingManager {
             resourceType,
             useHistoryTable,
             base_version,
-            parsedArgs: updatedParsedArgs
+            parsedArgs: updatedParsedArgs,
+            isUser
         }).query;
 
         if (filteredQuery && !Object.keys(filteredQuery).length) {

@@ -9,11 +9,7 @@ class SearchQueryBuilder {
      * constructor
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      */
-    constructor (
-        {
-            r4SearchQueryCreator
-        }
-    ) {
+    constructor({ r4SearchQueryCreator }) {
         /**
          * @type {R4SearchQueryCreator}
          */
@@ -29,10 +25,11 @@ class SearchQueryBuilder {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {string} resourceType Resource Type
      * @property {string} operation Operation being performed
+     * @property {boolean} isUser if query is created for patient scope
      * @param {BuildSearchQueryBasedOnVersion} param Params for building search query based on version
      * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
      */
-    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable, operation }) {
+    buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable, operation, isUser }) {
         /** @type {import('mongodb').Document} */
         let query;
         /** @type {Set<string>} */
@@ -44,7 +41,11 @@ class SearchQueryBuilder {
                 query = buildDstu2SearchQuery(parsedArgs);
             } else {
                 ({ query, columns } = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, parsedArgs, useHistoryTable, operation
+                    resourceType,
+                    parsedArgs,
+                    useHistoryTable,
+                    operation,
+                    isUser
                 }));
             }
 
