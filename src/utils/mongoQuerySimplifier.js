@@ -63,7 +63,7 @@ class MongoQuerySimplifier {
             }
         }
 
-        if (filter.$or && filter.$or.length === 1) {
+        if (filter.$or && filter.$or.length === 1 && Object.keys(filter).length === 1) {
             filter = filter.$or[0];
         }
         // simplify $nor
@@ -97,7 +97,7 @@ class MongoQuerySimplifier {
             }
         }
         // if there are $and filters inside this $and then promote them to the same level
-        if (filter.$and && filter.$and.length === 1) {
+        if (filter.$and && filter.$and.length === 1 && Object.keys(filter).length === 1) {
             filter = filter.$and[0];
         }
 
@@ -108,7 +108,7 @@ class MongoQuerySimplifier {
         }
 
         // simplify $in
-        if (filter?.$in && filter.$in.length === 1) {
+        if (filter?.$in && filter.$in.length === 1 && Object.keys(filter).length === 1) {
             filter = filter.$in[0];
         }
 

@@ -1,0 +1,21 @@
+{
+    "id": "31de42ef-6268-5786-966b-fe18f1efaf63",
+    "meta": {
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/connectionType",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "bwell"
+        }
+      ]
+    },
+    "resourceType": "Patient"
+  }
+  
