@@ -145,29 +145,21 @@ class PatientScopeManager {
     /**
      * Gets value of patient property from resource
      * @param {Resource} resource
+     * @param {string|null} property
      * @return {string[] | undefined}
      */
-    getValueOfPatientPropertyFromResource ({ resource }) {
+    getValueOfPropertyFromResource ({ resource, property }) {
         assertTypeEquals(resource, Resource);
-        /** @type {string} */
-        const resourceType = resource.resourceType;
-        // Get name of patient property for this resource type
-        /**
-         * @type {string|string[]|null}
-         */
-        const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
-            resourceType
-        });
         // If this resource has a patient property then get the value of that property
-        if (patientFilterProperty) {
-            if (patientFilterProperty === 'id') {
+        if (property) {
+            if (property === 'id') {
                 return [resource._uuid];
             } else {
-                const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
+                const propertyUuid = property.replace('.reference', '._uuid');
                 let value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
                 // for incoming request, it may be stored in ".reference" only
                 if (!value || value?.length === 0) {
-                    value = NestedPropertyReader.getNestedProperty({ obj: resource, path: patientFilterProperty });
+                    value = NestedPropertyReader.getNestedProperty({ obj: resource, path: property });
                 }
                 // If patient reference field returns multiple ids, return all of them
                 if (Array.isArray(value) && value.length > 0) {
@@ -216,8 +208,21 @@ class PatientScopeManager {
         // separate uuids from non-uuids
         const patientUuids = patientIds.filter(id => isUuid(id));
 
+        /**
+         * @type {string|null}
+         */
+        let patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+            resourceType
+        });
+
+        if (!patientFilterProperty){
+            patientFilterProperty = this.patientFilterManager.getPatientPropertyForPersonScopedResource({
+                resourceType
+            });
+        }
+
         /** @type {string[]|undefined} */
-        const patientForResource = this.getValueOfPatientPropertyFromResource({ resource });
+        const patientForResource = this.getValueOfPropertyFromResource({ resource, property: patientFilterProperty });
         // if patient reference is not present in the resource then cannot write with patient scopes
         if (!patientForResource) {
             return false;
@@ -265,6 +270,15 @@ class PatientScopeManager {
             resourceType: resource.resourceType
         })) {
             return true;
+        }
+
+        let personFilter = this.patientFilterManager.getPersonPropertyForResource({resourceType: resource.resourceType});
+        // if access to resource is via person
+        if (personFilter){
+            const personsForResource = this.getValueOfPropertyFromResource({ resource, property: personFilter });
+            if (!personsForResource.includes(personIdFromJwtToken)){
+                return false;
+            }
         }
 
         // Validating if resource is related to the patient

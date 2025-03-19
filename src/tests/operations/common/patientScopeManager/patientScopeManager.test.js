@@ -17,6 +17,7 @@ const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 const Condition = require('../../../../fhir/classes/4_0_0/resources/condition');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const deepcopy = require('deepcopy');
+const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 
 describe('PatientScopeManager Tests', () => {
     /**
@@ -32,38 +33,48 @@ describe('PatientScopeManager Tests', () => {
         await commonAfterEach();
     });
 
-    describe('patientScopeManager getValueOfPatientPropertyFromResource Tests', () => {
+    describe('patientScopeManager getValueOfPropertyFromResource Tests', () => {
         const base_version = '4_0_0';
-        test('getValueOfPatientPropertyFromResource works for Patient', async () => {
+        test('getValueOfPropertyFromResource works for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
+            /** @type {PatientFilterManager} */
+            const patientFilterManager = container.patientFilterManager;
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
 
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
-            const patientUuid = patientScopeManager.getValueOfPatientPropertyFromResource({ resource: patient });
+            const patientFilterProperty = patientFilterManager.getPatientPropertyForResource({
+                resourceType: patient.resourceType
+            });
+            const patientUuid = patientScopeManager.getValueOfPropertyFromResource({ resource: patient, property: patientFilterProperty});
             const expectedPatientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             expect(patientUuid).toStrictEqual([expectedPatientUuid]);
         });
-        test('getValueOfPatientPropertyFromResource works for Condition', async () => {
+        test('getValueOfPropertyFromResource works for Condition', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
+            /** @type {PatientFilterManager} */
+            const patientFilterManager = container.patientFilterManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
-            const patientUuid = patientScopeManager.getValueOfPatientPropertyFromResource({ resource: condition });
+            const patientFilterProperty = patientFilterManager.getPatientPropertyForResource({
+                resourceType: condition.resourceType
+            });
+            const patientUuid = patientScopeManager.getValueOfPropertyFromResource({ resource: condition, property: patientFilterProperty });
             const patientReference = condition.subject.reference;
             const patientId = patientReference.split('/')[1];
             const expectedPatientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);

@@ -514,9 +514,15 @@ class BulkDataExportRunner {
                     }
                 };
             } else {
-                const patientField = this.patientFilterManager.getPatientPropertyForResource({
+                let patientField = this.patientFilterManager.getPatientPropertyForResource({
                     resourceType
                 });
+
+                if (!patientField){
+                    patientField = this.patientFilterManager.getPatientPropertyForPersonScopedResource({
+                        resourceType
+                    });
+                }
 
                 andQuery = {
                     [patientField.replace('.reference', '._uuid')]: {

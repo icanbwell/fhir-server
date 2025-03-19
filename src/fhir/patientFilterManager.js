@@ -102,6 +102,10 @@ class PatientFilterManager {
             SubscriptionStatus: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
             SubscriptionTopic: 'identifier=https://icanbwell.com/codes/client_person_id|{person}'
         };
+
+        this.patientFilterForPersonScopedResourceMapping = {
+            Person: 'link.target.reference'
+        }
     }
 
     /**
@@ -110,6 +114,17 @@ class PatientFilterManager {
      */
     getPatientPropertyForResource({resourceType}) {
         return this.patientFilterMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPatientPropertyForPersonScopedResource({resourceType}) {
+        if (!this.getPersonPropertyForResource({resourceType})){
+            return null;
+        }
+        return this.patientFilterForPersonScopedResourceMapping[`${resourceType}`];
     }
 
     /**
