@@ -121,9 +121,6 @@ class PatientFilterManager {
      * @return {string|string[]|null}
      */
     getPatientPropertyForPersonScopedResource({resourceType}) {
-        if (!this.getPersonPropertyForResource({resourceType})){
-            return null;
-        }
         return this.patientFilterForPersonScopedResourceMapping[`${resourceType}`];
     }
 

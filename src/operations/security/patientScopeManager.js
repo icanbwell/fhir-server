@@ -272,10 +272,10 @@ class PatientScopeManager {
             return true;
         }
 
-        let personFilter = this.patientFilterManager.getPersonPropertyForResource({resourceType: resource.resourceType});
+        let personProperty = this.patientFilterManager.getPersonPropertyForResource({resourceType: resource.resourceType});
         // if access to resource is via person
-        if (personFilter){
-            const personsForResource = this.getValueOfPropertyFromResource({ resource, property: personFilter });
+        if (personProperty){
+            const personsForResource = this.getValueOfPropertyFromResource({ resource, property: personProperty });
             if (!personsForResource.includes(personIdFromJwtToken)){
                 return false;
             }

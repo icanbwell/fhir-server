@@ -13,8 +13,8 @@ const clientPatient2Resource = require('./fixtures/Patient/patient2.json');
 const expectedResponse1 = require('./fixtures/Expected/expectedResponse1.json');
 const expectedResponse2 = require('./fixtures/Expected/expectedResponse2.json');
 const expectedResponse3 = require('./fixtures/Expected/expectedResponse3.json');
-const expectedResponse4 = require('./fixtures/Expected/expectedResponse4.json');
-const expectedResponse5 = require('./fixtures/Expected/expectedResponse5.json');
+const expectedForbiddenErrorResponse = require('./fixtures/Expected/expectedForbiddenErrorResponse.json');
+const expectedPatientRefErrorResponse = require('./fixtures/Expected/expectedPatientRefErrorResponse.json');
 
 const {
     commonBeforeEach,
@@ -90,7 +90,7 @@ describe('Person Tests', () => {
                 .send(clientPerson7Resource)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse5);
+            expect(resp).toHaveResponse(expectedPatientRefErrorResponse);
 
             // But if using non user/patient scope, links should be updated
             resp = await request
@@ -134,7 +134,7 @@ describe('Person Tests', () => {
                 .send(clientPerson5Resource)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse4);
+            expect(resp).toHaveResponse(expectedForbiddenErrorResponse);
 
             // New person resource cannot be created using patient scope
             resp = await request
@@ -142,7 +142,7 @@ describe('Person Tests', () => {
                 .send(clientPerson6Resource)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse4);
+            expect(resp).toHaveResponse(expectedForbiddenErrorResponse);
         });
     });
 });
