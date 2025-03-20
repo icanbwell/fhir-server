@@ -1,0 +1,37 @@
+{
+  "resourceType": "Person",
+  "id": "b83b2b9a-a454-4b64-aae6-583ec758abeb",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2025-03-13T11:56:29.645Z",
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-p2"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-p2"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-p2"
+      }
+    ]
+  },
+  "link": [
+    {
+      "id": "p2",
+      "target": {
+        "reference": "Patient/48e6dd68-4e3e-4246-8b2e-23539782722a"
+      }
+    },
+    {
+      "id": "proa",
+      "target": {
+        "reference": "Patient/e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+      }
+    }
+  ]
+}

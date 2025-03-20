@@ -1,0 +1,41 @@
+{
+  "id": "client-A-Observation",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-p1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-p1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-p1"
+      }
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://www.icanbwell.com/cql/library",
+        "code": "BMI001"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/libraryVersion",
+        "code": "1.0.0"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/rule",
+        "code": "InAgeCohort"
+      }
+    ]
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
+  }
+}

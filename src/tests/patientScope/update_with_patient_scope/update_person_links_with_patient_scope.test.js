@@ -5,6 +5,7 @@ const clientPerson3Resource = require('./fixtures/Person/person3.json');
 const clientPerson4Resource = require('./fixtures/Person/person4.json');
 const clientPerson5Resource = require('./fixtures/Person/person5.json');
 const clientPerson6Resource = require('./fixtures/Person/person6.json');
+const clientPerson7Resource = require('./fixtures/Person/person7.json');
 
 const clientPatient2Resource = require('./fixtures/Patient/patient2.json');
 
@@ -12,7 +13,8 @@ const clientPatient2Resource = require('./fixtures/Patient/patient2.json');
 const expectedResponse1 = require('./fixtures/Expected/expectedResponse1.json');
 const expectedResponse2 = require('./fixtures/Expected/expectedResponse2.json');
 const expectedResponse3 = require('./fixtures/Expected/expectedResponse3.json');
-const expectedResponse4 = require('./fixtures/Expected/expectedResponse4.json');
+const expectedForbiddenErrorResponse = require('./fixtures/Expected/expectedForbiddenErrorResponse.json');
+const expectedPatientRefErrorResponse = require('./fixtures/Expected/expectedPatientRefErrorResponse.json');
 
 const {
     commonBeforeEach,
@@ -82,6 +84,14 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse2);
 
+            // error is received when trying to add a new link to person using patient scope
+            resp = await request
+                .put('/4_0_0/Person/7b99904f-2f85-51a3-9398-e2eed6854639')
+                .send(clientPerson7Resource)
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientRefErrorResponse);
+
             // But if using non user/patient scope, links should be updated
             resp = await request
                 .put('/4_0_0/Person/7b99904f-2f85-51a3-9398-e2eed6854639')
@@ -124,15 +134,15 @@ describe('Person Tests', () => {
                 .send(clientPerson5Resource)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse4);
+            expect(resp).toHaveResponse(expectedForbiddenErrorResponse);
 
-            // Updating links of person, so patient reference has the required uuid
+            // New person resource cannot be created using patient scope
             resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(clientPerson6Resource)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveResponse(expectedForbiddenErrorResponse);
         });
     });
 });

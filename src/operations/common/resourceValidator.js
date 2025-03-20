@@ -96,9 +96,15 @@ class ResourceValidator {
             return null;
         }
         // Get Patient field
-        const patientField = this.patientFilterManager.getPatientPropertyForResource({
+        let patientField = this.patientFilterManager.getPatientPropertyForResource({
             resourceType: currentResource.resourceType
         });
+
+        if (!patientField){
+            patientField = this.patientFilterManager.getPatientPropertyForPersonScopedResource({
+                resourceType: currentResource.resourceType
+            });
+        }
 
         if (patientField) {
             const currentValue = NestedPropertyReader.getNestedProperty({
@@ -117,13 +123,19 @@ class ResourceValidator {
                     return null;
                 }
                 if (Array.isArray(currentValue) && Array.isArray(newValue)) {
-                    currentValue.sort();
-                    newValue.sort();
+                    // don't allow patient scope to add new reference in person
+                    if(currentResource.resourceType === 'Person' && currentValue.length !== newValue.length){
+                        referenceMatched = false;
+                    }
+                    else{
+                        currentValue.sort();
+                        newValue.sort();
 
-                    for(let index = 0 ; index < currentValue.length ; index++) {
-                        if ( currentValue[index] !== newValue[index] ) {
-                            referenceMatched = false;
-                            break;
+                        for(let index = 0 ; index < currentValue.length ; index++) {
+                            if ( currentValue[index] !== newValue[index] ) {
+                                referenceMatched = false;
+                                break;
+                            }
                         }
                     }
                 } else {

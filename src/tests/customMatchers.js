@@ -85,6 +85,7 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
     delete expected.timestamp;
     delete body.link;
     delete body.id; // This is uniquely created each time
+    delete expected.id;
 
     cleanMeta(body);
     if (body.entry) {

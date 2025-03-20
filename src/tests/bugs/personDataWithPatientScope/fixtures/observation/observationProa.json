@@ -1,0 +1,41 @@
+{
+  "id": "client-PROA-Observation",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "PROA"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "PROA"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "PROA"
+      }
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://www.icanbwell.com/cql/library",
+        "code": "BMI001"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/libraryVersion",
+        "code": "1.0.0"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/rule",
+        "code": "InAgeCohort"
+      }
+    ]
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "resourceType": "GraphDefinition",
+  "start": "Patient",
+  "status": "active",
+  "name": "test",
+  "link": [
+    {
+      "target": [
+        {
+          "type": "Person",
+          "params": "patient={ref}",
+          "link": [
+            {
+              "target": [
+                {
+                  "type": "Person",
+                  "params": "link={ref}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

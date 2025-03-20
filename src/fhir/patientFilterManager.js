@@ -63,7 +63,6 @@ class PatientFilterManager {
             Observation: 'subject.reference',
             Patient: 'id',
             PaymentNotice: 'request.reference',
-            Person: 'link.target.reference',
             Procedure: 'subject.reference',
             Provenance: 'target.reference',
             QuestionnaireResponse: 'subject.reference',
@@ -84,7 +83,9 @@ class PatientFilterManager {
          * defines the field in each resource that links to person
          * @type {Object}
          */
-        this.personFilterMapping = {};
+        this.personFilterMapping = {
+            Person: 'id'
+        };
 
         /**
          * defines the filter query in each resource that links to patient
@@ -101,6 +102,10 @@ class PatientFilterManager {
             SubscriptionStatus: 'extension=https://icanbwell.com/codes/client_person_id|{person}',
             SubscriptionTopic: 'identifier=https://icanbwell.com/codes/client_person_id|{person}'
         };
+
+        this.patientFilterForPersonScopedResourceMapping = {
+            Person: 'link.target.reference'
+        }
     }
 
     /**
@@ -109,6 +114,14 @@ class PatientFilterManager {
      */
     getPatientPropertyForResource({resourceType}) {
         return this.patientFilterMapping[`${resourceType}`];
+    }
+
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPatientPropertyForPersonScopedResource({resourceType}) {
+        return this.patientFilterForPersonScopedResourceMapping[`${resourceType}`];
     }
 
     /**
