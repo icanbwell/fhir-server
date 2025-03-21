@@ -8,6 +8,7 @@ class FhirResourceWriterBase extends Transform {
      * @param {number} highWaterMark
      * @param {import('http').ServerResponse} response
      * @param {Boolean} rawResources
+     * @param {Boolean} useFastSerializer
      */
     constructor (
         {
@@ -15,7 +16,8 @@ class FhirResourceWriterBase extends Transform {
             contentType,
             highWaterMark,
             response,
-            rawResources
+            rawResources,
+            useFastSerializer
         }
     ) {
         super({ objectMode, highWaterMark });
@@ -34,6 +36,11 @@ class FhirResourceWriterBase extends Transform {
          * @type {Boolean}
          */
         this.rawResources = rawResources;
+
+        /**
+         * @type {Boolean}
+         */
+        this.useFastSerializer = useFastSerializer;
     }
 
     /**

@@ -5,6 +5,7 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
 const { captureException } = require('../../common/sentry');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
@@ -16,9 +17,18 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      * @param {Boolean} rawResources
+     * @param {Boolean} useFastSerializer
      */
-    constructor ({ signal, contentType, highWaterMark, configManager, response, rawResources = false }) {
-        super({ objectMode: true, contentType, highWaterMark, response, rawResources });
+    constructor({
+        signal,
+        contentType,
+        highWaterMark,
+        configManager,
+        response,
+        rawResources = false,
+        useFastSerializer = false
+    }) {
+        super({ objectMode: true, contentType, highWaterMark, response, rawResources, useFastSerializer });
         /**
          * @type {boolean}
          * @private
@@ -52,7 +62,11 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         try {
             if (chunk !== null && chunk !== undefined) {
                 if (this.rawResources){
-                    removeUnderscoreProps(chunk);
+                    if(this.useFastSerializer){
+                        FhirResourceSerializer.serialize(chunk);
+                    } else {
+                        removeUnderscoreProps(chunk);
+                    }
                 }
                 else {
                     chunk = chunk.toJSON();

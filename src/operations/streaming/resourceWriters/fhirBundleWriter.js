@@ -9,6 +9,7 @@ const { RethrownError } = require('../../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../../common/sentry');
 const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -21,9 +22,27 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      * @param {Boolean} rawResources
+     * @param {Boolean} useFastSerializer
      */
-    constructor ({ fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response, rawResources = false }) {
-        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark, response, rawResources });
+    constructor({
+        fnBundle,
+        url,
+        signal,
+        defaultSortId,
+        highWaterMark,
+        configManager,
+        response,
+        rawResources = false,
+        useFastSerializer = false
+    }) {
+        super({
+            objectMode: true,
+            contentType: fhirContentTypes.fhirJson,
+            highWaterMark,
+            response,
+            rawResources,
+            useFastSerializer
+        });
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -86,7 +105,11 @@ class FhirBundleWriter extends FhirResourceWriterBase {
 
                 if (this.rawResources){
                     chunkJson = chunk;
-                    removeUnderscoreProps(chunkJson);
+                    if(this.useFastSerializer){
+                        FhirResourceSerializer.serialize(chunkJson);
+                    } else {
+                        removeUnderscoreProps(chunkJson);
+                    }
                 }
                 else {
                     chunkJson = chunk.toJSON();
@@ -182,7 +205,11 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             let bundle = this._fnBundle(this._lastid, stopTime);
 
             if (this.rawResources){
-                removeUnderscoreProps(bundle);
+                if(this.useFastSerializer){
+                    FhirResourceSerializer.serialize(bundle);
+                } else {
+                    removeUnderscoreProps(bundle);
+                }
             }
             else {
                 bundle = bundle.toJSON();

@@ -202,6 +202,10 @@ class DatabasePartitionedCursor {
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
                     try {
+                        // for adding resourceType to _elements case and excluding addition to history resource
+                        if (!result.resourceType && !result.resource){
+                            result.resourceType = this.resourceType
+                        }
                         return result;
                     } catch (e) {
                         const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;

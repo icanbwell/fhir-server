@@ -57,6 +57,7 @@ class ResourcePreparer {
          * @type {string[]|null}
          */
         const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
+        properties_to_return_list.push('resourceType')
 
         let element_to_return = null;
 
@@ -67,7 +68,6 @@ class ResourcePreparer {
                     acc[key] = element[key];
                     return acc;
                 }, {});
-                element_to_return.resourceType = resourceType;
         }
         else {
             /**

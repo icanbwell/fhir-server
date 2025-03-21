@@ -17,6 +17,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class SearchByIdOperation {
     /**
@@ -104,9 +105,11 @@ class SearchByIdOperation {
 
     /**
      * does a FHIR Search By Id
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @typedef searchByIdAsyncParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} resourceType
+     * @param {searchByIdAsyncParams} searchByIdAsyncParams
      * @return {Resource}
      */
     async searchByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
@@ -185,7 +188,12 @@ class SearchByIdOperation {
             /**
              * @type {Boolean}
             */
-            const rawResourceQuery = this.configManager.skipClassObjectResources.includes(resourceType);
+            let rawResourceQuery = this.configManager.skipClassObjectResources.includes(resourceType);
+
+            const useFastSerializer = this.configManager.enableFastSerializerInSearchById;
+            if (useFastSerializer) {
+                rawResourceQuery = true;
+            }
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
@@ -267,7 +275,9 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                if (rawResourceQuery) {
+                if (useFastSerializer) {
+                    FhirResourceSerializer.serializeByResourceType(resource, resourceType);
+                } else if (rawResourceQuery) {
                     removeUnderscoreProps(resource);
                 }
                 return resource;
