@@ -179,6 +179,20 @@ function sliceIntoChunks (arr, chunkSize) {
     return res;
 }
 
+/**
+ * Slices a list into chunks and yields them one by one.
+ *
+ * @param {*[]} arr - The array to be chunked.
+ * @param {number} chunkSize - The size of each chunk.
+ * @yields {*[]} - A chunk of the original array.
+ */
+function* sliceIntoChunksGenerator(arr, chunkSize) {
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        yield arr.slice(i, i + chunkSize);
+    }
+}
+
+
 module.exports = {
     findDuplicates,
     findDuplicateResourcesByUuid,
@@ -192,5 +206,6 @@ module.exports = {
     getFirstBundleEntryOrNull,
     removeEmptyEntriesAsync,
     removeDuplicatesWithLambda,
-    sliceIntoChunks
+    sliceIntoChunks,
+    sliceIntoChunksGenerator
 };
