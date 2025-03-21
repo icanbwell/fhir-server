@@ -36,6 +36,7 @@ class FhirResourceWriterFactory {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      * @param {Boolean} rawResources
+     * @param {Boolean} useFastSerializer
      * @return {FhirResourceWriterBase| {getContentType: function()}}
      */
     createResourceWriter (
@@ -50,7 +51,8 @@ class FhirResourceWriterFactory {
             highWaterMark,
             configManager,
             response,
-            rawResources = false
+            rawResources = false,
+            useFastSerializer = false
         }
     ) {
         // _format, if present, overrides content type
@@ -62,7 +64,8 @@ class FhirResourceWriterFactory {
                     highWaterMark,
                     configManager,
                     response,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
             if (format === fhirContentTypes.fhirJson) {
@@ -75,7 +78,8 @@ class FhirResourceWriterFactory {
                         highWaterMark,
                         configManager,
                         response,
-                        rawResources
+                        rawResources,
+                        useFastSerializer
                     });
                 }
                 return new FhirResourceWriter({
@@ -84,7 +88,8 @@ class FhirResourceWriterFactory {
                     highWaterMark,
                     configManager,
                     response,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
             if (format === fhirContentTypes.csv) {
@@ -94,7 +99,8 @@ class FhirResourceWriterFactory {
                     contentType: fhirContentTypes.csv,
                     highWaterMark,
                     configManager,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
             if (format === fhirContentTypes.tsv) {
@@ -104,7 +110,8 @@ class FhirResourceWriterFactory {
                     contentType: fhirContentTypes.tsv,
                     highWaterMark,
                     configManager,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
             if (format === fhirContentTypes.pipeDelimited) {
@@ -114,7 +121,8 @@ class FhirResourceWriterFactory {
                     contentType: fhirContentTypes.pipeDelimited,
                     highWaterMark,
                     configManager,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
         }
@@ -126,7 +134,8 @@ class FhirResourceWriterFactory {
                 highWaterMark,
                 configManager,
                 response,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         if (accepts.includes(fhirContentTypes.fhirJson)) {
@@ -139,7 +148,8 @@ class FhirResourceWriterFactory {
                     highWaterMark,
                     configManager,
                     response,
-                    rawResources
+                    rawResources,
+                    useFastSerializer
                 });
             }
             return new FhirResourceWriter({
@@ -148,7 +158,8 @@ class FhirResourceWriterFactory {
                 highWaterMark,
                 configManager,
                 response,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         if (accepts.includes(fhirContentTypes.csv)) {
@@ -158,7 +169,8 @@ class FhirResourceWriterFactory {
                 contentType: fhirContentTypes.csv,
                 highWaterMark,
                 configManager,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         if (accepts.includes(fhirContentTypes.tsv)) {
@@ -168,7 +180,8 @@ class FhirResourceWriterFactory {
                 contentType: fhirContentTypes.tsv,
                 highWaterMark,
                 configManager,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         if (accepts.includes(fhirContentTypes.pipeDelimited)) {
@@ -178,7 +191,8 @@ class FhirResourceWriterFactory {
                 contentType: fhirContentTypes.pipeDelimited,
                 highWaterMark,
                 configManager,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         if (this.configManager.enableReturnBundle || bundle) {
@@ -190,7 +204,8 @@ class FhirResourceWriterFactory {
                 highWaterMark,
                 configManager,
                 response,
-                rawResources
+                rawResources,
+                useFastSerializer
             });
         }
         return new FhirResourceWriter({
@@ -199,7 +214,8 @@ class FhirResourceWriterFactory {
             highWaterMark,
             configManager,
             response,
-            rawResources
+            rawResources,
+            useFastSerializer
         });
     }
 }

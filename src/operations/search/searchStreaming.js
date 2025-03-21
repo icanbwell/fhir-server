@@ -97,10 +97,11 @@ class SearchStreamingOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {Boolean} getRaw
+     * @param {Boolean} useFastSerializer
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreamingAsync (
-        { requestInfo, res, parsedArgs, resourceType, getRaw = false }) {
+        { requestInfo, res, parsedArgs, resourceType, getRaw = false, useFastSerializer = false }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
@@ -363,7 +364,8 @@ class SearchStreamingOperation {
                         defaultSortId,
                         accepts: requestInfo.accept,
                         params,
-                        getRaw
+                        getRaw,
+                        useFastSerializer
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {
