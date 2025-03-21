@@ -111,6 +111,8 @@ const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
 const { S3Client } = require('./utils/s3Client');
 const { CLOUD_STORAGE_CLIENTS } = require('./constants');
 const { MetaUuidEnrichmentProvider } = require('./enrich/providers/metaUuidEnrichmentProvider');
+const { EverythingHelper } = require('./operations/everything/everythingHelper');
+const { EverythingRelatedResourcesMapper } = require('./operations/everything/everythingRelatedResourcesMapper');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -467,6 +469,26 @@ const createContainer = function () {
         )
     );
 
+    container.register("everythingHelper", (c) => new EverythingHelper({
+        databaseQueryFactory: c.databaseQueryFactory,
+        securityTagManager: c.securityTagManager,
+        scopesManager: c.scopesManager,
+        scopesValidator: c.scopesValidator,
+        configManager: c.configManager,
+        bundleManager: c.bundleManager,
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        searchManager: c.searchManager,
+        enrichmentManager: c.enrichmentManager,
+        r4ArgsParser: c.r4ArgsParser,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        searchParametersManager: c.searchParametersManager,
+        searchBundleOperation: c.searchBundleOperation,
+        everythingRelatedResourceMapper: c.everythingRelatedResourceMapper
+    }))
+
+    container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
+
     container.register('bundleManager', (c) => new BundleManager({
         resourceManager: c.resourceManager
     }));
@@ -566,7 +588,8 @@ const createContainer = function () {
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
         scopesValidator: c.scopesValidator,
-        configManager: c.configManager
+        configManager: c.configManager,
+        everythingHelper: c.everythingHelper
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
