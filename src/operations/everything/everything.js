@@ -135,7 +135,7 @@ class EverythingOperation {
         if (this.configManager.useEverythingHelperInEverythingOp) {
             useEverythingHelper = this.configManager.useEverythingHelperInEverythingOpResources.includes(resourceType)
         } else {
-            useEverythingHelper = true
+            useEverythingHelper = false
         }
 
         /**
