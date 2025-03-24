@@ -771,14 +771,14 @@ class ConfigManager {
      */
     get getRawEverythingOpBundle() {
         if (env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
-            return true;
+            return false;
         }
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP);
     }
 
     get useResourceSerializerOnRawEverythingOpBundle() {
         if (env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
-            return true;
+            return false;
         }
         return isTrue(env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP);
     }
@@ -789,7 +789,7 @@ class ConfigManager {
      */
     get useEverythingHelperInEverythingOp() {
         if (env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP === null || env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP === undefined) {
-            return true;
+            return false;
         }
         return isTrue(env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP);
     }
