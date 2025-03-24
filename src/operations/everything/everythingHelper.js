@@ -198,7 +198,6 @@ class EverythingHelper {
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
      * @param {boolean} getRaw
-     * @param {boolean} useSerializerForRawResources
      * @return {Promise<Bundle>}
      */
     async retriveEverythingAsync({
@@ -210,8 +209,7 @@ class EverythingHelper {
         supportLegacyId = true,
         includeNonClinicalResources = false,
         nonClinicalResourcesDepth = 1,
-        getRaw = false,
-        useSerializerForRawResources = false
+        getRaw = false
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -287,8 +285,7 @@ class EverythingHelper {
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth,
                         proxyPatientIds,
-                        getRaw,
-                        useSerializerForRawResources
+                        getRaw
                     }
                 );
 
@@ -364,7 +361,6 @@ class EverythingHelper {
      * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
      * @param {boolean} getRaw
-     * @param {boolean} useSerializerForRawResources
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async retrieveEverythingMulipleIdsAsync({
@@ -379,8 +375,7 @@ class EverythingHelper {
         includeNonClinicalResources = false,
         nonClinicalResourcesDepth = 1,
         proxyPatientIds = [],
-        getRaw = false,
-        useSerializerForRawResources = false
+        getRaw = false
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -472,8 +467,7 @@ class EverythingHelper {
                 cursor,
                 getRaw,
                 parsedArgs,
-                responseStreamer,
-                useSerializerForRawResources
+                responseStreamer
             })
 
             entries.push(...(bundleEntries || []));
@@ -495,8 +489,7 @@ class EverythingHelper {
                         responseStreamer,
                         supportLegacyId,
                         proxyPatientIds,
-                        getRaw,
-                        useSerializerForRawResources
+                        getRaw
                     }
                 )
 
@@ -567,7 +560,6 @@ class EverythingHelper {
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
-    * @param {boolean} useSerializerForRawResources
     * @returns {Promise<QueryItem>}
     */
     async retriveveRelatedResourcesParallelyAsync(
@@ -583,8 +575,7 @@ class EverythingHelper {
             idsAlreayProcessed = [],
             proxyPatientIds = [],
             supportLegacyId = true,
-            getRaw = false,
-            useSerializerForRawResources = false
+            getRaw = false
         }
     ) {
 
@@ -719,8 +710,7 @@ class EverythingHelper {
                 cursor,
                 responseStreamer,
                 parsedArgs: relatedResourceParsedArgs,
-                getRaw,
-                useSerializerForRawResources
+                getRaw
             })
 
             parallelProcess.push(promiseResult)
@@ -752,7 +742,6 @@ class EverythingHelper {
      *  responseStreamer: ResponseStreamer,
      *  parsedArgs: ParsedArgs,
      *  getRaw: boolean,
-     *  useSerializerForRawResources: boolean,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -760,8 +749,7 @@ class EverythingHelper {
         cursor,
         responseStreamer,
         parsedArgs,
-        getRaw,
-        useSerializerForRawResources
+        getRaw
     }) {
         /**
          * @type {BundleEntry[]}
@@ -802,8 +790,7 @@ class EverythingHelper {
                     await responseStreamer.writeBundleEntryAsync(
                         {
                             bundleEntry: current_entity,
-                            rawResources: getRaw,
-                            useSerializerForRawResources: useSerializerForRawResources
+                            rawResources: getRaw
                         }
                     );
                 } else {

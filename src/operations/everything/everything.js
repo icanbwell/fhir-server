@@ -228,11 +228,10 @@ class EverythingOperation {
                     supportLegacyId,
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                     nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                    getRaw: this.configManager.getRawEverythingOpBundle,
-                    useSerializerForRawResources: this.configManager.useResourceSerializerOnRawEverythingOpBundle
+                    getRaw: this.configManager.getRawEverythingOpBundle
                 })
             } else {
-                const result = await this.graphOperation.graph({
+                result = await this.graphOperation.graph({
                     requestInfo,
                     res,
                     parsedArgs,
