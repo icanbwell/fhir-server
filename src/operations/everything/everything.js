@@ -212,9 +212,10 @@ class EverythingOperation {
                 );
             }
 
+
             /**
-             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
-             */
+            * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+            */
             let result;
             if (useEverythingHelper) {
                 const { base_version } = parsedArgs;
@@ -231,7 +232,7 @@ class EverythingOperation {
                     useSerializerForRawResources: this.configManager.useResourceSerializerOnRawEverythingOpBundle
                 })
             } else {
-                result = await this.graphOperation.graph({
+                const result = await this.graphOperation.graph({
                     requestInfo,
                     res,
                     parsedArgs,
@@ -240,8 +241,7 @@ class EverythingOperation {
                     supportLegacyId,
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                     nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                    getRaw: this.configManager.getRawEverythingOpBundle,
-                    useSerializerForRawResources: this.configManager.useResourceSerializerOnRawEverythingOpBundle
+                    getRaw: this.configManager.getRawEverythingOpBundle
                 });
             }
 

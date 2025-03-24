@@ -962,6 +962,7 @@ class SearchManager {
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
      * @param {boolean} getRaw
+     * @param {boolean} useFastSerializer
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (
@@ -977,7 +978,8 @@ class SearchManager {
             accepts,
             defaultSortId,
             params,
-            getRaw = false
+            getRaw = false,
+            useFastSerializer = false
         }
     ) {
         assertIsValid(requestId);
@@ -1022,7 +1024,8 @@ class SearchManager {
                 highWaterMark,
                 configManager: this.configManager,
                 response: res,
-                rawResources: getRaw
+                rawResources: getRaw,
+                useFastSerializer
             }
         );
 

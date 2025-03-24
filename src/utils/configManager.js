@@ -776,11 +776,37 @@ class ConfigManager {
         return isTrue(env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP);
     }
 
-    get useResourceSerializerOnRawEverythingOpBundle() {
-        if (env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === null || env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP === undefined) {
+    /**
+     * returns whether to use fast serialization for search list
+     * @return {Boolean}
+     */
+    get enableFastSerializerInSearch() {
+        if (env.ENABLE_FAST_SERIALIZER_IN_SEARCH === null || env.ENABLE_FAST_SERIALIZER_IN_SEARCH === undefined) {
             return false;
         }
-        return isTrue(env.ENABLE_SERIALZIER_RAW_BUNDLE_IN_EVERYTHING_OP);
+        return isTrue(env.ENABLE_FAST_SERIALIZER_IN_SEARCH);
+    }
+
+    /**
+     * returns whether to use fast serialization for search by id
+     * @return {Boolean}
+     */
+    get enableFastSerializerInSearchById() {
+        if (env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID === null || env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID);
+    }
+
+    /**
+     * returns whether to use fast serialization for $graph operation
+     * @return {Boolean}
+     */
+    get enableFastSerializerInGraphOp() {
+        if (env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP === null || env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP === undefined) {
+            return false;
+        }
+        return isTrue(env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP);
     }
 
     /**
