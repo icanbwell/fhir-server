@@ -26,7 +26,7 @@ const { ReferenceParser } = require('../../utils/referenceParser');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const { logError } = require('../common/logging');
+const { logError, logDebug } = require('../common/logging');
 const { sliceIntoChunks, sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -54,6 +54,7 @@ const clinicalResources = require('../../graphs/patient/generated.clinical_resou
 
 /**
  * @typedef {import('./everythingRelatedResourcesMapper').EverythingRelatedResources} EverythingRelatedResources
+ * @typedef {import('../query/parsedArgsItem').ParsedArgsItem}  ParsedArgsItem
  */
 
 /**
@@ -290,6 +291,7 @@ class EverythingHelper {
                         useSerializerForRawResources
                     }
                 );
+
                 entries = entries.concat(entries1);
                 queryItems = queryItems.concat(queryItems1);
                 options = options.concat(options1);
@@ -387,10 +389,6 @@ class EverythingHelper {
             */
             let entries = [];
             /**
-            * @type {QueryItem[]}
-            */
-            const queries = [];
-            /**
              * @type {string[]|null}
              */
             const specificReltedResourceType = parsedArgs.resourceFilterList;
@@ -403,12 +401,88 @@ class EverythingHelper {
             // so any POSTed data is not read as parameters
             parsedArgs.remove('resource');
 
+            // get top level resource
+            const {
+                /** @type {import('mongodb').Document}**/
+                query
+            } = await this.searchManager.constructQueryAsync({
+                user: requestInfo.user,
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                resourceType,
+                useAccessIndex: this.configManager.useAccessIndex,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
+                parsedArgs,
+                operation: READ,
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
+            });
+
+            /**
+            * @type {QueryItem[]}
+            */
+            const queries = [];
+
+            /**
+            * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+            */
+            const options = {};
+            const projection = {};
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection._id = 0;
+            options.projection = projection;
+
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+            /**
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+             */
+            const optionsForQueries = [];
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            const collectionName = cursor.getFirstCollection();
+            queries.push(
+                new QueryItem({
+                    query,
+                    resourceType,
+                    collectionName
+                }
+                )
+            );
+            optionsForQueries.push(options);
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = [];
+            const explanations = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
+            }
+
+            const { bundleEntries } = await this.processCursorAsync({
+                cursor,
+                getRaw,
+                parsedArgs,
+                responseStreamer,
+                useSerializerForRawResources
+            })
+
+            entries.push(...(bundleEntries || []));
+
+            // Fetch related resources
+            /**
+             * @type {import('mongodb').Document[]}
+             */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                // TODO
                 let { entities: realtedEntitites, queryItems } = await this.retriveveRelatedResourcesParallelyAsync(
                     {
                         requestInfo,
@@ -427,7 +501,7 @@ class EverythingHelper {
                 )
 
                 if (!responseStreamer) {
-                    entries.concat(realtedEntitites)
+                    entries.push(...(realtedEntitites || []))
                 }
 
                 for (const q of queryItems) {
@@ -443,13 +517,6 @@ class EverythingHelper {
                 }
             }
 
-            /**
-             * 1. Get Patients (in our case currently patient at top level is supported)
-             * 2. Stream them
-             * 3. Now get all realted resources using patientId and proxy patient ids
-             * 4. stream then parallely
-             */
-
             if (responseStreamer) {
                 entries = [];
             } else {
@@ -462,11 +529,11 @@ class EverythingHelper {
                 );
             }
 
-            // TODO:
+            // TODO: fetch non-clicincal resources
             return new ProcessMultipleIdsAsyncResult({
                 entries,
                 queryItems: queries,
-                option: [],
+                options: optionsForQueries,
                 explanations
             })
         } catch (e) {
@@ -496,6 +563,7 @@ class EverythingHelper {
     * @param {boolean} [debug]
     * @param {ParsedArgs} parsedArgs
     * @param {responseStreamer} responseStreamer
+    * @param {ResourceIdentifier[]} idsAlreayProcessed
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
@@ -512,6 +580,7 @@ class EverythingHelper {
             debug,
             parsedArgs,
             responseStreamer,
+            idsAlreayProcessed = [],
             proxyPatientIds = [],
             supportLegacyId = true,
             getRaw = false,
@@ -520,120 +589,164 @@ class EverythingHelper {
     ) {
 
         /**
+         * @type {QueryItem[]}
+         */
+        const queryItems = []
+
+        /**
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
-        /**
-         * @type {QueryItem[]}
-         */
-        const queries = [];
 
         /**
          * @type {EverythingRelatedResources[]}
          */
         const relatedResourcesMap = relatedResources;
+        /**
+         * @type {Promise<{ bundleEntries: BundleEntry[] }>[]}
+         */
+        const parallelProcess = [];
         // TODO: Make it parallel
         for (const relatedResource of relatedResourcesMap) {
-            const relatedResourceName = relatedResource.type;
-            const filterTemplate = relatedResource.params;
-            if (relatedResourceName == 'Patient') {
-                const resourceType = 'Patient';
-                const filterByPatientIds = filterTemplate.replace('{ref}');
+            const relatedResourceType = relatedResource.type;
+            const filterTemplateParam = relatedResource.params;
 
-                // build query for getting all direct patients first
-                const {
-                    /** @type {import('mongodb').Document}**/
-                    query
-                } = await this.searchManager.constructQueryAsync({
+            if (!filterTemplateParam || !relatedResourceType) {
+                continue;
+            }
+
+            /**
+             * @type {ParsedArgsItem}
+             */
+            const parentIdParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
+            /**
+             * @type {string[]}
+             */
+            const parentIdList = parentIdParsedArg.queryParameterValue.values || [];
+
+            let parentResourceTypeAndIdList = parentIdList.map(id => `${parentResourceType}/${id}`)
+            if (this.configManager.supportLegacyIds && supportLegacyId) {
+                // TODO: Add legacyId support
+            }
+
+            // for now this will always be true
+            if (parentResourceType === 'Patient' && proxyPatientIds) {
+                parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
+            }
+
+            if (parentResourceTypeAndIdList.length === 0) {
+                return;
+            }
+
+            const filterByPatientIds = filterTemplateParam;
+
+            /**
+             * @type {string}
+             */
+            let reverseFilterWithParentIds = filterByPatientIds.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentIdList.join(','));
+
+            /**
+             * @type {ParsedArgs}
+             */
+            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
+                {
+                    resourceType: relatedResourceType,
+                    queryString: reverseFilterWithParentIds
+                }
+            );
+
+            const args = {};
+            args.base_version = base_version;
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = this.configManager.useAccessIndex;
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync(
+                {
                     user: requestInfo.user,
                     scope: requestInfo.scope,
                     isUser: requestInfo.isUser,
-                    resourceType,
-                    useAccessIndex: this.configManager.useAccessIndex,
+                    resourceType: relatedResource.type,
+                    useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                     requestId: requestInfo.requestId,
-                    parsedArgs,
-                    operation: READ,
-                    accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
-                });
-
-                // TODO: Build 2nd Query to get patient referencing patient
-
-
-                /**
-                 * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-                 */
-                const options = {};
-                const projection = {};
-                // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-                projection._id = 0;
-                options.projection = projection;
-
-                /**
-                 * @type {number}
-                 */
-                const maxMongoTimeMS = this.configManager.mongoTimeout;
-
-                /**
-                 * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
-                 */
-                const optionsForQueries = [];
-
-                const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-                /**
-                 * mongo db cursor
-                 * @type {DatabasePartitionedCursor}
-                 */
-                let cursor = await databaseQueryManager.findAsync({ query, options });
-                cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-                const collectionName = cursor.getFirstCollection();
-                queries.push(
-                    new QueryItem({
-                        query,
-                        resourceType,
-                        collectionName
-                    })
-                );
-                optionsForQueries.push(options);
-                /**
-                 * @type {import('mongodb').Document[]}
-                 */
-                const explanations = explain || debug ? await cursor.explainAsync() : [];
-                if (explain) {
-                    // if explain is requested then just return one result
-                    cursor = cursor.limit(1);
+                    parsedArgs: relatedResourceParsedArgs,
+                    operation: READ
                 }
+            );
 
-                await this.processCursorAsync({
-                    cursor,
-                    responseStreamer,
-                    parsedArgs,
-                    getRaw,
-                    useSerializerForRawResources
-                })
-            } else {
-                // TODO: Complete this
-                // let patientTypeAndId = [];
+            const options = {};
+            const projection = {};
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection._id = 0;
+            options.projection = projection;
 
-                // if (proxyPatientIds) {
-                //     patientds = patientds.concat(proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id))
-                // }
 
-                // const searchParamName = filterTemplate.split('=')[0];
-                // // TODO: For other resources
-                // const filterByPatientIds =
+            /**
+            * @type {number}
+            */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: relatedResourceType,
+                base_version
+            });
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then don't return any results
+                cursor = cursor.limit(1);
             }
+            const collectionName = cursor.getFirstCollection();
+            const promiseResult = this.processCursorAsync({
+                cursor,
+                responseStreamer,
+                parsedArgs: relatedResourceParsedArgs,
+                getRaw,
+                useSerializerForRawResources
+            })
+
+            parallelProcess.push(promiseResult)
+
+            queryItems.push(new QueryItem({
+                query,
+                resourceType: relatedResourceType,
+                collectionName,
+                explanations
+            }))
         }
+
+        const result = await Promise.all(parallelProcess);
+        result.forEach(entry => {
+            bundleEntries.push(...(entry.bundleEntries || []))
+        })
 
 
         return {
             entities: bundleEntries,
-            queryItems: queries
+            queryItems
         }
     }
 
     /**
+     * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: DatabasePartitionedCursor,
      *  responseStreamer: ResponseStreamer,
@@ -641,6 +754,7 @@ class EverythingHelper {
      *  getRaw: boolean,
      *  useSerializerForRawResources: boolean,
      * }} options
+     * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
     async processCursorAsync({
         cursor,
@@ -695,7 +809,6 @@ class EverythingHelper {
                 } else {
                     bundleEntries.push(current_entity);
                 }
-                bundleEntries.push(current_entity);
             }
         }
 

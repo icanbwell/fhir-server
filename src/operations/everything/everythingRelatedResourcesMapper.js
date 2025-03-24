@@ -30,7 +30,8 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "AllergyIntolerance",
+            type: "AllergyIntolerance",
+            params: "patient={ref}",
             fields: {
                 uuid: "patient._uuid",
                 sourceId: "patient._sourceId"
@@ -65,7 +66,8 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "CarePlan",
+            type: "CarePlan",
+            params: "patient={ref}",
             fields: {
                 uuid: "subject._uuid",
                 sourceId: "subject._sourceId"
@@ -198,7 +200,8 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "DiagnosticReport",
+            type: "DiagnosticReport",
+            params: "patient={ref}",
             fields: {
                 uuid: "subject._uuid",
                 sourceId: "subject._sourceId"
@@ -212,14 +215,16 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "DocumentReference",
+            type: "DocumentReference",
+            params: "patient={ref}",
             fields: {
                 uuid: "subject._uuid",
                 sourceId: "subject._sourceId"
             }
         },
         {
-            resourceName: "Encounter",
+            type: "Encounter",
+            params: "patient={ref}",
             fields: {
                 uuid: "subject._uuid",
                 sourceId: "subject._sourceId"
@@ -240,7 +245,8 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "ExplanationOfBenefit",
+            type: "ExplanationOfBenefit",
+            params: "patient={ref}",
             fields: {
                 uuid: "patient._uuid",
                 sourceId: "patient._sourceId"
@@ -387,11 +393,12 @@ const RelatedResourceMap = {
             }
         },
         {
-            resourceName: "Observation",
+            type: "Observation",
             fields: {
                 uuid: "subject._uuid",
                 sourceId: "subject._sourceId"
-            }
+            },
+            params: "subject={ref}"
         },
         {
             type: "Patient",
@@ -535,10 +542,10 @@ class EverythingRelatedResourcesMapper {
         let result = RelatedResourceMap[resourceType] || [];
 
         if (specificReltedResourceType) {
-            result = result.filter((v) => specificReltedResourceTypeSet.has(v.resourceName))
+            result = result.filter((v) => specificReltedResourceTypeSet.has(v.type))
         }
 
-        return RelatedResourceMap[resourceType];
+        return result;
     }
 
 }
