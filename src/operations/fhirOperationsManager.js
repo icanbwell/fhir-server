@@ -480,7 +480,8 @@ class FhirOperationsManager {
                 res,
                 parsedArgs,
                 resourceType,
-                getRaw: this.configManager.skipClassObjectResourcesInList.includes(resourceType)
+                getRaw: this.configManager.skipClassObjectResourcesInList.includes(resourceType) || this.configManager.enableFastSerializerInSearch,
+                useFastSerializer: this.configManager.enableFastSerializerInSearch
             });
     }
 
@@ -973,7 +974,8 @@ resourceType
                     res,
                     parsedArgs,
                     resourceType,
-                    responseStreamer
+                    responseStreamer,
+                    getRaw: this.configManager.enableFastSerializerInGraphOp
                 });
             await responseStreamer.endAsync();
             return result;

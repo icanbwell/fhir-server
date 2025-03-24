@@ -5,6 +5,7 @@ const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { captureException } = require('../../common/sentry');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
@@ -17,9 +18,18 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      * @param {Boolean} rawResources
+     * @param {Boolean} useFastSerializer
      */
-    constructor ({ signal, contentType, highWaterMark, configManager, response, rawResources = false }) {
-        super({ objectMode: true, contentType, highWaterMark, response, rawResources });
+    constructor({
+        signal,
+        contentType,
+        highWaterMark,
+        configManager,
+        response,
+        rawResources = false,
+        useFastSerializer = false
+    }) {
+        super({ objectMode: true, contentType, highWaterMark, response, rawResources, useFastSerializer });
         /**
          * @type {AbortSignal}
          * @private
@@ -51,7 +61,11 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk.id}`, {});
                 }
                 if (this.rawResources){
-                    removeUnderscoreProps(chunk);
+                    if(this.useFastSerializer){
+                        FhirResourceSerializer.serialize(chunk);
+                    } else {
+                        removeUnderscoreProps(chunk);
+                    }
                 }
                 else {
                     chunk = chunk.toJSON();

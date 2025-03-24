@@ -3,7 +3,6 @@ const { removeNull } = require('./nullRemover');
 const { assertIsValid } = require('./assertType');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
-const { removeUnderscoreProps } = require('./removeUnderscoreProps');
 const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
 const BundleEntrySerializer = require('../fhir/serializers/4_0_0/backbone_elements/bundleEntry');
 
@@ -79,14 +78,10 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry, rawResources = false, useSerializerForRawResources = false }) {
+    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             if (rawResources) {
-                if (useSerializerForRawResources) {
-                    FhirResourceSerializer.serialize(bundleEntry, BundleEntrySerializer);
-                } else {
-                    removeUnderscoreProps(bundleEntry);
-                }
+                FhirResourceSerializer.serialize(bundleEntry, BundleEntrySerializer);
             }
             else {
                 bundleEntry = bundleEntry.toJSON();
