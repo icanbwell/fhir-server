@@ -132,8 +132,8 @@ class EverythingOperation {
          */
         let useEverythingHelper;
 
-        if (this.configManager.useEverythingHelperInEverythingOp) {
-            useEverythingHelper = this.configManager.useEverythingHelperInEverythingOpResources.includes(resourceType)
+        if (this.configManager.disableGraphInEverythingOp) {
+            useEverythingHelper = this.configManager.disableGraphInEverythingOpResources.includes(resourceType)
         } else {
             useEverythingHelper = false
         }

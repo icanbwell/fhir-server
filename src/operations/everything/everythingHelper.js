@@ -513,9 +513,9 @@ class EverythingHelper {
             if (responseStreamer) {
                 entries = [];
             } else {
-                bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                entries = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
-                        entries: bundleEntriesForTopLevelResource,
+                        entries,
                         parsedArgs,
                         rawResources: getRaw
                     }

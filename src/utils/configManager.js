@@ -813,21 +813,21 @@ class ConfigManager {
      * Disable using graph for everything and instead use everythingHelper
      * @returns {boolean}
      */
-    get useEverythingHelperInEverythingOp() {
-        if (env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP === null || env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP === undefined) {
+    get disableGraphInEverythingOp() {
+        if (env.DISABLE_GRAPH_IN_EVERYTHING_OP === null || env.DISABLE_GRAPH_IN_EVERYTHING_OP === undefined) {
             return false;
         }
-        return isTrue(env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP);
+        return isTrue(env.DISABLE_GRAPH_IN_EVERYTHING_OP);
     }
 
     /**
      * List of resources for which we want to disable using graph for everything and instead use everythingHelper
      * @return {string[] | undefined}
      */
-    get useEverythingHelperInEverythingOpResources() {
+    get disableGraphInEverythingOpResources() {
         return (
-            (env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP_RESOURCES &&
-                env.USE_EVERYTHING_HELPER_IN_EVERYTHING_OP_RESOURCES.split(',').map((col) => col.trim())) || ['Patient']
+            (env.DISABLE_GRAPH_IN_EVERYTHING_OP_RESOURCES &&
+                env.DISABLE_GRAPH_IN_EVERYTHING_OP_RESOURCES.split(',').map((col) => col.trim())) || ['Patient']
         );
     }
 }
