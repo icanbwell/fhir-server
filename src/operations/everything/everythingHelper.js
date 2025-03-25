@@ -486,7 +486,7 @@ class EverythingHelper {
                 );
             }
 
-            // TODO: fetch non-clicincal resources
+            // ------------------------TODO: fetch non-clicincal resources----------------------
             return new ProcessMultipleIdsAsyncResult({
                 entries,
                 queryItems: queries,
@@ -689,7 +689,6 @@ class EverythingHelper {
          * @type {Promise<{ bundleEntries: BundleEntry[] }>[]}
          */
         const parallelProcess = [];
-        // TODO: Make it parallel
         for (const relatedResource of relatedResourcesMap) {
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
@@ -877,7 +876,6 @@ class EverythingHelper {
 
                 const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
                 if (responseStreamer) {
-                    // TODO: Build something like ResponsePrepareTransform to enrich the resources
                     [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                         entries: [current_entity],
                         parsedArgs,
