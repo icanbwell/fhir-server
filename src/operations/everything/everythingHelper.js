@@ -50,6 +50,7 @@ const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartition
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
+const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
@@ -251,6 +252,10 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             let explanations = [];
+            /**
+             * @type {ResourceProccessedTracker}
+             */
+            let bundleEntryIdsProcessedTracker = new ResourceProccessedTracker();
 
             for (const idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
@@ -280,6 +285,7 @@ class EverythingHelper {
                         explain: !!parsedArgs._explain,
                         debug: !!parsedArgs._debug,
                         parsedArgs: parsedArgsForChunk,
+                        bundleEntryIdsProcessedTracker,
                         responseStreamer,
                         supportLegacyId,
                         includeNonClinicalResources,
@@ -356,6 +362,7 @@ class EverythingHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @param {bundleEntryIdsProcessedTracker} bundleEntryIdsProcessedTracker
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
@@ -371,6 +378,7 @@ class EverythingHelper {
         debug,
         parsedArgs,
         responseStreamer,
+        bundleEntryIdsProcessedTracker,
         supportLegacyId = true,
         includeNonClinicalResources = false,
         nonClinicalResourcesDepth = 1,
@@ -380,14 +388,11 @@ class EverythingHelper {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             /**
-            * @type {BundleEntry[]}
-            */
-            let entries = [];
-            /**
              * @type {string[]|null}
              */
             const specificReltedResourceType = parsedArgs.resourceFilterList;
-            const realtedResourcesMap = this.everythingRelatedResourceMapper.relatedResources(resourceType, specificReltedResourceType);
+            const specificReltedResourceTypeSet = specificReltedResourceType ? new Set(specificReltedResourceType) : null;
+            const realtedResourcesMap = this.everythingRelatedResourceMapper.relatedResources(resourceType, specificReltedResourceTypeSet);
             /**
              * @type {Generator<import('./everythingRelatedResourcesMapper').EverythingRelatedResources[],void, unknown>}
              */
@@ -396,81 +401,39 @@ class EverythingHelper {
             // so any POSTed data is not read as parameters
             parsedArgs.remove('resource');
 
-            // get top level resource
-            const {
-                /** @type {import('mongodb').Document}**/
-                query
-            } = await this.searchManager.constructQueryAsync({
-                user: requestInfo.user,
-                scope: requestInfo.scope,
-                isUser: requestInfo.isUser,
-                resourceType,
-                useAccessIndex: this.configManager.useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                requestId: requestInfo.requestId,
-                parsedArgs,
-                operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
-            });
-
+            /**
+            * @type {BundleEntry[]}
+            */
+            let entries;
             /**
             * @type {QueryItem[]}
             */
-            const queries = [];
-
-            /**
-            * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-            */
-            const options = {};
-            const projection = {};
-            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection._id = 0;
-            options.projection = projection;
-
-            /**
-             * @type {number}
-             */
-            const maxMongoTimeMS = this.configManager.mongoTimeout;
+            let queries;
             /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
              */
-            const optionsForQueries = [];
-
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
-            let cursor = await databaseQueryManager.findAsync({ query, options });
-            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-            const collectionName = cursor.getFirstCollection();
-            queries.push(
-                new QueryItem({
-                    query,
-                    resourceType,
-                    collectionName
-                }
-                )
-            );
-            optionsForQueries.push(options);
+            let optionsForQueries;
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = explain || debug ? await cursor.explainAsync() : [];
-            if (explain) {
-                // if explain is requested then just return one result
-                cursor = cursor.limit(1);
-            }
+            let explanations;
 
-            const { bundleEntries } = await this.processCursorAsync({
-                cursor,
+            ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchBaseResourceAsync({
+                resourceType,
+                base_version,
+                queries,
+                optionsForQueries,
+                explain,
+                debug,
                 getRaw,
                 parsedArgs,
-                responseStreamer
-            })
-
-            entries.push(...(bundleEntries || []));
+                responseStreamer,
+                bundleEntryIdsProcessedTracker,
+                specificReltedResourceTypeSet,
+                entries,
+                explanations,
+                requestInfo
+            }));
 
             // Fetch related resources
             /**
@@ -487,6 +450,7 @@ class EverythingHelper {
                         debug,
                         parsedArgs,
                         responseStreamer,
+                        bundleEntryIdsProcessedTracker,
                         supportLegacyId,
                         proxyPatientIds,
                         getRaw
@@ -547,6 +511,134 @@ class EverythingHelper {
     }
 
     /**
+    * fetch top level resource
+    * @param {string} base_version
+    * @param {FhirRequestInfo} requestInfo
+    * @param {string} resourceType
+    * @param {boolean} [explain]
+    * @param {boolean} [debug]
+    * @param {ParsedArgs} parsedArgs
+    * @param {BaseResponseStreamer|undefined} [responseStreamer]
+    * @param {bundleEntryIdsProcessedTracker} bundleEntryIdsProcessedTracker
+    * @param {Set<string>} specificReltedResourceTypeSet
+    * @param {boolean} getRaw
+    * @return {Promise<ProcessMultipleIdsAsyncResult>}
+    */
+    async fetchBaseResourceAsync({
+        base_version,
+        requestInfo,
+        resourceType,
+        explain,
+        debug,
+        parsedArgs,
+        responseStreamer,
+        bundleEntryIdsProcessedTracker,
+        getRaw,
+        specificReltedResourceTypeSet
+    }) {
+
+        /**
+         * @type {BundleEntry[]}
+         */
+        let entries = [];
+        /**
+        * @type {QueryItem[]}
+        */
+        let queries = [];
+        /**
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+         */
+        let optionsForQueries = [];
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        let explanations = [];
+
+        // get top level resource
+        const {
+            /** @type {import('mongodb').Document}**/
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
+        });
+
+
+        const options = {};
+        const projection = {};
+        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+        projection._id = 0;
+        options.projection = projection;
+
+        // this is required to be filled only once
+        optionsForQueries.push(options);
+
+        // Qeury only if resourceType is present in specificReltedResourceTypeSet or specificReltedResourceTypeSet is not passed
+        if (!specificReltedResourceTypeSet || specificReltedResourceTypeSet.has(resourceType)) {
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            const collectionName = cursor.getFirstCollection();
+
+            queries.push(
+                new QueryItem({
+                    query,
+                    resourceType,
+                    collectionName
+                }
+                )
+            );
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations1 = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
+            }
+
+            explanations.push(...explanations1);
+
+            const { bundleEntries } = await this.processCursorAsync({
+                cursor,
+                getRaw,
+                parsedArgs,
+                responseStreamer,
+                bundleEntryIdsProcessedTracker
+            });
+
+            entries.push(...(bundleEntries || []));
+        }
+
+        return new ProcessMultipleIdsAsyncResult({
+            entries,
+            queryItems: queries,
+            options: optionsForQueries,
+            explanations
+        })
+
+    }
+
+    /**
     * Gets related resources and adds them to containedEntries in parentEntities
     * @param {FhirRequestInfo} requestInfo
     * @param {string} base_version
@@ -555,8 +647,8 @@ class EverythingHelper {
     * @param {boolean} [explain]
     * @param {boolean} [debug]
     * @param {ParsedArgs} parsedArgs
-    * @param {responseStreamer} responseStreamer
-    * @param {ResourceIdentifier[]} idsAlreayProcessed
+    * @param {ResponseStreamer} responseStreamer
+    * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
@@ -572,7 +664,7 @@ class EverythingHelper {
             debug,
             parsedArgs,
             responseStreamer,
-            idsAlreayProcessed = [],
+            bundleEntryIdsProcessedTracker,
             proxyPatientIds = [],
             supportLegacyId = true,
             getRaw = false
@@ -710,6 +802,7 @@ class EverythingHelper {
                 cursor,
                 responseStreamer,
                 parsedArgs: relatedResourceParsedArgs,
+                bundleEntryIdsProcessedTracker,
                 getRaw
             })
 
@@ -741,6 +834,8 @@ class EverythingHelper {
      *  cursor: DatabasePartitionedCursor,
      *  responseStreamer: ResponseStreamer,
      *  parsedArgs: ParsedArgs,
+     *  bundleEntryIdsProcessedTracker: bundleEntryIdsProcessedTracker,
+     *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
@@ -749,6 +844,7 @@ class EverythingHelper {
         cursor,
         responseStreamer,
         parsedArgs,
+        bundleEntryIdsProcessedTracker,
         getRaw
     }) {
         /**
@@ -779,6 +875,7 @@ class EverythingHelper {
                         resource: startResource
                     });
 
+                const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
                 if (responseStreamer) {
                     // TODO: Build something like ResponsePrepareTransform to enrich the resources
                     [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
@@ -787,14 +884,21 @@ class EverythingHelper {
                         rawResources: getRaw
                     });
 
-                    await responseStreamer.writeBundleEntryAsync(
-                        {
-                            bundleEntry: current_entity,
-                            rawResources: getRaw
+                    if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        await responseStreamer.writeBundleEntryAsync(
+                            {
+                                bundleEntry: current_entity,
+                                rawResources: getRaw
+                            }
+                        );
+                        // }
+                    } else {
+                        if (!bundleEntriesProcessed.has(resourceIdentifier)) {
+                            bundleEntries.push(current_entity);
                         }
-                    );
-                } else {
-                    bundleEntries.push(current_entity);
+                    }
+
+                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
                 }
             }
         }

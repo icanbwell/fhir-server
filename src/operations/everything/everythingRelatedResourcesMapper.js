@@ -530,18 +530,17 @@ class EverythingRelatedResourcesMapper {
      * Retrieves related resources for the given resource type.
      *
      * @param {string} resourceType - The type of resource to retrieve related resources for.
-     * @param {string[] | null} specificReltedResourceType - Return only passed realted resource type map
+     * @param {Set<string> | null} specificReltedResourceTypeSet - Return only passed realted resource type map
      * @returns {Array<EverythingRelatedResources>} - An array of related resource map.
      */
-    relatedResources(resourceType, specificReltedResourceType) {
-        const specificReltedResourceTypeSet = specificReltedResourceType ? new Set(specificReltedResourceType) : null
+    relatedResources(resourceType, specificReltedResourceTypeSet) {
         if (!RelatedResourceMap[resourceType]) {
             throw new Error(`EverythingRelatedResourcesMapper doesn't support ${resourceType} resource`)
         }
 
         let result = RelatedResourceMap[resourceType] || [];
 
-        if (specificReltedResourceType) {
+        if (specificReltedResourceTypeSet) {
             result = result.filter((v) => specificReltedResourceTypeSet.has(v.type))
         }
 
