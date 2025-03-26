@@ -819,17 +819,6 @@ class ConfigManager {
         }
         return isTrue(env.DISABLE_GRAPH_IN_EVERYTHING_OP);
     }
-
-    /**
-     * List of resources for which we want to disable using graph for everything and instead use everythingHelper
-     * @return {string[] | undefined}
-     */
-    get disableGraphInEverythingOpResources() {
-        return (
-            (env.DISABLE_GRAPH_IN_EVERYTHING_OP_RESOURCES &&
-                env.DISABLE_GRAPH_IN_EVERYTHING_OP_RESOURCES.split(',').map((col) => col.trim())) || ['Patient']
-        );
-    }
 }
 
 module.exports = {

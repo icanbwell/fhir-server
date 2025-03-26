@@ -5,7 +5,6 @@
  * @property {string} sourceId - Path to reach resource sourceId field
  * @typedef {Object} EverythingRelatedResources
  * @property {string} type - The name of the related resource.
- * @property {EverythingRelatedResourceFields} fields - The fields associated with the resource.
  * @property {string} params Search param for the target
  */
 
@@ -17,508 +16,299 @@ const RelatedResourceMap = {
     Patient: [
         {
             type: "Account",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            params: "patient={ref}"
         },
         {
-            resourceName: "AdverseEvent",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            type: "AllergyIntolerance",
-            params: "patient={ref}",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "Appointment",
-            fields: {
-                uuid: "participant.actor._uuid",
-                sourceId: "participant.actor._sourceId"
-            }
-        },
-        {
-            resourceName: "AppointmentResponse",
-            fields: {
-                uuid: "actor._uuid",
-                sourceId: "actor._sourceId"
-            }
-        },
-        {
-            resourceName: "Basic",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "BodyStructure",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            type: "CarePlan",
-            params: "patient={ref}",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "CareTeam",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "ChargeItem",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Claim",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "ClaimResponse",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "ClinicalImpression",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Communication",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "CommunicationRequest",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Composition",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Condition",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Consent",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "Contract",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Coverage",
-            fields: {
-                uuid: "beneficiary._uuid",
-                sourceId: "beneficiary._sourceId"
-            }
-        },
-        {
-            resourceName: "CoverageEligibilityRequest",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "CoverageEligibilityResponse",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "DetectedIssue",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "Device",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "DeviceRequest",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "DeviceUseStatement",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            type: "DiagnosticReport",
-            params: "patient={ref}",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "DocumentManifest",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            type: "DocumentReference",
-            params: "patient={ref}",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            type: "Encounter",
-            params: "patient={ref}",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "EnrollmentRequest",
-            fields: {
-                uuid: "candidate._uuid",
-                sourceId: "candidate._sourceId"
-            }
-        },
-        {
-            resourceName: "EpisodeOfCare",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            type: "ExplanationOfBenefit",
-            params: "patient={ref}",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "FamilyMemberHistory",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "Flag",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Goal",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Group",
-            fields: {
-                uuid: "member.entity._uuid",
-                sourceId: "member.entity._sourceId"
-            }
-        },
-        {
-            resourceName: "GuidanceResponse",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "ImagingStudy",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Immunization",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "ImmunizationEvaluation",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "ImmunizationRecommendation",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "Invoice",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Linkage",
-            fields: {
-                uuid: "item.resource._uuid",
-                sourceId: "item.resource._sourceId"
-            }
-        },
-        {
-            resourceName: "List",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MeasureReport",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "Media",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MedicationAdministration",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MedicationDispense",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MedicationRequest",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MedicationStatement",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
-        },
-        {
-            resourceName: "MolecularSequence",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            resourceName: "NutritionOrder",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
-        },
-        {
-            type: "Observation",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            },
+            type: "AdverseEvent",
             params: "subject={ref}"
         },
         {
+            type: "AllergyIntolerance",
+            params: "patient={ref}"
+        },
+        {
+            type: "Appointment",
+            params: "patient={ref}"
+        },
+        {
+            type: "AppointmentResponse",
+            params: "patient={ref}"
+        },
+        {
+            type: "Basic",
+            params: "patient={ref}"
+        },
+        {
+            type: "BodyStructure",
+            params: "patient={ref}"
+        },
+        {
+            type: "CarePlan",
+            params: "patient={ref}"
+        },
+        {
+            type: "CareTeam",
+            params: "patient={ref}"
+        },
+        {
+            type: "ChargeItem",
+            params: "patient={ref}"
+        },
+        {
+            type: "Claim",
+            params: "patient={ref}"
+        },
+        {
+            type: "ClaimResponse",
+            params: "patient={ref}"
+        },
+        {
+            type: "ClinicalImpression",
+            params: "patient={ref}"
+        },
+        {
+            type: "Communication",
+            params: "patient={ref}"
+        },
+        {
+            type: "CommunicationRequest",
+            params: "patient={ref}"
+        },
+        {
+            type: "Composition",
+            params: "patient={ref}"
+        },
+        {
+            type: "Condition",
+            params: "patient={ref}"
+        },
+        {
+            type: "Consent",
+            params: "patient={ref}"
+        },
+        {
+            type: "Contract",
+            params: "patient={ref}"
+        },
+        {
+            type: "Coverage",
+            params: "patient={ref}"
+        },
+        {
+            type: "CoverageEligibilityRequest",
+            params: "patient={ref}"
+        },
+        {
+            type: "CoverageEligibilityResponse",
+            params: "patient={ref}"
+        },
+        {
+            type: "DetectedIssue",
+            params: "patient={ref}"
+        },
+        {
+            type: "Device",
+            params: "patient={ref}"
+        },
+        {
+            type: "DeviceRequest",
+            params: "patient={ref}"
+        },
+        {
+            type: "DeviceUseStatement",
+            params: "patient={ref}"
+        },
+        {
+            type: "DiagnosticReport",
+            params: "patient={ref}"
+        },
+        {
+            type: "DocumentManifest",
+            params: "patient={ref}"
+        },
+        {
+            type: "DocumentReference",
+            params: "patient={ref}"
+        },
+        {
+            type: "Encounter",
+            params: "patient={ref}"
+        },
+        {
+            type: "EnrollmentRequest",
+            params: "patient={ref}"
+        },
+        {
+            type: "EpisodeOfCare",
+            params: "patient={ref}"
+        },
+        {
+            type: "ExplanationOfBenefit",
+            params: "patient={ref}"
+        },
+        {
+            type: "FamilyMemberHistory",
+            params: "patient={ref}"
+        },
+        {
+            type: "Flag",
+            params: "patient={ref}"
+        },
+        {
+            type: "Goal",
+            params: "patient={ref}"
+        },
+        {
+            type: "Group",
+            params: "member={ref}"
+        },
+        {
+            type: "GuidanceResponse",
+            params: "patient={ref}"
+        },
+        {
+            type: "ImagingStudy",
+            params: "patient={ref}"
+        },
+        {
+            type: "Immunization",
+            params: "patient={ref}"
+        },
+        {
+            type: "ImmunizationEvaluation",
+            params: "patient={ref}"
+        },
+        {
+            type: "ImmunizationRecommendation",
+            params: "patient={ref}"
+        },
+        {
+            type: "Invoice",
+            params: "patient={ref}"
+        },
+        {
+            type: "Linkage",
+            params: "item={ref}"
+        },
+        {
+            type: "List",
+            params: "patient={ref}"
+        },
+        {
+            type: "MeasureReport",
+            params: "patient={ref}"
+        },
+        {
+            type: "Media",
+            params: "patient={ref}"
+        },
+        {
+            type: "MedicationAdministration",
+            params: "patient={ref}"
+        },
+        {
+            type: "MedicationDispense",
+            params: "patient={ref}"
+        },
+        {
+            type: "MedicationRequest",
+            params: "patient={ref}"
+        },
+        {
+            type: "MedicationStatement",
+            params: "patient={ref}"
+        },
+        {
+            type: "MolecularSequence",
+            params: "patient={ref}"
+        },
+        {
+            type: "NutritionOrder",
+            params: "patient={ref}"
+        },
+        {
+            type: "Observation",
+            params: "patient={ref}"
+        },
+        {
             type: "Patient",
-            params: "link={ref}",
-            fields: {
-                uuid: "link.other._uuid",
-                sourceId: "link.other._sourceId"
-            }
+            params: "link={ref}"
         },
         {
-            resourceName: "PaymentNotice",
-            fields: {
-                uuid: "request._uuid",
-                sourceId: "request._sourceId"
-            }
+            type: "PaymentNotice",
+            params: "request={ref}"
         },
         {
-            resourceName: "Person",
-            fields: {
-                uuid: "link.target._uuid",
-                sourceId: "link.target._sourceId"
-            }
+            type: "Person",
+            params: "patient={ref}"
         },
         {
-            resourceName: "Procedure",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "Procedure",
+            params: "patient={ref}"
         },
         {
-            resourceName: "Provenance",
-            fields: {
-                uuid: "target._uuid",
-                sourceId: "target._sourceId"
-            }
+            type: "Provenance",
+            params: "patient={ref}"
         },
         {
-            resourceName: "QuestionnaireResponse",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "QuestionnaireResponse",
+            params: "patient={ref}"
         },
         {
-            resourceName: "RelatedPerson",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
+            type: "RelatedPerson",
+            params: "patient={ref}"
         },
         {
-            resourceName: "RequestGroup",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "RequestGroup",
+            params: "patient={ref}"
         },
         {
-            resourceName: "ResearchSubject",
-            fields: {
-                uuid: "individual._uuid",
-                sourceId: "individual._sourceId"
-            }
+            type: "ResearchSubject",
+            params: "patient={ref}"
         },
         {
-            resourceName: "RiskAssessment",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "RiskAssessment",
+            params: "patient={ref}"
         },
         {
-            resourceName: "Schedule",
-            fields: {
-                uuid: "actor._uuid",
-                sourceId: "actor._sourceId"
-            }
+            type: "Schedule",
+            params: "actor={ref}"
         },
         {
-            resourceName: "ServiceRequest",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "ServiceRequest",
+            params: "patient={ref}"
         },
         {
-            resourceName: "Specimen",
-            fields: {
-                uuid: "subject._uuid",
-                sourceId: "subject._sourceId"
-            }
+            type: "Specimen",
+            params: "patient={ref}"
         },
         {
-            resourceName: "SupplyDelivery",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
+            type: "Subscription",
+            params: "extension=https://icanbwell.com/codes/source_patient_id|{id}"
         },
         {
-            resourceName: "SupplyRequest",
-            fields: {
-                uuid: "requester._uuid",
-                sourceId: "requester._sourceId"
-            }
+            type: "SubscriptionStatus",
+            params: "extension=https://icanbwell.com/codes/source_patient_id|{id}"
         },
         {
-            resourceName: "Task",
-            fields: {
-                uuid: "for._uuid",
-                sourceId: "for._sourceId"
-            }
+            type: "SubscriptionTopic",
+            params: "identifier=https://icanbwell.com/codes/source_patient_id|{id}"
         },
         {
-            resourceName: "VisionPrescription",
-            fields: {
-                uuid: "patient._uuid",
-                sourceId: "patient._sourceId"
-            }
+            type: "SupplyDelivery",
+            params: "patient={ref}"
+        },
+        {
+            type: "SupplyRequest",
+            params: "requester={ref}"
+        },
+        {
+            type: "Task",
+            params: "patient={ref}"
+        },
+        {
+            type: "VisionPrescription",
+            params: "patient={ref}"
         }
     ]
 }

@@ -130,13 +130,7 @@ class EverythingOperation {
         /**
          * @param {boolean}
          */
-        let useEverythingHelper;
-
-        if (this.configManager.disableGraphInEverythingOp) {
-            useEverythingHelper = this.configManager.disableGraphInEverythingOpResources.includes(resourceType)
-        } else {
-            useEverythingHelper = false
-        }
+        let useEverythingHelperForPatient = resourceType === 'Patient' && this.configManager.disableGraphInEverythingOp;
 
         /**
          * @type {number}
@@ -217,7 +211,7 @@ class EverythingOperation {
             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
             */
             let result;
-            if (useEverythingHelper) {
+            if (useEverythingHelperForPatient) {
                 const { base_version } = parsedArgs;
                 result = await this.everythingHelper.retriveEverythingAsync({
                     requestInfo,
