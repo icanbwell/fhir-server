@@ -6,7 +6,7 @@ class ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources () {
+    get partitionResources() {
         // see if resourceType is in list of resources we want to partitionConfig in this environment
         /**
          * @type {string|undefined}
@@ -16,21 +16,21 @@ class ConfigManager {
             ? partitionResourcesString.split(',').map(s => String(s).trim()) : [];
     }
 
-    get resourcesWithAccessIndex () {
+    get resourcesWithAccessIndex() {
         return (
             env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
                 .map((col) => col.trim())
         ) || [];
     }
 
-    get useAccessIndex () {
+    get useAccessIndex() {
         return isTrue(env.USE_ACCESS_INDEX);
     }
 
     /**
      * @return {string[]|null}
      */
-    get requiredFiltersForAuditEvent () {
+    get requiredFiltersForAuditEvent() {
         return (
             env.REQUIRED_AUDIT_EVENT_FILTERS && env.REQUIRED_AUDIT_EVENT_FILTERS.split(',')
                 .map((col) => col.trim())
@@ -41,7 +41,7 @@ class ConfigManager {
      * @description The max range period for which AuditEvent is to queried.
      * @return {number}
      */
-    get auditEventMaxRangePeriod () {
+    get auditEventMaxRangePeriod() {
         return env.AUDIT_EVENT_MAX_RANGE_PERIOD ? Number(env.AUDIT_EVENT_MAX_RANGE_PERIOD) : 30;
     }
 
@@ -49,7 +49,7 @@ class ConfigManager {
      * whether to enable two step optimization
      * @return {boolean}
      */
-    get enableTwoStepOptimization () {
+    get enableTwoStepOptimization() {
         return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
     }
 
@@ -57,11 +57,11 @@ class ConfigManager {
      * whether to stream the response
      * @return {boolean}
      */
-    get streamResponse () {
+    get streamResponse() {
         return isTrue(env.STREAM_RESPONSE);
     }
 
-    get doNotRequirePersonOrPatientIdForPatientScope () {
+    get doNotRequirePersonOrPatientIdForPatientScope() {
         return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
     }
 
@@ -69,7 +69,7 @@ class ConfigManager {
      * current environment value
      * @return {string|null}
      */
-    get environmentValue () {
+    get environmentValue() {
         return env.ENVIRONMENT || '';
     }
 
@@ -77,7 +77,7 @@ class ConfigManager {
      * current hostname value
      * @return {string|null}
      */
-    get hostnameValue () {
+    get hostnameValue() {
         return env.HOSTNAME || '';
     }
 
@@ -85,7 +85,7 @@ class ConfigManager {
      * docker image
      * @return {string|null}
      */
-    get dockerImageValue () {
+    get dockerImageValue() {
         return env.DOCKER_IMAGE || '';
     }
 
@@ -93,7 +93,7 @@ class ConfigManager {
      * @param {string} resourceType
      * @returns {string[]}
      */
-    accessTagsIndexed (resourceType) {
+    accessTagsIndexed(resourceType) {
         let indexList = (
             env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
                 .map((col) => col.trim())
@@ -148,7 +148,7 @@ class ConfigManager {
      * username for kafka auth
      * @return {string|null}
      */
-    get kafkaUserName () {
+    get kafkaUserName() {
         return env.KAFKA_SASL_USERNAME || null;
     }
 
@@ -156,7 +156,7 @@ class ConfigManager {
      * password for kafka auth
      * @return {string|null}
      */
-    get kafkaPassword () {
+    get kafkaPassword() {
         return env.KAFKA_SASL_PASSWORD || null;
     }
 
@@ -164,7 +164,7 @@ class ConfigManager {
      * auth mechanism for kafka auth
      * @return {string|undefined}
      */
-    get kafkaAuthMechanism () {
+    get kafkaAuthMechanism() {
         return env.KAFKA_SASL_MECHANISM || 'aws';
     }
 
@@ -172,7 +172,7 @@ class ConfigManager {
      * client id for kafka auth
      * @return {string|undefined}
      */
-    get kafkaClientId () {
+    get kafkaClientId() {
         return env.KAFKA_CLIENT_ID;
     }
 
@@ -180,7 +180,7 @@ class ConfigManager {
      * get brokers for kafka
      * @return {string[]}
      */
-    get kafkaBrokers () {
+    get kafkaBrokers() {
         return env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : [];
     }
 
@@ -188,7 +188,7 @@ class ConfigManager {
      * whether to use ssl for kafka
      * @return {boolean}
      */
-    get kafkaUseSsl () {
+    get kafkaUseSsl() {
         return isTrue(env.KAFKA_SSL);
     }
 
@@ -196,7 +196,7 @@ class ConfigManager {
      * whether to use SASL for kafka
      * @return {boolean}
      */
-    get kafkaUseSasl () {
+    get kafkaUseSasl() {
         return isTrue(env.KAFKA_SASL);
     }
 
@@ -204,7 +204,7 @@ class ConfigManager {
      * whether to send events to kafka
      * @return {boolean}
      */
-    get kafkaEnableEvents () {
+    get kafkaEnableEvents() {
         return isTrue(env.ENABLE_EVENTS_KAFKA);
     }
 
@@ -212,7 +212,7 @@ class ConfigManager {
      * whether to send bulk export events to kafka
      * @return {boolean}
      */
-    get kafkaEnableExportEvents () {
+    get kafkaEnableExportEvents() {
         return isTrue(env.ENABLE_BULK_EXPORT_KAFKA_EVENTS);
     }
 
@@ -233,7 +233,7 @@ class ConfigManager {
      * gets url to person matching service
      * @return {string|undefined}
      */
-    get personMatchingServiceUrl () {
+    get personMatchingServiceUrl() {
         return env.PERSON_MATCHING_SERVICE_URL;
     }
 
@@ -241,7 +241,7 @@ class ConfigManager {
      * whether to create index when we create a collection
      * @returns {boolean}
      */
-    get createIndexOnCollectionCreation () {
+    get createIndexOnCollectionCreation() {
         return isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION);
     }
 
@@ -249,7 +249,7 @@ class ConfigManager {
      * whether to handle concurrency
      * @return {boolean}
      */
-    get handleConcurrency () {
+    get handleConcurrency() {
         return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
     }
 
@@ -257,7 +257,7 @@ class ConfigManager {
      * number to times to retry an update
      * @returns {number}
      */
-    get replaceRetries () {
+    get replaceRetries() {
         return env.REPLACE_RETRIES || 10;
     }
 
@@ -265,14 +265,14 @@ class ConfigManager {
      * whether to return data as bundle
      * @return {boolean}
      */
-    get enableReturnBundle () {
+    get enableReturnBundle() {
         return isTrue(env.RETURN_BUNDLE);
     }
 
     /**
      * The default sort id currently used
      */
-    get defaultSortId () {
+    get defaultSortId() {
         return env.DEFAULT_SORT_ID || '_uuid';
     }
 
@@ -280,7 +280,7 @@ class ConfigManager {
      * whether to support legacy id support in queries
      * @return {boolean}
      */
-    get supportLegacyIds () {
+    get supportLegacyIds() {
         if (env.SUPPORT_LEGACY_IDS === null || env.SUPPORT_LEGACY_IDS === undefined) {
             return true;
         }
@@ -291,7 +291,7 @@ class ConfigManager {
      * Whether meta.source tags are required
      * @return {boolean}
      */
-    get requireMetaSourceTags () {
+    get requireMetaSourceTags() {
         if (env.REQUIRE_META_SOURCE_TAGS === null || env.REQUIRE_META_SOURCE_TAGS === undefined) {
             return true;
         }
@@ -303,15 +303,32 @@ class ConfigManager {
      * is greater than this number than we fall back to processing in serial to save memory
      * @return {number}
      */
-    get graphBatchSize () {
+    get graphBatchSize() {
         return env.GRAPH_BATCH_SIZE || 10;
+    }
+
+    /**
+     * Specifies the numbers of related resources to stream/fetch parallely at a time
+     * @return {number}
+     */
+    get everythingRealtedResourceBatchSize() {
+        return parseInt(env.EVERYTHING_RELATED_RESOURCE_BATCH_SIZE, 10) || 10;
+    }
+
+    /**
+     * Specifies the number of ids to process in parallel in $everything.  If number of ids passed
+     * is greater than this number than we fall back to processing in serial to save memory
+     * @return {number}
+     */
+    get everythingBatchSize() {
+        return parseInt(env.EVERYTHING_BATCH_SZIE, 10) || 10;
     }
 
     /**
      * returns enabled gridFs resources list
      * @returns {string[]}
      */
-    get enabledGridFsResources () {
+    get enabledGridFsResources() {
         return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
     }
 
@@ -319,7 +336,7 @@ class ConfigManager {
      * Specifies whether to Consent based data access enabled.
      * @return {boolean}
      */
-    get enableConsentedProaDataAccess () {
+    get enableConsentedProaDataAccess() {
         return isTrue(env.ENABLE_CONSENTED_PROA_DATA_ACCESS);
     }
 
@@ -327,7 +344,7 @@ class ConfigManager {
      * Specifies allowed connection types for consent data sharing.
      * @return {string[]}
      */
-    get getConsentConnectionTypesList () {
+    get getConsentConnectionTypesList() {
         return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
     }
 
@@ -335,7 +352,7 @@ class ConfigManager {
      * Specifies whether to enable HIE/Treatment related data access.
      * @return {boolean}
      */
-    get enableHIETreatmentRelatedDataAccess () {
+    get enableHIETreatmentRelatedDataAccess() {
         return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
     }
 
@@ -343,7 +360,7 @@ class ConfigManager {
      * Specifies allowed connection types for HIE/Treatment related data.
      * @return {string[]}
      */
-    get getHIETreatmentConnectionTypesList () {
+    get getHIETreatmentConnectionTypesList() {
         return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
     }
 
@@ -351,7 +368,7 @@ class ConfigManager {
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */
-    get getDataSharingConsentCodes () {
+    get getDataSharingConsentCodes() {
         return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
     }
 
@@ -360,7 +377,7 @@ class ConfigManager {
      * https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
      * @returns {number}
      */
-    get streamingHighWaterMark () {
+    get streamingHighWaterMark() {
         return env.STREAMING_HIGH_WATER_MARK || 100;
     }
 
@@ -368,7 +385,7 @@ class ConfigManager {
      * whether to log inside our streaming.  Very verbose so don't set in production
      * @returns {boolean}
      */
-    get logStreamSteps () {
+    get logStreamSteps() {
         return isTrue(env.LOG_STREAM_STEPS);
     }
 
@@ -376,14 +393,14 @@ class ConfigManager {
      * url to fhir validation service e.g., http://localhost:8080/fhir/
      * @returns {string|undefined}
      */
-    get fhirValidationUrl () {
+    get fhirValidationUrl() {
         return env.FHIR_VALIDATION_URL;
     }
 
     /**
      * Batch size for parallel fetching/updating profiles in HAPI Fhir
      */
-    get batchSizeForRemoteFhir () {
+    get batchSizeForRemoteFhir() {
         return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
     }
 
@@ -391,7 +408,7 @@ class ConfigManager {
      * whether to validate schemas
      * @returns {boolean}
      */
-    get validateSchema () {
+    get validateSchema() {
         return isTrue(env.VALIDATE_SCHEMA);
     }
 
@@ -399,7 +416,7 @@ class ConfigManager {
      * returns the size of payload that should be acceptable
      * @returns {string}
      */
-    get payloadLimit () {
+    get payloadLimit() {
         return env.PAYLOAD_LIMIT || '50mb';
     }
 
@@ -407,7 +424,7 @@ class ConfigManager {
      * returns the request timeout in ms
      * @returns {number}
      */
-    get requestTimeoutMs () {
+    get requestTimeoutMs() {
         return (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
     }
 
@@ -415,7 +432,7 @@ class ConfigManager {
      * whether to enable stats endpoint
      * @returns {boolean}
      */
-    get enableStatsEndpoint () {
+    get enableStatsEndpoint() {
         if (env.ENABLE_STATS_ENDPOINT === null || env.ENABLE_STATS_ENDPOINT === undefined) {
             return false;
         }
@@ -427,7 +444,7 @@ class ConfigManager {
      * whether to enable graphql playground
      * @returns {boolean}
      */
-    get enableGraphQLPlayground () {
+    get enableGraphQLPlayground() {
         if (env.ENABLE_GRAPHQL_PLAYGROUND === null || env.ENABLE_GRAPHQL_PLAYGROUND === undefined) {
             return true;
         }
@@ -438,7 +455,7 @@ class ConfigManager {
      * whether to enable graphqlv2
      * @returns {boolean}
      */
-    get enableGraphQLV2 () {
+    get enableGraphQLV2() {
         if (env.ENABLE_GRAPHQLV2 === null || env.ENABLE_GRAPHQLV2 === undefined) {
             return false;
         }
@@ -449,7 +466,7 @@ class ConfigManager {
      * whether to enable graphqlv2 playground
      * @returns {boolean}
      */
-    get enableGraphQLV2Playground () {
+    get enableGraphQLV2Playground() {
         if (env.ENABLE_GRAPHQLV2_PLAYGROUND === null || env.ENABLE_GRAPHQLV2_PLAYGROUND === undefined) {
             return false;
         }
@@ -460,7 +477,7 @@ class ConfigManager {
      * returns the batch size used in dataloader to fetch resources
      * @returns {number}
      */
-    get graphQLFetchResourceBatchSize () {
+    get graphQLFetchResourceBatchSize() {
         return parseInt(env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE) || 50;
     }
 
@@ -468,7 +485,7 @@ class ConfigManager {
      * whether to read audit event data from archive
      * @returns {boolean}
      */
-    get enableAuditEventArchiveRead () {
+    get enableAuditEventArchiveRead() {
         if (env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === null || env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === undefined) {
             return false;
         }
@@ -478,7 +495,7 @@ class ConfigManager {
     /**
      * whether to write access logs from middleware
      */
-    get enableAccessLogsMiddleware () {
+    get enableAccessLogsMiddleware() {
         if (env.ENABLE_ACCESS_LOGS_MIDDLEWARE === null || env.ENABLE_ACCESS_LOGS_MIDDLEWARE === undefined) {
             return true;
         }
@@ -488,7 +505,7 @@ class ConfigManager {
     /**
      * whether to rewrite patient references to proxy-patient reference
      */
-    get rewritePatientReference () {
+    get rewritePatientReference() {
         if (env.REWRITE_PATIENT_REFERENCE === null || env.REWRITE_PATIENT_REFERENCE === undefined) {
             return true;
         }
@@ -499,7 +516,7 @@ class ConfigManager {
      * returns number of resources to process in parallel
      * @returns {number}
      */
-    get mergeParallelChunkSize () {
+    get mergeParallelChunkSize() {
         return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
     }
 
@@ -507,7 +524,7 @@ class ConfigManager {
      * returns cron expression for postRequest processes
      * @returns {string}
      */
-    get postRequestFlushTime () {
+    get postRequestFlushTime() {
         // default cron expression is to run the function every 5 sec
         return env.POST_REQUEST_FLUSH_TIME || '*/5 * * * * *';
     }
@@ -516,21 +533,21 @@ class ConfigManager {
      * returns the buffer size for post request processes
      * @returns {number}
      */
-    get postRequestBatchSize () {
+    get postRequestBatchSize() {
         return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
     }
 
     /**
      * S3 bucket name to export data to S3
      */
-    get bulkExportS3BucketName () {
+    get bulkExportS3BucketName() {
         return env.BULK_EXPORT_S3_BUCKET_NAME;
     }
 
     /**
      * Region for AWS services to use
      */
-    get awsRegion () {
+    get awsRegion() {
         return env.AWS_REGION || 'us-east-1';
     }
 
@@ -538,7 +555,7 @@ class ConfigManager {
      * the timeout to set for mongo operations
      * @return {number}
      */
-    get mongoTimeout(){
+    get mongoTimeout() {
         return env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 2 * 60 * 1000;
     }
 
@@ -546,7 +563,7 @@ class ConfigManager {
      * the timeout to set for mongo operations
      * @return {number}
      */
-    get mongoStreamingTimeout(){
+    get mongoStreamingTimeout() {
         return env.MONGO_STREAMING_TIMEOUT ? parseInt(env.MONGO_STREAMING_TIMEOUT) : 60 * 60 * 1000;
     }
 
@@ -574,15 +591,15 @@ class ConfigManager {
      * Gets the number of requests allowed per pod.
      * @returns {number} The number of requests allowed per pod.
      */
-    get noOfRequestsPerPod () {
-        return env.NO_OF_REQUESTS_PER_POD? parseInt(env.NO_OF_REQUESTS_PER_POD): 1000;
+    get noOfRequestsPerPod() {
+        return env.NO_OF_REQUESTS_PER_POD ? parseInt(env.NO_OF_REQUESTS_PER_POD) : 1000;
     }
 
     /**
      * whether to enable Vulcan IG queries
      * @return {boolean}
      */
-    get enableVulcanIgQuery () {
+    get enableVulcanIgQuery() {
         return isTrue(env.ENABLE_VULCAN_IG_QUERY);
     }
 
@@ -590,7 +607,7 @@ class ConfigManager {
      * whether to enable MongoDB projections in GraphQL
      * @returns {boolean}
      */
-    get enableMongoProjectionsInGraphQL () {
+    get enableMongoProjectionsInGraphQL() {
         if (env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL === null || env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL === undefined) {
             return true;
         }
@@ -601,7 +618,7 @@ class ConfigManager {
      * whether to enable MongoDB projections in GraphQL V2
      * @returns {boolean}
      */
-    get enableMongoProjectionsInGraphQLv2 () {
+    get enableMongoProjectionsInGraphQLv2() {
         if (env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2 === null || env.ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2 === undefined) {
             return true;
         }
@@ -612,7 +629,7 @@ class ConfigManager {
      * Cloud storage batch download size
      * @returns {number}
      */
-    get cloudStorageBatchDownloadSize () {
+    get cloudStorageBatchDownloadSize() {
         return env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE ? parseInt(env.CLOUD_STORAGE_BATCH_DOWNLOAD_SIZE) : 100
     }
 
@@ -660,7 +677,7 @@ class ConfigManager {
      * Cloud storage client for history resources
      * @returns {string}
      */
-    get historyResourceCloudStorageClient () {
+    get historyResourceCloudStorageClient() {
         return env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
     }
 
@@ -668,7 +685,7 @@ class ConfigManager {
      * Cloud storage bucket name for history resources
      * @returns {string}
      */
-    get historyResourceBucketName () {
+    get historyResourceBucketName() {
         return env.HISTORY_RESOURCE_BUCKET_NAME;
     }
 
@@ -676,7 +693,7 @@ class ConfigManager {
      * Cloud storage client max retry attempt count
      * @returns {number}
      */
-    get cloudStorageClientMaxRetry () {
+    get cloudStorageClientMaxRetry() {
         return env.CLOUD_STORAGE_CLIENT_MAX_RETRY ? parseInt(env.CLOUD_STORAGE_CLIENT_MAX_RETRY) : 3;
     }
 
@@ -684,7 +701,7 @@ class ConfigManager {
      * Cloud storage client limit for receiving response
      * @returns {number}
      */
-    get cloudStorageClientRequestTimeout () {
+    get cloudStorageClientRequestTimeout() {
         return env.CLOUD_STORAGE_CLIENT_REQUEST_TIMEOUT ? parseInt(env.CLOUD_STORAGE_CLIENT_REQUEST_TIMEOUT) : 10 * 1000; // 10 sec
     }
 
@@ -692,7 +709,7 @@ class ConfigManager {
      * Cloud storage client limit for establishing connection
      * @returns {number}
      */
-    get cloudStorageClientConnectionTimeout () {
+    get cloudStorageClientConnectionTimeout() {
         return env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT ? parseInt(env.CLOUD_STORAGE_CLIENT_CONNECTION_TIMEOUT) : 5 * 1000; // 5 sec
     }
 
@@ -700,7 +717,7 @@ class ConfigManager {
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */
-    get historyResourceCronJobMigrationLimit () {
+    get historyResourceCronJobMigrationLimit() {
         return env.HISTORY_CRON_JOB_MIGRATION_LIMIT ? parseInt(env.HISTORY_CRON_JOB_MIGRATION_LIMIT) : 100000;
     }
 
@@ -790,6 +807,17 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP);
+    }
+
+    /**
+     * Disable using graph for everything and instead use everythingHelper
+     * @returns {boolean}
+     */
+    get disableGraphInEverythingOp() {
+        if (env.DISABLE_GRAPH_IN_EVERYTHING_OP === null || env.DISABLE_GRAPH_IN_EVERYTHING_OP === undefined) {
+            return false;
+        }
+        return isTrue(env.DISABLE_GRAPH_IN_EVERYTHING_OP);
     }
 }
 

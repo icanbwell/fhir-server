@@ -13,6 +13,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
 const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
+const { EverythingHelper } = require('./everythingHelper');
 
 class EverythingOperation {
     /**
@@ -21,13 +22,15 @@ class EverythingOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
+     * @param {EverythingHelper} everythingHelper
      */
-    constructor (
+    constructor(
         {
             graphOperation,
             fhirLoggingManager,
             scopesValidator,
-            configManager
+            configManager,
+            everythingHelper
         }
     ) {
         /**
@@ -52,6 +55,12 @@ class EverythingOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {EverythingHelper}
+         */
+        this.everythingHelper = everythingHelper
+        assertTypeEquals(everythingHelper, EverythingHelper)
     }
 
     /**
@@ -63,7 +72,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingAsync ({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -104,7 +113,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync (
+    async everythingBundleAsync(
         {
             requestInfo,
             res,
@@ -118,6 +127,11 @@ class EverythingOperation {
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
+        /**
+         * @param {boolean}
+         */
+        let useEverythingHelperForPatient = resourceType === 'Patient' && this.configManager.disableGraphInEverythingOp;
+
         /**
          * @type {number}
          */
@@ -192,17 +206,38 @@ class EverythingOperation {
                 );
             }
 
-            const result = await this.graphOperation.graph({
-                requestInfo,
-                res,
-                parsedArgs,
-                resourceType,
-                responseStreamer,
-                supportLegacyId,
-                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                getRaw: this.configManager.getRawEverythingOpBundle
-            });
+
+            /**
+            * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+            */
+            let result;
+            if (useEverythingHelperForPatient) {
+                const { base_version } = parsedArgs;
+                result = await this.everythingHelper.retriveEverythingAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    responseStreamer,
+                    parsedArgs,
+                    supportLegacyId,
+                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
+                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
+                    getRaw: this.configManager.getRawEverythingOpBundle
+                })
+            } else {
+                result = await this.graphOperation.graph({
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer,
+                    supportLegacyId,
+                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
+                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
+                    getRaw: this.configManager.getRawEverythingOpBundle
+                });
+            }
+
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
