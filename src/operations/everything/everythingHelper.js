@@ -54,6 +54,7 @@ const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTrack
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
+ * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
  * @typedef {import('./everythingRelatedResourcesMapper').EverythingRelatedResources} EverythingRelatedResources
  * @typedef {import('../query/parsedArgsItem').ParsedArgsItem}  ParsedArgsItem
  */
@@ -902,6 +903,124 @@ class EverythingHelper {
         }
 
         return { bundleEntries }
+    }
+
+    /**
+     * @typedef {Object} GetLinkedNonClinicalResourcesOptions
+     * @property {FhirRequestInfo} requestInfo - Information about the FHIR request.
+     * @property {ParsedArgs} parsedArgs - Parsed query arguments.
+     * @property {string} base_version - The FHIR version being used.
+     * @property {boolean} explain - Whether to include query explanation details.
+     * @property {boolean} debug - Whether to enable debug mode.
+     * @property {boolean} [getRaw=false] - Whether to return raw database results.
+     * @property {Record<string, Set<string>>} nestedResourceReferences - List of nested resource references.
+     *
+     * @description get all the non-clinical resources whose references are in the provided entity list
+     * @param {GetLinkedNonClinicalResourcesOptions} options
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
+     */
+    async getLinkedNonClinicalResources({
+        requestInfo,
+        parsedArgs,
+        base_version,
+        explain,
+        debug,
+        getRaw = false,
+        nestedResourceReferences
+    }) {
+        try {
+            /**
+             * @type {BundleEntry[]}
+             */
+            let entities = [];
+            /**
+             * @type {QueryItem[]}
+             */
+            let queryItems = [];
+
+            for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
+                const args = {
+                    base_version: base_version,
+                    id: Array.from(ids).join(','),
+                    _debug: debug
+                };
+                if (explain) {
+                    args['_count'] = 1;
+                }
+
+                const childParseArgs = this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args
+                });
+
+                const bundle = await this.searchBundleOperation.searchBundleAsync({
+                    requestInfo,
+                    resourceType,
+                    parsedArgs: childParseArgs,
+                    useAggregationPipeline: false,
+                    getRaw
+                });
+
+                // TODO: Add stream support
+                for (let entry of bundle.entry || []) {
+                    const resourceBundleEntry = getRaw
+                        ? {
+                            id: entry.id,
+                            resource: entry.resource
+                        }
+                        : new BundleEntry({
+                            id: entry.id,
+                            resource: entry.resource
+                        });
+                    entities.push(resourceBundleEntry);
+                }
+
+                if (debug || explain) {
+                    // making query items from meta of bundle
+                    let query = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('query');
+                    }).display;
+                    let collectionName = query.split('.')[1];
+                    query = query.split('.find(')[1].split(', {}')[0];
+                    query = JSON.parse(query.replace(/'/g, '"'));
+                    let explanations = bundle.meta.tag.find((obj) => {
+                        return obj.system.endsWith('queryExplain');
+                    }).system;
+                    queryItems.push(
+                        new QueryItem({
+                            query,
+                            resourceType,
+                            collectionName,
+                            explanations
+                        })
+                    );
+                }
+            }
+
+            // TODO: Move this up
+            entities = await this.enrichmentManager.enrichBundleEntriesAsync({
+                entries: entities,
+                parsedArgs,
+                rawResources: getRaw
+            });
+
+            return { entities, queryItems };
+        } catch (e) {
+            logError(`Error in getLinkedNonClinicalResources(): ${e.message}`, { error: e });
+            throw new RethrownError({
+                message: `Error in getLinkedNonClinicalResources()`,
+                error: e,
+                args: {
+                    requestInfo,
+                    resourceList,
+                    resourcesToExclude,
+                    parsedArgs,
+                    base_version,
+                    explain,
+                    debug
+                }
+            });
+        }
     }
 
     /**
