@@ -314,7 +314,7 @@ class EverythingHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle(
+            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -891,7 +891,7 @@ class EverythingHelper {
                         );
                         // }
                     } else {
-                        if (!bundleEntriesProcessed.has(resourceIdentifier)) {
+                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
                             bundleEntries.push(current_entity);
                         }
                     }
