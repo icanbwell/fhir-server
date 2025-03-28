@@ -318,7 +318,7 @@ class EverythingHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle(
+            const bundle = this.bundleManager[getRaw ? 'createRawBundle' :'createBundle'](
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -337,8 +337,29 @@ class EverythingHelper {
                     explanations
                 }
             );
+
+            const bundle1 = this.bundleManager.createBundle(
+                {
+                    type: 'searchset',
+                    requestId: requestInfo.userRequestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    resources,
+                    base_version,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
+                }
+            );
+
             if (responseStreamer) {
-                responseStreamer.setBundle({ bundle });
+                responseStreamer.setBundle({ bundle: bundle, rawResources: getRaw });
             }
             return bundle;
         } catch (error) {

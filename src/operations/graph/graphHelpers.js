@@ -1995,7 +1995,7 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle(
+            const bundle =  this.bundleManager[getRaw ? 'createRawBundle' :'createBundle'](
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -2015,7 +2015,7 @@ class GraphHelper {
                 }
             );
             if (responseStreamer) {
-                responseStreamer.setBundle({ bundle });
+                responseStreamer.setBundle({ bundle, rawResources: getRaw });
             }
             return bundle;
         } catch (e) {
