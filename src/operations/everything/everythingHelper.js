@@ -51,12 +51,15 @@ const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourc
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
 const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
+const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtractor');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
  * @typedef {import('./everythingRelatedResourcesMapper').EverythingRelatedResources} EverythingRelatedResources
  * @typedef {import('../query/parsedArgsItem').ParsedArgsItem}  ParsedArgsItem
+ *
+ * @typedef {Record<string, Set<string>> | null} NestedResourceReferences
  */
 
 /**
@@ -315,7 +318,7 @@ class EverythingHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
+            const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -392,6 +395,7 @@ class EverythingHelper {
              * @type {string[]|null}
              */
             const specificReltedResourceType = parsedArgs.resourceFilterList;
+            const nonClinicalReferenesExtractor = includeNonClinicalResources ? new NonClinicalReferenesExtractor({ resourcesTypeToExclude: clinicalResources }) : null;
             const specificReltedResourceTypeSet = specificReltedResourceType ? new Set(specificReltedResourceType) : null;
             const realtedResourcesMap = this.everythingRelatedResourceMapper.relatedResources(resourceType, specificReltedResourceTypeSet);
             /**
@@ -454,7 +458,8 @@ class EverythingHelper {
                         bundleEntryIdsProcessedTracker,
                         supportLegacyId,
                         proxyPatientIds,
-                        getRaw
+                        getRaw,
+                        nonClinicalReferenesExtractor
                     }
                 )
 
@@ -653,6 +658,7 @@ class EverythingHelper {
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
+    * @param {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
     * @returns {Promise<QueryItem>}
     */
     async retriveveRelatedResourcesParallelyAsync(
@@ -668,7 +674,8 @@ class EverythingHelper {
             bundleEntryIdsProcessedTracker,
             proxyPatientIds = [],
             supportLegacyId = true,
-            getRaw = false
+            getRaw = false,
+            nonClinicalReferenesExtractor
         }
     ) {
 
@@ -803,7 +810,8 @@ class EverythingHelper {
                 responseStreamer,
                 parsedArgs: relatedResourceParsedArgs,
                 bundleEntryIdsProcessedTracker,
-                getRaw
+                getRaw,
+                nonClinicalReferenesExtractor
             })
 
             parallelProcess.push(promiseResult)
@@ -837,6 +845,7 @@ class EverythingHelper {
      *  bundleEntryIdsProcessedTracker: bundleEntryIdsProcessedTracker,
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
+     *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -845,7 +854,8 @@ class EverythingHelper {
         responseStreamer,
         parsedArgs,
         bundleEntryIdsProcessedTracker,
-        getRaw
+        getRaw,
+        nonClinicalReferenesExtractor
     }) {
         /**
          * @type {BundleEntry[]}
@@ -890,14 +900,19 @@ class EverythingHelper {
                                 rawResources: getRaw
                             }
                         );
-                        // }
-                    } else {
-                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
-                            bundleEntries.push(current_entity);
-                        }
                     }
 
-                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                } else {
+                    if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        bundleEntries.push(current_entity);
+                    }
+                }
+
+                bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+
+                // find references
+                if (nonClinicalReferenesExtractor) {
+                    await nonClinicalReferenesExtractor.processResource(startResource);
                 }
             }
         }
