@@ -318,7 +318,7 @@ class EverythingHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager[getRaw ? 'createRawBundle' :'createBundle'](
+            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -387,7 +387,7 @@ class EverythingHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {bundleEntryIdsProcessedTracker} bundleEntryIdsProcessedTracker
+     * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
@@ -501,6 +501,64 @@ class EverythingHelper {
                 }
             }
 
+            if (includeNonClinicalResources) {
+                let resourcesTypeToExclude = clinicalResources;
+                // finding non clinical resources in depth using previous result as input
+                let referenceExtractor = nonClinicalReferenesExtractor;
+                for (let i = 0; i < nonClinicalResourcesDepth; i++) {
+                    let { entities, queryItems } = await this.getLinkedNonClinicalResources(
+                        {
+                            requestInfo,
+                            parsedArgs,
+                            base_version,
+                            explain,
+                            debug,
+                            getRaw: false,
+                            referenceExtractor,
+                            bundleEntryIdsProcessedTracker
+                        }
+                    );
+
+                    for (const q of queryItems) {
+                        if (q) {
+                            queries.push(q);
+                        }
+
+                        for (const e of q.explanations) {
+                            explanations.push(e);
+                        }
+                    }
+
+                    if (explain) {
+                        // Don't include same resourceType, when explain is passed
+                        const resourceTypes = Object.keys(referenceExtractor.nestedResourceReferences);
+                        resourcesTypeToExclude = resourcesTypeToExclude.concat(resourceTypes);
+                    }
+
+                    // for next level
+                    const referenceExtractorForNextLevel = new NonClinicalReferenesExtractor({ resourcesTypeToExclude })
+
+                    entities.forEach((e => {
+                        referenceExtractorForNextLevel.processResource(e.resource);
+                        const resourceIdentifier = new ResourceIdentifier(e.resource);
+                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                            if (responseStreamer) {
+                                responseStreamer.writeBundleEntryAsync({
+                                    bundleEntry: e,
+                                    rawResources: getRaw
+                                })
+                            } else {
+                                entries.push(e);
+                            }
+                        }
+                        bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                    }))
+
+                    // For Next Level of clinical Resources
+                    referenceExtractor = referenceExtractorForNextLevel;
+                }
+            }
+
             if (responseStreamer) {
                 entries = [];
             } else {
@@ -513,7 +571,6 @@ class EverythingHelper {
                 );
             }
 
-            // ------------------------TODO: fetch non-clicincal resources----------------------
             return new ProcessMultipleIdsAsyncResult({
                 entries,
                 queryItems: queries,
@@ -546,7 +603,7 @@ class EverythingHelper {
     * @param {boolean} [debug]
     * @param {ParsedArgs} parsedArgs
     * @param {BaseResponseStreamer|undefined} [responseStreamer]
-    * @param {bundleEntryIdsProcessedTracker} bundleEntryIdsProcessedTracker
+    * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
     * @param {Set<string>} specificReltedResourceTypeSet
     * @param {boolean} getRaw
     * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -736,9 +793,6 @@ class EverythingHelper {
             const parentIdList = parentIdParsedArg.queryParameterValue.values || [];
 
             let parentResourceTypeAndIdList = parentIdList.map(id => `${parentResourceType}/${id}`)
-            if (this.configManager.supportLegacyIds && supportLegacyId) {
-                // TODO: Add legacyId support
-            }
 
             // for now this will always be true
             if (parentResourceType === 'Patient' && proxyPatientIds) {
@@ -863,7 +917,7 @@ class EverythingHelper {
      *  cursor: DatabasePartitionedCursor,
      *  responseStreamer: ResponseStreamer,
      *  parsedArgs: ParsedArgs,
-     *  bundleEntryIdsProcessedTracker: bundleEntryIdsProcessedTracker,
+     *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker,
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
      *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
@@ -949,11 +1003,13 @@ class EverythingHelper {
      * @property {boolean} explain - Whether to include query explanation details.
      * @property {boolean} debug - Whether to enable debug mode.
      * @property {boolean} [getRaw=false] - Whether to return raw database results.
-     * @property {Record<string, Set<string>>} nestedResourceReferences - List of nested resource references.
+     * @property {NonClinicalReferenesExtractor} referenceExtractor - List of nested resource references.
      *
      * @description get all the non-clinical resources whose references are in the provided entity list
      * @param {GetLinkedNonClinicalResourcesOptions} options
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
+     *
+     * TODO: Send parallely
      */
     async getLinkedNonClinicalResources({
         requestInfo,
@@ -962,7 +1018,7 @@ class EverythingHelper {
         explain,
         debug,
         getRaw = false,
-        nestedResourceReferences
+        referenceExtractor
     }) {
         try {
             /**
@@ -974,11 +1030,12 @@ class EverythingHelper {
              */
             let queryItems = [];
 
-            for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
+            for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
+                const [resourceType, ids] = res;
                 const args = {
                     base_version: base_version,
                     id: Array.from(ids).join(','),
-                    _debug: debug
+                    _debug: debug || explain
                 };
                 if (explain) {
                     args['_count'] = 1;
@@ -1048,8 +1105,7 @@ class EverythingHelper {
                 error: e,
                 args: {
                     requestInfo,
-                    resourceList,
-                    resourcesToExclude,
+                    referenceExtractor,
                     parsedArgs,
                     base_version,
                     explain,

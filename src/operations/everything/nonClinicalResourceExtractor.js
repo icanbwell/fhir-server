@@ -16,11 +16,6 @@ class NonClinicalReferenesExtractor {
         resourcesTypeToExclude
     }) {
         /**
-         * @type {NestedResourceReferences}
-         */
-        this.references = {};
-
-        /**
          * @type {string[]}
          */
         this.resourcesTypeToExclude = resourcesTypeToExclude;
@@ -31,6 +26,9 @@ class NonClinicalReferenesExtractor {
         this._nestedResourceReferences = {}
     }
 
+    /**
+     * @type {NestedResourceReferences}
+     */
     get nestedResourceReferences() {
         return this._nestedResourceReferences;
     }
