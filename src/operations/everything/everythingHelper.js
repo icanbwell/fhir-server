@@ -443,6 +443,10 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             let explanations;
+            /**
+             * @type {ResourceIdentifier[]}
+             */
+            let baseResourceIdentifiers = [];
 
             ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchBaseResourceAsync({
                 resourceType,
@@ -456,6 +460,7 @@ class EverythingHelper {
                 responseStreamer,
                 bundleEntryIdsProcessedTracker,
                 specificReltedResourceTypeSet,
+                resourceIdentifiers: baseResourceIdentifiers,
                 entries,
                 explanations,
                 requestInfo
@@ -472,6 +477,7 @@ class EverythingHelper {
                         base_version,
                         parentResourceType: resourceType,
                         relatedResources: relatedResourceMapChunk,
+                        parentResourceIdentifiers: baseResourceIdentifiers,
                         explain,
                         debug,
                         parsedArgs,
@@ -604,6 +610,7 @@ class EverythingHelper {
     * @param {ParsedArgs} parsedArgs
     * @param {BaseResponseStreamer|undefined} [responseStreamer]
     * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+    * @param {ResourceIdentifier[]} resourceIdentifiers
     * @param {Set<string>} specificReltedResourceTypeSet
     * @param {boolean} getRaw
     * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -617,6 +624,7 @@ class EverythingHelper {
         parsedArgs,
         responseStreamer,
         bundleEntryIdsProcessedTracker,
+        resourceIdentifiers,
         getRaw,
         specificReltedResourceTypeSet
     }) {
@@ -664,8 +672,7 @@ class EverythingHelper {
 
         // this is required to be filled only once
         optionsForQueries.push(options);
-
-        // Qeury only if resourceType is present in specificReltedResourceTypeSet or specificReltedResourceTypeSet is not passed
+        // Query only if resourceType is present in specificReltedResourceTypeSet or specificReltedResourceTypeSet is not passed
         if (!specificReltedResourceTypeSet || specificReltedResourceTypeSet.has(resourceType)) {
             /**
              * @type {number}
@@ -707,7 +714,8 @@ class EverythingHelper {
                 getRaw,
                 parsedArgs,
                 responseStreamer,
-                bundleEntryIdsProcessedTracker
+                bundleEntryIdsProcessedTracker,
+                resourceIdentifiers
             });
 
             entries.push(...(bundleEntries || []));
@@ -733,6 +741,7 @@ class EverythingHelper {
     * @param {ParsedArgs} parsedArgs
     * @param {ResponseStreamer} responseStreamer
     * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+    * @param {ResourceIdentifier[]} parentResourceIdentifiers
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
@@ -750,6 +759,7 @@ class EverythingHelper {
             parsedArgs,
             responseStreamer,
             bundleEntryIdsProcessedTracker,
+            parentResourceIdentifiers,
             proxyPatientIds = [],
             supportLegacyId = true,
             getRaw = false,
@@ -775,6 +785,10 @@ class EverythingHelper {
          * @type {Promise<{ bundleEntries: BundleEntry[] }>[]}
          */
         const parallelProcess = [];
+        /**
+         * @type {ResourceIdentifier[]}
+         */
+        let parentResourceIdentifiersList = parentResourceIdentifiers;
         for (const relatedResource of relatedResourcesMap) {
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
@@ -784,15 +798,10 @@ class EverythingHelper {
             }
 
             /**
-             * @type {ParsedArgsItem}
-             */
-            const parentIdParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
-            /**
              * @type {string[]}
              */
-            const parentIdList = parentIdParsedArg.queryParameterValue.values || [];
-
-            let parentResourceTypeAndIdList = parentIdList.map(id => `${parentResourceType}/${id}`)
+            const parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
+            let parentResourceTypeAndIdList = parentResourceIdentifiersList.map(r => `${r.resourceType}/${r._uuid}`);
 
             // for now this will always be true
             if (parentResourceType === 'Patient' && proxyPatientIds) {
@@ -918,6 +927,7 @@ class EverythingHelper {
      *  responseStreamer: ResponseStreamer,
      *  parsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker,
+     *  resourceIdentifiers: ResourceIdentifier[] | null,
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
      *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
@@ -929,6 +939,7 @@ class EverythingHelper {
         responseStreamer,
         parsedArgs,
         bundleEntryIdsProcessedTracker,
+        resourceIdentifiers,
         getRaw,
         nonClinicalReferenesExtractor
     }) {
@@ -969,6 +980,9 @@ class EverythingHelper {
                     });
 
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        if (resourceIdentifiers) {
+                            resourceIdentifiers.push(resourceIdentifier)
+                        }
                         await responseStreamer.writeBundleEntryAsync(
                             {
                                 bundleEntry: current_entity,
@@ -979,6 +993,9 @@ class EverythingHelper {
 
                 } else {
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        if (resourceIdentifiers) {
+                            resourceIdentifiers.push(resourceIdentifier)
+                        }
                         bundleEntries.push(current_entity);
                     }
                 }
