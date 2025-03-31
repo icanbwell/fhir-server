@@ -1008,8 +1008,9 @@ class EverythingHelper {
                      */
                     let referenceWithSourceIds = []
                     if (proxyPatientIds) {
+                        // supportLegacyId should be true for proxy patient
                         referenceWithSourceIds = properties
-                            .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
+                            .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId: true }))
                             .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     }
 
