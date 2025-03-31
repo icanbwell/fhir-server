@@ -1070,7 +1070,10 @@ class EverythingHelper {
                     resourceType,
                     parsedArgs: childParseArgs,
                     useAggregationPipeline: false,
-                    getRaw
+                    getRaw,
+                    // Disable them to make feature consistent as currently we are not generating any access/audit logs in everything
+                    skipAccessLogs: true,
+                    skipAuditLogs: true
                 });
 
                 // TODO: Add stream support
