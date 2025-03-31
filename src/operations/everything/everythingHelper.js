@@ -338,28 +338,8 @@ class EverythingHelper {
                 }
             );
 
-            const bundle1 = this.bundleManager.createBundle(
-                {
-                    type: 'searchset',
-                    requestId: requestInfo.userRequestId,
-                    originalUrl: requestInfo.originalUrl,
-                    host: requestInfo.host,
-                    protocol: requestInfo.protocol,
-                    resources,
-                    base_version,
-                    parsedArgs,
-                    originalQuery: queryItems,
-                    originalOptions: options,
-                    columns: new Set(),
-                    stopTime,
-                    startTime,
-                    user: requestInfo.user,
-                    explanations
-                }
-            );
-
             if (responseStreamer) {
-                responseStreamer.setBundle({ bundle: bundle, rawResources: getRaw });
+                responseStreamer.setBundle({ bundle, rawResources: getRaw });
             }
             return bundle;
         } catch (error) {
@@ -1076,6 +1056,7 @@ class EverythingHelper {
                         })
                     }
 
+                    // if parent reference is present in child resource, then only send it in response
                     if (matchingParentReferences.length === 0) {
                         if (parentResourceType === 'Patient' && proxyPatientIds && proxyPatientIds.some(id => referenceWithSourceIds.includes(PATIENT_REFERENCE_PREFIX + id))) {
                             sendResource = true;
@@ -1083,7 +1064,7 @@ class EverythingHelper {
                             sendResource = false;
                             const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
                             logError(
-                                `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                                `No match found for parent entities ${parentEntitiesString} ` +
                                 `using property ${fieldForSearchParameter} in ` +
                                 'child entity ' +
                                 `${current_entity.resourceType}/${current_entity.id}`, {}
@@ -1317,10 +1298,10 @@ class EverythingHelper {
      * retrieves references from the provided property.
      * Always returns an array of references whether the property value is an array or just an object
      * @param {Object || Object[]} propertyValue
-     * @param {boolean} supportLegacyId
+     * @param {boolean} supportLegacyId By default false for everything
      * @return {string[]}
      */
-    getReferencesFromPropertyValue({ propertyValue, supportLegacyId = true }) {
+    getReferencesFromPropertyValue({ propertyValue, supportLegacyId = false }) {
         if (this.configManager.supportLegacyIds && supportLegacyId) {
             // concat uuids and ids so we can search both in case some reference does not have
             // _sourceAssigningAuthority set correctly
