@@ -5,7 +5,7 @@ const async = require('async');
 const { R4SearchQueryCreator } = require('../query/r4');
 const env = require('var');
 const { escapeRegExp } = require('../../utils/regexEscaper');
-const { assertTypeEquals } = require('../../utils/assertType');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { ScopesManager } = require('../security/scopesManager');
@@ -466,6 +466,11 @@ class EverythingHelper {
                 requestInfo
             }));
 
+            const baseResourcesProcessedTracker = new ResourceProccessedTracker();
+            baseResourceIdentifiers.forEach(resourceIdentifier => {
+                baseResourcesProcessedTracker.add(resourceIdentifier);
+            })
+
             // Fetch related resources
             /**
              * @type {import('mongodb').Document[]}
@@ -478,6 +483,7 @@ class EverythingHelper {
                         parentResourceType: resourceType,
                         relatedResources: relatedResourceMapChunk,
                         parentResourceIdentifiers: baseResourceIdentifiers,
+                        parentResourcesProcessedTracker: baseResourcesProcessedTracker,
                         explain,
                         debug,
                         parsedArgs,
@@ -742,6 +748,7 @@ class EverythingHelper {
     * @param {ResponseStreamer} responseStreamer
     * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
     * @param {ResourceIdentifier[]} parentResourceIdentifiers
+    * @param {ResourceProccessedTracker} parentResourcesProcessedTracker
     * @param {boolean} supportLegacyId
     * @param {string[]} proxyPatientIds
     * @param {boolean} getRaw
@@ -760,6 +767,7 @@ class EverythingHelper {
             responseStreamer,
             bundleEntryIdsProcessedTracker,
             parentResourceIdentifiers,
+            parentResourcesProcessedTracker,
             proxyPatientIds = [],
             supportLegacyId = true,
             getRaw = false,
@@ -819,6 +827,7 @@ class EverythingHelper {
              * @type {string}
              */
             let reverseFilterWithParentIds = filterByPatientIds.replace('{ref}', parentResourceTypeAndIdList.join(','));
+            const searchParameterName = filterByPatientIds.split('=')[0];
             reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentIdList.join(','));
 
             /**
@@ -881,6 +890,16 @@ class EverythingHelper {
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
+            // find matching field name in searchParameter list.  We will use this to match up to parent
+            /**
+             * @type {string}
+             */
+            const fieldForSearchParameter = this.searchParametersManager.getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
+
+            if (!fieldForSearchParameter) {
+                throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
+            }
+
             /**
              * @type {import('mongodb').Document[]}
              */
@@ -896,7 +915,11 @@ class EverythingHelper {
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
                 getRaw,
-                nonClinicalReferenesExtractor
+                nonClinicalReferenesExtractor,
+                parentResourcesProcessedTracker,
+                fieldForSearchParameter,
+                proxyPatientIds: proxyPatientIds || [],
+                parentResourceType
             })
 
             parallelProcess.push(promiseResult)
@@ -932,6 +955,10 @@ class EverythingHelper {
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
      *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
+     *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
+     *  fieldForSearchParameter?: string,
+     *  proxyPatientIds?: string[],
+     *  parentResourceType?: string,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -942,7 +969,11 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
         getRaw,
-        nonClinicalReferenesExtractor
+        nonClinicalReferenesExtractor,
+        parentResourcesProcessedTracker,
+        fieldForSearchParameter,
+        proxyPatientIds,
+        parentResourceType
     }) {
         /**
          * @type {BundleEntry[]}
@@ -972,40 +1003,132 @@ class EverythingHelper {
                         resource: startResource
                     });
 
-                const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
-                if (responseStreamer) {
-                    [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
-                        entries: [current_entity],
-                        parsedArgs: parentParsedArgs,
-                        rawResources: getRaw
+
+                let sendResource = true;
+                if (parentResourceType) {
+                    assertIsValid(proxyPatientIds, 'proxyPatientIds should be present');
+                    assertIsValid(fieldForSearchParameter, 'fieldForSearchParameter should be present');
+                    assertIsValid(parentResourcesProcessedTracker, 'parentResourcesProcessedTracker should be present');
+                    const properties = this.getPropertiesForEntity({
+                        resource: startResource, property: fieldForSearchParameter
                     });
 
-                    if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
-                        if (resourceIdentifiers) {
-                            resourceIdentifiers.push(resourceIdentifier)
-                        }
-                        await responseStreamer.writeBundleEntryAsync(
-                            {
-                                bundleEntry: current_entity,
-                                rawResources: getRaw
-                            }
-                        );
+                    // the reference property can be a single item or an array. Remove the sourceAssigningAuthority
+                    // from references before matching.
+                    /**
+                     * @type {string[]}
+                     */
+                    let references = properties
+                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
+                        .filter(r => r !== undefined).map(r => r.split('|')[0]);
+
+                    // for handling case when searching using sourceid of proxy patient
+                    /**
+                     * @type {string[]}
+                     */
+                    let referenceWithSourceIds = []
+                    if (proxyPatientIds) {
+                        referenceWithSourceIds = properties
+                            .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
+                            .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     }
 
-                } else {
-                    if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
-                        if (resourceIdentifiers) {
-                            resourceIdentifiers.push(resourceIdentifier)
-                        }
-                        bundleEntries.push(current_entity);
+                    // for handling case for subscription resources where instead of
+                    // reference we only have id of person/patient resource in extension/identifier
+                    if (
+                        references.length == 0 &&
+                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(fieldForSearchParameter)
+                    ) {
+
+                        properties.flat().map((r) => {
+                            if (
+                                r[
+                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                            ) {
+                                references.push(
+                                    PERSON_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            } else if (
+                                r[
+                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
+                            ) {
+                                references.push(
+                                    PATIENT_REFERENCE_PREFIX +
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                );
+                            }
+                        });
                     }
+
+                    /**
+                     * @type {ResourceIdentifier[]}
+                     */
+                    let matchingParentReferences = [];
+                    {
+                        const referencesSet = new Set(references);
+                        parentResourcesProcessedTracker.uuidSet.forEach(parentUuidReference => {
+                            if (referencesSet.has(parentUuidReference)) {
+                                matchingParentReferences.push(parentUuidReference);
+                            }
+                        })
+                    }
+
+                    if (matchingParentReferences.length === 0) {
+                        if (parentResourceType === 'Patient' && proxyPatientIds && proxyPatientIds.some(id => referenceWithSourceIds.includes(PATIENT_REFERENCE_PREFIX + id))) {
+                            sendResource = true;
+                        } else {
+                            sendResource = false;
+                            const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
+                            logError(
+                                `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                                `using property ${fieldForSearchParameter} in ` +
+                                'child entity ' +
+                                `${current_entity.resourceType}/${current_entity.id}`, {}
+                            );
+                        }
+                    }
+
                 }
 
-                bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                if (sendResource) {
+                    const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
+                    if (responseStreamer) {
+                        [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
+                            entries: [current_entity],
+                            parsedArgs: parentParsedArgs,
+                            rawResources: getRaw
+                        });
 
-                // find references
-                if (nonClinicalReferenesExtractor) {
-                    await nonClinicalReferenesExtractor.processResource(startResource);
+                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                            if (resourceIdentifiers) {
+                                resourceIdentifiers.push(resourceIdentifier)
+                            }
+                            await responseStreamer.writeBundleEntryAsync(
+                                {
+                                    bundleEntry: current_entity,
+                                    rawResources: getRaw
+                                }
+                            );
+                        }
+
+                    } else {
+                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                            if (resourceIdentifiers) {
+                                resourceIdentifiers.push(resourceIdentifier)
+                            }
+                            bundleEntries.push(current_entity);
+                        }
+                    }
+
+                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+
+                    // find references
+                    if (nonClinicalReferenesExtractor) {
+                        await nonClinicalReferenesExtractor.processResource(startResource);
+                    }
                 }
             }
         }
@@ -1152,6 +1275,63 @@ class EverythingHelper {
                 args
             }
         );
+    }
+
+    /**
+     * returns property values
+     * @param {Resource} resource
+     * @param {string} property Property to read
+     * @param {string?} filterProperty Filter property (optional)
+     * @param {string?} filterValue Filter value (optional)
+     * @returns {Object[]}
+     */
+    getPropertiesForEntity({ resource, property, filterProperty, filterValue }) {
+        const item = resource;
+        if (property.includes('.')) { // this is a nested property so recurse down and find the value
+            /**
+             * @type {string[]}
+             */
+            const propertyComponents = property.split('.');
+            /**
+             * @type {Object[]}
+             */
+            let currentElements = [item];
+            for (const propertyComponent of propertyComponents) {
+                // find nested elements where the property is present and select the property
+                currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
+                if (currentElements.length === 0) {
+                    return [];
+                }
+            }
+            // if there is a filter then check that the last element has that value
+            if (filterProperty) {
+                currentElements = currentElements.filter(c => c[`${filterProperty}`] && c[`${filterProperty}`] === filterValue);
+            }
+            return currentElements;
+        } else {
+            return [item[`${property}`]];
+        }
+    }
+
+    /**
+     * retrieves references from the provided property.
+     * Always returns an array of references whether the property value is an array or just an object
+     * @param {Object || Object[]} propertyValue
+     * @param {boolean} supportLegacyId
+     * @return {string[]}
+     */
+    getReferencesFromPropertyValue({ propertyValue, supportLegacyId = true }) {
+        if (this.configManager.supportLegacyIds && supportLegacyId) {
+            // concat uuids and ids so we can search both in case some reference does not have
+            // _sourceAssigningAuthority set correctly
+            return Array.isArray(propertyValue)
+                ? propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference))
+                : [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
+        } else {
+            return Array.isArray(propertyValue)
+                ? propertyValue.map(a => a._uuid)
+                : [].concat([propertyValue._uuid]);
+        }
     }
 }
 
