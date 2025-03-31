@@ -15,7 +15,6 @@ const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { EverythingHelper } = require('./everythingHelper');
 const { ForbiddenError } = require('../../utils/httpErrors');
-const { ScopesManager } = require('../security/scopesManager');
 
 class EverythingOperation {
     /**
@@ -26,14 +25,7 @@ class EverythingOperation {
      * @param {ConfigManager} configManager
      * @param {EverythingHelper} everythingHelper
      */
-    constructor({
-        graphOperation,
-        fhirLoggingManager,
-        scopesValidator,
-        configManager,
-        everythingHelper,
-        scopesManager
-    }) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper }) {
         /**
          * @type {GraphOperation}
          */
@@ -62,12 +54,6 @@ class EverythingOperation {
          */
         this.everythingHelper = everythingHelper;
         assertTypeEquals(everythingHelper, EverythingHelper);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -135,14 +121,14 @@ class EverythingOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
 
-        const { user, scope } = requestInfo;
+        const { user, scope, isUser } = requestInfo;
 
         /**
          * @type {number}
          */
         const startTime = Date.now();
 
-        if (requestInfo.method.toLowerCase() === 'delete' && this.scopesManager.hasPatientScope({ scope })) {
+        if (isUser && requestInfo.method.toLowerCase() === 'delete') {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to delete ` +
                     '$everything: Access to delete $everything not allowed if patient scope is present'
