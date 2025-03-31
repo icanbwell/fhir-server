@@ -712,7 +712,7 @@ class EverythingHelper {
             const { bundleEntries } = await this.processCursorAsync({
                 cursor,
                 getRaw,
-                parsedArgs,
+                parentParsedArgs: parsedArgs,
                 responseStreamer,
                 bundleEntryIdsProcessedTracker,
                 resourceIdentifiers
@@ -800,12 +800,13 @@ class EverythingHelper {
             /**
              * @type {string[]}
              */
-            const parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
+            let parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
             let parentResourceTypeAndIdList = parentResourceIdentifiersList.map(r => `${r.resourceType}/${r._uuid}`);
 
             // for now this will always be true
             if (parentResourceType === 'Patient' && proxyPatientIds) {
                 parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
+                parentIdList = [...parentIdList, ...proxyPatientIds]
             }
 
             if (parentResourceTypeAndIdList.length === 0) {
@@ -892,7 +893,7 @@ class EverythingHelper {
             const promiseResult = this.processCursorAsync({
                 cursor,
                 responseStreamer,
-                parsedArgs: relatedResourceParsedArgs,
+                parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
                 getRaw,
                 nonClinicalReferenesExtractor
@@ -925,7 +926,7 @@ class EverythingHelper {
      * @param {{
      *  cursor: DatabasePartitionedCursor,
      *  responseStreamer: ResponseStreamer,
-     *  parsedArgs: ParsedArgs,
+     *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker,
      *  resourceIdentifiers: ResourceIdentifier[] | null,
      *  sendBundleEntry?: boolean,
@@ -937,7 +938,7 @@ class EverythingHelper {
     async processCursorAsync({
         cursor,
         responseStreamer,
-        parsedArgs,
+        parentParsedArgs,
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
         getRaw,
@@ -975,7 +976,7 @@ class EverythingHelper {
                 if (responseStreamer) {
                     [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                         entries: [current_entity],
-                        parsedArgs,
+                        parsedArgs: parentParsedArgs,
                         rawResources: getRaw
                     });
 
@@ -1058,6 +1059,7 @@ class EverythingHelper {
                     args['_count'] = 1;
                 }
 
+                // Note: We are not running query-rewriters here
                 const childParseArgs = this.r4ArgsParser.parseArgs({
                     resourceType,
                     args
