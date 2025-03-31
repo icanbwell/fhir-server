@@ -589,7 +589,8 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         scopesValidator: c.scopesValidator,
         configManager: c.configManager,
-        everythingHelper: c.everythingHelper
+        everythingHelper: c.everythingHelper,
+        scopesManager: c.scopesManager
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(

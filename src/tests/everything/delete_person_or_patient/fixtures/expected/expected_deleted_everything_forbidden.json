@@ -1,0 +1,24 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+              "text": "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
+            },
+            "diagnostics": "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "id": "0ca293c4-958c-44a1-aff3-92aa4a333b6a",
+  "type": "searchset",
+  "timestamp": "2025-03-31T10:32:11.1111Z",
+  "total": 1
+}
