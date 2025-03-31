@@ -19,6 +19,7 @@ const expectedPatientDeletedResources = require('./fixtures/expected/expected_Pa
 const expectedPatientDeletedResourcesType = require('./fixtures/expected/expected_Patient_deleted_type.json');
 const expectedPersonDeletedResourcesType = require('./fixtures/expected/expected_Person_deleted_type.json');
 const expectedPatientEverythingAfterTypeDelete = require('./fixtures/expected/expected_Patient_everything_after_type_delete.json');
+const expectedDeleteEverythingForbidden = require('./fixtures/expected/expected_deleted_everything_forbidden.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -217,6 +218,34 @@ describe('Delete Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonDeletedResourcesType);
+        });
+
+        test('Delete $everything is not accessible with Patient Scope', async () => {
+            const request = await createTestRequest();
+            // ACT & ASSERT
+            let resp = await request
+                .delete('/4_0_0/Patient/patient1/$everything')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedDeleteEverythingForbidden);
+
+            resp = await request
+                .delete('/4_0_0/Person/person1/$everything')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedDeleteEverythingForbidden);
+
+            resp = await request
+                .delete('/4_0_0/Person/person2/$everything?_type=Patient,Observation')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedDeleteEverythingForbidden);
+
+            resp = await request
+                .delete('/4_0_0/Slot/slot1/$everything')
+                .set(getHeaders('patient/*.* access/*.* user/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedDeleteEverythingForbidden);
         });
     });
 });

@@ -14,6 +14,7 @@ const deepcopy = require('deepcopy');
 const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { EverythingHelper } = require('./everythingHelper');
+const { ForbiddenError } = require('../../utils/httpErrors');
 
 class EverythingOperation {
     /**
@@ -24,15 +25,7 @@ class EverythingOperation {
      * @param {ConfigManager} configManager
      * @param {EverythingHelper} everythingHelper
      */
-    constructor(
-        {
-            graphOperation,
-            fhirLoggingManager,
-            scopesValidator,
-            configManager,
-            everythingHelper
-        }
-    ) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper }) {
         /**
          * @type {GraphOperation}
          */
@@ -59,8 +52,8 @@ class EverythingOperation {
         /**
          * @type {EverythingHelper}
          */
-        this.everythingHelper = everythingHelper
-        assertTypeEquals(everythingHelper, EverythingHelper)
+        this.everythingHelper = everythingHelper;
+        assertTypeEquals(everythingHelper, EverythingHelper);
     }
 
     /**
@@ -127,15 +120,35 @@ class EverythingOperation {
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
-        /**
-         * @param {boolean}
-         */
-        let useEverythingHelperForPatient = resourceType === 'Patient' && this.configManager.disableGraphInEverythingOp;
+
+        const { user, scope, isUser } = requestInfo;
 
         /**
          * @type {number}
          */
         const startTime = Date.now();
+
+        if (isUser && requestInfo.method.toLowerCase() === 'delete') {
+            const forbiddenError = new ForbiddenError(
+                `user ${user} with scopes [${scope}] failed access check to delete ` +
+                    '$everything: Access to delete $everything not allowed if patient scope is present'
+            );
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: forbiddenError
+            });
+            throw forbiddenError;
+        }
+
+        /**
+         * @param {boolean}
+         */
+        let useEverythingHelperForPatient = resourceType === 'Patient' && this.configManager.disableGraphInEverythingOp;
+
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
