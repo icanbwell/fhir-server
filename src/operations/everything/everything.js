@@ -106,15 +106,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync(
-        {
-            requestInfo,
-            res,
-            parsedArgs,
-            resourceType,
-            responseStreamer
-        }
-    ) {
+    async everythingBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -147,7 +139,10 @@ class EverythingOperation {
         /**
          * @param {boolean}
          */
-        let useEverythingHelperForPatient = resourceType === 'Patient' && this.configManager.disableGraphInEverythingOp;
+        let useEverythingHelperForPatient =
+            resourceType === 'Patient' &&
+            requestInfo.method.toLowerCase() !== 'delete' &&
+            this.configManager.disableGraphInEverythingOp;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -159,36 +154,8 @@ class EverythingOperation {
         });
 
         try {
-            const { id, _type: resourceFilter } = parsedArgs;
+            const { _type: resourceFilter } = parsedArgs;
             const supportLegacyId = false;
-
-            const query = {};
-            query.id = id;
-            // Grab an instance of our DB and collection
-            switch (resourceType) {
-                case 'Practitioner': {
-                    parsedArgs.resource = practitionerEverythingGraph;
-                    break;
-                }
-                case 'Organization': {
-                    parsedArgs.resource = organizationEverythingGraph;
-                    break;
-                }
-                case 'Slot': {
-                    parsedArgs.resource = slotEverythingGraph;
-                    break;
-                }
-                case 'Person': {
-                    parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
-                    break;
-                }
-                case 'Patient': {
-                    parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
-                    break;
-                }
-                default:
-                    throw new Error('$everything is not supported for resource: ' + resourceType);
-            }
 
             if (isTrue(parsedArgs._includeNonClinicalResources)) {
                 if (!['Person', 'Patient'].includes(resourceType)) {
@@ -213,16 +180,11 @@ class EverythingOperation {
                 parsedArgs.contained = 0;
                 let resourceFilterList = resourceFilter.split(',');
                 parsedArgs.resourceFilterList = resourceFilterList;
-                parsedArgs.resource = this.filterResources(
-                    deepcopy(parsedArgs.resource),
-                    resourceFilterList
-                );
             }
 
-
             /**
-            * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
-            */
+             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+             */
             let result;
             if (useEverythingHelperForPatient) {
                 const { base_version } = parsedArgs;
@@ -232,12 +194,50 @@ class EverythingOperation {
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    supportLegacyId,
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                     nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
                     getRaw: this.configManager.getRawEverythingOpBundle
-                })
+                });
             } else {
+                // Grab an instance of our DB and collection
+                switch (resourceType) {
+                    case 'Practitioner': {
+                        parsedArgs.resource = practitionerEverythingGraph;
+                        break;
+                    }
+                    case 'Organization': {
+                        parsedArgs.resource = organizationEverythingGraph;
+                        break;
+                    }
+                    case 'Slot': {
+                        parsedArgs.resource = slotEverythingGraph;
+                        break;
+                    }
+                    case 'Person': {
+                        parsedArgs.resource =
+                            requestInfo.method.toLowerCase() === 'delete'
+                                ? personEverythingForDeletionGraph
+                                : personEverythingGraph;
+                        break;
+                    }
+                    case 'Patient': {
+                        parsedArgs.resource =
+                            requestInfo.method.toLowerCase() === 'delete'
+                                ? patientEverythingForDeletionGraph
+                                : patientEverythingGraph;
+                        break;
+                    }
+                    default:
+                        throw new Error('$everything is not supported for resource: ' + resourceType);
+                }
+
+                if (resourceFilter) {
+                    parsedArgs.resource = this.filterResources(
+                        deepcopy(parsedArgs.resource),
+                        parsedArgs.resourceFilterList
+                    );
+                }
+
                 result = await this.graphOperation.graph({
                     requestInfo,
                     res,
