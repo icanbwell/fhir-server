@@ -819,6 +819,14 @@ class ConfigManager {
         }
         return isTrue(env.DISABLE_GRAPH_IN_EVERYTHING_OP);
     }
+
+    /**
+     * Number of elements in a batch of MongoDB IN query
+     * @returns {boolean}
+     */
+    get mongoInQueryIdBatchSize() {
+        return env.MONGO_IN_QUERY_BATCH_SIZE ? parseInt(env.MONGO_IN_QUERY_BATCH_SIZE) : 100;
+    }
 }
 
 module.exports = {

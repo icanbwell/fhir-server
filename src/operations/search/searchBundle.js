@@ -105,12 +105,10 @@ class SearchBundleOperation {
      * @param {string} resourceType
      * @param {boolean} useAggregationPipeline
      * @param {boolean} getRaw
-     * @param {boolean} skipAuditLogs Pass this to not generate audit logs
-     * @param {boolean} skipAccessLogs Pass this to not generate access logs
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, getRaw = false, skipAuditLogs = false, skipAccessLogs = false }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, getRaw = false }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -301,7 +299,7 @@ class SearchBundleOperation {
                     }
                 );
 
-                if (resources.length > 0 && resourceType !== 'AuditEvent' && !skipAuditLogs) {
+                if (resources.length > 0 && resourceType !== 'AuditEvent') {
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async () => {
@@ -379,14 +377,12 @@ class SearchBundleOperation {
                 }),
                 options
             });
-            if (!skipAccessLogs) {
-                let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
-                if (!existingData) {
-                    existingData = { query: [] }
-                }
-                existingData.query = [...existingData.query, logQuery];
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
             }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -410,14 +406,12 @@ class SearchBundleOperation {
                 }),
                 options
             });
-            if (!skipAccessLogs) {
-                let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
-                if (!existingData) {
-                    existingData = { query: [] }
-                }
-                existingData.query = [...existingData.query, logQuery];
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
+            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
+            if (!existingData) {
+                existingData = { query: [] }
             }
+            existingData.query = [...existingData.query, logQuery];
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
