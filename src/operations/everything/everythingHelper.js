@@ -777,28 +777,31 @@ class EverythingHelper {
          * @type {ResourceIdentifier[]}
          */
         let parentResourceIdentifiersList = parentResourceIdentifiers;
+        /**
+         * @type {string[]}
+         */
+        let parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
+        let parentResourceTypeAndIdList = parentResourceIdentifiersList.map(r => `${r.resourceType}/${r._uuid}`);
+
+        // for now this will always be true
+        if (parentResourceType === 'Patient' && proxyPatientIds) {
+            parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
+            parentIdList = [...parentIdList, ...proxyPatientIds]
+        }
+
+        if (parentResourceTypeAndIdList.length === 0) {
+            return {
+                entities: bundleEntries,
+                queryItems
+            };
+        }
+
         for (const relatedResource of relatedResourcesMap) {
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
 
             if (!filterTemplateParam || !relatedResourceType) {
                 continue;
-            }
-
-            /**
-             * @type {string[]}
-             */
-            let parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
-            let parentResourceTypeAndIdList = parentResourceIdentifiersList.map(r => `${r.resourceType}/${r._uuid}`);
-
-            // for now this will always be true
-            if (parentResourceType === 'Patient' && proxyPatientIds) {
-                parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
-                parentIdList = [...parentIdList, ...proxyPatientIds]
-            }
-
-            if (parentResourceTypeAndIdList.length === 0) {
-                return;
             }
 
             const filterByPatientIds = filterTemplateParam;
