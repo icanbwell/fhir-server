@@ -31,7 +31,7 @@ const expectedPerson1Resources = require('./fixtures/expected/expected_Person_pe
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
 const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
 
-const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
+const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
