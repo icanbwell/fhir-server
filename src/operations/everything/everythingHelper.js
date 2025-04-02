@@ -394,7 +394,7 @@ class EverythingHelper {
             /**
              * @type {Generator<import('./everythingRelatedResourcesMapper').EverythingRelatedResources[],void, unknown>}
              */
-            const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.everythingRealtedResourceBatchSize)
+            const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.everythingMaxParallelProcess)
 
             /**
             * @type {BundleEntry[]}
@@ -487,7 +487,7 @@ class EverythingHelper {
                     /**
                      * @type {Promise<ProcessMultipleIdsAsyncResult>[]}
                      */
-                    const depthParallelProcess = [];
+                    let depthParallelProcess = [];
 
                     if (i + 1 < nonClinicalResourcesDepth) {
                         // for next level
@@ -497,18 +497,16 @@ class EverythingHelper {
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
                         let [resourceType, ids] = res;
                         ids = Array.from(ids);
-                        if (explain && ids.length > 1) {
-                            // process only single id
-                            ids.length = 1;
-                        }
+
                         const baseArgs = {
                             base_version: base_version,
                             _debug: debug || explain
                         };
 
-                        const idChunks = ids
-                            ? sliceIntoChunksGenerator(ids, this.configManager.mongoInQueryIdBatchSize)
-                            : [];
+                        // if explain query, don't break in chunks as will be limit to single resource later
+                        const idChunks = explain
+                            ? [ids]
+                            : sliceIntoChunksGenerator(ids, this.configManager.mongoInQueryIdBatchSize);
 
                         for (const idChunk of idChunks) {
                             const childParseArgs = this.r4ArgsParser.parseArgs({
@@ -530,17 +528,31 @@ class EverythingHelper {
                             });
 
                             depthParallelProcess.push(result);
+
+                            if(depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
+                                const depthResults = await Promise.all(depthParallelProcess);
+                                depthResults.forEach((result) => {
+                                    queries.push(...(result.queryItems || []));
+                                    explanations.push(...(result.explanations || []));
+                                    if (!responseStreamer) {
+                                        entries.push(...(result.entries || []));
+                                    }
+                                });
+                                depthParallelProcess = [];
+                            }
                         }
                     }
 
-                    const depthResults = await Promise.all(depthParallelProcess);
-                    depthResults.forEach((result) => {
-                        queries.push(...(result.queryItems || []));
-                        explanations.push(...(result.explanations || []));
-                        if (!responseStreamer) {
-                            entries.push(...(result.entries || []));
-                        }
-                    });
+                    if (depthParallelProcess.length > 0) {
+                        const depthResults = await Promise.all(depthParallelProcess);
+                        depthResults.forEach((result) => {
+                            queries.push(...(result.queryItems || []));
+                            explanations.push(...(result.explanations || []));
+                            if (!responseStreamer) {
+                                entries.push(...(result.entries || []));
+                            }
+                        });
+                    }
 
                     if (explain) {
                         // Don't include same resourceType, when explain is passed
@@ -696,19 +708,18 @@ class EverythingHelper {
 
         explanations.push(...explanations1);
 
-        const includeInOutput = !specificReltedResourceTypeSet || specificReltedResourceTypeSet.has(resourceType)
-
         const { bundleEntries } = await this.processCursorAsync({
             cursor,
             getRaw,
             parentParsedArgs: parsedArgs,
-            responseStreamer: includeInOutput ? responseStreamer : null,
+            responseStreamer: responseStreamer,
             bundleEntryIdsProcessedTracker,
             resourceIdentifiers,
-            nonClinicalReferenesExtractor
+            nonClinicalReferenesExtractor,
+            includeInOutput: !specificReltedResourceTypeSet || specificReltedResourceTypeSet.has(resourceType)
         });
 
-        entries.push(...(includeInOutput ? bundleEntries || [] : []));
+        entries.push(...(bundleEntries || []));
 
         return new ProcessMultipleIdsAsyncResult({
             entries,
@@ -943,6 +954,7 @@ class EverythingHelper {
      *  fieldForSearchParameter?: string,
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
+     *  includeInOutput: Boolean
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -957,7 +969,8 @@ class EverythingHelper {
         parentResourcesProcessedTracker,
         fieldForSearchParameter,
         proxyPatientIds,
-        parentResourceType
+        parentResourceType,
+        includeInOutput = true
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1081,7 +1094,7 @@ class EverythingHelper {
 
                 if (sendResource) {
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
-                    if (responseStreamer) {
+                    if (responseStreamer && includeInOutput) {
                         [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                             entries: [current_entity],
                             parsedArgs: parentParsedArgs,
@@ -1105,7 +1118,9 @@ class EverythingHelper {
                             if (resourceIdentifiers) {
                                 resourceIdentifiers.push(resourceIdentifier)
                             }
-                            bundleEntries.push(current_entity);
+                            if (includeInOutput){
+                                bundleEntries.push(current_entity);
+                            }
                         }
                     }
 

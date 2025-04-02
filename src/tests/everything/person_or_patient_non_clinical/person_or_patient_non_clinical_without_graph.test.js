@@ -38,7 +38,6 @@ const expectedPersonResourcesWithNonClinicalDepthType = require('./fixtures/expe
 const expectedPersonResourcesWithoutNonClinical = require('./fixtures/expected/expected_Person_without_non_clinical.json');
 
 const expectedPatientResourcesWithNonClinicalDepth3 = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph.json');
-const expectedPatientResourcesWithNonClinicalDepth3Contained = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_contained.json');
 
 const {
     commonBeforeEach,
@@ -62,7 +61,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP = '1';
+        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
         const request = await createTestRequest();
         // ARRANGE
         // add the resources to FHIR server
@@ -278,6 +277,15 @@ describe('everything _includeNonClinicalResources Tests', () => {
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepth2);
+
+        // get patient everything with non-clinical resources upto default depth 1 with _type param as CarePlan
+        resp = await request
+            .get(
+                '/4_0_0/Patient/patient1/$everything?_includeNonClinicalResources=true&_type=CarePlan'
+            )
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepthType);
 
         // get person everything with non-clinical resources upto default depth 1 with _type param as CarePlan
         resp = await request

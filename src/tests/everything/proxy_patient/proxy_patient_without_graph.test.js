@@ -41,7 +41,7 @@ describe('Proxy Patient $everything Tests', () => {
         const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_FAST_SERIALIZER_IN_GRAPH_OP = '1';
+        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
 
         const request = await createTestRequest();
         // ARRANGE
