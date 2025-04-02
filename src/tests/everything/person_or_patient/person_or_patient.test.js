@@ -38,7 +38,6 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
 describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {

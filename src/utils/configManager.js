@@ -308,11 +308,11 @@ class ConfigManager {
     }
 
     /**
-     * Specifies the numbers of related resources to stream/fetch parallely at a time
+     * Specifies the max numbers of parallel process at a time for fetching/streaming resources
      * @return {number}
      */
-    get everythingRealtedResourceBatchSize() {
-        return parseInt(env.EVERYTHING_RELATED_RESOURCE_BATCH_SIZE, 10) || 10;
+    get everythingMaxParallelProcess() {
+        return parseInt(env.EVERYTHING_MAX_PARALLEL_PROCESS, 10) || 10;
     }
 
     /**
@@ -818,6 +818,14 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.DISABLE_GRAPH_IN_EVERYTHING_OP);
+    }
+
+    /**
+     * Number of elements in a batch of MongoDB IN query
+     * @returns {boolean}
+     */
+    get mongoInQueryIdBatchSize() {
+        return env.MONGO_IN_QUERY_BATCH_SIZE ? parseInt(env.MONGO_IN_QUERY_BATCH_SIZE) : 100;
     }
 }
 
