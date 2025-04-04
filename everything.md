@@ -7,14 +7,22 @@ Note - If loading the result of each resource for $everything to node.js takes m
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
--   <base_url>/4_0_0/Patient/<patient1>/$everything
--   <base_url>/4_0_0/Patient/$everything?id=<patient1>
+-   <base_url>/4_0_0/Person/<person1>/$everything
+-   <base_url>/4_0_0/Person/$everything?id=<person1>
 
-Sample $everything result for patient
+Sample $everything result for person
 
 ```
 {
   "entry": [
+    {
+      "id": "person1",
+      "resource": {
+        "resourceType": "Person",
+        "id": "person1"
+        // <rest of resource fields>
+      }
+    },
     {
       "id": "patient1",
       "resource": {
@@ -40,14 +48,6 @@ Sample $everything result for patient
       }
     },
     {
-      "id": "person2",
-      "resource": {
-        "resourceType": "Person",
-        "id": "person2"
-        // <rest of resource fields>
-      }
-    },
-    {
       "id": "personTopLevel",
       "resource": {
         "resourceType": "Person",
@@ -64,7 +64,7 @@ Sample $everything result for patient
   "link": [
     {
       "relation": "self",
-      "url": "<base_url>/4_0_0/Patient/patient1/$everything"
+      "url": "<base_url>/4_0_0/Person/person1/$everything"
     }
   ]
 }
@@ -100,11 +100,13 @@ URL: <base_url>/4_0_0/Person/<person_id>/$everything
 Resources returned/deleted:
 Person, Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
-### Patient
+### Patient DELETE
+
+NOTE: Details for patient GET $everything [patientEverything.md](patientEverything.md)
 
 URL: <base_url>/4_0_0/Patient/<patient_id>/$everything
 
-Resources returned/deleted:
+Resources deleted:
 Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
 ## Patient Resource Not Supported
@@ -116,23 +118,23 @@ Currently [BiologicallyDerivedProduct]((https://www.hl7.org/fhir/r4b/Biologicall
 
 It can be used if data related to more than one resource provided needs to be fetched. If `id` search query parameter is passed, then the path parameter is ignored.
 
-For example: <base_url>/4_0_0/Patient/$everything?id=patient1,patient2
+For example: <base_url>/4_0_0/Person/$everything?id=person1,person2
 
 ### contained
 
 By default, the FHIR returns all the related resources in the top level bundle.  
 However if you pass the `contained` search query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
 
-For example: <base_url>/4_0_0/Patient/<patient1>/$everything?contained=true
+For example: <base_url>/4_0_0/Person/\<person1>/$everything?contained=true
 
 ```
 {
     "entry": [
         {
-            "id": "patient1",
+            "id": "person1",
             "resource": {
-                "resourceType": "Patient",
-                "id": "patient1",
+                "resourceType": "Person",
+                "id": "person1",
                 // <rest of resource fields>
                 "contained": [
                     {
@@ -152,10 +154,10 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?contained=true
                         }
                     },
                     {
-                        "id": "person2",
+                        "id": "patient1",
                         "resource": {
-                            "resourceType": "Person",
-                            "id": "person2"
+                            "resourceType": "Patient",
+                            "id": "patient1"
                             // <rest of resource fields>
                         }
                     },
@@ -179,7 +181,7 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?contained=true
     "link": [
         {
             "relation": "self",
-            "url": "<base_url>/4_0_0/Patient/patient1/$everything?contained=true"
+            "url": "<base_url>/4_0_0/Person/person1/$everything?contained=true"
         }
     ]
 }
@@ -189,7 +191,7 @@ For example: <base_url>/4_0_0/Patient/<patient1>/$everything?contained=true
 
 The `_debug` parameter is used to get debugging information with the result.
 
-For example: <base_url>/4_0_0/Patient/<patient1>/$everything?\_debug=true
+For example: <base_url>/4_0_0/Person/\<person1>/$everything?\_debug=true
 
 ### \_explain
 
@@ -201,7 +203,7 @@ For example: <base_url>/4_0_0/Organization/<organization1>/$everything?\_explain
 
 This parameter can be used to narrow down the result of resources to the provided list of resources.
 
-For example: <base_url>/4_0_0/Patient/<patient1>/$everything?\_type=Person,Account,Observation
+For example: <base_url>/4_0_0/Person/\<person1>/$everything?\_type=Person,Account,Observation
 
 Note:
 When `_type` parameter is used then the `contained` parameter is ignored.
@@ -211,10 +213,10 @@ When `_type` parameter is used then the `contained` parameter is ignored.
 This parameter is used to find all linked non-clinical resources. It can only be used with Patient and Person resources and in GET request only. Default depth for which linked non-clinical resources can be fetched is 1 and it can be configured using `_nonClinicalResourcesDepth` parameter.
 When used along with `_type`, the result of only top level resources will be narrowed and it will not affect linked non-clinical resources.
 
-For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true
+For example: <base_url>/4_0_0/Person/\<person_id>/$everything?\_includeNonClinicalResources=true
 
 ### \_nonClinicalResourcesDepth
 
 This parameter is used to define depth for which linked non-clinical resources needs to be fetched. The parameter is optional with default value of 1. And its maximum value can be 3 as more depth will make request very slow.
 
-For example: <base_url>/4_0_0/Patient/<patient_id>/$everything?\_includeNonClinicalResources=true&\_nonClinicalResourcesDepth=3
+For example: <base_url>/4_0_0/Person/\<person_id>/$everything?\_includeNonClinicalResources=true&\_nonClinicalResourcesDepth=3
