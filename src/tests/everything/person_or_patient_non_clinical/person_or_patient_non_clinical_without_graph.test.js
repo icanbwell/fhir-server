@@ -47,6 +47,7 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const deepcopy = require('deepcopy');
 
 describe('everything _includeNonClinicalResources Tests', () => {
     beforeEach(async () => {
@@ -228,22 +229,22 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         // ACT & ASSERT
-        // First get patient everything with depth 3
+        // First get patient everything
         resp = await request
             .get(
-                '/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=true&_nonClinicalResourcesDepth=3'
+                '/4_0_0/Patient/patient1/$everything?_debug=true'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp.body.meta).toBeDefined();
-        expect(resp.body.meta.tag).toBeDefined();
-        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3);
-        expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3);
+        let expected = deepcopy(expectedPatientResourcesWithNonClinicalDepth3)
+        expect(resp).toHaveMongoQuery(expected);
+        expect(resp).toHaveResponse(expected);
 
-        // get patient everything with depth 3 and _includeHidden true
+
+        // get patient everything with _includeHidden true
         resp = await request
             .get(
-                '/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=true&_nonClinicalResourcesDepth=3&_includeHidden=1'
+                '/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -252,6 +253,12 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden);
         expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden);
 
+        // patient everything with ignores params _includeNonClinicalResources & _nonClinicalResourcesDepth
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=false&_nonClinicalResourcesDepth=4').set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expected = deepcopy(expectedPatientResourcesWithNonClinicalDepth3)
+        expect(resp).toHaveMongoQuery(expected);
+        expect(resp).toHaveResponse(expected);
 
         // get person everything with non-clinical resources upto depth 2
         resp = await request
@@ -262,10 +269,10 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepth2);
 
-        // get patient everything with non-clinical resources upto default depth 1 with _type param as CarePlan
+        // get patient everything with _type param as CarePlan and non-clinical are fetched by default
         resp = await request
             .get(
-                '/4_0_0/Patient/patient1/$everything?_includeNonClinicalResources=true&_type=CarePlan'
+                '/4_0_0/Patient/patient1/$everything?_type=CarePlan'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction

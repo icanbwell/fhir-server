@@ -15,6 +15,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { EverythingHelper } = require('./everythingHelper');
 const { ForbiddenError } = require('../../utils/httpErrors');
+const { isFalseWithFallback } = require('../../utils/isFalse');
 
 class EverythingOperation {
     /**
@@ -157,24 +158,6 @@ class EverythingOperation {
             const { _type: resourceFilter } = parsedArgs;
             const supportLegacyId = false;
 
-            if (isTrue(parsedArgs._includeNonClinicalResources)) {
-                if (!['Person', 'Patient'].includes(resourceType)) {
-                    throw new Error(
-                        '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
-                    );
-                }
-                if (
-                    parsedArgs._nonClinicalResourcesDepth &&
-                    (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
-                        parsedArgs._nonClinicalResourcesDepth > 3 ||
-                        parsedArgs._nonClinicalResourcesDepth < 1)
-                ) {
-                    throw new Error(
-                        '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
-                    );
-                }
-            }
-
             if (resourceFilter) {
                 // _type and contained parameter are not supported together
                 parsedArgs.contained = 0;
@@ -194,11 +177,28 @@ class EverythingOperation {
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
+                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
                     getRaw: this.configManager.getRawEverythingOpBundle
                 });
             } else {
+                if (isTrue(parsedArgs._includeNonClinicalResources)) {
+                    if (!['Person', 'Patient'].includes(resourceType)) {
+                        throw new Error(
+                            '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
+                        );
+                    }
+                    if (
+                        parsedArgs._nonClinicalResourcesDepth &&
+                        (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
+                            parsedArgs._nonClinicalResourcesDepth > 3 ||
+                            parsedArgs._nonClinicalResourcesDepth < 1)
+                    ) {
+                        throw new Error(
+                            '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
+                        );
+                    }
+                }
+
                 // Grab an instance of our DB and collection
                 switch (resourceType) {
                     case 'Practitioner': {

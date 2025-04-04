@@ -123,7 +123,7 @@ describe('Proxy Patient $everything Tests', () => {
 
         // get patient everything using proxy patient
         resp = await request
-            .get('/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything?_debug=true')
+            .get('/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything?_debug=true&_includePatientLinkedOnly=true')
             .set(getHeaders());
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatient);
 

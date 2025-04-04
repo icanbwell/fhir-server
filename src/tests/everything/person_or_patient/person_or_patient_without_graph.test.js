@@ -183,7 +183,7 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         // ACT & ASSERT
         // First get patient everything
         resp = await request
-            .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedOnly=true')
             .set(getHeaders());
         expect(resp).toHaveMongoQuery(expectedPatientResources);
         // noinspection JSUnresolvedFunction
@@ -324,7 +324,7 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         // ACT & ASSERT
         // First get patient everything
         resp = await request
-            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1')
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1&_includePatientLinkedOnly=true')
             .set(getHeaders());
         expect(resp).toHaveMongoQuery(expectedPatientIncludeHiddenResourcesNoGraph);
         // noinspection JSUnresolvedFunction
@@ -397,7 +397,7 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         // ACT & ASSERT
         // Check get patient everything with specified resources and check contained is ignored with _type
         resp = await request
-            .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&contained=true&_debug=true')
+            .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&_includePatientLinkedOnly=true&_debug=true')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientResourcesTypeNoGraph);

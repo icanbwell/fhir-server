@@ -151,6 +151,7 @@ module.exports = {
         VERIFICATIONRESULT: 'VerificationResult',
         VISIONPRESCRIPTION: 'VisionPrescription'
     },
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH: 3,
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     SPECIFIED_QUERY_PARAMS: [
@@ -161,7 +162,7 @@ module.exports = {
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
-        '_includeNonClinicalResources', '_nonClinicalResourcesDepth'
+        '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly'
     ],
     REQUEST_ID_HEADER: 'x-request-id',
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
