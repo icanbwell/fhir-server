@@ -1,0 +1,54 @@
+{
+  "entry": [],
+  "resourceType": "Bundle",
+  "id": "a3e652f9-88e2-4cb8-a2ba-eefcadded148",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Practitioner_4_0_0.find({}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Practitioner_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['_uuid']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.003"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain",
+        "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Practitioner_4_0_0\",\"parsedQuery\":{},\"indexFilterSet\":false,\"planCacheShapeHash\":\"4C1346DE\",\"planCacheKey\":\"0C24E09E\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":0,\"executionStages\":{\"isCached\":false,\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":0,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":0,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"queryShapeHash\":\"1EDC09C9CBB2DDE88EF477E10B9CFDB5F10AB509B47E06560F7831A25F736345\",\"command\":{\"find\":\"Practitioner_4_0_0\",\"filter\":{},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Nirbhay-Na-MacBook-Air\",\"port\":65264,\"version\":\"8.0.4\",\"gitVersion\":\"bc35ab4305d9920d9d0491c1c9ef9b72383d31f9\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7489077557128593435\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7489077557128593435\"}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple",
+        "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":0,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"docsExamined\":0,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":0},\"query\":\"db.Practitioner_4_0_0.find({}, {}).sort({'_uuid':1}).limit(100)\"}]"
+      }
+    ]
+  },
+  "type": "searchset",
+  "timestamp": "2025-04-03T01:25:48.4848Z",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://127.0.0.1:65319/4_0_0/Practitioner?_debug=1&_includeHidden=true"
+    }
+  ]
+}

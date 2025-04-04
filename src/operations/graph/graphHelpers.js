@@ -268,6 +268,7 @@ class GraphHelper {
      * @param {string} property
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*|null} filterValue (Optional) match filterProperty to this value
+     * @param {ParsedArgs} parseArgs
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {boolean} supportLegacyId
@@ -281,6 +282,7 @@ class GraphHelper {
         property,
         filterProperty,
         filterValue,
+        parsedArgs,
         explain,
         debug,
         supportLegacyId = true,
@@ -332,7 +334,9 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            const args = Object.assign({ base_version }, { id: relatedReferenceIds.join(',') });
+            const args = Object.assign({
+                base_version, _includeHidden: parsedArgs._includeHidden
+            }, { id: relatedReferenceIds.join(',') });
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -486,10 +490,12 @@ class GraphHelper {
      * converts a query string into an args array
      * @param {string} resourceType
      * @param {string} queryString
+     * @param {object} commonArgs
      * @return {ParsedArgs}
      */
-    parseQueryStringIntoArgs ({ resourceType, queryString }) {
-        const args = Object.fromEntries(new URLSearchParams(queryString));
+    parseQueryStringIntoArgs ({ resourceType, queryString, commonArgs = {}}) {
+        const args = {};
+        Object.assign(args, commonArgs, Object.fromEntries(new URLSearchParams(queryString)));
         args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
@@ -513,6 +519,7 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
+     * @param {ParsedArgs} parseArgs
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @returns {QueryItem}
      */
@@ -527,6 +534,7 @@ class GraphHelper {
         reverse_filter,
         explain,
         debug,
+        parsedArgs,
         supportLegacyId = true,
         proxyPatientIds = [],
         proxyPatientResources = [],
@@ -595,11 +603,15 @@ class GraphHelper {
             const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
                 {
                     resourceType: relatedResourceType,
-                    queryString: reverseFilterWithParentIds
+                    queryString: reverseFilterWithParentIds,
+                    commonArgs: {
+                        _includeHidden: parsedArgs._includeHidden
+                    }
                 }
             );
             const args = {};
             args.base_version = base_version;
+
             const searchParameterName = reverse_filter.split('=')[0];
             /**
              * @type {boolean}
@@ -986,7 +998,8 @@ class GraphHelper {
                             explain,
                             debug,
                             supportLegacyId,
-                            getRaw
+                            getRaw,
+                            parsedArgs
                         }
                     );
                     if (queryItem) {
@@ -1048,6 +1061,7 @@ class GraphHelper {
                             supportLegacyId,
                             proxyPatientIds,
                             proxyPatientResources,
+                            parsedArgs,
                             getRaw
                         }
                     );
@@ -1394,7 +1408,8 @@ class GraphHelper {
                 const args = {
                     base_version: base_version,
                     id: Array.from(ids).join(','),
-                    _debug: debug
+                    _debug: debug,
+                    _includeHidden: parsedArgs._includeHidden
                 };
                 if (explain) {
                     args['_count'] = 1;

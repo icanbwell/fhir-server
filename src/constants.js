@@ -204,6 +204,10 @@ module.exports = {
         SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
         CODE: 'R'
     },
+    RESOURCE_HIDDEN_TAG: {
+        SYSTEM: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+        CODE: 'hidden'
+    },
     CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
     EXTERNAL_REQUEST_RETRY_COUNT: 3,
     DEFAULT_CACHE_MAX_COUNT: 25,
