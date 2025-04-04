@@ -1153,7 +1153,6 @@ class EverythingHelper {
         const args = {};
         Object.assign(args, commonArgs, Object.fromEntries(new URLSearchParams(queryString)));
         args.base_version = VERSIONS['4_0_0'];
-        args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
                 resourceType,
