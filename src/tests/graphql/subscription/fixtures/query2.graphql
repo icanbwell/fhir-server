@@ -1,0 +1,28 @@
+query subscriptionQuery {
+    subscription(_debug: true) {
+        entry {
+            resource {
+                id
+                extension {
+                    url
+                    valueString
+                }
+                subscriptionStatus {
+                    id
+                    subscriptionTopic {
+                        id
+                        url
+                        identifier {
+                            system
+                            value
+                        }
+                    }
+                    extension {
+                        url
+                        valueString
+                    }
+                }
+            }
+        }
+    }
+}

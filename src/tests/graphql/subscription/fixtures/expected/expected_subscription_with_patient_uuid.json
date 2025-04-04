@@ -1,0 +1,137 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "id": "9845bce8-110b-403d-bc70-fe4897372ed2",
+                "extension": [
+                    {
+                        "url": "https://icanbwell.com/codes/master_person_id",
+                        "valueString": "a6026593-63b2-4fc6-8129-fe2cd520e7fd"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/client_person_id",
+                        "valueString": "79e59046-ffc7-4c41-9819-c8ef83275454"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/source_patient_id",
+                        "valueString": "9ca27633-cbcc-5775-a857-2c610e138f8b"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_type",
+                        "valueString": "proa"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_name",
+                        "valueString": "Emory Healthcare"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/service_slug",
+                        "valueString": "bwell_demo"
+                    }
+                ],
+                "subscriptionStatus": [
+                    {
+                        "id": "9845bce8-110b-403d-bc70-fe4897372ed2",
+                        "subscriptionTopic": {
+                            "id": "9845bce8-110b-403d-bc70-fe4897372ed2",
+                            "url": "https://fhir-myrecord.cerner.com/r4/5c7467fb-60f9-4172-add4-57667a5dfcfa/",
+                            "identifier": [
+                                {
+                                    "system": "https://icanbwell.com/codes/master_person_id",
+                                    "value": "a6026593-63b2-4fc6-8129-fe2cd520e7fd"
+                                },
+                                {
+                                    "system": "https://icanbwell.com/codes/client_person_id",
+                                    "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
+                                },
+                                {
+                                    "system": "https://icanbwell.com/codes/source_patient_id",
+                                    "value": "9ca27633-cbcc-5775-a857-2c610e138f8b"
+                                },
+                                {
+                                    "system": "https://icanbwell.com/codes/connection_type",
+                                    "value": "proa"
+                                },
+                                {
+                                    "system": "https://icanbwell.com/codes/connection_name",
+                                    "value": "Emory Healthcare"
+                                },
+                                {
+                                    "system": "https://icanbwell.com/codes/service_slug",
+                                    "value": "bwell_demo"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/sourceId",
+                                    "value": "9845bce8-110b-403d-bc70-fe4897372ed2"
+                                },
+                                {
+                                    "system": "https://www.icanbwell.com/uuid",
+                                    "value": "9845bce8-110b-403d-bc70-fe4897372ed2"
+                                }
+                            ]
+                        },
+                        "extension": [
+                            {
+                                "url": "https://icanbwell.com/codes/master_person_id",
+                                "valueString": "a6026593-63b2-4fc6-8129-fe2cd520e7fd"
+                            },
+                            {
+                                "url": "https://icanbwell.com/codes/client_person_id",
+                                "valueString": "79e59046-ffc7-4c41-9819-c8ef83275454"
+                            },
+                            {
+                                "url": "https://icanbwell.com/codes/source_patient_id",
+                                "valueString": "9ca27633-cbcc-5775-a857-2c610e138f8b"
+                            },
+                            {
+                                "url": "https://icanbwell.com/codes/connection_type",
+                                "valueString": "proa"
+                            },
+                            {
+                                "url": "https://icanbwell.com/codes/connection_name",
+                                "valueString": "Emory Healthcare"
+                            },
+                            {
+                                "url": "https://icanbwell.com/codes/service_slug",
+                                "valueString": "bwell_demo"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "[db.Subscription_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.SubscriptionStatus_4_0_0.find({'$and':[{'subscription._uuid':'Subscription/9845bce8-110b-403d-bc70-fe4897372ed2'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'topic':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100),db.SubscriptionTopic_4_0_0.find({'$and':[{'_uuid':'9845bce8-110b-403d-bc70-fe4897372ed2'},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/client_person_id','value':'79e59046-ffc7-4c41-9819-c8ef83275454'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'url':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "[Subscription_4_0_0,SubscriptionStatus_4_0_0,SubscriptionTopic_4_0_0]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "[{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'topic':1,'extension':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':100,'sort':{'_uuid':1}},{'projection':{'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'url':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "[['meta.tag.system','meta.tag.code','extension.url','extension.valueString','meta.security.system','meta.security.code','_uuid'],['subscription._uuid','meta.tag.system','meta.tag.code','extension.url','extension.valueString','meta.security.system','meta.security.code','_uuid'],['_uuid','identifier.system','identifier.value','meta.tag.system','meta.tag.code','meta.security.system','meta.security.code']]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
+}
