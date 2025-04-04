@@ -16,6 +16,7 @@ const expectedPersonResourcesWithProxyPatient = require('./fixtures/expected/exp
 const expectedPersonResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_person_everything_sourceid.json');
 const expectedPersonResourcesContained = require('./fixtures/expected/expected_person_everything_contained.json');
 const expectedPatientResourcesWithProxyPatient = require('./fixtures/expected/expected_patient_everything_without_graph.json');
+const expectedPatientResourcesWithProxyPatientAndPatientScope = require('./fixtures/expected/expected_patient_everything_without_graph_with_patient_scope.json');
 const expectedPatientResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_patient_everything_sourceid.json');
 const expectedPatientResourcesWithoutGraphWithRewritePatientRef = require('./fixtures/expected/expected_patient_everything_without_graph_rewrite_patient_ref.json');
 
@@ -23,7 +24,8 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest,
+    getHeadersWithCustomPayload
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
@@ -123,8 +125,15 @@ describe('Proxy Patient $everything Tests', () => {
 
         // get patient everything using proxy patient
         resp = await request
-            .get('/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything?_debug=true&_includePatientLinkedOnly=true')
-            .set(getHeaders());
+            .get(
+                '/4_0_0/Patient/person.' +
+                    person1Resp.body.uuid +
+                    '/$everything?_debug=true&_includePatientLinkedOnly=true&_rewritePatientReference=true'
+            )
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatient);
 
         // get patient everything using proxy patient with contained and _rewritePatientReference as true
@@ -134,14 +143,38 @@ describe('Proxy Patient $everything Tests', () => {
                     person1Resp.body.uuid +
                     '/$everything?_rewritePatientReference=true'
             )
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveResponse(expectedPatientResourcesWithoutGraphWithRewritePatientRef);
 
         // get patient everything using proxy patient source id
         resp = await request
-            .get('/4_0_0/Patient/person.person1/$everything')
-            .set(getHeaders());
+            .get('/4_0_0/Patient/person.person1/$everything?_rewritePatientReference=true')
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientSourceId);
+
+        // proxy patient everything with patient scope
+        let jwtPayload = {
+            scope: 'patient/*.* user/*.* access/*.*',
+            username: 'test',
+            client_id: 'client',
+            clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
+            clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+            bwellFhirPersonId: 'master-person',
+            bwellFhirPatientId: 'master-patient',
+            token_use: 'access'
+        };
+        let patientHeader = getHeadersWithCustomPayload(jwtPayload);
+
+        resp = await request
+            .get('/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything?_debug=true')
+            .set(patientHeader);
+        expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndPatientScope);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;

@@ -32,6 +32,7 @@ const expectedPersonResourcesType = require('./fixtures/expected/expected_Person
 const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
 
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
+const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json')
 
@@ -185,6 +186,17 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedOnly=true')
             .set(getHeaders());
+        expect(resp).toHaveMongoQuery(expectedPatientResourcesGlobalId);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientResourcesGlobalId);
+
+        // get patient everything with global_id as false
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedOnly=true')
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveMongoQuery(expectedPatientResources);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientResources);
@@ -325,7 +337,10 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         // First get patient everything
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1&_includePatientLinkedOnly=true')
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveMongoQuery(expectedPatientIncludeHiddenResourcesNoGraph);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientIncludeHiddenResourcesNoGraph);
@@ -398,7 +413,10 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         // Check get patient everything with specified resources and check contained is ignored with _type
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&_includePatientLinkedOnly=true&_debug=true')
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientResourcesTypeNoGraph);
 
