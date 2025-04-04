@@ -766,8 +766,8 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
     });
 
     // Compare query collections
-    expect(receivedCollections.replace(/[[\]]/g, '').split(',').sort()).toEqual(
-        expectedCollections.replace(/[[\]]/g, '').split(',').sort()
+    expect(receivedCollections.replace(/[[\]]/g, '').split('|').sort()).toEqual(
+        expectedCollections.replace(/[[\]]/g, '').split('|').sort()
     );
 
     let receivedQueryOptions = "";
