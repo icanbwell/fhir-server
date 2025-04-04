@@ -500,7 +500,8 @@ class EverythingHelper {
 
                         const baseArgs = {
                             base_version: base_version,
-                            _debug: debug || explain
+                            _debug: debug || explain,
+                            _includeHidden: parsedArgs._includeHidden
                         };
 
                         // if explain query, don't break in chunks as will be limit to single resource later
@@ -831,12 +832,16 @@ class EverythingHelper {
             const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
                 {
                     resourceType: relatedResourceType,
-                    queryString: reverseFilterWithParentIds
+                    queryString: reverseFilterWithParentIds,
+                    commonArgs: {
+                        _includeHidden: parsedArgs._includeHidden
+                    }
                 }
             );
 
             const args = {};
             args.base_version = base_version;
+
             /**
              * @type {boolean}
              */
@@ -1141,10 +1146,12 @@ class EverythingHelper {
      * converts a query string into an args array
      * @param {string} resourceType
      * @param {string} queryString
+     * @param {object} commonArgs
      * @return {ParsedArgs}
      */
-    parseQueryStringIntoArgs({ resourceType, queryString }) {
-        const args = Object.fromEntries(new URLSearchParams(queryString));
+    parseQueryStringIntoArgs({ resourceType, queryString, commonArgs = {} }) {
+        const args = {};
+        Object.assign(args, commonArgs, Object.fromEntries(new URLSearchParams(queryString)));
         args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {

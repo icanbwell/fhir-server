@@ -19,6 +19,8 @@ const expectedResponse1 = require('./fixtures/expected/expectedResponse1.json');
 const expectedResponse2 = require('./fixtures/expected/expectedResponse2.json');
 const expectedResponse3 = require('./fixtures/expected/expectedResponse3.json');
 const expectedResponse4 = require('./fixtures/expected/expectedResponse4.json');
+const expectedResponse5 = require('./fixtures/expected/expectedResponse5.json');
+const expectedResponse6 = require('./fixtures/expected/expectedResponse6.json');
 
 const {
     commonBeforeEach,
@@ -31,7 +33,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableReturnBundle () {
+    get enableReturnBundle() {
         return true;
     }
 }
@@ -45,7 +47,7 @@ describe('_includeHidden with Patient scope test', () => {
         await commonAfterEach();
     });
 
-    describe('_includeHidden is ignored with Patient scope', () => {
+    describe('_includeHidden should not be ignored with Patient scope', () => {
         test('search by clientFhirPersonId gives resources linked to the specified client person only', async () => {
             let request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
@@ -85,7 +87,7 @@ describe('_includeHidden with Patient scope test', () => {
 
             // Observations linked to client person are returned
             resp = await request
-                .get('/4_0_0/Observation?_debug=1&_includeHidden=true')
+                .get('/4_0_0/Observation?_debug=1&_includeHidden=false')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedResponse2);
@@ -96,19 +98,35 @@ describe('_includeHidden with Patient scope test', () => {
 
             // Observations linked to client-1 person are returned
             resp = await request
-                .get('/4_0_0/Observation?_debug=1&_includeHidden=true')
+                .get('/4_0_0/Observation?_debug=1&_includeHidden=false')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedResponse3);
             expect(resp).toHaveResponse(expectedResponse3);
 
-            // _includeHidden tag is ignored with Patient scope for non-clinical resources too
+            // _includeHidden=false tag is not ignored with Patient scope for non-clinical resources too
             resp = await request
-                .get('/4_0_0/Practitioner?_debug=1&_includeHidden=true')
+                .get('/4_0_0/Practitioner?_debug=1&_includeHidden=false')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedResponse4);
             expect(resp).toHaveResponse(expectedResponse4);
+
+            // Observations linked to client-1 person are returned with _includeHidden=true
+            resp = await request
+                .get('/4_0_0/Observation?_debug=1=1&_includeHidden=true')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse5);
+            expect(resp).toHaveResponse(expectedResponse5);
+
+            // _includeHidden=true tag is not ignored with Patient scope for non-clinical resources too
+            resp = await request
+                .get('/4_0_0/Practitioner?_debug=1&_includeHidden=true')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResponse6);
+            expect(resp).toHaveResponse(expectedResponse6);
         });
     });
 });

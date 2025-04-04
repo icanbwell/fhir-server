@@ -1,3 +1,4 @@
+const { OPERATIONS: { DELETE }, RESOURCE_HIDDEN_TAG } = require('../../constants');
 const { fhirFilterTypes } = require('./customQueries');
 const { FilterByString } = require('./filters/string');
 const { FilterByUri } = require('./filters/uri');
@@ -21,7 +22,6 @@ const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { FilterParameters } = require('./filters/filterParameters');
 const { UrlParser } = require('../../utils/urlParser');
 const { FilterByQuantity } = require('./filters/quantity');
-const { OPERATIONS: { DELETE } } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { FilterByOfType } = require('./filters/ofType');
 const { FilterByNumber } = require('./filters/number');
@@ -156,7 +156,7 @@ class R4SearchQueryCreator {
         // Handling case of 'hidden' tag in meta
         if (
             !parsedArgs.id &&
-            (isUser || !isTrue(parsedArgs._includeHidden)) &&
+            !isTrue(parsedArgs._includeHidden) &&
             operation !== DELETE &&
             !useHistoryTable &&
             resourceType !== 'AuditEvent'
@@ -166,8 +166,8 @@ class R4SearchQueryCreator {
                 'meta.tag': {
                     $not: {
                         $elemMatch: {
-                            system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
-                            code: 'hidden'
+                            system: RESOURCE_HIDDEN_TAG.SYSTEM,
+                            code: RESOURCE_HIDDEN_TAG.CODE
                         }
                     }
                 }

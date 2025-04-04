@@ -38,6 +38,7 @@ const expectedPersonResourcesWithNonClinicalDepthType = require('./fixtures/expe
 const expectedPersonResourcesWithoutNonClinical = require('./fixtures/expected/expected_Person_without_non_clinical.json');
 
 const expectedPatientResourcesWithNonClinicalDepth3 = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph.json');
+const expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph_and_inlcude_hidden.json');
 
 const {
     commonBeforeEach,
@@ -236,38 +237,21 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp.body.meta).toBeDefined();
         expect(resp.body.meta.tag).toBeDefined();
-
-        // in nested resources, the order for resources is not fixed for each run of test cases
-        // to handle that we are comparing query and collections seperately
-        let receivedQuery = [];
-        let receivedQueryCollection = [];
-        resp.body.meta.tag.forEach((t) => {
-            if (t.system === 'https://www.icanbwell.com/query') {
-                receivedQuery = t.display;
-                t.display = '';
-            } else if (t.system === 'https://www.icanbwell.com/queryCollection') {
-                receivedQueryCollection = t.code;
-                t.code = '';
-            }
-        });
-
-        let expectedQuery = [];
-        let expectedQueryCollection = [];
-        expectedPatientResourcesWithNonClinicalDepth3.meta.tag.forEach((t) => {
-            if (t.system === 'https://www.icanbwell.com/query') {
-                expectedQuery = t.display;
-                t.display = '';
-            } else if (t.system === 'https://www.icanbwell.com/queryCollection') {
-                expectedQueryCollection = t.code;
-                t.code = '';
-            }
-        });
-
-        expect(receivedQuery.split('|').sort()).toEqual(expectedQuery.split('|').sort());
-        expect(receivedQueryCollection.split('|').sort()).toEqual(
-            expectedQueryCollection.split('|').sort()
-        );
+        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3);
         expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3);
+
+        // get patient everything with depth 3 and _includeHidden true
+        resp = await request
+            .get(
+                '/4_0_0/Patient/patient1/$everything?_debug=true&_includeNonClinicalResources=true&_nonClinicalResourcesDepth=3&_includeHidden=1'
+            )
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp.body.meta).toBeDefined();
+        expect(resp.body.meta.tag).toBeDefined();
+        // expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden);
+        expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden);
+
 
         // get person everything with non-clinical resources upto depth 2
         resp = await request
