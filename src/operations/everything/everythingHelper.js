@@ -1,10 +1,7 @@
 /**
  * This file contains functions to retrieve a graph of data from the database
  */
-const async = require('async');
 const { R4SearchQueryCreator } = require('../query/r4');
-const env = require('var');
-const { escapeRegExp } = require('../../utils/regexEscaper');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { SecurityTagManager } = require('../common/securityTagManager');
@@ -17,17 +14,12 @@ const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { RethrownError } = require('../../utils/rethrownError');
 const { SearchManager } = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
-const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { ReferenceParser } = require('../../utils/referenceParser');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
-const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
-const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const { logError, logDebug } = require('../common/logging');
-const { sliceIntoChunks, sliceIntoChunksGenerator } = require('../../utils/list.util');
+const { logError } = require('../common/logging');
+const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const {
@@ -38,13 +30,11 @@ const {
     PATIENT_REFERENCE_PREFIX,
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
-    PERSON_PROXY_PREFIX
+    PERSON_PROXY_PREFIX,
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
 } = require('../../constants');
-const { isValidResource } = require('../../utils/validResourceCheck');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
-const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const { SearchBundleOperation } = require('../search/searchBundle');
 const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
@@ -201,7 +191,6 @@ class EverythingHelper {
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
-     * @param {number} nonClinicalResourcesDepth
      * @param {boolean} getRaw
      * @return {Promise<Bundle>}
      */
@@ -211,8 +200,7 @@ class EverythingHelper {
         resourceType,
         responseStreamer,
         parsedArgs,
-        includeNonClinicalResources = false,
-        nonClinicalResourcesDepth = 1,
+        includeNonClinicalResources = true,
         getRaw = false
     }) {
         if (!this.supportedResources.includes(resourceType)) {
@@ -291,7 +279,6 @@ class EverythingHelper {
                         bundleEntryIdsProcessedTracker,
                         responseStreamer,
                         includeNonClinicalResources,
-                        nonClinicalResourcesDepth,
                         proxyPatientIds,
                         getRaw
                     }
@@ -367,7 +354,6 @@ class EverythingHelper {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @param {boolean} includeNonClinicalResources
-     * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
      * @param {boolean} getRaw
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -382,7 +368,6 @@ class EverythingHelper {
         responseStreamer,
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
-        nonClinicalResourcesDepth = 1,
         proxyPatientIds = [],
         getRaw = false
     }) {
@@ -481,18 +466,18 @@ class EverythingHelper {
                 let resourcesTypeToExclude = clinicalResources;
                 // finding non clinical resources in depth using previous result as input
                 let referenceExtractor = nonClinicalReferenesExtractor;
-                let referenceExtractorForNextLevel = null;
 
-                for (let i = 0; i < nonClinicalResourcesDepth; i++) {
+                for (let i = 0; i < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH; i++) {
                     /**
                      * @type {Promise<ProcessMultipleIdsAsyncResult>[]}
                      */
                     let depthParallelProcess = [];
 
-                    if (i + 1 < nonClinicalResourcesDepth) {
-                        // for next level
-                        referenceExtractorForNextLevel = new NonClinicalReferenesExtractor({ resourcesTypeToExclude });
-                    }
+                    // for next level
+                    let referenceExtractorForNextLevel =
+                        i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
+                            ? new NonClinicalReferenesExtractor({ resourcesTypeToExclude })
+                            : null;
 
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
                         let [resourceType, ids] = res;

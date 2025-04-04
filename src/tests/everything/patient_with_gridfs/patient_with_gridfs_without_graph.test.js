@@ -62,7 +62,7 @@ describe('GridFS everything tests', () => {
             const patientCollection = `Patient_${base_version}`;
 
             const patient = await fhirDb.collection(patientCollection)
-                .find({ id: resp._body.entry[0].id }).toArray();
+                .find({ _uuid: resp._body.entry[0].id }).toArray();
 
             expect(patient.length).toEqual(1);
 

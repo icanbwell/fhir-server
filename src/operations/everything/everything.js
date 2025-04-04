@@ -15,6 +15,9 @@ const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { EverythingHelper } = require('./everythingHelper');
 const { ForbiddenError } = require('../../utils/httpErrors');
+const { isFalseWithFallback } = require('../../utils/isFalse');
+const { ParsedArgsItem } = require('../query/parsedArgsItem');
+const { QueryParameterValue } = require('../query/queryParameterValue');
 
 class EverythingOperation {
     /**
@@ -58,11 +61,14 @@ class EverythingOperation {
 
     /**
      * does a FHIR $everything
-     * @param {FhirRequestInfo} requestInfo
-     * @param {import('http').ServerResponse} res
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
-     * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @typedef everythingAsyncParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {import('http').ServerResponse} res
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} resourceType
+     * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     *
+     * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
     async everythingAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
@@ -99,11 +105,14 @@ class EverythingOperation {
 
     /**
      * does a FHIR $everything
-     * @param {FhirRequestInfo} requestInfo
-     * @param {import('express').Response} res
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
-     * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @typedef everythingBundleAsyncParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {import('express').Response} res
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} resourceType
+     * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     *
+     * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
     async everythingBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
@@ -157,24 +166,6 @@ class EverythingOperation {
             const { _type: resourceFilter } = parsedArgs;
             const supportLegacyId = false;
 
-            if (isTrue(parsedArgs._includeNonClinicalResources)) {
-                if (!['Person', 'Patient'].includes(resourceType)) {
-                    throw new Error(
-                        '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
-                    );
-                }
-                if (
-                    parsedArgs._nonClinicalResourcesDepth &&
-                    (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
-                        parsedArgs._nonClinicalResourcesDepth > 3 ||
-                        parsedArgs._nonClinicalResourcesDepth < 1)
-                ) {
-                    throw new Error(
-                        '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
-                    );
-                }
-            }
-
             if (resourceFilter) {
                 // _type and contained parameter are not supported together
                 parsedArgs.contained = 0;
@@ -187,18 +178,57 @@ class EverythingOperation {
              */
             let result;
             if (useEverythingHelperForPatient) {
-                const { base_version } = parsedArgs;
+                let { base_version, headers } = parsedArgs;
+
+                // set global_id to true as default
+                headers = {
+                    prefer: 'global_id=true',
+                    ...headers
+                }
+                parsedArgs.headers = headers;
+
+                // disable rewrite proxy patient rewrite by default
+                if (!parsedArgs._rewritePatientReference) {
+                    parsedArgs.add(
+                        new ParsedArgsItem({
+                            queryParameter: '_rewritePatientReference',
+                            queryParameterValue: new QueryParameterValue({
+                                value: false,
+                                operator: '$and'
+                            }),
+                            modifiers: []
+                        })
+                    );
+                }
+
                 result = await this.everythingHelper.retriveEverythingAsync({
                     requestInfo,
                     base_version,
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
+                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
                     getRaw: this.configManager.getRawEverythingOpBundle
                 });
             } else {
+                if (isTrue(parsedArgs._includeNonClinicalResources)) {
+                    if (!['Person', 'Patient'].includes(resourceType)) {
+                        throw new Error(
+                            '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
+                        );
+                    }
+                    if (
+                        parsedArgs._nonClinicalResourcesDepth &&
+                        (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
+                            parsedArgs._nonClinicalResourcesDepth > 3 ||
+                            parsedArgs._nonClinicalResourcesDepth < 1)
+                    ) {
+                        throw new Error(
+                            '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
+                        );
+                    }
+                }
+
                 // Grab an instance of our DB and collection
                 switch (resourceType) {
                     case 'Practitioner': {
