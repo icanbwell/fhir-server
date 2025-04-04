@@ -765,9 +765,14 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
         }
     });
 
+    let splitDelimiter = ','
+    if (!expectedCollections.includes(splitDelimiter)){
+        splitDelimiter = "|"
+    }
+
     // Compare query collections
-    expect(receivedCollections.replace(/[[\]]/g, '').split('|').sort()).toEqual(
-        expectedCollections.replace(/[[\]]/g, '').split('|').sort()
+    expect(receivedCollections.replace(/[[\]]/g, '').split(splitDelimiter).sort()).toEqual(
+        expectedCollections.replace(/[[\]]/g, '').split(splitDelimiter).sort()
     );
 
     let receivedQueryOptions = "";
