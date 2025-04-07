@@ -78,7 +78,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -106,7 +106,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication3Resource)
                 .set(getHeaders());
@@ -127,7 +127,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication3Resource)
                 .set(getHeaders());
@@ -147,7 +147,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication3Resource)
                 .set(getHeaders());
@@ -169,7 +169,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Composition/$merge?validate=true')
                 .send(compositionResource1)
                 .set(getHeaders());
@@ -189,7 +189,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Composition/$merge?validate=true')
                 .send(compositionResource1)
                 .set(getHeaders());
@@ -213,7 +213,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -234,7 +234,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -262,7 +262,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -284,7 +284,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication3Resource)
                 .set(getHeaders());
@@ -304,7 +304,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -327,7 +327,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());
@@ -347,7 +347,7 @@ describe('Search By Text', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Medication/$merge?validate=true')
                 .send(medication4Resource)
                 .set(getHeaders());

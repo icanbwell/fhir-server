@@ -22,6 +22,10 @@ const organizationResource1 = require('./fixtures/Organization/organization1.jso
 const organizationResource2 = require('./fixtures/Organization/organization2.json');
 const linkageResource1 = require('./fixtures/Linkage/linkage.json');
 const paymentNoticeResource1 = require('./fixtures/PaymentNotice/paymentNotice.json');
+const binary1 = require('./fixtures/Binary/binary1.json');
+const binary2 = require('./fixtures/Binary/binary2.json');
+const documentReference1 = require('./fixtures/DocumentReference/documentReference1.json');
+const documentReference2 = require('./fixtures/DocumentReference/documentReference2.json');
 
 const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
 const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
@@ -193,6 +197,34 @@ describe('everything _includeNonClinicalResources Tests with fast serialization'
         resp = await request
             .post('/4_0_0/PaymentNotice/1/$merge?validate=true')
             .send(paymentNoticeResource1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Binary/1/$merge?validate=true')
+            .send(binary1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Binary/1/$merge?validate=true')
+            .send(binary2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/DocumentReference/1/$merge?validate=true')
+            .send(documentReference1)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/DocumentReference/1/$merge?validate=true')
+            .send(documentReference2)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });

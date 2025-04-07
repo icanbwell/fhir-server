@@ -44,7 +44,7 @@ describe('GraphQL DocumentReference Tests', () => {
         const request = await createTestRequest();
         let graphqlQueryText = documentReferenceWithBinaryQuery.replace(/\\n/g, '');
 
-        resp = await request.post('/4_0_0/Binary/1/$merge').send(binary1Resource).set(getHeaders());
+        let resp = await request.post('/4_0_0/Binary/1/$merge').send(binary1Resource).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
@@ -99,7 +99,7 @@ describe('GraphQL DocumentReference Tests', () => {
         const request = await createTestRequest();
         let graphqlQueryText = documentReferenceWithBinaryQuery.replace(/\\n/g, '');
 
-        resp = await request
+        let resp = await request
             .post('/4_0_0/Patient/1/$merge')
             .send(patient1Resource)
             .set(getHeaders());

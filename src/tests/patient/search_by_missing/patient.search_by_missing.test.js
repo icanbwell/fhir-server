@@ -25,7 +25,7 @@ describe('Search By Missing Fields', () => {
         test('search by birthdate field not present', async () => {
             const request = await createTestRequest();
 
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Patient/$merge')
                 .send(patient1Resource)
                 .set(getHeaders());
@@ -52,7 +52,7 @@ describe('Search By Missing Fields', () => {
         test('search by birthdate present', async () => {
             const request = await createTestRequest();
 
-            resp = await request
+            let resp = await request
                 .post('/4_0_0/Patient/$merge')
                 .send(patient1Resource)
                 .set(getHeaders());
