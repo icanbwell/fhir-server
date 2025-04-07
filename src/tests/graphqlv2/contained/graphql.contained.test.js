@@ -30,7 +30,7 @@ describe('GraphQL Contained Field Tests', () => {
         const request = await createTestRequest();
         const graphqlQueryText = conditionContainedQuery.replace(/\\n/g, '');
 
-        resp = await request
+        let resp = await request
             .post('/4_0_0/Condition/1/$merge')
             .send(conditionResourceWithContained)
             .set(getHeaders());

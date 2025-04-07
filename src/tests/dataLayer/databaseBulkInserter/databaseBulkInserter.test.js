@@ -1,7 +1,6 @@
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
 const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
-const moment = require('moment-timezone');
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
@@ -21,6 +20,7 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 const { Collection } = require('mongodb');
+const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -484,6 +484,9 @@ describe('databaseBulkInserter Tests', () => {
                 patches: null
             });
 
+            const codeSystemHistoryEntriesBeforeMerge = await fhirDb.collection(`${collectionName}_History`).find().toArray();
+            expect(codeSystemHistoryEntriesBeforeMerge.length).toStrictEqual(0);
+
             // now execute the bulk inserts
             /**
              * @type {MergeResultEntry[]}
@@ -891,6 +894,10 @@ describe('databaseBulkInserter Tests', () => {
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
+
+            const codeSystemHistoryEntriesBeforeUpdate = await fhirDb.collection(`${collectionName}_History`).find().toArray();
+            expect(codeSystemHistoryEntriesBeforeUpdate.length).toStrictEqual(0);
+
             const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
                 id: 'loinc-1',
                 _uuid: generateUUIDv5('loinc-1|client'),

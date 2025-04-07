@@ -1,7 +1,7 @@
 const { GraphQLScalarType, Kind } = require('graphql');
 
 // https://www.hl7.org/fhir/r4b/datatypes.html#decimal
-DECIMAL_REGEX = /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$/;
+const DECIMAL_REGEX = /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$/;
 
 const decimalScalar = new GraphQLScalarType({
     name: 'Decimal',

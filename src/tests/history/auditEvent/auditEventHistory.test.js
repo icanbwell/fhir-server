@@ -32,7 +32,7 @@ describe('AuditEvent History Collection Tests', () => {
 
         // ARRANGE
         // add the resources to FHIR server
-        resp = await request
+        let resp = await request
             .post('/4_0_0/AuditEvent/1/$merge?validate=true')
             .send(auditevent1Resource)
             .set(getHeaders());

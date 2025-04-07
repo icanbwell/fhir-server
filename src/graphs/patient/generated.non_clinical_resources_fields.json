@@ -260,7 +260,8 @@
     "author.reference",
     "authenticator.reference",
     "custodian.reference",
-    "context.related.reference"
+    "context.related.reference",
+    "content.attachment.url"
   ],
   "Encounter": [
     "participant.individual.reference",

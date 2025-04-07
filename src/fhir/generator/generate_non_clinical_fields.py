@@ -77,6 +77,9 @@ def main():
         clinical_resources
     )
 
+    # add custom field for accessing Binary resource from DocumentReference
+    non_clinical_resource_fields_list['DocumentReference'].append("content.attachment.url")
+
     json_file_path = patient_graphs.joinpath("generated.non_clinical_resources_fields.json")
     with open(json_file_path, "w") as json_file:
         json.dump(non_clinical_resource_fields_list, json_file, indent=2)

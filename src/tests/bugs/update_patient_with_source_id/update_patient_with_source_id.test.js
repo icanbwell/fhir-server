@@ -24,7 +24,7 @@ describe('Patient with source id update test', () => {
         const request = await createTestRequest();
         // ARRANGE
         // add the resources to FHIR server
-        resp = await request
+        let resp = await request
             .post('/4_0_0/Patient/1/$merge?validate=true')
             .send(patient1Resource)
             .set(getHeaders());
