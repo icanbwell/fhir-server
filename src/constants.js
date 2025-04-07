@@ -229,7 +229,8 @@ module.exports = {
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
         patient: 'https://icanbwell.com/codes/source_patient_id',
-        person: 'https://icanbwell.com/codes/client_person_id'
+        person: 'https://icanbwell.com/codes/client_person_id',
+        service_slug: 'https://icanbwell.com/codes/service_slug'
     },
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP: {
         extension: {

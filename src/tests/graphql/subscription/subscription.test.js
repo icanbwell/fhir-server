@@ -13,6 +13,11 @@ const personBundleResource = require('./fixtures/Person/person1.json');
 const personBundle2Resource = require('./fixtures/Person/person2.json');
 const personBundle3Resource = require('./fixtures/Person/person3.json');
 
+const patient2Resource = require('./fixtures/Patient/patient_with_source_id.json');
+const subscription5Resource = require('./fixtures/Subscription/subscription5.json');
+const subscriptionStatus5Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus5.json');
+const subscriptionTopic5Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic5.json');
+
 // expected
 const expectedSubscriptionResources = require('./fixtures/expected/expected_subscription.json');
 const expectedSubscriptionResources2 = require('./fixtures/expected/expected_subscription2.json');
@@ -21,12 +26,14 @@ const expectedSubscriptionInvalidResources = require('./fixtures/expected/expect
 const expectedUpdateSubscriptionResponse = require('./fixtures/expected/expected_update_subscription.json');
 const expectedCreateSubscriptionResponse = require('./fixtures/expected/expected_create_subscription.json');
 const expectedsubscriptionNotFoundResponse = require('./fixtures/expected/expected_subscription_not_found.json');
+const expectedSubscriptionWithPatientUuidResources = require('./fixtures/expected/expected_subscription_with_patient_uuid.json');
 
 const deepcopy = require('deepcopy');
 const fs = require('fs');
 const path = require('path');
 
 const subscriptionQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
+const subscription2Query = fs.readFileSync(path.resolve(__dirname, './fixtures/query2.graphql'), 'utf8');
 
 const {
     commonBeforeEach,
@@ -36,7 +43,7 @@ const {
     getGraphQLHeadersWithPerson,
     getHeadersWithCustomPayload
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GraphQL Subscription Tests', () => {
     beforeEach(async () => {
@@ -408,6 +415,68 @@ describe('GraphQL Subscription Tests', () => {
                 .expect(403)
 
             expect(resp).toHaveResponse(expectedUpdateSubscriptionResponse)
+        });
+
+        test('GraphQL subscription should return source-patient-id as uuid', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/subscriptionStatus1/$merge?validate=true')
+                .send(subscriptionStatus5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/subscriptionTopic1/$merge?validate=true')
+                .send(subscriptionTopic5Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+
+            const graphqlQueryText = subscription2Query.replace(/\\n/g, '');
+            const headers = getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454')
+            headers.Prefer = 'global_id=true';
+            // // // ACT & ASSERT
+            resp = await request
+                // .get('/subscription/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/$graphql')
+                .send({
+                    operationName: null,
+                    variables: {
+                        FHIR_DEFAULT_COUNT: 10
+                    },
+                    query: graphqlQueryText
+                })
+                // .set(getGraphQLHeaders());
+                .set(headers);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedSubscriptionWithPatientUuidResources, 'subscription');
         });
     });
 });

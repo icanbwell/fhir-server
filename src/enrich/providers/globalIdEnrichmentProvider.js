@@ -1,7 +1,9 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
-const { isUuid } = require('../../utils/uid.util');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
+const { SUBSCRIPTION_RESOURCES_GLOBAL_ID_ENRICH, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM } = require('../../constants')
+
 
 /**
  * @classdesc sets id to global id if the 'Prefer' header is set
@@ -16,7 +18,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
 
-    async enrichAsync ({ resources, parsedArgs, rawResources = false }) {
+    async enrichAsync({ resources, parsedArgs, rawResources = false }) {
         /**
          * @type {string}
          */
@@ -26,6 +28,8 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
             const parts = preferHeader.split('=');
             if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
                 for (const resource of resources) {
+                    await this._preferGlobalIdInsideSelectedResources(resource);
+
                     if (resource.id && !isUuid(resource.id)) {
                         const uuid = resource._uuid;
                         if (uuid) {
@@ -66,12 +70,78 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
         return resources;
     }
 
+    async _preferGlobalIdInsideSelectedResources(resource) {
+        const resourceType = resource.resourceType;
+        if (!resourceType || !resourceType.startsWith('Subscription')) {
+            return;
+        }
+
+        // update ids present inside extensions
+        if (resource.extension && Array.isArray(resource.extension)) {
+            /**
+            * @type {string}
+            */
+            let serviceSlug;
+            /**
+             * @type {object[]}
+             */
+            let extensionsToEnrich = [];
+            resource.extension.forEach(ext => {
+                if (SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.service_slug === ext.url) {
+                    serviceSlug = ext.valueString;
+                } else if ([SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person].includes(ext.url)) {
+                    const referenceId = ext.valueString;
+                    if (referenceId && !isUuid(referenceId)) {
+                        extensionsToEnrich.push(ext);
+                    }
+                }
+            })
+
+            if (extensionsToEnrich.length && serviceSlug) {
+                extensionsToEnrich.forEach(ext => {
+                    const referenceUuid = generateUUIDv5(`${ext}|${serviceSlug}`);
+                    ext.valueString = referenceUuid;
+                })
+            }
+        }
+
+        // update ids present in identifiers
+        if (resource.identifier && Array.isArray(resource.identifier)) {
+            /**
+            * @type {string}
+            */
+            let serviceSlug;
+            /**
+             * @type {object[]}
+             */
+            let identifiersToEnrich = [];
+            resource.identifier.forEach(idnt => {
+                if (SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.service_slug === idnt.system) {
+                    serviceSlug = idnt.value;
+                } else if ([SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person].includes(idnt.system)) {
+                    const referenceId = idnt.value;
+                    if (referenceId && !isUuid(referenceId)) {
+                        identifiersToEnrich.push(idnt);
+                    }
+                }
+            })
+
+            if (identifiersToEnrich.length && serviceSlug) {
+                identifiersToEnrich.forEach(idnt => {
+                    const referenceUuid = generateUUIDv5(`${idnt}|${serviceSlug}`);
+                    idnt.value = referenceUuid;
+                })
+            }
+        }
+
+    }
+
     /**
      * updates references
      * @param {Reference} reference
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync ({ reference }) {
+    async updateReferenceAsync({ reference }) {
         if (reference.reference) {
             const { id } = ReferenceParser.parseReference(reference.reference);
             if (!isUuid(id) && reference._uuid) {
@@ -88,7 +158,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {Boolean} rawResources
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false  }) {
+    async enrichBundleEntriesAsync({ entries, parsedArgs, rawResources = false }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
