@@ -99,7 +99,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
 
             if (extensionsToEnrich.length && serviceSlug) {
                 extensionsToEnrich.forEach(ext => {
-                    const referenceUuid = generateUUIDv5(`${ext}|${serviceSlug}`);
+                    const referenceUuid = generateUUIDv5(`${ext.valueString}|${serviceSlug}`);
                     ext.valueString = referenceUuid;
                 })
             }
@@ -128,7 +128,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
 
             if (identifiersToEnrich.length && serviceSlug) {
                 identifiersToEnrich.forEach(idnt => {
-                    const referenceUuid = generateUUIDv5(`${idnt}|${serviceSlug}`);
+                    const referenceUuid = generateUUIDv5(`${idnt.value}|${serviceSlug}`);
                     idnt.value = referenceUuid;
                 })
             }

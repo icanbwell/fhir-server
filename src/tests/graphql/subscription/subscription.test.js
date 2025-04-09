@@ -447,8 +447,8 @@ describe('GraphQL Subscription Tests', () => {
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
+            // ensure the uuid we expect is generated
+            expect(resp).toHaveMergeResponse({ created: true, uuid: '4e70cd3f-9e7e-5c3d-829f-563071ad2a76'});
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
