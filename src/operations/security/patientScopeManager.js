@@ -8,8 +8,9 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const httpContext = require('express-http-context');
 
 class PatientScopeManager {
     /**
@@ -66,10 +67,23 @@ class PatientScopeManager {
     ) {
         try {
             if (isUser && personIdFromJwtToken) {
-                return await this.getPatientIdsByPersonIdAsync(
-                    {
-                        base_version, personIdFromJwtToken
-                    });
+                // return patient ids from request context if already found once
+                let linkedPatientIdsFromHttpContext = httpContext.get(
+                    `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}${personIdFromJwtToken}`
+                );
+                if (linkedPatientIdsFromHttpContext) {
+                    return linkedPatientIdsFromHttpContext;
+                }
+
+                let linkedPatientIds = await this.getPatientIdsByPersonIdAsync({
+                    base_version,
+                    personIdFromJwtToken
+                });
+                httpContext.set(
+                    `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}${personIdFromJwtToken}`,
+                    linkedPatientIds
+                );
+                return linkedPatientIds;
             }
             return [];
         } catch (e) {

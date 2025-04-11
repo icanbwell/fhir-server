@@ -6,6 +6,7 @@ class ResourceIdentifier {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} _uuid
+     * @param {string} _sourceId
      * @param {string} _sourceAssigningAuthority
      */
     constructor (
@@ -13,6 +14,7 @@ class ResourceIdentifier {
             id,
             resourceType,
             _uuid,
+            _sourceId,
             _sourceAssigningAuthority
         }
     ) {
@@ -28,6 +30,10 @@ class ResourceIdentifier {
          * @type {string}
          */
         this._uuid = _uuid;
+        /**
+         * @type {string}
+         */
+        this._sourceId = _sourceId;
         /**
          * @type {string}
          */

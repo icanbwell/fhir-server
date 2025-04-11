@@ -34,7 +34,7 @@ const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
-const { DB_SEARCH_LIMIT_FOR_IDS, DB_SEARCH_LIMIT } = require('../../constants');
+const { DB_SEARCH_LIMIT_FOR_IDS, DB_SEARCH_LIMIT, RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 class SearchManager {
     /**
@@ -181,6 +181,7 @@ class SearchManager {
      * @param {boolean|undefined} [useHistoryTable]
      * @param {'READ'|'WRITE'} operation
      * @param {string} accessRequested
+     * @param {boolean} applyPatientFilter
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -195,7 +196,8 @@ class SearchManager {
             parsedArgs,
             useHistoryTable,
             operation,
-            accessRequested = 'read'
+            accessRequested = 'read',
+            applyPatientFilter = true
         }
     ) {
         try {
@@ -248,10 +250,27 @@ class SearchManager {
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
                     query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
-                    query = this.patientQueryCreator.getQueryWithPatientFilter({
-                        patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable,
-                        personIds: personIdFromJwtToken ? [personIdFromJwtToken] : null
-                    });
+                    if (applyPatientFilter) {
+                        query = this.patientQueryCreator.getQueryWithPatientFilter({
+                            patientIds: allPatientIdsFromJwtToken, query, resourceType, useHistoryTable,
+                            personIds: personIdFromJwtToken ? [personIdFromJwtToken] : null
+                        });
+                    }
+                    else {
+                        // apply filter to exclude resources with restricted security even if
+                        // patient filter are not applied
+                        query.$and = query.$and || [];
+                        query.$and.push({
+                            'meta.security': {
+                                $not: {
+                                    $elemMatch: {
+                                        system: RESOURCE_RESTRICTION_TAG.SYSTEM,
+                                        code: RESOURCE_RESTRICTION_TAG.CODE
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
             } else if (securityTags && securityTags.length > 0) {
                 // JWT has access tag in scope i.e API call from a specific client

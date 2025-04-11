@@ -47,6 +47,8 @@ const expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden = require('.
 
 const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/expected_patient_everything_with_patient_scope.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden.json');
+const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
+const expectedPatientEverythingForTwoPatientsWithPatientScope = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope.json');
 
 const {
     commonBeforeEach,
@@ -412,6 +414,19 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndIncludeHidden);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndIncludeHidden);
+
+        resp = await request.get('/4_0_0/Patient/$everything?_debug=true&id=patient1,patient2')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatients);
+        expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatients);
+
+        // test with patient scope when access to one patient only
+        resp = await request.get('/4_0_0/Patient/$everything?_debug=true&id=patient1,patient2')
+            .set(patientHeader);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScope);
+        expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScope);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
