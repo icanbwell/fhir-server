@@ -17,19 +17,19 @@ const unlinkedAccountResource = require('./fixtures/Account/unlinked_account.jso
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
-const subscription1Resource = require('./fixtures/Subscription/subscription1.json');
+const subscription1Resource = require('./fixtures/Subscription/subscription3.json');
 const subscription2Resource = require('./fixtures/Subscription/subscription2.json');
 
-const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus1.json');
+const subscriptionStatus1Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus3.json');
 const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subscriptionStatus2.json');
 
-const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
+const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic3.json');
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 
 // expected
-const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1.json');
+const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1_no_graph.json');
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
-const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
+const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained_no_graph.json');
 
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');

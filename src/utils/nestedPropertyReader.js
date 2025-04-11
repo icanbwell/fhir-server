@@ -22,7 +22,7 @@ class NestedPropertyReader {
                     result.push(value);
                 }
             }
-            return result;
+            return result.length > 0 ? result : undefined;
         }
     }
 }
