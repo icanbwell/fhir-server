@@ -1,16 +1,11 @@
 /**
- * This file contains functions to retrieve a graph of data from the database
+ * This file contains functions to retrieve all related resources of given resource from the database
  */
-const { R4SearchQueryCreator } = require('../query/r4');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { SecurityTagManager } = require('../common/securityTagManager');
-const { ScopesManager } = require('../security/scopesManager');
-const { ScopesValidator } = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ConfigManager } = require('../../utils/configManager');
 const { BundleManager } = require('../common/bundleManager');
-const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { RethrownError } = require('../../utils/rethrownError');
 const { SearchManager } = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
@@ -35,58 +30,51 @@ const {
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { SearchBundleOperation } = require('../search/searchBundle');
 const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
 const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
 const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtractor');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
  * @typedef {import('./everythingRelatedResourcesMapper').EverythingRelatedResources} EverythingRelatedResources
  * @typedef {import('../query/parsedArgsItem').ParsedArgsItem}  ParsedArgsItem
+ * @typedef {import('../../utils/baseResponseStreamer').BaseResponseStreamer}  BaseResponseStreamer
  *
  * @typedef {Record<string, Set<string>> | null} NestedResourceReferences
  */
 
 /**
- * This class helps with creating graph responses
+ * This class is for $everything operation
  */
 class EverythingHelper {
     /**
-     * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {SecurityTagManager} securityTagManager
-     * @param {ScopesManager} scopesManager
-     * @param {ScopesValidator} scopesValidator
-     * @param {ConfigManager} configManager
-     * @param {BundleManager} bundleManager
-     * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {R4SearchQueryCreator} r4SearchQueryCreator
-     * @param {SearchManager} searchManager
-     * @param {EnrichmentManager} enrichmentManager
-     * @param {R4ArgsParser} r4ArgsParser
-     * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SearchParametersManager} searchParametersManager
-     * @param {SearchBundleOperation} searchParametersOperation
+     * @typedef {Object} EverythingHelperParams
+     * @property {DatabaseQueryFactory} databaseQueryFactory
+     * @property {ConfigManager} configManager
+     * @property {BundleManager} bundleManager
+     * @property {SearchManager} searchManager
+     * @property {EnrichmentManager} enrichmentManager
+     * @property {R4ArgsParser} r4ArgsParser
+     * @property {DatabaseAttachmentManager} databaseAttachmentManager
+     * @property {SearchParametersManager} searchParametersManager
+     *
+     * @param {EverythingHelperParams}
      */
     constructor({
         databaseQueryFactory,
-        securityTagManager,
-        scopesManager,
-        scopesValidator,
         configManager,
         bundleManager,
-        resourceLocatorFactory,
-        r4SearchQueryCreator,
         searchManager,
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
         searchParametersManager,
-        searchBundleOperation,
         everythingRelatedResourceMapper
     }) {
         /**
@@ -94,22 +82,6 @@ class EverythingHelper {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        /**
-         * @type {SecurityTagManager}
-         */
-        this.securityTagManager = securityTagManager;
-        assertTypeEquals(securityTagManager, SecurityTagManager);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
-        /**
-         * @type {ScopesValidator}
-         */
-        this.scopesValidator = scopesValidator;
-        assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
          * @type {ConfigManager}
@@ -123,17 +95,6 @@ class EverythingHelper {
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
 
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        this.resourceLocatorFactory = resourceLocatorFactory;
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
-        /**
-         * @type {R4SearchQueryCreator}
-         */
-        this.r4SearchQueryCreator = r4SearchQueryCreator;
-        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
         /**
          * @type {SearchManager}
          */
@@ -165,12 +126,6 @@ class EverythingHelper {
         assertTypeEquals(searchParametersManager, SearchParametersManager);
 
         /**
-         * @type {SearchBundleOperation}
-         */
-        this.searchBundleOperation = searchBundleOperation;
-        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
-
-        /**
          * @type {EverythingRelatedResourcesMapper}
          */
         this.everythingRelatedResourceMapper = everythingRelatedResourceMapper;
@@ -180,18 +135,28 @@ class EverythingHelper {
          * @type {string[]}
          */
         this.supportedResources = ["Patient"];
+
+
+        /**
+         * @type {string[]}
+         */
+        this.relatedResourceNeedingPatientScopeFilter = {
+            Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus']
+        };
     }
 
     /**
+     * @typedef {Object} retriveEverythingAsyncParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} resourceType
+     * @property {string} base_version
+     * @property {BaseResponseStreamer|undefined} responseStreamer
+     * @property {ParsedArgs} parsedArgs
+     * @property {boolean} supportLegacyId
+     * @property {boolean} includeNonClinicalResources
+     * @property {boolean} getRaw
      *
-    * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {ParsedArgs} parsedArgs
-     * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalResources
-     * @param {boolean} getRaw
+     * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
      */
     async retriveEverythingAsync({
@@ -218,6 +183,11 @@ class EverythingHelper {
              * @type {ParsedArgsItem}
              */
             const idParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
+
+            if (!idParsedArg) {
+                throw new BadRequestError(new Error('No id was passed either in path param or query param'));
+            }
+
             /**
              * @type {string[]|null}
              */
@@ -253,16 +223,23 @@ class EverythingHelper {
                 parsedArgsForChunk.id = idChunk;
                 parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
                 /**
-                     * @type {string[]}
-                     */
+                 * @type {string[]}
+                 */
                 let proxyPatientIds = []
                 if (resourceType === 'Patient') {
                     proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
+
+                    // filter proxy patient ids to only include allowed ids for patient scope
+                    if (requestInfo.isUser) {
+                        proxyPatientIds = proxyPatientIds.filter(
+                            (q) => q && q === PERSON_PROXY_PREFIX + requestInfo.personIdFromJwtToken
+                        );
+                    }
                 }
 
                 /**
-                     * @type {ProcessMultipleIdsAsyncResult}
-                     */
+                 * @type {ProcessMultipleIdsAsyncResult}
+                 */
                 const {
                     entries: entries1,
                     queryItems: queryItems1,
@@ -270,17 +247,17 @@ class EverythingHelper {
                     explanations: explanations1
                 } = await this.retrieveEverythingMulipleIdsAsync(
                     {
-                        base_version,
-                        requestInfo,
-                        resourceType,
-                        explain: !!parsedArgs._explain,
-                        debug: !!parsedArgs._debug,
-                        parsedArgs: parsedArgsForChunk,
-                        bundleEntryIdsProcessedTracker,
-                        responseStreamer,
-                        includeNonClinicalResources,
-                        proxyPatientIds,
-                        getRaw
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    explain: !!parsedArgs._explain,
+                    debug: !!parsedArgs._debug,
+                    parsedArgs: parsedArgsForChunk,
+                    bundleEntryIdsProcessedTracker,
+                    responseStreamer,
+                    includeNonClinicalResources,
+                    proxyPatientIds,
+                    getRaw
                     }
                 );
 
@@ -305,21 +282,21 @@ class EverythingHelper {
              */
             const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
                 {
-                    type: 'searchset',
-                    requestId: requestInfo.userRequestId,
-                    originalUrl: requestInfo.originalUrl,
-                    host: requestInfo.host,
-                    protocol: requestInfo.protocol,
-                    resources,
-                    base_version,
-                    parsedArgs,
-                    originalQuery: queryItems,
-                    originalOptions: options,
-                    columns: new Set(),
-                    stopTime,
-                    startTime,
-                    user: requestInfo.user,
-                    explanations
+                type: 'searchset',
+                requestId: requestInfo.userRequestId,
+                originalUrl: requestInfo.originalUrl,
+                host: requestInfo.host,
+                protocol: requestInfo.protocol,
+                resources,
+                base_version,
+                parsedArgs,
+                originalQuery: queryItems,
+                originalOptions: options,
+                columns: new Set(),
+                stopTime,
+                startTime,
+                user: requestInfo.user,
+                explanations
                 }
             );
 
@@ -345,17 +322,20 @@ class EverythingHelper {
 
     /**
      * processing multiple ids
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @param {boolean} [explain]
-     * @param {boolean} [debug]
-     * @param {ParsedArgs} parsedArgs
-     * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
-     * @param {boolean} includeNonClinicalResources
-     * @param {string[]} proxyPatientIds
-     * @param {boolean} getRaw
+     * @typedef {Object} RetrieveEverythingMulipleIdsAsyncParams
+     * @property {string} base_version
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} resourceType
+     * @property {boolean} [explain]
+     * @property {boolean} [debug]
+     * @property {ParsedArgs} parsedArgs
+     * @property {BaseResponseStreamer|undefined} responseStreamer
+     * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+     * @property {boolean} includeNonClinicalResources
+     * @property {string[]} proxyPatientIds
+     * @property {boolean} getRaw
+     *
+     * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async retrieveEverythingMulipleIdsAsync({
@@ -382,12 +362,12 @@ class EverythingHelper {
             const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.everythingMaxParallelProcess)
 
             /**
-            * @type {BundleEntry[]}
-            */
+             * @type {BundleEntry[]}
+             */
             let entries;
             /**
-            * @type {QueryItem[]}
-            */
+             * @type {QueryItem[]}
+             */
             let queries;
             /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
@@ -428,20 +408,20 @@ class EverythingHelper {
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
                 let { entities: realtedEntitites, queryItems } = await this.retriveveRelatedResourcesParallelyAsync(
                     {
-                        requestInfo,
-                        base_version,
-                        parentResourceType: resourceType,
-                        relatedResources: relatedResourceMapChunk,
-                        parentResourceIdentifiers: baseResourceIdentifiers,
-                        parentResourcesProcessedTracker: baseResourcesProcessedTracker,
-                        explain,
-                        debug,
-                        parsedArgs,
-                        responseStreamer,
-                        bundleEntryIdsProcessedTracker,
-                        proxyPatientIds,
-                        getRaw,
-                        nonClinicalReferenesExtractor
+                    requestInfo,
+                    base_version,
+                    parentResourceType: resourceType,
+                    relatedResources: relatedResourceMapChunk,
+                    parentResourceIdentifiers: baseResourceIdentifiers,
+                    parentResourcesProcessedTracker: baseResourcesProcessedTracker,
+                    explain,
+                    debug,
+                    parsedArgs,
+                    responseStreamer,
+                    bundleEntryIdsProcessedTracker,
+                    proxyPatientIds,
+                    getRaw,
+                    nonClinicalReferenesExtractor
                     }
                 )
 
@@ -556,9 +536,9 @@ class EverythingHelper {
             } else {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
-                        entries,
-                        parsedArgs,
-                        rawResources: getRaw
+                    entries,
+                    parsedArgs,
+                    rawResources: getRaw
                     }
                 );
             }
@@ -587,21 +567,24 @@ class EverythingHelper {
     }
 
     /**
-    * fetch top level resource
-    * @param {string} base_version
-    * @param {FhirRequestInfo} requestInfo
-    * @param {string} resourceType
-    * @param {boolean} [explain]
-    * @param {boolean} [debug]
-    * @param {ParsedArgs} parsedArgs
-    * @param {BaseResponseStreamer|undefined} [responseStreamer]
-    * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
-    * @param {ResourceIdentifier[]} resourceIdentifiers
-    * @param {Set<string>} specificReltedResourceTypeSet
-    * @param {boolean} getRaw
-    * @param {NonClinicalReferenesExtractor | null} nonClinicalReferenesExtractor
-    * @return {Promise<ProcessMultipleIdsAsyncResult>}
-    */
+     * fetch top level resource
+     * @typedef fetchResourceByArgsAsyncParams
+     * @property {string} base_version
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} resourceType
+     * @property {boolean} [explain]
+     * @property {boolean} [debug]
+     * @property {ParsedArgs} parsedArgs
+     * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+     * @property {ResourceIdentifier[]} resourceIdentifiers
+     * @property {Set<string>} specificReltedResourceTypeSet
+     * @property {boolean} getRaw
+     * @property {NonClinicalReferenesExtractor | null} nonClinicalReferenesExtractor
+     *
+     * @param {fetchResourceByArgsAsyncParams}
+     * @return {Promise<ProcessMultipleIdsAsyncResult>}
+     */
     async fetchResourceByArgsAsync({
         base_version,
         requestInfo,
@@ -622,8 +605,8 @@ class EverythingHelper {
          */
         let entries = [];
         /**
-        * @type {QueryItem[]}
-        */
+         * @type {QueryItem[]}
+         */
         let queries = [];
         /**
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
@@ -686,7 +669,7 @@ class EverythingHelper {
         /**
          * @type {import('mongodb').Document[]}
          */
-            const explanations1 = explain || debug ? await cursor.explainAsync() : [];
+        const explanations1 = explain || debug ? await cursor.explainAsync() : [];
         if (explain) {
             // if explain is requested then just return one result
             cursor = cursor.limit(1);
@@ -717,39 +700,41 @@ class EverythingHelper {
     }
 
     /**
-    * Gets related resources and adds them to containedEntries in parentEntities
-    * @param {FhirRequestInfo} requestInfo
-    * @param {string} base_version
-    * @param {string} parentResourceType
-    * @param {EverythingRelatedResources} relatedResources
-    * @param {boolean} [explain]
-    * @param {boolean} [debug]
-    * @param {ParsedArgs} parsedArgs
-    * @param {ResponseStreamer} responseStreamer
-    * @param {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
-    * @param {ResourceIdentifier[]} parentResourceIdentifiers
-    * @param {ResourceProccessedTracker} parentResourcesProcessedTracker
-    * @param {string[]} proxyPatientIds
-    * @param {boolean} getRaw
-    * @param {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
-    * @returns {Promise<QueryItem>}
-    */
-    async retriveveRelatedResourcesParallelyAsync(
-        {
-            requestInfo,
-            base_version,
-            parentResourceType,
-            relatedResources,
-            explain,
-            debug,
-            parsedArgs,
-            responseStreamer,
-            bundleEntryIdsProcessedTracker,
-            parentResourceIdentifiers,
-            parentResourcesProcessedTracker,
-            proxyPatientIds = [],
-            getRaw = false,
-            nonClinicalReferenesExtractor
+     * Gets related resources and adds them to containedEntries in parentEntities
+     * @typedef retriveveRelatedResourcesParallelyAsyncParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {string} base_version
+     * @property {string} parentResourceType
+     * @property {EverythingRelatedResources[]} relatedResources
+     * @property {boolean} [explain]
+     * @property {boolean} [debug]
+     * @property {ParsedArgs} parsedArgs
+     * @property {ResponseStreamer} responseStreamer
+     * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+     * @property {ResourceIdentifier[]} parentResourceIdentifiers
+     * @property {ResourceProccessedTracker} parentResourcesProcessedTracker
+     * @property {string[]} proxyPatientIds
+     * @property {boolean} getRaw
+     * @property {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
+     *
+     * @param {retriveveRelatedResourcesParallelyAsyncParams}
+     * @returns {Promise<QueryItem>}
+     */
+    async retriveveRelatedResourcesParallelyAsync({
+        requestInfo,
+        base_version,
+        parentResourceType,
+        relatedResources,
+        explain,
+        debug,
+        parsedArgs,
+        responseStreamer,
+        bundleEntryIdsProcessedTracker,
+        parentResourceIdentifiers,
+        parentResourcesProcessedTracker,
+        proxyPatientIds = [],
+        getRaw = false,
+        nonClinicalReferenesExtractor
         }
     ) {
 
@@ -771,20 +756,11 @@ class EverythingHelper {
          * @type {Promise<{ bundleEntries: BundleEntry[] }>[]}
          */
         const parallelProcess = [];
-        /**
-         * @type {ResourceIdentifier[]}
-         */
-        let parentResourceIdentifiersList = parentResourceIdentifiers;
-        /**
-         * @type {string[]}
-         */
-        let parentIdList = parentResourceIdentifiersList.map(r => r._uuid);
-        let parentResourceTypeAndIdList = parentResourceIdentifiersList.map(r => `${r.resourceType}/${r._uuid}`);
+        let parentResourceTypeAndIdList = parentResourceIdentifiers.map(r => `${r.resourceType}/${r._uuid}`);
 
         // for now this will always be true
         if (parentResourceType === 'Patient' && proxyPatientIds) {
             parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
-            parentIdList = [...parentIdList, ...proxyPatientIds]
         }
 
         if (parentResourceTypeAndIdList.length === 0) {
@@ -797,35 +773,38 @@ class EverythingHelper {
         for (const relatedResource of relatedResourcesMap) {
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
+            const filterTemplateCustomQuery = relatedResource.customQuery;
 
-            if (!filterTemplateParam || !relatedResourceType) {
+            if ((!filterTemplateParam && !filterTemplateCustomQuery) || !relatedResourceType) {
                 continue;
             }
 
-            const filterByPatientIds = filterTemplateParam;
+            const searchParameterName = filterTemplateParam.split('=')[0];
 
             /**
              * @type {string}
              */
-            let reverseFilterWithParentIds = filterByPatientIds.replace('{ref}', parentResourceTypeAndIdList.join(','));
-            const searchParameterName = filterByPatientIds.split('=')[0];
-            reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentIdList.join(','));
+            let reverseFilterWithParentIds = '';
+
+            if (!filterTemplateCustomQuery) {
+                reverseFilterWithParentIds = filterTemplateParam.replace(
+                    '{ref}',
+                    parentResourceTypeAndIdList.join(',')
+                );
+            }
 
             /**
              * @type {ParsedArgs}
              */
             const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
                 {
-                    resourceType: relatedResourceType,
-                    queryString: reverseFilterWithParentIds,
-                    commonArgs: {
-                        _includeHidden: parsedArgs._includeHidden
-                    }
+                resourceType: relatedResourceType,
+                queryString: reverseFilterWithParentIds,
+                commonArgs: {
+                    _includeHidden: parsedArgs._includeHidden
+                }
                 }
             );
-
-            const args = {};
-            args.base_version = base_version;
 
             /**
              * @type {boolean}
@@ -835,23 +814,52 @@ class EverythingHelper {
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            const {
+            let {
                 /** @type {import('mongodb').Document}**/
-                query // /** @type {Set} **/
-                // columns
-            } = await this.searchManager.constructQueryAsync(
-                {
-                    user: requestInfo.user,
-                    scope: requestInfo.scope,
-                    isUser: requestInfo.isUser,
-                    resourceType: relatedResource.type,
-                    useAccessIndex,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                    requestId: requestInfo.requestId,
-                    parsedArgs: relatedResourceParsedArgs,
-                    operation: READ
+                query
+            } = await this.searchManager.constructQueryAsync({
+                user: requestInfo.user,
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                resourceType: relatedResourceType,
+                useAccessIndex,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
+                parsedArgs: relatedResourceParsedArgs,
+                operation: READ,
+                applyPatientFilter:
+                    requestInfo.isUser &&
+                    this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType)
+            });
+
+            if (filterTemplateCustomQuery) {
+                let customParentQuery = [];
+                parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
+                    const sourceId = parentResourceIdentifier._sourceId;
+                    const sourceAssigningAuthority = parentResourceIdentifier._sourceAssigningAuthority;
+
+                    assertIsValid(sourceId, 'sourceId should be present');
+                    assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority should be present');
+
+                    customParentQuery.push(
+                        JSON.parse(
+                            filterTemplateCustomQuery
+                                .replace('{sourceId}', sourceId)
+                                .replace('{sourceAssigningAuthority}', sourceAssigningAuthority)
+                        )
+                    );
+                });
+
+                if (customParentQuery.length == 1) {
+                    query.$and = query.$and || [];
+                    query.$and.push(customParentQuery[0]);
+                } else if (customParentQuery.length > 1) {
+                    query.$or = (query.$or || []).concat(customParentQuery);
+                } else {
+                    continue;
                 }
-            );
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
 
             const options = {};
             const projection = {};
@@ -861,8 +869,8 @@ class EverythingHelper {
 
 
             /**
-            * @type {number}
-            */
+             * @type {number}
+             */
             const maxMongoTimeMS = this.configManager.mongoTimeout;
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: relatedResourceType,
@@ -910,10 +918,10 @@ class EverythingHelper {
             parallelProcess.push(promiseResult)
 
             queryItems.push(new QueryItem({
-                query,
-                resourceType: relatedResourceType,
-                collectionName,
-                explanations
+                    query,
+                    resourceType: relatedResourceType,
+                    collectionName,
+                    explanations
             }))
         }
 
@@ -982,13 +990,13 @@ class EverythingHelper {
                 );
                 let current_entity = getRaw
                     ? {
-                        id: startResource.id,
-                        resource: startResource
-                    }
+                          id: startResource.id,
+                          resource: startResource
+                      }
                     : new BundleEntry({
-                        id: startResource.id,
-                        resource: startResource
-                    });
+                          id: startResource.id,
+                          resource: startResource
+                      });
 
 
                 let sendResource = true;
@@ -1021,6 +1029,13 @@ class EverythingHelper {
                             .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     }
 
+                    /**
+                     * @type {ResourceIdentifier[]}
+                     */
+                    let matchingParentReferences = [];
+
+                    let useUuidSet = true;
+
                     // for handling case for subscription resources where instead of
                     // reference we only have id of person/patient resource in extension/identifier
                     if (
@@ -1036,7 +1051,7 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PERSON_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
                                 );
                             } else if (
                                 r[
@@ -1045,24 +1060,19 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PATIENT_REFERENCE_PREFIX +
-                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
                                 );
                             }
                         });
+                        useUuidSet = false;
                     }
 
-                    /**
-                     * @type {ResourceIdentifier[]}
-                     */
-                    let matchingParentReferences = [];
-                    {
-                        const referencesSet = new Set(references);
-                        parentResourcesProcessedTracker.uuidSet.forEach(parentUuidReference => {
-                            if (referencesSet.has(parentUuidReference)) {
-                                matchingParentReferences.push(parentUuidReference);
-                            }
-                        })
-                    }
+                    const referencesSet = new Set(references);
+                    parentResourcesProcessedTracker[useUuidSet ? 'uuidSet' : 'sourceIdSet'].forEach(parentReference => {
+                        if (referencesSet.has(parentReference)) {
+                            matchingParentReferences.push(parentReference);
+                        }
+                    })
 
                     // if parent reference is present in child resource, then only send it in response
                     if (matchingParentReferences.length === 0) {
@@ -1073,8 +1083,8 @@ class EverythingHelper {
                             const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
                             logError(
                                 `No match found for parent entities ${parentEntitiesString} ` +
-                                `using property ${fieldForSearchParameter} in ` +
-                                'child entity ' +
+                                    `using property ${fieldForSearchParameter} in ` +
+                                    'child entity ' +
                                 `${current_entity.resourceType}/${current_entity.id}`, {}
                             );
                         }
@@ -1097,9 +1107,9 @@ class EverythingHelper {
                             }
                             await responseStreamer.writeBundleEntryAsync(
                                 {
-                                    bundleEntry: current_entity,
-                                    rawResources: getRaw
-                                }
+                                bundleEntry: current_entity,
+                                rawResources: getRaw
+                        }
                             );
                         }
 
@@ -1140,8 +1150,8 @@ class EverythingHelper {
         args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
-                resourceType,
-                args
+            resourceType,
+            args
             }
         );
     }

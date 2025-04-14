@@ -6,6 +6,7 @@
  * @typedef {Object} EverythingRelatedResources
  * @property {string} type - The name of the related resource.
  * @property {string} params Search param for the target
+ * @property {string} customQuery custom query for the target
  */
 
 /**
@@ -284,15 +285,18 @@ const RelatedResourceMap = {
         },
         {
             type: "Subscription",
-            params: "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+            params: "extension=",
+            customQuery: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{sourceAssigningAuthority}"}}}]}`
         },
         {
             type: "SubscriptionStatus",
-            params: "extension=https://icanbwell.com/codes/source_patient_id|{id}"
+            params: "extension=",
+            customQuery: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{sourceAssigningAuthority}"}}}]}`
         },
         {
             type: "SubscriptionTopic",
-            params: "identifier=https://icanbwell.com/codes/source_patient_id|{id}"
+            params: "identifier=",
+            customQuery: `{"$and":[{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/source_patient_id","value":"{sourceId}"}}},{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/service_slug","value":"{sourceAssigningAuthority}"}}}]}`
         },
         {
             type: "SupplyDelivery",

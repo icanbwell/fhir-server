@@ -152,6 +152,9 @@ module.exports = {
         VISIONPRESCRIPTION: 'VisionPrescription'
     },
     EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH: 3,
+    HTTP_CONTEXT_KEYS: {
+        LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-'
+    },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     SPECIFIED_QUERY_PARAMS: [

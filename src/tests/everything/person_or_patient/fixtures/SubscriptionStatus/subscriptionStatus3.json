@@ -1,0 +1,77 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "SubscriptionStatus",
+        "id": "subscriptionStatus1",
+        "meta": {
+          "id": "90d8a9a1-ce43-4b2d-9c6a-84d1c5fe1c36",
+          "versionId": "3",
+          "lastUpdated": "2023-02-02T20:33:41.000Z",
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "id": "ae966c455e1fb4bb45b7c2af6b8b7981d36e90269e6092f5d94af54b99d5a2da",
+            "url": "https://icanbwell.com/codes/source_patient_id",
+            "valueString": "patient1"
+          },
+          {
+            "id": "c608fab680d4b6b0e45ccdc3049b109dc3bba852bf2502511243784c9ac5e1ff",
+            "url": "https://icanbwell.com/codes/client_person_id",
+            "valueString": "7b99904f-2f85-51a3-9398-e2eed6854639"
+          },
+          {
+            "id": "c67138f7dd75adf162cdc5a987e44b1543ad7ea2b0b573f7f65c4adc45199d2b",
+            "url": "https://icanbwell.com/codes/service_slug",
+            "valueString": "healthsystem1"
+          }
+        ],
+        "status": "active",
+        "type": "query-status",
+        "subscription": {
+          "reference": "Subscription/subscription1"
+        },
+        "topic": "SubscriptionTopic/subscriptionTopic1",
+        "error": [
+          {
+            "text": "SubscriptionStatus error message",
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/subscription-error",
+                "code": "error-response"
+              }
+            ]
+          }
+        ],
+        "notificationEvent": [
+          {
+            "eventNumber": "1",
+            "timestamp": "2023-02-02T20:33:41.000Z"
+          },
+          {
+            "eventNumber": "2",
+            "timestamp": "2023-02-02T21:33:41.000Z"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
