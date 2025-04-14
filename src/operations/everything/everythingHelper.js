@@ -322,7 +322,7 @@ class EverythingHelper {
 
     /**
      * processing multiple ids
-     * @typedef {Object} retrieveEverythingMulipleIdsAsyncParams
+     * @typedef {Object} RetrieveEverythingMulipleIdsAsyncParams
      * @property {string} base_version
      * @property {FhirRequestInfo} requestInfo
      * @property {string} resourceType
@@ -335,7 +335,7 @@ class EverythingHelper {
      * @property {string[]} proxyPatientIds
      * @property {boolean} getRaw
      *
-     * @param {retrieveEverythingMulipleIdsAsyncParams}
+     * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async retrieveEverythingMulipleIdsAsync({
@@ -837,15 +837,17 @@ class EverythingHelper {
                 parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
                     const sourceId = parentResourceIdentifier._sourceId;
                     const sourceAssigningAuthority = parentResourceIdentifier._sourceAssigningAuthority;
-                    if (sourceId && sourceAssigningAuthority) {
-                        customParentQuery.push(
-                            JSON.parse(
-                                filterTemplateCustomQuery
-                                    .replace('{sourceId}', sourceId)
-                                    .replace('{sourceAssigningAuthority}', sourceAssigningAuthority)
-                            )
-                        );
-                    }
+
+                    assertIsValid(sourceId, 'sourceId should be present');
+                    assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority should be present');
+
+                    customParentQuery.push(
+                        JSON.parse(
+                            filterTemplateCustomQuery
+                                .replace('{sourceId}', sourceId)
+                                .replace('{sourceAssigningAuthority}', sourceAssigningAuthority)
+                        )
+                    );
                 });
 
                 if (customParentQuery.length == 1) {

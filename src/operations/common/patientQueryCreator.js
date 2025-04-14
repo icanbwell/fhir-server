@@ -299,6 +299,17 @@ class PatientQueryCreator {
             query = this.r4SearchQueryCreator.appendAndSimplifyQuery({query, andQuery: patientAndPersonQuery});
         }
 
+        query = this.applyCommonPatientFilters({query});
+
+        return query;
+    }
+
+    /**
+     * Apply common Patient Filters to Query
+     * @param {import('mongodb').Document} query
+     * @return {import('mongodb').Document}
+     */
+    applyCommonPatientFilters({query}) {
         // apply filter to exclude resources with restricted security
         query.$and = query.$and || [];
         query.$and.push({

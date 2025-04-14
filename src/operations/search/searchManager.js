@@ -257,18 +257,8 @@ class SearchManager {
                         });
                     }
                     else {
-                        // apply filter to exclude resources with restricted security even if
-                        // patient filter are not applied
-                        query.$and = query.$and || [];
-                        query.$and.push({
-                            'meta.security': {
-                                $not: {
-                                    $elemMatch: {
-                                        system: RESOURCE_RESTRICTION_TAG.SYSTEM,
-                                        code: RESOURCE_RESTRICTION_TAG.CODE
-                                    }
-                                }
-                            }
+                        query = this.patientQueryCreator.applyCommonPatientFilters({
+                            query
                         });
                     }
                 }
