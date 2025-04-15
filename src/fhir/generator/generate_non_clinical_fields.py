@@ -124,7 +124,7 @@ def get_non_clinical_to_referenced_by_resources_map(
     }
 
 
-def get_non_clinical_to_referenced_resources(
+def get_non_clinical_rechability_map(
     *,
     clinical_resources: List[str],
     level: int = 3,
@@ -151,6 +151,9 @@ def get_non_clinical_to_referenced_resources(
 
     # Initialize result with direct references
     reachability_map = copy.deepcopy(direct_references)
+    # Include the resource itself as we can reach to that resource directly
+    for resource, references in reachability_map.items():
+        references.add(resource)
 
     # Process additional levels
     for _ in range(1, level):
@@ -182,12 +185,12 @@ def main():
     clinical_resources = list(clinical_resources)
     clinical_resources.sort()
 
-    non_clininical_to_referenced_resources = get_non_clinical_to_referenced_resources(
+    non_clininical_to_required_resources = get_non_clinical_rechability_map(
         clinical_resources=clinical_resources, level=3
     )
-    non_clinical_resources = sorted(list(non_clininical_to_referenced_resources.keys()))
+    non_clinical_resources = sorted(list(non_clininical_to_required_resources.keys()))
 
-    print_non_clinical_stats(non_clininical_to_referenced_resources)
+    print_non_clinical_stats(non_clininical_to_required_resources)
 
     json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")
     with open(json_file_path, "w") as json_file:
@@ -202,12 +205,12 @@ def main():
         json_file.write("\n")
 
     json_file_path = patient_graphs.joinpath(
-        "generated.non_clinical_resources_mentions.json"
+        "generated.non_clinical_resources_reachablity.json"
     )
     with open(json_file_path, "w") as json_file:
         json.dump(
             {
-                "referencesMapLevel2": non_clininical_to_referenced_resources,
+                "level2": non_clininical_to_required_resources,
             },
             json_file,
             indent=2,
