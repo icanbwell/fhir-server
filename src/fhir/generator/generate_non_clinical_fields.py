@@ -182,21 +182,12 @@ def main():
     clinical_resources = list(clinical_resources)
     clinical_resources.sort()
 
-    # Rest of the resources are non-clinical
-    non_clinical_resources_map = get_non_clinical_to_referenced_by_resources_map(
-        clinical_resources=clinical_resources
-    )
     non_clininical_to_referenced_resources = get_non_clinical_to_referenced_resources(
         clinical_resources=clinical_resources, level=3
     )
-    non_clinical_resources = sorted(list(non_clinical_resources_map.keys()))
+    non_clinical_resources = sorted(list(non_clininical_to_referenced_resources.keys()))
 
-    print_non_clinical_stats(
-        {
-            "referencesMap": non_clinical_resources_map,
-            "referencesMapLevel2": non_clininical_to_referenced_resources,
-        }
-    )
+    print_non_clinical_stats(non_clininical_to_referenced_resources)
 
     json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")
     with open(json_file_path, "w") as json_file:
@@ -216,7 +207,6 @@ def main():
     with open(json_file_path, "w") as json_file:
         json.dump(
             {
-                "referencesMap": non_clinical_resources_map,
                 "referencesMapLevel2": non_clininical_to_referenced_resources,
             },
             json_file,
@@ -248,56 +238,37 @@ def main():
     )
 
 
-def print_non_clinical_stats(non_clinical_references_map):
+def print_non_clinical_stats(references_map: dict, level=2):
     """
-    Print statistics for non-clinical references at different levels.
+    Print statistics for non-clinical references.
 
     Args:
-        non_clinical_references_map: Dictionary containing 'referencesMap' and 'referencesMapLevel2'
+        references_map: Dictionary mapping non-clinical resources to their referencing resources
     """
-    base_references = non_clinical_references_map["referencesMap"]
-    level2_references = non_clinical_references_map["referencesMapLevel2"]
-    stats = {
-        "0": {"min": float("inf"), "max": 0, "total": 0, "count": 0},
-        "2": {"min": float("inf"), "max": 0, "total": 0, "count": 0},
-    }
+    stats = {"min": float("inf"), "max": 0, "total": 0, "count": 0}
 
-    for non_clinical in base_references:
-        non_clinical_for_level0 = base_references[non_clinical]
-        non_clinical_for_level2 = level2_references[non_clinical]
-
-        # Level 0 statistics
-        len_level0 = len(non_clinical_for_level0)
-        stats["0"]["total"] += len_level0
-        stats["0"]["min"] = min(stats["0"]["min"], len_level0)
-        stats["0"]["max"] = max(stats["0"]["max"], len_level0)
-        stats["0"]["count"] += 1
-
-        # Level 2 statistics
-        len_level2 = len(non_clinical_for_level2)
-        stats["2"]["total"] += len_level2
-        stats["2"]["min"] = min(stats["2"]["min"], len_level2)
-        stats["2"]["max"] = max(stats["2"]["max"], len_level2)
-        stats["2"]["count"] += 1
+    for _, references in references_map.items():
+        ref_count = len(references)
+        stats["total"] += ref_count
+        stats["min"] = min(stats["min"], ref_count)
+        stats["max"] = max(stats["max"], ref_count)
+        stats["count"] += 1
 
     # Handle empty case
-    for level in ["0", "2"]:
-        if stats[level]["count"] == 0:
-            stats[level]["min"] = 0
-            stats[level]["avg"] = 0
-        else:
-            stats[level]["avg"] = stats[level]["total"] / stats[level]["count"]
+    if stats["count"] == 0:
+        stats["min"] = 0
+        stats["avg"] = 0
+    else:
+        stats["avg"] = stats["total"] / stats["count"]
 
     # Print statistics
-    print("\nNon-Clinical Resources Reference Statistics:")
+    print(f"\nNon-Clinical Resources Reference Statistics for level {level}:")
     print("-------------------------------------------")
-    for level in ["0", "2"]:
-        print(f"\nLevel {level} References:")
-        print(f"Minimum references per resource: {stats[level]['min']}")
-        print(f"Maximum references per resource: {stats[level]['max']}")
-        print(f"Average references per resource: {stats[level]['avg']:.2f}")
-        print(f"Total references: {stats[level]['total']}")
-        print(f"Number of non-clinical resources: {stats[level]['count']}")
+    print(f"Minimum references per resource: {stats['min']}")
+    print(f"Maximum references per resource: {stats['max']}")
+    print(f"Average references per resource: {stats['avg']:.2f}")
+    print(f"Total references: {stats['total']}")
+    print(f"Number of non-clinical resources: {stats['count']}")
 
 
 if __name__ == "__main__":
