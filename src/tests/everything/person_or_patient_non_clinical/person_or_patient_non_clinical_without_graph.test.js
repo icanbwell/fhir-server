@@ -3,6 +3,7 @@ const env = require('var');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
+const personWithCommonPatient = require('./fixtures/Person/personWithCommonPatient.json');
 
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
@@ -42,6 +43,7 @@ const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 const speicimenResource = require('./fixtures/Specimen/specimen.json');
 const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
+const excludeConsentResource = require('./fixtures/Consent/consent1.json');
 
 // expected
 const expectedPractitionerRoles = require('./fixtures/expected/nonClinicalWithType/practitionerRole.json');
@@ -56,6 +58,8 @@ const expectedPatientResourcesWithNonClinicalDepth3GlobalId = require('./fixture
 const expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph_and_inlcude_hidden.json');
 
 const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_graph.json');
+const expectedPatientEverythingWithPatientScopeAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res.json');
+const expectedPatientEverythingWithPatientScopeWithoutExclude = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_exclude.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_without_graph.json');
 const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
 const expectedPatientEverythingForTwoPatientsWithPatientScope = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope.json');
@@ -83,9 +87,11 @@ describe('everything _includeNonClinicalResources Tests', () => {
     test('Person and Patient $everything with _includeNonClinicalResources', async () => {
         const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
         const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const CLIENTS_WITH_CONSENT_ACCESS_CONTROL = env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL;
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL = 'healthsystem1';
         const request = await createTestRequest();
         await createResources(request)
 
@@ -193,8 +199,51 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScope);
         expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScope);
 
+        // make consent resource for patient1 containing deleted resources
+        resp = await request
+            .post('/4_0_0/Consent/1/$merge?validate=true')
+            .send(excludeConsentResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+
+        // add another person where patient1 is common but exclusion consent is not present for this person
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(personWithCommonPatient)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        let jwtPayload2 = {
+            scope: 'patient/*.* user/*.* access/*.*',
+            username: 'test',
+            client_id: 'client',
+            clientFhirPersonId: '65810a24-e90c-55b6-8b32-44bb9aa18c44',
+            clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+            bwellFhirPersonId: 'master-person',
+            bwellFhirPatientId: 'master-patient',
+            token_use: 'access'
+        };
+        let patientHeader2 = getHeadersWithCustomPayload(jwtPayload2);
+
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+            .set(patientHeader2);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeWithoutExclude);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeWithoutExclude);
+
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL = CLIENTS_WITH_CONSENT_ACCESS_CONTROL;
     });
 
     test('Patient $everything: nonClinical _type support', async () => {

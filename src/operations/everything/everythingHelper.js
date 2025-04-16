@@ -26,7 +26,9 @@ const {
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
     PERSON_PROXY_PREFIX,
-    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
+    HTTP_CONTEXT_KEYS,
+    CONSENT_CATEGORY
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -44,6 +46,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
+const httpContext = require('express-http-context');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -445,6 +448,18 @@ class EverythingHelper {
                 proxyPatientIds = [];
             }
 
+            let resourceToExcludeIdsMap = {};
+
+            // get Consent resource containing resources marked as deleted to exclude
+            if (requestInfo.isUser) {
+                resourceToExcludeIdsMap = await this.getResourceToExcludeIdsMapAsync({
+                    getRaw,
+                    requestInfo,
+                    base_version,
+                    patientResourceIdentifiers: baseResourceIdentifiers
+                });
+            }
+
             const baseResourcesProcessedTracker = new ResourceProccessedTracker();
             baseResourceIdentifiers.forEach(resourceIdentifier => {
                 baseResourcesProcessedTracker.add(resourceIdentifier);
@@ -471,8 +486,9 @@ class EverythingHelper {
                     getRaw,
                     nonClinicalReferencesExtractor,
                     everythingRelatedResourceManager,
-                    useUuidProjection
-                })
+                    useUuidProjection,
+                    resourceToExcludeIdsMap
+                });
 
                 if (!responseStreamer) {
                     entries.push(...(relatedEntities || []))
@@ -638,10 +654,11 @@ class EverythingHelper {
      * @property {boolean} [debug]
      * @property {ParsedArgs} parsedArgs
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
-     * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
+     * @property {ResourceProccessedTracker|undefined} bundleEntryIdsProcessedTracker
      * @property {ResourceIdentifier[]} resourceIdentifiers
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {boolean} getRaw
+     * @property {boolean} applyPatientFilter
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
      *
@@ -661,7 +678,8 @@ class EverythingHelper {
         getRaw,
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
-        useUuidProjection = false
+        useUuidProjection = false,
+        applyPatientFilter = true
     }) {
 
         /**
@@ -695,7 +713,9 @@ class EverythingHelper {
             requestId: requestInfo.requestId,
             parsedArgs,
             operation: READ,
-            accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read')
+            accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter
         });
 
 
@@ -786,6 +806,7 @@ class EverythingHelper {
      * @property {NonClinicalReferencesExtractor} nonClinicalReferencesExtractor
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
+     * @property {{string: string[]}} resourceToExcludeIdsMap
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<QueryItem>}
@@ -806,7 +827,8 @@ class EverythingHelper {
         getRaw = false,
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
-        useUuidProjection = false
+        useUuidProjection = false,
+        resourceToExcludeIdsMap
         }
     ) {
 
@@ -866,6 +888,14 @@ class EverythingHelper {
              */
             let parentLookupField = null;
 
+            let commonArgs = {
+                _includeHidden: parsedArgs._includeHidden
+            }
+
+            if (resourceToExcludeIdsMap && resourceToExcludeIdsMap[relatedResourceType]?.length > 0) {
+                commonArgs["id:not"] = resourceToExcludeIdsMap[relatedResourceType].join(',');
+            }
+
             if (!filterTemplateCustomQuery) {
                 reverseFilterWithParentIds = filterTemplateParam.replace(
                     '{ref}',
@@ -876,15 +906,11 @@ class EverythingHelper {
             /**
              * @type {ParsedArgs}
              */
-            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
-                {
+            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs({
                 resourceType: relatedResourceType,
                 queryString: reverseFilterWithParentIds,
-                commonArgs: {
-                    _includeHidden: parsedArgs._includeHidden
-                }
-                }
-            );
+                commonArgs
+            });
 
             /**
              * @type {boolean}
@@ -1059,9 +1085,8 @@ class EverythingHelper {
      *  cursor: DatabasePartitionedCursor,
      *  responseStreamer: ResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
-     *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker,
+     *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
      *  resourceIdentifiers: ResourceIdentifier[] | null,
-     *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
      *  nonClinicalReferencesExtractor: NonClinicalReferencesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
@@ -1253,7 +1278,7 @@ class EverythingHelper {
                         }
 
                     } else {
-                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        if (!bundleEntryIdsProcessedTracker || !bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
                             if (resourceIdentifiers) {
                                 resourceIdentifiers.push(resourceIdentifier)
                             }
@@ -1263,7 +1288,9 @@ class EverythingHelper {
                         }
                     }
 
-                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                    if(bundleEntryIdsProcessedTracker) {
+                        bundleEntryIdsProcessedTracker.add(resourceIdentifier);
+                    }
                 }
             }
         }
@@ -1346,8 +1373,71 @@ class EverythingHelper {
                 : [].concat([propertyValue._uuid]);
         }
     }
-}
 
+    /**
+     * Fetchs the ids per resource to exclude from result
+     * @param {{
+     * getRaw: boolean,
+     * requestInfo: FhirRequestInfo,
+     * base_version: string,
+     * patientResourceIdentifiers: ResourceIdentifier[],
+     * }} options
+     * @return {Promise<{ bundleEntries: BundleEntry[]}>}
+     */
+    async getResourceToExcludeIdsMapAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
+        const { personIdFromJwtToken } = requestInfo;
+
+        let resourcesToExcludeMap = {};
+
+        let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
+        if (
+            userOwnerFromContext &&
+            !this.configManager.clientsWithConsentAccessControl.includes(userOwnerFromContext)
+        ) {
+            return resourcesToExcludeMap;
+        }
+
+        let resourceType = 'Consent';
+        let patientReference = patientResourceIdentifiers.map(patientIdentifier => {
+            return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
+        });
+
+        let consentResourcesBundle = await this.fetchResourceByArgsAsync({
+            resourceType,
+            base_version,
+            requestInfo,
+            explain: false,
+            debug: false,
+            parsedArgs: this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: {
+                    base_version,
+                    patient: `Patient/person.${personIdFromJwtToken}`,
+                    actor: patientReference.join(','),
+                    category: `${CONSENT_CATEGORY.ACCESS_CONTROL.SYSTEM}|${CONSENT_CATEGORY.ACCESS_CONTROL.CODE}`
+                }
+            }),
+            getRaw,
+            applyPatientFilter: false
+        });
+
+        consentResourcesBundle.entries.forEach(entry => {
+            entry.resource.provision?.data?.forEach(ref => {
+                if( ref && ref.reference && ref.reference.reference) {
+                    const [refType, refUuid] = ref.reference.reference.split('/');
+                    if (refType && refUuid) {
+                        if (!resourcesToExcludeMap[refType]) {
+                            resourcesToExcludeMap[refType] = [];
+                        }
+                        resourcesToExcludeMap[refType].push(refUuid);
+                    }
+                }
+            });
+        });
+
+        return resourcesToExcludeMap;
+    }
+}
 
 module.exports = {
     EverythingHelper

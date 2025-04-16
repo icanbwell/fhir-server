@@ -341,7 +341,6 @@ const createContainer = function () {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
-                personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
