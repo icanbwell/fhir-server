@@ -58,11 +58,12 @@ class PatientScopeManager {
      * @param {string} base_version
      * @param {boolean | null} isUser
      * @param {string} personIdFromJwtToken
+     * @param {boolean} addPersonOwnerToContext
      * @return {Promise<string[]>}
      */
     async getLinkedPatientsAsync (
         {
-            base_version, isUser, personIdFromJwtToken
+            base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false
         }
     ) {
         try {
@@ -77,7 +78,8 @@ class PatientScopeManager {
 
                 let linkedPatientIds = await this.getPatientIdsByPersonIdAsync({
                     base_version,
-                    personIdFromJwtToken
+                    personIdFromJwtToken,
+                    addPersonOwnerToContext
                 });
                 httpContext.set(
                     `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}${personIdFromJwtToken}`,
@@ -98,12 +100,14 @@ class PatientScopeManager {
      * Gets Patient id from identifiers
      * @param {string} base_version
      * @param {string} personIdFromJwtToken
+     * @param {boolean} addPersonOwnerToContext
      * @return {Promise<string[]>}
      */
     async getPatientIdsByPersonIdAsync (
         {
             base_version,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            addPersonOwnerToContext = false
         }
     ) {
         assertIsValid(base_version);
@@ -117,7 +121,8 @@ class PatientScopeManager {
                 databaseQueryManager,
                 personIds: [personIdFromJwtToken],
                 totalProcessedPersonIds: new Set(),
-                level: 1
+                level: 1,
+                addPersonOwnerToContext
             });
         } catch (e) {
             throw new RethrownError({
@@ -132,9 +137,10 @@ class PatientScopeManager {
      * @param {string} base_version
      * @param {boolean | null} isUser
      * @param {string} personIdFromJwtToken
+     * @param {boolean} addPersonOwnerToContext
      * @returns {Promise<string[]|null>}
      */
-    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken }) {
+    async getPatientIdsFromScopeAsync ({ base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext = false }) {
         /**
          * @type {string[]}
          */
@@ -145,7 +151,7 @@ class PatientScopeManager {
             patientIdsLinkedToPersonId = patientIdsLinkedToPersonId.concat(
                 await this.getLinkedPatientsAsync(
                     {
-                        base_version, isUser, personIdFromJwtToken
+                        base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
                     }
                 )
             );

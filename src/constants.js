@@ -153,7 +153,8 @@ module.exports = {
     },
     EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH: 3,
     HTTP_CONTEXT_KEYS: {
-        LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-'
+        LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
+        PERSON_OWNER_PREFIX: 'personOwnerFor-'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -249,5 +250,11 @@ module.exports = {
     HISTORY_MIGRATION_LAST_UPDATED_DEFAULT_TIME: 60 * 60 * 1000, // 1hr
     CLOUD_STORAGE_CLIENTS: {
         S3_CLIENT: "S3Client"
+    },
+    CONSENT_CATEGORY: {
+        ACCESS_CONTROL: {
+            SYSTEM: "http://www.icanbwell.com/consent-category",
+            CODE: "dataConnectionViewControl"
+        }
     }
 };
