@@ -49,6 +49,7 @@ const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/e
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden.json');
 const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
 const expectedPatientEverythingForTwoPatientsWithPatientScope = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope.json');
+const expectedPatientEverythingCarePlan = require('./fixtures/expected/expected_Patient_CarePlan.json');
 
 const {
     commonBeforeEach,
@@ -327,7 +328,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepth2);
 
-        // get patient everything with _type param as CarePlan and non-clinical are fetched by default
+        // get patient everything with _type param as CarePlan, should not include any non-clinical resources
         resp = await request
             .get(
                 '/4_0_0/Patient/patient1/$everything?_type=CarePlan'
@@ -337,7 +338,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
                 prefer: 'global_id=false'
             });
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepthType);
+        expect(resp).toHaveResponse(expectedPatientEverythingCarePlan);
 
         // get person everything with non-clinical resources upto default depth 1 with _type param as CarePlan
         resp = await request

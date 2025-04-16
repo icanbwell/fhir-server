@@ -364,7 +364,7 @@ class EverythingHelper {
              */
             let nonClinicalReferenesExtractor = null;
             // Extract non-clinical only if includeNonClinicalResources is true or any nonClinical resource is present in _type filter
-            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources.size > 0) {
+            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources?.size > 0) {
                 nonClinicalReferenesExtractor = new NonClinicalReferenesExtractor({
                     resourcesTypeToExclude: clinicalResources,
                     resourcePool: resourceSetManager.getResourcePoolForNonClinicalResources()
@@ -458,7 +458,7 @@ class EverythingHelper {
                 }
             }
 
-            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources.size > 0) {
+            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources?.size > 0) {
                 let resourcesTypeToExclude = clinicalResources;
                 // finding non clinical resources in depth using previous result as input
                 let referenceExtractor = nonClinicalReferenesExtractor;
