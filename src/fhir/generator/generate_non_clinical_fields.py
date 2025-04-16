@@ -35,6 +35,8 @@ def get_clinical_resources_and_filters(
                 if isinstance(item, dict):
                     get_clinical_resources_and_filters(item, field_names)
 
+    # TODO: Find a better way to do this
+    field_names.add('BiologicallyDerivedProduct')
     return field_names, patient_filter_map
 
 
@@ -80,9 +82,8 @@ def get_non_clinical_to_referenced_by_resources_map(
     # Resources that are patient-scoped but not included in $everything
     additional_resources_to_skip = {
         "AuditEvent",
+        # TODO: This would be patient scope in future so remove it from here
         "BiologicallyDerivedProduct",
-        "EnrollmentResponse",
-        "PaymentReconciliation",
         "Resource",  # Skip the base Resource
     }
 
