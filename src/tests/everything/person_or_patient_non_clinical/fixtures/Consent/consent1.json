@@ -1,0 +1,85 @@
+{
+  "resourceType": "Consent",
+  "id": "6c599219-4242-5cad-89bb-80f7c0b4aa3f",
+  "meta": {
+    "source": "http://icanbwell.com/health-data-service",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      }
+    ]
+  },
+  "status": "active",
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/consent-category",
+          "code": "dataConnectionViewControl"
+        }
+      ]
+    }
+  ],
+  "patient": {
+    "reference": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
+  },
+  "provision": {
+    "actor": [
+      {
+        "id": "Patient/24a5930e-11b4-5525-b482-669174917044",
+        "role": {
+          "coding": {
+            "system": "http://www.icanbwell.com/proa",
+            "code": "dependents"
+          }
+        },
+        "reference": {
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        }
+      }
+    ],
+    "data": [
+      {
+        "id": "228afa40-e2b4-53fa-a2c3-5eb97a930fd2",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Account/ce2b3f55-8a3b-5f06-a449-708dd992119e"
+        }
+      },
+      {
+        "id": "d2803103-9936-5edd-826c-636d1a8fa57a",
+        "meaning": "instance",
+        "reference": {
+          "reference": "DocumentReference/94528605-a9a1-50e6-a0fe-d718d529e660"
+        }
+      },
+      {
+        "id": "ba6fea80-3e68-56b4-b338-23b09296380e",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Subscription/4f00638d-f638-48d6-bf68-1b362f7893c2"
+        }
+      },
+      {
+        "id": "4a3d89f2-4900-552c-bac2-c6da7e69ba52",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Subscription/91e0befa-c173-4b6c-a275-bf03d64d7b41"
+        }
+      }
+    ]
+  }
+}

@@ -20,7 +20,6 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { R4SearchQueryCreator } = require('../query/r4');
 const { ConfigManager } = require('../../utils/configManager');
 const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
-const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
 const { ScopesManager } = require('../security/scopesManager');
 const { GetCursorResult } = require('./getCursorResult');
 const { QueryItem } = require('../graph/queryItem');
@@ -47,7 +46,6 @@ class SearchManager {
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {ConfigManager} configManager
      * @param {QueryRewriterManager} queryRewriterManager
-     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
@@ -66,7 +64,6 @@ class SearchManager {
             r4SearchQueryCreator,
             configManager,
             queryRewriterManager,
-            personToPatientIdsExpander,
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
@@ -118,11 +115,6 @@ class SearchManager {
 
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
-        /**
-         * @type {PersonToPatientIdsExpander}
-         */
-        this.personToPatientIdsExpander = personToPatientIdsExpander;
-        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
 
         /**
          * @type {ScopesManager}
@@ -182,6 +174,7 @@ class SearchManager {
      * @param {'READ'|'WRITE'} operation
      * @param {string} accessRequested
      * @param {boolean} applyPatientFilter
+     * @param {boolean} addPersonOwnerToContext
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -197,7 +190,8 @@ class SearchManager {
             useHistoryTable,
             operation,
             accessRequested = 'read',
-            applyPatientFilter = true
+            applyPatientFilter = true,
+            addPersonOwnerToContext = false
         }
     ) {
         try {
@@ -243,7 +237,7 @@ class SearchManager {
                  * @type {string[]}
                  */
                 const allPatientIdsFromJwtToken = await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                    base_version, isUser, personIdFromJwtToken
+                    base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
                 });
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
