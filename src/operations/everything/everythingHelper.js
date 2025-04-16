@@ -787,6 +787,9 @@ class EverythingHelper {
              */
             let reverseFilterWithParentIds = '';
 
+            /**
+             * @type {string|null}
+             */
             let parentLookupField = null;
 
             if (!filterTemplateCustomQuery) {

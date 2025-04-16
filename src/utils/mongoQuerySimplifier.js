@@ -56,22 +56,28 @@ class MongoQuerySimplifier {
                 if(Object.keys(valuesInSubFilters).length > 1) {
                     const orFilters = [];
                     for (const [key, values] of Object.entries(valuesInSubFilters)) {
-                        orFilters.push({
-                            [key]: {
+                        let orFilter = {};
+                        if (values.length === 1) {
+                            orFilter[key] = values[0];
+                        } else {
+                            orFilter[key] = {
                                 $in: values
-                            }
-                        });
+                            };
+                        }
+                        orFilters.push(orFilter);
                     }
-                    filter = {
-                        $or: orFilters
-                    };
+                    filter.$or = orFilters;
                 }
                 // if there is only one key, we can just use $in and remove the $or
                 else if (Object.keys(valuesInSubFilters).length === 1) {
                     for (const [key, values] of Object.entries(valuesInSubFilters)) {
                         delete filter.$or;
-                        filter[key] = {
-                            $in: values
+                        if (values.length === 1) {
+                            filter[key] = values[0];
+                        } else {
+                            filter[key] = {
+                                $in: values
+                            };
                         }
                     }
                 }
