@@ -32,34 +32,49 @@ class MongoQuerySimplifier {
                 filter.$or = filter.$or.filter((item, index) => !indexesToSplice.includes(index));
             }
             let key = null;
-            let allKeysAreSame = true;
-            const valuesInSubFilters = [];
-            // Turn $or into $in if all the field names are same and the filters are strings
+            let updateOrFilter = true;
+            const valuesInSubFilters = {};
+            // Turn $or into $in if there are common fields and the filters are strings
             for (const subFilter of filter.$or) {
                 if (subFilter && this.isFilter(subFilter)) {
                     const keysForSubFilter = Object.keys(subFilter);
-                    if (!key && keysForSubFilter.length > 0) {
-                        key = keysForSubFilter[0];
-                    }
+                    key = keysForSubFilter[0];
                     const subFilterValue = subFilter[keysForSubFilter[0]];
-                    if (key === keysForSubFilter[0] &&
-                        !(Array.isArray(subFilterValue)) &&
-                        !(this.isFilter(subFilterValue))
-                    ) {
-                        valuesInSubFilters.push(subFilterValue);
-                    } else {
-                        allKeysAreSame = false;
+
+                    if (keysForSubFilter.length !== 1 || (Array.isArray(subFilterValue)) || (this.isFilter(subFilterValue))) {
+                        updateOrFilter = false;
                         break;
                     }
+                    if (!valuesInSubFilters[key]) {
+                        valuesInSubFilters[key] = [];
+                    }
+                    valuesInSubFilters[key].push(subFilterValue);
                 }
             }
-            if (allKeysAreSame && valuesInSubFilters.length > 0) {
-                // convert to an $in filter
-                filter = {
-                    [key]: {
-                        $in: valuesInSubFilters
+            if (updateOrFilter) {
+                // if there are multiple keys, we need to create a $or filter for each key
+                if(Object.keys(valuesInSubFilters).length > 1) {
+                    const orFilters = [];
+                    for (const [key, values] of Object.entries(valuesInSubFilters)) {
+                        orFilters.push({
+                            [key]: {
+                                $in: values
+                            }
+                        });
                     }
-                };
+                    filter = {
+                        $or: orFilters
+                    };
+                }
+                // if there is only one key, we can just use $in and remove the $or
+                else if (Object.keys(valuesInSubFilters).length === 1) {
+                    for (const [key, values] of Object.entries(valuesInSubFilters)) {
+                        delete filter.$or;
+                        filter[key] = {
+                            $in: values
+                        }
+                    }
+                }
             }
         }
 
