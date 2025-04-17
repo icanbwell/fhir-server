@@ -191,7 +191,25 @@ function* sliceIntoChunksGenerator(arr, chunkSize) {
         yield arr.slice(i, i + chunkSize);
     }
 }
+/**
+ * Add elements to a given set
+ * @param {Set<T>} set
+ * @param {Array<T> | Set<T>} arr
+ * @param {((r: T) => boolean) | undefined} condition
+ */
+function addElementsToSet(set, arr, condition) {
+    arr?.forEach(r => {
+        if (condition) {
+            if (condition(r)) {
+                set.add(r)
+            }
+        } else {
+            set.add(r)
+        }
+    })
 
+    return set;
+}
 
 module.exports = {
     findDuplicates,
@@ -207,5 +225,6 @@ module.exports = {
     removeEmptyEntriesAsync,
     removeDuplicatesWithLambda,
     sliceIntoChunks,
+    addElementsToSet,
     sliceIntoChunksGenerator
 };

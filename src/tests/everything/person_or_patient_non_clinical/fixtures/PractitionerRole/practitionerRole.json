@@ -1,0 +1,100 @@
+[
+  {
+    "resourceType": "PractitionerRole",
+    "id": "8143ac7d-ad11-4349-9a3f-da93faae0eae",
+    "meta": {
+      "security": [
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "client",
+      "versionId": "2"
+    },
+    "active": true,
+    "practitioner": {
+      "reference": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28",
+      "display": "Dr. Susan Jane"
+    },
+    "organization": {
+      "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc",
+      "display": "Primary Care Medical Group"
+    },
+    "specialty": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "419772000",
+            "display": "Family practice"
+          }
+        ],
+        "text": "Family Medicine"
+      }
+    ],
+    "location": [
+      {
+        "reference": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+        "display": "Primary Care Clinic"
+      }
+    ]
+  },
+  {
+    "resourceType": "PractitionerRole",
+    "id": "9ec009e4-28f7-4958-86da-256fe0f67c75",
+    "meta": {
+      "security": [
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "client",
+      "versionId": "2"
+    },
+    "active": true,
+    "practitioner": {
+      "reference": "Practitioner/135bd32b-f8fe-47c0-98aa-ea6f7d15af6a",
+      "display": "Dr. James Smith"
+    },
+    "organization": {
+      "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc",
+      "display": "Primary Care Medical Group"
+    },
+    "specialty": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "394814009",
+            "display": "General practice"
+          }
+        ],
+        "text": "General Medicine"
+      }
+    ],
+    "location": [
+      {
+        "reference": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+        "display": "Primary Care Clinic"
+      }
+    ]
+  }
+]

@@ -38,7 +38,7 @@ const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTrack
 const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
-const { ResourceSetManager } = require('./resourceSetManager');
+const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
@@ -354,7 +354,7 @@ class EverythingHelper {
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
-            const resourceSetManager = new ResourceSetManager({
+            const everythingRelatedResourceManager = new EverythingRelatedResourceManager({
                 resourceFilterList: parsedArgs.resourceFilterList,
                 everythingRelatedResourceMapper: this.everythingRelatedResourceMapper
             });
@@ -364,14 +364,14 @@ class EverythingHelper {
              */
             let nonClinicalReferenesExtractor = null;
             // Extract non-clinical only if includeNonClinicalResources is true or any nonClinical resource is present in _type filter
-            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources?.size > 0) {
+            if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
                 nonClinicalReferenesExtractor = new NonClinicalReferenesExtractor({
                     resourcesTypeToExclude: clinicalResources,
-                    resourcePool: resourceSetManager.getResourcePoolForNonClinicalResources()
+                    resourcePool: everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
                 });
             }
 
-            const realtedResourcesMap = resourceSetManager.getRelatedResourcesMap();
+            const realtedResourcesMap = everythingRelatedResourceManager.getRelatedResourcesMap();
 
             /**
              * @type {Generator<import('./everythingRelatedResourcesMapper').EverythingRelatedResources[],void, unknown>}
@@ -408,7 +408,7 @@ class EverythingHelper {
                 parsedArgs,
                 responseStreamer,
                 bundleEntryIdsProcessedTracker,
-                resourceSetManager,
+                everythingRelatedResourceManager,
                 resourceIdentifiers: baseResourceIdentifiers,
                 requestInfo
             }));
@@ -438,7 +438,7 @@ class EverythingHelper {
                     proxyPatientIds,
                     getRaw,
                     nonClinicalReferenesExtractor,
-                    resourceSetManager
+                    everythingRelatedResourceManager
                 })
 
                 if (!responseStreamer) {
@@ -458,7 +458,7 @@ class EverythingHelper {
                 }
             }
 
-            if (includeNonClinicalResources || resourceSetManager.nonClinicalResources?.size > 0) {
+            if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
                 let resourcesTypeToExclude = clinicalResources;
                 // finding non clinical resources in depth using previous result as input
                 let referenceExtractor = nonClinicalReferenesExtractor;
@@ -475,7 +475,7 @@ class EverythingHelper {
                             ? new NonClinicalReferenesExtractor({
                                   resourcesTypeToExclude,
                                   resourcePool:
-                                      resourceSetManager.getResourcePoolForNonClinicalResources()
+                                  everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
                               })
                             : null;
 
@@ -511,7 +511,7 @@ class EverythingHelper {
                                 bundleEntryIdsProcessedTracker,
                                 requestInfo,
                                 nonClinicalReferenesExtractor: referenceExtractorForNextLevel,
-                                resourceSetManager
+                                everythingRelatedResourceManager
                             });
 
                             depthParallelProcess.push(result);
@@ -599,7 +599,7 @@ class EverythingHelper {
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
      * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @property {ResourceIdentifier[]} resourceIdentifiers
-     * @property {ResourceSetManager} resourceSetManager
+     * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {boolean} getRaw
      * @property {NonClinicalReferenesExtractor | null} nonClinicalReferenesExtractor
      *
@@ -617,7 +617,7 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
         getRaw,
-        resourceSetManager,
+        everythingRelatedResourceManager,
         nonClinicalReferenesExtractor
     }) {
 
@@ -706,7 +706,7 @@ class EverythingHelper {
             bundleEntryIdsProcessedTracker,
             resourceIdentifiers,
             nonClinicalReferenesExtractor,
-            resourceSetManager
+            everythingRelatedResourceManager
         });
 
         entries.push(...(bundleEntries || []));
@@ -737,7 +737,7 @@ class EverythingHelper {
      * @property {string[]} proxyPatientIds
      * @property {boolean} getRaw
      * @property {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
-     * @property {ResourceSetManager} resourceSetManager
+     * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<QueryItem>}
@@ -756,7 +756,7 @@ class EverythingHelper {
         parentResourcesProcessedTracker,
         proxyPatientIds = [],
         getRaw = false,
-        resourceSetManager,
+        everythingRelatedResourceManager,
         nonClinicalReferenesExtractor
         }
     ) {
@@ -935,7 +935,7 @@ class EverythingHelper {
                 parentResourcesProcessedTracker,
                 fieldForSearchParameter,
                 proxyPatientIds: proxyPatientIds || [],
-                resourceSetManager,
+                everythingRelatedResourceManager,
                 parentResourceType
             })
 
@@ -976,7 +976,7 @@ class EverythingHelper {
      *  fieldForSearchParameter?: string,
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
-     *  resourceSetManager: ResourceSetManager,
+     *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -992,7 +992,7 @@ class EverythingHelper {
         fieldForSearchParameter,
         proxyPatientIds,
         parentResourceType,
-        resourceSetManager
+        everythingRelatedResourceManager
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1120,7 +1120,7 @@ class EverythingHelper {
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
                     if (
                         responseStreamer &&
-                        resourceSetManager.allowedToBeSent(
+                        everythingRelatedResourceManager.allowedToBeSent(
                             resourceIdentifier.resourceType
                         )
                     ) {
@@ -1147,7 +1147,7 @@ class EverythingHelper {
                             if (resourceIdentifiers) {
                                 resourceIdentifiers.push(resourceIdentifier)
                             }
-                            if (resourceSetManager.allowedToBeSent(resourceIdentifier.resourceType)){
+                            if (everythingRelatedResourceManager.allowedToBeSent(resourceIdentifier.resourceType)){
                                 bundleEntries.push(current_entity);
                             }
                         }

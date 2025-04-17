@@ -1,0 +1,2427 @@
+{
+    "entry": [
+        {
+            "id": "24a5930e-11b4-5525-b482-669174917044",
+            "resource": {
+                "birthDate": "2017-01-01",
+                "gender": "female",
+                "id": "24a5930e-11b4-5525-b482-669174917044",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "patient1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "24a5930e-11b4-5525-b482-669174917044"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:02.570Z",
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "t",
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ]
+                    }
+                ],
+                "resourceType": "Patient"
+            }
+        },
+        {
+            "id": "ce2b3f55-8a3b-5f06-a449-708dd992119e",
+            "resource": {
+                "coverage": [
+                    {
+                        "coverage": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Coverage/7546D"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Coverage/baab0c4a-2c6a-5acb-8d82-c039dd9b3efb"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "healthsystem1"
+                                }
+                            ],
+                            "reference": "Coverage/baab0c4a-2c6a-5acb-8d82-c039dd9b3efb"
+                        },
+                        "priority": 1
+                    }
+                ],
+                "description": "Hospital charges",
+                "id": "ce2b3f55-8a3b-5f06-a449-708dd992119e",
+                "identifier": [
+                    {
+                        "system": "urn:oid:0.1.2.3.4.5.6.7",
+                        "value": "654321"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "example"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "ce2b3f55-8a3b-5f06-a449-708dd992119e"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:02.768Z",
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "name": "HACC Funded Billing for Peter James Chalmers",
+                "owner": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Organization/hl7"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Organization/214ca533-fb96-562d-824d-3aca1406f3fb"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Organization/214ca533-fb96-562d-824d-3aca1406f3fb"
+                },
+                "resourceType": "Account",
+                "servicePeriod": {
+                    "start": "2016-01-01",
+                    "end": "2016-06-30"
+                },
+                "status": "active",
+                "subject": [
+                    {
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Patient/patient1"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "healthsystem1"
+                            }
+                        ],
+                        "reference": "Patient/24a5930e-11b4-5525-b482-669174917044",
+                        "display": "Peter James Chalmers"
+                    }
+                ],
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">HACC Funded Billing for Peter James Chalmers</div>"
+                },
+                "type": {
+                    "coding": [
+                        {
+                            "id": "335d2e6f-c389-590f-ade8-d44615adebd2",
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                            "code": "PBILLACCT",
+                            "display": "patient billing account"
+                        }
+                    ],
+                    "text": "patient"
+                }
+            }
+        },
+        {
+            "id": "f49c5e15-81b5-57a9-bade-77e9e744fb2e",
+            "resource": {
+                "activity": [
+                    {
+                        "detail": {
+                            "code": {
+                                "coding": [
+                                    {
+                                        "id": "d031bf91-cea9-502e-98d0-cc0726f57818",
+                                        "system": "http://snomed.info/sct",
+                                        "code": "160670007",
+                                        "display": "Diabetic diet"
+                                    }
+                                ],
+                                "text": "Diabetic diet"
+                            },
+                            "status": "in-progress"
+                        }
+                    },
+                    {
+                        "detail": {
+                            "code": {
+                                "coding": [
+                                    {
+                                        "id": "d69d144f-975d-5487-bd99-8b369ef8a06e",
+                                        "system": "http://snomed.info/sct",
+                                        "code": "229065009",
+                                        "display": "Exercise therapy"
+                                    }
+                                ],
+                                "text": "Exercise therapy"
+                            },
+                            "status": "in-progress",
+                            "productReference": {
+                                "extension": [
+                                    {
+                                        "id": "sourceId",
+                                        "url": "https://www.icanbwell.com/sourceId",
+                                        "valueString": "Medication/b0e0113d-23a0-5742-a054-c8afe008010b"
+                                    },
+                                    {
+                                        "id": "uuid",
+                                        "url": "https://www.icanbwell.com/uuid",
+                                        "valueString": "Medication/b0e0113d-23a0-5742-a054-c8afe008010b"
+                                    },
+                                    {
+                                        "id": "sourceAssigningAuthority",
+                                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                        "valueString": "healthsystem1"
+                                    }
+                                ],
+                                "reference": "Medication/b0e0113d-23a0-5742-a054-c8afe008010b"
+                            }
+                        }
+                    }
+                ],
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "id": "ab22e646-0212-52c1-af4f-125d2495a60c",
+                                "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+                                "code": "assess-plan"
+                            }
+                        ]
+                    },
+                    {
+                        "coding": [
+                            {
+                                "id": "3ed71cb5-65db-5565-80e0-528c590008f7",
+                                "system": "http://terminology.hl7.org/NamingSystem/mddid",
+                                "code": "698360004",
+                                "display": "Diabetes self management plan"
+                            }
+                        ],
+                        "text": "Diabetes self management plan"
+                    }
+                ],
+                "id": "f49c5e15-81b5-57a9-bade-77e9e744fb2e",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "care-plan-1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "f49c5e15-81b5-57a9-bade-77e9e744fb2e"
+                    }
+                ],
+                "intent": "order",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:03.343Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "B"
+                        },
+                        {
+                            "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "B"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "period": {
+                    "start": "2012-03-03T01:45:51+00:00",
+                    "end": "2013-03-03T01:45:51+00:00"
+                },
+                "resourceType": "CarePlan",
+                "status": "active",
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Plan for Diabetes self management plan.<br/>Activities: <ul><li>Diabetes self management plan</li><li>Diabetes self management plan</li></ul><br/>Care plan is meant to treat Prediabetes.</div>"
+                },
+                "title": "Diabetes self management plan"
+            }
+        },
+        {
+            "id": "42f7c218-bb50-56d5-b0d4-fe92a8e5f23b",
+            "resource": {
+                "id": "42f7c218-bb50-56d5-b0d4-fe92a8e5f23b",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "42f7c218-bb50-56d5-b0d4-fe92a8e5f23b"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:04.043Z",
+                    "source": "test",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "B"
+                        },
+                        {
+                            "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "B"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "recorder": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Practitioner/aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Practitioner/aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Practitioner/aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+                },
+                "resourceType": "Condition",
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                }
+            }
+        },
+        {
+            "id": "8be15395-7bcd-55b7-88b8-853b28791945",
+            "resource": {
+                "id": "8be15395-7bcd-55b7-88b8-853b28791945",
+                "item": [
+                    {
+                        "type": "source",
+                        "resource": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/patient1"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "healthsystem1"
+                                }
+                            ],
+                            "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        }
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:04.731Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Linkage"
+            }
+        },
+        {
+            "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+            "resource": {
+                "code": {
+                    "coding": [
+                        {
+                            "id": "62186514-8c23-5680-85fd-b6898c99eacb",
+                            "system": "http://www.icanbwell.com/cql/library",
+                            "code": "BMI001"
+                        },
+                        {
+                            "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
+                            "system": "http://www.icanbwell.com/cql/libraryVersion",
+                            "code": "1.0.0"
+                        },
+                        {
+                            "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
+                            "system": "http://www.icanbwell.com/cql/rule",
+                            "code": "InAgeCohort"
+                        }
+                    ]
+                },
+                "effectivePeriod": {
+                    "start": "2021-01-01T00:00:00.000Z",
+                    "end": "2021-12-31T00:00:00.000Z"
+                },
+                "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "2354-InAgeCohort"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "61886699-c643-5e3b-a074-569e4c43bddf"
+                    }
+                ],
+                "issued": "2021-01-01T12:00:00.000Z",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:02.991Z",
+                    "source": "/patients",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "B"
+                        },
+                        {
+                            "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "B"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Observation",
+                "status": "final",
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                "valueBoolean": false
+            }
+        },
+        {
+            "id": "c0f015df-96a2-565f-aa33-e8603472d2f0",
+            "resource": {
+                "amount": {
+                    "value": 12500,
+                    "currency": "USD"
+                },
+                "created": "2014-08-15",
+                "id": "c0f015df-96a2-565f-aa33-e8603472d2f0",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "paymentNotice1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "c0f015df-96a2-565f-aa33-e8603472d2f0"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:04.885Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "payment": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "PaymentReconciliation/ER2500"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "PaymentReconciliation/d45e43c6-170f-52e1-a157-692ee5c9704b"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "PaymentReconciliation/d45e43c6-170f-52e1-a157-692ee5c9704b"
+                },
+                "recipient": {
+                    "identifier": {
+                        "system": "http://regulators.gov",
+                        "value": "AB123"
+                    }
+                },
+                "request": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                "resourceType": "PaymentNotice",
+                "status": "active"
+            }
+        },
+        {
+            "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
+            "resource": {
+                "birthDate": "1990-01-01",
+                "gender": "male",
+                "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "person1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
+                    }
+                ],
+                "link": [
+                    {
+                        "target": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/patient1"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "healthsystem1"
+                                }
+                            ],
+                            "reference": "Patient/24a5930e-11b4-5525-b482-669174917044",
+                            "type": "Patient"
+                        },
+                        "assurance": "level4"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:02.410Z",
+                    "source": "healthsystem1",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "t",
+                        "family": "person1",
+                        "given": [
+                            "OTHER"
+                        ]
+                    }
+                ],
+                "resourceType": "Person"
+            }
+        },
+        {
+            "id": "medication-prednisolone",
+            "resource": {
+                "code": {
+                    "coding": [
+                        {
+                            "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
+                            "system": "urn:oid:2.16.840.1.113883.6.253",
+                            "code": "135615"
+                        },
+                        {
+                            "id": "ac0558be-374e-5668-8c03-83a02425e99e",
+                            "system": "urn:oid:2.16.840.1.113883.6.68",
+                            "code": "61100020102020"
+                        },
+                        {
+                            "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
+                            "system": "urn:oid:2.16.840.1.113883.6.162",
+                            "code": "59073"
+                        },
+                        {
+                            "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "3287"
+                        },
+                        {
+                            "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "3288"
+                        },
+                        {
+                            "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "822929"
+                        },
+                        {
+                            "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "884522"
+                        }
+                    ],
+                    "text": "prednisolone 1 MG/ML [Pediapred]"
+                },
+                "form": {
+                    "coding": [
+                        {
+                            "id": "fbee3e10-1f81-564f-b1c8-3a6c55007bbf",
+                            "system": "urn:oid:1.2.840.114350.1.13.283.3.7.4.698288.310",
+                            "code": "SOLN",
+                            "display": "Solution"
+                        }
+                    ],
+                    "text": "Solution"
+                },
+                "id": "medication-prednisolone",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "medication-prednisolone"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "b0e0113d-23a0-5742-a054-c8afe008010b"
+                    }
+                ],
+                "ingredient": [
+                    {
+                        "itemCodeableConcept": {
+                            "coding": [
+                                {
+                                    "id": "691e9fc2-5e29-586c-894a-f1087b8c410f",
+                                    "system": "urn:oid:2.16.840.1.113883.6.253",
+                                    "code": "135615"
+                                },
+                                {
+                                    "id": "ac0558be-374e-5668-8c03-83a02425e99e",
+                                    "system": "urn:oid:2.16.840.1.113883.6.68",
+                                    "code": "61100020102020"
+                                },
+                                {
+                                    "id": "90a547b0-ed8a-5611-a5c9-987d51260b2d",
+                                    "system": "urn:oid:2.16.840.1.113883.6.162",
+                                    "code": "59073"
+                                },
+                                {
+                                    "id": "a1d98bab-13b4-534c-bb65-2615980b8cc6",
+                                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                                    "code": "3287"
+                                },
+                                {
+                                    "id": "a2699bd2-aabd-5e2c-8174-947985eec01a",
+                                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                                    "code": "3288"
+                                },
+                                {
+                                    "id": "ebc71762-9211-5cdc-99d5-86a4137297bc",
+                                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                                    "code": "822929"
+                                },
+                                {
+                                    "id": "1df34d87-352a-576e-90e6-94513de1e2f3",
+                                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                                    "code": "884522"
+                                }
+                            ],
+                            "text": "Dextroamphetamine Sulfate 5 MG/5ML Soln oral solution"
+                        },
+                        "strength": {
+                            "numerator": {
+                                "value": 5,
+                                "unit": "MG/5ML"
+                            },
+                            "denominator": {
+                                "value": 5,
+                                "unit": "MG/5ML"
+                            }
+                        }
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:03.177Z",
+                    "source": "https://epicfhir.my-company.org/NonProdFHIR/api/FHIR/R4/metadata",
+                    "security": [
+                        {
+                            "id": "6875cc8d-e2ee-5adb-9ce7-e4a22759d6dd",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "my-companyuat"
+                        },
+                        {
+                            "id": "6b3cd5a7-5f68-50bb-ad5e-14a60f9e594b",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "my-companyuat"
+                        },
+                        {
+                            "id": "8c1674a3-f212-53cc-9fc6-40161e294196",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "my-companyuat"
+                        },
+                        {
+                            "id": "91d5ec27-7d97-5bff-ad11-f72959f469a8",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "my-companyuat"
+                        }
+                    ]
+                },
+                "resourceType": "Medication"
+            }
+        },
+        {
+            "id": "1679033641",
+            "resource": {
+                "active": true,
+                "communication": [
+                    {
+                        "coding": [
+                            {
+                                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                                "system": "urn:ietf:bcp:47",
+                                "code": "en"
+                            }
+                        ]
+                    }
+                ],
+                "gender": "unknown",
+                "id": "1679033641",
+                "identifier": [
+                    {
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                                {
+                                    "id": "c43d55b1-820c-598b-94b2-dbec4db44b9e",
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "code": "PRN"
+                                }
+                            ]
+                        },
+                        "system": "http://clienthealth.org",
+                        "value": "4657"
+                    },
+                    {
+                        "use": "official",
+                        "type": {
+                            "coding": [
+                                {
+                                    "id": "e6e3086f-d120-5e5e-8744-6af40a836e8c",
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "code": "NPI"
+                                }
+                            ]
+                        },
+                        "system": "http://hl7.org/fhir/sid/us-npi",
+                        "value": "1679033641"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "1679033641"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:03.865Z",
+                    "source": "client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "SAMER S. NAJJAR  MD",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    },
+                    {
+                        "use": "usual",
+                        "text": "NAJJAR  MD, SAMER S.",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    }
+                ],
+                "qualification": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        },
+                        "period": {
+                            "start": "1960-01-01",
+                            "end": "2021-12-11"
+                        },
+                        "issuer": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "client"
+                                }
+                            ],
+                            "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        }
+                    }
+                ],
+                "resourceType": "Practitioner",
+                "telecom": [
+                    {
+                        "system": "email",
+                        "value": "foo@foo.com",
+                        "use": "work"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "733797173",
+            "resource": {
+                "active": true,
+                "address": [
+                    {
+                        "line": [
+                            "5009 Honeygo Center Drive",
+                            "Suite 216"
+                        ],
+                        "city": "Perry Hall",
+                        "state": "MD",
+                        "postalCode": "21128"
+                    }
+                ],
+                "alias": [
+                    "Client Medical Group Derm at Honeygo"
+                ],
+                "contact": [
+                    {
+                        "purpose": {
+                            "coding": [
+                                {
+                                    "id": "83763aef-2839-5dcb-bb58-f09a287be950",
+                                    "system": "ClientHealth.org",
+                                    "code": "Central Scheduling"
+                                }
+                            ]
+                        },
+                        "telecom": [
+                            {
+                                "system": "phone",
+                                "use": "work"
+                            }
+                        ]
+                    }
+                ],
+                "extension": [
+                    {
+                        "valueDecimal": -76.61668
+                    },
+                    {
+                        "valueDecimal": 39.32792
+                    }
+                ],
+                "id": "733797173",
+                "identifier": [
+                    {
+                        "use": "usual",
+                        "system": "bwell",
+                        "value": "-733797173"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "733797173"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:03.736Z",
+                    "source": "https://www.foo.com",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "name": "Client Medical Group Dermatology at Honeygo",
+                "partOf": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Organization/7712bd08-fd99-561d-9324-d2fcd41fb009"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Organization/7712bd08-fd99-561d-9324-d2fcd41fb009"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Organization/7712bd08-fd99-561d-9324-d2fcd41fb009",
+                    "type": "Organization",
+                    "display": "Client Medical Group"
+                },
+                "resourceType": "Organization",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(410) 256-5858"
+                    },
+                    {
+                        "system": "fax",
+                        "value": "(866) 733-0434"
+                    }
+                ],
+                "type": [
+                    {
+                        "coding": [
+                            {
+                                "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
+                                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                                "code": "prov",
+                                "display": "Healthcare Provider"
+                            }
+                        ],
+                        "text": "Healthcare Organization"
+                    },
+                    {
+                        "coding": [
+                            {
+                                "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
+                                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                                "code": "prov",
+                                "display": "Emergency Room"
+                            }
+                        ],
+                        "text": "ER Indicator"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "7337971735",
+            "resource": {
+                "active": true,
+                "address": [
+                    {
+                        "line": [
+                            "5009 Honeygo Center Drive",
+                            "Suite 216"
+                        ],
+                        "city": "Perry Hall",
+                        "state": "MD",
+                        "postalCode": "21128"
+                    }
+                ],
+                "alias": [
+                    "Client Medical Group Derm at Honeygo"
+                ],
+                "contact": [
+                    {
+                        "purpose": {
+                            "coding": [
+                                {
+                                    "id": "83763aef-2839-5dcb-bb58-f09a287be950",
+                                    "system": "ClientHealth.org",
+                                    "code": "Central Scheduling"
+                                }
+                            ]
+                        },
+                        "telecom": [
+                            {
+                                "system": "phone",
+                                "use": "work"
+                            }
+                        ]
+                    }
+                ],
+                "extension": [
+                    {
+                        "valueDecimal": -76.61668
+                    },
+                    {
+                        "valueDecimal": 39.32792
+                    }
+                ],
+                "id": "7337971735",
+                "identifier": [
+                    {
+                        "use": "usual",
+                        "system": "bwell",
+                        "value": "-7337971735"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "7337971735"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "7712bd08-fd99-561d-9324-d2fcd41fb009"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-04T11:07:03.590Z",
+                    "source": "https://www.foo.com",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "name": "Client Medical Group Dermatology at Honeygo",
+                "resourceType": "Organization",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "(410) 256-5858"
+                    },
+                    {
+                        "system": "fax",
+                        "value": "(866) 733-0434"
+                    }
+                ],
+                "type": [
+                    {
+                        "coding": [
+                            {
+                                "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
+                                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                                "code": "prov",
+                                "display": "Healthcare Provider"
+                            }
+                        ],
+                        "text": "Healthcare Organization"
+                    },
+                    {
+                        "coding": [
+                            {
+                                "id": "b01785b7-5551-54fe-9805-ea3c1253d22f",
+                                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                                "code": "prov",
+                                "display": "Emergency Room"
+                            }
+                        ],
+                        "text": "ER Indicator"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "94528605-a9a1-50e6-a0fe-d718d529e660",
+            "resource": {
+                "resourceType": "DocumentReference",
+                "id": "94528605-a9a1-50e6-a0fe-d718d529e660",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-07T08:46:41.880Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "doc-ref-1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "94528605-a9a1-50e6-a0fe-d718d529e660"
+                    }
+                ],
+                "status": "current",
+                "docStatus": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "id": "12849cb7-c449-52cd-b160-1c24620b1ac2",
+                                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/document-reference-category",
+                                "code": "PhoneVerified",
+                                "display": "Verified Phone"
+                            }
+                        ]
+                    }
+                ],
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                "date": "2022-12-17T09:44:58.033Z",
+                "description": "PhoneVerified identity verification document",
+                "securityLabel": [
+                    {
+                        "coding": [
+                            {
+                                "id": "b08e9826-eca4-5380-8f03-6de2f5253d4a",
+                                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                                "code": "DEMO",
+                                "display": "all demographic information sensitivity"
+                            }
+                        ]
+                    }
+                ],
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "text/html",
+                            "url": "Binary/binary1"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "d7fa3119-0932-58ab-bf29-2bbed116342d",
+            "resource": {
+                "resourceType": "DocumentReference",
+                "id": "d7fa3119-0932-58ab-bf29-2bbed116342d",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-07T08:46:41.961Z",
+                    "source": "https://www.icanbwell.com",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "doc-ref-2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "d7fa3119-0932-58ab-bf29-2bbed116342d"
+                    }
+                ],
+                "status": "current",
+                "docStatus": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "id": "12849cb7-c449-52cd-b160-1c24620b1ac2",
+                                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/document-reference-category",
+                                "code": "PhoneVerified",
+                                "display": "Verified Phone"
+                            }
+                        ]
+                    }
+                ],
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                "date": "2022-12-17T09:44:58.033Z",
+                "description": "PhoneVerified identity verification document",
+                "securityLabel": [
+                    {
+                        "coding": [
+                            {
+                                "id": "b08e9826-eca4-5380-8f03-6de2f5253d4a",
+                                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                                "code": "DEMO",
+                                "display": "all demographic information sensitivity"
+                            }
+                        ]
+                    }
+                ],
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "text/html",
+                            "url": "Binary/binary2"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "binary2",
+            "resource": {
+                "resourceType": "Binary",
+                "id": "binary2",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-07T08:46:41.721Z",
+                    "source": "https://connect.medlineplus.gov/service",
+                    "security": [
+                        {
+                            "id": "34cb1d73-f93b-54c8-89a1-c0a6f8aa9acd",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client1"
+                        },
+                        {
+                            "id": "d5ff7087-77ef-546b-8b12-05c74cec6b87",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client1"
+                        },
+                        {
+                            "id": "171f7c10-fa66-5272-91c5-6353567641e4",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client1"
+                        }
+                    ]
+                },
+                "contentType": "text/html",
+                "data": "PGgyPldoYXQgaXMgYW4gZWxlY3Ryb2NhcmRpb2dyYW0gKEVLRykgdGVzdD88L2gyPjxwPkFuIGVsZWN0cm9jYXJkaW9ncmFtIChFS0cpIHRlc3QgaXMgYSBzaW1wbGUsIHBhaW5sZXNzIHByb2NlZHVyZSB0aGF0IG1lYXN1cmVzIGVsZWN0cmljYWwgc2lnbmFscyBpbiB5b3VyIGhlYXJ0LiBFYWNoIHRpbWUgeW91ciBoZWFydCBiZWF0cywgYW4gZWxlY3RyaWNhbCBzaWduYWwgdHJhdmVscyB0aHJvdWdoIHRoZSBoZWFydC4gQW4gRUtHIGNhbiBzaG93IGlmIHlvdXIgaGVhcnQgaXMgYmVhdGluZyBhdCBhIG5vcm1hbCByYXRlIGFuZCBzdHJlbmd0aC4gSXQgYWxzbyBoZWxwcyBzaG93IHRoZSBzaXplIGFuZCBwb3NpdGlvbiBvZiB5b3VyIGhlYXJ0J3MgY2hhbWJlcnMuIEFuIGFibm9ybWFsIEVLRyBjYW4gYmUgYSBzaWduIG9mIDxhIGRhdGEtdGlkPSIyNzciIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2hlYXJ0ZGlzZWFzZXMuaHRtbCI+aGVhcnQgZGlzZWFzZTwvYT4gb3IgZGFtYWdlLjwvcD48cD5PdGhlciBuYW1lczogRUNHIHRlc3Q8L3A+PGgyPldoYXQgaXMgaXQgdXNlZCBmb3I/PC9oMj48cD5BbiBFS0cgdGVzdCBpcyB1c2VkIHRvIGZpbmQgYW5kL29yIG1vbml0b3IgdmFyaW91cyBoZWFydCBkaXNvcmRlcnMuIFRoZXNlIGluY2x1ZGU6PC9wPjx1bD48bGk+SXJyZWd1bGFyIGhlYXJ0YmVhdCAoa25vd24gYXMgPGEgZGF0YS10aWQ9IjE0NyIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvYXJyaHl0aG1pYS5odG1sIj5hcnJoeXRobWlhPC9hPik8L2xpPjxsaT5CbG9ja2VkIGFydGVyaWVzPC9saT48bGk+SGVhcnQgZGFtYWdlPC9saT48bGk+PGEgZGF0YS10aWQ9IjE5OSIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvaGVhcnRmYWlsdXJlLmh0bWwiPkhlYXJ0IGZhaWx1cmU8L2E+PC9saT48bGk+PGEgZGF0YS10aWQ9IjUiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2hlYXJ0YXR0YWNrLmh0bWwiPkhlYXJ0IGF0dGFjazwvYT4uIEVLR3MgYXJlIG9mdGVuIHVzZWQgaW4gdGhlIGFtYnVsYW5jZSwgZW1lcmdlbmN5IHJvb20sIG9yIG90aGVyIGhvc3BpdGFsIHJvb20gdG8gZGlhZ25vc2UgYSBzdXNwZWN0ZWQgaGVhcnQgYXR0YWNrLjwvbGk+PC91bD48cD5BbiBFS0cgdGVzdCBpcyBzb21ldGltZXMgaW5jbHVkZWQgaW4gYSByb3V0aW5lIGV4YW0gZm9yIG1pZGRsZS1hZ2VkIGFuZCBvbGRlciBhZHVsdHMsIGFzIHRoZXkgaGF2ZSBhIGhpZ2hlciByaXNrIG9mIGhlYXJ0IGRpc2Vhc2UgdGhhbiB5b3VuZ2VyIHBlb3BsZS48L3A+PGgyPldoeSBkbyBJIG5lZWQgYW4gRUtHIHRlc3Q/PC9oMj48cD5Zb3UgbWF5IG5lZWQgYW4gRUtHIHRlc3QgaWYgeW91IGhhdmUgc3ltcHRvbXMgb2YgYSBoZWFydCBkaXNvcmRlci4gVGhlc2UgaW5jbHVkZTo8L3A+PHVsPjxsaT48YSBkYXRhLXRpZD0iNDc0NCIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvY2hlc3RwYWluLmh0bWwiPkNoZXN0IHBhaW48L2E+PC9saT48bGk+UmFwaWQgaGVhcnRiZWF0PC9saT48bGk+QXJyaHl0aG1pYSAoaXQgbWF5IGZlZWwgbGlrZSB5b3VyIGhlYXJ0IGhhcyBza2lwcGVkIGEgYmVhdCBvciBpcyBmbHV0dGVyaW5nKTwvbGk+PGxpPjxhIGRhdGEtdGlkPSIzMDc3IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9icmVhdGhpbmdwcm9ibGVtcy5odG1sIj5TaG9ydG5lc3Mgb2YgYnJlYXRoPC9hPjwvbGk+PGxpPjxhIGRhdGEtdGlkPSIyMTYiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2RpenppbmVzc2FuZHZlcnRpZ28uaHRtbCI+RGl6emluZXNzPC9hPjwvbGk+PGxpPjxhIGRhdGEtdGlkPSI1MzI0IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9mYXRpZ3VlLmh0bWwiPkZhdGlndWU8L2E+PC9saT48L3VsPjxwPllvdSBtYXkgYWxzbyBuZWVkIHRoaXMgdGVzdCBpZiB5b3U6PC9wPjx1bD48bGk+SGF2ZSBoYWQgYSBoZWFydCBhdHRhY2sgb3Igb3RoZXIgaGVhcnQgcHJvYmxlbXMgaW4gdGhlIHBhc3Q8L2xpPjxsaT5IYXZlIGEgZmFtaWx5IGhpc3Rvcnkgb2YgaGVhcnQgZGlzZWFzZTwvbGk+PGxpPkFyZSBzY2hlZHVsZWQgZm9yIDxhIGRhdGEtdGlkPSI0MjYiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L3N1cmdlcnkuaHRtbCI+c3VyZ2VyeTwvYT4uIFlvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIgbWF5IHdhbnQgdG8gY2hlY2sgeW91ciBoZWFydCBoZWFsdGggYmVmb3JlIHRoZSBwcm9jZWR1cmUuPC9saT48bGk+SGF2ZSBhIDxhIGRhdGEtdGlkPSIzNDQ3IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9wYWNlbWFrZXJzYW5kaW1wbGFudGFibGVkZWZpYnJpbGxhdG9ycy5odG1sIj5wYWNlbWFrZXI8L2E+LiBUaGUgRUtHIGNhbiBzaG93IGhvdyB3ZWxsIHRoZSBkZXZpY2UgaXMgd29ya2luZy48L2xpPjxsaT5BcmUgdGFraW5nIG1lZGljaW5lIGZvciBoZWFydCBkaXNlYXNlLiBUaGUgRUtHIGNhbiBzaG93IGlmIHlvdXIgbWVkaWNpbmUgaXMgZWZmZWN0aXZlLCBvciBpZiB5b3UgbmVlZCB0byBtYWtlIGNoYW5nZXMgaW4geW91ciB0cmVhdG1lbnQuPC9saT48L3VsPjxoMj5XaGF0IGhhcHBlbnMgZHVyaW5nIGFuIEVLRyB0ZXN0PzwvaDI+PHA+QW4gRUtHIHRlc3QgbWF5IGJlIGRvbmUgaW4gYSBwcm92aWRlcidzIG9mZmljZSwgb3V0cGF0aWVudCBjbGluaWMsIG9yIGEgaG9zcGl0YWwuIER1cmluZyB0aGUgcHJvY2VkdXJlOjwvcD48dWw+PGxpPllvdSB3aWxsIGxpZSBvbiBhbiBleGFtIHRhYmxlLjwvbGk+PGxpPkEgaGVhbHRoIGNhcmUgcHJvdmlkZXIgd2lsbCBwbGFjZSBzZXZlcmFsIGVsZWN0cm9kZXMgKHNtYWxsIHNlbnNvcnMgdGhhdCBzdGljayB0byB0aGUgc2tpbikgb24geW91ciBhcm1zLCBsZWdzLCBhbmQgY2hlc3QuIFRoZSBwcm92aWRlciBtYXkgbmVlZCB0byBzaGF2ZSBvciB0cmltIGV4Y2VzcyBoYWlyIGJlZm9yZSBwbGFjaW5nIHRoZSBlbGVjdHJvZGVzLjwvbGk+PGxpPlRoZSBlbGVjdHJvZGVzIGFyZSBhdHRhY2hlZCBieSB3aXJlcyB0byBhIGNvbXB1dGVyIHRoYXQgcmVjb3JkcyB5b3VyIGhlYXJ0J3MgZWxlY3RyaWNhbCBhY3Rpdml0eS48L2xpPjxsaT5UaGUgYWN0aXZpdHkgd2lsbCBiZSBkaXNwbGF5ZWQgb24gdGhlIGNvbXB1dGVyJ3MgbW9uaXRvciBhbmQvb3IgcHJpbnRlZCBvdXQgb24gcGFwZXIuPC9saT48bGk+VGhlIHByb2NlZHVyZSBvbmx5IHRha2VzIGFib3V0IHRocmVlIG1pbnV0ZXMuPC9saT48L3VsPjxoMj5XaWxsIEkgbmVlZCB0byBkbyBhbnl0aGluZyB0byBwcmVwYXJlIGZvciB0aGUgdGVzdD88L2gyPjxwPllvdSBkb24ndCBuZWVkIGFueSBzcGVjaWFsIHByZXBhcmF0aW9ucyBmb3IgYW4gRUtHIHRlc3QuPC9wPjxoMj5BcmUgdGhlcmUgYW55IHJpc2tzIHRvIHRoZSB0ZXN0PzwvaDI+PHA+VGhlcmUgaXMgdmVyeSBsaXR0bGUgcmlzayB0byBoYXZpbmcgYW4gRUtHLiBZb3UgbWF5IGZlZWwgYSBsaXR0bGUgZGlzY29tZm9ydCBvciBza2luIGlycml0YXRpb24gYWZ0ZXIgdGhlIGVsZWN0cm9kZXMgYXJlIHJlbW92ZWQuIFRoZXJlIGlzIG5vIHJpc2sgb2YgZWxlY3RyaWMgc2hvY2suIFRoZSBFS0cgZG9lc24ndCBzZW5kIGFueSBlbGVjdHJpY2l0eSB0byB5b3VyIGJvZHkuIEl0IG9ubHkgPGVtPnJlY29yZHM8L2VtPiBlbGVjdHJpY2l0eS48L3A+PGgyPldoYXQgZG8gdGhlIHJlc3VsdHMgbWVhbj88L2gyPjxwPllvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIgd2lsbCBjaGVjayB5b3VyIEVLRyByZXN1bHRzIGZvciBhIGNvbnNpc3RlbnQgaGVhcnRiZWF0IGFuZCByaHl0aG0uIElmIHlvdXIgcmVzdWx0cyB3ZXJlIG5vdCBub3JtYWwsIGl0IG1heSBtZWFuIHlvdSBoYXZlIG9uZSBvZiB0aGUgZm9sbG93aW5nIGRpc29yZGVyczo8L3A+PHVsPjxsaT5BcnJoeXRobWlhPC9saT48bGk+QSBoZWFydGJlYXQgdGhhdCBpcyB0b28gZmFzdCBvciB0b28gc2xvdzwvbGk+PGxpPkluYWRlcXVhdGUgYmxvb2Qgc3VwcGx5IHRvIHRoZSBoZWFydDwvbGk+PGxpPkEgYnVsZ2UgaW4gdGhlIGhlYXJ0J3Mgd2FsbHMuIFRoaXMgYnVsZ2UgaXMga25vd24gYXMgYW4gPGEgZGF0YS10aWQ9IjE0MSIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvYW5ldXJ5c21zLmh0bWwiPmFuZXVyeXNtPC9hPi48L2xpPjxsaT5UaGlja2VuaW5nIG9mIHRoZSBoZWFydCdzIHdhbGxzPC9saT48bGk+QSBoZWFydCBhdHRhY2sgKFJlc3VsdHMgY2FuIHNob3cgaWYgeW91J3ZlIGhhZCBhIGhlYXJ0IGF0dGFjayBpbiB0aGUgcGFzdCBvciBpZiB5b3UgYXJlIGhhdmluZyBhbiBhdHRhY2sgZHVyaW5nIHRoZSBFS0cuKTwvbGk+PC91bD48cD5JZiB5b3UgaGF2ZSBxdWVzdGlvbnMgYWJvdXQgeW91ciByZXN1bHRzLCB0YWxrIHRvIHlvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIuPC9wPjxoMj5FS0cgdnMgRUNHPzwvaDI+PHA+QW4gZWxlY3Ryb2NhcmRpb2dyYW0gbWF5IGJlIGNhbGxlZCBhbiBFS0cgb3IgYW4gRUNHLiBCb3RoIGFyZSBjb3JyZWN0IGFuZCBjb21tb25seSB1c2VkLiBFS0cgaXMgYmFzZWQgb24gdGhlIEdlcm1hbiBzcGVsbGluZywgZWxla3Ryb2thcmRpb2dyYW1tLiBFS0cgbWF5IGJlIHByZWZlcnJlZCBvdmVyIEVDRyB0byBhdm9pZCBjb25mdXNpb24gd2l0aCBhbiBFRUcsIGEgdGVzdCB0aGF0IG1lYXN1cmVzIGJyYWluIHdhdmVzLjwvcD48aDI+UmVmZXJlbmNlczwvaDI+CjxvbD4KPGxpPkFtZXJpY2FuIEhlYXJ0IEFzc29jaWF0aW9uIFtJbnRlcm5ldF0uIERhbGxhcyAoVFgpOiBBbWVyaWNhbiBIZWFydCBBc3NvY2lhdGlvbiBJbmMuOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVDRyBvciBFS0cpOyBbY2l0ZWQgMjAxOCBOb3YgM107IFthYm91dCA0IHNjcmVlbnNdLiBBdmFpbGFibGUgZnJvbTogPGEgaHJlZj0iaHR0cDovL3d3dy5oZWFydC5vcmcvZW4vaGVhbHRoLXRvcGljcy9oZWFydC1hdHRhY2svZGlhZ25vc2luZy1hLWhlYXJ0LWF0dGFjay9lbGVjdHJvY2FyZGlvZ3JhbS1lY2ctb3ItZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5oZWFydC5vcmcvZW4vaGVhbHRoLXRvcGljcy9oZWFydC1hdHRhY2svZGlhZ25vc2luZy1hLWhlYXJ0LWF0dGFjay9lbGVjdHJvY2FyZGlvZ3JhbS1lY2ctb3ItZWtnPC9hPjwvbGk+CjxsaT5DaHJpc3RpYW5hIENhcmUgSGVhbHRoIFN5c3RlbSBbSW50ZXJuZXRdLiBXaWxtaW5ndG9uIChERSk6IENocmlzdGlhbmEgQ2FyZSBIZWFsdGggU3lzdGVtOyBFS0c7IFtjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDQgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL2NocmlzdGlhbmFjYXJlLm9yZy9zZXJ2aWNlcy9oZWFydC9jYXJkaW92YXNjdWxhcmltYWdpbmcvZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cHM6Ly9jaHJpc3RpYW5hY2FyZS5vcmcvc2VydmljZXMvaGVhcnQvY2FyZGlvdmFzY3VsYXJpbWFnaW5nL2VrZzwvYT48L2xpPgo8bGk+S2lkc0hlYWx0aCBmcm9tIE5lbW91cnMgW0ludGVybmV0XS4gVGhlIE5lbW91cnMgRm91bmRhdGlvbjsgYzE5OTXigJMyMDE4LiBFQ0cgKEVsZWN0cm9jYXJkaW9ncmFtKTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8va2lkc2hlYWx0aC5vcmcvZW4vcGFyZW50cy9la2cuaHRtbCIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8va2lkc2hlYWx0aC5vcmcvZW4vcGFyZW50cy9la2cuaHRtbDwvYT48L2xpPgo8bGk+TWF5byBDbGluaWMgW0ludGVybmV0XS4gTWF5byBGb3VuZGF0aW9uIGZvciBNZWRpY2FsIEVkdWNhdGlvbiBhbmQgUmVzZWFyY2g7IGMxOTk44oCTMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVDRyBvciBFS0cpOiBBYm91dDsgMjAxOCBNYXkgMTkgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMyBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3Lm1heW9jbGluaWMub3JnL3Rlc3RzLXByb2NlZHVyZXMvZWtnL2Fib3V0L3BhYy0yMDM4NDk4MyIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vd3d3Lm1heW9jbGluaWMub3JnL3Rlc3RzLXByb2NlZHVyZXMvZWtnL2Fib3V0L3BhYy0yMDM4NDk4MzwvYT48L2xpPgo8bGk+TWVyY2sgTWFudWFsIENvbnN1bWVyIFZlcnNpb24gW0ludGVybmV0XS4gS2VuaWx3b3J0aCAoTkopOiBNZXJjayAmYW1wOyBDby4sIEluYy47IGMyMDE4LiBFbGVjdHJvY2FyZGlvZ3JhcGh5IChFQ0c7IEVLRyk7IFtjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDIgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL3d3dy5tZXJja21hbnVhbHMuY29tL2hvbWUvaGVhcnQtYW5kLWJsb29kLXZlc3NlbC1kaXNvcmRlcnMvZGlhZ25vc2lzLW9mLWhlYXJ0LWFuZC1ibG9vZC12ZXNzZWwtZGlzb3JkZXJzL2VsZWN0cm9jYXJkaW9ncmFwaHkiIHRhcmdldD0iYmlibGlvd2luIj5odHRwczovL3d3dy5tZXJja21hbnVhbHMuY29tL2hvbWUvaGVhcnQtYW5kLWJsb29kLXZlc3NlbC1kaXNvcmRlcnMvZGlhZ25vc2lzLW9mLWhlYXJ0LWFuZC1ibG9vZC12ZXNzZWwtZGlzb3JkZXJzL2VsZWN0cm9jYXJkaW9ncmFwaHk8L2E+PC9saT4KPGxpPk5hdGlvbmFsIEhlYXJ0LCBMdW5nLCBhbmQgQmxvb2QgSW5zdGl0dXRlIFtJbnRlcm5ldF0uIEJldGhlc2RhIChNRCk6IFUuUy4gRGVwYXJ0bWVudCBvZiBIZWFsdGggYW5kIEh1bWFuIFNlcnZpY2VzOyBFbGVjdHJvY2FyZGlvZ3JhbTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3Lm5obGJpLm5paC5nb3YvaGVhbHRoLXRvcGljcy9lbGVjdHJvY2FyZGlvZ3JhbSIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vd3d3Lm5obGJpLm5paC5nb3YvaGVhbHRoLXRvcGljcy9lbGVjdHJvY2FyZGlvZ3JhbTwvYT48L2xpPgo8bGk+U2Vjb25kcyBDb3VudCBbSW50ZXJuZXRdLiBXYXNoaW5ndG9uIEQuQy46IFRoZSBTb2NpZXR5IGZvciBDYXJkaW92YXNjdWxhciBBbmdpb2dyYXBoeSBhbmQgSW50ZXJ2ZW50aW9uczsgRGlhZ25vc2luZyBhIEhlYXJ0IEF0dGFjazsgMjAxNCBOb3YgNCBbY2l0ZWQgMjAxOCBOb3YgMTVdOyBbYWJvdXQgMyBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHA6Ly93d3cuc2Vjb25kc2NvdW50Lm9yZy9oZWFydC1jb25kaXRpb24tY2VudGVycy9pbmZvLWRldGFpbC0yL2RpYWdub3NpbmctaGVhcnQtYXR0YWNrIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5zZWNvbmRzY291bnQub3JnL2hlYXJ0LWNvbmRpdGlvbi1jZW50ZXJzL2luZm8tZGV0YWlsLTIvZGlhZ25vc2luZy1oZWFydC1hdHRhY2s8L2E+PC9saT4KPGxpPlVGIEhlYWx0aDogVW5pdmVyc2l0eSBvZiBGbG9yaWRhIEhlYWx0aCBbSW50ZXJuZXRdLiBHYWluZXN2aWxsZSAoRkwpOiBVbml2ZXJzaXR5IG9mIEZsb3JpZGEgSGVhbHRoOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW06IE92ZXJ2aWV3OyBbdXBkYXRlZCAyMDE4IE5vdiAyOyBjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDIgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL3VmaGVhbHRoLm9yZy9lbGVjdHJvY2FyZGlvZ3JhbSIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vdWZoZWFsdGgub3JnL2VsZWN0cm9jYXJkaW9ncmFtPC9hPjwvbGk+CjxsaT5Vbml2ZXJzaXR5IG9mIFJvY2hlc3RlciBNZWRpY2FsIENlbnRlciBbSW50ZXJuZXRdLiBSb2NoZXN0ZXIgKE5ZKTogVW5pdmVyc2l0eSBvZiBSb2NoZXN0ZXIgTWVkaWNhbCBDZW50ZXI7IGMyMDE4LiBIZWFsdGggRW5jeWNsb3BlZGlhOiBFbGVjdHJvY2FyZGlvZ3JhbTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3LnVybWMucm9jaGVzdGVyLmVkdS9lbmN5Y2xvcGVkaWEvY29udGVudC5hc3B4P2NvbnRlbnR0eXBlaWQ9OTImYW1wO2NvbnRlbnRpZD1QMDc5NzAiIHRhcmdldD0iYmlibGlvd2luIj5odHRwczovL3d3dy51cm1jLnJvY2hlc3Rlci5lZHUvZW5jeWNsb3BlZGlhL2NvbnRlbnQuYXNweD9jb250ZW50dHlwZWlkPTkyJmFtcDtjb250ZW50aWQ9UDA3OTcwPC9hPjwvbGk+CjxsaT5VUE1DIENoaWxkcmVuJ3MgSG9zcGl0YWwgb2YgUGl0dHNidXJnaCBbSW50ZXJuZXRdLiBQaXR0c2J1cmdoOiBVUE1DOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVLRyBvciBFQ0cpOyBbY2l0ZWQgMjAxOCBOb3YgM107IFthYm91dCA0IHNjcmVlbnNdLiBBdmFpbGFibGUgZnJvbTogPGEgaHJlZj0iaHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnPC9hPjwvbGk+Cjwvb2w+"
+            }
+        },
+        {
+            "id": "binary1",
+            "resource": {
+                "resourceType": "Binary",
+                "id": "binary1",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-07T08:46:41.634Z",
+                    "source": "https://connect.medlineplus.gov/service",
+                    "security": [
+                        {
+                            "id": "34cb1d73-f93b-54c8-89a1-c0a6f8aa9acd",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client1"
+                        },
+                        {
+                            "id": "d5ff7087-77ef-546b-8b12-05c74cec6b87",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client1"
+                        },
+                        {
+                            "id": "171f7c10-fa66-5272-91c5-6353567641e4",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client1"
+                        }
+                    ]
+                },
+                "contentType": "text/html",
+                "data": "PGgyPldoYXQgaXMgYW4gZWxlY3Ryb2NhcmRpb2dyYW0gKEVLRykgdGVzdD88L2gyPjxwPkFuIGVsZWN0cm9jYXJkaW9ncmFtIChFS0cpIHRlc3QgaXMgYSBzaW1wbGUsIHBhaW5sZXNzIHByb2NlZHVyZSB0aGF0IG1lYXN1cmVzIGVsZWN0cmljYWwgc2lnbmFscyBpbiB5b3VyIGhlYXJ0LiBFYWNoIHRpbWUgeW91ciBoZWFydCBiZWF0cywgYW4gZWxlY3RyaWNhbCBzaWduYWwgdHJhdmVscyB0aHJvdWdoIHRoZSBoZWFydC4gQW4gRUtHIGNhbiBzaG93IGlmIHlvdXIgaGVhcnQgaXMgYmVhdGluZyBhdCBhIG5vcm1hbCByYXRlIGFuZCBzdHJlbmd0aC4gSXQgYWxzbyBoZWxwcyBzaG93IHRoZSBzaXplIGFuZCBwb3NpdGlvbiBvZiB5b3VyIGhlYXJ0J3MgY2hhbWJlcnMuIEFuIGFibm9ybWFsIEVLRyBjYW4gYmUgYSBzaWduIG9mIDxhIGRhdGEtdGlkPSIyNzciIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2hlYXJ0ZGlzZWFzZXMuaHRtbCI+aGVhcnQgZGlzZWFzZTwvYT4gb3IgZGFtYWdlLjwvcD48cD5PdGhlciBuYW1lczogRUNHIHRlc3Q8L3A+PGgyPldoYXQgaXMgaXQgdXNlZCBmb3I/PC9oMj48cD5BbiBFS0cgdGVzdCBpcyB1c2VkIHRvIGZpbmQgYW5kL29yIG1vbml0b3IgdmFyaW91cyBoZWFydCBkaXNvcmRlcnMuIFRoZXNlIGluY2x1ZGU6PC9wPjx1bD48bGk+SXJyZWd1bGFyIGhlYXJ0YmVhdCAoa25vd24gYXMgPGEgZGF0YS10aWQ9IjE0NyIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvYXJyaHl0aG1pYS5odG1sIj5hcnJoeXRobWlhPC9hPik8L2xpPjxsaT5CbG9ja2VkIGFydGVyaWVzPC9saT48bGk+SGVhcnQgZGFtYWdlPC9saT48bGk+PGEgZGF0YS10aWQ9IjE5OSIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvaGVhcnRmYWlsdXJlLmh0bWwiPkhlYXJ0IGZhaWx1cmU8L2E+PC9saT48bGk+PGEgZGF0YS10aWQ9IjUiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2hlYXJ0YXR0YWNrLmh0bWwiPkhlYXJ0IGF0dGFjazwvYT4uIEVLR3MgYXJlIG9mdGVuIHVzZWQgaW4gdGhlIGFtYnVsYW5jZSwgZW1lcmdlbmN5IHJvb20sIG9yIG90aGVyIGhvc3BpdGFsIHJvb20gdG8gZGlhZ25vc2UgYSBzdXNwZWN0ZWQgaGVhcnQgYXR0YWNrLjwvbGk+PC91bD48cD5BbiBFS0cgdGVzdCBpcyBzb21ldGltZXMgaW5jbHVkZWQgaW4gYSByb3V0aW5lIGV4YW0gZm9yIG1pZGRsZS1hZ2VkIGFuZCBvbGRlciBhZHVsdHMsIGFzIHRoZXkgaGF2ZSBhIGhpZ2hlciByaXNrIG9mIGhlYXJ0IGRpc2Vhc2UgdGhhbiB5b3VuZ2VyIHBlb3BsZS48L3A+PGgyPldoeSBkbyBJIG5lZWQgYW4gRUtHIHRlc3Q/PC9oMj48cD5Zb3UgbWF5IG5lZWQgYW4gRUtHIHRlc3QgaWYgeW91IGhhdmUgc3ltcHRvbXMgb2YgYSBoZWFydCBkaXNvcmRlci4gVGhlc2UgaW5jbHVkZTo8L3A+PHVsPjxsaT48YSBkYXRhLXRpZD0iNDc0NCIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvY2hlc3RwYWluLmh0bWwiPkNoZXN0IHBhaW48L2E+PC9saT48bGk+UmFwaWQgaGVhcnRiZWF0PC9saT48bGk+QXJyaHl0aG1pYSAoaXQgbWF5IGZlZWwgbGlrZSB5b3VyIGhlYXJ0IGhhcyBza2lwcGVkIGEgYmVhdCBvciBpcyBmbHV0dGVyaW5nKTwvbGk+PGxpPjxhIGRhdGEtdGlkPSIzMDc3IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9icmVhdGhpbmdwcm9ibGVtcy5odG1sIj5TaG9ydG5lc3Mgb2YgYnJlYXRoPC9hPjwvbGk+PGxpPjxhIGRhdGEtdGlkPSIyMTYiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L2RpenppbmVzc2FuZHZlcnRpZ28uaHRtbCI+RGl6emluZXNzPC9hPjwvbGk+PGxpPjxhIGRhdGEtdGlkPSI1MzI0IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9mYXRpZ3VlLmh0bWwiPkZhdGlndWU8L2E+PC9saT48L3VsPjxwPllvdSBtYXkgYWxzbyBuZWVkIHRoaXMgdGVzdCBpZiB5b3U6PC9wPjx1bD48bGk+SGF2ZSBoYWQgYSBoZWFydCBhdHRhY2sgb3Igb3RoZXIgaGVhcnQgcHJvYmxlbXMgaW4gdGhlIHBhc3Q8L2xpPjxsaT5IYXZlIGEgZmFtaWx5IGhpc3Rvcnkgb2YgaGVhcnQgZGlzZWFzZTwvbGk+PGxpPkFyZSBzY2hlZHVsZWQgZm9yIDxhIGRhdGEtdGlkPSI0MjYiIGhyZWY9Imh0dHBzOi8vbWVkbGluZXBsdXMuZ292L3N1cmdlcnkuaHRtbCI+c3VyZ2VyeTwvYT4uIFlvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIgbWF5IHdhbnQgdG8gY2hlY2sgeW91ciBoZWFydCBoZWFsdGggYmVmb3JlIHRoZSBwcm9jZWR1cmUuPC9saT48bGk+SGF2ZSBhIDxhIGRhdGEtdGlkPSIzNDQ3IiBocmVmPSJodHRwczovL21lZGxpbmVwbHVzLmdvdi9wYWNlbWFrZXJzYW5kaW1wbGFudGFibGVkZWZpYnJpbGxhdG9ycy5odG1sIj5wYWNlbWFrZXI8L2E+LiBUaGUgRUtHIGNhbiBzaG93IGhvdyB3ZWxsIHRoZSBkZXZpY2UgaXMgd29ya2luZy48L2xpPjxsaT5BcmUgdGFraW5nIG1lZGljaW5lIGZvciBoZWFydCBkaXNlYXNlLiBUaGUgRUtHIGNhbiBzaG93IGlmIHlvdXIgbWVkaWNpbmUgaXMgZWZmZWN0aXZlLCBvciBpZiB5b3UgbmVlZCB0byBtYWtlIGNoYW5nZXMgaW4geW91ciB0cmVhdG1lbnQuPC9saT48L3VsPjxoMj5XaGF0IGhhcHBlbnMgZHVyaW5nIGFuIEVLRyB0ZXN0PzwvaDI+PHA+QW4gRUtHIHRlc3QgbWF5IGJlIGRvbmUgaW4gYSBwcm92aWRlcidzIG9mZmljZSwgb3V0cGF0aWVudCBjbGluaWMsIG9yIGEgaG9zcGl0YWwuIER1cmluZyB0aGUgcHJvY2VkdXJlOjwvcD48dWw+PGxpPllvdSB3aWxsIGxpZSBvbiBhbiBleGFtIHRhYmxlLjwvbGk+PGxpPkEgaGVhbHRoIGNhcmUgcHJvdmlkZXIgd2lsbCBwbGFjZSBzZXZlcmFsIGVsZWN0cm9kZXMgKHNtYWxsIHNlbnNvcnMgdGhhdCBzdGljayB0byB0aGUgc2tpbikgb24geW91ciBhcm1zLCBsZWdzLCBhbmQgY2hlc3QuIFRoZSBwcm92aWRlciBtYXkgbmVlZCB0byBzaGF2ZSBvciB0cmltIGV4Y2VzcyBoYWlyIGJlZm9yZSBwbGFjaW5nIHRoZSBlbGVjdHJvZGVzLjwvbGk+PGxpPlRoZSBlbGVjdHJvZGVzIGFyZSBhdHRhY2hlZCBieSB3aXJlcyB0byBhIGNvbXB1dGVyIHRoYXQgcmVjb3JkcyB5b3VyIGhlYXJ0J3MgZWxlY3RyaWNhbCBhY3Rpdml0eS48L2xpPjxsaT5UaGUgYWN0aXZpdHkgd2lsbCBiZSBkaXNwbGF5ZWQgb24gdGhlIGNvbXB1dGVyJ3MgbW9uaXRvciBhbmQvb3IgcHJpbnRlZCBvdXQgb24gcGFwZXIuPC9saT48bGk+VGhlIHByb2NlZHVyZSBvbmx5IHRha2VzIGFib3V0IHRocmVlIG1pbnV0ZXMuPC9saT48L3VsPjxoMj5XaWxsIEkgbmVlZCB0byBkbyBhbnl0aGluZyB0byBwcmVwYXJlIGZvciB0aGUgdGVzdD88L2gyPjxwPllvdSBkb24ndCBuZWVkIGFueSBzcGVjaWFsIHByZXBhcmF0aW9ucyBmb3IgYW4gRUtHIHRlc3QuPC9wPjxoMj5BcmUgdGhlcmUgYW55IHJpc2tzIHRvIHRoZSB0ZXN0PzwvaDI+PHA+VGhlcmUgaXMgdmVyeSBsaXR0bGUgcmlzayB0byBoYXZpbmcgYW4gRUtHLiBZb3UgbWF5IGZlZWwgYSBsaXR0bGUgZGlzY29tZm9ydCBvciBza2luIGlycml0YXRpb24gYWZ0ZXIgdGhlIGVsZWN0cm9kZXMgYXJlIHJlbW92ZWQuIFRoZXJlIGlzIG5vIHJpc2sgb2YgZWxlY3RyaWMgc2hvY2suIFRoZSBFS0cgZG9lc24ndCBzZW5kIGFueSBlbGVjdHJpY2l0eSB0byB5b3VyIGJvZHkuIEl0IG9ubHkgPGVtPnJlY29yZHM8L2VtPiBlbGVjdHJpY2l0eS48L3A+PGgyPldoYXQgZG8gdGhlIHJlc3VsdHMgbWVhbj88L2gyPjxwPllvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIgd2lsbCBjaGVjayB5b3VyIEVLRyByZXN1bHRzIGZvciBhIGNvbnNpc3RlbnQgaGVhcnRiZWF0IGFuZCByaHl0aG0uIElmIHlvdXIgcmVzdWx0cyB3ZXJlIG5vdCBub3JtYWwsIGl0IG1heSBtZWFuIHlvdSBoYXZlIG9uZSBvZiB0aGUgZm9sbG93aW5nIGRpc29yZGVyczo8L3A+PHVsPjxsaT5BcnJoeXRobWlhPC9saT48bGk+QSBoZWFydGJlYXQgdGhhdCBpcyB0b28gZmFzdCBvciB0b28gc2xvdzwvbGk+PGxpPkluYWRlcXVhdGUgYmxvb2Qgc3VwcGx5IHRvIHRoZSBoZWFydDwvbGk+PGxpPkEgYnVsZ2UgaW4gdGhlIGhlYXJ0J3Mgd2FsbHMuIFRoaXMgYnVsZ2UgaXMga25vd24gYXMgYW4gPGEgZGF0YS10aWQ9IjE0MSIgaHJlZj0iaHR0cHM6Ly9tZWRsaW5lcGx1cy5nb3YvYW5ldXJ5c21zLmh0bWwiPmFuZXVyeXNtPC9hPi48L2xpPjxsaT5UaGlja2VuaW5nIG9mIHRoZSBoZWFydCdzIHdhbGxzPC9saT48bGk+QSBoZWFydCBhdHRhY2sgKFJlc3VsdHMgY2FuIHNob3cgaWYgeW91J3ZlIGhhZCBhIGhlYXJ0IGF0dGFjayBpbiB0aGUgcGFzdCBvciBpZiB5b3UgYXJlIGhhdmluZyBhbiBhdHRhY2sgZHVyaW5nIHRoZSBFS0cuKTwvbGk+PC91bD48cD5JZiB5b3UgaGF2ZSBxdWVzdGlvbnMgYWJvdXQgeW91ciByZXN1bHRzLCB0YWxrIHRvIHlvdXIgaGVhbHRoIGNhcmUgcHJvdmlkZXIuPC9wPjxoMj5FS0cgdnMgRUNHPzwvaDI+PHA+QW4gZWxlY3Ryb2NhcmRpb2dyYW0gbWF5IGJlIGNhbGxlZCBhbiBFS0cgb3IgYW4gRUNHLiBCb3RoIGFyZSBjb3JyZWN0IGFuZCBjb21tb25seSB1c2VkLiBFS0cgaXMgYmFzZWQgb24gdGhlIEdlcm1hbiBzcGVsbGluZywgZWxla3Ryb2thcmRpb2dyYW1tLiBFS0cgbWF5IGJlIHByZWZlcnJlZCBvdmVyIEVDRyB0byBhdm9pZCBjb25mdXNpb24gd2l0aCBhbiBFRUcsIGEgdGVzdCB0aGF0IG1lYXN1cmVzIGJyYWluIHdhdmVzLjwvcD48aDI+UmVmZXJlbmNlczwvaDI+CjxvbD4KPGxpPkFtZXJpY2FuIEhlYXJ0IEFzc29jaWF0aW9uIFtJbnRlcm5ldF0uIERhbGxhcyAoVFgpOiBBbWVyaWNhbiBIZWFydCBBc3NvY2lhdGlvbiBJbmMuOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVDRyBvciBFS0cpOyBbY2l0ZWQgMjAxOCBOb3YgM107IFthYm91dCA0IHNjcmVlbnNdLiBBdmFpbGFibGUgZnJvbTogPGEgaHJlZj0iaHR0cDovL3d3dy5oZWFydC5vcmcvZW4vaGVhbHRoLXRvcGljcy9oZWFydC1hdHRhY2svZGlhZ25vc2luZy1hLWhlYXJ0LWF0dGFjay9lbGVjdHJvY2FyZGlvZ3JhbS1lY2ctb3ItZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5oZWFydC5vcmcvZW4vaGVhbHRoLXRvcGljcy9oZWFydC1hdHRhY2svZGlhZ25vc2luZy1hLWhlYXJ0LWF0dGFjay9lbGVjdHJvY2FyZGlvZ3JhbS1lY2ctb3ItZWtnPC9hPjwvbGk+CjxsaT5DaHJpc3RpYW5hIENhcmUgSGVhbHRoIFN5c3RlbSBbSW50ZXJuZXRdLiBXaWxtaW5ndG9uIChERSk6IENocmlzdGlhbmEgQ2FyZSBIZWFsdGggU3lzdGVtOyBFS0c7IFtjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDQgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL2NocmlzdGlhbmFjYXJlLm9yZy9zZXJ2aWNlcy9oZWFydC9jYXJkaW92YXNjdWxhcmltYWdpbmcvZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cHM6Ly9jaHJpc3RpYW5hY2FyZS5vcmcvc2VydmljZXMvaGVhcnQvY2FyZGlvdmFzY3VsYXJpbWFnaW5nL2VrZzwvYT48L2xpPgo8bGk+S2lkc0hlYWx0aCBmcm9tIE5lbW91cnMgW0ludGVybmV0XS4gVGhlIE5lbW91cnMgRm91bmRhdGlvbjsgYzE5OTXigJMyMDE4LiBFQ0cgKEVsZWN0cm9jYXJkaW9ncmFtKTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8va2lkc2hlYWx0aC5vcmcvZW4vcGFyZW50cy9la2cuaHRtbCIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8va2lkc2hlYWx0aC5vcmcvZW4vcGFyZW50cy9la2cuaHRtbDwvYT48L2xpPgo8bGk+TWF5byBDbGluaWMgW0ludGVybmV0XS4gTWF5byBGb3VuZGF0aW9uIGZvciBNZWRpY2FsIEVkdWNhdGlvbiBhbmQgUmVzZWFyY2g7IGMxOTk44oCTMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVDRyBvciBFS0cpOiBBYm91dDsgMjAxOCBNYXkgMTkgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMyBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3Lm1heW9jbGluaWMub3JnL3Rlc3RzLXByb2NlZHVyZXMvZWtnL2Fib3V0L3BhYy0yMDM4NDk4MyIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vd3d3Lm1heW9jbGluaWMub3JnL3Rlc3RzLXByb2NlZHVyZXMvZWtnL2Fib3V0L3BhYy0yMDM4NDk4MzwvYT48L2xpPgo8bGk+TWVyY2sgTWFudWFsIENvbnN1bWVyIFZlcnNpb24gW0ludGVybmV0XS4gS2VuaWx3b3J0aCAoTkopOiBNZXJjayAmYW1wOyBDby4sIEluYy47IGMyMDE4LiBFbGVjdHJvY2FyZGlvZ3JhcGh5IChFQ0c7IEVLRyk7IFtjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDIgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL3d3dy5tZXJja21hbnVhbHMuY29tL2hvbWUvaGVhcnQtYW5kLWJsb29kLXZlc3NlbC1kaXNvcmRlcnMvZGlhZ25vc2lzLW9mLWhlYXJ0LWFuZC1ibG9vZC12ZXNzZWwtZGlzb3JkZXJzL2VsZWN0cm9jYXJkaW9ncmFwaHkiIHRhcmdldD0iYmlibGlvd2luIj5odHRwczovL3d3dy5tZXJja21hbnVhbHMuY29tL2hvbWUvaGVhcnQtYW5kLWJsb29kLXZlc3NlbC1kaXNvcmRlcnMvZGlhZ25vc2lzLW9mLWhlYXJ0LWFuZC1ibG9vZC12ZXNzZWwtZGlzb3JkZXJzL2VsZWN0cm9jYXJkaW9ncmFwaHk8L2E+PC9saT4KPGxpPk5hdGlvbmFsIEhlYXJ0LCBMdW5nLCBhbmQgQmxvb2QgSW5zdGl0dXRlIFtJbnRlcm5ldF0uIEJldGhlc2RhIChNRCk6IFUuUy4gRGVwYXJ0bWVudCBvZiBIZWFsdGggYW5kIEh1bWFuIFNlcnZpY2VzOyBFbGVjdHJvY2FyZGlvZ3JhbTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3Lm5obGJpLm5paC5nb3YvaGVhbHRoLXRvcGljcy9lbGVjdHJvY2FyZGlvZ3JhbSIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vd3d3Lm5obGJpLm5paC5nb3YvaGVhbHRoLXRvcGljcy9lbGVjdHJvY2FyZGlvZ3JhbTwvYT48L2xpPgo8bGk+U2Vjb25kcyBDb3VudCBbSW50ZXJuZXRdLiBXYXNoaW5ndG9uIEQuQy46IFRoZSBTb2NpZXR5IGZvciBDYXJkaW92YXNjdWxhciBBbmdpb2dyYXBoeSBhbmQgSW50ZXJ2ZW50aW9uczsgRGlhZ25vc2luZyBhIEhlYXJ0IEF0dGFjazsgMjAxNCBOb3YgNCBbY2l0ZWQgMjAxOCBOb3YgMTVdOyBbYWJvdXQgMyBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHA6Ly93d3cuc2Vjb25kc2NvdW50Lm9yZy9oZWFydC1jb25kaXRpb24tY2VudGVycy9pbmZvLWRldGFpbC0yL2RpYWdub3NpbmctaGVhcnQtYXR0YWNrIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5zZWNvbmRzY291bnQub3JnL2hlYXJ0LWNvbmRpdGlvbi1jZW50ZXJzL2luZm8tZGV0YWlsLTIvZGlhZ25vc2luZy1oZWFydC1hdHRhY2s8L2E+PC9saT4KPGxpPlVGIEhlYWx0aDogVW5pdmVyc2l0eSBvZiBGbG9yaWRhIEhlYWx0aCBbSW50ZXJuZXRdLiBHYWluZXN2aWxsZSAoRkwpOiBVbml2ZXJzaXR5IG9mIEZsb3JpZGEgSGVhbHRoOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW06IE92ZXJ2aWV3OyBbdXBkYXRlZCAyMDE4IE5vdiAyOyBjaXRlZCAyMDE4IE5vdiAzXTsgW2Fib3V0IDIgc2NyZWVuc10uIEF2YWlsYWJsZSBmcm9tOiA8YSBocmVmPSJodHRwczovL3VmaGVhbHRoLm9yZy9lbGVjdHJvY2FyZGlvZ3JhbSIgdGFyZ2V0PSJiaWJsaW93aW4iPmh0dHBzOi8vdWZoZWFsdGgub3JnL2VsZWN0cm9jYXJkaW9ncmFtPC9hPjwvbGk+CjxsaT5Vbml2ZXJzaXR5IG9mIFJvY2hlc3RlciBNZWRpY2FsIENlbnRlciBbSW50ZXJuZXRdLiBSb2NoZXN0ZXIgKE5ZKTogVW5pdmVyc2l0eSBvZiBSb2NoZXN0ZXIgTWVkaWNhbCBDZW50ZXI7IGMyMDE4LiBIZWFsdGggRW5jeWNsb3BlZGlhOiBFbGVjdHJvY2FyZGlvZ3JhbTsgW2NpdGVkIDIwMTggTm92IDNdOyBbYWJvdXQgMiBzY3JlZW5zXS4gQXZhaWxhYmxlIGZyb206IDxhIGhyZWY9Imh0dHBzOi8vd3d3LnVybWMucm9jaGVzdGVyLmVkdS9lbmN5Y2xvcGVkaWEvY29udGVudC5hc3B4P2NvbnRlbnR0eXBlaWQ9OTImYW1wO2NvbnRlbnRpZD1QMDc5NzAiIHRhcmdldD0iYmlibGlvd2luIj5odHRwczovL3d3dy51cm1jLnJvY2hlc3Rlci5lZHUvZW5jeWNsb3BlZGlhL2NvbnRlbnQuYXNweD9jb250ZW50dHlwZWlkPTkyJmFtcDtjb250ZW50aWQ9UDA3OTcwPC9hPjwvbGk+CjxsaT5VUE1DIENoaWxkcmVuJ3MgSG9zcGl0YWwgb2YgUGl0dHNidXJnaCBbSW50ZXJuZXRdLiBQaXR0c2J1cmdoOiBVUE1DOyBjMjAxOC4gRWxlY3Ryb2NhcmRpb2dyYW0gKEVLRyBvciBFQ0cpOyBbY2l0ZWQgMjAxOCBOb3YgM107IFthYm91dCA0IHNjcmVlbnNdLiBBdmFpbGFibGUgZnJvbTogPGEgaHJlZj0iaHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnIiB0YXJnZXQ9ImJpYmxpb3dpbiI+aHR0cDovL3d3dy5jaHAuZWR1L291ci1zZXJ2aWNlcy9oZWFydC9wYXRpZW50LXByb2NlZHVyZXMvZWtnPC9hPjwvbGk+Cjwvb2w+"
+            }
+        },
+        {
+            "id": "9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+            "resource": {
+                "address": {
+                    "use": "work",
+                    "type": "physical",
+                    "line": [
+                        "1940 Elmer J Bissell Rd"
+                    ],
+                    "city": "Birmingham",
+                    "state": "AL",
+                    "postalCode": "35243"
+                },
+                "id": "9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                    }
+                ],
+                "managingOrganization": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell"
+                        }
+                    ],
+                    "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                },
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:04.774Z",
+                    "source": "https://www.foo.com",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell"
+                        }
+                    ]
+                },
+                "name": "Elise D. Agostinelli, OD",
+                "position": {
+                    "longitude": -86.76238,
+                    "latitude": 33.41329
+                },
+                "resourceType": "Location",
+                "status": "active",
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "2056384938",
+                        "use": "work",
+                        "rank": 1
+                    },
+                    {
+                        "system": "fax",
+                        "value": "2056385899",
+                        "use": "work",
+                        "rank": 2
+                    }
+                ]
+            }
+        },
+        {
+            "id": "135bd32b-f8fe-47c0-98aa-ea6f7d15af6a",
+            "resource": {
+                "active": true,
+                "communication": [
+                    {
+                        "coding": [
+                            {
+                                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                                "system": "urn:ietf:bcp:47",
+                                "code": "en"
+                            }
+                        ]
+                    }
+                ],
+                "gender": "unknown",
+                "id": "135bd32b-f8fe-47c0-98aa-ea6f7d15af6a",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "135bd32b-f8fe-47c0-98aa-ea6f7d15af6a"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "135bd32b-f8fe-47c0-98aa-ea6f7d15af6a"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:02.903Z",
+                    "source": "client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "SAMER S. NAJJAR  MD",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    },
+                    {
+                        "use": "usual",
+                        "text": "NAJJAR  MD, SAMER S.",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    }
+                ],
+                "qualification": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        },
+                        "period": {
+                            "start": "1960-01-01",
+                            "end": "2021-12-11"
+                        },
+                        "issuer": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "client"
+                                }
+                            ],
+                            "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        }
+                    }
+                ],
+                "resourceType": "Practitioner",
+                "telecom": [
+                    {
+                        "system": "email",
+                        "value": "foo@foo.com",
+                        "use": "work"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "a699b172-996a-48f2-9f52-ab3e34c88d28",
+            "resource": {
+                "active": true,
+                "communication": [
+                    {
+                        "coding": [
+                            {
+                                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                                "system": "urn:ietf:bcp:47",
+                                "code": "en"
+                            }
+                        ]
+                    }
+                ],
+                "gender": "unknown",
+                "id": "a699b172-996a-48f2-9f52-ab3e34c88d28",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "a699b172-996a-48f2-9f52-ab3e34c88d28"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "a699b172-996a-48f2-9f52-ab3e34c88d28"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:02.903Z",
+                    "source": "client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "SAMER S. NAJJAR  MD",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    },
+                    {
+                        "use": "usual",
+                        "text": "NAJJAR  MD, SAMER S.",
+                        "family": "NAJJAR  MD",
+                        "given": [
+                            "SAMER S."
+                        ]
+                    }
+                ],
+                "qualification": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c80483dd-19aa-5e37-a22c-9ca194885571",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                                    "code": "MD"
+                                }
+                            ]
+                        },
+                        "period": {
+                            "start": "1960-01-01",
+                            "end": "2021-12-11"
+                        },
+                        "issuer": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "client"
+                                }
+                            ],
+                            "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        }
+                    }
+                ],
+                "resourceType": "Practitioner",
+                "telecom": [
+                    {
+                        "system": "email",
+                        "value": "foo@foo.com",
+                        "use": "work"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "8143ac7d-ad11-4349-9a3f-da93faae0eae",
+            "resource": {
+                "active": true,
+                "id": "8143ac7d-ad11-4349-9a3f-da93faae0eae",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                    }
+                ],
+                "location": [
+                    {
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "client"
+                            }
+                        ],
+                        "reference": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+                        "display": "Primary Care Clinic"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:05.119Z",
+                    "source": "client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "organization": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc",
+                    "display": "Primary Care Medical Group"
+                },
+                "practitioner": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28",
+                    "display": "Dr. Susan Jane"
+                },
+                "resourceType": "PractitionerRole",
+                "specialty": [
+                    {
+                        "coding": [
+                            {
+                                "id": "898bb050-d8e5-50e3-9660-a44ef57d9782",
+                                "system": "http://snomed.info/sct",
+                                "code": "419772000",
+                                "display": "Family practice"
+                            }
+                        ],
+                        "text": "Family Medicine"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "9ec009e4-28f7-4958-86da-256fe0f67c75",
+            "resource": {
+                "active": true,
+                "id": "9ec009e4-28f7-4958-86da-256fe0f67c75",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "9ec009e4-28f7-4958-86da-256fe0f67c75"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "9ec009e4-28f7-4958-86da-256fe0f67c75"
+                    }
+                ],
+                "location": [
+                    {
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "client"
+                            }
+                        ],
+                        "reference": "Location/9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+                        "display": "Primary Care Clinic"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:05.120Z",
+                    "source": "client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "organization": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc",
+                    "display": "Primary Care Medical Group"
+                },
+                "practitioner": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Practitioner/135bd32b-f8fe-47c0-98aa-ea6f7d15af6a"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Practitioner/135bd32b-f8fe-47c0-98aa-ea6f7d15af6a"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ],
+                    "reference": "Practitioner/135bd32b-f8fe-47c0-98aa-ea6f7d15af6a",
+                    "display": "Dr. James Smith"
+                },
+                "resourceType": "PractitionerRole",
+                "specialty": [
+                    {
+                        "coding": [
+                            {
+                                "id": "435ade58-eaec-5fe2-97ca-ec299fa5fe45",
+                                "system": "http://snomed.info/sct",
+                                "code": "394814009",
+                                "display": "General practice"
+                            }
+                        ],
+                        "text": "General Medicine"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "58502df6-19f1-4c47-b391-6efd5728e2c7",
+            "resource": {
+                "asserter": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75",
+                    "display": "Dr. Susan Jane"
+                },
+                "bodySite": [
+                    {
+                        "coding": [
+                            {
+                                "id": "3201cdbb-6929-585b-9694-0dc84fe84b6c",
+                                "system": "http://snomed.info/sct",
+                                "code": "82169009",
+                                "display": "Right knee joint structure"
+                            }
+                        ],
+                        "text": "Right knee"
+                    }
+                ],
+                "category": {
+                    "coding": [
+                        {
+                            "id": "1fdfaaaa-402a-538f-84dd-c21d25c226f5",
+                            "system": "http://terminology.hl7.org/CodeSystem/procedure-category",
+                            "code": "surgical",
+                            "display": "Surgical Operation"
+                        }
+                    ],
+                    "text": "Surgical Operation"
+                },
+                "code": {
+                    "coding": [
+                        {
+                            "id": "f6027072-072e-5685-b571-a5c8133d5cac",
+                            "system": "http://snomed.info/sct",
+                            "code": "72651009",
+                            "display": "Arthroscopy of knee"
+                        }
+                    ],
+                    "text": "Knee Arthroscopy"
+                },
+                "id": "58502df6-19f1-4c47-b391-6efd5728e2c7",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "58502df6-19f1-4c47-b391-6efd5728e2c7"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "58502df6-19f1-4c47-b391-6efd5728e2c7"
+                    }
+                ],
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-04-16T16:17:04.560Z",
+                    "source": "healthsystem1",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "note": [
+                    {
+                        "time": "2023-06-15T10:30:00+00:00",
+                        "text": "Arthroscopic procedure completed successfully. Meniscus repair performed with no complications."
+                    }
+                ],
+                "outcome": {
+                    "coding": [
+                        {
+                            "id": "20f8ad3b-6007-5b20-9064-1ab2af6a9a39",
+                            "system": "http://terminology.hl7.org/CodeSystem/procedure-outcome",
+                            "code": "successful",
+                            "display": "Successful"
+                        }
+                    ],
+                    "text": "Procedure completed successfully without complications"
+                },
+                "performedPeriod": {
+                    "start": "2023-06-15T09:00:00+00:00",
+                    "end": "2023-06-15T10:30:00+00:00"
+                },
+                "performer": [
+                    {
+                        "actor": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "healthsystem1"
+                                }
+                            ],
+                            "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+                            "display": "Dr. James Smith"
+                        }
+                    }
+                ],
+                "reasonCode": [
+                    {
+                        "coding": [
+                            {
+                                "id": "715bba65-cc11-53f8-ae10-4898e6901d9a",
+                                "system": "http://snomed.info/sct",
+                                "code": "239720000",
+                                "display": "Tear of meniscus of knee"
+                            }
+                        ],
+                        "text": "Meniscus tear"
+                    }
+                ],
+                "recorder": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+                    "display": "Dr. Susan Jane"
+                },
+                "resourceType": "Procedure",
+                "status": "completed",
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ],
+                    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044",
+                    "display": "Test Patient"
+                },
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Knee Arthroscopy</div>"
+                }
+            }
+        }
+    ],
+    "type": "searchset",
+    "timestamp": "2025-04-04T11:11:12.1212Z",
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://127.0.0.1:57672/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1"
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 22,
+    "id": "84b012da-a82b-4b54-a1b4-7f56ad071bfa",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'$and':[{'_sourceId':'patient1'},{'_uuid':{'$in':['person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc','24a5930e-11b4-5525-b482-669174917044']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {'_id':0})  | db.Account_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.AdverseEvent_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.AllergyIntolerance_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Appointment_4_0_0.find({'participant.actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.AppointmentResponse_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Basic_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.BodyStructure_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.CarePlan_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.CareTeam_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ChargeItem_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Claim_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ClaimResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ClinicalImpression_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Communication_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.CommunicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Composition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Condition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Consent_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Contract_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Coverage_4_0_0.find({'beneficiary._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.CoverageEligibilityRequest_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.CoverageEligibilityResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DetectedIssue_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Device_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DeviceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DeviceUseStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DiagnosticReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DocumentManifest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.DocumentReference_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Encounter_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.EnrollmentRequest_4_0_0.find({'candidate._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.EpisodeOfCare_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ExplanationOfBenefit_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.FamilyMemberHistory_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Flag_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Goal_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Group_4_0_0.find({'member.entity._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.GuidanceResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ImagingStudy_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Immunization_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ImmunizationEvaluation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ImmunizationRecommendation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Invoice_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Linkage_4_0_0.find({'item.resource._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.List_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MeasureReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Media_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MedicationAdministration_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MedicationDispense_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MedicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MedicationStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.MolecularSequence_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.NutritionOrder_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Observation_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Patient_4_0_0.find({'link.other._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.PaymentNotice_4_0_0.find({'request._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Person_4_0_0.find({'link.target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Procedure_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Provenance_4_0_0.find({'target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.QuestionnaireResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.RelatedPerson_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.RequestGroup_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ResearchSubject_4_0_0.find({'individual._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.RiskAssessment_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Schedule_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.ServiceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Specimen_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Subscription_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'5f3ca115-8630-5e55-a97d-4d6ee26c0adc'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {}) | db.SubscriptionStatus_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'5f3ca115-8630-5e55-a97d-4d6ee26c0adc'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {}) | db.SubscriptionTopic_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/client_person_id','value':'5f3ca115-8630-5e55-a97d-4d6ee26c0adc'}}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'patient1'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'healthsystem1'}}}]}, {}) | db.SupplyDelivery_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.SupplyRequest_4_0_0.find({'requester._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Task_4_0_0.find({'for._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.VisionPrescription_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044','$and':[{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}) | db.Organization_4_0_0.find({'_uuid':'214ca533-fb96-562d-824d-3aca1406f3fb'}, {}) | db.Medication_4_0_0.find({'_uuid':'b0e0113d-23a0-5742-a054-c8afe008010b'}, {}) | db.Practitioner_4_0_0.find({'_uuid':'aa8a8ff8-af25-5878-8cf3-bc74227d44dd'}, {}) | db.Binary_4_0_0.find({'_sourceId':{'$in':['binary1','binary2']}}, {}) | db.PaymentReconciliation_4_0_0.find({'_uuid':'d45e43c6-170f-52e1-a157-692ee5c9704b'}, {}) | db.PractitionerRole_4_0_0.find({'_uuid':{'$in':['8143ac7d-ad11-4349-9a3f-da93faae0eae','9ec009e4-28f7-4958-86da-256fe0f67c75']}}, {}) | db.Organization_4_0_0.find({'_uuid':'d187d5ce-f842-5e13-a4db-961d8e728ebc'}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['a699b172-996a-48f2-9f52-ab3e34c88d28','135bd32b-f8fe-47c0-98aa-ea6f7d15af6a']}}, {}) | db.Location_4_0_0.find({'_uuid':'9c1e9c7f-959b-4a53-892a-2760cfd760bf'}, {}) | db.Organization_4_0_0.find({'_uuid':{'$in':['d187d5ce-f842-5e13-a4db-961d8e728ebc','7712bd08-fd99-561d-9324-d2fcd41fb009']}}, {})"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0|Account_4_0_0|AdverseEvent_4_0_0|AllergyIntolerance_4_0_0|Appointment_4_0_0|AppointmentResponse_4_0_0|Basic_4_0_0|BodyStructure_4_0_0|CarePlan_4_0_0|CareTeam_4_0_0|ChargeItem_4_0_0|Claim_4_0_0|ClaimResponse_4_0_0|ClinicalImpression_4_0_0|Communication_4_0_0|CommunicationRequest_4_0_0|Composition_4_0_0|Condition_4_0_0|Consent_4_0_0|Contract_4_0_0|Coverage_4_0_0|CoverageEligibilityRequest_4_0_0|CoverageEligibilityResponse_4_0_0|DetectedIssue_4_0_0|Device_4_0_0|DeviceRequest_4_0_0|DeviceUseStatement_4_0_0|DiagnosticReport_4_0_0|DocumentManifest_4_0_0|DocumentReference_4_0_0|Encounter_4_0_0|EnrollmentRequest_4_0_0|EpisodeOfCare_4_0_0|ExplanationOfBenefit_4_0_0|FamilyMemberHistory_4_0_0|Flag_4_0_0|Goal_4_0_0|Group_4_0_0|GuidanceResponse_4_0_0|ImagingStudy_4_0_0|Immunization_4_0_0|ImmunizationEvaluation_4_0_0|ImmunizationRecommendation_4_0_0|Invoice_4_0_0|Linkage_4_0_0|List_4_0_0|MeasureReport_4_0_0|Media_4_0_0|MedicationAdministration_4_0_0|MedicationDispense_4_0_0|MedicationRequest_4_0_0|MedicationStatement_4_0_0|MolecularSequence_4_0_0|NutritionOrder_4_0_0|Observation_4_0_0|Patient_4_0_0|PaymentNotice_4_0_0|Person_4_0_0|Procedure_4_0_0|Provenance_4_0_0|QuestionnaireResponse_4_0_0|RelatedPerson_4_0_0|RequestGroup_4_0_0|ResearchSubject_4_0_0|RiskAssessment_4_0_0|Schedule_4_0_0|ServiceRequest_4_0_0|Specimen_4_0_0|Subscription_4_0_0|SubscriptionStatus_4_0_0|SubscriptionTopic_4_0_0|SupplyDelivery_4_0_0|SupplyRequest_4_0_0|Task_4_0_0|VisionPrescription_4_0_0|Organization_4_0_0|Medication_4_0_0|Practitioner_4_0_0|Binary_4_0_0|PaymentReconciliation_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|Practitioner_4_0_0|Location_4_0_0|Organization_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "[{'projection':{'_id':0}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "[]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.168"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
+}
