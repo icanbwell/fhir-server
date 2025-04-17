@@ -40,7 +40,7 @@ const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const { isUuid } = require('../../utils/uid.util');
-const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
+const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -1151,6 +1151,12 @@ class EverythingHelper {
 
                 if (sendResource) {
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
+
+                    // find references
+                    if (nonClinicalReferenesExtractor) {
+                        await nonClinicalReferenesExtractor.processResource(startResource);
+                    }
+
                     if (
                         responseStreamer &&
                         everythingRelatedResourceManager.allowedToBeSent(
@@ -1187,11 +1193,6 @@ class EverythingHelper {
                     }
 
                     bundleEntryIdsProcessedTracker.add(resourceIdentifier);
-
-                    // find references
-                    if (nonClinicalReferenesExtractor) {
-                        await nonClinicalReferenesExtractor.processResource(startResource);
-                    }
                 }
             }
         }

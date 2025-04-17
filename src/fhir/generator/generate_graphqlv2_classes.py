@@ -12,7 +12,7 @@ from typing import Union, List, Dict, Any
 from fhir_xml_schema_parser import FhirXmlSchemaParser
 from search_parameters import search_parameter_queries
 from fhir_xml_schema_parser import FhirEntity
-from generate_non_clinical_fields import get_clinical_resources_and_filters
+from generate_everything_operation_data import get_clinical_resources_and_filters
 
 # data for applying custom directives to graphql types or fields
 custom_data = {

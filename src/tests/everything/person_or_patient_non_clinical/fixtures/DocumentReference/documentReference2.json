@@ -44,11 +44,24 @@
             ]
         }
     ],
+    "context": {
+        "related": [
+            {
+                "reference": "invalid-collection/123"
+            }
+        ]
+    },
     "content": [
         {
             "attachment": {
               "contentType": "text/html",
               "url": "Binary/binary2"
+            }
+        },
+        {
+            "attachment": {
+              "contentType": "text/html",
+              "url": "AuditEvent/not-accessed"
             }
         }
     ]

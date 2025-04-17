@@ -305,12 +305,12 @@
                         {
                             "id": "sourceId",
                             "url": "https://www.icanbwell.com/sourceId",
-                            "valueString": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28"
+                            "valueString": "Practitioner/prac-source-id"
                         },
                         {
                             "id": "uuid",
                             "url": "https://www.icanbwell.com/uuid",
-                            "valueString": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28"
+                            "valueString": "Practitioner/84602a6c-b92c-5ddc-8844-1a53598c3e42"
                         },
                         {
                             "id": "sourceAssigningAuthority",
@@ -318,7 +318,7 @@
                             "valueString": "client"
                         }
                     ],
-                    "reference": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28",
+                    "reference": "Practitioner/84602a6c-b92c-5ddc-8844-1a53598c3e42",
                     "display": "Dr. Susan Jane"
                 },
                 "resourceType": "PractitionerRole",

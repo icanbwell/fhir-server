@@ -201,7 +201,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         const request = await createTestRequest();
         await createResources(request)
 
-        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole')
+        let resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitionerRoles);

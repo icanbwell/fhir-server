@@ -199,9 +199,9 @@ qodana:
 schema:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_schema.py"
 
-.PHONY:nonClinicalResourceFields
-nonClinicalResourceFields:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_non_clinical_fields.py"
+.PHONY:everythingOperationData
+everythingOperationData:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_everything_operation_data.py"
 
 .PHONY:resourceFieldTypes
 resourceFieldTypes:

@@ -1,0 +1,683 @@
+{
+  "Account": [
+    "subject._uuid",
+    "owner._uuid",
+    "guarantor.party._uuid"
+  ],
+  "ActivityDefinition": [
+    "location._uuid",
+    "productReference._uuid",
+    "specimenRequirement._uuid",
+    "observationRequirement._uuid",
+    "observationResultRequirement._uuid"
+  ],
+  "AdministrableProductDefinition": [
+    "formOf._uuid",
+    "producedFrom._uuid",
+    "device._uuid"
+  ],
+  "AdverseEvent": [
+    "subject._uuid",
+    "location._uuid",
+    "recorder._uuid",
+    "contributor._uuid",
+    "suspectEntity.instance._uuid",
+    "suspectEntity.causality.author._uuid",
+    "study._uuid"
+  ],
+  "AllergyIntolerance": [
+    "recorder._uuid",
+    "asserter._uuid"
+  ],
+  "Appointment": [
+    "supportingInformation._uuid",
+    "slot._uuid",
+    "participant.actor._uuid"
+  ],
+  "AppointmentResponse": [
+    "actor._uuid"
+  ],
+  "AuditEvent": [
+    "agent.who._uuid",
+    "agent.location._uuid",
+    "source.observer._uuid",
+    "entity.what._uuid"
+  ],
+  "Basic": [
+    "subject._uuid",
+    "author._uuid"
+  ],
+  "Binary": [
+    "securityContext._uuid"
+  ],
+  "BiologicallyDerivedProduct": [
+    "collection.collector._uuid",
+    "collection.source._uuid",
+    "processing.additive._uuid"
+  ],
+  "CapabilityStatement": [
+    "implementation.custodian._uuid"
+  ],
+  "CarePlan": [
+    "author._uuid",
+    "contributor._uuid",
+    "supportingInfo._uuid",
+    "activity.outcomeReference._uuid",
+    "activity.detail.location._uuid",
+    "activity.detail.performer._uuid",
+    "activity.detail.productReference._uuid"
+  ],
+  "CareTeam": [
+    "participant.member._uuid",
+    "participant.onBehalfOf._uuid",
+    "managingOrganization._uuid"
+  ],
+  "CatalogEntry": [
+    "referencedItem._uuid",
+    "relatedEntry.item._uuid"
+  ],
+  "ChargeItem": [
+    "performer.actor._uuid",
+    "performingOrganization._uuid",
+    "requestingOrganization._uuid",
+    "costCenter._uuid",
+    "enterer._uuid",
+    "productReference._uuid",
+    "supportingInformation._uuid"
+  ],
+  "ChargeItemDefinition": [
+    "instance._uuid"
+  ],
+  "Citation": [
+    "relatesTo.targetReference._uuid",
+    "citedArtifact.version.baseCitation._uuid",
+    "citedArtifact.part.baseCitation._uuid",
+    "citedArtifact.relatesTo.targetReference._uuid",
+    "citedArtifact.publicationForm.publishedIn.publisher._uuid",
+    "citedArtifact.classification.whoClassified.person._uuid",
+    "citedArtifact.classification.whoClassified.organization._uuid",
+    "citedArtifact.classification.whoClassified.publisher._uuid"
+  ],
+  "Claim": [
+    "enterer._uuid",
+    "insurer._uuid",
+    "provider._uuid",
+    "payee.party._uuid",
+    "facility._uuid",
+    "careTeam.provider._uuid",
+    "supportingInfo.valueReference._uuid",
+    "accident.locationReference._uuid",
+    "item.locationReference._uuid"
+  ],
+  "ClaimResponse": [
+    "insurer._uuid",
+    "requestor._uuid",
+    "addItem.provider._uuid",
+    "addItem.locationReference._uuid"
+  ],
+  "ClinicalImpression": [
+    "assessor._uuid",
+    "supportingInfo._uuid"
+  ],
+  "ClinicalUseDefinition": [
+    "subject._uuid",
+    "contraindication.diseaseSymptomProcedure._uuid",
+    "contraindication.diseaseStatus._uuid",
+    "contraindication.comorbidity._uuid",
+    "contraindication.indication._uuid",
+    "contraindication.otherTherapy.therapy._uuid",
+    "indication.diseaseSymptomProcedure._uuid",
+    "indication.diseaseStatus._uuid",
+    "indication.comorbidity._uuid",
+    "indication.intendedEffect._uuid",
+    "indication.undesirableEffect._uuid",
+    "interaction.interactant.itemReference._uuid",
+    "interaction.effect._uuid",
+    "undesirableEffect.symptomConditionEffect._uuid"
+  ],
+  "Communication": [
+    "basedOn._uuid",
+    "partOf._uuid",
+    "about._uuid",
+    "recipient._uuid",
+    "sender._uuid",
+    "payload.contentReference._uuid"
+  ],
+  "CommunicationRequest": [
+    "basedOn._uuid",
+    "about._uuid",
+    "payload.contentReference._uuid",
+    "requester._uuid",
+    "recipient._uuid",
+    "sender._uuid"
+  ],
+  "Composition": [
+    "subject._uuid",
+    "author._uuid",
+    "attester.party._uuid",
+    "custodian._uuid",
+    "event.detail._uuid",
+    "section.author._uuid",
+    "section.focus._uuid",
+    "section.entry._uuid"
+  ],
+  "Condition": [
+    "recorder._uuid",
+    "asserter._uuid",
+    "evidence.detail._uuid"
+  ],
+  "Consent": [
+    "performer._uuid",
+    "organization._uuid",
+    "provision.actor.reference._uuid",
+    "provision.data.reference._uuid"
+  ],
+  "Contract": [
+    "subject._uuid",
+    "authority._uuid",
+    "domain._uuid",
+    "site._uuid",
+    "author._uuid",
+    "topicReference._uuid",
+    "contentDefinition.publisher._uuid",
+    "term.topicReference._uuid",
+    "term.offer.party.reference._uuid",
+    "term.offer.topic._uuid",
+    "term.offer.answer.valueReference._uuid",
+    "term.asset.typeReference._uuid",
+    "term.asset.context.reference._uuid",
+    "term.asset.valuedItem.entityReference._uuid",
+    "term.asset.valuedItem.responsible._uuid",
+    "term.asset.valuedItem.recipient._uuid",
+    "term.action.subject.reference._uuid",
+    "term.action.requester._uuid",
+    "term.action.performer._uuid",
+    "term.action.reasonReference._uuid",
+    "supportingInfo._uuid",
+    "signer.party._uuid"
+  ],
+  "Coverage": [
+    "policyHolder._uuid",
+    "payor._uuid"
+  ],
+  "CoverageEligibilityRequest": [
+    "enterer._uuid",
+    "provider._uuid",
+    "insurer._uuid",
+    "facility._uuid",
+    "supportingInfo.information._uuid",
+    "item.provider._uuid",
+    "item.facility._uuid",
+    "item.detail._uuid"
+  ],
+  "CoverageEligibilityResponse": [
+    "requestor._uuid",
+    "insurer._uuid",
+    "insurance.item.provider._uuid"
+  ],
+  "DetectedIssue": [
+    "author._uuid",
+    "implicated._uuid",
+    "evidence.detail._uuid",
+    "mitigation.author._uuid"
+  ],
+  "Device": [
+    "definition._uuid",
+    "owner._uuid",
+    "location._uuid"
+  ],
+  "DeviceDefinition": [
+    "manufacturerReference._uuid",
+    "owner._uuid",
+    "parentDevice._uuid"
+  ],
+  "DeviceRequest": [
+    "basedOn._uuid",
+    "priorRequest._uuid",
+    "subject._uuid",
+    "requester._uuid",
+    "performer._uuid",
+    "supportingInfo._uuid"
+  ],
+  "DeviceUseStatement": [
+    "source._uuid"
+  ],
+  "DiagnosticReport": [
+    "subject._uuid",
+    "performer._uuid",
+    "resultsInterpreter._uuid"
+  ],
+  "DocumentManifest": [
+    "subject._uuid",
+    "author._uuid",
+    "recipient._uuid",
+    "content._uuid",
+    "related.ref._uuid"
+  ],
+  "DocumentReference": [
+    "subject._uuid",
+    "author._uuid",
+    "authenticator._uuid",
+    "custodian._uuid",
+    "context.related._uuid",
+    "content.attachment.url"
+  ],
+  "Encounter": [
+    "participant.individual._uuid",
+    "hospitalization.origin._uuid",
+    "hospitalization.destination._uuid",
+    "location.location._uuid",
+    "serviceProvider._uuid"
+  ],
+  "Endpoint": [
+    "managingOrganization._uuid"
+  ],
+  "EnrollmentRequest": [
+    "insurer._uuid",
+    "provider._uuid"
+  ],
+  "EnrollmentResponse": [
+    "organization._uuid",
+    "requestProvider._uuid"
+  ],
+  "EpisodeOfCare": [
+    "managingOrganization._uuid",
+    "careManager._uuid"
+  ],
+  "Evidence": [
+    "citeAsReference._uuid",
+    "variableDefinition.observed._uuid",
+    "variableDefinition.intended._uuid",
+    "statistic.modelCharacteristic.variable.variableDefinition._uuid"
+  ],
+  "EvidenceReport": [
+    "citeAsReference._uuid",
+    "subject.characteristic.valueReference._uuid",
+    "relatesTo.targetReference._uuid",
+    "section.focusReference._uuid",
+    "section.author._uuid",
+    "section.entryReference._uuid"
+  ],
+  "EvidenceVariable": [
+    "characteristic.definitionReference._uuid",
+    "characteristic.device._uuid"
+  ],
+  "ExplanationOfBenefit": [
+    "enterer._uuid",
+    "insurer._uuid",
+    "provider._uuid",
+    "payee.party._uuid",
+    "facility._uuid",
+    "careTeam.provider._uuid",
+    "supportingInfo.valueReference._uuid",
+    "accident.locationReference._uuid",
+    "item.locationReference._uuid",
+    "addItem.provider._uuid",
+    "addItem.locationReference._uuid"
+  ],
+  "Flag": [
+    "subject._uuid",
+    "author._uuid"
+  ],
+  "Goal": [
+    "subject._uuid",
+    "expressedBy._uuid"
+  ],
+  "Group": [
+    "managingEntity._uuid",
+    "member.entity._uuid"
+  ],
+  "GuidanceResponse": [
+    "evaluationMessage._uuid",
+    "outputParameters._uuid"
+  ],
+  "HealthcareService": [
+    "providedBy._uuid",
+    "location._uuid",
+    "coverageArea._uuid",
+    "endpoint._uuid"
+  ],
+  "ImagingStudy": [
+    "referrer._uuid",
+    "interpreter._uuid",
+    "endpoint._uuid",
+    "location._uuid",
+    "series.endpoint._uuid",
+    "series.performer.actor._uuid"
+  ],
+  "Immunization": [
+    "location._uuid",
+    "manufacturer._uuid",
+    "performer.actor._uuid",
+    "protocolApplied.authority._uuid"
+  ],
+  "ImmunizationEvaluation": [
+    "authority._uuid"
+  ],
+  "ImmunizationRecommendation": [
+    "authority._uuid",
+    "recommendation.supportingPatientInformation._uuid"
+  ],
+  "ImplementationGuide": [
+    "definition.resource.reference._uuid",
+    "definition.page.nameReference._uuid",
+    "manifest.resource.reference._uuid"
+  ],
+  "Ingredient": [
+    "for._uuid",
+    "manufacturer.manufacturer._uuid",
+    "substance.code._uuid",
+    "substance.strength.referenceStrength.substance._uuid"
+  ],
+  "InsurancePlan": [
+    "ownedBy._uuid",
+    "administeredBy._uuid",
+    "coverageArea._uuid",
+    "endpoint._uuid",
+    "network._uuid",
+    "coverage.network._uuid",
+    "plan.coverageArea._uuid",
+    "plan.network._uuid"
+  ],
+  "Invoice": [
+    "recipient._uuid",
+    "participant.actor._uuid",
+    "issuer._uuid"
+  ],
+  "Linkage": [
+    "author._uuid",
+    "item.resource._uuid"
+  ],
+  "List": [
+    "subject._uuid",
+    "source._uuid",
+    "entry.item._uuid"
+  ],
+  "Location": [
+    "managingOrganization._uuid",
+    "partOf._uuid",
+    "endpoint._uuid"
+  ],
+  "ManufacturedItemDefinition": [
+    "manufacturer._uuid"
+  ],
+  "MeasureReport": [
+    "subject._uuid",
+    "reporter._uuid",
+    "evaluatedResource._uuid"
+  ],
+  "Media": [
+    "partOf._uuid",
+    "subject._uuid",
+    "operator._uuid",
+    "device._uuid"
+  ],
+  "Medication": [
+    "manufacturer._uuid",
+    "ingredient.itemReference._uuid"
+  ],
+  "MedicationAdministration": [
+    "medicationReference._uuid",
+    "supportingInformation._uuid",
+    "performer.actor._uuid"
+  ],
+  "MedicationDispense": [
+    "medicationReference._uuid",
+    "supportingInformation._uuid",
+    "performer.actor._uuid",
+    "location._uuid",
+    "destination._uuid",
+    "receiver._uuid",
+    "substitution.responsibleParty._uuid"
+  ],
+  "MedicationKnowledge": [
+    "manufacturer._uuid",
+    "relatedMedicationKnowledge.reference._uuid",
+    "associatedMedication._uuid",
+    "ingredient.itemReference._uuid",
+    "administrationGuidelines.indicationReference._uuid",
+    "regulatory.regulatoryAuthority._uuid"
+  ],
+  "MedicationRequest": [
+    "reportedReference._uuid",
+    "medicationReference._uuid",
+    "supportingInformation._uuid",
+    "requester._uuid",
+    "performer._uuid",
+    "recorder._uuid",
+    "dispenseRequest.performer._uuid"
+  ],
+  "MedicationStatement": [
+    "medicationReference._uuid",
+    "informationSource._uuid",
+    "derivedFrom._uuid"
+  ],
+  "MedicinalProductDefinition": [
+    "impurity._uuid",
+    "contact.contact._uuid",
+    "clinicalTrial._uuid",
+    "crossReference.product._uuid",
+    "operation.type._uuid",
+    "operation.organization._uuid"
+  ],
+  "MessageHeader": [
+    "destination.receiver._uuid",
+    "sender._uuid",
+    "enterer._uuid",
+    "author._uuid",
+    "responsible._uuid",
+    "response.details._uuid",
+    "focus._uuid"
+  ],
+  "MolecularSequence": [
+    "performer._uuid"
+  ],
+  "NutritionOrder": [
+    "orderer._uuid"
+  ],
+  "NutritionProduct": [
+    "manufacturer._uuid",
+    "nutrient.item._uuid",
+    "ingredient.item._uuid",
+    "knownAllergen._uuid"
+  ],
+  "Observation": [
+    "subject._uuid",
+    "focus._uuid",
+    "performer._uuid",
+    "device._uuid"
+  ],
+  "ObservationDefinition": [
+    "validCodedValueSet._uuid",
+    "normalCodedValueSet._uuid",
+    "abnormalCodedValueSet._uuid",
+    "criticalCodedValueSet._uuid"
+  ],
+  "Organization": [
+    "partOf._uuid",
+    "endpoint._uuid"
+  ],
+  "OrganizationAffiliation": [
+    "organization._uuid",
+    "participatingOrganization._uuid",
+    "network._uuid",
+    "location._uuid",
+    "healthcareService._uuid",
+    "endpoint._uuid"
+  ],
+  "PackagedProductDefinition": [
+    "packageFor._uuid",
+    "manufacturer._uuid",
+    "package.manufacturer._uuid",
+    "package.containedItem.item._uuid"
+  ],
+  "Patient": [
+    "contact.organization._uuid",
+    "generalPractitioner._uuid",
+    "managingOrganization._uuid"
+  ],
+  "PaymentNotice": [
+    "request._uuid",
+    "response._uuid",
+    "provider._uuid",
+    "payment._uuid",
+    "payee._uuid",
+    "recipient._uuid"
+  ],
+  "PaymentReconciliation": [
+    "paymentIssuer._uuid",
+    "requestor._uuid",
+    "detail.request._uuid",
+    "detail.submitter._uuid",
+    "detail.response._uuid",
+    "detail.responsible._uuid",
+    "detail.payee._uuid"
+  ],
+  "Person": [
+    "managingOrganization._uuid",
+    "link.target._uuid"
+  ],
+  "Practitioner": [
+    "qualification.issuer._uuid"
+  ],
+  "PractitionerRole": [
+    "practitioner._uuid",
+    "organization._uuid",
+    "location._uuid",
+    "healthcareService._uuid",
+    "endpoint._uuid"
+  ],
+  "Procedure": [
+    "recorder._uuid",
+    "asserter._uuid",
+    "performer.actor._uuid",
+    "performer.onBehalfOf._uuid",
+    "location._uuid",
+    "usedReference._uuid"
+  ],
+  "Provenance": [
+    "target._uuid",
+    "location._uuid",
+    "agent.who._uuid",
+    "agent.onBehalfOf._uuid",
+    "entity.what._uuid"
+  ],
+  "Questionnaire": [
+    "item.enableWhen.answerReference._uuid",
+    "item.answerOption.valueReference._uuid",
+    "item.initial.valueReference._uuid"
+  ],
+  "QuestionnaireResponse": [
+    "subject._uuid",
+    "author._uuid",
+    "source._uuid",
+    "item.answer.valueReference._uuid"
+  ],
+  "RegulatedAuthorization": [
+    "subject._uuid",
+    "indication._uuid",
+    "holder._uuid",
+    "regulator._uuid"
+  ],
+  "RequestGroup": [
+    "basedOn._uuid",
+    "replaces._uuid",
+    "author._uuid",
+    "action.participant._uuid",
+    "action.resource._uuid"
+  ],
+  "ResearchDefinition": [
+    "population._uuid",
+    "exposure._uuid",
+    "exposureAlternative._uuid",
+    "outcome._uuid"
+  ],
+  "ResearchStudy": [
+    "protocol._uuid",
+    "partOf._uuid",
+    "sponsor._uuid",
+    "principalInvestigator._uuid",
+    "site._uuid"
+  ],
+  "ResearchSubject": [
+    "study._uuid"
+  ],
+  "RiskAssessment": [
+    "basedOn._uuid",
+    "parent._uuid",
+    "performer._uuid",
+    "basis._uuid"
+  ],
+  "Schedule": [
+    "actor._uuid"
+  ],
+  "ServiceRequest": [
+    "subject._uuid",
+    "requester._uuid",
+    "performer._uuid",
+    "locationReference._uuid",
+    "supportingInfo._uuid"
+  ],
+  "Specimen": [
+    "subject._uuid",
+    "collection.collector._uuid",
+    "processing.additive._uuid",
+    "container.additiveReference._uuid"
+  ],
+  "SpecimenDefinition": [
+    "typeTested.container.additive.additiveReference._uuid"
+  ],
+  "SubscriptionStatus": [
+    "notificationEvent.focus._uuid",
+    "notificationEvent.additionalContext._uuid"
+  ],
+  "Substance": [
+    "ingredient.substanceReference._uuid"
+  ],
+  "SubstanceDefinition": [
+    "informationSource._uuid",
+    "manufacturer._uuid",
+    "supplier._uuid",
+    "relationship.substanceDefinitionReference._uuid"
+  ],
+  "SupplyDelivery": [
+    "suppliedItem.itemReference._uuid",
+    "supplier._uuid",
+    "destination._uuid",
+    "receiver._uuid"
+  ],
+  "SupplyRequest": [
+    "itemReference._uuid",
+    "requester._uuid",
+    "supplier._uuid",
+    "deliverFrom._uuid",
+    "deliverTo._uuid"
+  ],
+  "Task": [
+    "basedOn._uuid",
+    "focus._uuid",
+    "for._uuid",
+    "requester._uuid",
+    "owner._uuid",
+    "location._uuid",
+    "reasonReference._uuid",
+    "restriction.recipient._uuid"
+  ],
+  "TestReport": [
+    "testScript._uuid"
+  ],
+  "TestScript": [
+    "fixture.resource._uuid",
+    "profile._uuid"
+  ],
+  "VerificationResult": [
+    "target._uuid",
+    "primarySource.who._uuid",
+    "attestation.who._uuid",
+    "attestation.onBehalfOf._uuid",
+    "validator.organization._uuid"
+  ],
+  "VisionPrescription": [
+    "prescriber._uuid"
+  ]
+}

@@ -5,7 +5,10 @@
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
-const NonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
+const NonClinicalDataFields = require('./generated.non_clinical_resources_fields.json');
+const resourcesMap = require('./generated.resource_types.json');
+
+const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 
 class NonClinicalReferenesExtractor {
     /**
@@ -51,6 +54,9 @@ class NonClinicalReferenesExtractor {
         let resourceNonClinicalDataFields = NonClinicalDataFields[resource.resourceType];
 
         for (const path of resourceNonClinicalDataFields ?? []) {
+            /**
+             * @type {string[]}
+             */
             let references = NestedPropertyReader.getNestedProperty({
                 obj: resource,
                 path: path
@@ -59,12 +65,35 @@ class NonClinicalReferenesExtractor {
                 if (!Array.isArray(references)) {
                     references = [references];
                 }
+
+                // allow only Binary references in custom DocumentReference field
+                if(resource.resourceType === 'DocumentReference' && path === 'content.attachment.url') {
+                    references = references.filter(ref => ref.split('/')[0] === 'Binary');
+                }
+
+                // query Practitioner references from _sourceId
+                if (references.some(ref => ref.split('/')[0] === 'Practitioner')) {
+                    references = references.filter(ref => ref.split('/')[0] !== 'Practitioner');
+
+                    let sourceReferencePath = path.replace('_uuid', '_sourceId');
+                    let sourceIdReferences = NestedPropertyReader.getNestedProperty({
+                        obj: resource,
+                        path: sourceReferencePath
+                    });
+                    if (!Array.isArray(sourceIdReferences)) {
+                        sourceIdReferences = [sourceIdReferences];
+                    }
+                    let practitionerReferences = sourceIdReferences.filter(ref => ref.split('/')[0] === 'Practitioner');
+                    references = references.concat(practitionerReferences);
+                }
+
                 for (const reference of references) {
                     const { id: referenceId, resourceType: referenceResourceType } =
                         ReferenceParser.parseReference(reference);
                     if (
                         !this.resourcesTypeToExclude.has(referenceResourceType) &&
-                        (!this.resourcePool || this.resourcePool.has(referenceResourceType))
+                        (!this.resourcePool || this.resourcePool.has(referenceResourceType)) &&
+                        nonClinicaResourcesSet.has(referenceResourceType)
                     ) {
                         if (!this._nestedResourceReferences[referenceResourceType]) {
                             this._nestedResourceReferences[referenceResourceType] = new Set();
