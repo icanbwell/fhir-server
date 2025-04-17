@@ -51,7 +51,6 @@
     "securityContext.reference"
   ],
   "BiologicallyDerivedProduct": [
-    "parent.reference",
     "collection.collector.reference",
     "collection.source.reference",
     "processing.additive.reference"

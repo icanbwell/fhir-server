@@ -1,0 +1,57 @@
+[
+  {
+    "resourceType": "Location",
+    "id": "9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+    "meta": {
+      "security": [
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "bwell",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "bwell",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "https://www.foo.com",
+      "versionId": "1"
+    },
+    "status": "active",
+    "name": "Elise D. Agostinelli, OD",
+    "telecom": [
+      {
+        "system": "phone",
+        "value": "2056384938",
+        "use": "work",
+        "rank": 1
+      },
+      {
+        "system": "fax",
+        "value": "2056385899",
+        "use": "work",
+        "rank": 2
+      }
+    ],
+    "address": {
+      "use": "work",
+      "type": "physical",
+      "line": [
+        "1940 Elmer J Bissell Rd"
+      ],
+      "city": "Birmingham",
+      "state": "AL",
+      "postalCode": "35243"
+    },
+    "position": {
+      "longitude": -86.76238,
+      "latitude": 33.41329
+    },
+    "managingOrganization": {
+      "reference": "Organization/d187d5ce-f842-5e13-a4db-961d8e728ebc"
+    }
+  }
+]

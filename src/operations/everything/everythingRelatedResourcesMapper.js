@@ -18,7 +18,6 @@
  */
 
 /**
- * TODO: correct the format
  * @type {{[k: string]:Array<EverythingRelatedResources>}}
  */
 const RelatedResourceMap = {
@@ -351,6 +350,7 @@ class EverythingRelatedResourcesMapper {
     /**
      * Retrieves related resources for the given resource type.
      *
+     * if specificReltedResourceTypeSet is not passed, return mapper for all the resources
      * @param {string} resourceType - The type of resource to retrieve related resources for.
      * @param {Set<string> | null} specificReltedResourceTypeSet - Return only passed realted resource type map
      * @returns {Array<EverythingRelatedResources>} - An array of related resource map.

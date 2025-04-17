@@ -75,7 +75,9 @@ For example: <base_url>/4_0_0/Patient/$everything?id=patient1,patient2
 
 ### \_type
 
-This parameter can be used to narrow down the result of resources to the provided list of resources. The result of only top level resources will be narrowed and it will not affect linked non-clinical resources.
+This parameter can be used to narrow down the result of resources to the provided list of resources. 
+For clinical resources the result of only top level resources will be narrowed 
+and for non-clinical resources, it will searched for 3 level down starting from top-level clinical resources
 
 For example: <base_url>/4_0_0/Patient/\<patient1>/$everything?\_type=Person,Account,Observation
 

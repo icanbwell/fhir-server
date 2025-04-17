@@ -1,0 +1,117 @@
+[
+  {
+    "resourceType": "Procedure",
+    "id": "58502df6-19f1-4c47-b391-6efd5728e2c7",
+    "meta": {
+      "security": [
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "healthsystem1",
+      "versionId": "2"
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Knee Arthroscopy</div>"
+    },
+    "status": "completed",
+    "category": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/procedure-category",
+          "code": "surgical",
+          "display": "Surgical Operation"
+        }
+      ],
+      "text": "Surgical Operation"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "72651009",
+          "display": "Arthroscopy of knee"
+        }
+      ],
+      "text": "Knee Arthroscopy"
+    },
+    "subject": {
+      "reference": "Patient/patient1",
+      "display": "Test Patient"
+    },
+    "performedPeriod": {
+      "start": "2023-06-15T09:00:00+00:00",
+      "end": "2023-06-15T10:30:00+00:00"
+    },
+    "recorder": {
+      "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+      "display": "Dr. Susan Jane"
+    },
+    "asserter": {
+      "reference": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75",
+      "display": "Dr. Susan Jane"
+    },
+    "performer": [
+      {
+        "actor": {
+          "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+          "display": "Dr. James Smith"
+        }
+      }
+    ],
+    "reasonCode": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "239720000",
+            "display": "Tear of meniscus of knee"
+          }
+        ],
+        "text": "Meniscus tear"
+      }
+    ],
+    "bodySite": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "82169009",
+            "display": "Right knee joint structure"
+          }
+        ],
+        "text": "Right knee"
+      }
+    ],
+    "outcome": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/procedure-outcome",
+          "code": "successful",
+          "display": "Successful"
+        }
+      ],
+      "text": "Procedure completed successfully without complications"
+    },
+    "note": [
+      {
+        "actor": {
+          "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+          "display": "Dr. James Smith"
+        },
+        "time": "2023-06-15T10:30:00+00:00",
+        "text": "Arthroscopic procedure completed successfully. Meniscus repair performed with no complications."
+      }
+    ]
+  }
+]
