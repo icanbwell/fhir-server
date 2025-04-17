@@ -82,8 +82,6 @@ def get_non_clinical_to_referenced_by_resources_map(
     # Resources that are patient-scoped but not included in $everything
     additional_resources_to_skip = {
         "AuditEvent",
-        # TODO: This would be patient scope in future so remove it from here
-        "BiologicallyDerivedProduct",
         "Resource",  # Skip the base Resource
     }
 
