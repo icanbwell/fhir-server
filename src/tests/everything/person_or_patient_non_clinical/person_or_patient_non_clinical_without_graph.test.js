@@ -38,6 +38,8 @@ const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subsc
 
 const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
+const speicimenResournce = require('./fixtures/Specimen/specimen.json');
+const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
 
 // expected
 const expectedPractitionerRoles = require('./fixtures/expected/nonClinicalWithType/practitionerRole.json');
@@ -226,6 +228,59 @@ describe('everything _includeNonClinicalResources Tests', () => {
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedClinicalAndNonClinicalWithTypeFilter);
+
+        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+    })
+
+    test('should able to extract non clinical references when present in nested array: Practitioner reference in Specimen', async () => {
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+
+        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(topLevelPersonResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Practitioner/1/$merge?validate=true')
+            .send(practitionerResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Specimen/1/$merge?validate=true')
+            .send(speicimenResournce)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        // expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
+        expect(resp).toHaveResponse(specimenAndLinkedPractitioner);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
