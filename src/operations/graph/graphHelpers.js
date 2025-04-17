@@ -3,8 +3,6 @@
  */
 const async = require('async');
 const { R4SearchQueryCreator } = require('../query/r4');
-const env = require('var');
-const { escapeRegExp } = require('../../utils/regexEscaper');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { SecurityTagManager } = require('../common/securityTagManager');
@@ -52,6 +50,7 @@ const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinic
 const { SearchBundleOperation } = require('../search/searchBundle');
 const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
+const nonClinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['nonClinicalResources'];
 
 /**
  * This class helps with creating graph responses
@@ -1387,7 +1386,10 @@ class GraphHelper {
                         for (const reference of references) {
                             const { id: referenceId, resourceType: referenceResourceType } =
                                 ReferenceParser.parseReference(reference);
-                            if (!resourcesToExclude.includes(referenceResourceType)) {
+                            if (
+                                !resourcesToExclude.includes(referenceResourceType) &&
+                                nonClinicalResources.includes(referenceResourceType)
+                            ) {
                                 if (nestedResourceReferences[referenceResourceType]) {
                                     nestedResourceReferences[referenceResourceType] =
                                         nestedResourceReferences[referenceResourceType].add(

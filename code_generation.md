@@ -103,14 +103,18 @@ This reads the `src/searchParameters/search-parameters.json` file and generates 
 1. `src/searchParameters/searchParameters.js`
 2. `src/fhir/generator/search_parameters.py`
 
-### 6. Resources Non-clinical fields in `src/graphs/patient`
+### 6. Data for everything operation
 
-This is run by the command `make nonClinicalResourceFields`.
+This is run by the command `make everythingOperationData`.
 
-This runs `src/fhir/generator/generate_non_clinical_fields.py` and makes a list of fields for each resources which contains reference to non-clinical resources, which is used by everything operation for finding linked non-clinical resources.
+This runs `src/fhir/generator/generate_everything_operation_data.py` and makes a list of fields for each resources which contains reference to non-clinical resources, which is used by everything operation for finding linked non-clinical resources. List of clinical and non-clinical resources and all resources which are needed to find any particular non-clinical resource.
 
-This reads the `src/graphs/patient/everything.json` file and generates the following file:
-`src/graphs/patient/generated.non_clinical_resources_fields.json`
+This reads the `src/graphs/patient/everything.json` file and generates the following files:
+- `src/graphs/patient/generated.non_clinical_resources_fields.json`
+- `src/graphs/patient/generated.clinical_resources.json`
+- `src/operations/everything/generated.non_clinical_resources_fields.json`
+- `src/operations/everything/generated.non_clinical_resources_reachablity.json`
+- `src/operations/everything/generated.resource_types.json`
 
 ### 7. Validation schema in `src/fhir/generator/json`
 

@@ -22,7 +22,7 @@
     },
     "active": true,
     "practitioner": {
-      "reference": "Practitioner/a699b172-996a-48f2-9f52-ab3e34c88d28",
+      "reference": "Practitioner/prac-source-id",
       "display": "Dr. Susan Jane"
     },
     "organization": {

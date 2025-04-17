@@ -1,4 +1,4 @@
-const resourcesMap = require('../../graphs/patient/generated.clinical_resources.json');
+const resourcesMap = require('./generated.resource_types.json');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { addElementsToSet } = require('../../utils/list.util');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
@@ -7,7 +7,7 @@ const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourc
  * @type {Record<string, string[]>}
  */
 const requiredRsourcesMap =
-    require('../../graphs/patient/generated.non_clinical_resources_reachablity.json')['level2'];
+    require('./generated.non_clinical_resources_reachablity.json')['level2'];
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 const clinicalResourcesSet = new Set(resourcesMap.clinicalResources);
