@@ -5,8 +5,16 @@
  * @property {string} sourceId - Path to reach resource sourceId field
  * @typedef {Object} EverythingRelatedResources
  * @property {string} type - The name of the related resource.
- * @property {string} params Search param for the target
- * @property {string} customQuery custom query for the target
+ * @property {string | undefined} params Search param for the target
+ * @property {{
+ *      query: string,
+ *      requiredValues: string,
+ *      fieldForParentLookup: string[],
+ *      includeProxyPatient: boolean|undefined
+ *      proxyPatientQuery: string|undefined
+ *      proxyPatientRequiredValues: string[]|undefined
+ *  } | undefined
+ *  } customQuery custom query for the target
  */
 
 /**
@@ -34,6 +42,17 @@ const RelatedResourceMap = {
         {
             type: "AppointmentResponse",
             params: "patient={ref}"
+        },
+        {
+            type: "BiologicallyDerivedProduct",
+            customQuery: {
+                query: `{"collection.source._uuid":"{resourceType}/{_uuid}"}`,
+                requiredValues: ["resourceType", "_uuid"],
+                fieldForParentLookup: "collection.source",
+                includeProxyPatient: true,
+                proxyPatientQuery: `{"collection.source.{idType}":"{resourceType}/{id}"}`,
+                proxyPatientRequiredValues: ["resourceType", "id", "idType"]
+            }
         },
         {
             type: "Basic",
@@ -285,18 +304,27 @@ const RelatedResourceMap = {
         },
         {
             type: "Subscription",
-            params: "extension=",
-            customQuery: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{sourceAssigningAuthority}"}}}]}`
+            customQuery: {
+                query: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{_sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{_sourceAssigningAuthority}"}}}]}`,
+                requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
+                fieldForParentLookup: "extension"
+            }
         },
         {
             type: "SubscriptionStatus",
-            params: "extension=",
-            customQuery: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{sourceAssigningAuthority}"}}}]}`
+            customQuery: {
+                query: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{_sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{_sourceAssigningAuthority}"}}}]}`,
+                requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
+                fieldForParentLookup: "extension"
+            }
         },
         {
             type: "SubscriptionTopic",
-            params: "identifier=",
-            customQuery: `{"$and":[{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/source_patient_id","value":"{sourceId}"}}},{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/service_slug","value":"{sourceAssigningAuthority}"}}}]}`
+            customQuery: {
+                query: `{"$and":[{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/source_patient_id","value":"{_sourceId}"}}},{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/service_slug","value":"{_sourceAssigningAuthority}"}}}]}`,
+                requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
+                fieldForParentLookup: "identifier"
+            }
         },
         {
             type: "SupplyDelivery",

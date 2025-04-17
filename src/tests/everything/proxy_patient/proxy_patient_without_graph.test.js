@@ -17,6 +17,7 @@ const expectedPersonResourcesWithProxyPatientSourceId = require('./fixtures/expe
 const expectedPersonResourcesContained = require('./fixtures/expected/expected_person_everything_contained.json');
 const expectedPatientResourcesWithProxyPatient = require('./fixtures/expected/expected_patient_everything_without_graph.json');
 const expectedPatientResourcesWithProxyPatientAndPatientScope = require('./fixtures/expected/expected_patient_everything_without_graph_with_patient_scope.json');
+const expectedPatientResourcesWithMultipleProxyPatient = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph.json');
 const expectedPatientResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_patient_everything_sourceid.json');
 const expectedPatientResourcesWithoutGraphWithRewritePatientRef = require('./fixtures/expected/expected_patient_everything_without_graph_rewrite_patient_ref.json');
 
@@ -175,6 +176,11 @@ describe('Proxy Patient $everything Tests', () => {
             .get('/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything?_debug=true')
             .set(patientHeader);
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndPatientScope);
+
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1`)
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedPatientResourcesWithMultipleProxyPatient);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
