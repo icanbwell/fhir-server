@@ -1238,8 +1238,38 @@
               "contentType": "text/html",
               "url": "Binary/binary2"
             }
+          },
+          {
+            "attachment": {
+              "contentType": "text/html",
+              "url": "AuditEvent/not-accessed"
+            }
           }
-        ]
+        ],
+        "context": {
+          "related": [
+            {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "invalid-collection/123"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "invalid-collection/73e3235f-e3cd-586f-85a6-9872386b672c"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem1"
+                }
+              ],
+              "reference": "invalid-collection/123"
+            }
+          ]
+        }
       }
     }
   ],

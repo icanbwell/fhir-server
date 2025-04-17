@@ -4,6 +4,7 @@
 
 const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 
 const NonClinicalDataFields = require('./generated.non_clinical_resources_fields.json');
 const resourcesMap = require('./generated.resource_types.json');
@@ -68,7 +69,19 @@ class NonClinicalReferenesExtractor {
 
                 // allow only Binary references in custom DocumentReference field
                 if(resource.resourceType === 'DocumentReference' && path === 'content.attachment.url') {
-                    references = references.filter(ref => ref.split('/')[0] === 'Binary');
+                    let updatedReferences = [];
+                    references.forEach(ref => {
+                        let { id, resourceType } = ReferenceParser.parseReference(ref);
+                        if(resourceType === 'Binary') {
+                            if (!isUuid(id)) {
+                                id = generateUUIDv5(`${id}|${resource._sourceAssigningAuthority}`);
+                                updatedReferences.push(`Binary/${id}`);
+                            } else {
+                                updatedReferences.push(ref);
+                            }
+                        }
+                    });
+                    references = updatedReferences;
                 }
 
                 // query Practitioner references from _sourceId

@@ -200,7 +200,8 @@ def main():
     with open(json_file_path, "w") as json_file:
         json.dump(
             {
-                "clinicalResources": clinical_resources
+                "clinicalResources": clinical_resources,
+                "nonClinicalResources": non_clinical_resources,
             },
             json_file,
             indent=2,
