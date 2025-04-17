@@ -2,7 +2,7 @@
   {
     "collection": {
       "collector": {
-        "reference": "Practitioner/prac-source-id",
+        "reference": "Practitioner/prac-source-id2",
         "display": "Dr. Susan Jane"
       },
       "collectedDateTime": "2023-06-15T09:00:00Z",
@@ -95,7 +95,7 @@
     "note": [
       {
         "authorReference": {
-          "reference": "Practitioner/prac-source-id",
+          "reference": "Practitioner/prac-source-id3",
           "display": "Dr. Susan Jane"
         },
         "time": "2023-06-15T09:15:00Z",
