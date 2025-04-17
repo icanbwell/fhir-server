@@ -13,6 +13,7 @@ const accountResource = require('./fixtures/Account/account.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
+const biologicallyDerivedProductResource = require('./fixtures/BiologicallyDerivedProduct/biologicallyDerivedProduct.json');
 const carePlanResource = require('./fixtures/CarePlan/carePlan.json');
 const medicationResource = require('./fixtures/Medication/medication.json');
 const conditionResource = require('./fixtures/Condition/condition.json');
@@ -299,6 +300,13 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request
             .post('/4_0_0/Medication/1/$merge?validate=true')
             .send(medicationResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/BiologicallyDerivedProduct/1/$merge?validate=true')
+            .send(biologicallyDerivedProductResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });

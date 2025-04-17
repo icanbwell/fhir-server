@@ -189,6 +189,73 @@
       }
     },
     {
+      "id": "bio1",
+      "resource": {
+        "collection": {
+          "source": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/patient1"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+              }
+            ],
+            "reference": "Patient/patient1"
+          }
+        },
+        "id": "bio1",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "bio1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "395f9ff4-9012-5482-8ea8-d59a4ca9fc20"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-04-16T09:34:35.043Z",
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
+        },
+        "resourceType": "BiologicallyDerivedProduct",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns= code g/dL = 'g/dL')</span></td></tr></table></div>"
+        }
+      }
+    },
+    {
       "id": "2354-InAgeCohort",
       "resource": {
         "resourceType": "Observation",

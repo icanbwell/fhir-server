@@ -39,6 +39,7 @@ const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtracto
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
+const { isUuid } = require('../../utils/uid.util');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 
 /**
@@ -500,6 +501,8 @@ class EverythingHelper {
                                 args: { ...baseArgs, id: idChunk.join(',') }
                             });
 
+                            childParseArgs.headers = { prefer: parsedArgs.headers.prefer };
+
                             const result = this.fetchResourceByArgsAsync({
                                 resourceType,
                                 base_version,
@@ -802,12 +805,15 @@ class EverythingHelper {
                 continue;
             }
 
-            const searchParameterName = filterTemplateParam.split('=')[0];
-
             /**
              * @type {string}
              */
             let reverseFilterWithParentIds = '';
+
+            /**
+             * @type {string|null}
+             */
+            let parentLookupField = null;
 
             if (!filterTemplateCustomQuery) {
                 reverseFilterWithParentIds = filterTemplateParam.replace(
@@ -857,21 +863,40 @@ class EverythingHelper {
 
             if (filterTemplateCustomQuery) {
                 let customParentQuery = [];
+                parentLookupField = filterTemplateCustomQuery.fieldForParentLookup;
                 parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
-                    const sourceId = parentResourceIdentifier._sourceId;
-                    const sourceAssigningAuthority = parentResourceIdentifier._sourceAssigningAuthority;
-
-                    assertIsValid(sourceId, 'sourceId should be present');
-                    assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority should be present');
-
-                    customParentQuery.push(
-                        JSON.parse(
-                            filterTemplateCustomQuery
-                                .replace('{sourceId}', sourceId)
-                                .replace('{sourceAssigningAuthority}', sourceAssigningAuthority)
-                        )
-                    );
+                    let patientQuery = filterTemplateCustomQuery.query;
+                    filterTemplateCustomQuery.requiredValues.forEach((requiredValue) => {
+                        if (!parentResourceIdentifier[requiredValue]) {
+                            throw new Error(`${requiredValue} is not present in parent resource identifier`);
+                        }
+                        patientQuery = patientQuery.replace(`{${requiredValue}}`, parentResourceIdentifier[requiredValue]);
+                    })
+                    customParentQuery.push(JSON.parse(patientQuery));
                 });
+
+                if (filterTemplateCustomQuery.includeProxyPatient && proxyPatientIds.length > 0) {
+                    proxyPatientIds.forEach((proxyPatientId) => {
+                        let proxyPatientIdentifier = {
+                            id: proxyPatientId,
+                            resourceType: 'Patient'
+                        }
+                        if (isUuid(proxyPatientId)) {
+                            proxyPatientIdentifier.idType = '_uuid';
+                        }
+                        else {
+                            proxyPatientIdentifier.idType = '_sourceId';
+                        }
+                        let patientQuery = filterTemplateCustomQuery.proxyPatientQuery;
+                        filterTemplateCustomQuery.proxyPatientRequiredValues.forEach((requiredValue) => {
+                            if (!proxyPatientIdentifier[requiredValue]) {
+                                throw new Error(`${requiredValue} is not present in proxy patient resource identifier`);
+                            }
+                            patientQuery = patientQuery.replace(`{${requiredValue}}`, proxyPatientIdentifier[requiredValue]);
+                        });
+                        customParentQuery.push(JSON.parse(patientQuery));
+                    });
+                }
 
                 if (customParentQuery.length == 1) {
                     query.$and = query.$and || [];
@@ -906,14 +931,22 @@ class EverythingHelper {
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
-            // find matching field name in searchParameter list.  We will use this to match up to parent
-            /**
-             * @type {string}
-             */
-            const fieldForSearchParameter = this.searchParametersManager.getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
+            if (!parentLookupField) {
+                const searchParameterName = filterTemplateParam.split('=')[0];
 
-            if (!fieldForSearchParameter) {
-                throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
+                /**
+                 * @type {string}
+                 */
+                parentLookupField = this.searchParametersManager.getFieldNameForSearchParameter(
+                    relatedResourceType,
+                    searchParameterName
+                );
+
+                if (!parentLookupField) {
+                    throw new Error(
+                        `${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`
+                    );
+                }
             }
 
             /**
@@ -933,7 +966,7 @@ class EverythingHelper {
                 getRaw,
                 nonClinicalReferenesExtractor,
                 parentResourcesProcessedTracker,
-                fieldForSearchParameter,
+                parentLookupField,
                 proxyPatientIds: proxyPatientIds || [],
                 everythingRelatedResourceManager,
                 parentResourceType
@@ -973,7 +1006,7 @@ class EverythingHelper {
      *  getRaw: boolean,
      *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
-     *  fieldForSearchParameter?: string,
+     *  parentLookupField?: string,
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
@@ -989,7 +1022,7 @@ class EverythingHelper {
         getRaw,
         nonClinicalReferenesExtractor,
         parentResourcesProcessedTracker,
-        fieldForSearchParameter,
+        parentLookupField,
         proxyPatientIds,
         parentResourceType,
         everythingRelatedResourceManager
@@ -1026,10 +1059,10 @@ class EverythingHelper {
                 let sendResource = true;
                 if (parentResourceType) {
                     assertIsValid(proxyPatientIds, 'proxyPatientIds should be present');
-                    assertIsValid(fieldForSearchParameter, 'fieldForSearchParameter should be present');
+                    assertIsValid(parentLookupField, 'parentLookupField should be present');
                     assertIsValid(parentResourcesProcessedTracker, 'parentResourcesProcessedTracker should be present');
                     const properties = this.getPropertiesForEntity({
-                        resource: startResource, property: fieldForSearchParameter
+                        resource: startResource, property: parentLookupField
                     });
 
                     // the reference property can be a single item or an array. Remove the sourceAssigningAuthority
@@ -1064,27 +1097,27 @@ class EverythingHelper {
                     // reference we only have id of person/patient resource in extension/identifier
                     if (
                         references.length == 0 &&
-                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(fieldForSearchParameter)
+                        SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(parentLookupField)
                     ) {
 
                         properties.flat().map((r) => {
                             if (
                                 r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
                                 ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
                             ) {
                                 references.push(
                                     PERSON_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             } else if (
                                 r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['key']
+                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
                                 ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
                             ) {
                                 references.push(
                                     PATIENT_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[fieldForSearchParameter]['value']]
+                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             }
                         });
@@ -1107,7 +1140,7 @@ class EverythingHelper {
                             const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
                             logError(
                                 `No match found for parent entities ${parentEntitiesString} ` +
-                                    `using property ${fieldForSearchParameter} in ` +
+                                    `using property ${parentLookupField} in ` +
                                     'child entity ' +
                                 `${current_entity.resourceType}/${current_entity.id}`, {}
                             );
