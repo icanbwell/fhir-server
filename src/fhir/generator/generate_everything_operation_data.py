@@ -61,7 +61,7 @@ clinical_resources = list(clinical_resources)
 ###############
 
 # configure recursive field depth
-recursive_fields_depth = 2
+recursive_fields_depth = 3
 
 # configure wether to skip extension types
 skip_extension = True

@@ -199,7 +199,10 @@
     "section.entry._uuid",
     "section.section.author._uuid",
     "section.section.focus._uuid",
-    "section.section.entry._uuid"
+    "section.section.entry._uuid",
+    "section.section.section.author._uuid",
+    "section.section.section.focus._uuid",
+    "section.section.section.entry._uuid"
   ],
   "ConceptMap": [
     "useContext.valueReference._uuid"
@@ -216,7 +219,9 @@
     "provision.actor.reference._uuid",
     "provision.data.reference._uuid",
     "provision.provision.actor.reference._uuid",
-    "provision.provision.data.reference._uuid"
+    "provision.provision.data.reference._uuid",
+    "provision.provision.provision.actor.reference._uuid",
+    "provision.provision.provision.data.reference._uuid"
   ],
   "Contract": [
     "subject._uuid",
@@ -271,6 +276,21 @@
     "term.group.group.action.performer._uuid",
     "term.group.group.action.reasonReference._uuid",
     "term.group.group.action.note.authorReference._uuid",
+    "term.group.group.group.topicReference._uuid",
+    "term.group.group.group.offer.party.reference._uuid",
+    "term.group.group.group.offer.topic._uuid",
+    "term.group.group.group.offer.answer.valueReference._uuid",
+    "term.group.group.group.asset.typeReference._uuid",
+    "term.group.group.group.asset.context.reference._uuid",
+    "term.group.group.group.asset.answer.valueReference._uuid",
+    "term.group.group.group.asset.valuedItem.entityReference._uuid",
+    "term.group.group.group.asset.valuedItem.responsible._uuid",
+    "term.group.group.group.asset.valuedItem.recipient._uuid",
+    "term.group.group.group.action.subject.reference._uuid",
+    "term.group.group.group.action.requester._uuid",
+    "term.group.group.group.action.performer._uuid",
+    "term.group.group.group.action.reasonReference._uuid",
+    "term.group.group.group.action.note.authorReference._uuid",
     "supportingInfo._uuid",
     "signer.party._uuid",
     "signer.signature.who._uuid",
@@ -382,12 +402,15 @@
     "statistic.sampleSize.note.authorReference._uuid",
     "statistic.attributeEstimate.note.authorReference._uuid",
     "statistic.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "statistic.attributeEstimate.attributeEstimate.attributeEstimate.note.authorReference._uuid",
     "statistic.modelCharacteristic.variable.variableDefinition._uuid",
     "statistic.modelCharacteristic.attributeEstimate.note.authorReference._uuid",
     "statistic.modelCharacteristic.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "statistic.modelCharacteristic.attributeEstimate.attributeEstimate.attributeEstimate.note.authorReference._uuid",
     "certainty.note.authorReference._uuid",
     "certainty.subcomponent.note.authorReference._uuid",
-    "certainty.subcomponent.subcomponent.note.authorReference._uuid"
+    "certainty.subcomponent.subcomponent.note.authorReference._uuid",
+    "certainty.subcomponent.subcomponent.subcomponent.note.authorReference._uuid"
   ],
   "EvidenceReport": [
     "useContext.valueReference._uuid",
@@ -401,7 +424,10 @@
     "section.entryReference._uuid",
     "section.section.focusReference._uuid",
     "section.section.author._uuid",
-    "section.section.entryReference._uuid"
+    "section.section.entryReference._uuid",
+    "section.section.section.focusReference._uuid",
+    "section.section.section.author._uuid",
+    "section.section.section.entryReference._uuid"
   ],
   "EvidenceVariable": [
     "note.authorReference._uuid",
@@ -486,6 +512,7 @@
     "definition.resource.reference._uuid",
     "definition.page.nameReference._uuid",
     "definition.page.page.nameReference._uuid",
+    "definition.page.page.page.nameReference._uuid",
     "manifest.resource.reference._uuid"
   ],
   "Ingredient": [
@@ -671,7 +698,10 @@
     "package.containedItem.item.reference._uuid",
     "package.package.manufacturer._uuid",
     "package.package.containedItem.item._uuid",
-    "package.package.containedItem.item.reference._uuid"
+    "package.package.containedItem.item.reference._uuid",
+    "package.package.package.manufacturer._uuid",
+    "package.package.package.containedItem.item._uuid",
+    "package.package.package.containedItem.item.reference._uuid"
   ],
   "Parameters": [
     "parameter.valueAnnotation.authorReference._uuid",
@@ -688,7 +718,12 @@
     "parameter.part.part.valueReference._uuid",
     "parameter.part.part.valueSignature.who._uuid",
     "parameter.part.part.valueSignature.onBehalfOf._uuid",
-    "parameter.part.part.valueUsageContext.valueReference._uuid"
+    "parameter.part.part.valueUsageContext.valueReference._uuid",
+    "parameter.part.part.part.valueAnnotation.authorReference._uuid",
+    "parameter.part.part.part.valueReference._uuid",
+    "parameter.part.part.part.valueSignature.who._uuid",
+    "parameter.part.part.part.valueSignature.onBehalfOf._uuid",
+    "parameter.part.part.part.valueUsageContext.valueReference._uuid"
   ],
   "Patient": [
     "contact.organization._uuid",
@@ -756,7 +791,10 @@
     "item.initial.valueReference._uuid",
     "item.item.enableWhen.answerReference._uuid",
     "item.item.answerOption.valueReference._uuid",
-    "item.item.initial.valueReference._uuid"
+    "item.item.initial.valueReference._uuid",
+    "item.item.item.enableWhen.answerReference._uuid",
+    "item.item.item.answerOption.valueReference._uuid",
+    "item.item.item.initial.valueReference._uuid"
   ],
   "QuestionnaireResponse": [
     "subject._uuid",
@@ -764,7 +802,11 @@
     "source._uuid",
     "item.answer.valueReference._uuid",
     "item.answer.item.answer.valueReference._uuid",
-    "item.item.answer.valueReference._uuid"
+    "item.answer.item.answer.item.answer.valueReference._uuid",
+    "item.answer.item.item.answer.valueReference._uuid",
+    "item.item.answer.valueReference._uuid",
+    "item.item.answer.item.answer.valueReference._uuid",
+    "item.item.item.answer.valueReference._uuid"
   ],
   "RegulatedAuthorization": [
     "subject._uuid",
@@ -781,7 +823,9 @@
     "action.participant._uuid",
     "action.resource._uuid",
     "action.action.participant._uuid",
-    "action.action.resource._uuid"
+    "action.action.resource._uuid",
+    "action.action.action.participant._uuid",
+    "action.action.action.resource._uuid"
   ],
   "ResearchDefinition": [
     "useContext.valueReference._uuid",
@@ -898,7 +942,12 @@
     "group.rule.rule.source.defaultValueReference._uuid",
     "group.rule.rule.source.defaultValueSignature.who._uuid",
     "group.rule.rule.source.defaultValueSignature.onBehalfOf._uuid",
-    "group.rule.rule.source.defaultValueUsageContext.valueReference._uuid"
+    "group.rule.rule.source.defaultValueUsageContext.valueReference._uuid",
+    "group.rule.rule.rule.source.defaultValueAnnotation.authorReference._uuid",
+    "group.rule.rule.rule.source.defaultValueReference._uuid",
+    "group.rule.rule.rule.source.defaultValueSignature.who._uuid",
+    "group.rule.rule.rule.source.defaultValueSignature.onBehalfOf._uuid",
+    "group.rule.rule.rule.source.defaultValueUsageContext.valueReference._uuid"
   ],
   "SubscriptionStatus": [
     "notificationEvent.focus._uuid",
