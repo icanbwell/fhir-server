@@ -18,6 +18,21 @@ all_classes = FhirXmlSchemaParser.generate_classes()
 
 
 ###############
+# Config for non-clinical fields
+###############
+
+# configure recursive field depth
+recursive_fields_depth = 3
+
+# configure wether to skip extension types
+skip_extension = True
+skip_identifier = True
+
+# log debug data
+log_fields_with_any_reference = True
+
+
+###############
 # Clinical Resources List & Filters
 ###############
 
@@ -60,145 +75,130 @@ clinical_resources = list(clinical_resources)
 # Non Clinical Resources Fields in clinical and resources referenced in each resource
 ###############
 
-# configure recursive field depth
-recursive_fields_depth = 3
-
-# configure wether to skip extension types
-skip_extension = True
-skip_identifier = True
-
-# log debug data
-log_fields_with_any_reference = True
-
-non_clinical_map = {}
-non_clinical_map_uuid = {}
-
-resource_referenced_by_map = {}
-
-for resource_names in resource_type_list:
-    if not resource_referenced_by_map.get(resource_names):
-        resource_referenced_by_map[resource_names] = set()
-
-def get_field_type_property(field_type: str):
-    '''
-    returns property class for given field
-    '''
-    # eg: contained field in Observation have type Resource but have ResourceContainer in classes which have empty properties
-    if field_type == "ResourceContainer":
-        field_type = "Resource"
-    for property in all_classes:
-        if property.cleaned_name == field_type:
-            return property
-
-
-def handle_reference(
-    field_class: FhirProperty,
-    recursive_path: str,
-    resource: FhirEntity,
-):
-    if log_fields_with_any_reference and "Resource" in field_class.reference_target_resources_names:
-        print(f"Resource<any>: {recursive_path}")
-
-    if "Resource" in field_class.reference_target_resources_names:
+class NonClinicalFieldsData:
+    def __init__(self):
+        self.non_clinical_map = {}
+        self.non_clinical_map_uuid = {}
+        self.resource_referenced_by_map = {}
         for resource_name in resource_type_list:
-            resource_referenced_by_map[resource_name].add(resource.cleaned_name)
-    else:
-        for resource_name in field_class.reference_target_resources_names:
-            resource_referenced_by_map[resource_name].add(resource.cleaned_name)
+            self.resource_referenced_by_map[resource_name] = set()
 
-    for type in field_class.reference_target_resources_names:
-        if not type in clinical_resources:
+    def get_field_type_property(self, field_type: str):
+        '''
+        returns property class for given field
+        '''
+        # eg: contained field in Observation have type Resource but have ResourceContainer in classes which have empty properties
+        if field_type == "ResourceContainer":
+            field_type = "Resource"
+        for property_class in all_classes:
+            if property_class.cleaned_name == field_type:
+                return property_class
+        return None
 
-            if not non_clinical_map.get(resource.fhir_name):
-                non_clinical_map[resource.fhir_name] = []
+    def make_reference_data(
+        self, field_class: FhirProperty, recursive_path: str, resource: FhirEntity
+    ):
+        if log_fields_with_any_reference and "Resource" in field_class.reference_target_resources_names:
+            print(f"Resource<any>: {recursive_path}")
 
-            if not non_clinical_map_uuid.get(resource.fhir_name):
-                non_clinical_map_uuid[resource.fhir_name] = []
+        if "Resource" in field_class.reference_target_resources_names:
+            for resource_name in resource_type_list:
+                self.resource_referenced_by_map[resource_name].add(resource.cleaned_name)
+        else:
+            for resource_name in field_class.reference_target_resources_names:
+                self.resource_referenced_by_map[resource_name].add(resource.cleaned_name)
 
-            if (
-                recursive_path + ".reference"
-                not in non_clinical_map[resource.fhir_name]
-            ):
-                non_clinical_map[resource.fhir_name].append(
+        for target_type in field_class.reference_target_resources_names:
+            if not target_type in clinical_resources:
+
+                if not self.non_clinical_map.get(resource.fhir_name):
+                    self.non_clinical_map[resource.fhir_name] = []
+
+                if not self.non_clinical_map_uuid.get(resource.fhir_name):
+                    self.non_clinical_map_uuid[resource.fhir_name] = []
+
+                if (
                     recursive_path + ".reference"
-                )
-            if (
-                recursive_path + "._uuid"
-                not in non_clinical_map_uuid[resource.fhir_name]
-            ):
-                non_clinical_map_uuid[resource.fhir_name].append(
-                    recursive_path + "._uuid"
-                )
-            return
-
-
-def get_nested_fields(
-    field_class: FhirProperty,
-    recursive_path: str,
-    resource: FhirEntity,
-):
-
-    if skip_extension:
-        if field_class.cleaned_type in ["Extension", "ModifierExtension"]:
-            return
-
-    if skip_identifier:
-        if field_class.cleaned_type == "Identifier":
-            return
-    
-    if recursive_path:
-        recursive_path += f".{field_class.name}"
-    else:
-        recursive_path = f"{field_class.name}"
-
-    # for skipping nested recursive fields like extension in extension
-    if recursive_path.split(".").count(field_class.name) > recursive_fields_depth:
-        return
-
-    if field_class.cleaned_type == "Reference":
-        handle_reference(field_class, recursive_path, resource)
-
-    field_property = get_field_type_property(field_class.cleaned_type)
-
-    if not field_property:
-        # print(f"Missing field properties for {recursive_path}")
-        return
-
-    for property in field_property.properties:
-        if property.is_v2_supported:
-            continue
-        # Skipping nested extension and modifierExtension fields
-        if property.fhir_name in ["extension", "modifierExtension"]:
-            continue
-        if property.cleaned_type == "Reference":
-            handle_reference(
-                field_class, recursive_path, resource
-            )
-        if property.type_snake_case not in primitive_types_dict.keys():
-            get_nested_fields(property, recursive_path, resource)
-
-    return
-
-
-def generate_non_clinical_resource_fields_data():
-    """
-    Add field for each resource which contains reference to any non-clinical resource
-    """
-
-    for resource in all_classes:
-        if resource.is_resource:
-            print("\n\n")
-            print(f"Processing resource: {resource.fhir_name}")
-
-            for property in resource.properties:
-                if property.is_v2_supported:
-                    continue
-                if property.cleaned_type == "Reference":
-                    handle_reference(
-                        property, property.name, resource
+                    not in self.non_clinical_map[resource.fhir_name]
+                ):
+                    self.non_clinical_map[resource.fhir_name].append(
+                        recursive_path + ".reference"
                     )
-                if property.type_snake_case not in primitive_types_dict.keys():
-                    get_nested_fields(property, "", resource)
+                if (
+                    recursive_path + "._uuid"
+                    not in self.non_clinical_map_uuid[resource.fhir_name]
+                ):
+                    self.non_clinical_map_uuid[resource.fhir_name].append(
+                        recursive_path + "._uuid"
+                    )
+                return
+
+
+    def handle_nested_fields(
+        self, field_class: FhirProperty, recursive_path: str, resource: FhirEntity
+    ):
+
+        if skip_extension:
+            if field_class.cleaned_type in ["Extension", "ModifierExtension"]:
+                return
+
+        if skip_identifier:
+            if field_class.cleaned_type == "Identifier":
+                return
+        
+        if recursive_path:
+            recursive_path += f".{field_class.name}"
+        else:
+            recursive_path = f"{field_class.name}"
+
+        # for skipping nested recursive fields like extension in extension
+        if recursive_path.split(".").count(field_class.name) > recursive_fields_depth:
+            return
+
+        if field_class.cleaned_type == "Reference":
+            self.make_reference_data(field_class, recursive_path, resource)
+
+        field_property = self.get_field_type_property(field_class.cleaned_type)
+
+        if not field_property:
+            # print(f"Missing field properties for {recursive_path}")
+            return
+
+        for prop in field_property.properties:
+            if prop.is_v2_supported:
+                continue
+            # Skipping nested extension and modifierExtension fields
+            if prop.fhir_name in ["extension", "modifierExtension"]:
+                continue
+            if prop.cleaned_type == "Reference":
+                self.make_reference_data(
+                    field_class, recursive_path, resource
+                )
+            if prop.type_snake_case not in primitive_types_dict.keys():
+                self.handle_nested_fields(prop, recursive_path, resource)
+
+        return
+
+
+    def generate_non_clinical_resource_fields_data(self):
+        """
+        Add field for each resource which contains reference to any non-clinical resource
+        """
+
+        for resource in all_classes:
+            if resource.is_resource:
+                print("\n\n")
+                print(f"Processing resource: {resource.fhir_name}")
+
+                for property_class in resource.properties:
+                    if property_class.is_v2_supported:
+                        continue
+                    if property_class.cleaned_type == "Reference":
+                        self.make_reference_data(
+                            property_class, property_class.name, resource
+                        )
+                    if property_class.type_snake_case not in primitive_types_dict:
+                        self.handle_nested_fields(property_class, "", resource)
 
 
 def get_non_clinical_resources_fields(resources_to_exclude=[], use_uuid=False):
@@ -233,6 +233,7 @@ def get_non_clinical_rechability_map(
     *,
     level: int = 3,
     as_set: bool = False,
+    non_clinical_data: NonClinicalFieldsData
 ) -> Union[Dict[str, Set[str]], Dict[str, List[str]]]:
     """
     Returns a map of non-clinical resources to all resources through which they can be reached.
@@ -246,7 +247,7 @@ def get_non_clinical_rechability_map(
         directly or indirectly up to the specified level
     """
     # Get direct references (level 0)
-
+    resource_referenced_by_map = non_clinical_data.resource_referenced_by_map
     resource_referenced_by_map["Binary"].add("DocumentReference")
 
     direct_references = {k: v for k, v in resource_referenced_by_map.items() if k not in clinical_resources and k not in ['AuditEvent', 'Resource']}
@@ -285,9 +286,10 @@ def main():
     clinical_resources.append("BiologicallyDerivedProduct")
     clinical_resources.sort()
 
-    generate_non_clinical_resource_fields_data()
+    non_clinical_data = NonClinicalFieldsData()
+    non_clinical_data.generate_non_clinical_resource_fields_data()
 
-    non_clininical_to_required_resources = get_non_clinical_rechability_map(level=3)
+    non_clininical_to_required_resources = get_non_clinical_rechability_map(level=3, as_set=False, non_clinical_data=non_clinical_data)
     non_clinical_resources = sorted(list(non_clininical_to_required_resources.keys()))
 
     print_non_clinical_stats(non_clininical_to_required_resources)
@@ -339,13 +341,13 @@ def main():
 
 
     # add custom field for accessing Binary resource from DocumentReference
-    non_clinical_map_uuid["DocumentReference"].append(
+    non_clinical_data.non_clinical_map_uuid["DocumentReference"].append(
         "content.attachment.url"
     )
 
     json_file_path = everything_operation.joinpath("generated.non_clinical_resources_fields.json")
     with open(json_file_path, "w") as json_file:
-        json.dump(non_clinical_map_uuid, json_file, indent=2)
+        json.dump(non_clinical_data.non_clinical_map_uuid, json_file, indent=2)
         json_file.write("\n")
 
     json_file_path = patient_graphs.joinpath(
