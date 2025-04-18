@@ -193,10 +193,6 @@ class NonClinicalFieldsData:
                 for property_class in resource.properties:
                     if property_class.is_v2_supported:
                         continue
-                    if property_class.cleaned_type == "Reference":
-                        self.make_reference_data(
-                            property_class, property_class.name, resource
-                        )
                     if property_class.type_snake_case not in primitive_types_dict:
                         self.handle_nested_fields(property_class, "", resource)
 
