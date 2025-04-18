@@ -38,7 +38,7 @@ const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subsc
 
 const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
-const speicimenResournce = require('./fixtures/Specimen/specimen.json');
+const speicimenResource = require('./fixtures/Specimen/specimen.json');
 const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
 
 // expected
@@ -271,7 +271,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         resp = await request
             .post('/4_0_0/Specimen/1/$merge?validate=true')
-            .send(speicimenResournce)
+            .send(speicimenResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
