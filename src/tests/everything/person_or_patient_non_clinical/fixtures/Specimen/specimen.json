@@ -1,0 +1,147 @@
+[
+  {
+    "collection": {
+      "collector": {
+        "reference": "Practitioner/prac-source-id2",
+        "display": "Dr. Susan Jane"
+      },
+      "collectedDateTime": "2023-06-15T09:00:00Z",
+      "quantity": {
+        "value": 10,
+        "unit": "mL",
+        "system": "http://unitsofmeasure.org",
+        "code": "mL"
+      },
+      "method": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "28520000",
+            "display": "Venipuncture"
+          }
+        ]
+      },
+      "bodySite": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "368208006",
+            "display": "Left antecubital fossa"
+          }
+        ]
+      }
+    },
+    "container": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "706053007",
+              "display": "General specimen container"
+            }
+          ]
+        },
+        "capacity": {
+          "value": 10,
+          "unit": "mL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mL"
+        },
+        "specimenQuantity": {
+          "value": 10,
+          "unit": "mL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mL"
+        }
+      }
+    ],
+    "id": "7950a90a-df2b-462f-a717-6b26d2cf9a88",
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "7950a90a-df2b-462f-a717-6b26d2cf9a88"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "7950a90a-df2b-462f-a717-6b26d2cf9a88"
+      }
+    ],
+    "meta": {
+      "versionId": "2",
+      "lastUpdated": "2021-12-15T15:30:30+00:00",
+      "source": "/patients",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "B"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "B"
+        }
+      ]
+    },
+    "note": [
+      {
+        "authorReference": {
+          "reference": "Practitioner/prac-source-id3",
+          "display": "Dr. Susan Jane"
+        },
+        "time": "2023-06-15T09:15:00Z",
+        "text": "Specimen collected without complications"
+      }
+    ],
+    "processing": [
+      {
+        "description": "Specimen processing",
+        "procedure": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "127789004",
+              "display": "Centrifugation"
+            }
+          ]
+        },
+        "additive": [
+          {
+            "reference": "Practitioner/prac-source-id",
+            "display": "Dr. James Smith"
+          }
+        ],
+        "timeDateTime": "2023-06-15T09:30:00Z"
+      }
+    ],
+    "resourceType": "Specimen",
+    "status": "available",
+    "subject": {
+      "reference": "Patient/patient1",
+      "display": "Joseph Charles Brown"
+    },
+    "text": {
+      "status": "generated",
+      "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Blood specimen collected</div>"
+    },
+    "type": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "119297000",
+          "display": "Blood specimen"
+        }
+      ],
+      "text": "Blood specimen"
+    }
+  }
+]

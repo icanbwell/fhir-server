@@ -19,7 +19,11 @@ class NestedPropertyReader {
             for (let item of obj) {
                 const value = NestedPropertyReader.getNestedProperty({ obj: item, path });
                 if (value) {
-                    result.push(value);
+                    if (Array.isArray(value)) {
+                        result.push(...value)
+                    } else {
+                        result.push(value);
+                    }
                 }
             }
             return result.length > 0 ? result : undefined;
