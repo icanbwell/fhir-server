@@ -5,6 +5,7 @@
     "guarantor.party._uuid"
   ],
   "ActivityDefinition": [
+    "useContext.valueReference._uuid",
     "location._uuid",
     "productReference._uuid",
     "specimenRequirement._uuid",
@@ -27,7 +28,9 @@
   ],
   "AllergyIntolerance": [
     "recorder._uuid",
-    "asserter._uuid"
+    "asserter._uuid",
+    "note.authorReference._uuid",
+    "reaction.note.authorReference._uuid"
   ],
   "Appointment": [
     "supportingInformation._uuid",
@@ -55,7 +58,12 @@
     "collection.source._uuid",
     "processing.additive._uuid"
   ],
+  "Bundle": [
+    "signature.who._uuid",
+    "signature.onBehalfOf._uuid"
+  ],
   "CapabilityStatement": [
+    "useContext.valueReference._uuid",
     "implementation.custodian._uuid"
   ],
   "CarePlan": [
@@ -63,14 +71,17 @@
     "contributor._uuid",
     "supportingInfo._uuid",
     "activity.outcomeReference._uuid",
+    "activity.progress.authorReference._uuid",
     "activity.detail.location._uuid",
     "activity.detail.performer._uuid",
-    "activity.detail.productReference._uuid"
+    "activity.detail.productReference._uuid",
+    "note.authorReference._uuid"
   ],
   "CareTeam": [
     "participant.member._uuid",
     "participant.onBehalfOf._uuid",
-    "managingOrganization._uuid"
+    "managingOrganization._uuid",
+    "note.authorReference._uuid"
   ],
   "CatalogEntry": [
     "referencedItem._uuid",
@@ -83,12 +94,16 @@
     "costCenter._uuid",
     "enterer._uuid",
     "productReference._uuid",
+    "note.authorReference._uuid",
     "supportingInformation._uuid"
   ],
   "ChargeItemDefinition": [
+    "useContext.valueReference._uuid",
     "instance._uuid"
   ],
   "Citation": [
+    "useContext.valueReference._uuid",
+    "note.authorReference._uuid",
     "relatesTo.targetReference._uuid",
     "citedArtifact.version.baseCitation._uuid",
     "citedArtifact.part.baseCitation._uuid",
@@ -96,7 +111,8 @@
     "citedArtifact.publicationForm.publishedIn.publisher._uuid",
     "citedArtifact.classification.whoClassified.person._uuid",
     "citedArtifact.classification.whoClassified.organization._uuid",
-    "citedArtifact.classification.whoClassified.publisher._uuid"
+    "citedArtifact.classification.whoClassified.publisher._uuid",
+    "citedArtifact.note.authorReference._uuid"
   ],
   "Claim": [
     "enterer._uuid",
@@ -117,23 +133,39 @@
   ],
   "ClinicalImpression": [
     "assessor._uuid",
-    "supportingInfo._uuid"
+    "supportingInfo._uuid",
+    "note.authorReference._uuid"
   ],
   "ClinicalUseDefinition": [
     "subject._uuid",
     "contraindication.diseaseSymptomProcedure._uuid",
+    "contraindication.diseaseSymptomProcedure.reference._uuid",
     "contraindication.diseaseStatus._uuid",
+    "contraindication.diseaseStatus.reference._uuid",
     "contraindication.comorbidity._uuid",
+    "contraindication.comorbidity.reference._uuid",
     "contraindication.indication._uuid",
     "contraindication.otherTherapy.therapy._uuid",
+    "contraindication.otherTherapy.therapy.reference._uuid",
     "indication.diseaseSymptomProcedure._uuid",
+    "indication.diseaseSymptomProcedure.reference._uuid",
     "indication.diseaseStatus._uuid",
+    "indication.diseaseStatus.reference._uuid",
     "indication.comorbidity._uuid",
+    "indication.comorbidity.reference._uuid",
     "indication.intendedEffect._uuid",
+    "indication.intendedEffect.reference._uuid",
     "indication.undesirableEffect._uuid",
+    "indication.otherTherapy.therapy._uuid",
+    "indication.otherTherapy.therapy.reference._uuid",
     "interaction.interactant.itemReference._uuid",
     "interaction.effect._uuid",
-    "undesirableEffect.symptomConditionEffect._uuid"
+    "interaction.effect.reference._uuid",
+    "undesirableEffect.symptomConditionEffect._uuid",
+    "undesirableEffect.symptomConditionEffect.reference._uuid"
+  ],
+  "CodeSystem": [
+    "useContext.valueReference._uuid"
   ],
   "Communication": [
     "basedOn._uuid",
@@ -141,7 +173,8 @@
     "about._uuid",
     "recipient._uuid",
     "sender._uuid",
-    "payload.contentReference._uuid"
+    "payload.contentReference._uuid",
+    "note.authorReference._uuid"
   ],
   "CommunicationRequest": [
     "basedOn._uuid",
@@ -149,7 +182,11 @@
     "payload.contentReference._uuid",
     "requester._uuid",
     "recipient._uuid",
-    "sender._uuid"
+    "sender._uuid",
+    "note.authorReference._uuid"
+  ],
+  "CompartmentDefinition": [
+    "useContext.valueReference._uuid"
   ],
   "Composition": [
     "subject._uuid",
@@ -159,18 +196,32 @@
     "event.detail._uuid",
     "section.author._uuid",
     "section.focus._uuid",
-    "section.entry._uuid"
+    "section.entry._uuid",
+    "section.section.author._uuid",
+    "section.section.focus._uuid",
+    "section.section.entry._uuid",
+    "section.section.section.author._uuid",
+    "section.section.section.focus._uuid",
+    "section.section.section.entry._uuid"
+  ],
+  "ConceptMap": [
+    "useContext.valueReference._uuid"
   ],
   "Condition": [
     "recorder._uuid",
     "asserter._uuid",
-    "evidence.detail._uuid"
+    "evidence.detail._uuid",
+    "note.authorReference._uuid"
   ],
   "Consent": [
     "performer._uuid",
     "organization._uuid",
     "provision.actor.reference._uuid",
-    "provision.data.reference._uuid"
+    "provision.data.reference._uuid",
+    "provision.provision.actor.reference._uuid",
+    "provision.provision.data.reference._uuid",
+    "provision.provision.provision.actor.reference._uuid",
+    "provision.provision.provision.data.reference._uuid"
   ],
   "Contract": [
     "subject._uuid",
@@ -186,6 +237,7 @@
     "term.offer.answer.valueReference._uuid",
     "term.asset.typeReference._uuid",
     "term.asset.context.reference._uuid",
+    "term.asset.answer.valueReference._uuid",
     "term.asset.valuedItem.entityReference._uuid",
     "term.asset.valuedItem.responsible._uuid",
     "term.asset.valuedItem.recipient._uuid",
@@ -193,8 +245,56 @@
     "term.action.requester._uuid",
     "term.action.performer._uuid",
     "term.action.reasonReference._uuid",
+    "term.action.note.authorReference._uuid",
+    "term.group.topicReference._uuid",
+    "term.group.offer.party.reference._uuid",
+    "term.group.offer.topic._uuid",
+    "term.group.offer.answer.valueReference._uuid",
+    "term.group.asset.typeReference._uuid",
+    "term.group.asset.context.reference._uuid",
+    "term.group.asset.answer.valueReference._uuid",
+    "term.group.asset.valuedItem.entityReference._uuid",
+    "term.group.asset.valuedItem.responsible._uuid",
+    "term.group.asset.valuedItem.recipient._uuid",
+    "term.group.action.subject.reference._uuid",
+    "term.group.action.requester._uuid",
+    "term.group.action.performer._uuid",
+    "term.group.action.reasonReference._uuid",
+    "term.group.action.note.authorReference._uuid",
+    "term.group.group.topicReference._uuid",
+    "term.group.group.offer.party.reference._uuid",
+    "term.group.group.offer.topic._uuid",
+    "term.group.group.offer.answer.valueReference._uuid",
+    "term.group.group.asset.typeReference._uuid",
+    "term.group.group.asset.context.reference._uuid",
+    "term.group.group.asset.answer.valueReference._uuid",
+    "term.group.group.asset.valuedItem.entityReference._uuid",
+    "term.group.group.asset.valuedItem.responsible._uuid",
+    "term.group.group.asset.valuedItem.recipient._uuid",
+    "term.group.group.action.subject.reference._uuid",
+    "term.group.group.action.requester._uuid",
+    "term.group.group.action.performer._uuid",
+    "term.group.group.action.reasonReference._uuid",
+    "term.group.group.action.note.authorReference._uuid",
+    "term.group.group.group.topicReference._uuid",
+    "term.group.group.group.offer.party.reference._uuid",
+    "term.group.group.group.offer.topic._uuid",
+    "term.group.group.group.offer.answer.valueReference._uuid",
+    "term.group.group.group.asset.typeReference._uuid",
+    "term.group.group.group.asset.context.reference._uuid",
+    "term.group.group.group.asset.answer.valueReference._uuid",
+    "term.group.group.group.asset.valuedItem.entityReference._uuid",
+    "term.group.group.group.asset.valuedItem.responsible._uuid",
+    "term.group.group.group.asset.valuedItem.recipient._uuid",
+    "term.group.group.group.action.subject.reference._uuid",
+    "term.group.group.group.action.requester._uuid",
+    "term.group.group.group.action.performer._uuid",
+    "term.group.group.group.action.reasonReference._uuid",
+    "term.group.group.group.action.note.authorReference._uuid",
     "supportingInfo._uuid",
-    "signer.party._uuid"
+    "signer.party._uuid",
+    "signer.signature.who._uuid",
+    "signer.signature.onBehalfOf._uuid"
   ],
   "Coverage": [
     "policyHolder._uuid",
@@ -224,11 +324,13 @@
   "Device": [
     "definition._uuid",
     "owner._uuid",
-    "location._uuid"
+    "location._uuid",
+    "note.authorReference._uuid"
   ],
   "DeviceDefinition": [
     "manufacturerReference._uuid",
     "owner._uuid",
+    "note.authorReference._uuid",
     "parentDevice._uuid"
   ],
   "DeviceRequest": [
@@ -237,10 +339,12 @@
     "subject._uuid",
     "requester._uuid",
     "performer._uuid",
-    "supportingInfo._uuid"
+    "supportingInfo._uuid",
+    "note.authorReference._uuid"
   ],
   "DeviceUseStatement": [
-    "source._uuid"
+    "source._uuid",
+    "note.authorReference._uuid"
   ],
   "DiagnosticReport": [
     "subject._uuid",
@@ -284,23 +388,56 @@
     "managingOrganization._uuid",
     "careManager._uuid"
   ],
+  "EventDefinition": [
+    "useContext.valueReference._uuid"
+  ],
   "Evidence": [
     "citeAsReference._uuid",
+    "useContext.valueReference._uuid",
+    "note.authorReference._uuid",
+    "variableDefinition.note.authorReference._uuid",
     "variableDefinition.observed._uuid",
     "variableDefinition.intended._uuid",
-    "statistic.modelCharacteristic.variable.variableDefinition._uuid"
+    "statistic.note.authorReference._uuid",
+    "statistic.sampleSize.note.authorReference._uuid",
+    "statistic.attributeEstimate.note.authorReference._uuid",
+    "statistic.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "statistic.attributeEstimate.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "statistic.modelCharacteristic.variable.variableDefinition._uuid",
+    "statistic.modelCharacteristic.attributeEstimate.note.authorReference._uuid",
+    "statistic.modelCharacteristic.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "statistic.modelCharacteristic.attributeEstimate.attributeEstimate.attributeEstimate.note.authorReference._uuid",
+    "certainty.note.authorReference._uuid",
+    "certainty.subcomponent.note.authorReference._uuid",
+    "certainty.subcomponent.subcomponent.note.authorReference._uuid",
+    "certainty.subcomponent.subcomponent.subcomponent.note.authorReference._uuid"
   ],
   "EvidenceReport": [
+    "useContext.valueReference._uuid",
     "citeAsReference._uuid",
+    "note.authorReference._uuid",
     "subject.characteristic.valueReference._uuid",
+    "subject.note.authorReference._uuid",
     "relatesTo.targetReference._uuid",
     "section.focusReference._uuid",
     "section.author._uuid",
-    "section.entryReference._uuid"
+    "section.entryReference._uuid",
+    "section.section.focusReference._uuid",
+    "section.section.author._uuid",
+    "section.section.entryReference._uuid",
+    "section.section.section.focusReference._uuid",
+    "section.section.section.author._uuid",
+    "section.section.section.entryReference._uuid"
   ],
   "EvidenceVariable": [
+    "note.authorReference._uuid",
+    "useContext.valueReference._uuid",
     "characteristic.definitionReference._uuid",
-    "characteristic.device._uuid"
+    "characteristic.device._uuid",
+    "characteristic.timeFromStart.note.authorReference._uuid"
+  ],
+  "ExampleScenario": [
+    "useContext.valueReference._uuid"
   ],
   "ExplanationOfBenefit": [
     "enterer._uuid",
@@ -315,19 +452,29 @@
     "addItem.provider._uuid",
     "addItem.locationReference._uuid"
   ],
+  "FamilyMemberHistory": [
+    "note.authorReference._uuid",
+    "condition.note.authorReference._uuid"
+  ],
   "Flag": [
     "subject._uuid",
     "author._uuid"
   ],
   "Goal": [
     "subject._uuid",
-    "expressedBy._uuid"
+    "expressedBy._uuid",
+    "note.authorReference._uuid"
+  ],
+  "GraphDefinition": [
+    "useContext.valueReference._uuid"
   ],
   "Group": [
     "managingEntity._uuid",
+    "characteristic.valueReference._uuid",
     "member.entity._uuid"
   ],
   "GuidanceResponse": [
+    "note.authorReference._uuid",
     "evaluationMessage._uuid",
     "outputParameters._uuid"
   ],
@@ -342,6 +489,7 @@
     "interpreter._uuid",
     "endpoint._uuid",
     "location._uuid",
+    "note.authorReference._uuid",
     "series.endpoint._uuid",
     "series.performer.actor._uuid"
   ],
@@ -349,6 +497,7 @@
     "location._uuid",
     "manufacturer._uuid",
     "performer.actor._uuid",
+    "note.authorReference._uuid",
     "protocolApplied.authority._uuid"
   ],
   "ImmunizationEvaluation": [
@@ -359,15 +508,20 @@
     "recommendation.supportingPatientInformation._uuid"
   ],
   "ImplementationGuide": [
+    "useContext.valueReference._uuid",
     "definition.resource.reference._uuid",
     "definition.page.nameReference._uuid",
+    "definition.page.page.nameReference._uuid",
+    "definition.page.page.page.nameReference._uuid",
     "manifest.resource.reference._uuid"
   ],
   "Ingredient": [
     "for._uuid",
     "manufacturer.manufacturer._uuid",
     "substance.code._uuid",
-    "substance.strength.referenceStrength.substance._uuid"
+    "substance.code.reference._uuid",
+    "substance.strength.referenceStrength.substance._uuid",
+    "substance.strength.referenceStrength.substance.reference._uuid"
   ],
   "InsurancePlan": [
     "ownedBy._uuid",
@@ -382,7 +536,11 @@
   "Invoice": [
     "recipient._uuid",
     "participant.actor._uuid",
-    "issuer._uuid"
+    "issuer._uuid",
+    "note.authorReference._uuid"
+  ],
+  "Library": [
+    "useContext.valueReference._uuid"
   ],
   "Linkage": [
     "author._uuid",
@@ -391,6 +549,7 @@
   "List": [
     "subject._uuid",
     "source._uuid",
+    "note.authorReference._uuid",
     "entry.item._uuid"
   ],
   "Location": [
@@ -401,6 +560,9 @@
   "ManufacturedItemDefinition": [
     "manufacturer._uuid"
   ],
+  "Measure": [
+    "useContext.valueReference._uuid"
+  ],
   "MeasureReport": [
     "subject._uuid",
     "reporter._uuid",
@@ -410,7 +572,8 @@
     "partOf._uuid",
     "subject._uuid",
     "operator._uuid",
-    "device._uuid"
+    "device._uuid",
+    "note.authorReference._uuid"
   ],
   "Medication": [
     "manufacturer._uuid",
@@ -419,7 +582,8 @@
   "MedicationAdministration": [
     "medicationReference._uuid",
     "supportingInformation._uuid",
-    "performer.actor._uuid"
+    "performer.actor._uuid",
+    "note.authorReference._uuid"
   ],
   "MedicationDispense": [
     "medicationReference._uuid",
@@ -428,6 +592,7 @@
     "location._uuid",
     "destination._uuid",
     "receiver._uuid",
+    "note.authorReference._uuid",
     "substitution.responsibleParty._uuid"
   ],
   "MedicationKnowledge": [
@@ -445,20 +610,28 @@
     "requester._uuid",
     "performer._uuid",
     "recorder._uuid",
+    "note.authorReference._uuid",
     "dispenseRequest.performer._uuid"
   ],
   "MedicationStatement": [
     "medicationReference._uuid",
     "informationSource._uuid",
-    "derivedFrom._uuid"
+    "derivedFrom._uuid",
+    "note.authorReference._uuid"
   ],
   "MedicinalProductDefinition": [
     "impurity._uuid",
+    "impurity.reference._uuid",
     "contact.contact._uuid",
     "clinicalTrial._uuid",
     "crossReference.product._uuid",
+    "crossReference.product.reference._uuid",
     "operation.type._uuid",
+    "operation.type.reference._uuid",
     "operation.organization._uuid"
+  ],
+  "MessageDefinition": [
+    "useContext.valueReference._uuid"
   ],
   "MessageHeader": [
     "destination.receiver._uuid",
@@ -472,19 +645,28 @@
   "MolecularSequence": [
     "performer._uuid"
   ],
+  "NamingSystem": [
+    "useContext.valueReference._uuid"
+  ],
   "NutritionOrder": [
-    "orderer._uuid"
+    "orderer._uuid",
+    "note.authorReference._uuid"
   ],
   "NutritionProduct": [
     "manufacturer._uuid",
     "nutrient.item._uuid",
+    "nutrient.item.reference._uuid",
     "ingredient.item._uuid",
-    "knownAllergen._uuid"
+    "ingredient.item.reference._uuid",
+    "knownAllergen._uuid",
+    "knownAllergen.reference._uuid",
+    "note.authorReference._uuid"
   ],
   "Observation": [
     "subject._uuid",
     "focus._uuid",
     "performer._uuid",
+    "note.authorReference._uuid",
     "device._uuid"
   ],
   "ObservationDefinition": [
@@ -492,6 +674,9 @@
     "normalCodedValueSet._uuid",
     "abnormalCodedValueSet._uuid",
     "criticalCodedValueSet._uuid"
+  ],
+  "OperationDefinition": [
+    "useContext.valueReference._uuid"
   ],
   "Organization": [
     "partOf._uuid",
@@ -509,7 +694,36 @@
     "packageFor._uuid",
     "manufacturer._uuid",
     "package.manufacturer._uuid",
-    "package.containedItem.item._uuid"
+    "package.containedItem.item._uuid",
+    "package.containedItem.item.reference._uuid",
+    "package.package.manufacturer._uuid",
+    "package.package.containedItem.item._uuid",
+    "package.package.containedItem.item.reference._uuid",
+    "package.package.package.manufacturer._uuid",
+    "package.package.package.containedItem.item._uuid",
+    "package.package.package.containedItem.item.reference._uuid"
+  ],
+  "Parameters": [
+    "parameter.valueAnnotation.authorReference._uuid",
+    "parameter.valueReference._uuid",
+    "parameter.valueSignature.who._uuid",
+    "parameter.valueSignature.onBehalfOf._uuid",
+    "parameter.valueUsageContext.valueReference._uuid",
+    "parameter.part.valueAnnotation.authorReference._uuid",
+    "parameter.part.valueReference._uuid",
+    "parameter.part.valueSignature.who._uuid",
+    "parameter.part.valueSignature.onBehalfOf._uuid",
+    "parameter.part.valueUsageContext.valueReference._uuid",
+    "parameter.part.part.valueAnnotation.authorReference._uuid",
+    "parameter.part.part.valueReference._uuid",
+    "parameter.part.part.valueSignature.who._uuid",
+    "parameter.part.part.valueSignature.onBehalfOf._uuid",
+    "parameter.part.part.valueUsageContext.valueReference._uuid",
+    "parameter.part.part.part.valueAnnotation.authorReference._uuid",
+    "parameter.part.part.part.valueReference._uuid",
+    "parameter.part.part.part.valueSignature.who._uuid",
+    "parameter.part.part.part.valueSignature.onBehalfOf._uuid",
+    "parameter.part.part.part.valueUsageContext.valueReference._uuid"
   ],
   "Patient": [
     "contact.organization._uuid",
@@ -537,6 +751,9 @@
     "managingOrganization._uuid",
     "link.target._uuid"
   ],
+  "PlanDefinition": [
+    "useContext.valueReference._uuid"
+  ],
   "Practitioner": [
     "qualification.issuer._uuid"
   ],
@@ -553,6 +770,7 @@
     "performer.actor._uuid",
     "performer.onBehalfOf._uuid",
     "location._uuid",
+    "note.authorReference._uuid",
     "usedReference._uuid"
   ],
   "Provenance": [
@@ -560,22 +778,40 @@
     "location._uuid",
     "agent.who._uuid",
     "agent.onBehalfOf._uuid",
-    "entity.what._uuid"
+    "entity.what._uuid",
+    "entity.agent.who._uuid",
+    "entity.agent.onBehalfOf._uuid",
+    "signature.who._uuid",
+    "signature.onBehalfOf._uuid"
   ],
   "Questionnaire": [
+    "useContext.valueReference._uuid",
     "item.enableWhen.answerReference._uuid",
     "item.answerOption.valueReference._uuid",
-    "item.initial.valueReference._uuid"
+    "item.initial.valueReference._uuid",
+    "item.item.enableWhen.answerReference._uuid",
+    "item.item.answerOption.valueReference._uuid",
+    "item.item.initial.valueReference._uuid",
+    "item.item.item.enableWhen.answerReference._uuid",
+    "item.item.item.answerOption.valueReference._uuid",
+    "item.item.item.initial.valueReference._uuid"
   ],
   "QuestionnaireResponse": [
     "subject._uuid",
     "author._uuid",
     "source._uuid",
-    "item.answer.valueReference._uuid"
+    "item.answer.valueReference._uuid",
+    "item.answer.item.answer.valueReference._uuid",
+    "item.answer.item.answer.item.answer.valueReference._uuid",
+    "item.answer.item.item.answer.valueReference._uuid",
+    "item.item.answer.valueReference._uuid",
+    "item.item.answer.item.answer.valueReference._uuid",
+    "item.item.item.answer.valueReference._uuid"
   ],
   "RegulatedAuthorization": [
     "subject._uuid",
     "indication._uuid",
+    "indication.reference._uuid",
     "holder._uuid",
     "regulator._uuid"
   ],
@@ -583,21 +819,32 @@
     "basedOn._uuid",
     "replaces._uuid",
     "author._uuid",
+    "note.authorReference._uuid",
     "action.participant._uuid",
-    "action.resource._uuid"
+    "action.resource._uuid",
+    "action.action.participant._uuid",
+    "action.action.resource._uuid",
+    "action.action.action.participant._uuid",
+    "action.action.action.resource._uuid"
   ],
   "ResearchDefinition": [
+    "useContext.valueReference._uuid",
     "population._uuid",
     "exposure._uuid",
     "exposureAlternative._uuid",
     "outcome._uuid"
+  ],
+  "ResearchElementDefinition": [
+    "useContext.valueReference._uuid",
+    "characteristic.usageContext.valueReference._uuid"
   ],
   "ResearchStudy": [
     "protocol._uuid",
     "partOf._uuid",
     "sponsor._uuid",
     "principalInvestigator._uuid",
-    "site._uuid"
+    "site._uuid",
+    "note.authorReference._uuid"
   ],
   "ResearchSubject": [
     "study._uuid"
@@ -606,38 +853,118 @@
     "basedOn._uuid",
     "parent._uuid",
     "performer._uuid",
-    "basis._uuid"
+    "basis._uuid",
+    "note.authorReference._uuid"
   ],
   "Schedule": [
     "actor._uuid"
+  ],
+  "SearchParameter": [
+    "useContext.valueReference._uuid"
   ],
   "ServiceRequest": [
     "subject._uuid",
     "requester._uuid",
     "performer._uuid",
     "locationReference._uuid",
-    "supportingInfo._uuid"
+    "supportingInfo._uuid",
+    "note.authorReference._uuid"
   ],
   "Specimen": [
     "subject._uuid",
     "collection.collector._uuid",
     "processing.additive._uuid",
-    "container.additiveReference._uuid"
+    "container.additiveReference._uuid",
+    "note.authorReference._uuid"
   ],
   "SpecimenDefinition": [
     "typeTested.container.additive.additiveReference._uuid"
   ],
+  "StructureDefinition": [
+    "useContext.valueReference._uuid",
+    "snapshot.element.defaultValueAnnotation.authorReference._uuid",
+    "snapshot.element.defaultValueCodeableReference.reference._uuid",
+    "snapshot.element.defaultValueReference._uuid",
+    "snapshot.element.defaultValueSignature.who._uuid",
+    "snapshot.element.defaultValueSignature.onBehalfOf._uuid",
+    "snapshot.element.defaultValueUsageContext.valueReference._uuid",
+    "snapshot.element.fixedAnnotation.authorReference._uuid",
+    "snapshot.element.fixedCodeableReference.reference._uuid",
+    "snapshot.element.fixedReference._uuid",
+    "snapshot.element.fixedSignature.who._uuid",
+    "snapshot.element.fixedSignature.onBehalfOf._uuid",
+    "snapshot.element.fixedUsageContext.valueReference._uuid",
+    "snapshot.element.patternAnnotation.authorReference._uuid",
+    "snapshot.element.patternCodeableReference.reference._uuid",
+    "snapshot.element.patternReference._uuid",
+    "snapshot.element.patternSignature.who._uuid",
+    "snapshot.element.patternSignature.onBehalfOf._uuid",
+    "snapshot.element.patternUsageContext.valueReference._uuid",
+    "snapshot.element.example.valueAnnotation.authorReference._uuid",
+    "snapshot.element.example.valueCodeableReference.reference._uuid",
+    "snapshot.element.example.valueReference._uuid",
+    "snapshot.element.example.valueSignature.who._uuid",
+    "snapshot.element.example.valueSignature.onBehalfOf._uuid",
+    "snapshot.element.example.valueUsageContext.valueReference._uuid",
+    "differential.element.defaultValueAnnotation.authorReference._uuid",
+    "differential.element.defaultValueCodeableReference.reference._uuid",
+    "differential.element.defaultValueReference._uuid",
+    "differential.element.defaultValueSignature.who._uuid",
+    "differential.element.defaultValueSignature.onBehalfOf._uuid",
+    "differential.element.defaultValueUsageContext.valueReference._uuid",
+    "differential.element.fixedAnnotation.authorReference._uuid",
+    "differential.element.fixedCodeableReference.reference._uuid",
+    "differential.element.fixedReference._uuid",
+    "differential.element.fixedSignature.who._uuid",
+    "differential.element.fixedSignature.onBehalfOf._uuid",
+    "differential.element.fixedUsageContext.valueReference._uuid",
+    "differential.element.patternAnnotation.authorReference._uuid",
+    "differential.element.patternCodeableReference.reference._uuid",
+    "differential.element.patternReference._uuid",
+    "differential.element.patternSignature.who._uuid",
+    "differential.element.patternSignature.onBehalfOf._uuid",
+    "differential.element.patternUsageContext.valueReference._uuid",
+    "differential.element.example.valueAnnotation.authorReference._uuid",
+    "differential.element.example.valueCodeableReference.reference._uuid",
+    "differential.element.example.valueReference._uuid",
+    "differential.element.example.valueSignature.who._uuid",
+    "differential.element.example.valueSignature.onBehalfOf._uuid",
+    "differential.element.example.valueUsageContext.valueReference._uuid"
+  ],
+  "StructureMap": [
+    "useContext.valueReference._uuid",
+    "group.rule.source.defaultValueAnnotation.authorReference._uuid",
+    "group.rule.source.defaultValueReference._uuid",
+    "group.rule.source.defaultValueSignature.who._uuid",
+    "group.rule.source.defaultValueSignature.onBehalfOf._uuid",
+    "group.rule.source.defaultValueUsageContext.valueReference._uuid",
+    "group.rule.rule.source.defaultValueAnnotation.authorReference._uuid",
+    "group.rule.rule.source.defaultValueReference._uuid",
+    "group.rule.rule.source.defaultValueSignature.who._uuid",
+    "group.rule.rule.source.defaultValueSignature.onBehalfOf._uuid",
+    "group.rule.rule.source.defaultValueUsageContext.valueReference._uuid",
+    "group.rule.rule.rule.source.defaultValueAnnotation.authorReference._uuid",
+    "group.rule.rule.rule.source.defaultValueReference._uuid",
+    "group.rule.rule.rule.source.defaultValueSignature.who._uuid",
+    "group.rule.rule.rule.source.defaultValueSignature.onBehalfOf._uuid",
+    "group.rule.rule.rule.source.defaultValueUsageContext.valueReference._uuid"
+  ],
   "SubscriptionStatus": [
     "notificationEvent.focus._uuid",
     "notificationEvent.additionalContext._uuid"
+  ],
+  "SubscriptionTopic": [
+    "useContext.valueReference._uuid"
   ],
   "Substance": [
     "ingredient.substanceReference._uuid"
   ],
   "SubstanceDefinition": [
     "informationSource._uuid",
+    "note.authorReference._uuid",
     "manufacturer._uuid",
     "supplier._uuid",
+    "code.note.authorReference._uuid",
     "relationship.substanceDefinitionReference._uuid"
   ],
   "SupplyDelivery": [
@@ -661,23 +988,48 @@
     "owner._uuid",
     "location._uuid",
     "reasonReference._uuid",
-    "restriction.recipient._uuid"
+    "note.authorReference._uuid",
+    "restriction.recipient._uuid",
+    "input.valueAnnotation.authorReference._uuid",
+    "input.valueReference._uuid",
+    "input.valueSignature.who._uuid",
+    "input.valueSignature.onBehalfOf._uuid",
+    "input.valueUsageContext.valueReference._uuid",
+    "output.valueAnnotation.authorReference._uuid",
+    "output.valueReference._uuid",
+    "output.valueSignature.who._uuid",
+    "output.valueSignature.onBehalfOf._uuid",
+    "output.valueUsageContext.valueReference._uuid"
+  ],
+  "TerminologyCapabilities": [
+    "useContext.valueReference._uuid"
   ],
   "TestReport": [
     "testScript._uuid"
   ],
   "TestScript": [
+    "useContext.valueReference._uuid",
     "fixture.resource._uuid",
     "profile._uuid"
+  ],
+  "ValueSet": [
+    "useContext.valueReference._uuid"
   ],
   "VerificationResult": [
     "target._uuid",
     "primarySource.who._uuid",
     "attestation.who._uuid",
     "attestation.onBehalfOf._uuid",
-    "validator.organization._uuid"
+    "attestation.proxySignature.who._uuid",
+    "attestation.proxySignature.onBehalfOf._uuid",
+    "attestation.sourceSignature.who._uuid",
+    "attestation.sourceSignature.onBehalfOf._uuid",
+    "validator.organization._uuid",
+    "validator.attestationSignature.who._uuid",
+    "validator.attestationSignature.onBehalfOf._uuid"
   ],
   "VisionPrescription": [
-    "prescriber._uuid"
+    "prescriber._uuid",
+    "lensSpecification.note.authorReference._uuid"
   ]
 }

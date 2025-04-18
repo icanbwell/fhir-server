@@ -15,9 +15,11 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 
 const biologicallyDerivedProductResource = require('./fixtures/BiologicallyDerivedProduct/biologicallyDerivedProduct.json');
 const carePlanResource = require('./fixtures/CarePlan/carePlan.json');
+const carePlanResource2 = require('./fixtures/CarePlan/carePlan2.json');
 const medicationResource = require('./fixtures/Medication/medication.json');
 const conditionResource = require('./fixtures/Condition/condition.json');
 const practitionerResource = require('./fixtures/Practitioner/practitioner.json');
+const practitionerResource2 = require('./fixtures/Practitioner/practitioner2.json');
 const organizationResource1 = require('./fixtures/Organization/organization1.json');
 const organizationResource2 = require('./fixtures/Organization/organization2.json');
 const linkageResource1 = require('./fixtures/Linkage/linkage.json');
@@ -208,6 +210,20 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(expectedPractitionerRoles);
+
+        resp = await request
+            .post('/4_0_0/CarePlan/1/$merge?validate=true')
+            .send(carePlanResource2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Practitioner/1/$merge?validate=true')
+            .send(practitionerResource2)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner')
             .set(getHeaders());
