@@ -2,8 +2,6 @@
 
 The FHIR server supports the Patient GET $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/R4B/patient-operation-everything.html). This operation is used to retrieve all resources related to the provided patient. Along with the linked non-clinical resources upto depth 3.
 
-Note - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
-
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
@@ -61,6 +59,12 @@ Sample $everything result for patient
   ]
 }
 ```
+
+## Notes
+- If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
+- Non-clinical resources are fetched for all references in the clinical resources except for references in these type of fields: Extension, ModifierExtension and Identifier. 
+- All non-clinical references are fetched upto recursive depth of 2 for same types in a resources.
+  Eg: in case of Consent resource, references in provision.provision field are fetched but provision.provision.provision are not fetched.
 
 ## Resources returned by Patient $everything
 Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, BiologicallyDerivedProduct, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
