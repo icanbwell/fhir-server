@@ -11,7 +11,7 @@ const resourcesMap = require('./generated.resource_types.json');
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 
-class NonClinicalReferenesExtractor {
+class NonClinicalReferencesExtractor {
     /**
      * @typedef {Object} NonClinicalReferenesExtractorOptions
      * @property {string[]} resourcesToExclude List of resources to exclude. Always given more preference to this field
@@ -121,4 +121,4 @@ class NonClinicalReferenesExtractor {
     }
 }
 
-module.exports = { NonClinicalReferenesExtractor };
+module.exports = { NonClinicalReferencesExtractor };

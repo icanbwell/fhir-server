@@ -35,7 +35,7 @@ const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourc
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
 const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
-const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtractor');
+const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
@@ -374,12 +374,12 @@ class EverythingHelper {
             });
 
             /**
-             * @type {NonClinicalReferenesExtractor|null}
+             * @type {NonClinicalReferencesExtractor|null}
              */
-            let nonClinicalReferenesExtractor = null;
+            let nonClinicalReferencesExtractor = null;
             // Extract non-clinical only if includeNonClinicalResources is true or any nonClinical resource is present in _type filter
             if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
-                nonClinicalReferenesExtractor = new NonClinicalReferenesExtractor({
+                nonClinicalReferencesExtractor = new NonClinicalReferencesExtractor({
                     resourcesTypeToExclude: clinicalResources,
                     resourcePool: everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
                 });
@@ -420,7 +420,7 @@ class EverythingHelper {
             if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
                 useUuidProjection = true;
                 includeNonClinicalResources = false;
-                nonClinicalReferenesExtractor = null;
+                nonClinicalReferencesExtractor = null;
             }
 
             // patient resource don't exist for proxy patient
@@ -455,7 +455,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: realtedEntitites, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -469,13 +469,13 @@ class EverythingHelper {
                     bundleEntryIdsProcessedTracker,
                     proxyPatientIds,
                     getRaw,
-                    nonClinicalReferenesExtractor,
+                    nonClinicalReferencesExtractor,
                     everythingRelatedResourceManager,
                     useUuidProjection
                 })
 
                 if (!responseStreamer) {
-                    entries.push(...(realtedEntitites || []))
+                    entries.push(...(relatedEntities || []))
                 }
 
                 for (const q of queryItems) {
@@ -498,7 +498,7 @@ class EverythingHelper {
             if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
                 let resourcesTypeToExclude = clinicalResources;
                 // finding non clinical resources in depth using previous result as input
-                let referenceExtractor = nonClinicalReferenesExtractor;
+                let referenceExtractor = nonClinicalReferencesExtractor;
 
                 for (let i = 0; i < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH && referenceExtractor; i++) {
                     /**
@@ -509,7 +509,7 @@ class EverythingHelper {
                     // for next level
                     let referenceExtractorForNextLevel =
                         i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
-                            ? new NonClinicalReferenesExtractor({
+                            ? new NonClinicalReferencesExtractor({
                                   resourcesTypeToExclude,
                                   resourcePool:
                                   everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
@@ -549,7 +549,7 @@ class EverythingHelper {
                                 responseStreamer,
                                 bundleEntryIdsProcessedTracker,
                                 requestInfo,
-                                nonClinicalReferenesExtractor: referenceExtractorForNextLevel,
+                                nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager
                             });
 
@@ -642,7 +642,7 @@ class EverythingHelper {
      * @property {ResourceIdentifier[]} resourceIdentifiers
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {boolean} getRaw
-     * @property {NonClinicalReferenesExtractor | null} nonClinicalReferenesExtractor
+     * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
      *
      * @param {FetchResourceByArgsAsyncParams}
@@ -660,7 +660,7 @@ class EverythingHelper {
         resourceIdentifiers,
         getRaw,
         everythingRelatedResourceManager,
-        nonClinicalReferenesExtractor,
+        nonClinicalReferencesExtractor,
         useUuidProjection = false
     }) {
 
@@ -751,7 +751,7 @@ class EverythingHelper {
             responseStreamer: responseStreamer,
             bundleEntryIdsProcessedTracker,
             resourceIdentifiers,
-            nonClinicalReferenesExtractor,
+            nonClinicalReferencesExtractor,
             everythingRelatedResourceManager,
             useUuidProjection
         });
@@ -783,7 +783,7 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker} parentResourcesProcessedTracker
      * @property {string[]} proxyPatientIds
      * @property {boolean} getRaw
-     * @property {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
+     * @property {NonClinicalReferencesExtractor} nonClinicalReferencesExtractor
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
      *
@@ -805,7 +805,7 @@ class EverythingHelper {
         proxyPatientIds = [],
         getRaw = false,
         everythingRelatedResourceManager,
-        nonClinicalReferenesExtractor,
+        nonClinicalReferencesExtractor,
         useUuidProjection = false
         }
     ) {
@@ -1021,7 +1021,7 @@ class EverythingHelper {
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
                 getRaw,
-                nonClinicalReferenesExtractor,
+                nonClinicalReferencesExtractor,
                 parentResourcesProcessedTracker,
                 parentLookupField,
                 proxyPatientIds: proxyPatientIds || [],
@@ -1063,7 +1063,7 @@ class EverythingHelper {
      *  resourceIdentifiers: ResourceIdentifier[] | null,
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
-     *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
+     *  nonClinicalReferencesExtractor: NonClinicalReferencesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
      *  parentLookupField?: string,
      *  proxyPatientIds?: string[],
@@ -1080,7 +1080,7 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
         getRaw,
-        nonClinicalReferenesExtractor,
+        nonClinicalReferencesExtractor,
         parentResourcesProcessedTracker,
         parentLookupField,
         proxyPatientIds,
@@ -1224,8 +1224,8 @@ class EverythingHelper {
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
 
                     // find references
-                    if (nonClinicalReferenesExtractor) {
-                        await nonClinicalReferenesExtractor.processResource(startResource);
+                    if (nonClinicalReferencesExtractor) {
+                        await nonClinicalReferencesExtractor.processResource(startResource);
                     }
 
                     if (

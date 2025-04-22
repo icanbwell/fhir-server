@@ -133,7 +133,7 @@ This parameter is used to restrict the result to only include resources which ar
 <br> 
 Default: false
 
-For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includeProxyPatientLinkedOnly=true
+For example: <base_url>/4_0_0/Patient/person.\<patient_id>/$everything?\_includeProxyPatientLinkedOnly=true
 
 ### \_excludeProxyPatientLinked
 
@@ -141,11 +141,11 @@ This parameter is used to exclude resources which are linked to given proxy pati
 <br> 
 Default: false
 
-For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_excludeProxyPatientLinked=true
+For example: <base_url>/4_0_0/Patient/person.\<patient_id>/$everything?\_excludeProxyPatientLinked=true
 
 ### \_includePatientLinkedUuidOnly
 
-This parameter is used to only include id and resourceType field in result. Where id field will contain uuid only.
+This parameter is used to only include id and resourceType field of clinical resources in result. Where id field will contain uuid only. Non-clinical resources are excluded when using this param.
 <br> 
 Default: false
 
