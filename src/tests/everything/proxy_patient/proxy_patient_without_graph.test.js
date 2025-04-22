@@ -16,8 +16,13 @@ const expectedPersonResourcesWithProxyPatient = require('./fixtures/expected/exp
 const expectedPersonResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_person_everything_sourceid.json');
 const expectedPersonResourcesContained = require('./fixtures/expected/expected_person_everything_contained.json');
 const expectedPatientResourcesWithProxyPatient = require('./fixtures/expected/expected_patient_everything_without_graph.json');
+const expectedPatientResourcesWithProxyPatientAndUuidOnly = require('./fixtures/expected/expected_patient_everything_without_graph_and_uuid_only.json');
 const expectedPatientResourcesWithProxyPatientAndPatientScope = require('./fixtures/expected/expected_patient_everything_without_graph_with_patient_scope.json');
 const expectedPatientResourcesWithMultipleProxyPatient = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph.json');
+const expectedPatientResourcesWithIncludeProxyOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_proxy_only.json');
+const expectedPatientResourcesWithIncludeProxyUuidOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_proxy_uuid_only.json');
+const expectedPatientResourcesWithExcludeProxy = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_and_exclude_proxy.json');
+const expectedPatientResourcesWithExcludeProxyUuidOnly = require('./fixtures/expected/expected_multiple_id_patient_everything_without_graph_and_exclude_proxy_uuid_only.json');
 const expectedPatientResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_patient_everything_sourceid.json');
 const expectedPatientResourcesWithoutGraphWithRewritePatientRef = require('./fixtures/expected/expected_patient_everything_without_graph_rewrite_patient_ref.json');
 
@@ -137,6 +142,19 @@ describe('Proxy Patient $everything Tests', () => {
             });
         expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatient);
 
+        // get patient everything using proxy patient and _includePatientLinkedUuidOnly and prefer global_id header is ignored
+        resp = await request
+            .get(
+                '/4_0_0/Patient/person.' +
+                    person1Resp.body.uuid +
+                    '/$everything?_debug=true&_includePatientLinkedUuidOnly=true&_rewritePatientReference=true'
+            )
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
+        expect(resp).toHaveResponse(expectedPatientResourcesWithProxyPatientAndUuidOnly);
+
         // get patient everything using proxy patient with contained and _rewritePatientReference as true
         resp = await request
             .get(
@@ -181,6 +199,30 @@ describe('Proxy Patient $everything Tests', () => {
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1`)
             .set(getHeaders());
         expect(resp).toHaveResponse(expectedPatientResourcesWithMultipleProxyPatient);
+
+        // get proxy patient everything with _includeProxyPatientLinkedOnly
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1`)
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyOnly);
+
+        // get proxy patient everything with _excludeProxyPatientLinked
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1`)
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxy);
+
+        // get proxy patient everything with _includeProxyPatientLinkedOnly and _includePatientLinkedUuidOnly
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_includeProxyPatientLinkedOnly=1&_includePatientLinkedUuidOnly=1`)
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedPatientResourcesWithIncludeProxyUuidOnly);
+
+        // get proxy patient everything with _excludeProxyPatientLinked and _includePatientLinkedUuidOnly
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;

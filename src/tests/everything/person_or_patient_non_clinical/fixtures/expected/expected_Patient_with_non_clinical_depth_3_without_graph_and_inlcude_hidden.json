@@ -44,9 +44,7 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": [
-              "SHYLA"
-            ]
+            "given": ["SHYLA"]
           }
         ],
         "gender": "female",
@@ -396,9 +394,7 @@
             "use": "usual",
             "text": "t",
             "family": "person1",
-            "given": [
-              "OTHER"
-            ]
+            "given": ["OTHER"]
           }
         ],
         "gender": "male",
@@ -685,17 +681,12 @@
         "address": [
           {
             "city": "Perry Hall",
-            "line": [
-              "5009 Honeygo Center Drive",
-              "Suite 216"
-            ],
+            "line": ["5009 Honeygo Center Drive", "Suite 216"],
             "postalCode": "21128",
             "state": "MD"
           }
         ],
-        "alias": [
-          "Client Medical Group Derm at Honeygo"
-        ],
+        "alias": ["Client Medical Group Derm at Honeygo"],
         "contact": [
           {
             "purpose": {
@@ -1053,17 +1044,13 @@
         "name": [
           {
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ],
+            "given": ["SAMER S."],
             "text": "SAMER S. NAJJAR  MD",
             "use": "usual"
           },
           {
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ],
+            "given": ["SAMER S."],
             "text": "NAJJAR  MD, SAMER S.",
             "use": "usual"
           }
@@ -1133,17 +1120,12 @@
         "address": [
           {
             "city": "Perry Hall",
-            "line": [
-              "5009 Honeygo Center Drive",
-              "Suite 216"
-            ],
+            "line": ["5009 Honeygo Center Drive", "Suite 216"],
             "postalCode": "21128",
             "state": "MD"
           }
         ],
-        "alias": [
-          "Client Medical Group Derm at Honeygo"
-        ],
+        "alias": ["Client Medical Group Derm at Honeygo"],
         "contact": [
           {
             "purpose": {
@@ -1685,9 +1667,7 @@
         "address": {
           "use": "work",
           "type": "physical",
-          "line": [
-            "1940 Elmer J Bissell Rd"
-          ],
+          "line": ["1940 Elmer J Bissell Rd"],
           "city": "Birmingham",
           "state": "AL",
           "postalCode": "35243"
@@ -1826,17 +1806,13 @@
             "use": "usual",
             "text": "SAMER S. NAJJAR  MD",
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ]
+            "given": ["SAMER S."]
           },
           {
             "use": "usual",
             "text": "NAJJAR  MD, SAMER S.",
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ]
+            "given": ["SAMER S."]
           }
         ],
         "qualification": [
@@ -1953,17 +1929,13 @@
             "use": "usual",
             "text": "SAMER S. NAJJAR  MD",
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ]
+            "given": ["SAMER S."]
           },
           {
             "use": "usual",
             "text": "NAJJAR  MD, SAMER S.",
             "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ]
+            "given": ["SAMER S."]
           }
         ],
         "qualification": [
@@ -2472,7 +2444,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Patient_4_0_0.find({'_sourceId':'patient1'}, {'_id':0})  | db.Account_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.AdverseEvent_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.AllergyIntolerance_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Appointment_4_0_0.find({'participant.actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.AppointmentResponse_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.BiologicallyDerivedProduct_4_0_0.find({'collection.source._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Basic_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.BodyStructure_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.CarePlan_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.CareTeam_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ChargeItem_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Claim_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ClaimResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ClinicalImpression_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Communication_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.CommunicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Composition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Condition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Consent_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Contract_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Coverage_4_0_0.find({'beneficiary._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.CoverageEligibilityRequest_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.CoverageEligibilityResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DetectedIssue_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Device_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DeviceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DeviceUseStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DiagnosticReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DocumentManifest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.DocumentReference_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Encounter_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.EnrollmentRequest_4_0_0.find({'candidate._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.EpisodeOfCare_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ExplanationOfBenefit_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.FamilyMemberHistory_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Flag_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Goal_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Group_4_0_0.find({'member.entity._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.GuidanceResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ImagingStudy_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Immunization_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ImmunizationEvaluation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ImmunizationRecommendation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Invoice_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Linkage_4_0_0.find({'item.resource._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.List_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MeasureReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Media_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MedicationAdministration_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MedicationDispense_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MedicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MedicationStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.MolecularSequence_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.NutritionOrder_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Observation_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Patient_4_0_0.find({'link.other._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.PaymentNotice_4_0_0.find({'request._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Person_4_0_0.find({'link.target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Procedure_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Provenance_4_0_0.find({'target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.QuestionnaireResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.RelatedPerson_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.RequestGroup_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ResearchSubject_4_0_0.find({'individual._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.RiskAssessment_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Schedule_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.ServiceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Specimen_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Subscription_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {}) | db.SubscriptionStatus_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {}) | db.SubscriptionTopic_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'patient1'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'healthsystem1'}}}]}, {}) | db.SupplyDelivery_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.SupplyRequest_4_0_0.find({'requester._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Task_4_0_0.find({'for._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.VisionPrescription_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {}) | db.Organization_4_0_0.find({'_uuid':'214ca533-fb96-562d-824d-3aca1406f3fb'}, {}) | db.Medication_4_0_0.find({'_uuid':'b0e0113d-23a0-5742-a054-c8afe008010b'}, {}) | db.Practitioner_4_0_0.find({'_uuid':'aa8a8ff8-af25-5878-8cf3-bc74227d44dd'}, {}) | db.Binary_4_0_0.find({'_uuid':{'$in':['2be6f9aa-62b1-509c-bafc-28f4665fa465','99cdf7f4-a3ae-5f7b-a759-23a2455f11ab']}}, {}) | db.PaymentReconciliation_4_0_0.find({'_uuid':'d45e43c6-170f-52e1-a157-692ee5c9704b'}, {}) | db.PractitionerRole_4_0_0.find({'_uuid':{'$in':['8143ac7d-ad11-4349-9a3f-da93faae0eae','9ec009e4-28f7-4958-86da-256fe0f67c75']}}, {}) | db.Organization_4_0_0.find({'_uuid':'d187d5ce-f842-5e13-a4db-961d8e728ebc'}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_uuid':'135bd32b-f8fe-47c0-98aa-ea6f7d15af6a'},{'_sourceId':'prac-source-id'}]}, {}) | db.Location_4_0_0.find({'_uuid':'9c1e9c7f-959b-4a53-892a-2760cfd760bf'}, {}) | db.Organization_4_0_0.find({'_uuid':{'$in':['d187d5ce-f842-5e13-a4db-961d8e728ebc','7712bd08-fd99-561d-9324-d2fcd41fb009']}}, {})"
+        "display": "db.Patient_4_0_0.find({'_sourceId':'patient1'}, {'_id':0})  | db.Account_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.AdverseEvent_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.AllergyIntolerance_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Appointment_4_0_0.find({'participant.actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.AppointmentResponse_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.BiologicallyDerivedProduct_4_0_0.find({'collection.source._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Basic_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.BodyStructure_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.CarePlan_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.CareTeam_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ChargeItem_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Claim_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ClaimResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ClinicalImpression_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Communication_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.CommunicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Composition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Condition_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Consent_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Contract_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Coverage_4_0_0.find({'beneficiary._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.CoverageEligibilityRequest_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.CoverageEligibilityResponse_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DetectedIssue_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Device_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DeviceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DeviceUseStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DiagnosticReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DocumentManifest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.DocumentReference_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Encounter_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.EnrollmentRequest_4_0_0.find({'candidate._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.EpisodeOfCare_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ExplanationOfBenefit_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.FamilyMemberHistory_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Flag_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Goal_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Group_4_0_0.find({'member.entity._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.GuidanceResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ImagingStudy_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Immunization_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ImmunizationEvaluation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ImmunizationRecommendation_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Invoice_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Linkage_4_0_0.find({'item.resource._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.List_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MeasureReport_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Media_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MedicationAdministration_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MedicationDispense_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MedicationRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MedicationStatement_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.MolecularSequence_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.NutritionOrder_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Observation_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Patient_4_0_0.find({'link.other._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.PaymentNotice_4_0_0.find({'request._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Person_4_0_0.find({'link.target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Procedure_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Provenance_4_0_0.find({'target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.QuestionnaireResponse_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.RelatedPerson_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.RequestGroup_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ResearchSubject_4_0_0.find({'individual._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.RiskAssessment_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Schedule_4_0_0.find({'actor._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.ServiceRequest_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Specimen_4_0_0.find({'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Subscription_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {'_id':0}) | db.SubscriptionStatus_4_0_0.find({'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'patient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'healthsystem1'}}}]}, {'_id':0}) | db.SubscriptionTopic_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'patient1'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'healthsystem1'}}}]}, {'_id':0}) | db.SupplyDelivery_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.SupplyRequest_4_0_0.find({'requester._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Task_4_0_0.find({'for._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.VisionPrescription_4_0_0.find({'patient._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'}, {'_id':0}) | db.Organization_4_0_0.find({'_uuid':'214ca533-fb96-562d-824d-3aca1406f3fb'}, {'_id':0}) | db.Medication_4_0_0.find({'_uuid':'b0e0113d-23a0-5742-a054-c8afe008010b'}, {'_id':0}) | db.Practitioner_4_0_0.find({'_uuid':'aa8a8ff8-af25-5878-8cf3-bc74227d44dd'}, {'_id':0}) | db.Binary_4_0_0.find({'_uuid':{'$in':['99cdf7f4-a3ae-5f7b-a759-23a2455f11ab','2be6f9aa-62b1-509c-bafc-28f4665fa465']}}, {'_id':0}) | db.PaymentReconciliation_4_0_0.find({'_uuid':'d45e43c6-170f-52e1-a157-692ee5c9704b'}, {'_id':0}) | db.PractitionerRole_4_0_0.find({'_uuid':{'$in':['8143ac7d-ad11-4349-9a3f-da93faae0eae','9ec009e4-28f7-4958-86da-256fe0f67c75']}}, {'_id':0}) | db.Organization_4_0_0.find({'_uuid':'d187d5ce-f842-5e13-a4db-961d8e728ebc'}, {'_id':0}) | db.Practitioner_4_0_0.find({'$or':[{'_uuid':'135bd32b-f8fe-47c0-98aa-ea6f7d15af6a'},{'_sourceId':'prac-source-id'}]}, {'_id':0}) | db.Location_4_0_0.find({'_uuid':'9c1e9c7f-959b-4a53-892a-2760cfd760bf'}, {'_id':0}) | db.Organization_4_0_0.find({'_uuid':{'$in':['7712bd08-fd99-561d-9324-d2fcd41fb009','d187d5ce-f842-5e13-a4db-961d8e728ebc']}}, {'_id':0})"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -2480,7 +2452,7 @@
       },
       {
         "system": "https://www.icanbwell.com/queryOptions",
-        "display": "[{'projection':{'_id':0}}]"
+        "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]"
       },
       {
         "system": "https://www.icanbwell.com/queryFields",

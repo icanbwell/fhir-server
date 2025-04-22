@@ -33,6 +33,7 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
+const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json')
 
@@ -189,6 +190,14 @@ describe('Person and Patient $everything Tests works for new everything flow', (
         expect(resp).toHaveMongoQuery(expectedPatientResourcesGlobalId);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientResourcesGlobalId);
+
+        // with _includePatientLinkedUuidOnly only
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=true')
+            .set(getHeaders());
+        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithUuidOnly);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientResourcesWithUuidOnly);
 
         // get patient everything with global_id as false
         resp = await request

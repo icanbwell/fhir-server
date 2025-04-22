@@ -48,6 +48,7 @@ const expectedPractitionerRoles = require('./fixtures/expected/nonClinicalWithTy
 const expectedPractitioners = require('./fixtures/expected/nonClinicalWithType/practitioner.json');
 const expectedLocations = require('./fixtures/expected/nonClinicalWithType/location.json');
 const expectedClinicalAndNonClinicalWithTypeFilter = require('./fixtures/expected/nonClinicalWithType/clinicalAndNonClinical.json');
+const expectedClinicalWithTypeAndUuidOnly = require('./fixtures/expected/nonClinicalWithType/clinicalWithTypeAndUuidOnly.json');
 
 
 const expectedPatientResourcesWithNonClinicalDepth3 = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph.json');
@@ -244,6 +245,12 @@ describe('everything _includeNonClinicalResources Tests', () => {
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedClinicalAndNonClinicalWithTypeFilter);
+
+        // with _includePatientLinkedUuidOnly only clinical resources are returned
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_type=Location,Observation,PractitionerRole,Organization&_includePatientLinkedUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedClinicalWithTypeAndUuidOnly);
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;

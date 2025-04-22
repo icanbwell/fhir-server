@@ -127,6 +127,30 @@ Default: false
 
 For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includeHidden=true
 
+### \_includeProxyPatientLinkedOnly
+
+This parameter is used to restrict the result to only include resources which are linked to given proxy patient (and their linked non-clinical resources if requested). No Patient resource is returned with param.
+<br> 
+Default: false
+
+For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includeProxyPatientLinkedOnly=true
+
+### \_excludeProxyPatientLinked
+
+This parameter is used to exclude resources which are linked to given proxy patient (and their linked non-clinical resources). And only include the patient resources and their linked clinical and non-clinical resources.
+<br> 
+Default: false
+
+For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_excludeProxyPatientLinked=true
+
+### \_includePatientLinkedUuidOnly
+
+This parameter is used to only include id and resourceType field in result. Where id field will contain uuid only.
+<br> 
+Default: false
+
+For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includePatientLinkedUuidOnly=true
+
 ## Custom Headers
 
 ### Global ID

@@ -575,7 +575,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'_sourceId':'patient1'}, {'_id':0})  | db.Account_4_0_0.find({'$and':[{'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Observation_4_0_0.find({'$and':[{'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Person_4_0_0.find({'$and':[{'link.target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {})",
+        "display": "db.Patient_4_0_0.find({'_sourceId':'patient1'}, {'_id':0})  | db.Account_4_0_0.find({'$and':[{'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_id':0}) | db.Observation_4_0_0.find({'$and':[{'subject._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_id':0}) | db.Person_4_0_0.find({'$and':[{'link.target._uuid':'Patient/24a5930e-11b4-5525-b482-669174917044'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {'_id':0})",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -583,7 +583,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'projection':{'_id':0}}]",
+        "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
