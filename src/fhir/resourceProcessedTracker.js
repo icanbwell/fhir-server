@@ -11,8 +11,8 @@ class ResourceProccessedTracker {
      */
     add(resourceIdentifier) {
         const uuidKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._uuid}`;
-        const sourceIdKey = `${resourceIdentifier.resourceType}/${resourceIdentifier.id}`;
-        const sourceIdSourceAssigningAuthorityKey = `${resourceIdentifier.resourceType}/${resourceIdentifier.id}|${resourceIdentifier._sourceAssigningAuthority}`;
+        const sourceIdKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._sourceId}`;
+        const sourceIdSourceAssigningAuthorityKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._sourceId}|${resourceIdentifier._sourceAssigningAuthority}`;
         this.uuidSet.add(uuidKey);
         this.sourceIdSet.add(sourceIdKey);
         this.sourceIdSourceAssigningAuthoritySet.add(sourceIdSourceAssigningAuthorityKey);
@@ -23,7 +23,7 @@ class ResourceProccessedTracker {
      */
     has(resourceIdentifier) {
         const uuidKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._uuid}`;
-        const sourceIdSourceAssigningAuthorityKey = `${resourceIdentifier.resourceType}/${resourceIdentifier.id}|${resourceIdentifier._sourceAssigningAuthority}`;
+        const sourceIdSourceAssigningAuthorityKey = `${resourceIdentifier.resourceType}/${resourceIdentifier._sourceId}|${resourceIdentifier._sourceAssigningAuthority}`;
 
         return this.uuidSet.has(uuidKey) || this.sourceIdSourceAssigningAuthoritySet.has(sourceIdSourceAssigningAuthorityKey);
     }

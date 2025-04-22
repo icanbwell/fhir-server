@@ -35,11 +35,14 @@ const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourc
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
 const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
-const { NonClinicalReferenesExtractor } = require('./nonClinicalResourceExtractor');
+const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const { isUuid } = require('../../utils/uid.util');
+const { isTrue } = require('../../utils/isTrue');
+const { isFalseWithFallback } = require('../../utils/isFalse');
+const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 
 /**
@@ -145,6 +148,16 @@ class EverythingHelper {
         this.relatedResourceNeedingPatientScopeFilter = {
             Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus']
         };
+
+        /**
+         * @type {object}
+         */
+        this.uuidProjection = {
+            _uuid: 1,
+            _sourceId: 1,
+            _sourceAssigningAuthority: 1,
+            resourceType: 1
+        }
     }
 
     /**
@@ -361,12 +374,12 @@ class EverythingHelper {
             });
 
             /**
-             * @type {NonClinicalReferenesExtractor|null}
+             * @type {NonClinicalReferencesExtractor|null}
              */
-            let nonClinicalReferenesExtractor = null;
+            let nonClinicalReferencesExtractor = null;
             // Extract non-clinical only if includeNonClinicalResources is true or any nonClinical resource is present in _type filter
             if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
-                nonClinicalReferenesExtractor = new NonClinicalReferenesExtractor({
+                nonClinicalReferencesExtractor = new NonClinicalReferencesExtractor({
                     resourcesTypeToExclude: clinicalResources,
                     resourcePool: everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
                 });
@@ -382,37 +395,55 @@ class EverythingHelper {
             /**
              * @type {BundleEntry[]}
              */
-            let entries;
+            let entries = [];
             /**
              * @type {QueryItem[]}
              */
-            let queries;
+            let queries = [];
             /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
              */
-            let optionsForQueries;
+            let optionsForQueries = [];
             /**
              * @type {import('mongodb').Document[]}
              */
-            let explanations;
+            let explanations = [];
             /**
              * @type {ResourceIdentifier[]}
              */
             let baseResourceIdentifiers = [];
+            /**
+             * @type {Boolean}
+            */
+            let useUuidProjection = false;
 
-            ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchResourceByArgsAsync({
-                resourceType,
-                base_version,
-                explain,
-                debug,
-                getRaw,
-                parsedArgs,
-                responseStreamer,
-                bundleEntryIdsProcessedTracker,
-                everythingRelatedResourceManager,
-                resourceIdentifiers: baseResourceIdentifiers,
-                requestInfo
-            }));
+            if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
+                useUuidProjection = true;
+                includeNonClinicalResources = false;
+                nonClinicalReferencesExtractor = null;
+            }
+
+            // patient resource don't exist for proxy patient
+            if (isFalseWithFallback(parsedArgs._includeProxyPatientLinkedOnly, true)) {
+                ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchResourceByArgsAsync({
+                    resourceType,
+                    base_version,
+                    explain,
+                    debug,
+                    getRaw,
+                    parsedArgs,
+                    responseStreamer,
+                    bundleEntryIdsProcessedTracker,
+                    everythingRelatedResourceManager,
+                    resourceIdentifiers: baseResourceIdentifiers,
+                    requestInfo,
+                    useUuidProjection
+                }));
+            }
+
+            if (isTrue(parsedArgs._excludeProxyPatientLinked)) {
+                proxyPatientIds = [];
+            }
 
             const baseResourcesProcessedTracker = new ResourceProccessedTracker();
             baseResourceIdentifiers.forEach(resourceIdentifier => {
@@ -424,7 +455,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: realtedEntitites, queryItems } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -438,12 +469,13 @@ class EverythingHelper {
                     bundleEntryIdsProcessedTracker,
                     proxyPatientIds,
                     getRaw,
-                    nonClinicalReferenesExtractor,
-                    everythingRelatedResourceManager
+                    nonClinicalReferencesExtractor,
+                    everythingRelatedResourceManager,
+                    useUuidProjection
                 })
 
                 if (!responseStreamer) {
-                    entries.push(...(realtedEntitites || []))
+                    entries.push(...(relatedEntities || []))
                 }
 
                 for (const q of queryItems) {
@@ -457,14 +489,18 @@ class EverythingHelper {
                         }
                     }
                 }
+
+                if (relatedOptions) {
+                    optionsForQueries.push(...relatedOptions);
+                }
             }
 
             if (includeNonClinicalResources || everythingRelatedResourceManager.nonClinicalResources?.size > 0) {
                 let resourcesTypeToExclude = clinicalResources;
                 // finding non clinical resources in depth using previous result as input
-                let referenceExtractor = nonClinicalReferenesExtractor;
+                let referenceExtractor = nonClinicalReferencesExtractor;
 
-                for (let i = 0; i < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH; i++) {
+                for (let i = 0; i < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH && referenceExtractor; i++) {
                     /**
                      * @type {Promise<ProcessMultipleIdsAsyncResult>[]}
                      */
@@ -473,7 +509,7 @@ class EverythingHelper {
                     // for next level
                     let referenceExtractorForNextLevel =
                         i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
-                            ? new NonClinicalReferenesExtractor({
+                            ? new NonClinicalReferencesExtractor({
                                   resourcesTypeToExclude,
                                   resourcePool:
                                   everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
@@ -513,7 +549,7 @@ class EverythingHelper {
                                 responseStreamer,
                                 bundleEntryIdsProcessedTracker,
                                 requestInfo,
-                                nonClinicalReferenesExtractor: referenceExtractorForNextLevel,
+                                nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager
                             });
 
@@ -524,6 +560,7 @@ class EverythingHelper {
                                 depthResults.forEach((result) => {
                                     queries.push(...(result.queryItems || []));
                                     explanations.push(...(result.explanations || []));
+                                    optionsForQueries.push(...(result.options || []));
                                     if (!responseStreamer) {
                                         entries.push(...(result.entries || []));
                                     }
@@ -538,6 +575,7 @@ class EverythingHelper {
                         depthResults.forEach((result) => {
                             queries.push(...(result.queryItems || []));
                             explanations.push(...(result.explanations || []));
+                            optionsForQueries.push(...(result.options || []));
                             if (!responseStreamer) {
                                 entries.push(...(result.entries || []));
                             }
@@ -604,7 +642,8 @@ class EverythingHelper {
      * @property {ResourceIdentifier[]} resourceIdentifiers
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {boolean} getRaw
-     * @property {NonClinicalReferenesExtractor | null} nonClinicalReferenesExtractor
+     * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
+     * @property {Boolean} useUuidProjection
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -621,7 +660,8 @@ class EverythingHelper {
         resourceIdentifiers,
         getRaw,
         everythingRelatedResourceManager,
-        nonClinicalReferenesExtractor
+        nonClinicalReferencesExtractor,
+        useUuidProjection = false
     }) {
 
         /**
@@ -660,7 +700,10 @@ class EverythingHelper {
 
 
         const options = {};
-        const projection = {};
+        let projection = {};
+        if (useUuidProjection) {
+            projection = deepcopy(this.uuidProjection);
+        }
         // also exclude _id so if there is a covering index the query can be satisfied from the covering index
         projection._id = 0;
         options.projection = projection;
@@ -708,8 +751,9 @@ class EverythingHelper {
             responseStreamer: responseStreamer,
             bundleEntryIdsProcessedTracker,
             resourceIdentifiers,
-            nonClinicalReferenesExtractor,
-            everythingRelatedResourceManager
+            nonClinicalReferencesExtractor,
+            everythingRelatedResourceManager,
+            useUuidProjection
         });
 
         entries.push(...(bundleEntries || []));
@@ -739,8 +783,9 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker} parentResourcesProcessedTracker
      * @property {string[]} proxyPatientIds
      * @property {boolean} getRaw
-     * @property {NonClinicalReferenesExtractor} nonClinicalReferenesExtractor
+     * @property {NonClinicalReferencesExtractor} nonClinicalReferencesExtractor
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
+     * @property {Boolean} useUuidProjection
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<QueryItem>}
@@ -760,7 +805,8 @@ class EverythingHelper {
         proxyPatientIds = [],
         getRaw = false,
         everythingRelatedResourceManager,
-        nonClinicalReferenesExtractor
+        nonClinicalReferencesExtractor,
+        useUuidProjection = false
         }
     ) {
 
@@ -768,6 +814,11 @@ class EverythingHelper {
          * @type {QueryItem[]}
          */
         const queryItems = []
+
+        /**
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+         */
+        let optionsForQueries = [];
 
         /**
          * @type {BundleEntry[]}
@@ -909,28 +960,6 @@ class EverythingHelper {
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
 
-            const options = {};
-            const projection = {};
-            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection._id = 0;
-            options.projection = projection;
-
-
-            /**
-             * @type {number}
-             */
-            const maxMongoTimeMS = this.configManager.mongoTimeout;
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: relatedResourceType,
-                base_version
-            });
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
-            let cursor = await databaseQueryManager.findAsync({ query, options });
-            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
             if (!parentLookupField) {
                 const searchParameterName = filterTemplateParam.split('=')[0];
 
@@ -949,6 +978,34 @@ class EverythingHelper {
                 }
             }
 
+            const options = {};
+            let projection = {}
+            if (useUuidProjection) {
+                projection = deepcopy(this.uuidProjection);
+                projection[parentLookupField] = 1;
+            }
+
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection._id = 0;
+            options.projection = projection;
+
+            optionsForQueries.push(options);
+
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: relatedResourceType,
+                base_version
+            });
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
             /**
              * @type {import('mongodb').Document[]}
              */
@@ -964,12 +1021,13 @@ class EverythingHelper {
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
                 getRaw,
-                nonClinicalReferenesExtractor,
+                nonClinicalReferencesExtractor,
                 parentResourcesProcessedTracker,
                 parentLookupField,
                 proxyPatientIds: proxyPatientIds || [],
                 everythingRelatedResourceManager,
-                parentResourceType
+                parentResourceType,
+                useUuidProjection
             })
 
             parallelProcess.push(promiseResult)
@@ -990,7 +1048,8 @@ class EverythingHelper {
 
         return {
             entities: bundleEntries,
-            queryItems
+            queryItems,
+            optionsForQueries
         }
     }
 
@@ -1004,12 +1063,13 @@ class EverythingHelper {
      *  resourceIdentifiers: ResourceIdentifier[] | null,
      *  sendBundleEntry?: boolean,
      *  getRaw: boolean,
-     *  nonClinicalReferenesExtractor: NonClinicalReferenesExtractor | null,
+     *  nonClinicalReferencesExtractor: NonClinicalReferencesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
      *  parentLookupField?: string,
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
+     *  useUuidProjection: boolean
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -1020,12 +1080,13 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
         getRaw,
-        nonClinicalReferenesExtractor,
+        nonClinicalReferencesExtractor,
         parentResourcesProcessedTracker,
         parentLookupField,
         proxyPatientIds,
         parentResourceType,
-        everythingRelatedResourceManager
+        everythingRelatedResourceManager,
+        useUuidProjection
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1047,11 +1108,11 @@ class EverythingHelper {
                 );
                 let current_entity = getRaw
                     ? {
-                          id: startResource.id,
+                          id: startResource._sourceId,
                           resource: startResource
                       }
                     : new BundleEntry({
-                          id: startResource.id,
+                          id: startResource._sourceId,
                           resource: startResource
                       });
 
@@ -1142,7 +1203,7 @@ class EverythingHelper {
                                 `No match found for parent entities ${parentEntitiesString} ` +
                                     `using property ${parentLookupField} in ` +
                                     'child entity ' +
-                                `${current_entity.resourceType}/${current_entity.id}`, {}
+                                `${current_entity.resourceType}/${current_entity._uuid}`, {}
                             );
                         }
                     }
@@ -1150,11 +1211,21 @@ class EverythingHelper {
                 }
 
                 if (sendResource) {
+                    if (useUuidProjection){
+                        if (parentLookupField) {
+                            // remove parent lookup field from result
+                            let fieldTodelete = parentLookupField.split('.')[0];
+                            delete current_entity.resource[fieldTodelete];
+                        }
+                        current_entity.id = current_entity.resource._uuid;
+                        current_entity.resource.id = current_entity.resource._uuid;
+                    }
+
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
 
                     // find references
-                    if (nonClinicalReferenesExtractor) {
-                        await nonClinicalReferenesExtractor.processResource(startResource);
+                    if (nonClinicalReferencesExtractor) {
+                        await nonClinicalReferencesExtractor.processResource(startResource);
                     }
 
                     if (

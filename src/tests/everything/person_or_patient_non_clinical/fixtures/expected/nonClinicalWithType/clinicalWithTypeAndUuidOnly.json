@@ -1,0 +1,14 @@
+{
+    "entry": [
+        {
+            "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+            "resource": {
+                "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+                "resourceType": "Observation"
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 1
+}
