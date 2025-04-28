@@ -59,6 +59,7 @@ const expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden = require('.
 
 const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_graph.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res.json');
+const expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_uuid_only.json');
 const expectedPatientEverythingWithPatientScopeWithoutExclude = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_exclude.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_without_graph.json');
 const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
@@ -117,8 +118,9 @@ describe('everything _includeNonClinicalResources Tests', () => {
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
-        expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
+        expected = deepcopy(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
+        expect(resp).toHaveMongoQuery(expected);
+        expect(resp).toHaveResponse(expected);
 
         // get patient everything with _includeHidden true
         resp = await request
@@ -213,6 +215,20 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeRes);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+
+        // exclude using consent works only for patient scope
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
+        expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3GlobalId);
+
+        // when resources are excluded using consent, and uuid only is set to true
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includePatientLinkedUuidOnly=1')
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly);
 
         // add another person where patient1 is common but exclusion consent is not present for this person
         resp = await request
