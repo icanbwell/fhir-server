@@ -83,6 +83,8 @@ This parameter can be used to narrow down the result of resources to the provide
 For clinical resources the result of only top level resources will be narrowed 
 and for non-clinical resources, it will searched for 3 level down starting from top-level clinical resources
 
+_type would be preferred over _includePatientLinkedOnly if user request a non-clinical resource and also passes _includePatientLinkedOnly.
+
 For example: <base_url>/4_0_0/Patient/\<patient1>/$everything?\_type=Person,Account,Observation
 
 ## Custom Search query parameters

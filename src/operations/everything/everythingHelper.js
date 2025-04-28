@@ -661,6 +661,7 @@ class EverythingHelper {
      * @property {boolean} applyPatientFilter
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
+     * @property {boolean} skipChecks
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -679,7 +680,8 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
-        applyPatientFilter = true
+        applyPatientFilter = true,
+        skipChecks = false
     }) {
 
         /**
@@ -773,7 +775,8 @@ class EverythingHelper {
             resourceIdentifiers,
             nonClinicalReferencesExtractor,
             everythingRelatedResourceManager,
-            useUuidProjection
+            useUuidProjection,
+            skipChecks
         });
 
         entries.push(...(bundleEntries || []));
@@ -1094,7 +1097,8 @@ class EverythingHelper {
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
-     *  useUuidProjection: boolean
+     *  useUuidProjection: boolean,
+     *  skipChecks: boolean
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -1111,7 +1115,8 @@ class EverythingHelper {
         proxyPatientIds,
         parentResourceType,
         everythingRelatedResourceManager,
-        useUuidProjection
+        useUuidProjection,
+        skipChecks = false
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1235,7 +1240,10 @@ class EverythingHelper {
 
                 }
 
-                if (sendResource) {
+                if (skipChecks) {
+                    bundleEntries.push(current_entity);
+                }
+                else if (sendResource) {
                     if (useUuidProjection){
                         if (parentLookupField) {
                             // remove parent lookup field from result
@@ -1278,7 +1286,7 @@ class EverythingHelper {
                         }
 
                     } else {
-                        if (!bundleEntryIdsProcessedTracker || !bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
                             if (resourceIdentifiers) {
                                 resourceIdentifiers.push(resourceIdentifier)
                             }
@@ -1288,9 +1296,7 @@ class EverythingHelper {
                         }
                     }
 
-                    if(bundleEntryIdsProcessedTracker) {
-                        bundleEntryIdsProcessedTracker.add(resourceIdentifier);
-                    }
+                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
                 }
             }
         }
@@ -1418,7 +1424,8 @@ class EverythingHelper {
                 }
             }),
             getRaw,
-            applyPatientFilter: false
+            applyPatientFilter: false,
+            skipChecks: true
         });
 
         consentResourcesBundle.entries.forEach(entry => {
