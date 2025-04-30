@@ -150,7 +150,7 @@ class EverythingHelper {
          * @type {string[]}
          */
         this.relatedResourceNeedingPatientScopeFilter = {
-            Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus']
+            Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus', 'Person']
         };
 
         /**
