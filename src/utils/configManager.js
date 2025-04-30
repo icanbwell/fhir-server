@@ -827,6 +827,17 @@ class ConfigManager {
     get mongoInQueryIdBatchSize() {
         return env.MONGO_IN_QUERY_BATCH_SIZE ? parseInt(env.MONGO_IN_QUERY_BATCH_SIZE) : 100;
     }
+
+    /**
+     * List of clients with consent access control enabled
+     * @returns {string[]}
+     */
+    get clientsWithConsentAccessControl() {
+        return (
+            (env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL &&
+                env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL.split(',').map((col) => col.trim())) || []
+        );
+    }
 }
 
 module.exports = {

@@ -2,7 +2,9 @@ const { FilterById } = require('../operations/query/filters/id');
 const { assertTypeEquals } = require('./assertType');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
-const { PERSON_REFERENCE_PREFIX } = require('../constants');
+const { PERSON_REFERENCE_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
+const { SecurityTagSystem } = require('./securityTagSystem');
+const httpContext = require('express-http-context');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -155,10 +157,11 @@ class PersonToPatientIdsExpander {
      * @param {number} level
      * @param {boolean} toMap If passed, will return a map of personId -> all related personIds
      * @param {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
+     * @param {boolean} addPersonOwnerToContext If true then add person owner to context
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
     async getPatientIdsFromPersonAsync ({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false
+        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false, addPersonOwnerToContext = false
     }) {
         /**
          * Final result to return
@@ -166,6 +169,12 @@ class PersonToPatientIdsExpander {
          * @type {Map<string, Set<string>>}
          */
         const personToLinkedPatient = new Map();
+
+        const projectionsMap = { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 }
+
+        if(addPersonOwnerToContext) {
+            projectionsMap.meta = 1
+        }
 
         /**
          * Stores linked person to all base person
@@ -175,7 +184,7 @@ class PersonToPatientIdsExpander {
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
                 query: FilterById.getListFilter(personIds),
-                options: { projection: { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 } }
+                options: { projection: projectionsMap }
             }
         );
         /**
@@ -223,6 +232,17 @@ class PersonToPatientIdsExpander {
 
                 // finally update the sets
                 personToLinkedPatient.set(personId, linkedPatients);
+            }
+
+            if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
+                person.meta.security.forEach((security) => {
+                    if (security.system === SecurityTagSystem.owner) {
+                        httpContext.set(
+                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personId}`,
+                            security.code
+                        );
+                    }
+                });
             }
         }
 

@@ -1,0 +1,85 @@
+{
+  "resourceType": "Consent",
+  "id": "6c599219-4242-5cad-89bb-80f7c0b4aa3f",
+  "meta": {
+    "source": "http://icanbwell.com/health-data-service",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      }
+    ]
+  },
+  "status": "active",
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/consent-category",
+          "code": "dataConnectionViewControl"
+        }
+      ]
+    }
+  ],
+  "patient": {
+    "reference": "Patient/person.5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
+  },
+  "provision": {
+    "actor": [
+      {
+        "id": "Patient/24a5930e-11b4-5525-b482-669174917044",
+        "role": {
+          "coding": {
+            "system": "http://www.icanbwell.com/proa",
+            "code": "dependents"
+          }
+        },
+        "reference": {
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        }
+      }
+    ],
+    "data": [
+      {
+        "id": "f1bdcc99-6e84-598c-92f3-106b602220c8",
+        "meaning": "instance",
+        "reference": {
+          "reference": "CarePlan/f49c5e15-81b5-57a9-bade-77e9e744fb2e"
+        }
+      },
+      {
+        "id": "d2803103-9936-5edd-826c-636d1a8fa57a",
+        "meaning": "instance",
+        "reference": {
+          "reference": "DocumentReference/94528605-a9a1-50e6-a0fe-d718d529e660"
+        }
+      },
+      {
+        "id": "91ff8bd1-c372-5fa6-a42f-c55768f7a93f",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Procedure/58502df6-19f1-4c47-b391-6efd5728e2c7"
+        }
+      },
+      {
+        "id": "d3d091ee-8a98-5e2f-a3e5-45e33f0f7fb0",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Procedure/dc56f59d-71e5-4b11-98cd-9b9a0dee730c"
+        }
+      }
+    ]
+  }
+}
