@@ -466,7 +466,7 @@ class EverythingHelper {
 
                 accessControlConsentEntries.forEach(entry => {
                     entry.resource.provision?.data?.forEach(ref => {
-                        if( ref && ref.reference && ref.reference.reference) {
+                        if( ref?.reference?.reference) {
                             const {resourceType: refType, id: refId} = ReferenceParser.parseReference(ref.reference.reference);
                             if (refType && refId) {
                                 if (!resourceToExcludeIdsMap[refType]) {
