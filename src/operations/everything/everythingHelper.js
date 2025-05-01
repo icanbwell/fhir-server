@@ -454,17 +454,17 @@ class EverythingHelper {
             // get Consent resource containing resources marked as deleted to exclude
             if (requestInfo.isUser) {
                 let {
-                    entries: accessControlConsentEntries,
-                    queryItems: accessControlConsentQueries,
-                    options: accessControlConsentQueryOptions
-                } = await this.getAccessControlConsentAsync({
+                    entries: viewControlConsentEntries,
+                    queryItems: viewControlConsentQueries,
+                    options: viewControlConsentQueryOptions
+                } = await this.getDataConnectionViwControlConsentAsync({
                     getRaw,
                     requestInfo,
                     base_version,
                     patientResourceIdentifiers: baseResourceIdentifiers
                 });
 
-                accessControlConsentEntries.forEach(entry => {
+                viewControlConsentEntries.forEach(entry => {
                     entry.resource.provision?.data?.forEach(ref => {
                         if( ref?.reference?.reference) {
                             const {resourceType: refType, id: refId} = ReferenceParser.parseReference(ref.reference.reference);
@@ -478,7 +478,7 @@ class EverythingHelper {
                     });
                 });
 
-                for (const q of accessControlConsentQueries) {
+                for (const q of viewControlConsentQueries) {
                     if (q) {
                         queries.push(q);
                     }
@@ -490,8 +490,8 @@ class EverythingHelper {
                     }
                 }
 
-                if (accessControlConsentQueryOptions) {
-                    optionsForQueries.push(...accessControlConsentQueryOptions);
+                if (viewControlConsentQueryOptions) {
+                    optionsForQueries.push(...viewControlConsentQueryOptions);
                 }
             }
 
@@ -1418,7 +1418,7 @@ class EverythingHelper {
     }
 
     /**
-     * Fetch the Consent resources for access control
+     * Fetch the Consent resources for data connection view control
      * @param {{
      * getRaw: boolean,
      * requestInfo: FhirRequestInfo,
@@ -1427,7 +1427,7 @@ class EverythingHelper {
      * }} options
      * @return {Promise<{ ProcessMultipleIdsAsyncResult }>}
      */
-    async getAccessControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
+    async getDataConnectionViwControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
         const { personIdFromJwtToken } = requestInfo;
 
         /**
@@ -1436,7 +1436,7 @@ class EverythingHelper {
         let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
         assertIsValid(userOwnerFromContext);
 
-        if (!this.configManager.clientsWithConsentAccessControl.includes(userOwnerFromContext)) {
+        if (!this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)) {
             return new ProcessMultipleIdsAsyncResult({
                 entries: [],
                 queryItems: [],
@@ -1462,7 +1462,7 @@ class EverythingHelper {
                     base_version,
                     patient: `Patient/person.${personIdFromJwtToken}`,
                     actor: patientReference.join(','),
-                    category: `${CONSENT_CATEGORY.ACCESS_CONTROL.SYSTEM}|${CONSENT_CATEGORY.ACCESS_CONTROL.CODE}`
+                    category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
                 }
             }),
             getRaw,

@@ -204,14 +204,14 @@ describe('everything _includeNonClinicalResources Tests', () => {
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
     });
 
-    test('Person and Patient $everything with exclude resources based on consent access control', async () => {
+    test('Person and Patient $everything with exclude resources based on consent view control', async () => {
         const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
         const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
-        const CLIENTS_WITH_CONSENT_ACCESS_CONTROL = env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL;
+        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
-        env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL = 'healthsystem1';
+        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'healthsystem1';
         const request = await createTestRequest();
         await createResources(request)
 
@@ -294,7 +294,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
 
         env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
         env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
-        env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL = CLIENTS_WITH_CONSENT_ACCESS_CONTROL;
+        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });
 
     test('Patient $everything: nonClinical _type support', async () => {
