@@ -829,13 +829,13 @@ class ConfigManager {
     }
 
     /**
-     * List of clients with consent access control enabled
+     * List of clients with data connection view control enabled
      * @returns {string[]}
      */
-    get clientsWithConsentAccessControl() {
+    get clientsWithDataConnectionViewControl() {
         return (
-            (env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL &&
-                env.CLIENTS_WITH_CONSENT_ACCESS_CONTROL.split(',').map((col) => col.trim())) || []
+            (env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL &&
+                env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL.split(',').map((col) => col.trim())) || []
         );
     }
 }
