@@ -19,7 +19,7 @@ const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
-const { Collection } = require('mongodb');
+const { Collection, MongoInvalidArgumentError } = require('mongodb');
 const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
 
 class MockChangeEventProducer extends ChangeEventProducer {
@@ -236,6 +236,133 @@ describe('databaseBulkInserter Tests', () => {
 
             expect(onResourceCreateAsync).toBeCalledTimes(1);
             expect(onResourceChangeAsync).toBeCalledTimes(0);
+        });
+
+        test('execAsync handles thrown mongo error', async () => {
+            const container = createTestContainer((container1) => {
+                container1.register(
+                    'changeEventProducer',
+                    (c) =>
+                        new MockChangeEventProducer({
+                            kafkaClient: c.kafkaClient,
+                            resourceManager: c.resourceManager,
+                            fhirResourceChangeTopic:
+                                env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            configManager: c.configManager,
+                            requestSpecificCache: c.requestSpecificCache
+                        })
+                );
+                return container1;
+            });
+
+            // noinspection JSCheckFunctionSignatures
+            const onResourceCreateAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
+                .mockImplementation(() => {});
+            // noinspection JSCheckFunctionSignatures
+            const onResourceChangeAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onResourceChangeAsync')
+                .mockImplementation(() => {});
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const base_version = '4_0_0';
+            // noinspection JSCheckFunctionSignatures
+            const mockBulkWrite = jest.spyOn(Collection.prototype, 'bulkWrite');
+
+            mockBulkWrite.mockImplementation((operations) => {
+                throw new MongoInvalidArgumentError(
+                    'Document is larger than the maximum size 16777216'
+                );
+            });
+
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
+            const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
+
+            await databaseBulkInserter.insertOneAsync({
+                base_version,
+                requestInfo,
+                resourceType: 'Observation',
+                doc: new Observation(observation)
+            });
+
+            await databaseBulkInserter.insertOneAsync({
+                base_version,
+                requestInfo,
+                resourceType: 'Consent',
+                doc: new Consent(consent)
+            });
+
+            // now execute the bulk inserts
+            const result = await databaseBulkInserter.executeAsync({
+                requestInfo,
+                base_version
+            });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // Check the result has errors
+            expect(result).not.toBeNull();
+            expect(result.length).toBeGreaterThanOrEqual(2);
+            expect(result.map((r) => r.toJSON())).toMatchObject([
+                {
+                    issue: {
+                        severity: 'error',
+                        code: 'exception',
+                        details: {
+                            text: 'Error in one of the resources of Observation: MongoInvalidArgumentError: Document is larger than the maximum size 16777216'
+                        },
+                        diagnostics:
+                            'Error in one of the resources of Observation: MongoInvalidArgumentError: Document is larger than the maximum size 16777216'
+                    },
+                    created: false,
+                    id: '2354-InAgeCohort',
+                    uuid: 'c5678da4-227a-5d46-9498-58f992804404',
+                    resourceType: 'Observation',
+                    updated: false,
+                    sourceAssigningAuthority: 'A'
+                },
+                {
+                    issue: {
+                        severity: 'error',
+                        code: 'exception',
+                        details: {
+                            text: 'Error in one of the resources of Consent: MongoInvalidArgumentError: Document is larger than the maximum size 16777216'
+                        },
+                        diagnostics:
+                            'Error in one of the resources of Consent: MongoInvalidArgumentError: Document is larger than the maximum size 16777216'
+                    },
+                    created: false,
+                    id: '1167dbd7-b5de-4843-b3aa-3804b28a7573',
+                    uuid: '1167dbd7-b5de-4843-b3aa-3804b28a7573',
+                    resourceType: 'Consent',
+                    updated: false,
+                    sourceAssigningAuthority: 'client'
+                }
+            ]);
+            // check observations
+            const observationCollection = `Observation_${base_version}`;
+            const observations = await fhirDb.collection(observationCollection).find().toArray();
+            expect(observations.length).toStrictEqual(0);
+
+            expect(onResourceCreateAsync).toBeCalledTimes(0);
+            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });
     });
     describe('databaseBulkInserter CodeSystem concurrency Tests', () => {
