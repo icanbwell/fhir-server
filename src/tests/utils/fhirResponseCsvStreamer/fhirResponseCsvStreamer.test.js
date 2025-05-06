@@ -1,8 +1,11 @@
 const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter');
 const {PassThrough} = require('stream');
 const {FhirResponseCsvStreamer} = require("../../../utils/fhirResponseCsvStreamer");
-const { describe, beforeEach, afterEach, test, expect, it} = require('@jest/globals');
-const { jest } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect, it} = require('@jest/globals');
+const {jest} = require('@jest/globals');
+const Bundle = require("../../../fhir/classes/4_0_0/resources/bundle");
+const BundleEntry = require("../../../fhir/classes/4_0_0/backbone_elements/bundleEntry");
+const moment = require("moment-timezone");
 
 describe('FhirResponseCsvStreamer', () => {
     let responseMock;
@@ -41,7 +44,41 @@ describe('FhirResponseCsvStreamer', () => {
 
     describe('endAsync', () => {
         it('should write CSV data to the response', async () => {
-            const bundle = {resourceType: 'Bundle'};
+            /**
+             * @type {Bundle}
+             */
+            const bundle = new Bundle({
+                type: 'searchset',
+                timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+                entry: [
+                    new BundleEntry({
+                        resource: {
+                            resourceType: 'Patient',
+                            id: '123',
+                            name: [{use: 'official', family: 'Doe', given: ['John']}]
+                        }
+                    }),
+                    new BundleEntry({
+                        resource: {
+                            resourceType: 'Observation',
+                            id: '456',
+                            status: 'final',
+                            code: {text: 'Heart Rate'},
+                            subject: {reference: 'Patient/123'}
+                        }
+                    }),
+                    new BundleEntry({
+                        resource: {
+                            resourceType: 'Observation',
+                            id: '789',
+                            status: 'final',
+                            code: {text: 'Heart Rate'},
+                            subject: {reference: 'Patient/123'}
+                        }
+                    })
+                ]
+            });
+
             streamer.setBundle({bundle});
 
             await streamer.startAsync();

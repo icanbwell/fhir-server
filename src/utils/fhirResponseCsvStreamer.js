@@ -76,11 +76,12 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
              * @type {FHIRBundleConverter}
              */
             const converter = new FHIRBundleConverter();
+            const bundle = this._bundle.toJSON();
             /**
-             * @type {Record<string, Record<string, any[]>>}
+             * @type {Record<string, Record<string, any[]>[]>}
              */
             const extractedData = await converter.convertToDictionaries(
-                this._bundle
+                bundle
             );
             /**
              * @type {NodeJS.ReadableStream}
