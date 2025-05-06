@@ -70,16 +70,22 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
     async endAsync() {
         // now write each resourceType in the bundle
         if (this._bundle !== undefined) {
+
+            // Create an instance of the FHIRBundleConverter
+            /**
+             * @type {FHIRBundleConverter}
+             */
+            const converter = new FHIRBundleConverter();
             /**
              * @type {Record<string, Record<string, any[]>>}
              */
-            const extractedData = await FHIRBundleConverter.convertToDictionaries(
+            const extractedData = await converter.convertToDictionaries(
                 this._bundle
             );
             /**
              * @type {NodeJS.ReadableStream}
              */
-            const csvStream = await FHIRBundleConverter.convertToCSVZipped(extractedData);
+            const csvStream = await converter.convertToCSVZipped(extractedData);
             /**
              * @type {import('express').Response}
              */
