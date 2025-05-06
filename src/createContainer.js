@@ -1,119 +1,121 @@
 // noinspection JSUnresolvedReference
 
-const { SimpleContainer } = require('./utils/simpleContainer');
+const {SimpleContainer} = require('./utils/simpleContainer');
 const env = require('var');
-const { AccessLogger } = require('./utils/accessLogger');
-const { ChangeEventProducer } = require('./utils/changeEventProducer');
-const { ResourceManager } = require('./operations/common/resourceManager');
-const { DatabaseBulkInserter } = require('./dataLayer/databaseBulkInserter');
-const { DatabaseBulkLoader } = require('./dataLayer/databaseBulkLoader');
-const { DatabaseAttachmentManager } = require('./dataLayer/databaseAttachmentManager');
-const { PostRequestProcessor } = require('./utils/postRequestProcessor');
-const { AuditLogger } = require('./utils/auditLogger');
-const { MongoCollectionManager } = require('./utils/mongoCollectionManager');
-const { IndexManager } = require('./indexes/indexManager');
-const { ValueSetManager } = require('./utils/valueSet.util');
-const { DatabaseQueryFactory } = require('./dataLayer/databaseQueryFactory');
-const { ResourceLocatorFactory } = require('./operations/common/resourceLocatorFactory');
-const { DatabaseHistoryFactory } = require('./dataLayer/databaseHistoryFactory');
-const { MergeManager } = require('./operations/merge/mergeManager');
-const { DatabaseUpdateFactory } = require('./dataLayer/databaseUpdateFactory');
-const { SearchManager } = require('./operations/search/searchManager');
-const { GraphHelper } = require('./operations/graph/graphHelpers');
-const { FhirRouter } = require('./middleware/fhir/router');
-const { ControllerUtils } = require('./middleware/fhir/controller.utils');
-const { CustomOperationsController } = require('./middleware/fhir/4_0_0/controllers/operations.controller');
-const { GenericController } = require('./middleware/fhir/4_0_0/controllers/generic.controller');
-const { FhirOperationsManager } = require('./operations/fhirOperationsManager');
-const { SearchBundleOperation } = require('./operations/search/searchBundle');
-const { SearchStreamingOperation } = require('./operations/search/searchStreaming');
-const { CreateOperation } = require('./operations/create/create');
-const { UpdateOperation } = require('./operations/update/update');
-const { MergeOperation } = require('./operations/merge/merge');
-const { EverythingOperation } = require('./operations/everything/everything');
-const { RemoveOperation } = require('./operations/remove/remove');
-const { SearchByVersionIdOperation } = require('./operations/searchByVersionId/searchByVersionId');
-const { HistoryByIdOperation } = require('./operations/historyById/historyById');
-const { HistoryOperation } = require('./operations/history/history');
-const { PatchOperation } = require('./operations/patch/patch');
-const { ValidateOperation } = require('./operations/validate/validate');
-const { GraphOperation } = require('./operations/graph/graph');
-const { ExpandOperation } = require('./operations/expand/expand');
-const { SearchByIdOperation } = require('./operations/searchById/searchById');
-const { SecurityTagManager } = require('./operations/common/securityTagManager');
-const { FhirLoggingManager } = require('./operations/common/fhirLoggingManager');
-const { ScopesManager } = require('./operations/security/scopesManager');
-const { ScopesValidator } = require('./operations/security/scopesValidator');
-const { ResourcePreparer } = require('./operations/common/resourcePreparer');
-const { BundleManager } = require('./operations/common/bundleManager');
-const { getImageVersion } = require('./utils/getImageVersion');
-const { ResourceMerger } = require('./operations/common/resourceMerger');
-const { ResourceValidator } = require('./operations/common/resourceValidator');
-const { PartitioningManager } = require('./partitioners/partitioningManager');
-const { ConfigManager } = require('./utils/configManager');
-const { AccessIndexManager } = require('./operations/common/accessIndexManager');
-const { FhirResponseWriter } = require('./middleware/fhir/fhirResponseWriter');
-const { IndexHinter } = require('./indexes/indexHinter');
-const { IndexProvider } = require('./indexes/indexProvider');
-const { MongoDatabaseManager } = require('./utils/mongoDatabaseManager');
-const { R4SearchQueryCreator } = require('./operations/query/r4');
-const { FhirTypesManager } = require('./fhir/fhirTypesManager');
-const { PreSaveManager } = require('./preSaveHandlers/preSave');
-const { EnrichmentManager } = require('./enrich/enrich');
-const { QueryRewriterManager } = require('./queryRewriters/queryRewriterManager');
-const { IdEnrichmentProvider } = require('./enrich/providers/idEnrichmentProvider');
-const { PatientProxyQueryRewriter } = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
-const { DateColumnHandler } = require('./preSaveHandlers/handlers/dateColumnHandler');
-const { SourceIdColumnHandler } = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
-const { UuidColumnHandler } = require('./preSaveHandlers/handlers/uuidColumnHandler');
-const { AccessColumnHandler } = require('./preSaveHandlers/handlers/accessColumnHandler');
-const { SourceAssigningAuthorityColumnHandler } = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const { CodeableConceptIdHandler } = require("./preSaveHandlers/handlers/codeableConceptIdHandler");
-const { PersonToPatientIdsExpander } = require('./utils/personToPatientIdsExpander');
-const { AdminPersonPatientLinkManager } = require('./admin/adminPersonPatientLinkManager');
-const { BwellPersonFinder } = require('./utils/bwellPersonFinder');
-const { RequestSpecificCache } = require('./utils/requestSpecificCache');
-const { PatientFilterManager } = require('./fhir/patientFilterManager');
-const { AdminPersonPatientDataManager } = require('./admin/adminPersonPatientDataManager');
-const { ProxyPatientReferenceEnrichmentProvider } = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
-const { KafkaClient } = require('./utils/kafkaClient');
-const { DummyKafkaClient } = require('./utils/dummyKafkaClient');
-const { PersonMatchManager } = require('./admin/personMatchManager');
-const { MongoFilterGenerator } = require('./utils/mongoFilterGenerator');
-const { R4ArgsParser } = require('./operations/query/r4ArgsParser');
-const { K8sClient } = require('./utils/k8sClient');
-const { GlobalIdEnrichmentProvider } = require('./enrich/providers/globalIdEnrichmentProvider');
-const { ReferenceGlobalIdHandler } = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
-const { OwnerColumnHandler } = require('./preSaveHandlers/handlers/ownerColumnHandler');
-const { HashReferencesEnrichmentProvider } = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const { FhirResourceWriterFactory } = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
-const { ProaConsentManager } = require('./operations/search/proaConsentManager');
-const { DataSharingManager } = require('./operations/search/dataSharingManager');
-const { SearchQueryBuilder } = require('./operations/search/searchQueryBuilder');
-const { MergeValidator } = require('./operations/merge/mergeValidator');
-const { ParametersResourceValidator } = require('./operations/merge/validators/parameterResourceValidator');
-const { BundleResourceValidator } = require('./operations/merge/validators/bundleResourceValidator');
-const { MergeResourceValidator } = require('./operations/merge/validators/mergeResourceValidator');
-const { RemoteFhirValidator } = require('./utils/remoteFhirValidator');
-const { PostSaveProcessor } = require('./dataLayer/postSaveProcessor');
-const { ProfileUrlMapper } = require('./utils/profileMapper');
-const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
-const { PatientScopeManager } = require('./operations/security/patientScopeManager');
-const { WriteAllowedByScopesValidator } = require('./operations/merge/validators/writeAllowedByScopesValidator');
-const { PatientQueryCreator } = require('./operations/common/patientQueryCreator');
-const { SearchParametersManager } = require('./searchParameters/searchParametersManager');
-const { DatabaseExportManager } = require('./dataLayer/databaseExportManager');
-const { ExportOperation } = require('./operations/export/export');
-const { ExportManager } = require('./operations/export/exportManager');
-const { ExportByIdOperation } = require('./operations/export/exportById');
-const { AdminExportManager } = require('./admin/adminExportManager');
-const { BulkExportEventProducer } = require('./utils/bulkExportEventProducer');
-const { S3Client } = require('./utils/s3Client');
-const { CLOUD_STORAGE_CLIENTS } = require('./constants');
-const { MetaUuidEnrichmentProvider } = require('./enrich/providers/metaUuidEnrichmentProvider');
-const { EverythingHelper } = require('./operations/everything/everythingHelper');
-const { EverythingRelatedResourcesMapper } = require('./operations/everything/everythingRelatedResourcesMapper');
-const { READ } = require('./constants').OPERATIONS;
+const {AccessLogger} = require('./utils/accessLogger');
+const {ChangeEventProducer} = require('./utils/changeEventProducer');
+const {ResourceManager} = require('./operations/common/resourceManager');
+const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
+const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
+const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
+const {PostRequestProcessor} = require('./utils/postRequestProcessor');
+const {AuditLogger} = require('./utils/auditLogger');
+const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
+const {IndexManager} = require('./indexes/indexManager');
+const {ValueSetManager} = require('./utils/valueSet.util');
+const {DatabaseQueryFactory} = require('./dataLayer/databaseQueryFactory');
+const {ResourceLocatorFactory} = require('./operations/common/resourceLocatorFactory');
+const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
+const {MergeManager} = require('./operations/merge/mergeManager');
+const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
+const {SearchManager} = require('./operations/search/searchManager');
+const {GraphHelper} = require('./operations/graph/graphHelpers');
+const {FhirRouter} = require('./middleware/fhir/router');
+const {ControllerUtils} = require('./middleware/fhir/controller.utils');
+const {CustomOperationsController} = require('./middleware/fhir/4_0_0/controllers/operations.controller');
+const {GenericController} = require('./middleware/fhir/4_0_0/controllers/generic.controller');
+const {FhirOperationsManager} = require('./operations/fhirOperationsManager');
+const {SearchBundleOperation} = require('./operations/search/searchBundle');
+const {SearchStreamingOperation} = require('./operations/search/searchStreaming');
+const {CreateOperation} = require('./operations/create/create');
+const {UpdateOperation} = require('./operations/update/update');
+const {MergeOperation} = require('./operations/merge/merge');
+const {EverythingOperation} = require('./operations/everything/everything');
+const {RemoveOperation} = require('./operations/remove/remove');
+const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/searchByVersionId');
+const {HistoryByIdOperation} = require('./operations/historyById/historyById');
+const {HistoryOperation} = require('./operations/history/history');
+const {PatchOperation} = require('./operations/patch/patch');
+const {ValidateOperation} = require('./operations/validate/validate');
+const {GraphOperation} = require('./operations/graph/graph');
+const {ExpandOperation} = require('./operations/expand/expand');
+const {SearchByIdOperation} = require('./operations/searchById/searchById');
+const {SecurityTagManager} = require('./operations/common/securityTagManager');
+const {FhirLoggingManager} = require('./operations/common/fhirLoggingManager');
+const {ScopesManager} = require('./operations/security/scopesManager');
+const {ScopesValidator} = require('./operations/security/scopesValidator');
+const {ResourcePreparer} = require('./operations/common/resourcePreparer');
+const {BundleManager} = require('./operations/common/bundleManager');
+const {getImageVersion} = require('./utils/getImageVersion');
+const {ResourceMerger} = require('./operations/common/resourceMerger');
+const {ResourceValidator} = require('./operations/common/resourceValidator');
+const {PartitioningManager} = require('./partitioners/partitioningManager');
+const {ConfigManager} = require('./utils/configManager');
+const {AccessIndexManager} = require('./operations/common/accessIndexManager');
+const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
+const {IndexHinter} = require('./indexes/indexHinter');
+const {IndexProvider} = require('./indexes/indexProvider');
+const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const {R4SearchQueryCreator} = require('./operations/query/r4');
+const {FhirTypesManager} = require('./fhir/fhirTypesManager');
+const {PreSaveManager} = require('./preSaveHandlers/preSave');
+const {EnrichmentManager} = require('./enrich/enrich');
+const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
+const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
+const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
+const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
+const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
+const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
+const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const {CodeableConceptIdHandler} = require("./preSaveHandlers/handlers/codeableConceptIdHandler");
+const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
+const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
+const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
+const {RequestSpecificCache} = require('./utils/requestSpecificCache');
+const {PatientFilterManager} = require('./fhir/patientFilterManager');
+const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
+const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
+const {KafkaClient} = require('./utils/kafkaClient');
+const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
+const {PersonMatchManager} = require('./admin/personMatchManager');
+const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
+const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {K8sClient} = require('./utils/k8sClient');
+const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
+const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
+const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
+const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
+const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
+const {ProaConsentManager} = require('./operations/search/proaConsentManager');
+const {DataSharingManager} = require('./operations/search/dataSharingManager');
+const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
+const {MergeValidator} = require('./operations/merge/mergeValidator');
+const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
+const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
+const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
+const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
+const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
+const {ProfileUrlMapper} = require('./utils/profileMapper');
+const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const {PatientScopeManager} = require('./operations/security/patientScopeManager');
+const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
+const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
+const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
+const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
+const {ExportOperation} = require('./operations/export/export');
+const {ExportManager} = require('./operations/export/exportManager');
+const {ExportByIdOperation} = require('./operations/export/exportById');
+const {AdminExportManager} = require('./admin/adminExportManager');
+const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
+const {S3Client} = require('./utils/s3Client');
+const {CLOUD_STORAGE_CLIENTS} = require('./constants');
+const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
+const {EverythingHelper} = require('./operations/everything/everythingHelper');
+const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
+const {SummaryOperation} = require("./operations/summary/summary");
+const {SummaryHelper} = require("./operations/summary/summaryHelper");
+const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -125,8 +127,8 @@ const createContainer = function () {
     container.register('configManager', () => new ConfigManager());
 
     container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents
-        ? new KafkaClient({ configManager: c.configManager })
-        : new DummyKafkaClient({ configManager: c.configManager })
+        ? new KafkaClient({configManager: c.configManager})
+        : new DummyKafkaClient({configManager: c.configManager})
     );
 
     container.register('scopesManager', (c) => new ScopesManager({
@@ -478,7 +480,20 @@ const createContainer = function () {
         databaseAttachmentManager: c.databaseAttachmentManager,
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper
-    }))
+    }));
+
+    container.register('summaryHelper', (c) => new SummaryHelper(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager,
+            bundleManager: c.bundleManager,
+            searchManager: c.searchManager,
+            enrichmentManager: c.enrichmentManager,
+            r4ArgsParser: c.r4ArgsParser,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            searchParametersManager: c.searchParametersManager
+        }
+    ));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
 
@@ -687,6 +702,16 @@ const createContainer = function () {
         }
     ));
 
+    container.register('summaryOperation', (c) => new SummaryOperation(
+        {
+            graphOperation: c.graphOperation,
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator,
+            configManager: c.configManager,
+            summaryHelper: c.summaryHelper
+        }
+    ));
+
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
         {
             mongoDatabaseManager: c.mongoDatabaseManager,
@@ -716,7 +741,8 @@ const createContainer = function () {
                 exportByIdOperation: c.exportByIdOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                summaryOperation: c.summaryOperation
             }
         )
     );
@@ -880,7 +906,7 @@ const createContainer = function () {
     }));
 
     container.register('historyResourceCloudStorageClient', (c) => {
-        if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT){
+        if (c.configManager.historyResourceCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT) {
             return new S3Client({
                 bucketName: c.configManager.historyResourceBucketName,
                 region: c.configManager.awsRegion,

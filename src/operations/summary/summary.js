@@ -1,16 +1,25 @@
-const { GraphOperation } = require('../graph/graph');
-const { ScopesValidator } = require('../security/scopesValidator');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ParsedArgs } = require('../query/parsedArgs');
+const {GraphOperation} = require('../graph/graph');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ParsedArgs} = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
-const { isTrue } = require('../../utils/isTrue');
-const { ConfigManager } = require('../../utils/configManager');
-const { SummaryHelper } = require('./summaryHelper');
-const { ForbiddenError } = require('../../utils/httpErrors');
-const { isFalseWithFallback } = require('../../utils/isFalse');
-const { ParsedArgsItem } = require('../query/parsedArgsItem');
-const { QueryParameterValue } = require('../query/queryParameterValue');
+const {isTrue} = require('../../utils/isTrue');
+const {ConfigManager} = require('../../utils/configManager');
+const {SummaryHelper} = require('./summaryHelper');
+const {ForbiddenError} = require('../../utils/httpErrors');
+const {isFalseWithFallback} = require('../../utils/isFalse');
+const {ParsedArgsItem} = require('../query/parsedArgsItem');
+const {QueryParameterValue} = require('../query/queryParameterValue');
+const {EverythingOperation} = require("../everything/everything");
+const patientSummaryGraph = require("../../graphs/patient/summary.json");
+const practitionerEverythingGraph = require("../../graphs/practitioner/everything.json");
+const organizationEverythingGraph = require("../../graphs/organization/everything.json");
+const slotEverythingGraph = require("../../graphs/slot/everything.json");
+const personEverythingForDeletionGraph = require("../../graphs/person/everything_for_deletion.json");
+const personEverythingGraph = require("../../graphs/person/everything.json");
+const patientEverythingForDeletionGraph = require("../../graphs/patient/everything_for_deletion.json");
+const patientEverythingGraph = require("../../graphs/patient/everything.json");
 
 class SummaryOperation {
     /**
@@ -21,7 +30,7 @@ class SummaryOperation {
      * @param {ConfigManager} configManager
      * @param {SummaryHelper} summaryHelper
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, summaryHelper }) {
+    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, summaryHelper}) {
         /**
          * @type {GraphOperation}
          */
@@ -64,7 +73,7 @@ class SummaryOperation {
      * @param {summaryAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async summaryAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -108,14 +117,14 @@ class SummaryOperation {
      * @param {summaryBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async summaryBundleAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'summary';
 
-        const { user, scope, isUser } = requestInfo;
+        const {user, scope, isUser} = requestInfo;
 
         /**
          * @type {number}
@@ -125,7 +134,7 @@ class SummaryOperation {
         if (isUser && requestInfo.method.toLowerCase() === 'delete') {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to delete ` +
-                    '$summary: Access to delete $summary not allowed if patient scope is present'
+                '$summary: Access to delete $summary not allowed if patient scope is present'
             );
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -156,7 +165,7 @@ class SummaryOperation {
         });
 
         try {
-            const { _type: resourceFilter } = parsedArgs;
+            const {_type: resourceFilter} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -166,113 +175,31 @@ class SummaryOperation {
                 parsedArgs.resourceFilterList = resourceFilterList;
             }
 
+                            // Grab an instance of our DB and collection
+                switch (resourceType) {
+                    case 'Patient': {
+                        parsedArgs.resource = patientSummaryGraph;
+                        break;
+                    }
+                    default:
+                        throw new Error('$everything is not supported for resource: ' + resourceType);
+                }
+
+
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
             let result;
-            if (useSummaryHelperForPatient) {
-                let { base_version, headers } = parsedArgs;
-
-                // set global_id to true as default
-                headers = {
-                    prefer: 'global_id=true',
-                    ...headers
-                }
-                parsedArgs.headers = headers;
-
-                // disable rewrite proxy patient rewrite by default
-                if (!parsedArgs._rewritePatientReference) {
-                    parsedArgs.add(
-                        new ParsedArgsItem({
-                            queryParameter: '_rewritePatientReference',
-                            queryParameterValue: new QueryParameterValue({
-                                value: false,
-                                operator: '$and'
-                            }),
-                            modifiers: []
-                        })
-                    );
-                }
-
-                result = await this.summaryHelper.retriveSummaryAsync({
-                    requestInfo,
-                    base_version,
-                    resourceType,
-                    responseStreamer,
-                    parsedArgs,
-                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
-                    getRaw: this.configManager.getRawSummaryOpBundle
-                });
-            } else {
-                if (isTrue(parsedArgs._includeNonClinicalResources)) {
-                    if (!['Person', 'Patient'].includes(resourceType)) {
-                        throw new Error(
-                            '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
-                        );
-                    }
-                    if (
-                        parsedArgs._nonClinicalResourcesDepth &&
-                        (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
-                            parsedArgs._nonClinicalResourcesDepth > 3 ||
-                            parsedArgs._nonClinicalResourcesDepth < 1)
-                    ) {
-                        throw new Error(
-                            '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
-                        );
-                    }
-                }
-
-                // Grab an instance of our DB and collection
-                switch (resourceType) {
-                    case 'Practitioner': {
-                        parsedArgs.resource = practitionerSummaryGraph;
-                        break;
-                    }
-                    case 'Organization': {
-                        parsedArgs.resource = organizationSummaryGraph;
-                        break;
-                    }
-                    case 'Slot': {
-                        parsedArgs.resource = slotSummaryGraph;
-                        break;
-                    }
-                    case 'Person': {
-                        parsedArgs.resource =
-                            requestInfo.method.toLowerCase() === 'delete'
-                                ? personSummaryForDeletionGraph
-                                : personSummaryGraph;
-                        break;
-                    }
-                    case 'Patient': {
-                        parsedArgs.resource =
-                            requestInfo.method.toLowerCase() === 'delete'
-                                ? patientSummaryForDeletionGraph
-                                : patientSummaryGraph;
-                        break;
-                    }
-                    default:
-                        throw new Error('$summary is not supported for resource: ' + resourceType);
-                }
-
-                if (resourceFilter) {
-                    parsedArgs.resource = this.filterResources(
-                        deepcopy(parsedArgs.resource),
-                        parsedArgs.resourceFilterList
-                    );
-                }
-
-                result = await this.graphOperation.graph({
-                    requestInfo,
-                    res,
-                    parsedArgs,
-                    resourceType,
-                    responseStreamer,
-                    supportLegacyId,
-                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                    getRaw: this.configManager.getRawSummaryOpBundle
-                });
-            }
+            result = await this.graphOperation.graph({
+                requestInfo,
+                res,
+                parsedArgs,
+                resourceType,
+                responseStreamer,
+                supportLegacyId,
+                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
+                getRaw: this.configManager.getRawSummaryOpBundle
+            });
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

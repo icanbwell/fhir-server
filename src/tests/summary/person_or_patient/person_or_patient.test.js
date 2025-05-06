@@ -39,7 +39,7 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
-describe('Person and Patient $everything Tests', () => {
+describe('Person and Patient $summary Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -48,8 +48,8 @@ describe('Person and Patient $everything Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Person and Patient $everything Tests', () => {
-        test('Person and Patient $everything works', async () => {
+    describe('Person and Patient $summary Tests', () => {
+        test('Person and Patient $summary works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -168,7 +168,7 @@ describe('Person and Patient $everything Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+                .get('/4_0_0/Patient/patient1/$summary?_debug=true')
                 .set(getHeaders());
             expect(resp.body.meta).toBeDefined();
             expect(resp.body.meta.tag).toBeDefined();
@@ -178,37 +178,37 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?contained=true')
+                .get('/4_0_0/Patient/patient1/$summary?contained=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientContainedResources);
 
             // Second get person everything from topLevel
             resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything')
+                .get('/4_0_0/Person/personTopLevel/$summary')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelResources);
             resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
+                .get('/4_0_0/Person/personTopLevel/$summary?contained=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);
 
             // Third get person everything from person1
             resp = await request
-                .get('/4_0_0/Person/person1/$everything')
+                .get('/4_0_0/Person/person1/$summary')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1Resources);
             resp = await request
-                .get('/4_0_0/Person/person1/$everything?contained=true')
+                .get('/4_0_0/Person/person1/$summary?contained=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1ContainedResources);
         });
 
-        test('Person and Patient $everything works with _type', async () => {
+        test('Person and Patient $summary works with _type', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -285,20 +285,20 @@ describe('Person and Patient $everything Tests', () => {
             // ACT & ASSERT
             // Check get patient everything with specified resources and check contained is ignored with _type
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&contained=true&_debug=true')
+                .get('/4_0_0/Patient/patient1/$summary?_type=Account,Observation,Person&contained=true&_debug=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesType);
 
             // Check get person everything with specified resources
             resp = await request
-                .get('/4_0_0/Person/person1/$everything?_type=Account,Person')
+                .get('/4_0_0/Person/person1/$summary?_type=Account,Person')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResourcesType);
         });
 
-        test('Nesting of $everything', async () => {
+        test('Nesting of $summary', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -389,7 +389,7 @@ describe('Person and Patient $everything Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+                .get('/4_0_0/Patient/patient1/$summary?_debug=true')
                 .set(getHeaders());
             // Check that person linked to parentPerson is not fetched by comparing count.
             expect(resp.body.total).toEqual(8);

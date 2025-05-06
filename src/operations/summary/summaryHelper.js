@@ -1,25 +1,25 @@
 /**
  * This file contains functions to retrieve summarized resources of given resource from the database
  */
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const { ConfigManager } = require('../../utils/configManager');
-const { BundleManager } = require('../common/bundleManager');
-const { RethrownError } = require('../../utils/rethrownError');
-const { SearchManager } = require('../search/searchManager');
+const {ConfigManager} = require('../../utils/configManager');
+const {BundleManager} = require('../common/bundleManager');
+const {RethrownError} = require('../../utils/rethrownError');
+const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
-const { EnrichmentManager } = require('../../enrich/enrich');
-const { R4ArgsParser } = require('../query/r4ArgsParser');
-const { ParsedArgs } = require('../query/parsedArgs');
-const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError } = require('../common/logging');
-const { sliceIntoChunksGenerator } = require('../../utils/list.util');
-const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {EnrichmentManager} = require('../../enrich/enrich');
+const {R4ArgsParser} = require('../query/r4ArgsParser');
+const {ParsedArgs} = require('../query/parsedArgs');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {logError} = require('../common/logging');
+const {sliceIntoChunksGenerator} = require('../../utils/list.util');
+const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {
-    GRIDFS: { RETRIEVE },
-    OPERATIONS: { READ },
+    GRIDFS: {RETRIEVE},
+    OPERATIONS: {READ},
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -30,24 +30,20 @@ const {
     HTTP_CONTEXT_KEYS,
     CONSENT_CATEGORY
 } = require('../../constants');
-const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
+const {SearchParametersManager} = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
-const { SummaryRelatedResourcesMapper } = require('./summaryRelatedResourcesMapper');
-const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
-const { QueryItem } = require('../graph/queryItem');
-const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
-const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
-const { BadRequestError } = require('../../utils/httpErrors');
-const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
-const { SummaryRelatedResourceManager } = require('./summaryRelatedResourceManager');
-const { isUuid } = require('../../utils/uid.util');
-const { isTrue } = require('../../utils/isTrue');
-const { isFalseWithFallback } = require('../../utils/isFalse');
+const {DatabasePartitionedCursor} = require('../../dataLayer/databasePartitionedCursor');
+const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsyncResult');
+const {QueryItem} = require('../graph/queryItem');
+const {ResourceProccessedTracker} = require('../../fhir/resourceProcessedTracker');
+const {BadRequestError} = require('../../utils/httpErrors');
+const {MongoQuerySimplifier} = require('../../utils/mongoQuerySimplifier');
+const {isUuid} = require('../../utils/uid.util');
+const {isTrue} = require('../../utils/isTrue');
+const {isFalseWithFallback} = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
-const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const httpContext = require('express-http-context');
-const { ReferenceParser } = require('../../utils/referenceParser');
+const {ReferenceParser} = require('../../utils/referenceParser');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -76,16 +72,16 @@ class SummaryHelper {
      * @param {SummaryHelperParams}
      */
     constructor({
-        databaseQueryFactory,
-        configManager,
-        bundleManager,
-        searchManager,
-        enrichmentManager,
-        r4ArgsParser,
-        databaseAttachmentManager,
-        searchParametersManager,
-        summaryRelatedResourceMapper
-    }) {
+                    databaseQueryFactory,
+                    configManager,
+                    bundleManager,
+                    searchManager,
+                    enrichmentManager,
+                    r4ArgsParser,
+                    databaseAttachmentManager,
+                    searchParametersManager,
+                    summaryRelatedResourceMapper
+                }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -135,19 +131,13 @@ class SummaryHelper {
         assertTypeEquals(searchParametersManager, SearchParametersManager);
 
         /**
-         * @type {SummaryRelatedResourcesMapper}
-         */
-        this.summaryRelatedResourceMapper = summaryRelatedResourceMapper;
-        assertTypeEquals(summaryRelatedResourceMapper, SummaryRelatedResourcesMapper);
-
-        /**
          * @type {string[]}
          */
         this.supportedResources = ["Patient"];
 
 
         /**
-         * @type {string[]}
+         * @type {Record<str,string[]>}
          */
         this.relatedResourceNeedingPatientScopeFilter = {
             Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus', 'Person']
@@ -179,14 +169,14 @@ class SummaryHelper {
      * @return {Promise<Bundle>}
      */
     async retriveSummaryAsync({
-        requestInfo,
-        base_version,
-        resourceType,
-        responseStreamer,
-        parsedArgs,
-        includeNonClinicalResources = true,
-        getRaw = false
-    }) {
+                                  requestInfo,
+                                  base_version,
+                                  resourceType,
+                                  responseStreamer,
+                                  parsedArgs,
+                                  includeNonClinicalResources = true,
+                                  getRaw = false
+                              }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$summary is not supported for resource: ' + resourceType);
         }
@@ -244,7 +234,7 @@ class SummaryHelper {
                 /**
                  * @type {string[]}
                  */
-                let proxyPatientIds = []
+                let proxyPatientIds = [];
                 if (resourceType === 'Patient') {
                     proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
 
@@ -266,17 +256,17 @@ class SummaryHelper {
                     explanations: explanations1
                 } = await this.retrieveSummaryMulipleIdsAsync(
                     {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    explain: !!parsedArgs._explain,
-                    debug: !!parsedArgs._debug,
-                    parsedArgs: parsedArgsForChunk,
-                    bundleEntryIdsProcessedTracker,
-                    responseStreamer,
-                    includeNonClinicalResources,
-                    proxyPatientIds,
-                    getRaw
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        explain: !!parsedArgs._explain,
+                        debug: !!parsedArgs._debug,
+                        parsedArgs: parsedArgsForChunk,
+                        bundleEntryIdsProcessedTracker,
+                        responseStreamer,
+                        includeNonClinicalResources,
+                        proxyPatientIds,
+                        getRaw
                     }
                 );
 
@@ -301,30 +291,30 @@ class SummaryHelper {
              */
             const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
                 {
-                type: 'searchset',
-                requestId: requestInfo.userRequestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                resources,
-                base_version,
-                parsedArgs,
-                originalQuery: queryItems,
-                originalOptions: options,
-                columns: new Set(),
-                stopTime,
-                startTime,
-                user: requestInfo.user,
-                explanations
+                    type: 'searchset',
+                    requestId: requestInfo.userRequestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    resources,
+                    base_version,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
                 }
             );
 
             if (responseStreamer) {
-                responseStreamer.setBundle({ bundle, rawResources: getRaw });
+                responseStreamer.setBundle({bundle, rawResources: getRaw});
             }
             return bundle;
         } catch (error) {
-            logError(`Error in retriveSummaryAsync(): ${error.message}`, { error });
+            logError(`Error in retriveSummaryAsync(): ${error.message}`, {error});
             throw new RethrownError({
                 message: 'Error in retriveSummaryAsync(): ' + `resourceType: ${resourceType} , ` + error.message,
                 error,
@@ -358,44 +348,20 @@ class SummaryHelper {
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async retrieveSummaryMulipleIdsAsync({
-        base_version,
-        requestInfo,
-        resourceType,
-        explain,
-        debug,
-        parsedArgs,
-        responseStreamer,
-        bundleEntryIdsProcessedTracker,
-        includeNonClinicalResources = false,
-        proxyPatientIds = [],
-        getRaw = false
-    }) {
+                                             base_version,
+                                             requestInfo,
+                                             resourceType,
+                                             explain,
+                                             debug,
+                                             parsedArgs,
+                                             responseStreamer,
+                                             bundleEntryIdsProcessedTracker,
+                                             includeNonClinicalResources = false,
+                                             proxyPatientIds = [],
+                                             getRaw = false
+                                         }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
-            const summaryRelatedResourceManager = new SummaryRelatedResourceManager({
-                resourceFilterList: parsedArgs.resourceFilterList,
-                summaryRelatedResourceMapper: this.summaryRelatedResourceMapper
-            });
-
-            /**
-             * @type {NonClinicalReferencesExtractor|null}
-             */
-            let nonClinicalReferencesExtractor = null;
-            // Extract non-clinical only if includeNonClinicalResources is true or any nonClinical resource is present in _type filter
-            if (includeNonClinicalResources || summaryRelatedResourceManager.nonClinicalResources?.size > 0) {
-                nonClinicalReferencesExtractor = new NonClinicalReferencesExtractor({
-                    resourcesTypeToExclude: clinicalResources,
-                    resourcePool: summaryRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
-                });
-            }
-
-            const realtedResourcesMap = summaryRelatedResourceManager.getRelatedResourcesMap();
-
-            /**
-             * @type {Generator<import('./summaryRelatedResourcesMapper').SummaryRelatedResources[],void, unknown>}
-             */
-            const relatedResourceMapChunks = sliceIntoChunksGenerator(realtedResourcesMap, this.configManager.summaryMaxParallelProcess)
-
             /**
              * @type {BundleEntry[]}
              */
@@ -418,18 +384,21 @@ class SummaryHelper {
             let baseResourceIdentifiers = [];
             /**
              * @type {Boolean}
-            */
+             */
             let useUuidProjection = false;
 
             if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
                 useUuidProjection = true;
-                includeNonClinicalResources = false;
-                nonClinicalReferencesExtractor = null;
             }
 
             // patient resource don't exist for proxy patient
             if (isFalseWithFallback(parsedArgs._includeProxyPatientLinkedOnly, true)) {
-                ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchResourceByArgsAsync({
+                ({
+                    options: optionsForQueries,
+                    explanations,
+                    entries,
+                    queryItems: queries
+                } = await this.fetchResourceByArgsAsync({
                     resourceType,
                     base_version,
                     explain,
@@ -438,7 +407,6 @@ class SummaryHelper {
                     parsedArgs,
                     responseStreamer,
                     bundleEntryIdsProcessedTracker,
-                    summaryRelatedResourceManager,
                     resourceIdentifiers: baseResourceIdentifiers,
                     requestInfo,
                     useUuidProjection
@@ -466,8 +434,11 @@ class SummaryHelper {
 
                 viewControlConsentEntries.forEach(entry => {
                     entry.resource.provision?.data?.forEach(ref => {
-                        if( ref?.reference?.reference) {
-                            const {resourceType: refType, id: refId} = ReferenceParser.parseReference(ref.reference.reference);
+                        if (ref?.reference?.reference) {
+                            const {
+                                resourceType: refType,
+                                id: refId
+                            } = ReferenceParser.parseReference(ref.reference.reference);
                             if (refType && refId) {
                                 if (!resourceToExcludeIdsMap[refType]) {
                                     resourceToExcludeIdsMap[refType] = [];
@@ -498,160 +469,16 @@ class SummaryHelper {
             const baseResourcesProcessedTracker = new ResourceProccessedTracker();
             baseResourceIdentifiers.forEach(resourceIdentifier => {
                 baseResourcesProcessedTracker.add(resourceIdentifier);
-            })
-
-            // Fetch related resources
-            /**
-             * @type {import('mongodb').Document[]}
-             */
-            for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
-                    requestInfo,
-                    base_version,
-                    parentResourceType: resourceType,
-                    relatedResources: relatedResourceMapChunk,
-                    parentResourceIdentifiers: baseResourceIdentifiers,
-                    parentResourcesProcessedTracker: baseResourcesProcessedTracker,
-                    explain,
-                    debug,
-                    parsedArgs,
-                    responseStreamer,
-                    bundleEntryIdsProcessedTracker,
-                    proxyPatientIds,
-                    getRaw,
-                    nonClinicalReferencesExtractor,
-                    summaryRelatedResourceManager,
-                    useUuidProjection,
-                    resourceToExcludeIdsMap
-                });
-
-                if (!responseStreamer) {
-                    entries.push(...(relatedEntities || []))
-                }
-
-                for (const q of queryItems) {
-                    if (q) {
-                        queries.push(q);
-                    }
-
-                    if (q?.explanations) {
-                        for (const e of q.explanations) {
-                            explanations.push(e);
-                        }
-                    }
-                }
-
-                if (relatedOptions) {
-                    optionsForQueries.push(...(relatedOptions || []));
-                }
-            }
-
-            if (includeNonClinicalResources || summaryRelatedResourceManager.nonClinicalResources?.size > 0) {
-                let resourcesTypeToExclude = clinicalResources;
-                // finding non clinical resources in depth using previous result as input
-                let referenceExtractor = nonClinicalReferencesExtractor;
-
-                for (let i = 0; i < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH && referenceExtractor; i++) {
-                    /**
-                     * @type {Promise<ProcessMultipleIdsAsyncResult>[]}
-                     */
-                    let depthParallelProcess = [];
-
-                    // for next level
-                    let referenceExtractorForNextLevel =
-                        i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
-                            ? new NonClinicalReferencesExtractor({
-                                  resourcesTypeToExclude,
-                                  resourcePool:
-                                  summaryRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
-                              })
-                            : null;
-
-                    for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
-                        let [resourceType, ids] = res;
-                        ids = Array.from(ids);
-
-                        const baseArgs = {
-                            base_version: base_version,
-                            _debug: debug || explain,
-                            _includeHidden: parsedArgs._includeHidden
-                        };
-
-                        // if explain query, don't break in chunks as will be limit to single resource later
-                        const idChunks = explain
-                            ? [ids]
-                            : sliceIntoChunksGenerator(ids, this.configManager.mongoInQueryIdBatchSize);
-
-                        for (const idChunk of idChunks) {
-                            const childParseArgs = this.r4ArgsParser.parseArgs({
-                                resourceType,
-                                args: { ...baseArgs, id: idChunk.join(',') }
-                            });
-
-                            childParseArgs.headers = { prefer: parsedArgs.headers.prefer };
-
-                            const result = this.fetchResourceByArgsAsync({
-                                resourceType,
-                                base_version,
-                                explain,
-                                debug,
-                                getRaw,
-                                parsedArgs: childParseArgs,
-                                responseStreamer,
-                                bundleEntryIdsProcessedTracker,
-                                requestInfo,
-                                nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
-                                summaryRelatedResourceManager
-                            });
-
-                            depthParallelProcess.push(result);
-
-                            if(depthParallelProcess.length >= this.configManager.summaryMaxParallelProcess) {
-                                const depthResults = await Promise.all(depthParallelProcess);
-                                depthResults.forEach((result) => {
-                                    queries.push(...(result.queryItems || []));
-                                    explanations.push(...(result.explanations || []));
-                                    optionsForQueries.push(...(result.options || []));
-                                    if (!responseStreamer) {
-                                        entries.push(...(result.entries || []));
-                                    }
-                                });
-                                depthParallelProcess = [];
-                            }
-                        }
-                    }
-
-                    if (depthParallelProcess.length > 0) {
-                        const depthResults = await Promise.all(depthParallelProcess);
-                        depthResults.forEach((result) => {
-                            queries.push(...(result.queryItems || []));
-                            explanations.push(...(result.explanations || []));
-                            optionsForQueries.push(...(result.options || []));
-                            if (!responseStreamer) {
-                                entries.push(...(result.entries || []));
-                            }
-                        });
-                    }
-
-                    if (explain) {
-                        // Don't include same resourceType, when explain is passed
-                        const resourceTypes = Object.keys(referenceExtractor.nestedResourceReferences);
-                        resourcesTypeToExclude = resourcesTypeToExclude.concat(resourceTypes);
-                    }
-
-                    // For Next Level of clinical Resources
-                    referenceExtractor = referenceExtractorForNextLevel;
-                }
-            }
+            });
 
             if (responseStreamer) {
                 entries = [];
             } else {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
-                    entries,
-                    parsedArgs,
-                    rawResources: getRaw
+                        entries,
+                        parsedArgs,
+                        rawResources: getRaw
                     }
                 );
             }
@@ -663,7 +490,7 @@ class SummaryHelper {
                 explanations
             })
         } catch (e) {
-            logError(`Error in retrieveSummaryMulipleIdsAsync(): ${e.message}`, { error: e });
+            logError(`Error in retrieveSummaryMulipleIdsAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in retrieveSummaryMulipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
                 error: e,
@@ -691,33 +518,31 @@ class SummaryHelper {
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
      * @property {ResourceProccessedTracker|undefined} bundleEntryIdsProcessedTracker
      * @property {ResourceIdentifier[]} resourceIdentifiers
-     * @property {SummaryRelatedResourceManager} summaryRelatedResourceManager
      * @property {boolean} getRaw
      * @property {boolean} applyPatientFilter
-     * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
      * @property {boolean} addInBundleOnly
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
-    async fetchResourceByArgsAsync({
-        base_version,
-        requestInfo,
-        resourceType,
-        explain,
-        debug,
-        parsedArgs,
-        responseStreamer,
-        bundleEntryIdsProcessedTracker,
-        resourceIdentifiers,
-        getRaw,
-        summaryRelatedResourceManager,
-        nonClinicalReferencesExtractor,
-        useUuidProjection = false,
-        applyPatientFilter = true,
-        addInBundleOnly = false
-    }) {
+    async fetchResourceByArgsAsync(
+        {
+            base_version,
+            requestInfo,
+            resourceType,
+            explain,
+            debug,
+            parsedArgs,
+            responseStreamer,
+            bundleEntryIdsProcessedTracker,
+            resourceIdentifiers,
+            getRaw,
+            useUuidProjection = false,
+            applyPatientFilter = true,
+            addInBundleOnly = false
+        }
+    ) {
 
         /**
          * @type {BundleEntry[]}
@@ -772,13 +597,13 @@ class SummaryHelper {
          */
         const maxMongoTimeMS = this.configManager.mongoTimeout;
 
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
         /**
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await databaseQueryManager.findAsync({ query, options });
-        cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+        let cursor = await databaseQueryManager.findAsync({query, options});
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         const collectionName = cursor.getFirstCollection();
 
@@ -801,15 +626,13 @@ class SummaryHelper {
 
         explanations.push(...explanations1);
 
-        const { bundleEntries } = await this.processCursorAsync({
+        const {bundleEntries} = await this.processCursorAsync({
             cursor,
             getRaw,
             parentParsedArgs: parsedArgs,
             responseStreamer: responseStreamer,
             bundleEntryIdsProcessedTracker,
             resourceIdentifiers,
-            nonClinicalReferencesExtractor,
-            summaryRelatedResourceManager,
             useUuidProjection,
             addInBundleOnly
         });
@@ -826,329 +649,37 @@ class SummaryHelper {
     }
 
     /**
-     * Gets related resources and adds them to containedEntries in parentEntities
-     * @typedef retriveveRelatedResourcesParallelyAsyncParams
-     * @property {FhirRequestInfo} requestInfo
-     * @property {string} base_version
-     * @property {string} parentResourceType
-     * @property {SummaryRelatedResources[]} relatedResources
-     * @property {boolean} [explain]
-     * @property {boolean} [debug]
-     * @property {ParsedArgs} parsedArgs
-     * @property {ResponseStreamer} responseStreamer
-     * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
-     * @property {ResourceIdentifier[]} parentResourceIdentifiers
-     * @property {ResourceProccessedTracker} parentResourcesProcessedTracker
-     * @property {string[]} proxyPatientIds
-     * @property {boolean} getRaw
-     * @property {NonClinicalReferencesExtractor} nonClinicalReferencesExtractor
-     * @property {SummaryRelatedResourceManager} summaryRelatedResourceManager
-     * @property {Boolean} useUuidProjection
-     * @property {{string: string[]}} resourceToExcludeIdsMap
-     *
-     * @param {retriveveRelatedResourcesParallelyAsyncParams}
-     * @returns {Promise<QueryItem>}
-     */
-    async retriveveRelatedResourcesParallelyAsync({
-        requestInfo,
-        base_version,
-        parentResourceType,
-        relatedResources,
-        explain,
-        debug,
-        parsedArgs,
-        responseStreamer,
-        bundleEntryIdsProcessedTracker,
-        parentResourceIdentifiers,
-        parentResourcesProcessedTracker,
-        proxyPatientIds = [],
-        getRaw = false,
-        summaryRelatedResourceManager,
-        nonClinicalReferencesExtractor,
-        useUuidProjection = false,
-        resourceToExcludeIdsMap
-        }
-    ) {
-
-        /**
-         * @type {QueryItem[]}
-         */
-        const queryItems = []
-
-        /**
-         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
-         */
-        let optionsForQueries = [];
-
-        /**
-         * @type {BundleEntry[]}
-         */
-        const bundleEntries = [];
-
-        /**
-         * @type {SummaryRelatedResources[]}
-         */
-        const relatedResourcesMap = relatedResources;
-        /**
-         * @type {Promise<{ bundleEntries: BundleEntry[] }>[]}
-         */
-        const parallelProcess = [];
-        let parentResourceTypeAndIdList = parentResourceIdentifiers.map(r => `${r.resourceType}/${r._uuid}`);
-
-        // for now this will always be true
-        if (parentResourceType === 'Patient' && proxyPatientIds) {
-            parentResourceTypeAndIdList = [...parentResourceTypeAndIdList, ...proxyPatientIds.map(id => PATIENT_REFERENCE_PREFIX + id)]
-        }
-
-        if (parentResourceTypeAndIdList.length === 0) {
-            return {
-                entities: bundleEntries,
-                queryItems
-            };
-        }
-
-        for (const relatedResource of relatedResourcesMap) {
-            const relatedResourceType = relatedResource.type;
-            const filterTemplateParam = relatedResource.params;
-            const filterTemplateCustomQuery = relatedResource.customQuery;
-
-            if ((!filterTemplateParam && !filterTemplateCustomQuery) || !relatedResourceType) {
-                continue;
-            }
-
-            /**
-             * @type {string}
-             */
-            let reverseFilterWithParentIds = '';
-
-            /**
-             * @type {string|null}
-             */
-            let parentLookupField = null;
-
-            let commonArgs = {
-                _includeHidden: parsedArgs._includeHidden
-            }
-
-            if (!filterTemplateCustomQuery) {
-                reverseFilterWithParentIds = filterTemplateParam.replace(
-                    '{ref}',
-                    parentResourceTypeAndIdList.join(',')
-                );
-            }
-
-            /**
-             * @type {ParsedArgs}
-             */
-            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs({
-                resourceType: relatedResourceType,
-                queryString: reverseFilterWithParentIds,
-                commonArgs
-            });
-
-            /**
-             * @type {boolean}
-             */
-            const useAccessIndex = this.configManager.useAccessIndex;
-
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
-            let {
-                /** @type {import('mongodb').Document}**/
-                query
-            } = await this.searchManager.constructQueryAsync({
-                user: requestInfo.user,
-                scope: requestInfo.scope,
-                isUser: requestInfo.isUser,
-                resourceType: relatedResourceType,
-                useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                requestId: requestInfo.requestId,
-                parsedArgs: relatedResourceParsedArgs,
-                operation: READ,
-                applyPatientFilter:
-                    requestInfo.isUser &&
-                    this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType)
-            });
-
-            if (filterTemplateCustomQuery) {
-                let customParentQuery = [];
-                parentLookupField = filterTemplateCustomQuery.fieldForParentLookup;
-                parentResourceIdentifiers.forEach((parentResourceIdentifier) => {
-                    let patientQuery = filterTemplateCustomQuery.query;
-                    filterTemplateCustomQuery.requiredValues.forEach((requiredValue) => {
-                        if (!parentResourceIdentifier[requiredValue]) {
-                            throw new Error(`${requiredValue} is not present in parent resource identifier`);
-                        }
-                        patientQuery = patientQuery.replace(`{${requiredValue}}`, parentResourceIdentifier[requiredValue]);
-                    })
-                    customParentQuery.push(JSON.parse(patientQuery));
-                });
-
-                if (filterTemplateCustomQuery.includeProxyPatient && proxyPatientIds.length > 0) {
-                    proxyPatientIds.forEach((proxyPatientId) => {
-                        let proxyPatientIdentifier = {
-                            id: proxyPatientId,
-                            resourceType: 'Patient'
-                        }
-                        if (isUuid(proxyPatientId)) {
-                            proxyPatientIdentifier.idType = '_uuid';
-                        }
-                        else {
-                            proxyPatientIdentifier.idType = '_sourceId';
-                        }
-                        let patientQuery = filterTemplateCustomQuery.proxyPatientQuery;
-                        filterTemplateCustomQuery.proxyPatientRequiredValues.forEach((requiredValue) => {
-                            if (!proxyPatientIdentifier[requiredValue]) {
-                                throw new Error(`${requiredValue} is not present in proxy patient resource identifier`);
-                            }
-                            patientQuery = patientQuery.replace(`{${requiredValue}}`, proxyPatientIdentifier[requiredValue]);
-                        });
-                        customParentQuery.push(JSON.parse(patientQuery));
-                    });
-                }
-
-                if (customParentQuery.length == 1) {
-                    query.$and = query.$and || [];
-                    query.$and.push(customParentQuery[0]);
-                } else if (customParentQuery.length > 1) {
-                    query.$or = (query.$or || []).concat(customParentQuery);
-                } else {
-                    continue;
-                }
-                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
-            }
-
-            if (!parentLookupField) {
-                const searchParameterName = filterTemplateParam.split('=')[0];
-
-                /**
-                 * @type {string}
-                 */
-                parentLookupField = this.searchParametersManager.getFieldNameForSearchParameter(
-                    relatedResourceType,
-                    searchParameterName
-                );
-
-                if (!parentLookupField) {
-                    throw new Error(
-                        `${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`
-                    );
-                }
-            }
-
-            const options = {};
-            let projection = {}
-            if (useUuidProjection) {
-                projection = deepcopy(this.uuidProjection);
-                projection[parentLookupField] = 1;
-            }
-
-            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection._id = 0;
-            options.projection = projection;
-
-            optionsForQueries.push(options);
-
-            /**
-             * @type {number}
-             */
-            const maxMongoTimeMS = this.configManager.mongoTimeout;
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: relatedResourceType,
-                base_version
-            });
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
-            let cursor = await databaseQueryManager.findAsync({ query, options });
-            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-            /**
-             * @type {import('mongodb').Document[]}
-             */
-            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
-            if (explain) {
-                // if explain is requested then don't return any results
-                cursor = cursor.limit(1);
-            }
-            const collectionName = cursor.getFirstCollection();
-            const promiseResult = this.processCursorAsync({
-                cursor,
-                responseStreamer,
-                parentParsedArgs: parsedArgs,
-                bundleEntryIdsProcessedTracker,
-                getRaw,
-                nonClinicalReferencesExtractor,
-                parentResourcesProcessedTracker,
-                parentLookupField,
-                proxyPatientIds: proxyPatientIds || [],
-                summaryRelatedResourceManager,
-                parentResourceType,
-                useUuidProjection
-            })
-
-            parallelProcess.push(promiseResult)
-
-            queryItems.push(new QueryItem({
-                    query,
-                    resourceType: relatedResourceType,
-                    collectionName,
-                    explanations
-            }))
-        }
-
-        const result = await Promise.all(parallelProcess);
-        result.forEach(entry => {
-            bundleEntries.push(...(entry.bundleEntries || []))
-        })
-
-
-        return {
-            entities: bundleEntries,
-            queryItems,
-            optionsForQueries
-        }
-    }
-
-    /**
      * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: DatabasePartitionedCursor,
-     *  responseStreamer: ResponseStreamer,
+     *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
      *  resourceIdentifiers: ResourceIdentifier[] | null,
      *  getRaw: boolean,
-     *  nonClinicalReferencesExtractor: NonClinicalReferencesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
      *  parentLookupField?: string,
      *  proxyPatientIds?: string[],
      *  parentResourceType?: string,
-     *  summaryRelatedResourceManager: SummaryRelatedResourceManager,
      *  useUuidProjection: boolean,
      *  addInBundleOnly: boolean
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
     async processCursorAsync({
-        cursor,
-        responseStreamer,
-        parentParsedArgs,
-        bundleEntryIdsProcessedTracker,
-        resourceIdentifiers,
-        getRaw,
-        nonClinicalReferencesExtractor,
-        parentResourcesProcessedTracker,
-        parentLookupField,
-        proxyPatientIds,
-        parentResourceType,
-        summaryRelatedResourceManager,
-        useUuidProjection,
-        addInBundleOnly = false
-    }) {
+                                 cursor,
+                                 responseStreamer,
+                                 parentParsedArgs,
+                                 bundleEntryIdsProcessedTracker,
+                                 resourceIdentifiers,
+                                 getRaw,
+                                 parentResourcesProcessedTracker,
+                                 parentLookupField,
+                                 proxyPatientIds,
+                                 parentResourceType,
+                                 useUuidProjection,
+                                 addInBundleOnly = false
+                             }) {
         /**
          * @type {BundleEntry[]}
          */
@@ -1169,13 +700,13 @@ class SummaryHelper {
                 );
                 let current_entity = getRaw
                     ? {
-                          id: startResource._sourceId,
-                          resource: startResource
-                      }
+                        id: startResource._sourceId,
+                        resource: startResource
+                    }
                     : new BundleEntry({
-                          id: startResource._sourceId,
-                          resource: startResource
-                      });
+                        id: startResource._sourceId,
+                        resource: startResource
+                    });
 
 
                 let sendResource = true;
@@ -1193,18 +724,21 @@ class SummaryHelper {
                      * @type {string[]}
                      */
                     let references = properties
-                        .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r }))
+                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
 
                     // for handling case when searching using sourceid of proxy patient
                     /**
                      * @type {string[]}
                      */
-                    let referenceWithSourceIds = []
+                    let referenceWithSourceIds = [];
                     if (proxyPatientIds) {
                         // supportLegacyId should be true for proxy patient
                         referenceWithSourceIds = properties
-                            .flatMap(r => this.getReferencesFromPropertyValue({ propertyValue: r, supportLegacyId: true }))
+                            .flatMap(r => this.getReferencesFromPropertyValue({
+                                propertyValue: r,
+                                supportLegacyId: true
+                            }))
                             .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     }
 
@@ -1218,28 +752,28 @@ class SummaryHelper {
                     // for handling case for subscription resources where instead of
                     // reference we only have id of person/patient resource in extension/identifier
                     if (
-                        references.length == 0 &&
+                        references.length === 0 &&
                         SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS.includes(parentLookupField)
                     ) {
 
                         properties.flat().map((r) => {
                             if (
                                 r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
+                                    ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
                             ) {
                                 references.push(
                                     PERSON_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             } else if (
                                 r[
-                                SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
-                                ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
+                                    SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['key']
+                                    ] === SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient
                             ) {
                                 references.push(
                                     PATIENT_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             }
                         });
@@ -1251,7 +785,7 @@ class SummaryHelper {
                         if (referencesSet.has(parentReference)) {
                             matchingParentReferences.push(parentReference);
                         }
-                    })
+                    });
 
                     // if parent reference is present in child resource, then only send it in response
                     if (matchingParentReferences.length === 0) {
@@ -1259,11 +793,11 @@ class SummaryHelper {
                             sendResource = true;
                         } else {
                             sendResource = false;
-                            const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
+                            const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString();
                             logError(
                                 `No match found for parent entities ${parentEntitiesString} ` +
-                                    `using property ${parentLookupField} in ` +
-                                    'child entity ' +
+                                `using property ${parentLookupField} in ` +
+                                'child entity ' +
                                 `${current_entity.resourceType}/${current_entity._uuid}`, {}
                             );
                         }
@@ -1275,9 +809,8 @@ class SummaryHelper {
                     // if addInBundleOnly is true, then we don't need to send the resource
                     // in the response, we just need to add it to the bundle
                     bundleEntries.push(current_entity);
-                }
-                else if (sendResource) {
-                    if (useUuidProjection){
+                } else if (sendResource) {
+                    if (useUuidProjection) {
                         if (parentLookupField) {
                             // remove parent lookup field from result
                             let fieldTodelete = parentLookupField.split('.')[0];
@@ -1289,16 +822,8 @@ class SummaryHelper {
 
                     const resourceIdentifier = new ResourceIdentifier(current_entity.resource);
 
-                    // find references
-                    if (nonClinicalReferencesExtractor) {
-                        await nonClinicalReferencesExtractor.processResource(startResource);
-                    }
-
                     if (
-                        responseStreamer &&
-                        summaryRelatedResourceManager.allowedToBeSent(
-                            resourceIdentifier.resourceType
-                        )
+                        responseStreamer
                     ) {
                         [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                             entries: [current_entity],
@@ -1312,9 +837,9 @@ class SummaryHelper {
                             }
                             await responseStreamer.writeBundleEntryAsync(
                                 {
-                                bundleEntry: current_entity,
-                                rawResources: getRaw
-                        }
+                                    bundleEntry: current_entity,
+                                    rawResources: getRaw
+                                }
                             );
                         }
 
@@ -1323,7 +848,7 @@ class SummaryHelper {
                             if (resourceIdentifiers) {
                                 resourceIdentifiers.push(resourceIdentifier)
                             }
-                            if (summaryRelatedResourceManager.allowedToBeSent(resourceIdentifier.resourceType)){
+                            if (summaryRelatedResourceManager.allowedToBeSent(resourceIdentifier.resourceType)) {
                                 bundleEntries.push(current_entity);
                             }
                         }
@@ -1334,26 +859,7 @@ class SummaryHelper {
             }
         }
 
-        return { bundleEntries }
-    }
-
-    /**
-     * converts a query string into an args array
-     * @param {string} resourceType
-     * @param {string} queryString
-     * @param {object} commonArgs
-     * @return {ParsedArgs}
-     */
-    parseQueryStringIntoArgs({ resourceType, queryString, commonArgs = {} }) {
-        const args = {};
-        Object.assign(args, commonArgs, Object.fromEntries(new URLSearchParams(queryString)));
-        args.base_version = VERSIONS['4_0_0'];
-        return this.r4ArgsParser.parseArgs(
-            {
-            resourceType,
-            args
-            }
-        );
+        return {bundleEntries}
     }
 
     /**
@@ -1364,7 +870,7 @@ class SummaryHelper {
      * @param {string?} filterValue Filter value (optional)
      * @returns {Object[]}
      */
-    getPropertiesForEntity({ resource, property, filterProperty, filterValue }) {
+    getPropertiesForEntity({resource, property, filterProperty, filterValue}) {
         const item = resource;
         if (property.includes('.')) { // this is a nested property so recurse down and find the value
             /**
@@ -1399,7 +905,7 @@ class SummaryHelper {
      * @param {boolean} supportLegacyId By default false for everything
      * @return {string[]}
      */
-    getReferencesFromPropertyValue({ propertyValue, supportLegacyId = false }) {
+    getReferencesFromPropertyValue({propertyValue, supportLegacyId = false}) {
         if (this.configManager.supportLegacyIds && supportLegacyId) {
             // concat uuids and ids so we can search both in case some reference does not have
             // _sourceAssigningAuthority set correctly
@@ -1423,12 +929,12 @@ class SummaryHelper {
      * }} options
      * @return {Promise<{ ProcessMultipleIdsAsyncResult }>}
      */
-    async getDataConnectionViwControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
-        const { personIdFromJwtToken } = requestInfo;
+    async getDataConnectionViwControlConsentAsync({getRaw, requestInfo, base_version, patientResourceIdentifiers}) {
+        const {personIdFromJwtToken} = requestInfo;
 
         /**
          * @type {string | null}
-        */
+         */
         let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
         assertIsValid(userOwnerFromContext);
 
