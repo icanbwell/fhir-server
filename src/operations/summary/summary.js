@@ -13,13 +13,7 @@ const {ParsedArgsItem} = require('../query/parsedArgsItem');
 const {QueryParameterValue} = require('../query/queryParameterValue');
 const {EverythingOperation} = require("../everything/everything");
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
-const practitionerEverythingGraph = require("../../graphs/practitioner/everything.json");
-const organizationEverythingGraph = require("../../graphs/organization/everything.json");
-const slotEverythingGraph = require("../../graphs/slot/everything.json");
-const personEverythingForDeletionGraph = require("../../graphs/person/everything_for_deletion.json");
-const personEverythingGraph = require("../../graphs/person/everything.json");
-const patientEverythingForDeletionGraph = require("../../graphs/patient/everything_for_deletion.json");
-const patientEverythingGraph = require("../../graphs/patient/everything.json");
+const personSummaryGraph = require("../../graphs/person/summary.json");
 
 class SummaryOperation {
     /**
@@ -177,12 +171,16 @@ class SummaryOperation {
 
                             // Grab an instance of our DB and collection
                 switch (resourceType) {
+                    case 'Person': {
+                        parsedArgs.resource = personSummaryGraph;
+                        break;
+                    }
                     case 'Patient': {
                         parsedArgs.resource = patientSummaryGraph;
                         break;
                     }
                     default:
-                        throw new Error('$everything is not supported for resource: ' + resourceType);
+                        throw new Error('$summary is not supported for resource: ' + resourceType);
                 }
 
 
