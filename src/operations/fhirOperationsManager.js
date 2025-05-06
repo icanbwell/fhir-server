@@ -6,6 +6,7 @@ const { CreateOperation } = require('./create/create');
 const { UpdateOperation } = require('./update/update');
 const { MergeOperation } = require('./merge/merge');
 const { EverythingOperation } = require('./everything/everything');
+const { SummaryOperation } = require('./summary/summary');
 const { RemoveOperation } = require('./remove/remove');
 const { SearchByVersionIdOperation } = require('./searchByVersionId/searchByVersionId');
 const { HistoryOperation } = require('./history/history');
@@ -50,6 +51,7 @@ class FhirOperationsManager {
      * @param updateOperation
      * @param mergeOperation
      * @param everythingOperation
+     * @param summaryOperation
      * @param removeOperation
      * @param searchByVersionIdOperation
      * @param historyOperation
@@ -73,6 +75,7 @@ class FhirOperationsManager {
             updateOperation,
             mergeOperation,
             everythingOperation,
+            summaryOperation,
             removeOperation,
             searchByVersionIdOperation,
             historyOperation,
@@ -123,6 +126,11 @@ class FhirOperationsManager {
          */
         this.everythingOperation = everythingOperation;
         assertTypeEquals(everythingOperation, EverythingOperation);
+        /**
+         * @type {SummaryOperation}
+         */
+        this.summaryOperation = summaryOperation;
+        assertTypeEquals(summaryOperation, SummaryOperation);
         /**
          * @type {RemoveOperation}
          */
@@ -706,6 +714,91 @@ resourceType
              * @type {Bundle}
              */
             const result = await this.everythingOperation.everythingAsync(
+                {
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType
+                });
+            return result;
+        }
+    }
+
+    /**
+     * does a FHIR $summary
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Bundle}
+     */
+    async summary (args, { req, res }, resourceType) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, operation: READ
+            }
+        );
+
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+        if (shouldStreamResponse(req)) {
+            const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
+                new FhirResponseNdJsonStreamer({
+                        response: res,
+                        requestId: req.id
+                    }
+                ) : new FhirResponseStreamer({
+                    response: res,
+                    requestId: req.id
+                });
+            await responseStreamer.startAsync();
+
+            try {
+                /**
+                 * @type {Bundle}
+                 */
+                const result = await this.summaryOperation.summaryAsync(
+                    {
+                        requestInfo,
+                        res,
+                        parsedArgs,
+                        resourceType,
+                        responseStreamer
+                    });
+                await responseStreamer.endAsync();
+                return result;
+            } catch (err) {
+                const status = err.statusCode || 500;
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = convertErrorToOperationOutcome({ error: err });
+                await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: new BundleEntry({
+                                resource: operationOutcome
+                            }
+                        )
+                    }
+                );
+                await responseStreamer.setStatusCodeAsync({ statusCode: status });
+                await responseStreamer.endAsync();
+            }
+        } else {
+            // noinspection UnnecessaryLocalVariableJS
+            /**
+             * @type {Bundle}
+             */
+            const result = await this.summaryOperation.summaryAsync(
                 {
                     requestInfo,
                     res,
