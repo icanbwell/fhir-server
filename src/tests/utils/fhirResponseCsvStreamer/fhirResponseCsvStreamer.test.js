@@ -6,6 +6,7 @@ const {jest} = require('@jest/globals');
 const Bundle = require("../../../fhir/classes/4_0_0/resources/bundle");
 const BundleEntry = require("../../../fhir/classes/4_0_0/backbone_elements/bundleEntry");
 const moment = require("moment-timezone");
+const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 
 describe('FhirResponseCsvStreamer', () => {
     let responseMock;
@@ -21,6 +22,7 @@ describe('FhirResponseCsvStreamer', () => {
             response: responseMock,
             requestId: 'test-request-id'
         });
+        ExtractorRegistrar.registerAll();
     });
 
     describe('startAsync', () => {

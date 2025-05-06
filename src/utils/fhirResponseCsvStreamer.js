@@ -1,7 +1,7 @@
 const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
-const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter');
+const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
