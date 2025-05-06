@@ -38,6 +38,7 @@ class BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
+     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
 
@@ -48,6 +49,7 @@ class BaseResponseStreamer {
     /**
      * writes some arbitrary content
      * @param {*} content
+     * @param {boolean} rawResources
      * @returns {Promise<void>}
      */
 
@@ -58,8 +60,8 @@ class BaseResponseStreamer {
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
+     * @param {boolean} rawResources
      */
-
     setBundle ({ bundle, rawResources = false }) {
         // ok to not specify
     }

@@ -1,6 +1,7 @@
-const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
-const { BaseResponseStreamer } = require('./baseResponseStreamer');
-const { fhirContentTypes } = require('./contentTypes');
+const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
+const {BaseResponseStreamer} = require('./baseResponseStreamer');
+const {fhirContentTypes} = require('./contentTypes');
+const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv');
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -8,7 +9,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @param {import('express').Response} response
      * @param {string} requestId
      */
-    constructor({ response, requestId }) {
+    constructor({response, requestId}) {
         super({
             response,
             requestId
@@ -24,6 +25,12 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
          * @private
          */
         this._count = 0;
+
+        /**
+         * store the bundle
+         * @type {Bundle|undefined}
+         */
+        this._bundle = undefined
     }
 
     /**
@@ -31,7 +38,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async startAsync() {
-        const contentType = fhirContentTypes.ndJson;
+        const contentType = fhirContentTypes.csv;
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', String(this.requestId));
@@ -43,42 +50,30 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
-        if (bundleEntry !== null && bundleEntry !== undefined) {
-            /**
-             * @type {Resource}
-             */
-            let resource = bundleEntry.resource;
-            if (resource !== null && resource !== undefined) {
-                if (rawResources) {
-                    FhirResourceSerializer.serialize(resource);
-                }
-                else {
-                    resource = resource.toJSON();
-                }
-                /**
-                 * @type {string}
-                 */
-                const resourceJson = JSON.stringify(resource);
-                if (this._first) {
-                    // write the beginning json
-                    this._first = false;
-                    await this.response.write(resourceJson);
-                } else {
-                    // add \n at the beginning to make it legal ndjson
-                    await this.response.write('\n' + resourceJson);
-                }
-                this._count += 1;
-            }
-        }
+    async writeBundleEntryAsync({bundleEntry, rawResources = false}) {
+        // nothing to do since we write the whole bundle
     }
+
+    /**
+     * sets the bundle to use
+     * @param {Bundle} bundle
+     * @param {boolean} rawResources
+     */
+    setBundle({bundle, rawResources = false}) {
+        this._bundle = bundle;
+    }
+
     /**
      * ends response
      * @return {Promise<void>}
      */
     async endAsync() {
+        // now write each resourceType in the bundle
+        if (this._bundle !== undefined) {
+            await FHIRBundleConverter.convertToCsv(this._bundle, this.response);
+        }
         // write ending json
-        await this.response.end('');
+        await this.response.end();
     }
 }
 
