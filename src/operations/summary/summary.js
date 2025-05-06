@@ -219,38 +219,6 @@ class SummaryOperation {
             throw err;
         }
     }
-
-    /**
-     * filters resources to be fetched based on the list provided
-     * @param {Object} resourceSummaryGraph
-     * @param {Array} resourceFilterList
-     * @return {Object}
-     */
-    filterResources(resourceSummaryGraph, resourceFilterList) {
-        let result = deepcopy(resourceSummaryGraph);
-        result['link'] = [];
-
-        resourceSummaryGraph.link.forEach((link) => {
-            let linksList = [];
-            link.target.forEach((target) => {
-                let targetCopy = target;
-                if (Object.hasOwn(target, 'link')) {
-                    targetCopy = this.filterResources(target, resourceFilterList);
-                }
-                if (targetCopy['link'] || resourceFilterList.includes(targetCopy['type'])) {
-                    linksList.push(targetCopy);
-                }
-            });
-            if (linksList.length > 0) {
-                link.target = linksList;
-                result['link'] = result['link'].concat(link);
-            }
-        });
-        if (result['link'].length === 0) {
-            delete result['link'];
-        }
-        return result;
-    }
 }
 
 module.exports = {

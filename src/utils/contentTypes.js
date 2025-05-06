@@ -9,7 +9,8 @@ const fhirContentTypes = {
     pipeDelimited: 'text/plain-pipe-delimited',
     csv: 'text/csv',
     tsv: 'text/tab-separated-values',
-    form_urlencoded: 'application/x-www-form-urlencoded'
+    form_urlencoded: 'application/x-www-form-urlencoded',
+    excel: 'application/vnd.ms-excel'
 };
 
 const ndJsonContentTypes = [
@@ -42,6 +43,62 @@ const hasNdJsonContentType = (text) => {
  * @param {string[]|string} text
  * @returns {boolean}
  */
+const hasCsvContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    if (Array.isArray(text)) {
+        return text.some(item => item === fhirContentTypes.csv);
+    }
+    return text === fhirContentTypes.csv;
+};
+
+/**
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
+const hasTabDelimitedContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    if (Array.isArray(text)) {
+        return text.some(item => item === fhirContentTypes.tsv);
+    }
+    return text === fhirContentTypes.tsv;
+};
+
+/**
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
+const hasPipeDelimitedContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    if (Array.isArray(text)) {
+        return text.some(item => item === fhirContentTypes.pipeDelimited);
+    }
+    return text === fhirContentTypes.pipeDelimited;
+};
+
+/**
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
+const hasExcelContentType = (text) => {
+    if (!text) {
+        return false;
+    }
+    if (Array.isArray(text)) {
+        return text.some(item => item === fhirContentTypes.excel);
+    }
+    return text === fhirContentTypes.excel;
+};
+
+/**
+ * @param {string[]|string} text
+ * @returns {boolean}
+ */
 const hasJsonContentType = (text) => {
     if (!text) {
         return false;
@@ -55,5 +112,9 @@ const hasJsonContentType = (text) => {
 module.exports = {
     fhirContentTypes,
     hasNdJsonContentType,
-    hasJsonContentType
+    hasJsonContentType,
+    hasCsvContentType,
+    hasTabDelimitedContentType,
+    hasPipeDelimitedContentType,
+    hasExcelContentType
 };

@@ -29,7 +29,7 @@ const { R4ArgsParser } = require('./query/r4ArgsParser');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
-const { fhirContentTypes, hasNdJsonContentType } = require('../utils/contentTypes');
+const { fhirContentTypes, hasNdJsonContentType, hasCsv, hasCsvContentType} = require('../utils/contentTypes');
 const { ExportByIdOperation } = require('./export/exportById');
 const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
@@ -38,6 +38,7 @@ const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
+const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -752,8 +753,8 @@ resourceType
          */
         const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
-            const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
-                new FhirResponseNdJsonStreamer({
+            const responseStreamer = hasCsvContentType(requestInfo.accept) ?
+                new FhirResponseCsvStreamer({
                         response: res,
                         requestId: req.id
                     }
