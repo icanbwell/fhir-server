@@ -90,6 +90,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -180,6 +186,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -270,6 +282,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -360,6 +378,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -450,6 +474,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -540,6 +570,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -630,6 +666,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -720,6 +762,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -810,6 +858,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -900,6 +954,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -990,6 +1050,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1080,6 +1146,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1170,6 +1242,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1260,6 +1338,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1350,6 +1434,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1440,6 +1530,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1530,6 +1626,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1620,6 +1722,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1710,6 +1818,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1800,6 +1914,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1890,6 +2010,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -1980,6 +2106,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2070,6 +2202,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2160,6 +2298,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2250,6 +2394,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2340,6 +2490,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2430,6 +2586,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2520,6 +2682,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2610,6 +2778,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2700,6 +2874,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2790,6 +2970,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2880,6 +3066,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -2970,6 +3162,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3060,6 +3258,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3150,6 +3354,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3240,6 +3450,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3330,6 +3546,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3420,6 +3642,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3510,6 +3738,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3600,6 +3834,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3690,6 +3930,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3780,6 +4026,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3870,6 +4122,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -3960,6 +4218,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4050,6 +4314,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4140,6 +4410,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4230,6 +4506,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4320,6 +4602,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4410,6 +4698,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4500,6 +4794,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4590,6 +4890,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4680,6 +4986,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4770,6 +5082,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4860,6 +5178,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -4950,6 +5274,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5040,6 +5370,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5130,6 +5466,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5220,6 +5562,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5310,6 +5658,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5400,6 +5754,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5490,6 +5850,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5580,6 +5946,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5670,6 +6042,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5760,6 +6138,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5850,6 +6234,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -5940,6 +6330,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6030,6 +6426,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6120,6 +6522,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6210,6 +6618,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6300,6 +6714,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6390,6 +6810,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6480,6 +6906,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6570,6 +7002,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6660,6 +7098,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6750,6 +7194,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6840,6 +7290,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -6930,6 +7386,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7020,6 +7482,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7110,6 +7578,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7200,6 +7674,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7290,6 +7770,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7380,6 +7866,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7470,6 +7962,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7560,6 +8058,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7650,6 +8154,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7740,6 +8250,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7830,6 +8346,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -7920,6 +8442,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8010,6 +8538,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8100,6 +8634,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8190,6 +8730,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8280,6 +8826,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8370,6 +8922,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8460,6 +9018,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8550,6 +9114,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8640,6 +9210,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8730,6 +9306,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8820,6 +9402,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -8910,6 +9498,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9000,6 +9594,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9090,6 +9690,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9180,6 +9786,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9270,6 +9882,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9360,6 +9978,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9450,6 +10074,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9540,6 +10170,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9630,6 +10266,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9720,6 +10362,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9810,6 +10458,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9900,6 +10554,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -9990,6 +10650,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10080,6 +10746,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10170,6 +10842,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10260,6 +10938,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10350,6 +11034,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10440,6 +11130,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10530,6 +11226,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10620,6 +11322,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10710,6 +11418,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10800,6 +11514,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10890,6 +11610,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -10980,6 +11706,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11070,6 +11802,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11160,6 +11898,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11250,6 +11994,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11340,6 +12090,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11430,6 +12186,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11520,6 +12282,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11610,6 +12378,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11700,6 +12474,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11790,6 +12570,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11880,6 +12666,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -11970,6 +12762,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12060,6 +12858,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12150,6 +12954,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12240,6 +13050,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12330,6 +13146,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12420,6 +13242,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12510,6 +13338,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     },
@@ -12600,6 +13434,12 @@ const profiles = {
           route: '/',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'summary',
+          route: '/:id/$summary',
+          method: 'GET',
+          reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
     }
