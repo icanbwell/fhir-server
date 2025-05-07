@@ -67,6 +67,10 @@ For example:
 
 [Bulk Export](export.md)
 
+## Proxy Patient
+
+[Proxy Patient](proxyPatient.md)
+
 ## Optimistic Concurrency Support
 [Optimistic Concurrency](concurrency.md)
 
