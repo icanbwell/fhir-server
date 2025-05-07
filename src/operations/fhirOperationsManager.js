@@ -38,7 +38,7 @@ const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
-const {FhirResponseZippedCsvStreamer} = require("../utils/fhirResponseZippedCsvStreamer");
+const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -754,7 +754,7 @@ resourceType
         const requestInfo = this.getRequestInfo(req);
         if (shouldStreamResponse(req)) {
             const responseStreamer = hasCsvContentType(requestInfo.accept) ?
-                new FhirResponseZippedCsvStreamer({
+                new FhirResponseCsvStreamer({
                         response: res,
                         requestId: req.id
                     }

@@ -1488,10 +1488,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.3.tgz#c2b9d2e374ee62c586d3adbea87199b1d7a7a6ba"
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
-"@imranq2/fhir-to-csv@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.6.tgz#ca2510bbdd469c40a4420f3f956255294da907e2"
-  integrity sha512-ohDQiSroJ+/Bvi99r8CShyM/WAM/qdPFb2ZZIlwGiZsnoFqBKFj31mhuorLs3YyKq9yPqbU4XEVimSO9zTwTQg==
+"@imranq2/fhir-to-csv@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.7.tgz#86db0bddeda9e39b4faa4d2ec28f236a514ad909"
+  integrity sha512-O5JTsyv8cVr7wwtw/V4svqSYTqC3rYRe0FzqMfgMe9TT4kTkLkHGX4WSanGI7QQW32wFnUQ3AyEfQAsGGNXt3Q==
   dependencies:
     "@json2csv/node" "^7.0.6"
     jszip "^3.10.1"

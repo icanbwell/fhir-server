@@ -5,7 +5,7 @@ const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_
 var JSZip = require("jszip");
 const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 
-class FhirResponseZippedCsvStreamer extends BaseResponseStreamer {
+class FhirResponseExcelStreamer extends BaseResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
@@ -47,9 +47,9 @@ class FhirResponseZippedCsvStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async startAsync() {
-        const contentType = fhirContentTypes.zip;
+        const contentType = fhirContentTypes.excel;
         this.response.setHeader('Content-Type', contentType);
-        this.response.setHeader('Content-Disposition', `attachment; filename="fhir_export_${new Date().toISOString().replace(/:/g, '-')}.zip"`);
+        this.response.setHeader('Content-Disposition', `attachment; filename="fhir_export_${new Date().toISOString().replace(/:/g, '-')}.xlsx"`);
         this.response.setHeader('X-Request-ID', String(this.requestId));
     }
 
@@ -99,21 +99,21 @@ class FhirResponseZippedCsvStreamer extends BaseResponseStreamer {
                 /**
                  * @type {Buffer<ArrayBufferLike>}
                  */
-                const zipBuffer = await converter.convertToCSVZipped(
+                const excelBuffer = await converter.convertToExcel(
                     extractedData
                 );
 
                 // Verify buffer before sending
-                if (zipBuffer.length === 0) {
+                if (excelBuffer.length === 0) {
                     throw new Error('Generated zip buffer is empty');
                 }
 
                 // write the buffer to response
-                this.response.setHeader('Content-Length', zipBuffer.length);
+                this.response.setHeader('Content-Length', excelBuffer.length);
 
                 // Write entire zip file to response
                 // this.response.write(zipBuffer);
-                this.response.end(zipBuffer);
+                this.response.end(excelBuffer);
             } else {
                 await this.response.end();
             }
@@ -126,5 +126,5 @@ class FhirResponseZippedCsvStreamer extends BaseResponseStreamer {
 }
 
 module.exports = {
-    FhirResponseZippedCsvStreamer
+    FhirResponseExcelStreamer
 };
