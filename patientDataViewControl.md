@@ -2,7 +2,7 @@
 
 If there is any specific resources, that the patient needs to exclude from their patient $everything operation, a data view control Consent resource can be made for same. For any resource that is referenced in the Consent, will be excluded from the result.
 
-Data is excluded for patient scoped request only and person inside jwt is matched with the proxy patient in `patient.reference` field.
+Data is excluded for patient scoped request only and person inside jwt is matched with the [proxy patient](proxyPatient.md) in `patient.reference` field.
 
 ## Format of Consent
 
@@ -73,4 +73,4 @@ Example Consent Resource for excluding resources
 }
 ```
 
-Patient $everything request using patient jwt for above consent: `<base_url>/Patient/3c776efa-e42f-4351-a850-fdc203a2bf5f/$everything`
+Patient $everything request using patient jwt for above consent: `<base_url>/Patient/3c776efa-e42f-4351-a850-fdc203a2bf5f/$everything`. The Encounter resource with id `24753e41-956d-4c4a-86f4-130920d7ea68` will be excluded from the result of patient $everything operation.
