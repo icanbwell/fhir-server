@@ -51,6 +51,14 @@ For example:
 
 [Everything](everything.md)
 
+## Patient $everything
+
+[Patient $everything](patientEverything.md)
+
+## Patient Data View Control
+
+[Patient Data View Control](patientDataViewControl.md)
+
 ## Streaming functionality
 
 [Streaming](streaming.md)
