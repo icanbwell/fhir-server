@@ -2,6 +2,7 @@ const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
 const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
+var JSZip = require("jszip");
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -83,18 +84,43 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
             const extractedData = await converter.convertToDictionaries(
                 bundle
             );
+
+            const csvRowsByResourceType = await converter.convertToCSV(extractedData);
+            const zip = new JSZip();
+
+            // Add each CSV to the zip file
+            for (const [resourceType, csvRows] of Object.entries(csvRowsByResourceType)) {
+                const csvContent = csvRows.join('\n');
+                zip.file(`${resourceType}.csv`, csvContent);
+            }
+
             /**
              * @type {NodeJS.ReadableStream}
              */
-            const csvStream = await converter.convertToCSVZipped(extractedData);
+            // const csvStream = zip.generateNodeStream({type: 'nodebuffer', streamFiles: true, platform: 'UNIX'});
             /**
-             * @type {import('express').Response}
+             * @type {NodeJS.ReadableStream}
              */
-            const response = this.response;
-            // read from csvStream and write to response
-            csvStream.on('data', (chunk) => {
-                response.write(chunk);
-            });
+            const zipBuffer = await zip.generateAsync({type: 'nodebuffer'});
+
+            // Write entire zip file to response
+            this.response.write(zipBuffer);
+            // this.response.write(csvStream);
+            // /**
+            //  * @type {import('express').Response}
+            //  */
+            // const response = this.response;
+            // // read from csvStream and write to response
+            // csvStream.on('data', (chunk) => {
+            //     response.write(chunk);
+            // });
+            // csvStream.on('end', () => {
+            //     response.end();
+            // });
+            // csvStream.on('error', (error) => {
+            //     console.error('Error reading CSV stream:', error);
+            //     response.status(500).send('Internal Server Error');
+            // });
         }
         // write ending json
         await this.response.end();

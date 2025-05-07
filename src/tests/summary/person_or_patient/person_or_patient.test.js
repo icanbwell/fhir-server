@@ -36,7 +36,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersCsv} = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 describe('Person and Patient $summary Tests', () => {
@@ -169,7 +169,7 @@ describe('Person and Patient $summary Tests', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Patient/patient1/$summary?_debug=true')
-                .set(getHeaders());
+                .set(getHeadersCsv());
             expect(resp.body.meta).toBeDefined();
             expect(resp.body.meta.tag).toBeDefined();
             const query = resp.body.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query')[0].display;
