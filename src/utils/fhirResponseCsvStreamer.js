@@ -96,26 +96,12 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 const bundle = bundle_copy.toJSON();
 
                 const extractedData = await converter.convertToDictionaries(bundle);
-                const csvRowsByResourceType = await converter.convertToCSV(extractedData);
-
-                const zip = new JSZip();
-
-                // Add each CSV to the zip file
-                for (const [resourceType, csvRows] of Object.entries(csvRowsByResourceType)) {
-                    const csvContent = csvRows.join('\n');
-                    zip.file(`${resourceType}.csv`, csvContent);
-                }
-                //
-                // // Verify zip contents before generation
-                // const zipFileNames = Object.keys(zip.files);
-
-                // Generate zip file with verbose options
                 /**
                  * @type {Buffer<ArrayBufferLike>}
                  */
-                const zipBuffer = await zip.generateAsync({
-                    type: 'nodebuffer'
-                });
+                const zipBuffer = await converter.convertToCSVZipped(
+                    extractedData
+                );
 
                 // Verify buffer before sending
                 if (zipBuffer.length === 0) {
