@@ -5,7 +5,7 @@ const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_
 var JSZip = require("jszip");
 const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 
-class FhirResponseCsvStreamer extends BaseResponseStreamer {
+class FhirResponseZippedCsvStreamer extends BaseResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
@@ -126,5 +126,5 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
 }
 
 module.exports = {
-    FhirResponseCsvStreamer
+    FhirResponseZippedCsvStreamer
 };

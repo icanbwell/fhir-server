@@ -1,6 +1,6 @@
 const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter');
 const {PassThrough} = require('stream');
-const {FhirResponseCsvStreamer} = require("../../../utils/fhirResponseCsvStreamer");
+const {FhirResponseZippedCsvStreamer} = require("../../../utils/fhirResponseZippedCsvStreamer");
 const {describe, beforeEach, afterEach, test, expect, it} = require('@jest/globals');
 const {jest} = require('@jest/globals');
 const Bundle = require("../../../fhir/classes/4_0_0/resources/bundle");
@@ -18,7 +18,7 @@ describe('FhirResponseCsvStreamer', () => {
             write: jest.fn(),
             end: jest.fn()
         };
-        streamer = new FhirResponseCsvStreamer({
+        streamer = new FhirResponseZippedCsvStreamer({
             response: responseMock,
             requestId: 'test-request-id'
         });
