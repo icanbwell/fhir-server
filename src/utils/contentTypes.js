@@ -10,7 +10,8 @@ const fhirContentTypes = {
     csv: 'text/csv',
     tsv: 'text/tab-separated-values',
     form_urlencoded: 'application/x-www-form-urlencoded',
-    excel: 'application/vnd.ms-excel'
+    excel: 'application/vnd.ms-excel',
+    zip: 'application/zip'
 };
 
 const ndJsonContentTypes = [

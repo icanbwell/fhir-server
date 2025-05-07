@@ -39,9 +39,9 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async startAsync() {
-        const contentType = fhirContentTypes.csv;
+        const contentType = fhirContentTypes.zip;
         this.response.setHeader('Content-Type', contentType);
-        this.response.setHeader('Transfer-Encoding', 'chunked');
+        this.response.setHeader('Content-Disposition', `attachment; filename="fhir_export_${new Date().toISOString().replace(/:/g, '-')}.zip"`);
         this.response.setHeader('X-Request-ID', String(this.requestId));
     }
 
@@ -69,23 +69,17 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async endAsync() {
-        // now write each resourceType in the bundle
-        if (this._bundle !== undefined) {
+        try {
+            if (this._bundle === undefined) {
+                throw new Error('No bundle available for export');
+            }
 
-            // Create an instance of the FHIRBundleConverter
-            /**
-             * @type {FHIRBundleConverter}
-             */
             const converter = new FHIRBundleConverter();
             const bundle = this._bundle.toJSON();
-            /**
-             * @type {Record<string, Record<string, any[]>[]>}
-             */
-            const extractedData = await converter.convertToDictionaries(
-                bundle
-            );
 
+            const extractedData = await converter.convertToDictionaries(bundle);
             const csvRowsByResourceType = await converter.convertToCSV(extractedData);
+
             const zip = new JSZip();
 
             // Add each CSV to the zip file
@@ -94,33 +88,16 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 zip.file(`${resourceType}.csv`, csvContent);
             }
 
-            /**
-             * @type {NodeJS.ReadableStream}
-             */
-            // const csvStream = zip.generateNodeStream({type: 'nodebuffer', streamFiles: true, platform: 'UNIX'});
-            /**
-             * @type {NodeJS.ReadableStream}
-             */
-            const zipBuffer = await zip.generateAsync({type: 'nodebuffer'});
+            // Generate zip file as a buffer
+            const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
 
             // Write entire zip file to response
             this.response.write(zipBuffer);
-            // this.response.write(csvStream);
-            // /**
-            //  * @type {import('express').Response}
-            //  */
-            // const response = this.response;
-            // // read from csvStream and write to response
-            // csvStream.on('data', (chunk) => {
-            //     response.write(chunk);
-            // });
-            // csvStream.on('end', () => {
-            //     response.end();
-            // });
-            // csvStream.on('error', (error) => {
-            //     console.error('Error reading CSV stream:', error);
-            //     response.status(500).send('Internal Server Error');
-            // });
+            this.response.end();
+
+        } catch (error) {
+            console.error('Error generating FHIR CSV export:', error);
+            this.response.status(500).send('Failed to generate FHIR CSV export');
         }
         // write ending json
         await this.response.end();
