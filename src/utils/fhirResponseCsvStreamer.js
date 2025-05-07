@@ -105,26 +105,17 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                     const csvContent = csvRows.join('\n');
                     await zip.file(`${resourceType}.csv`, csvContent);
                 }
-
-                // Verify zip contents before generation
-                const zipFileNames = Object.keys(zip.files);
+                //
+                // // Verify zip contents before generation
+                // const zipFileNames = Object.keys(zip.files);
 
                 // Generate zip file with verbose options
                 /**
                  * @type {Buffer<ArrayBufferLike>}
                  */
                 const zipBuffer = await zip.generateAsync({
-                    type: 'nodebuffer',
-                    compression: 'DEFLATE',
-                    compressionOptions: {
-                        level: 6 // Moderate compression
-                    }
+                    type: 'nodebuffer'
                 });
-
-                // Detailed buffer logging
-                console.log('Zip Buffer Details:');
-                console.log('Buffer Length:', zipBuffer.length);
-                console.log('Buffer Type:', zipBuffer instanceof Buffer);
 
                 // Verify buffer before sending
                 if (zipBuffer.length === 0) {
