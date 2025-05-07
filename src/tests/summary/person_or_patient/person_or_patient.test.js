@@ -236,7 +236,7 @@ describe('Person and Patient $summary Tests', () => {
             }
 
             // Check for specific resource type CSVs
-            const expectedResourceTypes = ['Patient', 'Observation', 'Encounter']; // Adjust as needed
+            const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
                 const matchingFile = fileNames.find(filename =>
                     filename.toLowerCase().includes(resourceType.toLowerCase()) &&

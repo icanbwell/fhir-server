@@ -103,7 +103,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 // Add each CSV to the zip file
                 for (const [resourceType, csvRows] of Object.entries(csvRowsByResourceType)) {
                     const csvContent = csvRows.join('\n');
-                    await zip.file(`${resourceType}.csv`, csvContent);
+                    zip.file(`${resourceType}.csv`, csvContent);
                 }
                 //
                 // // Verify zip contents before generation
@@ -128,13 +128,14 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 // Write entire zip file to response
                 // this.response.write(zipBuffer);
                 this.response.end(zipBuffer);
+            } else {
+                await this.response.end();
             }
         } catch (error) {
             console.error('Error generating FHIR CSV export:', error);
             this.response.status(500).send('Failed to generate FHIR CSV export');
         }
-        // write ending json
-        // await this.response.end();
+
     }
 }
 
