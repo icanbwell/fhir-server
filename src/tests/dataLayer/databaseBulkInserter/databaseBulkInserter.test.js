@@ -21,6 +21,7 @@ const { generateUUIDv5 } = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 const { Collection, MongoInvalidArgumentError } = require('mongodb');
 const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { MONGO_ERROR } = require('../../../constants');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -277,9 +278,7 @@ describe('databaseBulkInserter Tests', () => {
             const mockBulkWrite = jest.spyOn(Collection.prototype, 'bulkWrite');
 
             mockBulkWrite.mockImplementation((operations) => {
-                throw new MongoInvalidArgumentError(
-                    'Document is larger than the maximum size 16777216'
-                );
+                throw new MongoInvalidArgumentError(MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS);
             });
 
             /**

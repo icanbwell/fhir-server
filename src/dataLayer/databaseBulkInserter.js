@@ -35,8 +35,8 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
-const { MongoError } = require('mongodb');
+const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
+const { MongoInvalidArgumentError } = require('mongodb');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -993,10 +993,10 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {string}
                          */
                         let diagnostics;
-                        if (error instanceof MongoError) {
+                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS) {
                             diagnostics = error.toString()
                         } else {
-                            diagnostics = JSON.stringify(error, getCircularReplacer());
+                            throw new RethrownError({ message: 'databaseBulkInserter: Error bulkWrite', error })
                         }
 
                         diagnostics = `Error in one of the resources of ${resourceType}: ` + diagnostics;
@@ -1138,7 +1138,9 @@ class DatabaseBulkInserter extends EventEmitter {
                             collection: collectionName
                         }
                     });
-                    return { resourceType, mergeResult: null, error: e, mergeResultEntries };
+                    throw new RethrownError({
+                        error: e
+                    });
                 }
             }
             return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };

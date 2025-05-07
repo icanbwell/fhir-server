@@ -256,5 +256,8 @@ module.exports = {
             SYSTEM: "http://www.icanbwell.com/consent-category",
             CODE: "dataConnectionViewControl"
         }
+    },
+    MONGO_ERROR: {
+        RESOURCE_SIZE_EXCCCEDS: 'Document is larger than the maximum size 16777216'
     }
 };
