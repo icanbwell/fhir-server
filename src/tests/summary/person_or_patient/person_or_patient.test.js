@@ -46,6 +46,7 @@ const {
     getHeadersZip
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
+const fs = require("node:fs");
 
 describe('Person and Patient $summary Tests', () => {
     beforeEach(async () => {
@@ -187,18 +188,57 @@ describe('Person and Patient $summary Tests', () => {
             expect(resp.headers['content-type']).toBe('application/zip');
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
+            // Generate unique filename
+            // get folder containing this test
+            const tempFolder = __dirname + '/temp';
+            // if subfolder temp from current folder exists then delete it
+            if (fs.existsSync(tempFolder)) {
+                fs.rmSync(tempFolder, {recursive: true, force: true});
+            }
+            // if subfolder temp from current folder does not exist then create it
+            if (!fs.existsSync(tempFolder)) {
+                fs.mkdirSync(tempFolder);
+            }
+            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filepath = tempFolder + '/' + filename;
+
+            // Write file
+            fs.writeFileSync(filepath, resp.body);
+
+            // Optional: Verify file was written
+            expect(fs.existsSync(filepath)).toBe(true);
+
+            // Optional: Check file size
+            const stats = fs.statSync(filepath);
+            expect(stats.size).toBeGreaterThan(0);
+
             // Convert response to JSZip for detailed inspection
             const zip = await JSZip.loadAsync(resp.body);
 
-            // Zip file structure checks
-            expect(Object.keys(zip.files).length).toBeGreaterThan(0);
+            const fileNames = Object.keys(zip.files);
+            console.log('Zip file contents:', fileNames); // Diagnostic logging
 
-            // Check for specific CSV files
+            // Check for files in the zip
+            expect(fileNames.length).toBeGreaterThan(0);
+
+            // Detailed file inspection
+            for (const fileName of fileNames) {
+                const file = zip.files[fileName];
+
+                // Verify each file
+                expect(file).toBeDefined();
+                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
+
+                // Optional: Read file content
+                const fileContent = await file.async('string');
+                expect(fileContent).toBeTruthy();
+                expect(fileContent.trim().length).toBeGreaterThan(0);
+            }
+
+            // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation', 'Encounter']; // Adjust as needed
-            const zipFileNames = Object.keys(zip.files);
-
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = zipFileNames.find(filename =>
+                const matchingFile = fileNames.find(filename =>
                     filename.toLowerCase().includes(resourceType.toLowerCase()) &&
                     filename.endsWith('.csv')
                 );

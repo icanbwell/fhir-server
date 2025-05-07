@@ -3,6 +3,7 @@ const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
 const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
 var JSZip = require("jszip");
+const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -31,7 +32,14 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
          * store the bundle
          * @type {Bundle|undefined}
          */
-        this._bundle = undefined
+        this._bundle = undefined;
+
+        /**
+         * store the bundle entries
+         * @type {BundleEntry[]}
+         * @private
+         */
+        this._bundle_entries = [];
     }
 
     /**
@@ -52,7 +60,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async writeBundleEntryAsync({bundleEntry, rawResources = false}) {
-        // nothing to do since we write the whole bundle
+        this._bundle_entries.push(bundleEntry);
     }
 
     /**
@@ -70,37 +78,72 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      */
     async endAsync() {
         try {
-            if (this._bundle === undefined) {
-                throw new Error('No bundle available for export');
+            ExtractorRegistrar.registerAll();
+
+            if (this._bundle !== undefined && this._bundle_entries.length > 0) {
+                /**
+                 * @type {FHIRBundleConverter}
+                 */
+                const converter = new FHIRBundleConverter();
+                /**
+                 * @type {Bundle}
+                 */
+                const bundle_copy = this._bundle.clone();
+                bundle_copy.entry = this._bundle_entries;
+                /**
+                 * @type {Object}
+                 */
+                const bundle = bundle_copy.toJSON();
+
+                const extractedData = await converter.convertToDictionaries(bundle);
+                const csvRowsByResourceType = await converter.convertToCSV(extractedData);
+
+                const zip = new JSZip();
+
+                // Add each CSV to the zip file
+                for (const [resourceType, csvRows] of Object.entries(csvRowsByResourceType)) {
+                    const csvContent = csvRows.join('\n');
+                    await zip.file(`${resourceType}.csv`, csvContent);
+                }
+
+                // Verify zip contents before generation
+                const zipFileNames = Object.keys(zip.files);
+
+                // Generate zip file with verbose options
+                /**
+                 * @type {Buffer<ArrayBufferLike>}
+                 */
+                const zipBuffer = await zip.generateAsync({
+                    type: 'nodebuffer',
+                    compression: 'DEFLATE',
+                    compressionOptions: {
+                        level: 6 // Moderate compression
+                    }
+                });
+
+                // Detailed buffer logging
+                console.log('Zip Buffer Details:');
+                console.log('Buffer Length:', zipBuffer.length);
+                console.log('Buffer Type:', zipBuffer instanceof Buffer);
+
+                // Verify buffer before sending
+                if (zipBuffer.length === 0) {
+                    throw new Error('Generated zip buffer is empty');
+                }
+
+                // write the buffer to response
+                this.response.setHeader('Content-Length', zipBuffer.length);
+
+                // Write entire zip file to response
+                // this.response.write(zipBuffer);
+                this.response.end(zipBuffer);
             }
-
-            const converter = new FHIRBundleConverter();
-            const bundle = this._bundle.toJSON();
-
-            const extractedData = await converter.convertToDictionaries(bundle);
-            const csvRowsByResourceType = await converter.convertToCSV(extractedData);
-
-            const zip = new JSZip();
-
-            // Add each CSV to the zip file
-            for (const [resourceType, csvRows] of Object.entries(csvRowsByResourceType)) {
-                const csvContent = csvRows.join('\n');
-                zip.file(`${resourceType}.csv`, csvContent);
-            }
-
-            // Generate zip file as a buffer
-            const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-
-            // Write entire zip file to response
-            this.response.write(zipBuffer);
-            this.response.end();
-
         } catch (error) {
             console.error('Error generating FHIR CSV export:', error);
             this.response.status(500).send('Failed to generate FHIR CSV export');
         }
         // write ending json
-        await this.response.end();
+        // await this.response.end();
     }
 }
 

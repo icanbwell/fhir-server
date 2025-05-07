@@ -169,19 +169,19 @@ class SummaryOperation {
                 parsedArgs.resourceFilterList = resourceFilterList;
             }
 
-                            // Grab an instance of our DB and collection
-                switch (resourceType) {
-                    case 'Person': {
-                        parsedArgs.resource = personSummaryGraph;
-                        break;
-                    }
-                    case 'Patient': {
-                        parsedArgs.resource = patientSummaryGraph;
-                        break;
-                    }
-                    default:
-                        throw new Error('$summary is not supported for resource: ' + resourceType);
+            // Grab an instance of our DB and collection
+            switch (resourceType) {
+                case 'Person': {
+                    parsedArgs.resource = personSummaryGraph;
+                    break;
                 }
+                case 'Patient': {
+                    parsedArgs.resource = patientSummaryGraph;
+                    break;
+                }
+                default:
+                    throw new Error('$summary is not supported for resource: ' + resourceType);
+            }
 
 
             /**

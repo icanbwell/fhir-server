@@ -33,3 +33,4 @@ src/admin/scripts/.env.dev
 src/fhir/generator/__pycache__
 .env
 /src/tests/practitioner/search_by_multiple_ids_csv/fixtures/practitioner/practitioner_out.json
+/**/temp/export_2025-05-07T21-18-10.716Z.zip

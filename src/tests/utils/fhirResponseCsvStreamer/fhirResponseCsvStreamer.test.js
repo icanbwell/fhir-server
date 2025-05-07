@@ -22,7 +22,6 @@ describe('FhirResponseCsvStreamer', () => {
             response: responseMock,
             requestId: 'test-request-id'
         });
-        ExtractorRegistrar.registerAll();
     });
 
     describe('startAsync', () => {
