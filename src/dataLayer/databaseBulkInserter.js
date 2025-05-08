@@ -35,7 +35,8 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
+const { MongoInvalidArgumentError } = require('mongodb');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -973,7 +974,53 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {import('mongodb').BulkWriteResult}
                      */
-                    const result = await collection.bulkWrite(bulkOperations, options);
+                    let result;
+                    try {
+                        result = await collection.bulkWrite(bulkOperations, options);
+                    } catch (error) {
+                        await logSystemErrorAsync({
+                            event: 'databaseBulkInserter',
+                            message: 'databaseBulkInserter: Error bulkWrite',
+                            error,
+                            args: {
+                                requestId,
+                                operations: operationsByCollection,
+                                options,
+                                collection: collectionName
+                            }
+                        });
+                        /**
+                         * @type {string}
+                         */
+                        let diagnostics;
+                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS) {
+                            diagnostics = error.toString()
+                        } else {
+                            throw new RethrownError({ message: 'databaseBulkInserter: Error bulkWrite', error })
+                        }
+
+                        diagnostics = `Error in one of the resources of ${resourceType}: ` + diagnostics;
+                        const bulkWriteResultError = new Error(diagnostics);
+                        for (const operationByCollection of operationsByCollection) {
+                            const mergeResultEntry = new MergeResultEntry({
+                                id: operationByCollection.id,
+                                uuid: operationByCollection.uuid,
+                                sourceAssigningAuthority: operationByCollection.sourceAssigningAuthority,
+                                created: false,
+                                updated: false,
+                                resourceType,
+                                issue: new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'exception',
+                                    details: new CodeableConcept({ text: bulkWriteResultError.message }),
+                                    diagnostics
+                                })
+                            })
+                            mergeResultEntries.push(mergeResultEntry);
+                        }
+
+                        return { resourceType, mergeResult: bulkWriteResult, error: error, mergeResultEntries };
+                    }
                     bulkWriteResult = result;
                     await logTraceSystemEventAsync(
                         {
@@ -1091,7 +1138,9 @@ class DatabaseBulkInserter extends EventEmitter {
                             collection: collectionName
                         }
                     });
-                    return { resourceType, mergeResult: null, error: e, mergeResultEntries };
+                    throw new RethrownError({
+                        error: e
+                    });
                 }
             }
             return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };

@@ -286,14 +286,22 @@ class MyFHIRServer {
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
+                            let errorToSend = err;
                             const status = err.statusCode || 500;
-                            res1.status(status).json(err);
+
+                            if (status === 500) {
+                                errorToSend = convertErrorToOperationOutcome({ error: err, internalError: true });
+                            }
+                            res1.status(status).json(errorToSend);
                         } else if (err) {
                             const status = err.statusCode || 500;
                             /**
                              * @type {OperationOutcome}
                              */
-                            const operationOutcome = convertErrorToOperationOutcome({ error: err });
+                            const operationOutcome = convertErrorToOperationOutcome({
+                                error: err,
+                                internalError: status === 500
+                            });
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();
