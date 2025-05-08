@@ -39,6 +39,7 @@ const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
 const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
 const {FhirResponseExcelStreamer} = require("../utils/fhirResponseExcelStreamer");
+const {SummaryOperation} = require("./summary/summary");
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 

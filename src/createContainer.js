@@ -693,7 +693,8 @@ const createContainer = function () {
             graphOperation: c.graphOperation,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            configManager: c.configManager
+            configManager: c.configManager,
+            summaryHelper: c.summaryHelper
         }
     ));
 
