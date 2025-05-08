@@ -4,6 +4,8 @@ const {fhirContentTypes} = require('./contentTypes');
 const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
 var JSZip = require("jszip");
 const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
+const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
+const {BundleToCsvConverter} = require("../converters/bundleToCsvConverter");
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -100,26 +102,30 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                      */
                     bundle = bundle_copy.toJSON();
                 }
-                // Now extract the data as dictionaries
-                const extractedData = await converter.convertToDictionaries(bundle);
-                /**
-                 * @type {Buffer<ArrayBufferLike>}
-                 */
-                const zipBuffer = await converter.convertToCSVZipped(
-                    extractedData
-                );
 
+                /**
+                 * @type {BundleToCsvConverter}
+                 */
+                const exporter = new BundleToCsvConverter();
+                /**
+                 * @type {Buffer}
+                 */
+                const csvBuffer = await exporter.convert(
+                    {
+                        bundle
+                    }
+                );
                 // Verify buffer before sending
-                if (zipBuffer.length === 0) {
+                if (csvBuffer.length === 0) {
                     throw new Error('Generated zip buffer is empty');
                 }
 
                 // write the buffer to response
-                this.response.setHeader('Content-Length', zipBuffer.length);
+                this.response.setHeader('Content-Length', csvBuffer.length);
 
                 // Write entire zip file to response
                 // this.response.write(zipBuffer);
-                this.response.end(zipBuffer);
+                this.response.end(csvBuffer);
             } else {
                 await this.response.end();
             }

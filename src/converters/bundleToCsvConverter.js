@@ -20,10 +20,10 @@ class BundleToCsvConverter extends BaseBundleConverter {
         /**
          * @type {Buffer<ArrayBufferLike>}
          */
-        const excelBuffer = await converter.convertToExcel(
+        const zipBuffer = await converter.convertToCSVZipped(
             extractedData
         );
-        return excelBuffer;
+        return zipBuffer;
     }
 }
 
