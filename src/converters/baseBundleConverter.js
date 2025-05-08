@@ -1,5 +1,9 @@
 class BaseBundleConverter{
-    convert(bundle) {
+    /**
+     * convert
+     * @param {Bundle} bundle
+     */
+    convert({bundle}) {
         throw new Error("convert method not implemented");
     }
 }
