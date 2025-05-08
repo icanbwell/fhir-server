@@ -767,13 +767,13 @@ class FhirOperationsManager {
             response: res,
             requestId: req.id
         });
-        if (hasCsvContentType(requestInfo.accept)) {
+        if (hasCsvContentType(requestInfo.accept) || hasCsvContentType(parsedArgs._format)) {
             responseStreamer = new FhirResponseCsvStreamer({
                     response: res,
                     requestId: req.id
                 }
             )
-        } else if (hasExcelContentType(requestInfo.accept)) {
+        } else if (hasExcelContentType(requestInfo.accept) || hasExcelContentType(parsedArgs._format)) {
             responseStreamer = new FhirResponseExcelStreamer({
                     response: res,
                     requestId: req.id
