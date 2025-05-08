@@ -759,63 +759,31 @@ class FhirOperationsManager {
          * @type {FhirRequestInfo}
          */
         const requestInfo = this.getRequestInfo(req);
-        if (shouldStreamResponse(req)) {
-            /**
-             * response streamer to use
-             * @type {BaseResponseStreamer}
-             */
-            let responseStreamer = new FhirResponseStreamer({
-                response: res,
-                requestId: req.id
-            });
-            if (hasCsvContentType(requestInfo.accept)) {
-                responseStreamer = new FhirResponseCsvStreamer({
-                        response: res,
-                        requestId: req.id
-                    }
-                )
-            } else if (hasExcelContentType(requestInfo.accept)) {
-                responseStreamer = new FhirResponseExcelStreamer({
-                        response: res,
-                        requestId: req.id
-                    }
-                )
-            }
+        /**
+         * response streamer to use
+         * @type {BaseResponseStreamer}
+         */
+        let responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
+        if (hasCsvContentType(requestInfo.accept)) {
+            responseStreamer = new FhirResponseCsvStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            )
+        } else if (hasExcelContentType(requestInfo.accept)) {
+            responseStreamer = new FhirResponseExcelStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            )
+        }
 
-            await responseStreamer.startAsync();
+        await responseStreamer.startAsync();
 
-            try {
-                /**
-                 * @type {Bundle}
-                 */
-                const result = await this.summaryOperation.summaryAsync(
-                    {
-                        requestInfo,
-                        res,
-                        parsedArgs,
-                        resourceType,
-                        responseStreamer
-                    });
-                await responseStreamer.endAsync();
-                return result;
-            } catch (err) {
-                const status = err.statusCode || 500;
-                /**
-                 * @type {OperationOutcome}
-                 */
-                const operationOutcome = convertErrorToOperationOutcome({error: err});
-                await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: new BundleEntry({
-                                resource: operationOutcome
-                            }
-                        )
-                    }
-                );
-                await responseStreamer.setStatusCodeAsync({statusCode: status});
-                await responseStreamer.endAsync();
-            }
-        } else {
-            // noinspection UnnecessaryLocalVariableJS
+        try {
             /**
              * @type {Bundle}
              */
@@ -824,9 +792,26 @@ class FhirOperationsManager {
                     requestInfo,
                     res,
                     parsedArgs,
-                    resourceType
+                    resourceType,
+                    responseStreamer
                 });
+            await responseStreamer.endAsync();
             return result;
+        } catch (err) {
+            const status = err.statusCode || 500;
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            await responseStreamer.writeBundleEntryAsync({
+                    bundleEntry: new BundleEntry({
+                            resource: operationOutcome
+                        }
+                    )
+                }
+            );
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.endAsync();
         }
     }
 

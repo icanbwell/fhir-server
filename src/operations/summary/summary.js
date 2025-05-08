@@ -6,7 +6,6 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
-const {SummaryHelper} = require('./summaryHelper');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {isFalseWithFallback} = require('../../utils/isFalse');
 const {ParsedArgsItem} = require('../query/parsedArgsItem');
@@ -22,9 +21,8 @@ class SummaryOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
-     * @param {SummaryHelper} summaryHelper
      */
-    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, summaryHelper}) {
+    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager}) {
         /**
          * @type {GraphOperation}
          */
@@ -47,12 +45,6 @@ class SummaryOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {SummaryHelper}
-         */
-        this.summaryHelper = summaryHelper;
-        assertTypeEquals(summaryHelper, SummaryHelper);
     }
 
     /**

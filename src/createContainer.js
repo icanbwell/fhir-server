@@ -114,7 +114,6 @@ const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichm
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
-const {SummaryHelper} = require("./operations/summary/summaryHelper");
 const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -482,19 +481,6 @@ const createContainer = function () {
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper
     }));
 
-    container.register('summaryHelper', (c) => new SummaryHelper(
-        {
-            databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager,
-            bundleManager: c.bundleManager,
-            searchManager: c.searchManager,
-            enrichmentManager: c.enrichmentManager,
-            r4ArgsParser: c.r4ArgsParser,
-            databaseAttachmentManager: c.databaseAttachmentManager,
-            searchParametersManager: c.searchParametersManager
-        }
-    ));
-
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
 
     container.register('bundleManager', (c) => new BundleManager({
@@ -707,8 +693,7 @@ const createContainer = function () {
             graphOperation: c.graphOperation,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            configManager: c.configManager,
-            summaryHelper: c.summaryHelper
+            configManager: c.configManager
         }
     ));
 
