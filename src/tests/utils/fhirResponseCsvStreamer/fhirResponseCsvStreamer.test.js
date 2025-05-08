@@ -17,7 +17,8 @@ describe('FhirResponseCsvStreamer', () => {
         responseMock = {
             setHeader: jest.fn(),
             write: jest.fn(),
-            end: jest.fn()
+            end: jest.fn(),
+            on: jest.fn()
         };
         streamer = new FhirResponseCsvStreamer({
             response: responseMock,
