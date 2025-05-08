@@ -6,6 +6,7 @@ var JSZip = require("jszip");
 const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
 const {BundleToCsvConverter} = require("../converters/bundleToCsvConverter");
+const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -120,12 +121,13 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                     throw new Error('Generated zip buffer is empty');
                 }
 
-                // write the buffer to response
-                this.response.setHeader('Content-Length', csvBuffer.length);
-
-                // Write entire zip file to response
-                // this.response.write(zipBuffer);
-                this.response.end(csvBuffer);
+                await new BufferToChunkTransferResponse().sendLargeFileChunked(
+                    {
+                        response: this.response,
+                        buffer: csvBuffer,
+                        chunkSize: 64 * 1024
+                    }
+                );
             } else {
                 await this.response.end();
             }
