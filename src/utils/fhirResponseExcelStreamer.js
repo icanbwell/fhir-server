@@ -4,6 +4,7 @@ const {fhirContentTypes} = require('./contentTypes');
 const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
 var JSZip = require("jszip");
 const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
+const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
 
 class FhirResponseExcelStreamer extends BaseResponseStreamer {
     /**
@@ -49,7 +50,6 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
     async startAsync() {
         const contentType = fhirContentTypes.excel;
         this.response.setHeader('Content-Type', contentType);
-        this.response.setHeader('Content-Disposition', `attachment; filename="fhir_export_${new Date().toISOString().replace(/:/g, '-')}.xlsx"`);
         this.response.setHeader('X-Request-ID', String(this.requestId));
     }
 
@@ -81,10 +81,11 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
             ExtractorRegistrar.registerAll();
 
             if (this._bundle !== undefined && this._bundle_entries.length > 0) {
-                /**
-                 * @type {FHIRBundleConverter}
-                 */
-                const converter = new FHIRBundleConverter();
+                const filename = (this._bundle.id || String(this.RequestId)) + '.xlsx';
+                this.response.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="${filename}"`
+                );
                 /**
                  * @type {Bundle}
                  */
@@ -95,12 +96,17 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                  */
                 const bundle = bundle_copy.toJSON();
 
-                const extractedData = await converter.convertToDictionaries(bundle);
                 /**
-                 * @type {Buffer<ArrayBufferLike>}
+                 * @type {BundleToExcelConverter}
                  */
-                const excelBuffer = await converter.convertToExcel(
-                    extractedData
+                const exporter = new BundleToExcelConverter();
+                /**
+                 * @type {Buffer}
+                 */
+                const excelBuffer = await exporter.convert(
+                    {
+                        bundle
+                    }
                 );
 
                 // Verify buffer before sending
