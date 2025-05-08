@@ -126,7 +126,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                 await this.response.end();
             }
         } catch (error) {
-            console.error('Error generating FHIR CSV export:', error);
+            console.error('Error generating FHIR Excel export:', error);
             this.response.end();
         }
 
