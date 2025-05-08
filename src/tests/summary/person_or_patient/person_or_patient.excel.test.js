@@ -36,19 +36,21 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 var JSZip = require("jszip");
+var XLSX = require("xlsx");
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersCsv,
+    getHeadersExcel,
     getHeadersZip
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
+const {fhirContentTypes} = require("../../../utils/contentTypes");
 
-describe('Person and Patient $summary Tests', () => {
+describe('Person and Patient $summary Tests with Excel content', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -178,15 +180,15 @@ describe('Person and Patient $summary Tests', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Patient/patient1/$summary?_debug=true')
-                .set(getHeadersCsv())
+                .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe('application/zip');
-            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
             // get folder containing this test
@@ -199,7 +201,7 @@ describe('Person and Patient $summary Tests', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -212,35 +214,27 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to JSZip for detailed inspection
-            const zip = await JSZip.loadAsync(resp.body);
-
-            const fileNames = Object.keys(zip.files);
-            console.log('Zip file contents:', fileNames); // Diagnostic logging
-
-            // Check for files in the zip
-            expect(fileNames.length).toBeGreaterThan(0);
+            const workbook = XLSX.read(resp.body);
 
             // Detailed file inspection
-            for (const fileName of fileNames) {
-                const file = zip.files[fileName];
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-                // Verify each file
-                expect(file).toBeDefined();
-                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
-
-                // Optional: Read file content
-                const fileContent = await file.async('string');
-                expect(fileContent).toBeTruthy();
-                expect(fileContent.trim().length).toBeGreaterThan(0);
+                expect(sheetData.length).toBeGreaterThan(0);
             }
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = fileNames.find(filename =>
-                    filename.toLowerCase().includes(resourceType.toLowerCase()) &&
-                    filename.endsWith('.csv')
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
                 );
                 expect(matchingFile).toBeTruthy();
             });
@@ -365,15 +359,15 @@ describe('Person and Patient $summary Tests', () => {
             // First get patient everything
             resp = await request
                 .get('/4_0_0/Person/person1/$summary')
-                .set(getHeadersCsv())
+                .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe('application/zip');
-            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
             // get folder containing this test
@@ -386,7 +380,7 @@ describe('Person and Patient $summary Tests', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -399,35 +393,27 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to JSZip for detailed inspection
-            const zip = await JSZip.loadAsync(resp.body);
-
-            const fileNames = Object.keys(zip.files);
-            console.log('Zip file contents:', fileNames); // Diagnostic logging
-
-            // Check for files in the zip
-            expect(fileNames.length).toBeGreaterThan(0);
+            const workbook = XLSX.read(resp.body);
 
             // Detailed file inspection
-            for (const fileName of fileNames) {
-                const file = zip.files[fileName];
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-                // Verify each file
-                expect(file).toBeDefined();
-                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
-
-                // Optional: Read file content
-                const fileContent = await file.async('string');
-                expect(fileContent).toBeTruthy();
-                expect(fileContent.trim().length).toBeGreaterThan(0);
+                expect(sheetData.length).toBeGreaterThan(0);
             }
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = fileNames.find(filename =>
-                    filename.toLowerCase().includes(resourceType.toLowerCase()) &&
-                    filename.endsWith('.csv')
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
                 );
                 expect(matchingFile).toBeTruthy();
             });
