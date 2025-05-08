@@ -127,7 +127,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
             }
         } catch (error) {
             console.error('Error generating FHIR CSV export:', error);
-            this.response.status(500).send('Failed to generate FHIR CSV export');
+            this.response.end();
         }
 
     }
