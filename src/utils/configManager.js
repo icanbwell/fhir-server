@@ -838,6 +838,17 @@ class ConfigManager {
                 env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL.split(',').map((col) => col.trim())) || []
         );
     }
+
+    /**
+     * True if Datadog is enabled, false if opentelemetry is enabled
+     * @returns {boolean}
+     */
+    get isDataDogEnabled() {
+        if (env.DD_TRACE_ENABLED === null || env.DD_TRACE_ENABLED === undefined) {
+            return false;
+        }
+        return isTrue(env.DD_TRACE_ENABLED);
+    }
 }
 
 module.exports = {
