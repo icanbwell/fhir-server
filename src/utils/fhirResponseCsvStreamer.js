@@ -52,7 +52,6 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
     async startAsync() {
         const contentType = fhirContentTypes.zip;
         this.response.setHeader('Content-Type', contentType);
-        this.response.setHeader('Content-Disposition', `attachment; filename="fhir_export_${new Date().toISOString().replace(/:/g, '-')}.zip"`);
         this.response.setHeader('X-Request-ID', String(this.requestId));
     }
 
@@ -84,6 +83,12 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
             ExtractorRegistrar.registerAll();
 
             if (this._bundle !== undefined && (this._bundle.entry || this._bundle_entries.length > 0)) {
+                const filename = (this._bundle.id || String(this.RequestId)) + '.zip';
+                this.response.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="${filename}"`
+                );
+                this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
                 /**
                  * @type {FHIRBundleConverter}
                  */

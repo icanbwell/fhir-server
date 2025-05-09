@@ -87,6 +87,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                     'Content-Disposition',
                     `attachment; filename="${filename}"`
                 );
+                this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
                 /**
                  * @type {Bundle}
                  */
