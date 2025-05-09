@@ -48,6 +48,8 @@ const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const httpContext = require('express-http-context');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const ddTracer = require('dd-trace')
+const { trace: otelTrace } = require('@opentelemetry/api');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -162,6 +164,11 @@ class EverythingHelper {
             _sourceAssigningAuthority: 1,
             resourceType: 1
         }
+
+        // for adding trace for Consent data view control
+        this.tracer = this.configManager.isDataDogEnabled
+            ? ddTracer
+            : otelTrace.getTracer('everythingHelper');
     }
 
     /**
@@ -453,15 +460,24 @@ class EverythingHelper {
 
             // get Consent resource containing resources marked as deleted to exclude
             if (requestInfo.isUser) {
+                // https://docs.datadoghq.com/tracing/trace_collection/custom_instrumentation/nodejs/dd-api/?tab=asyncawait
                 let {
                     entries: viewControlConsentEntries,
                     queryItems: viewControlConsentQueries,
                     options: viewControlConsentQueryOptions
-                } = await this.getDataConnectionViwControlConsentAsync({
-                    getRaw,
-                    requestInfo,
-                    base_version,
-                    patientResourceIdentifiers: baseResourceIdentifiers
+                } = await this.tracer[this.configManager.isDataDogEnabled ? 'trace' : 'startActiveSpan']('EverythingHelper.getDataConnectionViwControlConsentAsync', async (span) => {
+                    let consentData = await this.getDataConnectionViwControlConsentAsync({
+                        getRaw,
+                        requestInfo,
+                        base_version,
+                        patientResourceIdentifiers: baseResourceIdentifiers
+                    });
+
+                    // https://opentelemetry.io/docs/languages/js/instrumentation/#create-spans
+                    if ( !this.configManager.isDataDogEnabled ){
+                        span.end();
+                    }
+                    return consentData;
                 });
 
                 viewControlConsentEntries.forEach(entry => {
