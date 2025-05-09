@@ -284,7 +284,8 @@ class FhirResponseWriter {
         }
         const fhirVersion = req.params.base_version;
         if (!res.header("Content-Type")) {
-            res.type(this.getContentType(fhirVersion));
+            const contentType = this.getContentType(fhirVersion);
+            res.type(contentType);
         }
         if (req.id) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
