@@ -34,12 +34,12 @@ const hasNdJsonContentType = (text) => {
     if (!text) {
         return false;
     }
-    const text_url_decoded = decodeURIComponent(text);
-    if (Array.isArray(text_url_decoded)) {
-        return text_url_decoded.some(item => ndJsonContentTypes.includes(item));
+    if (Array.isArray(text)) {
+        return text.some(item => ndJsonContentTypes.includes(item));
     }
-    return ndJsonContentTypes.includes(text_url_decoded);
+    return ndJsonContentTypes.includes(text);
 };
+
 
 /**
  * @param {string[]|string} text
@@ -109,12 +109,10 @@ const hasJsonContentType = (text) => {
     if (!text) {
         return false;
     }
-    // url decode the text query parameter
-    const text_url_decoded = decodeURIComponent(text);
-    if (Array.isArray(text_url_decoded)) {
-        return text_url_decoded.some(item => fhirJsonContentTypes.includes(item));
+    if (Array.isArray(text)) {
+        return text.some(item => fhirJsonContentTypes.includes(item));
     }
-    return fhirJsonContentTypes.includes(text_url_decoded);
+    return fhirJsonContentTypes.includes(text);
 };
 
 module.exports = {
