@@ -2164,7 +2164,7 @@ class GraphHelper {
                 total: deleteOperationBundleEntries.length
             });
             if (responseStreamer) {
-                await responseStreamer.setBundle({ bundle: deleteOperationBundle });
+                responseStreamer.setBundle({ bundle: deleteOperationBundle });
             }
             return deleteOperationBundle;
         } catch (e) {

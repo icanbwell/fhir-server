@@ -28,7 +28,7 @@ const { R4ArgsParser } = require('./query/r4ArgsParser');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { shouldStreamResponse } = require('../utils/requestHelpers');
 const { ParametersBodyParser } = require('./common/parametersBodyParser');
-const { fhirContentTypes, hasNdJsonContentType } = require('../utils/contentTypes');
+const { fhirContentTypes, hasNdJsonContentType, hasCsvContentType, hasExcelContentType} = require('../utils/contentTypes');
 const { ExportByIdOperation } = require('./export/exportById');
 const { FhirResponseNdJsonStreamer } = require('../utils/fhirResponseNdJsonStreamer');
 const { READ, WRITE } = require('../constants').OPERATIONS;
@@ -37,6 +37,9 @@ const { vulcanIgSearchQueries } = require('./query/customQueries');
 const { ParsedArgs } = require('./query/parsedArgs');
 const { getNestedValueByPath } = require('../utils/object');
 const { ConfigManager } = require('../utils/configManager');
+const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
+const {FhirResponseExcelStreamer} = require("../utils/fhirResponseExcelStreamer");
+const {SummaryOperation} = require("./summary/summary");
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -50,6 +53,7 @@ class FhirOperationsManager {
      * @param updateOperation
      * @param mergeOperation
      * @param everythingOperation
+     * @param summaryOperation
      * @param removeOperation
      * @param searchByVersionIdOperation
      * @param historyOperation
@@ -64,7 +68,7 @@ class FhirOperationsManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
      */
-    constructor (
+    constructor(
         {
             searchBundleOperation,
             searchStreamingOperation,
@@ -73,6 +77,7 @@ class FhirOperationsManager {
             updateOperation,
             mergeOperation,
             everythingOperation,
+            summaryOperation,
             removeOperation,
             searchByVersionIdOperation,
             historyOperation,
@@ -123,6 +128,11 @@ class FhirOperationsManager {
          */
         this.everythingOperation = everythingOperation;
         assertTypeEquals(everythingOperation, EverythingOperation);
+        /**
+         * @type {SummaryOperation}
+         */
+        this.summaryOperation = summaryOperation;
+        assertTypeEquals(summaryOperation, SummaryOperation);
         /**
          * @type {RemoveOperation}
          */
@@ -566,7 +576,7 @@ class FhirOperationsManager {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
                 path,
-resourceType
+                resourceType
             }
         );
     }
@@ -713,6 +723,89 @@ resourceType
                     resourceType
                 });
             return result;
+        }
+    }
+
+    /**
+     * does a FHIR $summary
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Bundle}
+     */
+    async summary(args, {req, res}, resourceType) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({req, combined_args});
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, operation: READ
+            }
+        );
+
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+        /**
+         * response streamer to use
+         * @type {BaseResponseStreamer}
+         */
+        let responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
+        if (hasCsvContentType(requestInfo.accept) || hasCsvContentType(parsedArgs._format)) {
+            responseStreamer = new FhirResponseCsvStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            )
+        } else if (hasExcelContentType(requestInfo.accept) || hasExcelContentType(parsedArgs._format)) {
+            responseStreamer = new FhirResponseExcelStreamer({
+                    response: res,
+                    requestId: req.id
+                }
+            )
+        }
+
+        await responseStreamer.startAsync();
+
+        try {
+            /**
+             * @type {Bundle}
+             */
+            const result = await this.summaryOperation.summaryAsync(
+                {
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer
+                });
+            await responseStreamer.endAsync();
+            return result;
+        } catch (err) {
+            const status = err.statusCode || 500;
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            await responseStreamer.writeBundleEntryAsync({
+                    bundleEntry: new BundleEntry({
+                            resource: operationOutcome
+                        }
+                    )
+                }
+            );
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.endAsync();
         }
     }
 

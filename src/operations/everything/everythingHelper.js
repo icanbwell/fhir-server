@@ -1121,7 +1121,7 @@ class EverythingHelper {
      * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: DatabasePartitionedCursor,
-     *  responseStreamer: ResponseStreamer,
+     *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
      *  resourceIdentifiers: ResourceIdentifier[] | null,

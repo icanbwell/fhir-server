@@ -107,6 +107,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
+     * @param {boolean} rawResources
      */
     setBundle({ bundle, rawResources = false }) {
         this._bundle = bundle;
@@ -126,9 +127,9 @@ class FhirResponseStreamer extends BaseResponseStreamer {
             id: this.requestId,
             type: this._bundleType,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
-        })
+        });
 
-        const bundle = this._bundle || emptyBundle()
+        const bundle = this._bundle || emptyBundle();
         bundle.total = this._count;
         // noinspection JSUnresolvedFunction
         /**

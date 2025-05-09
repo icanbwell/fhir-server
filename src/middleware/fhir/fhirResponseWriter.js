@@ -53,6 +53,17 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function summary
+     * @description Used when you are returning a Bundle of resources
+     * @param {import('express').Request} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Resource|Object} result - json to send to client
+     */
+    summary({req, res, result}) {
+        this.setBaseResponseHeaders({req, res});
+    }
+
+    /**
      * @function graph
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
@@ -272,7 +283,10 @@ class FhirResponseWriter {
             return;
         }
         const fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.header("Content-Type")) {
+            const contentType = this.getContentType(fhirVersion);
+            res.type(contentType);
+        }
         if (req.id) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
