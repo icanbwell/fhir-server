@@ -34,10 +34,11 @@ const hasNdJsonContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => ndJsonContentTypes.includes(item));
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => ndJsonContentTypes.includes(item));
     }
-    return ndJsonContentTypes.includes(text);
+    return ndJsonContentTypes.includes(text_url_decoded);
 };
 
 /**
@@ -48,10 +49,11 @@ const hasCsvContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => item === fhirContentTypes.csv);
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => item === fhirContentTypes.csv);
     }
-    return text === fhirContentTypes.csv;
+    return text_url_decoded === fhirContentTypes.csv;
 };
 
 /**
@@ -62,10 +64,11 @@ const hasTabDelimitedContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => item === fhirContentTypes.tsv);
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => item === fhirContentTypes.tsv);
     }
-    return text === fhirContentTypes.tsv;
+    return text_url_decoded === fhirContentTypes.tsv;
 };
 
 /**
@@ -76,10 +79,11 @@ const hasPipeDelimitedContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => item === fhirContentTypes.pipeDelimited);
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => item === fhirContentTypes.pipeDelimited);
     }
-    return text === fhirContentTypes.pipeDelimited;
+    return text_url_decoded === fhirContentTypes.pipeDelimited;
 };
 
 /**
@@ -90,10 +94,11 @@ const hasExcelContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => item === fhirContentTypes.excel);
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => item === fhirContentTypes.excel);
     }
-    return text === fhirContentTypes.excel;
+    return text_url_decoded === fhirContentTypes.excel;
 };
 
 /**
@@ -104,10 +109,12 @@ const hasJsonContentType = (text) => {
     if (!text) {
         return false;
     }
-    if (Array.isArray(text)) {
-        return text.some(item => fhirJsonContentTypes.includes(item));
+    // url decode the text query parameter
+    const text_url_decoded = decodeURIComponent(text);
+    if (Array.isArray(text_url_decoded)) {
+        return text_url_decoded.some(item => fhirJsonContentTypes.includes(item));
     }
-    return fhirJsonContentTypes.includes(text);
+    return fhirJsonContentTypes.includes(text_url_decoded);
 };
 
 module.exports = {
