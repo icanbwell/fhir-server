@@ -120,7 +120,7 @@
     "@graphql-tools/graphql-file-loader": "^8.0.1",
     "@graphql-tools/load-files": "^7.0.0",
     "@graphql-tools/merge": "^9.0.4",
-    "@imranq2/fhir-to-csv": "^1.0.12",
+    "@imranq2/fhir-to-csv": "^1.0.13",
     "@json2csv/node": "^7.0.6",
     "@json2csv/plainjs": "^7.0.6",
     "@json2csv/transforms": "^7.0.6",
