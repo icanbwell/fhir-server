@@ -9,6 +9,7 @@ const {FhirResourceSerializer} = require('../../../fhir/fhirResourceSerializer')
 const {removeUnderscoreProps} = require('../../../utils/removeUnderscoreProps');
 const {fhirContentTypes} = require("../../../utils/contentTypes");
 const {BundleToExcelConverter} = require("../../../converters/bundleToExcelConverter");
+const {generateUUID} = require("../../../utils/uid.util");
 
 class FhirResourceExcelWriter extends FhirResourceWriterBase {
     /**
@@ -114,41 +115,43 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
         if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceExcelWriter: _flush', {});
         }
-        // now convert to Excel and write it out
-        const contentType = fhirContentTypes.excel;
-        this.response.setHeader('Content-Type', contentType);
-        this.response.setHeader('X-Request-ID', String(this.requestId));
 
-        const filename = (this._bundle.id || String(this.RequestId)) + '.xlsx';
-        this.response.setHeader(
-            'Content-Disposition',
-            `attachment; filename="${filename}"`
-        );
-        this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-        /**
-         * @type {Bundle}
-         */
-        const bundle_copy = this._bundle.clone();
-        bundle_copy.entry = this._bundle_entries;
-        /**
-         * @type {Object}
-         */
-        const bundle = bundle_copy.toJSON();
+        if (this.json_resources.length > 0) {
+            // now convert to Excel and write it out
+            this.response.setHeader('Content-Type', this.getContentType());
+            this.response.setHeader('X-Request-ID', String(this.requestId));
 
-        /**
-         * @type {BundleToExcelConverter}
-         */
-        const exporter = new BundleToExcelConverter();
-        /**
-         * @type {Buffer}
-         */
-        const excelBuffer = exporter.convert(
-            {
-                bundle
-            }
-        );
-        // write the buffer to the response
-        this.push(excelBuffer);
+            const filename = (this.RequestId ? String(this.RequestId) : generateUUID()) + '.xlsx';
+            this.response.setHeader(
+                'Content-Disposition',
+                `attachment; filename="${filename}"`
+            );
+            this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+            /**
+             * @type {Bundle}
+             */
+            const bundle_copy = this._bundle.clone();
+            bundle_copy.entry = this._bundle_entries;
+            /**
+             * @type {Object}
+             */
+            const bundle = bundle_copy.toJSON();
+
+            /**
+             * @type {BundleToExcelConverter}
+             */
+            const exporter = new BundleToExcelConverter();
+            /**
+             * @type {Buffer}
+             */
+            const excelBuffer = exporter.convert(
+                {
+                    bundle
+                }
+            );
+            // write the buffer to the response
+            this.push(excelBuffer);
+        }
         this.push(null);
         callback();
     }
