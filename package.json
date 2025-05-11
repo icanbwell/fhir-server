@@ -185,7 +185,7 @@
     "xss": "^1.0.15",
     "yargs": "^17.7.2",
     "zlib": "^1.0.5",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "jszip": "^3.10.1"
   },
   "devDependencies": {
