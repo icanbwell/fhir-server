@@ -162,7 +162,7 @@ class SummaryOperation {
                 parsedArgs.resourceFilterList = resourceFilterList;
             }
 
-            // Grab an instance of our DB and collection
+            // if an id was passed and we have a graph for that id then use that
             switch (resourceType) {
                 case 'Person': {
                     parsedArgs.resource = personSummaryGraph;
