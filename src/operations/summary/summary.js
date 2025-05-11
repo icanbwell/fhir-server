@@ -13,6 +13,7 @@ const {QueryParameterValue} = require('../query/queryParameterValue');
 const {EverythingOperation} = require("../everything/everything");
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
+const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
 
 class SummaryOperation {
     /**
@@ -169,6 +170,10 @@ class SummaryOperation {
                 }
                 case 'Patient': {
                     parsedArgs.resource = patientSummaryGraph;
+                    break;
+                }
+                case 'Practitioner': {
+                    parsedArgs.resource = practitionerSummaryGraph;
                     break;
                 }
                 default:
