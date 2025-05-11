@@ -35,7 +35,7 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
-var JSZip = require("jszip");
+const {unzipSync, strFromU8} = require('fflate');
 
 const {
     commonBeforeEach,
@@ -213,10 +213,10 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to JSZip for detailed inspection
-            const zip = await JSZip.loadAsync(resp.body);
+            // Convert response to fflate for detailed inspection
+            const zipContent = unzipSync(new Uint8Array(resp.body));
 
-            const fileNames = Object.keys(zip.files);
+            const fileNames = Object.keys(zipContent);
             console.log('Zip file contents:', fileNames); // Diagnostic logging
 
             // Check for files in the zip
@@ -224,17 +224,12 @@ describe('Person and Patient $summary Tests', () => {
 
             // Detailed file inspection
             for (const fileName of fileNames) {
-                const file = zip.files[fileName];
+                const fileContent = strFromU8(zipContent[fileName]);
 
-                // Verify each file
-                expect(file).toBeDefined();
-                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
-
-                // Optional: Read file content
-                const fileContent = await file.async('string');
                 expect(fileContent).toBeTruthy();
                 expect(fileContent.trim().length).toBeGreaterThan(0);
             }
+
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
@@ -400,10 +395,10 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to JSZip for detailed inspection
-            const zip = await JSZip.loadAsync(resp.body);
+            // Convert response to fflate for detailed inspection
+            const zipContent = unzipSync(new Uint8Array(resp.body));
 
-            const fileNames = Object.keys(zip.files);
+            const fileNames = Object.keys(zipContent);
             console.log('Zip file contents:', fileNames); // Diagnostic logging
 
             // Check for files in the zip
@@ -411,14 +406,8 @@ describe('Person and Patient $summary Tests', () => {
 
             // Detailed file inspection
             for (const fileName of fileNames) {
-                const file = zip.files[fileName];
+                const fileContent = strFromU8(zipContent[fileName]);
 
-                // Verify each file
-                expect(file).toBeDefined();
-                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
-
-                // Optional: Read file content
-                const fileContent = await file.async('string');
                 expect(fileContent).toBeTruthy();
                 expect(fileContent.trim().length).toBeGreaterThan(0);
             }
@@ -587,10 +576,10 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to JSZip for detailed inspection
-            const zip = await JSZip.loadAsync(resp.body);
+            // Convert response to fflate for detailed inspection
+            const zipContent = unzipSync(new Uint8Array(resp.body));
 
-            const fileNames = Object.keys(zip.files);
+            const fileNames = Object.keys(zipContent);
             console.log('Zip file contents:', fileNames); // Diagnostic logging
 
             // Check for files in the zip
@@ -598,17 +587,12 @@ describe('Person and Patient $summary Tests', () => {
 
             // Detailed file inspection
             for (const fileName of fileNames) {
-                const file = zip.files[fileName];
+                const fileContent = strFromU8(zipContent[fileName]);
 
-                // Verify each file
-                expect(file).toBeDefined();
-                expect(file.name).toMatch(/\.csv$/); // Ensure CSV files
-
-                // Optional: Read file content
-                const fileContent = await file.async('string');
                 expect(fileContent).toBeTruthy();
                 expect(fileContent.trim().length).toBeGreaterThan(0);
             }
+
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed

@@ -2,7 +2,6 @@ const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
 const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/fhir_bundle_converter");
-const JSZip = require("jszip");
 const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
 const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
 

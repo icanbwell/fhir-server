@@ -35,8 +35,7 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
-var JSZip = require("jszip");
-var XLSX = require("xlsx");
+const XLSX = require("xlsx");
 
 const {
     commonBeforeEach,
