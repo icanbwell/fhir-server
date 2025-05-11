@@ -18,9 +18,9 @@ class BufferToChunkTransferResponse {
             read() {
                 // If buffer is not empty, push chunks
                 if (buffer.length > 0) {
-                    const chunk = buffer.slice(0, Math.min(chunkSize, buffer.length));
+                    const chunk = buffer.subarray(0, Math.min(chunkSize, buffer.length));
                     this.push(chunk);
-                    buffer = buffer.slice(chunk.length);
+                    buffer = buffer.subarray(chunk.length);
                 }
 
                 // Signal end of stream when buffer is exhausted
