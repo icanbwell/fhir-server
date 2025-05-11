@@ -253,12 +253,26 @@ describe('search by multiple ids csv', () => {
 
             resp = await request
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel}`)
-                .set(getHeaders());
+                .set(getHeaders())
+                .responseType('blob'); // Important for binary data;
             expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
             expect(resp.headers['content-disposition']).toBeDefined();
+
+            // Generate unique filename
+            // get folder containing this test
+            const tempFolder = __dirname + '/temp';
+            // if subfolder temp from current folder exists then delete it
+            if (fs.existsSync(tempFolder)) {
+                fs.rmSync(tempFolder, {recursive: true, force: true});
+            }
+            // if subfolder temp from current folder does not exist then create it
+            if (!fs.existsSync(tempFolder)) {
+                fs.mkdirSync(tempFolder);
+            }
+            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
+            const filepath = tempFolder + '/' + filename;
             // Write the response body to a file
-            const filePath = path.resolve(__dirname, 'response.xlsx');
-            fs.writeFileSync(filePath, resp.body);
+            fs.writeFileSync(filepath, resp.body);
         });
         test('search by multiple id works with selected elements', async () => {
             const request = await createTestRequest((c) => {

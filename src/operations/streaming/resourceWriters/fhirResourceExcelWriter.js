@@ -10,6 +10,7 @@ const {removeUnderscoreProps} = require('../../../utils/removeUnderscoreProps');
 const {fhirContentTypes} = require("../../../utils/contentTypes");
 const {BundleToExcelConverter} = require("../../../converters/bundleToExcelConverter");
 const {generateUUID} = require("../../../utils/uid.util");
+const {BufferToChunkTransferResponse} = require("../../../utils/buffer_to_chunk_transfer_response");
 
 class FhirResourceExcelWriter extends FhirResourceWriterBase {
     /**
@@ -127,15 +128,6 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
                 `attachment; filename="${filename}"`
             );
             this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-            /**
-             * @type {Bundle}
-             */
-            const bundle_copy = this._bundle.clone();
-            bundle_copy.entry = this._bundle_entries;
-            /**
-             * @type {Object}
-             */
-            const bundle = bundle_copy.toJSON();
 
             /**
              * @type {BundleToExcelConverter}
@@ -144,15 +136,20 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
             /**
              * @type {Buffer}
              */
-            const excelBuffer = exporter.convert(
+            const excelBuffer = exporter.convertResources(
                 {
-                    bundle
+                    resources: this.json_resources
                 }
             );
             // write the buffer to the response
-            this.push(excelBuffer);
+            new BufferToChunkTransferResponse().sendLargeFileChunked(
+                {
+                    response: this.response,
+                    buffer: excelBuffer,
+                    chunkSize: 64 * 1024
+                }
+            );
         }
-        this.push(null);
         callback();
     }
 

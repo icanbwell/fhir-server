@@ -17,7 +17,28 @@ class BundleToCsvConverter extends BaseBundleConverter {
          */
         const converter = new FHIRBundleConverter();
 
-        const extractedData = converter.convertToDictionaries(bundle);
+        const extractedData = converter.convertBundleToDictionaries(bundle);
+        /**
+         * @type {Buffer<ArrayBufferLike>}
+         */
+        const zipBuffer = converter.convertToCSVZipped(
+            extractedData
+        );
+        return zipBuffer;
+    }
+
+    /**
+     * convert
+     * @param {Object[]} resources
+     * @return {Buffer}
+     */
+    convertResources({resources}) {
+        /**
+         * @type {FHIRBundleConverter}
+         */
+        const converter = new FHIRBundleConverter();
+
+        const extractedData = converter.convertResourcesToDictionaries(resources);
         /**
          * @type {Buffer<ArrayBufferLike>}
          */

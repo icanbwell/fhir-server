@@ -16,7 +16,27 @@ class BundleToExcelConverter extends BaseBundleConverter {
          * @type {FHIRBundleConverter}
          */
         const converter = new FHIRBundleConverter();
-        const extractedData = converter.convertToDictionaries(bundle);
+        const extractedData = converter.convertBundleToDictionaries(bundle);
+        /**
+         * @type {Buffer<ArrayBufferLike>}
+         */
+        const excelBuffer = converter.convertToExcel(
+            extractedData
+        );
+        return excelBuffer;
+    }
+
+    /**
+     * convert
+     * @param {Object[]} resources
+     * @return {Buffer}
+     */
+    convertResources({resources}) {
+        /**
+         * @type {FHIRBundleConverter}
+         */
+        const converter = new FHIRBundleConverter();
+        const extractedData = converter.convertResourcesToDictionaries(resources);
         /**
          * @type {Buffer<ArrayBufferLike>}
          */

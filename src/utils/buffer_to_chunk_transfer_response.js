@@ -7,9 +7,9 @@ class BufferToChunkTransferResponse {
      * @param {ServerResponse} response
      * @param {Buffer} buffer
      * @param {number} chunkSize
-     * @returns {Promise<void>}
+     * @returns {void}
      */
-    async sendLargeFileChunked({response, buffer, chunkSize = 64 * 1024}) {
+    sendLargeFileChunked({response, buffer, chunkSize = 64 * 1024}) {
         // Create a readable stream from the buffer
         /**
          * @type {module:stream.Stream.Readable | module:stream.internal.Readable}

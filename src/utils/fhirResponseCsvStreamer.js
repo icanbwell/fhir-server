@@ -85,10 +85,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                     `attachment; filename="${filename}"`
                 );
                 this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-                /**
-                 * @type {FHIRBundleConverter}
-                 */
-                const converter = new FHIRBundleConverter();
+
                 /**
                  * @type {Object}
                  */

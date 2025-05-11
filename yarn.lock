@@ -1488,10 +1488,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.3.tgz#c2b9d2e374ee62c586d3adbea87199b1d7a7a6ba"
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
-"@imranq2/fhir-to-csv@^1.0.11":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.11.tgz#b427a4cd8abf3f8884743e793cc432f8fe73e9f1"
-  integrity sha512-bFA2p7e75PFITbMFg0O5Pj1vSRRXB5dzjmQaUXvwVcEQYQvCzjA8QsqfJoG5xGIJ1qjbzWZQ11hV5aLyQOJEaQ==
+"@imranq2/fhir-to-csv@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.12.tgz#1a5ef8d1b6466d0cb80f02aa55a7ae701fa6db83"
+  integrity sha512-TEUQWFWwP2IKRyzUQJ15RGXRCgaDS6WbJxuaOmrUc1G7toBFhkG/w+N424RohJQUOT5znWyVdnLtosjId7Y3QQ==
   dependencies:
     "@json2csv/node" "^7.0.6"
     fflate "^0.8.2"
