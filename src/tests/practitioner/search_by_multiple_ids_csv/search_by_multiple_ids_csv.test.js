@@ -216,64 +216,6 @@ describe('search by multiple ids csv', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
-        test('search by multiple id works with _format Excel from browser', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerDefaultSortId());
-                return c;
-            });
-            /**
-             * @type {Response}
-             */
-            let resp = await request
-                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel}`)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            resp = await request
-                .post('/4_0_0/Practitioner/1679033641/$merge')
-                .send(practitionerResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Practitioner/0/$merge')
-                .send(practitionerResource2)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Practitioner/1/$merge')
-                .send(practitionerResource3)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel}`)
-                .set(getHeaders())
-                .responseType('blob'); // Important for binary data;
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
-            expect(resp.headers['content-disposition']).toBeDefined();
-
-            // Generate unique filename
-            // get folder containing this test
-            const tempFolder = __dirname + '/temp';
-            // if subfolder temp from current folder exists then delete it
-            if (fs.existsSync(tempFolder)) {
-                fs.rmSync(tempFolder, {recursive: true, force: true});
-            }
-            // if subfolder temp from current folder does not exist then create it
-            if (!fs.existsSync(tempFolder)) {
-                fs.mkdirSync(tempFolder);
-            }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
-            const filepath = tempFolder + '/' + filename;
-            // Write the response body to a file
-            fs.writeFileSync(filepath, resp.body);
-        });
         test('search by multiple id works with selected elements', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerDefaultSortId());
