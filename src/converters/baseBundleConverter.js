@@ -1,8 +1,8 @@
 class BaseBundleConverter{
     /**
      * convert
-     * @param {Bundle} bundle
-     * @return {Promise<Buffer>}
+     * @param {Object} bundle
+     * @return {Buffer}
      */
     convert({bundle}) {
         throw new Error("convert method not implemented");

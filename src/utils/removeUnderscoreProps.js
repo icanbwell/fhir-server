@@ -18,4 +18,4 @@ function removeUnderscoreProps(obj) {
 
 module.exports = {
     removeUnderscoreProps
-}
+};

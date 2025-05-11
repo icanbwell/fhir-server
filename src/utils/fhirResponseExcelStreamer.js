@@ -102,7 +102,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                 /**
                  * @type {Buffer}
                  */
-                const excelBuffer = await exporter.convert(
+                const excelBuffer = exporter.convert(
                     {
                         bundle
                     }
@@ -110,7 +110,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
 
                 // Verify buffer before sending
                 if (excelBuffer.length === 0) {
-                    throw new Error('Generated zip buffer is empty');
+                    throw new Error('Generated Excel buffer is empty');
                 }
 
                 await new BufferToChunkTransferResponse().sendLargeFileChunked(

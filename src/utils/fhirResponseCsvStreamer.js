@@ -113,7 +113,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 /**
                  * @type {Buffer}
                  */
-                const csvBuffer = await exporter.convert(
+                const csvBuffer = exporter.convert(
                     {
                         bundle
                     }
