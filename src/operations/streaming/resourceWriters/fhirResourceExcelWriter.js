@@ -1,13 +1,11 @@
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 const {logInfo, logError} = require('../../common/logging');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
-const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
 const {captureException} = require('../../common/sentry');
 const {FhirResourceSerializer} = require('../../../fhir/fhirResourceSerializer');
 const {removeUnderscoreProps} = require('../../../utils/removeUnderscoreProps');
-const {fhirContentTypes} = require("../../../utils/contentTypes");
 const {BundleToExcelConverter} = require("../../../converters/bundleToExcelConverter");
 const {generateUUID} = require("../../../utils/uid.util");
 const {BufferToChunkTransferResponse} = require("../../../utils/buffer_to_chunk_transfer_response");
@@ -51,6 +49,11 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
          * @type {Object[]}
          */
         this.json_resources = [];
+
+        /**
+         * @type {string}
+        */
+        this.requestId = this.response.req.id
     }
 
     /**
@@ -80,7 +83,6 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
                     } else {
                         removeUnderscoreProps(myChunk);
                     }
-                    const resourceJson = JSON.stringify(chunk, getCircularReplacer());
                 } else {
                     myChunk = chunk.toJSON();
                 }
@@ -122,7 +124,7 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
             this.response.setHeader('Content-Type', this.getContentType());
             this.response.setHeader('X-Request-ID', String(this.requestId));
 
-            const filename = (this.RequestId ? String(this.RequestId) : generateUUID()) + '.xlsx';
+            const filename = (this.requestId ? String(this.requestId) : generateUUID()) + '.xlsx';
             this.response.setHeader(
                 'Content-Disposition',
                 `attachment; filename="${filename}"`

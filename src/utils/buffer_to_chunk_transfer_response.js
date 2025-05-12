@@ -1,5 +1,4 @@
 const {Readable} = require('stream');
-const {fhirContentTypes} = require("./contentTypes");
 
 class BufferToChunkTransferResponse {
     /**

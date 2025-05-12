@@ -10,10 +10,9 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersExcel,
-    getHeadersZip
+    getHeadersExcel
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const fs = require("node:fs");
 const {fhirContentTypes} = require("../../../utils/contentTypes");
 

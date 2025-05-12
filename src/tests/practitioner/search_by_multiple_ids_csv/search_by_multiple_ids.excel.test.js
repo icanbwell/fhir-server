@@ -7,10 +7,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getHeadersCsv, getHeadersCsvFormUrlEncoded, getHtmlHeaders
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const path = require('path');
 const fs = require('fs');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {ConfigManager} = require('../../../utils/configManager');
