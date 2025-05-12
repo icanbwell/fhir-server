@@ -1488,12 +1488,11 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.3.tgz#c2b9d2e374ee62c586d3adbea87199b1d7a7a6ba"
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
-"@imranq2/fhir-to-csv@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.13.tgz#8a8904da0a79ec54da8dd7bee38933e82df38a23"
-  integrity sha512-BGin6mX0Wr9/+dedjhHfCHz50elN7UueH5rJ7+XfmmozOuLjj+RUuAGURC2Op1q0C5EzSdu1bZ64WReQ6zk1pA==
+"@imranq2/fhir-to-csv@^1.0.15":
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhir-to-csv/-/fhir-to-csv-1.0.15.tgz#48e12e660ebb5a90e0ee9bc397d5380a8f78c0f7"
+  integrity sha512-XGRa9Ym5mq5vYLGjrUWBuLnoK6PY7hWqPbn+16Lqk1pH9I1vdxs6vL2fD9y8uv+mqPUd7UzwrW0cWtG13Blu1g==
   dependencies:
-    "@json2csv/node" "^7.0.6"
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
