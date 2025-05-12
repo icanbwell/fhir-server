@@ -1,10 +1,5 @@
-const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
-const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
-var JSZip = require("jszip");
-const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
-const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
 const {BundleToCsvConverter} = require("../converters/bundleToCsvConverter");
 const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
 
@@ -80,19 +75,14 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
      */
     async endAsync() {
         try {
-            ExtractorRegistrar.registerAll();
-
             if (this._bundle !== undefined && (this._bundle.entry || this._bundle_entries.length > 0)) {
-                const filename = (this._bundle.id || String(this.RequestId)) + '.zip';
+                const filename = (this._bundle.id || String(this.requestId)) + '.zip';
                 this.response.setHeader(
                     'Content-Disposition',
                     `attachment; filename="${filename}"`
                 );
                 this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-                /**
-                 * @type {FHIRBundleConverter}
-                 */
-                const converter = new FHIRBundleConverter();
+
                 /**
                  * @type {Object}
                  */
@@ -116,7 +106,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 /**
                  * @type {Buffer}
                  */
-                const csvBuffer = await exporter.convert(
+                const csvBuffer = exporter.convert(
                     {
                         bundle
                     }

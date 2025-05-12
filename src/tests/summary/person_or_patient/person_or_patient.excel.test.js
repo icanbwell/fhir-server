@@ -35,8 +35,7 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
-var JSZip = require("jszip");
-var XLSX = require("xlsx");
+const XLSX = require("xlsx");
 
 const {
     commonBeforeEach,
@@ -380,7 +379,8 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
+            const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];
+            const filename = filenameMatch.split(';')[0].trim().replace(/"/g, '');
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -548,6 +548,9 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
+            const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];
+            const filename = filenameMatch.split(';')[0].trim().replace(/"/g, '');
+
             // Generate unique filename
             // get folder containing this test
             const tempFolder = __dirname + '/temp';
@@ -559,7 +562,6 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
             const filepath = tempFolder + '/' + filename;
 
             // Write file

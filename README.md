@@ -113,3 +113,11 @@ Use `/health` as the url for health check in Kubernetes or other systems
 
 The FHIR server can optionally send change events to a Kafka queue:
 [Change Events](changeEvents.md)
+
+## Download Patient (or Person or Practioner) Summary
+This b.well FHIR server supports the $summary operation for the Patient, Person, and Practitioner resources. This operation allows you to retrieve a summary of a patient's information in a single request.
+[download_summary.md](download_summary.md)
+
+## Download Search Results as Microsoft Excel file
+In addition to receiving search results in JSON format, you can also download the search results in Microsoft Excel format. To do this, you can use the following URL:
+[download_results.md](download_results.md)

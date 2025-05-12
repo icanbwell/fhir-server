@@ -1,9 +1,5 @@
-const {FhirResourceSerializer} = require('../fhir/fhirResourceSerializer');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
-const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter");
-var JSZip = require("jszip");
-const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 const {BundleToExcelConverter} = require("../converters/bundleToExcelConverter");
 const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
 
@@ -79,10 +75,8 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
      */
     async endAsync() {
         try {
-            ExtractorRegistrar.registerAll();
-
             if (this._bundle !== undefined && this._bundle_entries.length > 0) {
-                const filename = (this._bundle.id || String(this.RequestId)) + '.xlsx';
+                const filename = (this._bundle.id || String(this.requestId)) + '.xlsx';
                 this.response.setHeader(
                     'Content-Disposition',
                     `attachment; filename="${filename}"`
@@ -105,7 +99,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                 /**
                  * @type {Buffer}
                  */
-                const excelBuffer = await exporter.convert(
+                const excelBuffer = exporter.convert(
                     {
                         bundle
                     }
@@ -113,10 +107,10 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
 
                 // Verify buffer before sending
                 if (excelBuffer.length === 0) {
-                    throw new Error('Generated zip buffer is empty');
+                    throw new Error('Generated Excel buffer is empty');
                 }
 
-                await new BufferToChunkTransferResponse().sendLargeFileChunked(
+                new BufferToChunkTransferResponse().sendLargeFileChunked(
                     {
                         response: this.response,
                         buffer: excelBuffer,

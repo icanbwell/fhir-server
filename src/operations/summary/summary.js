@@ -3,16 +3,12 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
-const deepcopy = require('deepcopy');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {isFalseWithFallback} = require('../../utils/isFalse');
-const {ParsedArgsItem} = require('../query/parsedArgsItem');
-const {QueryParameterValue} = require('../query/queryParameterValue');
-const {EverythingOperation} = require("../everything/everything");
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
+const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
 
 class SummaryOperation {
     /**
@@ -133,14 +129,6 @@ class SummaryOperation {
             throw forbiddenError;
         }
 
-        /**
-         * @param {boolean}
-         */
-        let useSummaryHelperForPatient =
-            resourceType === 'Patient' &&
-            requestInfo.method.toLowerCase() !== 'delete' &&
-            this.configManager.disableGraphInSummaryOp;
-
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             parsedArgs,
@@ -161,7 +149,7 @@ class SummaryOperation {
                 parsedArgs.resourceFilterList = resourceFilterList;
             }
 
-            // Grab an instance of our DB and collection
+            // if an id was passed and we have a graph for that id then use that
             switch (resourceType) {
                 case 'Person': {
                     parsedArgs.resource = personSummaryGraph;
@@ -169,6 +157,10 @@ class SummaryOperation {
                 }
                 case 'Patient': {
                     parsedArgs.resource = patientSummaryGraph;
+                    break;
+                }
+                case 'Practitioner': {
+                    parsedArgs.resource = practitionerSummaryGraph;
                     break;
                 }
                 default:
@@ -187,8 +179,7 @@ class SummaryOperation {
                 resourceType,
                 responseStreamer,
                 supportLegacyId,
-                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                getRaw: this.configManager.getRawSummaryOpBundle
+                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
 
             await this.fhirLoggingManager.logOperationSuccessAsync({

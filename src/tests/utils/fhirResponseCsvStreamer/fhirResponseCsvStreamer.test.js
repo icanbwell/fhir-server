@@ -1,4 +1,4 @@
-const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv/lib/converters/fhir_bundle_converter');
+const {FHIRBundleConverter} = require('@imranq2/fhir-to-csv/lib/fhir_bundle_converter');
 const {PassThrough} = require('stream');
 const {FhirResponseCsvStreamer} = require("../../../utils/fhirResponseCsvStreamer");
 const {describe, beforeEach, afterEach, test, expect, it} = require('@jest/globals');
@@ -6,7 +6,6 @@ const {jest} = require('@jest/globals');
 const Bundle = require("../../../fhir/classes/4_0_0/resources/bundle");
 const BundleEntry = require("../../../fhir/classes/4_0_0/backbone_elements/bundleEntry");
 const moment = require("moment-timezone");
-const {ExtractorRegistrar} = require("@imranq2/fhir-to-csv/lib/converters/register");
 const {fhirContentTypes} = require("../../../utils/contentTypes");
 
 describe('FhirResponseCsvStreamer', () => {

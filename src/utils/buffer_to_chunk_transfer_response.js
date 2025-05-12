@@ -1,5 +1,4 @@
 const {Readable} = require('stream');
-const {fhirContentTypes} = require("./contentTypes");
 
 class BufferToChunkTransferResponse {
     /**
@@ -7,9 +6,9 @@ class BufferToChunkTransferResponse {
      * @param {ServerResponse} response
      * @param {Buffer} buffer
      * @param {number} chunkSize
-     * @returns {Promise<void>}
+     * @returns {void}
      */
-    async sendLargeFileChunked({response, buffer, chunkSize = 64 * 1024}) {
+    sendLargeFileChunked({response, buffer, chunkSize = 64 * 1024}) {
         // Create a readable stream from the buffer
         /**
          * @type {module:stream.Stream.Readable | module:stream.internal.Readable}
@@ -18,9 +17,9 @@ class BufferToChunkTransferResponse {
             read() {
                 // If buffer is not empty, push chunks
                 if (buffer.length > 0) {
-                    const chunk = buffer.slice(0, Math.min(chunkSize, buffer.length));
+                    const chunk = buffer.subarray(0, Math.min(chunkSize, buffer.length));
                     this.push(chunk);
-                    buffer = buffer.slice(chunk.length);
+                    buffer = buffer.subarray(chunk.length);
                 }
 
                 // Signal end of stream when buffer is exhausted

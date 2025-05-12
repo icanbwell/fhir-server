@@ -9,14 +9,14 @@ const {
     getHeaders,
     createTestRequest, getHeadersCsv, getHeadersCsvFormUrlEncoded, getHtmlHeaders
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const path = require('path');
 const fs = require('fs');
-const { fhirContentTypes } = require('../../../utils/contentTypes');
-const { ConfigManager } = require('../../../utils/configManager');
+const {fhirContentTypes} = require('../../../utils/contentTypes');
+const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
-    get streamResponse () {
+    get streamResponse() {
         return true;
     }
 }
@@ -47,14 +47,14 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
@@ -88,21 +88,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
@@ -136,21 +136,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
@@ -168,7 +168,7 @@ describe('search by multiple ids csv', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
-        test('search by multiple id works with _format parameter from browser', async () => {
+        test('search by multiple id works with _format csv from browser', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerDefaultSortId());
                 return c;
@@ -184,21 +184,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
@@ -232,21 +232,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
@@ -274,21 +274,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             const expectedPractitionerCsv = fs.readFileSync(
                 path.resolve(__dirname, './fixtures/expected/expected_practitioner.csv'),
@@ -297,7 +297,7 @@ describe('search by multiple ids csv', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({ resourceType: 'Parameters', parameter: [{ name: 'id', valueString: '0,1679033641' }] })
+                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
@@ -312,21 +312,21 @@ describe('search by multiple ids csv', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')

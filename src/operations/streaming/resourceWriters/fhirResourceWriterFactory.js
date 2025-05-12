@@ -1,10 +1,11 @@
-const { hasNdJsonContentType, fhirContentTypes } = require('../../../utils/contentTypes');
+const { hasNdJsonContentType, fhirContentTypes, hasExcelContentType} = require('../../../utils/contentTypes');
 const { FhirResourceNdJsonWriter } = require('./fhirResourceNdJsonWriter');
 const { FhirResourceCsvWriter } = require('./fhirResourceCsvWriter');
 const { FhirResourceWriter } = require('./fhirResourceWriter');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { FhirBundleWriter } = require('./fhirBundleWriter');
+const {FhirResourceExcelWriter} = require("./fhirResourceExcelWriter");
 
 class FhirResourceWriterFactory {
     /**
@@ -103,6 +104,17 @@ class FhirResourceWriterFactory {
                     useFastSerializer
                 });
             }
+            if (hasExcelContentType(format)){
+                return new FhirResourceExcelWriter({
+                    signal,
+                    contentType: fhirContentTypes.excel,
+                    highWaterMark,
+                    configManager,
+                    response,
+                    rawResources,
+                    useFastSerializer
+                });
+            }
             if (format === fhirContentTypes.tsv) {
                 return new FhirResourceCsvWriter({
                     signal,
@@ -169,6 +181,17 @@ class FhirResourceWriterFactory {
                 contentType: fhirContentTypes.csv,
                 highWaterMark,
                 configManager,
+                rawResources,
+                useFastSerializer
+            });
+        }
+        if (accepts.includes(fhirContentTypes.excel)) {
+            return new FhirResourceExcelWriter({
+                signal,
+                contentType: fhirContentTypes.excel,
+                highWaterMark,
+                configManager,
+                response,
                 rawResources,
                 useFastSerializer
             });

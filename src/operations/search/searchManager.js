@@ -966,6 +966,7 @@ class SearchManager {
      * @param {string} defaultSortId
      * @param {boolean} getRaw
      * @param {boolean} useFastSerializer
+     * @param {Object} params
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (
