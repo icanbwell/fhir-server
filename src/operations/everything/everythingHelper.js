@@ -48,8 +48,7 @@ const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const httpContext = require('express-http-context');
 const { ReferenceParser } = require('../../utils/referenceParser');
-const ddTracer = require('dd-trace')
-const { trace: otelTrace } = require('@opentelemetry/api');
+const { CustomTracer } = require('../../utils/customTracer');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -74,6 +73,7 @@ class EverythingHelper {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SearchParametersManager} searchParametersManager
+     * @property {CustomTracer} customTracer
      *
      * @param {EverythingHelperParams}
      */
@@ -86,7 +86,8 @@ class EverythingHelper {
         r4ArgsParser,
         databaseAttachmentManager,
         searchParametersManager,
-        everythingRelatedResourceMapper
+        everythingRelatedResourceMapper,
+        customTracer
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -165,10 +166,10 @@ class EverythingHelper {
             resourceType: 1
         }
 
-        // for adding trace for Consent data view control
-        this.tracer = this.configManager.isDataDogEnabled
-            ? ddTracer
-            : otelTrace.getTracer('everythingHelper');
+        /**
+         * @type {CustomTracer}
+        */
+        this.customTracer = customTracer;
     }
 
     /**
@@ -460,24 +461,18 @@ class EverythingHelper {
 
             // get Consent resource containing resources marked as deleted to exclude
             if (requestInfo.isUser) {
-                // https://docs.datadoghq.com/tracing/trace_collection/custom_instrumentation/nodejs/dd-api/?tab=asyncawait
                 let {
                     entries: viewControlConsentEntries,
                     queryItems: viewControlConsentQueries,
                     options: viewControlConsentQueryOptions
-                } = await this.tracer[this.configManager.isDataDogEnabled ? 'trace' : 'startActiveSpan']('EverythingHelper.getDataConnectionViwControlConsentAsync', async (span) => {
-                    let consentData = await this.getDataConnectionViwControlConsentAsync({
+                } = await this.customTracer.trace({
+                    name: 'EverythingHelper.getDataConnectionViewControlConsentAsync',
+                    func: async () => await this.getDataConnectionViewControlConsentAsync({
                         getRaw,
                         requestInfo,
                         base_version,
                         patientResourceIdentifiers: baseResourceIdentifiers
-                    });
-
-                    // https://opentelemetry.io/docs/languages/js/instrumentation/#create-spans
-                    if ( !this.configManager.isDataDogEnabled ){
-                        span.end();
-                    }
-                    return consentData;
+                    })
                 });
 
                 viewControlConsentEntries.forEach(entry => {
@@ -1443,7 +1438,7 @@ class EverythingHelper {
      * }} options
      * @return {Promise<{ ProcessMultipleIdsAsyncResult }>}
      */
-    async getDataConnectionViwControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
+    async getDataConnectionViewControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
         const { personIdFromJwtToken } = requestInfo;
 
         /**
