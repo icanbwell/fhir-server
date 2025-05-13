@@ -48,6 +48,7 @@ const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const httpContext = require('express-http-context');
 const { ReferenceParser } = require('../../utils/referenceParser');
+const { CustomTracer } = require('../../utils/customTracer');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -72,6 +73,7 @@ class EverythingHelper {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SearchParametersManager} searchParametersManager
+     * @property {CustomTracer} customTracer
      *
      * @param {EverythingHelperParams}
      */
@@ -84,7 +86,8 @@ class EverythingHelper {
         r4ArgsParser,
         databaseAttachmentManager,
         searchParametersManager,
-        everythingRelatedResourceMapper
+        everythingRelatedResourceMapper,
+        customTracer
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -162,6 +165,11 @@ class EverythingHelper {
             _sourceAssigningAuthority: 1,
             resourceType: 1
         }
+
+        /**
+         * @type {CustomTracer}
+        */
+        this.customTracer = customTracer;
     }
 
     /**
@@ -457,11 +465,14 @@ class EverythingHelper {
                     entries: viewControlConsentEntries,
                     queryItems: viewControlConsentQueries,
                     options: viewControlConsentQueryOptions
-                } = await this.getDataConnectionViwControlConsentAsync({
-                    getRaw,
-                    requestInfo,
-                    base_version,
-                    patientResourceIdentifiers: baseResourceIdentifiers
+                } = await this.customTracer.trace({
+                    name: 'EverythingHelper.getDataConnectionViewControlConsentAsync',
+                    func: async () => await this.getDataConnectionViewControlConsentAsync({
+                        getRaw,
+                        requestInfo,
+                        base_version,
+                        patientResourceIdentifiers: baseResourceIdentifiers
+                    })
                 });
 
                 viewControlConsentEntries.forEach(entry => {
@@ -1425,9 +1436,9 @@ class EverythingHelper {
      * base_version: string,
      * patientResourceIdentifiers: ResourceIdentifier[],
      * }} options
-     * @return {Promise<{ ProcessMultipleIdsAsyncResult }>}
+     * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
-    async getDataConnectionViwControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
+    async getDataConnectionViewControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
         const { personIdFromJwtToken } = requestInfo;
 
         /**

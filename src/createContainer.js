@@ -114,6 +114,7 @@ const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichm
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
+const {CustomTracer} = require('./utils/customTracer');
 const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -478,7 +479,8 @@ const createContainer = function () {
         r4ArgsParser: c.r4ArgsParser,
         databaseAttachmentManager: c.databaseAttachmentManager,
         searchParametersManager: c.searchParametersManager,
-        everythingRelatedResourceMapper: c.everythingRelatedResourceMapper
+        everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
+        customTracer: c.customTracer
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -909,6 +911,12 @@ const createContainer = function () {
         }
         return null;
     });
+
+    container.register('customTracer', (c) => {
+        return new CustomTracer({
+            configManager: c.configManager
+        });
+    })
 
     return container;
 };
