@@ -185,10 +185,10 @@ class FhirResourceWriterFactory {
                 useFastSerializer
             });
         }
-        if (accepts.includes(fhirContentTypes.excel)) {
+        if (accepts.includes(fhirContentTypes.excel) || accepts.includes(fhirContentTypes.excel2)) {
             return new FhirResourceExcelWriter({
                 signal,
-                contentType: fhirContentTypes.excel,
+                contentType: fhirContentTypes.excel2,
                 highWaterMark,
                 configManager,
                 response,

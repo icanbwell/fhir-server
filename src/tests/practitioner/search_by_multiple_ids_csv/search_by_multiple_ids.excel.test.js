@@ -67,10 +67,10 @@ describe('search by multiple ids Excel', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel}`)
+                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel2}`)
                 .set(getHeaders())
                 .responseType('blob'); // Important for binary data;
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel2);
             expect(resp.headers['content-disposition']).toBeDefined();
 
             // Generate unique filename

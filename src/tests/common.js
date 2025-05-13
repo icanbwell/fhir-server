@@ -221,7 +221,7 @@ module.exports.getHeadersCsv = (scope) => {
 module.exports.getHeadersExcel = (scope) => {
     return {
         'Content-Type': 'application/fhir+json', // what the data we POST is in
-        Accept: fhirContentTypes.excel, // what we want the response to be in
+        Accept: fhirContentTypes.excel2, // what we want the response to be in
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
