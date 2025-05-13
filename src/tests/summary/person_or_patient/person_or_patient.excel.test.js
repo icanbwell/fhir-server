@@ -186,7 +186,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel2);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
@@ -365,7 +365,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel2);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
@@ -545,7 +545,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel2);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];

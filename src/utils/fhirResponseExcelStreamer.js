@@ -45,7 +45,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async startAsync() {
-        const contentType = fhirContentTypes.excel;
+        const contentType = fhirContentTypes.excel2;
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('X-Request-ID', String(this.requestId));
     }

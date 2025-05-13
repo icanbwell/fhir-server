@@ -11,6 +11,7 @@ const fhirContentTypes = {
     tsv: 'text/tab-separated-values',
     form_urlencoded: 'application/x-www-form-urlencoded',
     excel: 'application/vnd.ms-excel',
+    excel2: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     zip: 'application/zip'
 };
 
@@ -24,6 +25,11 @@ const fhirJsonContentTypes = [
     fhirContentTypes.fhirJson,
     fhirContentTypes.fhirJson2,
     fhirContentTypes.fhirJson3
+];
+
+const excelContentTypes = [
+    fhirContentTypes.excel,
+    fhirContentTypes.excel2
 ];
 
 /**
@@ -96,7 +102,7 @@ const hasExcelContentType = (text) => {
     }
     const text_url_decoded = decodeURIComponent(text);
     if (Array.isArray(text_url_decoded)) {
-        return text_url_decoded.some(item => item === fhirContentTypes.excel);
+        return text_url_decoded.some(item => excelContentTypes.includes(item));
     }
     return text_url_decoded === fhirContentTypes.excel;
 };
