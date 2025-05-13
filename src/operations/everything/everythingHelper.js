@@ -1436,7 +1436,7 @@ class EverythingHelper {
      * base_version: string,
      * patientResourceIdentifiers: ResourceIdentifier[],
      * }} options
-     * @return {Promise<{ ProcessMultipleIdsAsyncResult }>}
+     * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async getDataConnectionViewControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
         const { personIdFromJwtToken } = requestInfo;

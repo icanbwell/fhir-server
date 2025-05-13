@@ -18,7 +18,7 @@ class CustomTracer {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {null | <T>(name: string, func: () => Promise<T>) => Promise<T>}
+         * @type {<T>(name: string, func: () => Promise<T>) => Promise<T>}
          */
         this.traceFunction = null;
 
