@@ -53,7 +53,8 @@ describe('JWT Bearer Strategy', () => {
 
     test('should fetch user info from userInfo endpoint', async () => {
         const mockWellKnownConfig = {
-            userinfoEndpoint: 'https://example.com/userinfo'
+            userinfo_endpoint: 'https://example.com/userinfo',
+            issuer: 'https://example.com'
         };
         const mockUserInfo = {username: 'testUser', scope: 'read'};
         nock('https://example.com')
