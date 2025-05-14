@@ -16,6 +16,7 @@ const {
 } = require('../constants');
 const {isTrue} = require('../utils/isTrue');
 const {logDebug, logError} = require('../operations/common/logging');
+const {WellKnownConfigurationManager} = require("../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
@@ -52,7 +53,7 @@ const getJwksByUrlAsync = async (jwksUrl) => {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(requestTimeout);
         /**
-         * @type {Object}
+         * @type {import('jwks-rsa').JSONWebKey[]}
          */
         const jsonResponse = JSON.parse(res.text);
         cache.set(jwksUrl, jsonResponse);
@@ -130,7 +131,7 @@ const cookieExtractor = function (req) {
  * @param {requestCallback} done
  * @param {string} client_id
  * @param {string|null} scope
- * @return {Object}
+ * @return {void}
  */
 function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
     const context = {};
@@ -158,7 +159,7 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
 
     logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
-    return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
+    done(null, {id: client_id, isUser, name: username, username}, {scope, context});
 }
 
 /**
@@ -210,6 +211,19 @@ const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
     return null;
 };
 
+/**
+ * @typedef {Object} UserInfo
+ * @property {string} username - The username of the user.
+ * @property {string} subject - The subject of the user.
+ * @property {boolean} isUser - Indicates if the user is a regular user.
+ * @property {string} scope - The scope of the user.
+ */
+
+/**
+ * This function is called to extract the scopes from the jwt payload
+ * @param {Object} jwt_payload
+ * @returns {UserInfo}
+ */
 function getScopesFromToken(jwt_payload) {
     // Calculate scopes from jwt_payload
     /**
@@ -258,8 +272,42 @@ function getScopesFromToken(jwt_payload) {
             propertyNames: env.AUTH_CUSTOM_CLIENT_ID
         }
     );
-    return {scope, scopes, username, subject};
+
+    /**
+     * If the patient scope is present, it indicates that the request is coming from a user
+     * @type {boolean}
+     */
+    const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
+
+    return {scope, isUser, username, subject};
 }
+
+/**
+ * This function is called to get the user info from the userInfo endpoint
+ * @param {Object} jwt_payload
+ * @returns {Promise<UserInfo|undefined>}
+ */
+const getUserInfoFromUserInfoEndpoint = async (jwt_payload) => {
+    const wellKnownConfigurationManager = new WellKnownConfigurationManager();
+    const wellKnownConfig = await wellKnownConfigurationManager.getWellKnownConfigurationForIssuer(
+        jwt_payload.iss
+    );
+    if (wellKnownConfig && wellKnownConfig.userinfoEndpoint) {
+        const userInfoResponse = await superagent
+            .get(wellKnownConfig.userinfoEndpoint)
+            .set({
+                Accept: 'application/json',
+                Authorization: _request.headers.authorization
+            })
+            .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+            .timeout(requestTimeout);
+        if (userInfoResponse && userInfoResponse.body) {
+            jwt_payload = userInfoResponse.body;
+            ({scope, isUser, username, subject} = getScopesFromToken(jwt_payload));
+        }
+    }
+    return jwt_payload;
+};
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
@@ -267,37 +315,79 @@ function getScopesFromToken(jwt_payload) {
  * @param {import('http').IncomingMessage} _request
  * @param {Object} jwt_payload
  * @param {requestCallback} done
- * @return {*}
+ * @return {void}
  */
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-
-        let {scope, scopes, username, subject, clientId} = getScopesFromToken(jwt_payload);
+        let {scope, isUser, username, subject, clientId} = getScopesFromToken(jwt_payload);
 
         // if there are no scopes try to get the userInfo from userInfo endpoint
-        // if (!scopes || scopes.length === 0) {
-        //
-        // }
-        /**
-         * If the patient scope is present, it indicates that the request is coming from a user
-         * @type {boolean}
-         */
-        const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
+        if (!scope && jwt_payload.iss) {
+            getUserInfoFromUserInfoEndpoint(
+                jwt_payload
+            ).then((userInfo) => {
+                if (userInfo) {
+                    ({scope, isUser, username, subject} = getScopesFromToken(userInfo));
+                    parseUserInfoFromPayload({
+                        username: username,
+                        subject: subject,
+                        isUser,
+                        jwt_payload,
+                        done,
+                        client_id: clientId,
+                        scope
+                    });
+                } else {
+                    parseUserInfoFromPayload({
+                        username: username,
+                        subject: subject,
+                        isUser,
+                        jwt_payload,
+                        done,
+                        client_id: clientId,
+                        scope
+                    });
+                }
 
-        const result = {
-            username: username,
-            subject: subject,
-            isUser,
-            jwt_payload,
-            done,
-            client_id: clientId,
-            scope
-        };
-        logDebug(`JWT result`, {user: '', args: {result}});
-        return parseUserInfoFromPayload(result);
+            }).catch((error) => {
+                logError(`Error while fetching user info: ${error.message}`, {error: error});
+                parseUserInfoFromPayload({
+                    username: username,
+                    subject: subject,
+                    isUser,
+                    jwt_payload,
+                    done,
+                    client_id: clientId,
+                    scope
+                });
+            });
+        } else {
+            logDebug(`JWT result`, {
+                user: '', args: {
+                    result: {
+                        username: username,
+                        subject: subject,
+                        isUser,
+                        jwt_payload,
+                        done,
+                        client_id: clientId,
+                        scope
+                    }
+                }
+            });
+            parseUserInfoFromPayload({
+                username: username,
+                subject: subject,
+                isUser,
+                jwt_payload,
+                done,
+                client_id: clientId,
+                scope
+            });
+        }
+    } else {
+        done(null, false);
     }
-
-    return done(null, false);
 };
 
 /**
@@ -340,6 +430,9 @@ class MyJwtStrategy extends JwtStrategy {
  * This strategy will handle requests with BearerTokens.
  *
  * Requires ENV variables for introspecting the token
+ */
+/**
+ * @type {MyJwtStrategy}
  */
 const strategy = new MyJwtStrategy(
     {

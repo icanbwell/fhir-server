@@ -20,7 +20,7 @@ class WellKnownConfigurationManager {
 
     /**
      * @param {string} urls - Comma-separated list of configuration endpoint URLs.
-     * @param {Object} [cacheOptions] - Options for the LRU cache.
+     * @param {{max:number, ttl:number}} [cacheOptions] - Options for the LRU cache.
      */
     constructor(urls, cacheOptions = {}) {
         /**
@@ -31,7 +31,7 @@ class WellKnownConfigurationManager {
             if (WellKnownConfigurationManager.cache === undefined) {
                 WellKnownConfigurationManager.cache = new LRUCache({
                     max: cacheOptions.max || 100, // Maximum number of items in the cache
-                    ttl: cacheOptions.ttl || 24 * 60 * 1000 // Time-to-live in milliseconds
+                    ttl: cacheOptions.ttl || 60 * 60 * 1000 // Time-to-live is one hour
                 });
             }
         }
