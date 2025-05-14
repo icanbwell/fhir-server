@@ -13,6 +13,12 @@ const {logError} = require("../../operations/common/logging");
 
 class WellKnownConfigurationManager {
     /**
+     * Cache for configuration data.
+     * @type {LRUCache<{}, {}, unknown>}
+     */
+    static cache;
+
+    /**
      * @param {string} urls - Comma-separated list of configuration endpoint URLs.
      * @param {Object} [cacheOptions] - Options for the LRU cache.
      */
@@ -21,14 +27,15 @@ class WellKnownConfigurationManager {
          * @type {string[]}
          */
         this.urls = urls.split(',').map(url => url.trim());
-        /**
-         * Cache for configuration data.
-         * @type {LRUCache<{}, {}, unknown>}
-         */
-        this.cache = new LRUCache({
-            max: cacheOptions.max || 100, // Maximum number of items in the cache
-            ttl: cacheOptions.ttl || 24 * 60 * 1000 // Time-to-live in milliseconds
-        });
+        if (this.urls.length > 0) {
+            if (WellKnownConfigurationManager.cache === undefined) {
+                WellKnownConfigurationManager.cache = new LRUCache({
+                    max: cacheOptions.max || 100, // Maximum number of items in the cache
+                    ttl: cacheOptions.ttl || 24 * 60 * 1000 // Time-to-live in milliseconds
+                });
+            }
+        }
+
     }
 
     /**
@@ -56,8 +63,8 @@ class WellKnownConfigurationManager {
      * @returns {Promise<WellKnownConfigurationInfo>} - The fetched configuration data.
      */
     async fetchConfiguration(url) {
-        if (this.cache.has(url)) {
-            return this.cache.get(url);
+        if (WellKnownConfigurationManager.cache.has(url)) {
+            return WellKnownConfigurationManager.cache.get(url);
         }
 
         try {
@@ -67,7 +74,7 @@ class WellKnownConfigurationManager {
              * @type {WellKnownConfigurationInfo}
              */
             const extractedData = this.extractConfigurationDetails(data);
-            this.cache.set(url, extractedData);
+            WellKnownConfigurationManager.cache.set(url, extractedData);
             return data;
         } catch (error) {
             throw new Error(`Failed to fetch configuration from ${url}: ${error.message}`);
@@ -94,7 +101,7 @@ class WellKnownConfigurationManager {
      * @returns {Promise<WellKnownConfigurationInfo|undefined>}
      */
     async getWellKnownConfigurationForIssuer(issuer) {
-        if (this.cache.size === 0 && this.urls.length > 0) {
+        if (WellKnownConfigurationManager.cache.size === 0 && this.urls.length > 0) {
             await this.fetchAllConfigurations();
         }
         for (const url of this.urls) {
