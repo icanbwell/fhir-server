@@ -45,6 +45,7 @@ services:
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
       PARTITION_RESOURCES: 'AuditEvent'
+      AUTH_CUSTOM_USERNAME: "preferred_username"
       AUTH_CUSTOM_GROUP: "groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"

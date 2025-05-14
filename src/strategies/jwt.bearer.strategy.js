@@ -161,6 +161,55 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
     return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
 }
 
+/**
+ * This function is called to extract the properties with name in propertyNames from the jwt payload
+ * @param {Object} jwt_payload
+ * @param {string[]|undefined|string} propertyNames
+ * @return {string[]}
+ */
+const getPropertiesFromPayload = ({jwt_payload, propertyNames}) => {
+    if (propertyNames && typeof propertyNames === 'string') {
+        propertyNames = propertyNames.split(',');
+    }
+    if (propertyNames && propertyNames.length > 0) {
+        return propertyNames.map((propertyName) => {
+            if (jwt_payload[propertyName]) {
+                // if the payload is an array, we need to join it
+                // if the payload is a string, we need to return it as is
+                return Array.isArray(jwt_payload[propertyName]) ?
+                    jwt_payload[propertyName].join(' ') :
+                    jwt_payload[propertyName];
+            }
+            return null;
+        }).filter((property) => property !== null);
+    }
+    return [];
+};
+
+/**
+ * This function is called to extract the first property with a name in propertyNames from the jwt payload
+ * @param {Object} jwt_payload
+ * @param {string[]|undefined|string} propertyNames
+ * @return {string|null}
+ */
+const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
+    if (propertyNames && typeof propertyNames === 'string') {
+        propertyNames = propertyNames.split(',');
+    }
+    if (propertyNames && propertyNames.length > 0) {
+        for (const propertyName of propertyNames) {
+            if (jwt_payload[propertyName]) {
+                // if the payload is an array, we need to join it
+                // if the payload is a string, we need to return it as is
+                return Array.isArray(jwt_payload[propertyName]) ?
+                    jwt_payload[propertyName].join(' ') :
+                    jwt_payload[propertyName];
+            }
+        }
+    }
+    return null;
+};
+
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
@@ -181,23 +230,22 @@ const verify = (_request, jwt_payload, done) => {
         /**
          * @type {string}
          */
-        let scope = jwt_payload.scope ? jwt_payload.scope : jwt_payload[env.AUTH_CUSTOM_SCOPE];
+        let scope = jwt_payload.scope ? jwt_payload.scope : getPropertiesFromPayload(
+            {
+                jwt_payload,
+                propertyNames: env.AUTH_CUSTOM_SCOPE
+            }
+        ).join(' ');
 
-        const groupClaimNames = env.AUTH_CUSTOM_GROUP ? env.AUTH_CUSTOM_GROUP.split(',') : [];
         /**
          * @type {string[]}
          */
-        const groups = groupClaimNames.map((groupClaimName) => {
-                if (jwt_payload[groupClaimName]) {
-                    // if the payload is an array, we need to join it
-                    // if the payload is a string, we need to return it as is
-                    return Array.isArray(jwt_payload[groupClaimName]) ?
-                        jwt_payload[groupClaimName].join(' ') :
-                        jwt_payload[groupClaimName];
-                }
-                return null;
+        const groups = getPropertiesFromPayload(
+            {
+                jwt_payload,
+                propertyNames: env.AUTH_CUSTOM_GROUP
             }
-        ).filter((group) => group !== null);
+        );
         logDebug(`JWT groups`, {user: '', args: {groups}});
 
         if (groups.length > 0) {
@@ -216,12 +264,23 @@ const verify = (_request, jwt_payload, done) => {
         const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
 
         const result = {
-            username: jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'],
-            subject: jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT],
+            username: jwt_payload.username ? jwt_payload.username : getFirstPropertyFromPayload({
+                jwt_payload,
+                propertyNames: env.AUTH_CUSTOM_USERNAME
+            }),
+            subject: jwt_payload.subject ? jwt_payload.subject : getFirstPropertyFromPayload({
+                jwt_payload,
+                propertyNames: env.AUTH_CUSTOM_SUBJECT
+            }),
             isUser,
             jwt_payload,
             done,
-            client_id: jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID],
+            client_id: jwt_payload.client_id ? jwt_payload.client_id : getFirstPropertyFromPayload(
+                {
+                    jwt_payload,
+                    propertyNames: env.AUTH_CUSTOM_CLIENT_ID
+                }
+            ),
             scope
         };
         logDebug(`JWT result`, {user: '', args: {result}});
