@@ -7,7 +7,7 @@ const async = require('async');
 const env = require('var');
 const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 const {
     EXTERNAL_REQUEST_RETRY_COUNT,

@@ -1,5 +1,5 @@
 const superagent = require('superagent');
-const {LRUCache} = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const {logError} = require("../../operations/common/logging");
 
 /**
@@ -19,19 +19,19 @@ class WellKnownConfigurationManager {
     static cache;
 
     /**
-     * @param {string} urls - Comma-separated list of configuration endpoint URLs.
-     * @param {{max:number, ttl:number}} [cacheOptions] - Options for the LRU cache.
+     * @param {string} urlList - Comma-separated list of configuration endpoint URLs.
+     * @param {{max:number, ttl:number} | undefined} [cacheOptions] - Options for the LRU cache.
      */
-    constructor(urls, cacheOptions = {}) {
+    constructor({urlList, cacheOptions}) {
         /**
          * @type {string[]}
          */
-        this.urls = urls.split(',').map(url => url.trim());
+        this.urls = urlList.split(',').map(url => url.trim());
         if (this.urls.length > 0) {
             if (WellKnownConfigurationManager.cache === undefined) {
                 WellKnownConfigurationManager.cache = new LRUCache({
-                    max: cacheOptions.max || 100, // Maximum number of items in the cache
-                    ttl: cacheOptions.ttl || 60 * 60 * 1000 // Time-to-live is one hour
+                    max: cacheOptions ? cacheOptions.max : 100, // Maximum number of items in the cache
+                    ttl: cacheOptions ? cacheOptions.ttl : 60 * 60 * 1000 // Time-to-live is one hour
                 });
             }
         }
