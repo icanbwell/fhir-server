@@ -3,7 +3,7 @@
  */
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const jwksRsa = require('jwks-rsa');
-const AuthService = require('./authService');
+const {AuthService} = require('./authService');
 const env = require('var');
 const {logDebug, logError} = require("../operations/common/logging");
 const {isTrue} = require("../utils/isTrue");
@@ -76,6 +76,7 @@ class MyJwtStrategy extends JwtStrategy {
         // super.fail(jwt_err);
     }
 }
+
 
 module.exports = {
     MyJwtStrategy

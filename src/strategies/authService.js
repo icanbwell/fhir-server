@@ -12,6 +12,9 @@ const {
 const {isTrue} = require('../utils/isTrue');
 const {logDebug, logError} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
+const {assertTypeEquals} = require("../utils/assertType");
+const {ScopesManager} = require("../operations/security/scopesManager");
+const {ConfigManager} = require("../utils/configManager");
 
 /**
  * This callback type is called `requestCallback` and is displayed as a global symbol.
@@ -23,7 +26,27 @@ const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration
  */
 
 class AuthService {
-    constructor() {
+    /**
+     * Constructor for the AuthService
+     * @param {ConfigManager} configManager
+     * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     */
+    constructor({
+                    configManager,
+                    wellKnownConfigurationManager
+                }) {
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {WellKnownConfigurationManager}
+         */
+        this.wellKnownConfigurationManager = wellKnownConfigurationManager;
+        assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
+
         this.requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
         this.requiredJWTFields = {
             clientFhirPersonId: 'clientFhirPersonId',
@@ -328,4 +351,6 @@ class AuthService {
 
 }
 
-module.exports = AuthService;
+module.exports = {
+    AuthService
+};

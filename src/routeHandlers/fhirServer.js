@@ -21,6 +21,7 @@ const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
+const {MyJwtStrategy} = require("../strategies/jwt.bearer.strategy");
 
 class MyFHIRServer {
     /**
@@ -199,14 +200,9 @@ class MyFHIRServer {
     // }
 
     configurePassport () {
-        if (this.config.auth && this.config.auth.strategy) {
-            const {
-                strategy
-            } = require(path.resolve(this.config.auth.strategy.service));
-
-            // noinspection JSCheckFunctionSignatures
-            passport.use('jwt', strategy);
-        } // return self for chaining
+        if (this.config.auth) {
+            passport.use('jwt', this.container.jwt_strategy);
+        }
 
         return this;
     }

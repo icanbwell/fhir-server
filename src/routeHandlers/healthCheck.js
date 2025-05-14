@@ -3,8 +3,8 @@
  */
 const env = require('var');
 
-const { getExternalJwksAsync, getJwksByUrlAsync } = require('../strategies/jwt.bearer.strategy');
 const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
+const {AuthService} = require("../strategies/authService");
 
 let container;
 
@@ -13,8 +13,9 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     let status;
     container = container || fnGetContainer();
     // cache jwks
-    getJwksByUrlAsync(env.AUTH_JWKS_URL)
-    getExternalJwksAsync()
+    const authService = new AuthService();
+    await authService.getJwksByUrlAsync(env.AUTH_JWKS_URL);
+    await authService.getExternalJwksAsync();
     // check kafka connection
     try {
         if (await handleKafkaHealthCheck(container)) {

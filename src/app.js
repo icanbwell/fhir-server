@@ -3,41 +3,40 @@
  */
 const express = require('express');
 const httpContext = require('express-http-context');
-const { fhirServerConfig } = require('./config');
+const {fhirServerConfig} = require('./config');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const { graphql } = require('./middleware/graphql/graphqlServer');
-const { graphqlV2 } = require('./middleware/graphql/graphqlServerV2.js');
+const {graphql} = require('./middleware/graphql/graphqlServer');
+const {graphqlV2} = require('./middleware/graphql/graphqlServerV2.js');
 
 const passport = require('passport');
-const { strategy } = require('./strategies/jwt.bearer.strategy');
 
-const { handleAlert } = require('./routeHandlers/alert');
-const { MyFHIRServer } = require('./routeHandlers/fhirServer');
-const  validateContentTypeMiddleware  = require('./middleware/contentType-validation.middleware.js')
-const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHandlers/contentSecurityPolicy');
-const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
-const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
-const { handleVersion } = require('./routeHandlers/version');
-const { handleStats } = require('./routeHandlers/stats');
-const { handleLogout } = require('./routeHandlers/logout');
-const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
-const { isTrue } = require('./utils/isTrue');
+const {handleAlert} = require('./routeHandlers/alert');
+const {MyFHIRServer} = require('./routeHandlers/fhirServer');
+const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
+const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
+const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
+const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
+const {handleVersion} = require('./routeHandlers/version');
+const {handleStats} = require('./routeHandlers/stats');
+const {handleLogout} = require('./routeHandlers/logout');
+const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
+const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleLivenessCheck } = require('./routeHandlers/probeChecker.js');
-const { handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut } = require('./routeHandlers/admin');
-const { getImageVersion } = require('./utils/getImageVersion');
-const { ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
-const { generateUUID } = require('./utils/uid.util');
-const { logInfo, logDebug } = require('./operations/common/logging');
-const { generateNonce } = require('./utils/nonce');
-const { handleServerError } = require('./routeHandlers/handleError');
-const { shouldReturnHtml } = require('./utils/requestHelpers.js');
-const { generateLogDetail } = require('./utils/requestCompletionLogData.js');
-const { incrementRequestCount, decrementRequestCount, getRequestCount } = require('./utils/requestCounter');
+const {handleLivenessCheck} = require('./routeHandlers/probeChecker.js');
+const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = require('./routeHandlers/admin');
+const {getImageVersion} = require('./utils/getImageVersion');
+const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
+const {generateUUID} = require('./utils/uid.util');
+const {logInfo, logDebug} = require('./operations/common/logging');
+const {generateNonce} = require('./utils/nonce');
+const {handleServerError} = require('./routeHandlers/handleError');
+const {shouldReturnHtml} = require('./utils/requestHelpers.js');
+const {generateLogDetail} = require('./utils/requestCompletionLogData.js');
+const {incrementRequestCount, decrementRequestCount, getRequestCount} = require('./utils/requestCounter');
 
 /**
  * Creates the FHIR app
@@ -45,7 +44,7 @@ const { incrementRequestCount, decrementRequestCount, getRequestCount } = requir
  * @param {import('express').Express} app1
  * @returns {MyFHIRServer}
  */
-function createFhirApp (fnGetContainer, app1) {
+function createFhirApp(fnGetContainer, app1) {
     return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
@@ -85,7 +84,7 @@ function createFhirApp (fnGetContainer, app1) {
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {import('express').Express}
  */
-function createApp ({ fnGetContainer }) {
+function createApp({fnGetContainer}) {
     /**
      * @type {import('express').Express}
      */
@@ -167,7 +166,7 @@ function createApp ({ fnGetContainer }) {
                 if (req.headers.authorization) {
                     logDebug(
                         'Request Completed',
-                        { authenticationToken: req.headers.authorization }
+                        {authenticationToken: req.headers.authorization}
                     );
                 }
             }
@@ -189,7 +188,7 @@ function createApp ({ fnGetContainer }) {
             // Decrement the request count
             decrementRequestCount();
 
-            if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))){
+            if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))) {
                 const abortTime = new Date().getTime();
                 logInfo('Request Aborted', {
                     abortTime: `${(abortTime - startTime) / 1000}s`,
@@ -219,7 +218,7 @@ function createApp ({ fnGetContainer }) {
             const isAdminUrl = reqPath.startsWith('/admin');
             // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (!isGraphQLUrl && isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
-                logInfo('Redirecting to new UI', { path: reqPath });
+                logInfo('Redirecting to new UI', {path: reqPath});
                 if (isAdminUrl) {
                     res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
                     return;
@@ -277,7 +276,7 @@ function createApp ({ fnGetContainer }) {
         next();
     });
 
-     // noinspection SpellCheckingInspection
+    // noinspection SpellCheckingInspection
     const options = {
         explorer: true,
         swaggerOptions: {
@@ -291,10 +290,10 @@ function createApp ({ fnGetContainer }) {
 
     // noinspection JSCheckFunctionSignatures
     // http://localhost:3000/api-docs
-    if(isTrue(env.ENABLE_SWAGGER_DOC)){
+    if (isTrue(env.ENABLE_SWAGGER_DOC)) {
         const swaggerUi = require('swagger-ui-express');
         const swaggerDocument = require('./swagger_doc.json');
-        let swaggerString = JSON.stringify(swaggerDocument)
+        let swaggerString = JSON.stringify(swaggerDocument);
         swaggerString = swaggerString
             .replace(/<HOST_SERVER>/g, env.HOST_SERVER + "/4_0_0")
             .replace(/<ENVIRONMENT>/g, env.ENVIRONMENT);
@@ -343,7 +342,7 @@ function createApp ({ fnGetContainer }) {
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
-        { fnGetContainer, req, res }
+            {fnGetContainer, req, res}
         ));
     }
 
@@ -357,12 +356,12 @@ function createApp ({ fnGetContainer }) {
 
     // Set up admin routes
     // noinspection JSCheckFunctionSignatures
-    passport.use('adminStrategy', strategy);
+    passport.use('adminStrategy', container.jwt_strategy);
 
-    const adminRouter = express.Router({ mergeParams: true });
+    const adminRouter = express.Router({mergeParams: true});
     // Add authentication
     adminRouter.use(passport.initialize());
-    adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
+    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
     adminRouter.get('/admin/:op?/:id?', (req, res) => handleAdminGet(fnGetContainer, req, res));
@@ -382,7 +381,7 @@ function createApp ({ fnGetContainer }) {
     app.use(adminRouter);
 
     // noinspection JSCheckFunctionSignatures
-    passport.use('graphqlStrategy', strategy);
+    passport.use('graphqlStrategy', container.jwt_strategy);
 
     // enable middleware for graphql & graphqlv2
     if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
@@ -390,7 +389,7 @@ function createApp ({ fnGetContainer }) {
 
         const router = express.Router();
         router.use(passport.initialize());
-        router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -413,8 +412,8 @@ function createApp ({ fnGetContainer }) {
                          * @type {RequestSpecificCache}
                          */
                         const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({ requestId });
-                        await requestSpecificCache.clearAsync({ requestId });
+                        await postRequestProcessor.executeAsync({requestId});
+                        await requestSpecificCache.clearAsync({requestId});
                     }
                 }
             });
@@ -423,7 +422,7 @@ function createApp ({ fnGetContainer }) {
 
         const routerv2 = express.Router();
         routerv2.use(passport.initialize());
-        routerv2.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+        routerv2.use(passport.authenticate('graphqlStrategy', {session: false}, null));
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -446,8 +445,8 @@ function createApp ({ fnGetContainer }) {
                          * @type {RequestSpecificCache}
                          */
                         const requestSpecificCache = container1.requestSpecificCache;
-                        await postRequestProcessor.executeAsync({ requestId });
-                        await requestSpecificCache.clearAsync({ requestId });
+                        await postRequestProcessor.executeAsync({requestId});
+                        await requestSpecificCache.clearAsync({requestId});
                     }
                 }
             });
@@ -458,11 +457,11 @@ function createApp ({ fnGetContainer }) {
             isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
             configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
         ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
-            if(graphqlMiddleware) {
+            if (graphqlMiddleware) {
                 router.use(graphqlMiddleware);
                 app.use('/\\$graphql', router);
             }
-            if(graphqlV2Middleware) {
+            if (graphqlV2Middleware) {
                 routerv2.use(graphqlV2Middleware);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }
@@ -488,4 +487,4 @@ function createApp ({ fnGetContainer }) {
     return app;
 }
 
-module.exports = { createApp };
+module.exports = {createApp};
