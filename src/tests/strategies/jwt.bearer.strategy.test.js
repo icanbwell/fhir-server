@@ -8,6 +8,7 @@ const {
     clearJwksCache
 } = require("../../strategies/jwt.bearer.strategy");
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
+const jwt = require("jsonwebtoken");
 
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
@@ -115,5 +116,73 @@ describe('JWT Bearer Strategy', () => {
         const authenticateSpy = jest.spyOn(strategy.__proto__, 'authenticate');
         strategy.authenticate(req, {});
         expect(authenticateSpy).toHaveBeenCalled();
+    });
+
+    test('should fetch scopes via groups from userInfo endpoint when access token has no scopes', async () => {
+        // create a jwt access token
+        const options = {
+            algorithm: 'HS256',
+            expiresIn: '1h'
+        };
+        const mockWellKnownConfig = {
+            userinfo_endpoint: 'https://example.com/userinfo',
+            issuer: 'https://example.com',
+            jwks_uri: 'https://example.com/jwks'
+        };
+        const mockUserInfo = {
+            username: 'testUser',
+            groups: ['group1', 'group2']
+        };
+        const mockJwks = {
+            keys: [
+                {
+                    kty: 'RSA',
+                    n: 'testN',
+                    e: 'AQAB',
+                    alg: 'RS256',
+                    kid: 'testKid'
+                }
+            ]
+        };
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId'
+        };
+
+        nock('https://example.com')
+            .get('/.well-known/openid-configuration')
+            .reply(200, mockWellKnownConfig);
+
+        nock('https://example.com')
+            .get('/userinfo')
+            .reply(200, mockUserInfo);
+
+        const jwtAccessToken = jwt.sign(mockJwtPayload, 'testSecret', options);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtAccessToken}`}
+        };
+
+        const doneMock = jest.fn();
+
+        // call the strategy's authenticate method
+        strategy.authenticate(req, doneMock);
+
+        // wait till the doneMock is called
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(doneMock).toHaveBeenCalledWith(null, {
+            id: 'testClientId',
+            isUser: false,
+            name: 'testUser',
+            username: 'testUser'
+        }, {
+            scope: 'group1 group2',
+            context: {
+                username: 'testUser',
+                subject: null,
+                isUser: false
+            }
+        });
     });
 });

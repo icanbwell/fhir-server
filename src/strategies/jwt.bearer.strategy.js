@@ -437,6 +437,7 @@ class MyJwtStrategy extends JwtStrategy {
     }
 
     fail(jwt_err) {
+        logError(`JWT error`, {user: '', args: {jwt_err}});
     }
 }
 
