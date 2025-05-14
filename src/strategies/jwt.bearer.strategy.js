@@ -2,7 +2,7 @@
  * This file implements the Passport strategy that reads a JWT token and decrypts it using the public key of the OAuth Provider
  */
 
-const { ExtractJwt, Strategy: JwtStrategy } = require('passport-jwt');
+const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const async = require('async');
 const env = require('var');
 const jwksRsa = require('jwks-rsa');
@@ -14,8 +14,8 @@ const {
     DEFAULT_CACHE_EXPIRY_TIME,
     DEFAULT_CACHE_MAX_COUNT
 } = require('../constants');
-const { isTrue } = require('../utils/isTrue');
-const { logDebug, logError } = require('../operations/common/logging');
+const {isTrue} = require('../utils/isTrue');
+const {logDebug, logError} = require('../operations/common/logging');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = {
@@ -37,7 +37,7 @@ const cache = new LRUCache(cacheOptions);
  * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
 const getJwksByUrlAsync = async (jwksUrl) => {
-    if(cache.has(jwksUrl)){
+    if (cache.has(jwksUrl)) {
         return cache.get(jwksUrl)
     }
     try {
@@ -64,7 +64,7 @@ const getJwksByUrlAsync = async (jwksUrl) => {
                 jwksUrl: jwksUrl
             }
         });
-        return { keys: [] };
+        return {keys: []};
     }
 };
 
@@ -105,9 +105,9 @@ const cookieExtractor = function (req) {
     let token = null;
     if (req && req.cookies) {
         token = req.cookies.jwt;
-        logDebug('Found cookie jwt', { user: '', args: { token } });
+        logDebug('Found cookie jwt', {user: '', args: {token}});
     } else {
-        logDebug('No cookies found', { user: '' });
+        logDebug('No cookies found', {user: ''});
     }
     return token;
 };
@@ -132,7 +132,7 @@ const cookieExtractor = function (req) {
  * @param {string|null} scope
  * @return {Object}
  */
-function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, done, client_id, scope }) {
+function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
     const context = {};
     if (username) {
         context.username = username;
@@ -146,7 +146,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         let validInput = true;
         Object.values(requiredJWTFields).forEach((field) => {
             if (!jwt_payload[field]) {
-                logDebug(`Error: ${field} field is missing`, { user: '' });
+                logDebug(`Error: ${field} field is missing`, {user: ''});
                 validInput = false;
             }
         });
@@ -156,7 +156,9 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         context.personIdFromJwtToken = jwt_payload[requiredJWTFields.clientFhirPersonId];
     }
 
-    return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
+    logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
+
+    return done(null, {id: client_id, isUser, name: username, username}, {scope, context});
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
@@ -170,9 +172,10 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
         // Case when provided token is not access token
-        if (jwt_payload.token_use !== 'access') {
-            return done(null, false);
-        }
+        // if (jwt_payload.token_use !== 'access') {
+        //     return done(null, false);
+        // }
+        logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
         // Calculate scopes from jwt_payload
         /**
@@ -180,10 +183,22 @@ const verify = (_request, jwt_payload, done) => {
          */
         let scope = jwt_payload.scope ? jwt_payload.scope : jwt_payload[env.AUTH_CUSTOM_SCOPE];
 
+        const groupClaimNames = env.AUTH_CUSTOM_GROUP ? env.AUTH_CUSTOM_GROUP.split(',') : [];
         /**
          * @type {string[]}
          */
-        const groups = jwt_payload[env.AUTH_CUSTOM_GROUP] ? jwt_payload[env.AUTH_CUSTOM_GROUP] : [];
+        const groups = groupClaimNames.map((groupClaimName) => {
+                if (jwt_payload[groupClaimName]) {
+                    // if the payload is an array, we need to join it
+                    // if the payload is a string, we need to return it as is
+                    return Array.isArray(jwt_payload[groupClaimName]) ?
+                        jwt_payload[groupClaimName].join(' ') :
+                        jwt_payload[groupClaimName];
+                }
+                return null;
+            }
+        ).filter((group) => group !== null);
+        logDebug(`JWT groups`, {user: '', args: {groups}});
 
         if (groups.length > 0) {
             scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
@@ -200,7 +215,7 @@ const verify = (_request, jwt_payload, done) => {
          */
         const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
 
-        return parseUserInfoFromPayload({
+        const result = {
             username: jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'],
             subject: jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT],
             isUser,
@@ -208,7 +223,9 @@ const verify = (_request, jwt_payload, done) => {
             done,
             client_id: jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID],
             scope
-        });
+        };
+        logDebug(`JWT result`, {user: '', args: {result}});
+        return parseUserInfoFromPayload(result);
     }
 
     return done(null, false);
@@ -220,7 +237,7 @@ const verify = (_request, jwt_payload, done) => {
  *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
-    authenticate (req, options) {
+    authenticate(req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);
         // can't just urlencode per https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
@@ -240,7 +257,7 @@ class MyJwtStrategy extends JwtStrategy {
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
                 `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
                 `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-            logDebug('Redirecting', { user: '', args: { redirect: redirectUrl } });
+            logDebug('Redirecting', {user: '', args: {redirect: redirectUrl}});
             return self.redirect(redirectUrl);
         }
 
@@ -273,7 +290,7 @@ const strategy = new MyJwtStrategy(
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    logDebug('No Signing Key found!', { user: '' });
+                    logDebug('No Signing Key found!', {user: ''});
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);
@@ -299,4 +316,4 @@ module.exports = {
     getExternalJwksAsync,
     getJwksByUrlAsync,
     strategy
-}
+};
