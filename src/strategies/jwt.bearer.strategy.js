@@ -65,7 +65,7 @@ const getJwksByUrlAsync = async (jwksUrl) => {
         jwksCache.set(jwksUrl, jsonResponse);
         return jsonResponse;
     } catch (error) {
-        logError(`Error while fetching keys from external jwk url: ${error.message}`, {
+        logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
             error: error,
             args: {
                 jwksUrl: jwksUrl
@@ -80,13 +80,23 @@ const getJwksByUrlAsync = async (jwksUrl) => {
  * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
 const getExternalJwksAsync = async () => {
-    if (env.EXTERNAL_AUTH_JWKS_URLS.length > 0) {
-        /**
-         * @type {string[]}
-         */
-        const extJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS.split(',');
-
-        // noinspection UnnecessaryLocalVariableJS
+    if (!env.EXTERNAL_AUTH_JWKS_URLS && !env.EXTERNAL_AUTH_WELL_KNOWN_URLS) {
+        return [];
+    }
+    /**
+     * @type {string[]}
+     */
+    let extJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS ? env.EXTERNAL_AUTH_JWKS_URLS.split(',') : [];
+    // if we don't have any external jwks urls, we need to get them from the well known configuration
+    if (!env.EXTERNAL_AUTH_JWKS_URLS && env.EXTERNAL_AUTH_WELL_KNOWN_URLS) {
+        const wellKnownConfigurationManager = new WellKnownConfigurationManager(
+            {
+                urlList: env.EXTERNAL_AUTH_WELL_KNOWN_URLS
+            }
+        );
+        extJwksUrls = await wellKnownConfigurationManager.getJwksUrls();
+    }
+    if (extJwksUrls.length > 0) {
         /**
          * @type {import('jwks-rsa').JSONWebKey[][]}
          */

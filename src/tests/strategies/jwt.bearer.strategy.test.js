@@ -9,6 +9,7 @@ const {
 } = require("../../strategies/jwt.bearer.strategy");
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
 
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
@@ -119,31 +120,51 @@ describe('JWT Bearer Strategy', () => {
     });
 
     test('should fetch scopes via groups from userInfo endpoint when access token has no scopes', async () => {
-        // create a jwt access token
+        // Generate a proper RSA key pair
+        const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem'
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem'
+            }
+        });
+
         const options = {
-            algorithm: 'HS256',
+            algorithm: 'RS256',
             expiresIn: '1h'
         };
+
         const mockWellKnownConfig = {
             userinfo_endpoint: 'https://example.com/userinfo',
             issuer: 'https://example.com',
             jwks_uri: 'https://example.com/jwks'
         };
+
         const mockUserInfo = {
             username: 'testUser',
             groups: ['group1', 'group2']
         };
+
+        // Extract the modulus and exponent for JWKS
+        const publicKeyObject = crypto.createPublicKey(publicKey);
+        const jwkPublicKey = publicKeyObject.export({type: 'spki', format: 'der'});
+
         const mockJwks = {
             keys: [
                 {
                     kty: 'RSA',
-                    n: 'testN',
-                    e: 'AQAB',
+                    n: jwkPublicKey.toString('base64'), // Base64 encode the key
+                    e: 'AQAB', // Standard exponent
                     alg: 'RS256',
                     kid: 'testKid'
                 }
             ]
         };
+
         const mockJwtPayload = {
             iss: 'https://example.com',
             client_id: 'testClientId'
@@ -154,35 +175,59 @@ describe('JWT Bearer Strategy', () => {
             .reply(200, mockWellKnownConfig);
 
         nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        nock('https://example.com')
             .get('/userinfo')
             .reply(200, mockUserInfo);
 
-        const jwtAccessToken = jwt.sign(mockJwtPayload, 'testSecret', options);
+        // Sign the JWT using the proper private key
+        const jwtAccessToken = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h'
+        });
 
         const req = {
             headers: {authorization: `Bearer ${jwtAccessToken}`}
         };
 
-        const doneMock = jest.fn();
+        const externalAuthWellKnownUrls = env.EXTERNAL_AUTH_WELL_KNOWN_URLS;
+        env.EXTERNAL_AUTH_WELL_KNOWN_URLS = 'https://example.com/.well-known/openid-configuration';
 
-        // call the strategy's authenticate method
-        strategy.authenticate(req, doneMock);
+        const externalAuthJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS;
+        env.EXTERNAL_AUTH_JWKS_URLS = '';
 
-        // wait till the doneMock is called
-        await new Promise(resolve => setTimeout(resolve, 0));
+        return new Promise((resolve, reject) => {
+            const doneMock = jest.fn((error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toEqual({
+                        id: 'testClientId',
+                        isUser: false,
+                        name: 'testUser',
+                        username: 'testUser'
+                    });
+                    expect(info).toEqual({
+                        scope: 'group1 group2',
+                        context: {
+                            username: 'testUser',
+                            subject: null,
+                            isUser: false
+                        }
+                    });
+                    resolve();
 
-        expect(doneMock).toHaveBeenCalledWith(null, {
-            id: 'testClientId',
-            isUser: false,
-            name: 'testUser',
-            username: 'testUser'
-        }, {
-            scope: 'group1 group2',
-            context: {
-                username: 'testUser',
-                subject: null,
-                isUser: false
-            }
+                    // Clean up
+                    env.EXTERNAL_AUTH_WELL_KNOWN_URLS = externalAuthWellKnownUrls;
+                    env.EXTERNAL_AUTH_JWKS_URLS = externalAuthJwksUrls;
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            });
+
+            // Call the strategy's authenticate method
+            strategy.authenticate(req, doneMock);
         });
     });
 });

@@ -1,5 +1,5 @@
 const superagent = require('superagent');
-const { LRUCache } = require('lru-cache');
+const {LRUCache} = require('lru-cache');
 const {logError} = require("../../operations/common/logging");
 
 /**
@@ -114,6 +114,27 @@ class WellKnownConfigurationManager {
                 logError('Error fetching configuration', {url: url, error: error.message});
             }
         }
+    }
+
+    /**
+     * @returns {Promise<string[]>}
+     */
+    async getJwksUrls() {
+        /**
+         * @type {string[]}
+         */
+        const jwksUrls = [];
+        for (const url of this.urls) {
+            try {
+                const config = await this.fetchConfiguration(url);
+                if (config.jwks_uri) {
+                    jwksUrls.push(config.jwks_uri);
+                }
+            } catch (error) {
+                logError('Error fetching configuration', {url: url, error: error.message});
+            }
+        }
+        return jwksUrls;
     }
 }
 
