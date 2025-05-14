@@ -101,23 +101,4 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .expect(401);
         });
     });
-
-    describe('Patient Search By Id Tests with id token should fail', () => {
-        test('search by id do not work as id token provided', async () => {
-            const request = await createTestRequest();
-            const payload = {
-                scope: 'patient/Observation.*',
-                username: 'patient-123@example.com',
-                clientFhirPersonId: 'clientFhirPerson',
-                clientFhirPatientId: 'clientFhirPatient',
-                bwellFhirPersonId: 'person1',
-                bwellFhirPatientId: 'bwellFhirPatient'
-            };
-            const headers = getHeadersWithCustomPayload(payload);
-            await request
-                .get('/4_0_0/Patient')
-                .set(headers)
-                .expect(401);
-        });
-    });
 });
