@@ -1,7 +1,12 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
 const env = require('var');
-const {getJwksByUrlAsync, getExternalJwksAsync, strategy} = require("../../strategies/jwt.bearer.strategy");
+const {
+    getJwksByUrlAsync,
+    getExternalJwksAsync,
+    strategy,
+    clearJwksCache
+} = require("../../strategies/jwt.bearer.strategy");
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 
 describe('JWT Bearer Strategy', () => {
@@ -27,6 +32,8 @@ describe('JWT Bearer Strategy', () => {
         nock('https://example.com')
             .get('/jwks')
             .replyWithError('Network error');
+
+        clearJwksCache();
 
         const result = await getJwksByUrlAsync('https://example.com/jwks');
         expect(result).toEqual({keys: []});

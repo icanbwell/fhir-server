@@ -7,7 +7,7 @@ const async = require('async');
 const env = require('var');
 const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
-const { LRUCache } = require('lru-cache');
+const {LRUCache} = require('lru-cache');
 
 const {
     EXTERNAL_REQUEST_RETRY_COUNT,
@@ -30,7 +30,13 @@ const cacheOptions = {
     max: env.CACHE_MAX_COUNT ? Number(env.CACHE_MAX_COUNT) : DEFAULT_CACHE_MAX_COUNT,
     ttl: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME
 };
-const cache = new LRUCache(cacheOptions);
+const jwksCache = new LRUCache(cacheOptions);
+
+const clearJwksCache = () => {
+    if (jwksCache) {
+        jwksCache.clear();
+    }
+};
 
 /**
  * Retrieve jwks for URL
@@ -38,8 +44,8 @@ const cache = new LRUCache(cacheOptions);
  * @returns {Promise<{keys:import('jwks-rsa').JSONWebKey[]}>}
  */
 const getJwksByUrlAsync = async (jwksUrl) => {
-    if (cache.has(jwksUrl)) {
-        return cache.get(jwksUrl)
+    if (jwksCache.has(jwksUrl)) {
+        return jwksCache.get(jwksUrl)
     }
     try {
         /**
@@ -56,7 +62,7 @@ const getJwksByUrlAsync = async (jwksUrl) => {
          * @type {{keys:import('jwks-rsa').JSONWebKey[]}}
          */
         const jsonResponse = JSON.parse(res.text);
-        cache.set(jwksUrl, jsonResponse);
+        jwksCache.set(jwksUrl, jsonResponse);
         return jsonResponse;
     } catch (error) {
         logError(`Error while fetching keys from external jwk url: ${error.message}`, {
@@ -484,5 +490,6 @@ const strategy = new MyJwtStrategy(
 module.exports = {
     getExternalJwksAsync,
     getJwksByUrlAsync,
-    strategy
+    strategy,
+    clearJwksCache
 };
