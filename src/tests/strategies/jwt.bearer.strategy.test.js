@@ -16,8 +16,11 @@ describe('JWT Bearer Strategy', () => {
             .get('/jwks')
             .reply(200, mockResponse);
 
+        /**
+         * @type {{keys:import('jwks-rsa').JSONWebKey[]}}
+         */
         const result = await getJwksByUrlAsync('https://example.com/jwks');
-        expect(result).toEqual(mockResponse.keys);
+        expect(result).toEqual(mockResponse);
     });
 
     test('should handle JWKS fetch failure gracefully', async () => {

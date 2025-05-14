@@ -35,7 +35,7 @@ const cache = new LRUCache(cacheOptions);
 /**
  * Retrieve jwks for URL
  * @param {string} jwksUrl
- * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
+ * @returns {Promise<{keys:import('jwks-rsa').JSONWebKey[]}>}
  */
 const getJwksByUrlAsync = async (jwksUrl) => {
     if (cache.has(jwksUrl)) {
@@ -53,7 +53,7 @@ const getJwksByUrlAsync = async (jwksUrl) => {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(requestTimeout);
         /**
-         * @type {import('jwks-rsa').JSONWebKey[]}
+         * @type {{keys:import('jwks-rsa').JSONWebKey[]}}
          */
         const jsonResponse = JSON.parse(res.text);
         cache.set(jwksUrl, jsonResponse);
