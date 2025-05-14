@@ -30,6 +30,7 @@ services:
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
       EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json,https://icanbwell.okta.com/oauth2/v1/keys'
+      EXTERNAL_AUTH_WELL_KNOWN_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/openid-configuration, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/openid-configuration,https://icanbwell.okta.com/.well-known/openid-configuration'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1

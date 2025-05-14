@@ -4,10 +4,10 @@ const {logError} = require("../../operations/common/logging");
 
 /**
  * @typedef {Object} WellKnownConfigurationInfo
- * @property {string} authorizationEndpoint - The authorization endpoint URL.
- * @property {string} tokenEndpoint - The token endpoint URL.
- * @property {string} userinfoEndpoint - The userinfo endpoint URL.
- * @property {string} jwksUri - The JWKS URI.
+ * @property {string} authorization_endpoint - The authorization endpoint URL.
+ * @property {string} token_endpoint - The token endpoint URL.
+ * @property {string} userinfo_endpoint - The userinfo endpoint URL.
+ * @property {string} jwks_uri - The JWKS URI.
  * @property {string} issuer - The issuer URL.
  */
 
@@ -49,10 +49,10 @@ class WellKnownConfigurationManager {
         }
 
         return {
-            authorizationEndpoint: config.authorization_endpoint,
-            tokenEndpoint: config.token_endpoint,
-            userinfoEndpoint: config.userinfo_endpoint,
-            jwksUri: config.jwks_uri,
+            authorization_endpoint: config.authorization_endpoint,
+            token_endpoint: config.token_endpoint,
+            userinfo_endpoint: config.userinfo_endpoint,
+            jwks_uri: config.jwks_uri,
             issuer: config.issuer
         };
     }

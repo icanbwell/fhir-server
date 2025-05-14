@@ -288,7 +288,14 @@ function getScopesFromToken(jwt_payload) {
  * @returns {Promise<UserInfo|undefined>}
  */
 const getUserInfoFromUserInfoEndpoint = async (jwt_payload) => {
-    const wellKnownConfigurationManager = new WellKnownConfigurationManager();
+    /**
+     * @type {WellKnownConfigurationManager}
+     */
+    const wellKnownConfigurationManager = new WellKnownConfigurationManager(
+        {
+            urlList: env.EXTERNAL_AUTH_WELL_KNOWN_URLS
+        }
+    );
     const wellKnownConfig = await wellKnownConfigurationManager.getWellKnownConfigurationForIssuer(
         jwt_payload.iss
     );
