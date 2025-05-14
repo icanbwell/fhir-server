@@ -220,7 +220,6 @@ const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
  */
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-        logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
         // Calculate scopes from jwt_payload
         /**
