@@ -274,6 +274,10 @@ const verify = (_request, jwt_payload, done) => {
 
         let {scope, scopes, username, subject, clientId} = getScopesFromToken(jwt_payload);
 
+        // if there are no scopes try to get the userInfo from userInfo endpoint
+        // if (!scopes || scopes.length === 0) {
+        //
+        // }
         /**
          * If the patient scope is present, it indicates that the request is coming from a user
          * @type {boolean}
