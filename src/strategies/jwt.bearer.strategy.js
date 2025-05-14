@@ -210,6 +210,57 @@ const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
     return null;
 };
 
+function getScopesFromToken(jwt_payload) {
+    // Calculate scopes from jwt_payload
+    /**
+     * @type {string}
+     */
+    let scope = jwt_payload.scope ? jwt_payload.scope : getPropertiesFromPayload(
+        {
+            jwt_payload,
+            propertyNames: env.AUTH_CUSTOM_SCOPE
+        }
+    ).join(' ');
+
+    /**
+     * @type {string[]}
+     */
+    const groups = getPropertiesFromPayload(
+        {
+            jwt_payload,
+            propertyNames: env.AUTH_CUSTOM_GROUP
+        }
+    );
+    logDebug(`JWT groups`, {user: '', args: {groups}});
+
+    if (groups.length > 0) {
+        scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
+    }
+
+    /**
+     * @type {string[]}
+     */
+    const scopes = scope ? scope.split(' ') : [];
+
+    const username = jwt_payload.username ? jwt_payload.username : getFirstPropertyFromPayload({
+        jwt_payload,
+        propertyNames: env.AUTH_CUSTOM_USERNAME
+    });
+
+    const subject = jwt_payload.subject ? jwt_payload.subject : getFirstPropertyFromPayload({
+        jwt_payload,
+        propertyNames: env.AUTH_CUSTOM_SUBJECT
+    });
+
+    const clientId = jwt_payload.client_id ? jwt_payload.client_id : getFirstPropertyFromPayload(
+        {
+            jwt_payload,
+            propertyNames: env.AUTH_CUSTOM_CLIENT_ID
+        }
+    );
+    return {scope, scopes, username, subject};
+}
+
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
@@ -221,36 +272,7 @@ const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
 
-        // Calculate scopes from jwt_payload
-        /**
-         * @type {string}
-         */
-        let scope = jwt_payload.scope ? jwt_payload.scope : getPropertiesFromPayload(
-            {
-                jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_SCOPE
-            }
-        ).join(' ');
-
-        /**
-         * @type {string[]}
-         */
-        const groups = getPropertiesFromPayload(
-            {
-                jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_GROUP
-            }
-        );
-        logDebug(`JWT groups`, {user: '', args: {groups}});
-
-        if (groups.length > 0) {
-            scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
-        }
-
-        /**
-         * @type {string[]}
-         */
-        const scopes = scope ? scope.split(' ') : [];
+        let {scope, scopes, username, subject, clientId} = getScopesFromToken(jwt_payload);
 
         /**
          * If the patient scope is present, it indicates that the request is coming from a user
@@ -259,23 +281,12 @@ const verify = (_request, jwt_payload, done) => {
         const isUser = scopes.some(s => s.toLowerCase().startsWith('patient/'));
 
         const result = {
-            username: jwt_payload.username ? jwt_payload.username : getFirstPropertyFromPayload({
-                jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_USERNAME
-            }),
-            subject: jwt_payload.subject ? jwt_payload.subject : getFirstPropertyFromPayload({
-                jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_SUBJECT
-            }),
+            username: username,
+            subject: subject,
             isUser,
             jwt_payload,
             done,
-            client_id: jwt_payload.client_id ? jwt_payload.client_id : getFirstPropertyFromPayload(
-                {
-                    jwt_payload,
-                    propertyNames: env.AUTH_CUSTOM_CLIENT_ID
-                }
-            ),
+            client_id: clientId,
             scope
         };
         logDebug(`JWT result`, {user: '', args: {result}});
