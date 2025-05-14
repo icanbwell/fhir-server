@@ -169,7 +169,7 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
  */
 const getPropertiesFromPayload = ({jwt_payload, propertyNames}) => {
     if (propertyNames && typeof propertyNames === 'string') {
-        propertyNames = propertyNames.split(',');
+        propertyNames = propertyNames.split(',').map(s => s.trim());
     }
     if (propertyNames && propertyNames.length > 0) {
         return propertyNames.map((propertyName) => {
@@ -194,7 +194,7 @@ const getPropertiesFromPayload = ({jwt_payload, propertyNames}) => {
  */
 const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
     if (propertyNames && typeof propertyNames === 'string') {
-        propertyNames = propertyNames.split(',');
+        propertyNames = propertyNames.split(',').map(s => s.trim());
     }
     if (propertyNames && propertyNames.length > 0) {
         for (const propertyName of propertyNames) {
@@ -220,10 +220,6 @@ const getFirstPropertyFromPayload = ({jwt_payload, propertyNames}) => {
  */
 const verify = (_request, jwt_payload, done) => {
     if (jwt_payload) {
-        // Case when provided token is not access token
-        // if (jwt_payload.token_use !== 'access') {
-        //     return done(null, false);
-        // }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
         // Calculate scopes from jwt_payload
