@@ -1,5 +1,5 @@
 const superagent = require('superagent');
-const LRUCache = require('lru-cache');
+const {LRUCache} = require('lru-cache');
 const {logError} = require("../../operations/common/logging");
 
 /**
@@ -22,11 +22,12 @@ class WellKnownConfigurationManager {
          */
         this.urls = urls.split(',').map(url => url.trim());
         /**
-         * @type {LRUCache<string, WellKnownConfigurationInfo>}
+         * Cache for configuration data.
+         * @type {LRUCache<{}, {}, unknown>}
          */
         this.cache = new LRUCache({
             max: cacheOptions.max || 100, // Maximum number of items in the cache
-            ttl: cacheOptions.ttl || 60 * 1000 // Time-to-live in milliseconds
+            ttl: cacheOptions.ttl || 24 * 60 * 1000 // Time-to-live in milliseconds
         });
     }
 
@@ -93,7 +94,7 @@ class WellKnownConfigurationManager {
      * @returns {Promise<WellKnownConfigurationInfo|undefined>}
      */
     async getWellKnownConfigurationForIssuer(issuer) {
-        if (this.cache.size === 0) {
+        if (this.cache.size === 0 && this.urls.length > 0) {
             await this.fetchAllConfigurations();
         }
         for (const url of this.urls) {
