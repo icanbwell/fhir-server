@@ -1,5 +1,5 @@
 const nock = require('nock');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const {beforeEach, describe, test, expect} = require("@jest/globals");
 const {WellKnownConfigurationManager} = require("../../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 
