@@ -97,14 +97,24 @@ const getExternalJwksAsync = async () => {
         extJwksUrls = await wellKnownConfigurationManager.getJwksUrls();
     }
     if (extJwksUrls.length > 0) {
-        /**
-         * @type {import('jwks-rsa').JSONWebKey[][]}
-         */
-        const keysArray = await async.map(
-            extJwksUrls,
-            async (extJwksUrl) => (await getJwksByUrlAsync(extJwksUrl.trim())).keys
-        );
-        return keysArray.flat(2);
+        try {
+            /**
+             * @type {import('jwks-rsa').JSONWebKey[][]}
+             */
+            const keysArray = await async.map(
+                extJwksUrls,
+                async (extJwksUrl) => (await getJwksByUrlAsync(extJwksUrl.trim())).keys
+            );
+            return keysArray.flat(2);
+        } catch (error) {
+            logError(`Error while fetching keys from external jwk urls: ${error.message}`, {
+                error: error,
+                args: {
+                    extJwksUrls: extJwksUrls
+                }
+            });
+            return [];
+        }
     }
 
     return [];
@@ -448,6 +458,7 @@ class MyJwtStrategy extends JwtStrategy {
 
     fail(jwt_err) {
         logError(`JWT error`, {user: '', args: {jwt_err}});
+        super.fail(jwt_err); // Call the parent class's fail method to handle the failure
     }
 }
 

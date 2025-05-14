@@ -149,18 +149,16 @@ describe('JWT Bearer Strategy', () => {
             groups: ['group1', 'group2']
         };
 
-        // Extract the modulus and exponent for JWKS
-        const publicKeyObject = crypto.createPublicKey(publicKey);
-        const jwkPublicKey = publicKeyObject.export({type: 'spki', format: 'der'});
-
+        // Correctly prepare the JWKS representation
         const mockJwks = {
             keys: [
                 {
                     kty: 'RSA',
-                    n: jwkPublicKey.toString('base64'), // Base64 encode the key
-                    e: 'AQAB', // Standard exponent
                     alg: 'RS256',
-                    kid: 'testKid'
+                    use: 'sig',
+                    kid: 'testKid',
+                    // Use PEM format for the public key
+                    x5c: [publicKey.replace(/\n/g, '').replace(/-----BEGIN PUBLIC KEY-----/, '').replace(/-----END PUBLIC KEY-----/, '')]
                 }
             ]
         };
@@ -185,7 +183,8 @@ describe('JWT Bearer Strategy', () => {
         // Sign the JWT using the proper private key
         const jwtAccessToken = jwt.sign(mockJwtPayload, privateKey, {
             algorithm: 'RS256',
-            expiresIn: '1h'
+            expiresIn: '1h',
+            keyid: 'testKid' // Add the kid to match JWKS
         });
 
         const req = {
@@ -196,11 +195,16 @@ describe('JWT Bearer Strategy', () => {
         env.EXTERNAL_AUTH_WELL_KNOWN_URLS = 'https://example.com/.well-known/openid-configuration';
 
         const externalAuthJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS;
-        env.EXTERNAL_AUTH_JWKS_URLS = '';
+        env.EXTERNAL_AUTH_JWKS_URLS = 'https://example.com/jwks';
 
         return new Promise((resolve, reject) => {
             const doneMock = jest.fn((error, user, info) => {
                 try {
+                    // Cleanup environment variables
+                    env.EXTERNAL_AUTH_WELL_KNOWN_URLS = externalAuthWellKnownUrls;
+                    env.EXTERNAL_AUTH_JWKS_URLS = externalAuthJwksUrls;
+
+                    // Assertions
                     expect(error).toBeNull();
                     expect(user).toEqual({
                         id: 'testClientId',
@@ -216,11 +220,8 @@ describe('JWT Bearer Strategy', () => {
                             isUser: false
                         }
                     });
-                    resolve();
 
-                    // Clean up
-                    env.EXTERNAL_AUTH_WELL_KNOWN_URLS = externalAuthWellKnownUrls;
-                    env.EXTERNAL_AUTH_JWKS_URLS = externalAuthJwksUrls;
+                    resolve();
                 } catch (assertionError) {
                     reject(assertionError);
                 }
