@@ -12,10 +12,10 @@ const {DEFAULT_CACHE_EXPIRY_TIME} = require("../constants");
 class MyJwtStrategy extends JwtStrategy {
     /**
      * Constructor for the JWT strategy
-     * @param {Object} options
+     * @param {Object} [options]
      * @param {AuthService} authService
      */
-    constructor({authService, options}) {
+    constructor({authService, options = {}}) {
         super(
             {
                 ...options,
@@ -73,7 +73,7 @@ class MyJwtStrategy extends JwtStrategy {
     // noinspection JSUnusedGlobalSymbols
     fail(jwt_err) {
         logError(`JWT error`, { user: '', args: { jwt_err } });
-        super.fail(jwt_err);
+        // super.fail(jwt_err);
     }
 }
 

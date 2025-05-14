@@ -10,48 +10,14 @@ const crypto = require('crypto');
 const AuthService = require("../../strategies/authService");
 
 describe('JWT Bearer Strategy', () => {
+    let jwtAccessToken;
+    let publicKey1;
+    let privateKey1;
+
     beforeEach(() => {
         jest.clearAllMocks();
         nock.cleanAll();
-    });
 
-    test('should redirect to login if no token is found and conditions are met', () => {
-        const req = {
-            useragent: {isDesktop: true},
-            method: 'GET',
-            url: '/test',
-            headers: {host: 'localhost'}
-        };
-        const redirectMock = jest.fn();
-        const strategyInstance = new MyJwtStrategy({
-            authService: new AuthService()
-        });
-        strategyInstance.redirect = redirectMock;
-
-        const oldEnvironment = env.REDIRECT_TO_LOGIN;
-        env.REDIRECT_TO_LOGIN = 'true';
-
-        strategyInstance.authenticate(req, {});
-        expect(redirectMock).toHaveBeenCalledWith(expect.stringContaining('/login?'));
-        env.REDIRECT_TO_LOGIN = oldEnvironment;
-    });
-
-    test('should call parent authenticate method if token is found', () => {
-        const req = {
-            useragent: {isDesktop: true},
-            method: 'GET',
-            url: '/test',
-            headers: {host: 'localhost'}
-        };
-        const tokenExtractorMock = jest.fn().mockReturnValue('token');
-        strategy._jwtFromRequest = tokenExtractorMock;
-
-        const authenticateSpy = jest.spyOn(strategy.__proto__, 'authenticate');
-        strategy.authenticate(req, {});
-        expect(authenticateSpy).toHaveBeenCalled();
-    });
-
-    test('should fetch scopes via groups from userInfo endpoint when access token has no scopes', async () => {
         // Generate a proper RSA key pair
         const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
             modulusLength: 2048,
@@ -65,11 +31,66 @@ describe('JWT Bearer Strategy', () => {
             }
         });
 
+        publicKey1 = publicKey;
+        privateKey1 = privateKey;
+
         const options = {
             algorithm: 'RS256',
             expiresIn: '1h'
         };
 
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId'
+        };
+        // Sign the JWT using the proper private key
+        jwtAccessToken = jwt.sign(mockJwtPayload, privateKey1, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: 'testKid' // Add the kid to match JWKS
+        });
+    });
+
+    test('should redirect to login if no token is found and conditions are met', () => {
+        const req = {
+            useragent: {isDesktop: true},
+            method: 'GET',
+            url: '/test',
+            headers: {host: 'localhost'}
+        };
+        const redirectMock = jest.fn();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService()
+        });
+        strategy.redirect = redirectMock;
+
+        const oldEnvironment = env.REDIRECT_TO_LOGIN;
+        env.REDIRECT_TO_LOGIN = 'true';
+
+        strategy.authenticate(req, {});
+        expect(redirectMock).toHaveBeenCalledWith(expect.stringContaining('/login?'));
+        env.REDIRECT_TO_LOGIN = oldEnvironment;
+    });
+
+    test('should call parent authenticate method if token is found', () => {
+        const req = {
+            useragent: {isDesktop: true},
+            method: 'GET',
+            url: '/test',
+            headers: {host: 'localhost'}
+        };
+        const tokenExtractorMock = jest.fn().mockReturnValue(jwtAccessToken);
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService()
+        });
+        strategy._jwtFromRequest = tokenExtractorMock;
+
+        const authenticateSpy = jest.spyOn(strategy.__proto__, 'authenticate');
+        strategy.authenticate(req, {});
+        expect(authenticateSpy).toHaveBeenCalled();
+    });
+
+    test('should fetch scopes via groups from userInfo endpoint when access token has no scopes', async () => {
         const mockWellKnownConfig = {
             userinfo_endpoint: 'https://example.com/userinfo',
             issuer: 'https://example.com',
@@ -90,14 +111,9 @@ describe('JWT Bearer Strategy', () => {
                     use: 'sig',
                     kid: 'testKid',
                     // Use PEM format for the public key
-                    x5c: [publicKey.replace(/\n/g, '').replace(/-----BEGIN PUBLIC KEY-----/, '').replace(/-----END PUBLIC KEY-----/, '')]
+                    x5c: [publicKey1.replace(/\n/g, '').replace(/-----BEGIN PUBLIC KEY-----/, '').replace(/-----END PUBLIC KEY-----/, '')]
                 }
             ]
-        };
-
-        const mockJwtPayload = {
-            iss: 'https://example.com',
-            client_id: 'testClientId'
         };
 
         nock('https://example.com')
@@ -112,13 +128,6 @@ describe('JWT Bearer Strategy', () => {
             .get('/userinfo')
             .reply(200, mockUserInfo);
 
-        // Sign the JWT using the proper private key
-        const jwtAccessToken = jwt.sign(mockJwtPayload, privateKey, {
-            algorithm: 'RS256',
-            expiresIn: '1h',
-            keyid: 'testKid' // Add the kid to match JWKS
-        });
-
         const req = {
             headers: {authorization: `Bearer ${jwtAccessToken}`}
         };
@@ -128,6 +137,10 @@ describe('JWT Bearer Strategy', () => {
 
         const externalAuthJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS;
         env.EXTERNAL_AUTH_JWKS_URLS = 'https://example.com/jwks';
+
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService()
+        });
 
         return new Promise((resolve, reject) => {
             const doneMock = jest.fn((error, user, info) => {
