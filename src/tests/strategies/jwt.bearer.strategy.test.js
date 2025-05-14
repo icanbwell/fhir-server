@@ -87,22 +87,26 @@ describe('JWT Bearer Strategy', () => {
         const req = {
             useragent: {isDesktop: true},
             method: 'GET',
-            originalUrl: '/test',
+            url: '/test',
             headers: {host: 'localhost'}
         };
         const redirectMock = jest.fn();
         const strategyInstance = Object.create(strategy);
         strategyInstance.redirect = redirectMock;
 
+        const oldEnvironment = env.REDIRECT_TO_LOGIN;
+        env.REDIRECT_TO_LOGIN = 'true';
+
         strategyInstance.authenticate(req, {});
         expect(redirectMock).toHaveBeenCalledWith(expect.stringContaining('/login?'));
+        env.REDIRECT_TO_LOGIN = oldEnvironment;
     });
 
     test('should call parent authenticate method if token is found', () => {
         const req = {
             useragent: {isDesktop: true},
             method: 'GET',
-            originalUrl: '/test',
+            url: '/test',
             headers: {host: 'localhost'}
         };
         const tokenExtractorMock = jest.fn().mockReturnValue('token');

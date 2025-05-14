@@ -435,6 +435,9 @@ class MyJwtStrategy extends JwtStrategy {
 
         return super.authenticate(req, options);
     }
+
+    fail(jwt_err) {
+    }
 }
 
 /**
