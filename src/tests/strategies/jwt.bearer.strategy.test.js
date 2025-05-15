@@ -129,7 +129,8 @@ describe('JWT Bearer Strategy', () => {
 
         const mockUserInfo = {
             username: 'testUser',
-            groups: ['group1', 'group2']
+            groups: ['group1', 'group2'],
+            client_id: 'testClientId'
         };
 
         // Correctly prepare the JWKS representation
@@ -214,9 +215,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(info).toEqual({
                         scope: 'group1 group2',
                         context: {
-                            username: 'testUser',
-                            subject: null,
-                            isUser: false
+                            username: 'testUser'
                         }
                     });
 

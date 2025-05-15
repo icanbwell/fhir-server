@@ -237,7 +237,7 @@ class AuthService {
     }
 
     /**
-     * Extracts scopes from the JWT payload.
+     * Extracts fields from the JWT payload.
      * @param {Object} jwt_payload
      * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
      */
@@ -332,15 +332,21 @@ class AuthService {
                     {jwt_payload, token}
                 ).then((userInfo) => {
                     if (userInfo) {
-                        ({scope, isUser, username, subject, clientId} = this.getFieldsFromToken(userInfo));
+                        const {
+                            scope: scope1,
+                            isUser: isUser1,
+                            username: username1,
+                            subject: subject1,
+                            clientId: clientId1
+                        } = this.getFieldsFromToken(userInfo);
                         this.processUserInfo({
-                            username: username,
-                            subject: subject,
-                            isUser,
+                            username: username1 || username,
+                            subject: subject1 || subject,
+                            isUser: isUser1 || isUser,
                             jwt_payload,
                             done,
-                            client_id: clientId,
-                            scope
+                            client_id: clientId1 || clientId,
+                            scope: scope1 || scope
                         });
                     } else {
                         this.processUserInfo({
