@@ -7,7 +7,8 @@ const {
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
-const AuthService = require("../../strategies/authService");
+const {AuthService} = require("../../strategies/authService");
+const {ConfigManager} = require("../../utils/configManager");
 
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
@@ -135,20 +136,31 @@ describe('JWT Bearer Strategy', () => {
         const externalAuthWellKnownUrls = env.EXTERNAL_AUTH_WELL_KNOWN_URLS;
         env.EXTERNAL_AUTH_WELL_KNOWN_URLS = 'https://example.com/.well-known/openid-configuration';
 
-        const externalAuthJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS;
-        env.EXTERNAL_AUTH_JWKS_URLS = 'https://example.com/jwks';
+       class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+        }
 
         const strategy = new MyJwtStrategy({
-            authService: new AuthService()
+            authService: new AuthService(
+                {
+                    configManager: new MockConfigManager(),
+                    wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                        {
+                            urlList: 'https://example.com/.well-known/openid-configuration'
+                        }
+                    )
+                }
+            )
         });
 
         return new Promise((resolve, reject) => {
             const doneMock = jest.fn((error, user, info) => {
                 try {
-                    // Cleanup environment variables
-                    env.EXTERNAL_AUTH_WELL_KNOWN_URLS = externalAuthWellKnownUrls;
-                    env.EXTERNAL_AUTH_JWKS_URLS = externalAuthJwksUrls;
-
                     // Assertions
                     expect(error).toBeNull();
                     expect(user).toEqual({

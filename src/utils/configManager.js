@@ -1,6 +1,6 @@
 const env = require('var');
-const { isTrue } = require('./isTrue');
-const { CLOUD_STORAGE_CLIENTS } = require('../constants');
+const {isTrue} = require('./isTrue');
+const {CLOUD_STORAGE_CLIENTS, DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
 
 class ConfigManager {
     /**
@@ -848,6 +848,97 @@ class ConfigManager {
             return false;
         }
         return isTrue(env.DD_TRACE_ENABLED);
+    }
+
+    /**
+     * return AUTH_JWKS_URL
+     * @returns {string}
+     */
+    get authJwksUrl() {
+        return env.AUTH_JWKS_URL || '';
+    }
+
+    /**
+     * Return EXTERNAL_REQUEST_TIMEOUT_SEC
+     * @returns {number}
+     */
+    get externalRequestTimeoutSec() {
+        return env.EXTERNAL_REQUEST_TIMEOUT_SEC ? parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) : 30;
+    }
+
+    /**
+     * return EXTERNAL_AUTH_JWKS_URLS
+     * @returns {string[]}
+     */
+    get externalAuthJwksUrls() {
+        return env.EXTERNAL_AUTH_JWKS_URLS ? env.EXTERNAL_AUTH_JWKS_URLS.split(',') : [];
+    }
+
+    /**
+     * return EXTERNAL_AUTH_WELL_KNOWN_URLS
+     * @returns {string[]}
+     */
+    get externalAuthWellKnownUrls() {
+        return env.EXTERNAL_AUTH_WELL_KNOWN_URLS ? env.EXTERNAL_AUTH_WELL_KNOWN_URLS.split(',') : [];
+    }
+
+    /**
+     * return AUTH_CUSTOM_SCOPE
+     * @returns {string[]}
+     */
+    get authCustomScope() {
+        return env.AUTH_CUSTOM_SCOPE ? env.AUTH_CUSTOM_SCOPE.split(',') : [];
+    }
+
+    /**
+     * return AUTH_CUSTOM_GROUP
+     * @returns {string[]}
+     */
+    get authCustomGroup() {
+        return env.AUTH_CUSTOM_GROUP ? env.AUTH_CUSTOM_GROUP.split(',') : [];
+    }
+
+    /**
+     * return AUTH_CUSTOM_USERNAME
+     * @returns {string[]}
+     */
+    get authCustomUserName() {
+        return env.AUTH_CUSTOM_USERNAME ? env.AUTH_CUSTOM_USERNAME.split(',') : [];
+    }
+
+    /**
+     * return AUTH_CUSTOM_SUBJECT
+     * @returns {string[]}
+     */
+    get authCustomSubject() {
+        return env.AUTH_CUSTOM_SUBJECT ? env.AUTH_CUSTOM_SUBJECT.split(',') : [];
+    }
+
+    /**
+     * return AUTH_CUSTOM_CLIENT_ID
+     * @returns {string[]}
+     */
+    get authCustomClientId() {
+        return env.AUTH_CUSTOM_CLIENT_ID ? env.AUTH_CUSTOM_CLIENT_ID.split(',') : [];
+    }
+
+    /**
+     * return CACHE_EXPIRY_TIME
+     * @returns {number}
+     */
+    get cacheExpiryTime() {
+        return env.CACHE_EXPIRY_TIME ? parseInt(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME; // 1 hour
+    }
+
+    /**
+     * return REDIRECT_TO_LOGIN
+     * @returns {boolean}
+     */
+    get redirectToLogin() {
+        if (env.REDIRECT_TO_LOGIN === null || env.REDIRECT_TO_LOGIN === undefined) {
+            return false;
+        }
+        return isTrue(env.REDIRECT_TO_LOGIN);
     }
 }
 

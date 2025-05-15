@@ -7,7 +7,8 @@ const {
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
-const AuthService = require("../../strategies/authService");
+const {AuthService} = require("../../strategies/authService");
+const {ConfigManager} = require("../../utils/configManager");
 
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
@@ -21,7 +22,28 @@ describe('JWT Bearer Strategy', () => {
             .get('/jwks')
             .reply(200, mockResponse);
 
-        const authService = new AuthService();
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return [
+                    'https://example.com/.well-known/openid-configuration'
+                ];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager
+                    }
+                )
+            }
+        );
 
         /**
          * @type {{keys:import('jwks-rsa').JSONWebKey[]}}
@@ -35,7 +57,28 @@ describe('JWT Bearer Strategy', () => {
             .get('/jwks')
             .replyWithError('Network error');
 
-        const authService = new AuthService();
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return [
+                    'https://example.com/.well-known/openid-configuration'
+                ];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager
+                    }
+                )
+            }
+        );
         authService.clearJwksCache();
 
         const result = await authService.getJwksByUrlAsync('https://example.com/jwks');
@@ -43,7 +86,6 @@ describe('JWT Bearer Strategy', () => {
     });
 
     test('should fetch external JWKS from multiple URLs', async () => {
-        env.EXTERNAL_AUTH_JWKS_URLS = 'https://example1.com/jwks,https://example2.com/jwks';
         nock('https://example1.com')
             .get('/jwks')
             .reply(200, {keys: [{kid: '123'}]});
@@ -51,14 +93,60 @@ describe('JWT Bearer Strategy', () => {
             .get('/jwks')
             .reply(200, {keys: [{kid: '456'}]});
 
-        const authService = new AuthService();
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthJwksUrls() {
+                return ['https://example1.com/jwks', 'https://example2.com/jwks'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager
+                    }
+                )
+            }
+        );
         const result = await authService.getExternalJwksAsync();
         expect(result).toEqual([{kid: '123'}, {kid: '456'}]);
     });
 
     test('should return empty array if no external JWKS URLs are configured', async () => {
-        env.EXTERNAL_AUTH_JWKS_URLS = '';
-        const authService = new AuthService();
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthJwksUrls() {
+                return [];
+            }
+
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return [
+                    'https://example.com/.well-known/openid-configuration'
+                ];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager: configManager
+                    }
+                )
+            }
+        );
         const result = await authService.getExternalJwksAsync();
         expect(result).toEqual([]);
     });
@@ -76,15 +164,40 @@ describe('JWT Bearer Strategy', () => {
             .get('/userinfo')
             .reply(200, mockUserInfo);
 
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthJwksUrls() {
+                return ['https://example1.com/jwks,https://example2.com/jwks'];
+            }
+
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return [
+                    'https://example.com/.well-known/openid-configuration'
+                ];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+
         const wellKnownManager = new WellKnownConfigurationManager(
             {
-                urlList: 'https://example.com/.well-known/openid-configuration'
+                configManager: configManager
             }
         );
         const config = await wellKnownManager.getWellKnownConfigurationForIssuer('https://example.com');
         expect(config).toEqual(mockWellKnownConfig);
 
-        const authService = new AuthService();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: wellKnownManager
+            }
+        );
         const userInfoResponse = await authService.getExternalJwksAsync();
         expect(userInfoResponse).toEqual([]);
     });

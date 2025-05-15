@@ -1,6 +1,5 @@
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const async = require('async');
-const env = require('var');
 const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
 const {LRUCache} = require('lru-cache');
@@ -25,6 +24,14 @@ const {ConfigManager} = require("../utils/configManager");
  * @param {Object} [details]
  */
 
+/**
+ * @typedef {Object} UserInfo
+ * @property {string} username - The username of the user.
+ * @property {string} subject - The subject of the user.
+ * @property {boolean} isUser - Indicates if the user is a regular user.
+ * @property {string} scope - The scope of the user.
+ */
+
 class AuthService {
     /**
      * Constructor for the AuthService
@@ -47,7 +54,7 @@ class AuthService {
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
 
-        this.requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+        this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
             clientFhirPersonId: 'clientFhirPersonId',
             clientFhirPatientId: 'clientFhirPatientId',
@@ -55,8 +62,8 @@ class AuthService {
             bwellFhirPatientId: 'bwellFhirPatientId'
         };
         this.cacheOptions = {
-            max: env.CACHE_MAX_COUNT ? Number(env.CACHE_MAX_COUNT) : DEFAULT_CACHE_MAX_COUNT,
-            ttl: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME
+            max: DEFAULT_CACHE_MAX_COUNT,
+            ttl: DEFAULT_CACHE_EXPIRY_TIME
         };
         this.jwksCache = new LRUCache(this.cacheOptions);
     }
@@ -91,15 +98,12 @@ class AuthService {
     }
 
     async getExternalJwksAsync() {
-        if (!env.EXTERNAL_AUTH_JWKS_URLS && !env.EXTERNAL_AUTH_WELL_KNOWN_URLS) {
+        if (this.configManager.externalAuthJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length === 0) {
             return [];
         }
-        let extJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS ? env.EXTERNAL_AUTH_JWKS_URLS.split(',') : [];
-        if (!env.EXTERNAL_AUTH_JWKS_URLS && env.EXTERNAL_AUTH_WELL_KNOWN_URLS) {
-            const wellKnownConfigurationManager = new WellKnownConfigurationManager({
-                urlList: env.EXTERNAL_AUTH_WELL_KNOWN_URLS
-            });
-            extJwksUrls = await wellKnownConfigurationManager.getJwksUrls();
+        let extJwksUrls = this.configManager.externalAuthJwksUrls;
+        if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
+            extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrls();
         }
         if (extJwksUrls.length > 0) {
             try {
@@ -197,12 +201,12 @@ class AuthService {
             ? jwt_payload.scope
             : this.getPropertiesFromPayload({
                 jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_SCOPE
+                propertyNames: this.configManager.authCustomScope
             }).join(' ');
 
         const groups = this.getPropertiesFromPayload({
             jwt_payload,
-            propertyNames: env.AUTH_CUSTOM_GROUP
+            propertyNames: this.configManager.authCustomGroup
         });
         logDebug(`JWT groups`, {user: '', args: {groups}});
 
@@ -215,21 +219,21 @@ class AuthService {
             ? jwt_payload.username
             : this.getFirstPropertyFromPayload({
                 jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_USERNAME
+                propertyNames: this.configManager.authCustomUserName
             });
 
         const subject = jwt_payload.subject
             ? jwt_payload.subject
             : this.getFirstPropertyFromPayload({
                 jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_SUBJECT
+                propertyNames: this.configManager.authCustomSubject
             });
 
         const clientId = jwt_payload.client_id
             ? jwt_payload.client_id
             : this.getFirstPropertyFromPayload({
                 jwt_payload,
-                propertyNames: env.AUTH_CUSTOM_CLIENT_ID
+                propertyNames: this.configManager.authCustomClientId
             });
 
         const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
@@ -237,11 +241,14 @@ class AuthService {
         return {scope, isUser, username, subject};
     }
 
+    /**
+     * fetches the user info from the userInfo endpoint
+     * @param {Object} jwt_payload
+     * @param {string} token
+     * @returns {Promise<UserInfo|undefined>}
+     */
     async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
-        const wellKnownConfigurationManager = new WellKnownConfigurationManager({
-            urlList: env.EXTERNAL_AUTH_WELL_KNOWN_URLS
-        });
-        const wellKnownConfig = await wellKnownConfigurationManager.getWellKnownConfigurationForIssuer(
+        const wellKnownConfig = await this.wellKnownConfigurationManager.getWellKnownConfigurationForIssuer(
             jwt_payload.iss
         );
         if (wellKnownConfig && wellKnownConfig.userinfo_endpoint) {
@@ -264,18 +271,18 @@ class AuthService {
 
     /**
      * extracts the client_id and scope from the decoded token
-     * @param {import('http').IncomingMessage} _request
+     * @param {import('http').IncomingMessage} request
      * @param {Object} jwt_payload
+     * @param {string} token
      * @param {requestCallback} done
      * @return {void}
      */
-    verify(_request, jwt_payload, done) {
+    verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
             let {scope, isUser, username, subject, clientId} = this.getScopesFromToken(jwt_payload);
 
             // if there are no scopes try to get the userInfo from userInfo endpoint
             if (!scope && jwt_payload.iss) {
-                const token = _request.query && _request.query.token;
                 this.getUserInfoFromUserInfoEndpoint(
                     {jwt_payload, token}
                 ).then((userInfo) => {
@@ -304,15 +311,7 @@ class AuthService {
 
                 }).catch((error) => {
                     logError(`Error while fetching user info: ${error.message}`, {error: error});
-                    this.parseUserInfoFromPayload({
-                        username: username,
-                        subject: subject,
-                        isUser,
-                        jwt_payload,
-                        done,
-                        client_id: clientId,
-                        scope
-                    });
+                    done(null, false);
                 });
             } else {
                 logDebug(`JWT result`, {

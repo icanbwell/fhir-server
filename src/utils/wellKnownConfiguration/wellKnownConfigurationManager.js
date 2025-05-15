@@ -14,19 +14,19 @@ const {logError} = require("../../operations/common/logging");
 class WellKnownConfigurationManager {
     /**
      * Cache for configuration data.
-     * @type {LRUCache<{}, {}, unknown>}
+     * @type {LRUCache<{}, {}, any>}
      */
     static cache;
 
     /**
-     * @param {string} urlList - Comma-separated list of configuration endpoint URLs.
+     * @param {ConfigManager} configManager - The configuration manager instance.
      * @param {{max:number, ttl:number} | undefined} [cacheOptions] - Options for the LRU cache.
      */
-    constructor({urlList, cacheOptions}) {
+    constructor({configManager, cacheOptions}) {
         /**
          * @type {string[]}
          */
-        this.urls = urlList.split(',').map(url => url.trim());
+        this.urls = configManager.externalAuthWellKnownUrls;
         if (this.urls.length > 0) {
             if (WellKnownConfigurationManager.cache === undefined) {
                 WellKnownConfigurationManager.cache = new LRUCache({
