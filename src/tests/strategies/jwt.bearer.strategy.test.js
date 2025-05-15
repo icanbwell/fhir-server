@@ -1,5 +1,6 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
+const passport = require('passport');
 const {
     MyJwtStrategy
 } = require("../../strategies/jwt.bearer.strategy");
@@ -87,7 +88,13 @@ describe('JWT Bearer Strategy', () => {
             configManager: configManager
         });
 
-        strategy.authenticate(req, {});
+        passport.use(strategy);
+
+        passport.authenticate('jwt', {}, (err, user, info) => {
+            expect(err).toBeNull();
+            expect(user).toBeFalsy();
+            expect(info).toBeTruthy();
+        })(req);
     });
 
     test('should call parent authenticate method if token is found', () => {
@@ -98,13 +105,39 @@ describe('JWT Bearer Strategy', () => {
             headers: {host: 'localhost'}
         };
         const tokenExtractorMock = jest.fn().mockReturnValue(jwtAccessToken);
+
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager
+                    }
+                )
+            }
+        );
+
         const strategy = new MyJwtStrategy({
-            authService: new AuthService()
+            authService: authService,
+            configManager: configManager
         });
         strategy._jwtFromRequest = tokenExtractorMock;
 
+        passport.use(strategy);
+
         const authenticateSpy = jest.spyOn(strategy.__proto__, 'authenticate');
-        strategy.authenticate(req, {});
+        passport.authenticate('jwt', {}, () => {
+        })(req);
         expect(authenticateSpy).toHaveBeenCalled();
     });
 
@@ -152,32 +185,45 @@ describe('JWT Bearer Strategy', () => {
 
         class MockConfigManager extends ConfigManager {
             /**
+             * @returns {string}
+             */
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+            /**
              * @returns {string[]}
              */
             get externalAuthJwksUrls() {
                 return ['https://example.com/jwks'];
             }
 
+            /**
+             * @returns {string[]}
+             */
             get externalAuthWellKnownUrls() {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
         }
 
+        const configManager = new MockConfigManager();
         const strategy = new MyJwtStrategy({
             authService: new AuthService(
                 {
-                    configManager: new MockConfigManager(),
+                    configManager: configManager,
                     wellKnownConfigurationManager: new WellKnownConfigurationManager(
                         {
-                            urlList: 'https://example.com/.well-known/openid-configuration'
+                            configManager: configManager
                         }
                     )
                 }
-            )
+            ),
+            configManager: configManager
         });
 
+        passport.use(strategy);
+
         return new Promise((resolve, reject) => {
-            const doneMock = jest.fn((error, user, info) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
                 try {
                     // Assertions
                     expect(error).toBeNull();
@@ -200,10 +246,7 @@ describe('JWT Bearer Strategy', () => {
                 } catch (assertionError) {
                     reject(assertionError);
                 }
-            });
-
-            // Call the strategy's authenticate method
-            strategy.authenticate(req, doneMock);
+            })(req);
         });
     });
 });
