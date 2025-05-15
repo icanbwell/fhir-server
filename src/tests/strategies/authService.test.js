@@ -189,7 +189,7 @@ describe('JWT Bearer Strategy', () => {
                 configManager: configManager
             }
         );
-        const config = await wellKnownManager.getWellKnownConfigurationForIssuer('https://example.com');
+        const config = await wellKnownManager.getWellKnownConfigurationForIssuerAsync('https://example.com');
         expect(config).toEqual(mockWellKnownConfig);
 
         const authService = new AuthService(

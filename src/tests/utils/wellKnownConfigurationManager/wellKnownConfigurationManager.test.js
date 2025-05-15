@@ -35,7 +35,7 @@ describe('WellKnownConfigurationManager', () => {
             .reply(200, mockResponse);
 
         const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
-        const config = await manager.fetchConfiguration('https://example.com/.well-known/openid-configuration');
+        const config = await manager.fetchConfigurationAsync('https://example.com/.well-known/openid-configuration');
 
         expect(config).toEqual(mockResponse);
         expect(WellKnownConfigurationManager.cache.has('https://example.com/.well-known/openid-configuration')).toBe(true);
@@ -53,7 +53,7 @@ describe('WellKnownConfigurationManager', () => {
         const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
         WellKnownConfigurationManager.cache.set('https://example.com/.well-known/openid-configuration', mockResponse);
 
-        const config = await manager.fetchConfiguration('https://example.com/.well-known/openid-configuration');
+        const config = await manager.fetchConfigurationAsync('https://example.com/.well-known/openid-configuration');
         expect(config).toEqual(mockResponse);
     });
 
@@ -83,7 +83,7 @@ describe('WellKnownConfigurationManager', () => {
             .reply(200, mockResponse2);
 
         const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
-        await manager.fetchAllConfigurations();
+        await manager.fetchAllConfigurationsAsync();
 
         expect(WellKnownConfigurationManager.cache.has('https://example.com/.well-known/openid-configuration')).toBe(true);
         expect(WellKnownConfigurationManager.cache.has('https://example2.com/.well-known/openid-configuration')).toBe(true);
@@ -103,7 +103,7 @@ describe('WellKnownConfigurationManager', () => {
             .reply(200, mockResponse);
 
         const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
-        const config = await manager.getWellKnownConfigurationForIssuer('https://example.com');
+        const config = await manager.getWellKnownConfigurationForIssuerAsync('https://example.com');
 
         expect(config).toEqual(mockResponse);
     });
@@ -122,7 +122,7 @@ describe('WellKnownConfigurationManager', () => {
             .reply(200, mockResponse);
 
         const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
-        const config = await manager.getWellKnownConfigurationForIssuer('https://unknown.com');
+        const config = await manager.getWellKnownConfigurationForIssuerAsync('https://unknown.com');
 
         expect(config).toBeUndefined();
     });

@@ -30,6 +30,7 @@ const {ConfigManager} = require("../utils/configManager");
  * @property {string} subject - The subject of the user.
  * @property {boolean} isUser - Indicates if the user is a regular user.
  * @property {string} scope - The scope of the user.
+ * @property {string} clientId - The client ID of the user.
  */
 
 class AuthService {
@@ -114,7 +115,7 @@ class AuthService {
         }
         let extJwksUrls = this.configManager.externalAuthJwksUrls;
         if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
-            extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrls();
+            extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrlsAsync();
         }
         if (extJwksUrls.length > 0) {
             try {
@@ -159,8 +160,9 @@ class AuthService {
      * @param {requestCallback} done
      * @param {string} client_id
      * @param {string} scope
+     * @return {void}
      */
-    parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
         const context = {};
         if (username) {
             context.username = username;
@@ -237,9 +239,9 @@ class AuthService {
     /**
      * Extracts scopes from the JWT payload.
      * @param {Object} jwt_payload
-     * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined}}
+     * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
      */
-    getScopesFromToken(jwt_payload) {
+    getFieldsFromToken(jwt_payload) {
         let scope = jwt_payload.scope
             ? jwt_payload.scope
             : this.getPropertiesFromPayload({
@@ -281,7 +283,7 @@ class AuthService {
 
         const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
-        return {scope, isUser, username, subject};
+        return {scope, isUser, username, subject, clientId};
     }
 
     /**
@@ -291,7 +293,7 @@ class AuthService {
      * @returns {Promise<UserInfo|undefined>}
      */
     async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
-        const wellKnownConfig = await this.wellKnownConfigurationManager.getWellKnownConfigurationForIssuer(
+        const wellKnownConfig = await this.wellKnownConfigurationManager.getWellKnownConfigurationForIssuerAsync(
             jwt_payload.iss
         );
         if (wellKnownConfig && wellKnownConfig.userinfo_endpoint) {
@@ -305,8 +307,8 @@ class AuthService {
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
                 jwt_payload = userInfoResponse.body;
-                const {scope, isUser, username, subject} = this.getScopesFromToken(jwt_payload);
-                return {scope, isUser, username, subject};
+                const {scope, isUser, username, subject, clientId} = this.getFieldsFromToken(jwt_payload);
+                return {scope, isUser, username, subject, clientId};
             }
         }
         return jwt_payload;
@@ -322,7 +324,7 @@ class AuthService {
      */
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
-            let {scope, isUser, username, subject, clientId} = this.getScopesFromToken(jwt_payload);
+            let {scope, isUser, username, subject, clientId} = this.getFieldsFromToken(jwt_payload);
 
             // if there are no scopes try to get the userInfo from userInfo endpoint
             if (!scope && jwt_payload.iss) {
@@ -330,8 +332,8 @@ class AuthService {
                     {jwt_payload, token}
                 ).then((userInfo) => {
                     if (userInfo) {
-                        ({scope, isUser, username, subject} = this.getScopesFromToken(userInfo));
-                        this.parseUserInfoFromPayload({
+                        ({scope, isUser, username, subject, clientId} = this.getFieldsFromToken(userInfo));
+                        this.processUserInfo({
                             username: username,
                             subject: subject,
                             isUser,
@@ -341,7 +343,7 @@ class AuthService {
                             scope
                         });
                     } else {
-                        this.parseUserInfoFromPayload({
+                        this.processUserInfo({
                             username: username,
                             subject: subject,
                             isUser,
@@ -370,7 +372,7 @@ class AuthService {
                         }
                     }
                 });
-                this.parseUserInfoFromPayload({
+                this.processUserInfo({
                     username: username,
                     subject: subject,
                     isUser,

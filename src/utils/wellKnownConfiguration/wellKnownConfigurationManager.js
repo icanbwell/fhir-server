@@ -62,7 +62,7 @@ class WellKnownConfigurationManager {
      * @param {string} url - The URL to fetch data from.
      * @returns {Promise<WellKnownConfigurationInfo>} - The fetched configuration data.
      */
-    async fetchConfiguration(url) {
+    async fetchConfigurationAsync(url) {
         if (WellKnownConfigurationManager.cache.has(url)) {
             return WellKnownConfigurationManager.cache.get(url);
         }
@@ -85,10 +85,10 @@ class WellKnownConfigurationManager {
      * Fetches configuration data from all URLs and returns the results.
      * @returns {Promise<void>} - An array of configuration data from all URLs.
      */
-    async fetchAllConfigurations() {
+    async fetchAllConfigurationsAsync() {
         for (const url of this.urls) {
             try {
-                const config = await this.fetchConfiguration(url);
+                const config = await this.fetchConfigurationAsync(url);
             } catch (error) {
                 logError('Error fetching configuration', {url: url, error: error.message});
             }
@@ -100,13 +100,13 @@ class WellKnownConfigurationManager {
      * @param issuer
      * @returns {Promise<WellKnownConfigurationInfo|undefined>}
      */
-    async getWellKnownConfigurationForIssuer(issuer) {
+    async getWellKnownConfigurationForIssuerAsync(issuer) {
         if (WellKnownConfigurationManager.cache.size === 0 && this.urls.length > 0) {
-            await this.fetchAllConfigurations();
+            await this.fetchAllConfigurationsAsync();
         }
         for (const url of this.urls) {
             try {
-                const config = await this.fetchConfiguration(url);
+                const config = await this.fetchConfigurationAsync(url);
                 if (config.issuer === issuer) {
                     return config;
                 }
@@ -119,14 +119,14 @@ class WellKnownConfigurationManager {
     /**
      * @returns {Promise<string[]>}
      */
-    async getJwksUrls() {
+    async getJwksUrlsAsync() {
         /**
          * @type {string[]}
          */
         const jwksUrls = [];
         for (const url of this.urls) {
             try {
-                const config = await this.fetchConfiguration(url);
+                const config = await this.fetchConfigurationAsync(url);
                 if (config.jwks_uri) {
                     jwksUrls.push(config.jwks_uri);
                 }
