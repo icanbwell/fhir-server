@@ -4,16 +4,17 @@ const {logError} = require("../../operations/common/logging");
 
 /**
  * @typedef {Object} WellKnownConfigurationInfo
- * @property {string} authorization_endpoint - The authorization endpoint URL.
- * @property {string} token_endpoint - The token endpoint URL.
- * @property {string} userinfo_endpoint - The userinfo endpoint URL.
- * @property {string} jwks_uri - The JWKS URI.
- * @property {string} issuer - The issuer URL.
- * @property {string} end_session_endpoint - The end session endpoint URL.
- * @property {string[]} scopes_supported - The supported scopes.
- * @property {string[]} response_types_supported - The supported response types.
- * @property {string[]} token_endpoint_auth_methods_supported - The supported authentication methods for the token endpoint.
- * @property {string} revocation_endpoint - The revocation endpoint URL.
+ * @property {string | undefined} authorization_endpoint - The authorization endpoint URL.
+ * @property {string | undefined} token_endpoint - The token endpoint URL.
+ * @property {string | undefined} userinfo_endpoint - The userinfo endpoint URL.
+ * @property {string | undefined} jwks_uri - The JWKS URI.
+ * @property {string | undefined} issuer - The issuer URL.
+ * @property {string | undefined} end_session_endpoint - The end session endpoint URL.
+ * @property {string[] | undefined} scopes_supported - The supported scopes.
+ * @property {string[] | undefined} response_types_supported - The supported response types.
+ * @property {string[] | undefined} token_endpoint_auth_methods_supported - The supported authentication methods for the token endpoint.
+ * @property {string | undefined} revocation_endpoint - The revocation endpoint URL.
+ * @property {string | undefined} introspection_endpoint - The introspection endpoint URL.
  */
 
 class WellKnownConfigurationManager {
@@ -63,7 +64,8 @@ class WellKnownConfigurationManager {
             scopes_supported: config.scopes_supported,
             response_types_supported: config.response_types_supported,
             token_endpoint_auth_methods_supported: config.token_endpoint_auth_methods_supported,
-            revocation_endpoint: config.revocation_endpoint
+            revocation_endpoint: config.revocation_endpoint,
+            introspection_endpoint: config.introspection_endpoint
         };
     }
 
