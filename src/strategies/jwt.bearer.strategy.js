@@ -63,20 +63,27 @@ class MyJwtStrategy extends JwtStrategy {
         this.configManager = configManager;
     }
 
+    /**
+     * This method is called when the JWT token is extracted from the request
+     * @param {import('http').IncomingMessage} req
+     * @param {Object} options
+     * @returns {*}
+     */
     authenticate(req, options) {
+        const self = this;
         const token = this._jwtFromRequest(req);
-        const resourceUrl = req.originalUrl ? Buffer.from(req.originalUrl).toString('base64') : '';
+
+        // if (!token) {
+        //     return self.fail(new Error('No auth token'));
+        // }
 
         return super.authenticate(req, options);
     }
 
     // noinspection JSUnusedGlobalSymbols
-    fail(jwt_err) {
-        logError(`JWT error`, {user: '', args: {jwt_err}});
-        this.status = status || 401; // Default to 401 Unauthorized
-        this.error = challenge || 'Unauthorized';
-        this.passport.error(this.error);
-    }
+    // fail(jwt_err) {
+    //     logError(`JWT error`, {user: '', args: {jwt_err}});
+    // }
 }
 
 

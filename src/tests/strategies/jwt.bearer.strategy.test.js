@@ -52,25 +52,40 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should redirect to login if no token is found and conditions are met', () => {
+    test('should return 401 if no token is found and conditions are met', () => {
         const req = {
             useragent: {isDesktop: true},
             method: 'GET',
             url: '/test',
             headers: {host: 'localhost'}
         };
-        const redirectMock = jest.fn();
-        const strategy = new MyJwtStrategy({
-            authService: new AuthService()
-        });
-        strategy.redirect = redirectMock;
 
-        const oldEnvironment = env.REDIRECT_TO_LOGIN;
-        env.REDIRECT_TO_LOGIN = 'true';
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthJwksUrls() {
+                return ['https://example1.com/jwks', 'https://example2.com/jwks'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const authService = new AuthService(
+            {
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                    {
+                        configManager
+                    }
+                )
+            }
+        );
+        const strategy = new MyJwtStrategy({
+            authService: authService,
+            configManager: configManager
+        });
 
         strategy.authenticate(req, {});
-        expect(redirectMock).toHaveBeenCalledWith(expect.stringContaining('/login?'));
-        env.REDIRECT_TO_LOGIN = oldEnvironment;
     });
 
     test('should call parent authenticate method if token is found', () => {
@@ -136,7 +151,7 @@ describe('JWT Bearer Strategy', () => {
         const externalAuthWellKnownUrls = env.EXTERNAL_AUTH_WELL_KNOWN_URLS;
         env.EXTERNAL_AUTH_WELL_KNOWN_URLS = 'https://example.com/.well-known/openid-configuration';
 
-       class MockConfigManager extends ConfigManager {
+        class MockConfigManager extends ConfigManager {
             /**
              * @returns {string[]}
              */
