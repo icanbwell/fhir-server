@@ -9,6 +9,7 @@ const {logError} = require("../../operations/common/logging");
  * @property {string} userinfo_endpoint - The userinfo endpoint URL.
  * @property {string} jwks_uri - The JWKS URI.
  * @property {string} issuer - The issuer URL.
+ * @property {string} end_session_endpoint - The end session endpoint URL.
  */
 
 class WellKnownConfigurationManager {
@@ -53,7 +54,8 @@ class WellKnownConfigurationManager {
             token_endpoint: config.token_endpoint,
             userinfo_endpoint: config.userinfo_endpoint,
             jwks_uri: config.jwks_uri,
-            issuer: config.issuer
+            issuer: config.issuer,
+            end_session_endpoint: config.end_session_endpoint
         };
     }
 
