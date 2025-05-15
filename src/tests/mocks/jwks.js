@@ -3,32 +3,39 @@ const jose = require('jose');
 const async = require('async');
 
 /**
+ * creates a key for the given certificate
+ * @param {{ pub: string, kid: string }} cert
+ * @returns {Promise<{alg: string, e: string, n: string, kty: string, use: string, kid: *}>}
+ */
+async function createJwksKeyAsync(cert) {
+    const parsed = await jose.importSPKI(cert.pub, 'ES256');
+    const publicJwk = await jose.exportJWK(parsed);
+    return {
+        alg: 'RS256',
+        e: publicJwk.e,
+        n: publicJwk.n,
+        kty: publicJwk.kty,
+        use: 'sig',
+        kid: cert.kid
+    };
+}
+
+/**
  * creates a mock endpoint for /.well-known/jwks.json
  * @param {string} host
  * @param {string} path
  * @param {[{pub: string, kid: string}]} certs
  * @return {Scope}
  */
-function jwksEndpoint (host, path, certs) {
+function jwksEndpoint(host, path, certs) {
     return nock(host)
         .persist()
         .get(`${path}`)
         .reply((uri, requestBody, cb) => {
             async.map(
                 certs,
-                async (cert) => {
-                    const parsed = await jose.importSPKI(cert.pub, 'ES256');
-                    const publicJwk = await jose.exportJWK(parsed);
-                    return {
-                        alg: 'RS256',
-                        e: publicJwk.e,
-                        n: publicJwk.n,
-                        kty: publicJwk.kty,
-                        use: 'sig',
-                        kid: cert.kid
-                    };
-                }
-            ).then((keys) => cb(null, [200, { keys }]));
+                createJwksKeyAsync
+            ).then((keys) => cb(null, [200, {keys}]));
         });
 }
 
@@ -37,7 +44,7 @@ function jwksEndpoint (host, path, certs) {
  * @param {string} host
  * @return {Scope}
  */
-function jwksDiscoveryEndpoint (host) {
+function jwksDiscoveryEndpoint(host) {
     return nock(host)
         .persist()
         .get('/.well-known/openid-configuration')
@@ -60,7 +67,7 @@ function jwksDiscoveryEndpoint (host) {
  * @param {string} personId
  * @return {Scope}
  */
-function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
+function jwksUserInfoEndpoint({host, token, patientId, personId}) {
     return nock(
         host,
         {
@@ -88,5 +95,6 @@ function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
 module.exports = {
     jwksEndpoint,
     jwksDiscoveryEndpoint,
-    jwksUserInfoEndpoint
+    jwksUserInfoEndpoint,
+    createJwksKeyAsync
 };

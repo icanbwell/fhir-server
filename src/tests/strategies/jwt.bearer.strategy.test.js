@@ -11,46 +11,25 @@ const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
 const {IncomingMessage} = require('http');
 const {Socket} = require('net');
+const {publicKey, privateKey} = require('../mocks/keys');
+const {createJwksKeyAsync} = require("../mocks/jwks");
 
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
-    let publicKey1;
-    let privateKey1;
 
     beforeEach(() => {
         jest.clearAllMocks();
         nock.cleanAll();
-
-        // Generate a proper RSA key pair
-        const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
-            modulusLength: 2048,
-            publicKeyEncoding: {
-                type: 'spki',
-                format: 'pem'
-            },
-            privateKeyEncoding: {
-                type: 'pkcs8',
-                format: 'pem'
-            }
-        });
-
-        publicKey1 = publicKey;
-        privateKey1 = privateKey;
-
-        const options = {
-            algorithm: 'RS256',
-            expiresIn: '1h'
-        };
 
         const mockJwtPayload = {
             iss: 'https://example.com',
             client_id: 'testClientId'
         };
         // Sign the JWT using the proper private key
-        jwtAccessToken = jwt.sign(mockJwtPayload, privateKey1, {
+        jwtAccessToken = jwt.sign(mockJwtPayload, privateKey, {
             algorithm: 'RS256',
             expiresIn: '1h',
-            keyid: 'testKid' // Add the kid to match JWKS
+            keyid: '123' // Add the kid to match JWKS
         });
     });
 
@@ -156,14 +135,12 @@ describe('JWT Bearer Strategy', () => {
         // Correctly prepare the JWKS representation
         const mockJwks = {
             keys: [
-                {
-                    kty: 'RSA',
-                    alg: 'RS256',
-                    use: 'sig',
-                    kid: 'testKid',
-                    // Use PEM format for the public key
-                    x5c: [publicKey1.replace(/\n/g, '').replace(/-----BEGIN PUBLIC KEY-----/, '').replace(/-----END PUBLIC KEY-----/, '')]
-                }
+                await createJwksKeyAsync(
+                    {
+                        pub: publicKey,
+                        kid: '123'
+                    }
+                )
             ]
         };
 
@@ -190,6 +167,7 @@ describe('JWT Bearer Strategy', () => {
             get authJwksUrl() {
                 return 'https://example.com/jwks';
             }
+
             /**
              * @returns {string[]}
              */
