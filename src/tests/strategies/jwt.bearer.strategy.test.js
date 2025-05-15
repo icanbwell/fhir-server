@@ -129,7 +129,7 @@ describe('JWT Bearer Strategy', () => {
 
         const mockUserInfo = {
             username: 'testUser',
-            groups: ['group1', 'group2'],
+            groups: ['group1', 'group2', 'dev/fhir/access/*.*'],
             client_id: 'testClientId'
         };
 
@@ -182,6 +182,15 @@ describe('JWT Bearer Strategy', () => {
             get externalAuthWellKnownUrls() {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
+
+            /**
+             * @returns {string[]}
+             */
+            get authRemoveScopePrefixes() {
+                return [
+                    'dev/fhir/'
+                ]
+            }
         }
 
         const configManager = new MockConfigManager();
@@ -213,7 +222,7 @@ describe('JWT Bearer Strategy', () => {
                         username: 'testUser'
                     });
                     expect(info).toEqual({
-                        scope: 'group1 group2',
+                        scope: 'group1 group2 access/*.*',
                         context: {
                             username: 'testUser'
                         }
