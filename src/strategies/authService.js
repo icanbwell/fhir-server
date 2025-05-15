@@ -68,13 +68,20 @@ class AuthService {
         this.jwksCache = new LRUCache(this.cacheOptions);
     }
 
-    // noinspection JSUnusedGlobalSymbols
+    /**
+     * Clears the JWKS cache.
+     */
     clearJwksCache() {
         if (this.jwksCache) {
             this.jwksCache.clear();
         }
     }
 
+    /**
+     * Fetches JWKS from a given URL and caches the result.
+     * @param {string} jwksUrl
+     * @returns {Promise<{keys: Object[]}>}
+     */
     async getJwksByUrlAsync(jwksUrl) {
         if (this.jwksCache.has(jwksUrl)) {
             return this.jwksCache.get(jwksUrl);
@@ -97,6 +104,10 @@ class AuthService {
         }
     }
 
+    /**
+     * Fetches external JWKS URLs and retrieves the keys from them.
+     * @returns {Promise<Object[]>}
+     */
     async getExternalJwksAsync() {
         if (this.configManager.externalAuthJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length === 0) {
             return [];
@@ -123,6 +134,11 @@ class AuthService {
         return [];
     }
 
+    /**
+     * Extracts the JWT token from the request.
+     * @param {import('http').IncomingMessage} req
+     * @returns {string|null}
+     */
     cookieExtractor(req) {
         let token = null;
         if (req && req.cookies) {
@@ -134,6 +150,16 @@ class AuthService {
         return token;
     }
 
+    /**
+     * Parses user info from passed in JWT payload.
+     * @param {string|undefined} username
+     * @param {string|undefined}  subject
+     * @param {boolean} isUser
+     * @param {Object} jwt_payload
+     * @param {requestCallback} done
+     * @param {string} client_id
+     * @param {string} scope
+     */
     parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
         const context = {};
         if (username) {
@@ -161,6 +187,12 @@ class AuthService {
         done(null, {id: client_id, isUser, name: username, username}, {scope, context});
     }
 
+    /**
+     * Extracts properties from the JWT payload based on the provided property names.
+     * @param {Object} jwt_payload
+     * @param {string|string[]|undefined} propertyNames
+     * @returns {string[]}
+     */
     getPropertiesFromPayload({jwt_payload, propertyNames}) {
         if (propertyNames && typeof propertyNames === 'string') {
             propertyNames = propertyNames.split(',').map((s) => s.trim());
@@ -180,6 +212,12 @@ class AuthService {
         return [];
     }
 
+    /**
+     * Extracts the first property from the JWT payload based on the provided property names.
+     * @param {Object} jwt_payload
+     * @param {string|string[]|undefined} propertyNames
+     * @returns {string|null}
+     */
     getFirstPropertyFromPayload({jwt_payload, propertyNames}) {
         if (propertyNames && typeof propertyNames === 'string') {
             propertyNames = propertyNames.split(',').map((s) => s.trim());
@@ -196,6 +234,11 @@ class AuthService {
         return null;
     }
 
+    /**
+     * Extracts scopes from the JWT payload.
+     * @param {Object} jwt_payload
+     * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined}}
+     */
     getScopesFromToken(jwt_payload) {
         let scope = jwt_payload.scope
             ? jwt_payload.scope
@@ -346,7 +389,6 @@ class AuthService {
             ;
         }
     }
-    ;
 
 }
 
