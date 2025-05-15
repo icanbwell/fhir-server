@@ -1,7 +1,8 @@
 const nock = require('nock');
-const { LRUCache } = require('lru-cache');
+const {LRUCache} = require('lru-cache');
 const {beforeEach, describe, test, expect} = require("@jest/globals");
 const {WellKnownConfigurationManager} = require("../../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
+const {ConfigManager} = require("../../../utils/configManager");
 
 describe('WellKnownConfigurationManager', () => {
     const urlList = 'https://example.com/.well-known/openid-configuration,https://example2.com/.well-known/openid-configuration';
@@ -13,7 +14,18 @@ describe('WellKnownConfigurationManager', () => {
     });
 
     test('should initialize with URLs and cache', () => {
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         expect(manager.urls).toEqual([
             'https://example.com/.well-known/openid-configuration',
             'https://example2.com/.well-known/openid-configuration'
@@ -34,7 +46,18 @@ describe('WellKnownConfigurationManager', () => {
             .get('/.well-known/openid-configuration')
             .reply(200, mockResponse);
 
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         const config = await manager.fetchConfigurationAsync('https://example.com/.well-known/openid-configuration');
 
         expect(config).toEqual(mockResponse);
@@ -50,7 +73,18 @@ describe('WellKnownConfigurationManager', () => {
             issuer: 'https://example.com'
         };
 
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         WellKnownConfigurationManager.cache.set('https://example.com/.well-known/openid-configuration', mockResponse);
 
         const config = await manager.fetchConfigurationAsync('https://example.com/.well-known/openid-configuration');
@@ -82,7 +116,18 @@ describe('WellKnownConfigurationManager', () => {
             .get('/.well-known/openid-configuration')
             .reply(200, mockResponse2);
 
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         await manager.fetchAllConfigurationsAsync();
 
         expect(WellKnownConfigurationManager.cache.has('https://example.com/.well-known/openid-configuration')).toBe(true);
@@ -102,7 +147,18 @@ describe('WellKnownConfigurationManager', () => {
             .get('/.well-known/openid-configuration')
             .reply(200, mockResponse);
 
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         const config = await manager.getWellKnownConfigurationForIssuerAsync('https://example.com');
 
         expect(config).toEqual(mockResponse);
@@ -121,7 +177,18 @@ describe('WellKnownConfigurationManager', () => {
             .get('/.well-known/openid-configuration')
             .reply(200, mockResponse);
 
-        const manager = new WellKnownConfigurationManager({urlList, cacheOptions});
+        class MockConfigManager extends ConfigManager {
+            /**
+             * @returns {string[]}
+             */
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration', 'https://example2.com/.well-known/openid-configuration'];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const manager = new WellKnownConfigurationManager(
+            {configManager, cacheOptions});
         const config = await manager.getWellKnownConfigurationForIssuerAsync('https://unknown.com');
 
         expect(config).toBeUndefined();
