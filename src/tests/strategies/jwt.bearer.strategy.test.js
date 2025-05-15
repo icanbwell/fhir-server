@@ -1,6 +1,5 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
-const env = require('var');
 const {
     MyJwtStrategy
 } = require("../../strategies/jwt.bearer.strategy");
@@ -9,6 +8,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
+const {IncomingMessage} = require('http');
+const {Socket} = require('net');
 
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
@@ -53,19 +54,20 @@ describe('JWT Bearer Strategy', () => {
     });
 
     test('should return 401 if no token is found and conditions are met', () => {
-        const req = {
-            useragent: {isDesktop: true},
-            method: 'GET',
-            url: '/test',
-            headers: {host: 'localhost'}
-        };
+        /** @type {import('http').IncomingMessage} */
+        const req = new IncomingMessage(
+            new Socket()
+        );
+        req.url = '/test';
+        req.method = 'GET';
+        req.headers = {host: 'localhost'};
 
         class MockConfigManager extends ConfigManager {
             /**
              * @returns {string[]}
              */
-            get externalAuthJwksUrls() {
-                return ['https://example1.com/jwks', 'https://example2.com/jwks'];
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration'];
             }
         }
 
@@ -148,15 +150,16 @@ describe('JWT Bearer Strategy', () => {
             headers: {authorization: `Bearer ${jwtAccessToken}`}
         };
 
-        const externalAuthWellKnownUrls = env.EXTERNAL_AUTH_WELL_KNOWN_URLS;
-        env.EXTERNAL_AUTH_WELL_KNOWN_URLS = 'https://example.com/.well-known/openid-configuration';
-
         class MockConfigManager extends ConfigManager {
             /**
              * @returns {string[]}
              */
             get externalAuthJwksUrls() {
                 return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return ['https://example.com/.well-known/openid-configuration'];
             }
         }
 
