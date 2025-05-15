@@ -13,8 +13,17 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     let status;
     container = container || fnGetContainer();
     // cache jwks
-    const authService = new AuthService();
-    await authService.getJwksByUrlAsync(env.AUTH_JWKS_URL);
+    /**
+     * @type {ConfigManager}
+     */
+    const configManager = container.configManager;
+    const authService = new AuthService(
+        {
+            configManager: configManager,
+            wellKnownConfigurationManager: container.wellKnownConfigurationManager
+        }
+    );
+    await authService.getJwksByUrlAsync(configManager.authJwksUrl);
     await authService.getExternalJwksAsync();
     // check kafka connection
     try {
