@@ -65,7 +65,7 @@ describe('Patient Tests', () => {
                 .post('/4_0_0/Patient/')
                 .send(patient1Resource)
                 .set(getHeaders(''))
-                .expect(403);
+                .expect(401);
         });
     });
 });

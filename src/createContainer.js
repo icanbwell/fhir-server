@@ -115,7 +115,10 @@ const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
 const {CustomTracer} = require('./utils/customTracer');
+const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
 const {READ} = require('./constants').OPERATIONS;
+const {AuthService} = require("./strategies/authService");
+const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -916,7 +919,33 @@ const createContainer = function () {
         return new CustomTracer({
             configManager: c.configManager
         });
-    })
+    });
+
+    container.register('wellKnownConfigurationManager', (c) => {
+        return new WellKnownConfigurationManager(
+            {
+                configManager: c.configManager
+            }
+        );
+    });
+
+    container.register('authService', (c) => {
+        return new AuthService
+        ({
+            configManager: c.configManager,
+            wellKnownConfigurationManager: c.wellKnownConfigurationManager,
+            requestSpecificCache: c.requestSpecificCache
+        });
+    });
+
+    container.register('jwt_strategy', (c) => {
+        return new MyJwtStrategy(
+            {
+                authService: c.authService,
+                configManager: c.configManager
+            }
+        );
+    });
 
     return container;
 };

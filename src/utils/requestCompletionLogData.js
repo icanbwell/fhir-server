@@ -27,7 +27,7 @@ function generateLogDetail ({ authToken, scope, statusCode, username }) {
                     logDetail = 'Invalid token';
                 }
             } catch (error) {
-                logDetail = 'Invalid token';
+                logDetail = 'Invalid: ' + (error.message || 'Unknown error');
             }
         }
     } else if (statusCode === 403) {

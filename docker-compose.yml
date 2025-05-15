@@ -29,7 +29,8 @@ services:
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json'
+      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json,https://icanbwell.okta.com/oauth2/v1/keys'
+      EXTERNAL_AUTH_WELL_KNOWN_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/openid-configuration, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/openid-configuration,https://icanbwell.okta.com/.well-known/openid-configuration'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1
@@ -45,8 +46,10 @@ services:
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
       PARTITION_RESOURCES: 'AuditEvent'
-      AUTH_CUSTOM_GROUP: "cognito:groups"
+      AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
+      AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
+      AUTH_REMOVE_SCOPE_PREFIX: "dev/fhir/"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
       WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"

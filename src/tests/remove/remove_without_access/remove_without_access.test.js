@@ -115,7 +115,7 @@ describe('Patient Tests', () => {
             await request
                 .delete('/4_0_0/Patient/1')
                 .set(getHeaders(''))
-                .expect(403);
+                .expect(401);
         });
     });
 });

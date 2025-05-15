@@ -165,6 +165,7 @@
     "helmet": "^7.1.0",
     "jwks-rsa": "^3.1.0",
     "kafkajs": "^2.2.4",
+    "lru-cache": "^11.1.0",
     "moment-timezone": "^0.5.45",
     "mongodb": "6.11.0",
     "node-cron": "^3.0.3",
