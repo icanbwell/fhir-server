@@ -923,6 +923,14 @@ class ConfigManager {
     }
 
     /**
+     * return AUTH_IGNORE_SCOPE_PREFIX
+     * @returns {string[]}
+     */
+    get authRemoveScopePrefixes() {
+        return env.AUTH_REMOVE_SCOPE_PREFIX ? env.AUTH_REMOVE_SCOPE_PREFIX.split(',') : [];
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */

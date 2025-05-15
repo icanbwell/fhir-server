@@ -242,6 +242,9 @@ class AuthService {
      * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
      */
     getFieldsFromToken(jwt_payload) {
+        /**
+         * @type {string|undefined}
+         */
         let scope = jwt_payload.scope
             ? jwt_payload.scope
             : this.getPropertiesFromPayload({
@@ -249,6 +252,9 @@ class AuthService {
                 propertyNames: this.configManager.authCustomScope
             }).join(' ');
 
+        /**
+         * @type {string[]}
+         */
         const groups = this.getPropertiesFromPayload({
             jwt_payload,
             propertyNames: this.configManager.authCustomGroup
@@ -259,7 +265,29 @@ class AuthService {
             scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
         }
 
-        const scopes = scope ? scope.split(' ') : [];
+        /**
+         * @type {string[]}
+         */
+        let scopes = scope ? scope.split(' ') : [];
+        // ignore defined prefixes
+        /**
+         * @type {string[]}
+         */
+        const authRemoveScopePrefixes = this.configManager.authRemoveScopePrefixes;
+        if (authRemoveScopePrefixes && authRemoveScopePrefixes.length > 0) {
+            scopes = scopes.map(
+                (s) => {
+                    for (const prefix of authRemoveScopePrefixes) {
+                        if (s.startsWith(prefix)) {
+                            return s.substring(prefix.length);
+                        }
+                    }
+                    return s;
+                }
+            );
+            scope = scopes.join(' ');
+        }
+
         const username = jwt_payload.username
             ? jwt_payload.username
             : this.getFirstPropertyFromPayload({
