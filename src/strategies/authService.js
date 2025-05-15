@@ -35,6 +35,12 @@ const {ConfigManager} = require("../utils/configManager");
 
 class AuthService {
     /**
+     * Cache for configuration data.
+     * @type {LRUCache<{}, {}, any>}
+     */
+    static jwksCache;
+
+    /**
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
@@ -66,15 +72,17 @@ class AuthService {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
         };
-        this.jwksCache = new LRUCache(this.cacheOptions);
+        if (AuthService.jwksCache === undefined) {
+        AuthService.jwksCache = new LRUCache(this.cacheOptions);
+        }
     }
 
     /**
      * Clears the JWKS cache.
      */
     clearJwksCache() {
-        if (this.jwksCache) {
-            this.jwksCache.clear();
+        if (AuthService.jwksCache) {
+            AuthService.jwksCache.clear();
         }
     }
 
@@ -84,8 +92,8 @@ class AuthService {
      * @returns {Promise<{keys: Object[]}>}
      */
     async getJwksByUrlAsync(jwksUrl) {
-        if (this.jwksCache.has(jwksUrl)) {
-            return this.jwksCache.get(jwksUrl);
+        if (AuthService.jwksCache.has(jwksUrl)) {
+            return AuthService.jwksCache.get(jwksUrl);
         }
         try {
             const res = await superagent
@@ -94,7 +102,7 @@ class AuthService {
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.requestTimeout);
             const jsonResponse = JSON.parse(res.text);
-            this.jwksCache.set(jwksUrl, jsonResponse);
+            AuthService.jwksCache.set(jwksUrl, jsonResponse);
             return jsonResponse;
         } catch (error) {
             logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
