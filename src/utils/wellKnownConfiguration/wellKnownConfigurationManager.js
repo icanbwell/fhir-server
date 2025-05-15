@@ -10,6 +10,10 @@ const {logError} = require("../../operations/common/logging");
  * @property {string} jwks_uri - The JWKS URI.
  * @property {string} issuer - The issuer URL.
  * @property {string} end_session_endpoint - The end session endpoint URL.
+ * @property {string[]} scopes_supported - The supported scopes.
+ * @property {string[]} response_types_supported - The supported response types.
+ * @property {string[]} token_endpoint_auth_methods_supported - The supported authentication methods for the token endpoint.
+ * @property {string} revocation_endpoint - The revocation endpoint URL.
  */
 
 class WellKnownConfigurationManager {
@@ -55,7 +59,11 @@ class WellKnownConfigurationManager {
             userinfo_endpoint: config.userinfo_endpoint,
             jwks_uri: config.jwks_uri,
             issuer: config.issuer,
-            end_session_endpoint: config.end_session_endpoint
+            end_session_endpoint: config.end_session_endpoint,
+            scopes_supported: config.scopes_supported,
+            response_types_supported: config.response_types_supported,
+            token_endpoint_auth_methods_supported: config.token_endpoint_auth_methods_supported,
+            revocation_endpoint: config.revocation_endpoint
         };
     }
 
