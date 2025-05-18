@@ -95,6 +95,10 @@ describe('search by multiple ids Excel', () => {
 
             const workbook = XLSX.read(resp.body);
 
+            const sheetNameExpectedRowCount = {
+                Practitioner: 4
+            };
+
             // Detailed file inspection
             /**
              * @type {str}
@@ -102,7 +106,10 @@ describe('search by multiple ids Excel', () => {
             for (const sheetName of workbook.SheetNames) {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
                 expect(sheetData.length).toBeGreaterThan(0);
+                expect(sheetData.length).toStrictEqual(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs
