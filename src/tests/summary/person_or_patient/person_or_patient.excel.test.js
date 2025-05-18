@@ -214,6 +214,14 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(stats.size).toBeGreaterThan(0);
 
             const workbook = XLSX.read(resp.body);
+            const sheetNameExpectedRowCount = {
+                Patient: 3,
+                Observation: 2,
+                SubscriptionTopic: 2,
+                SubscriptionStatus: 2,
+                Person: 4,
+                Subscription: 2
+            };
 
             // Detailed file inspection
             /**
@@ -222,7 +230,11 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             for (const sheetName of workbook.SheetNames) {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
                 expect(sheetData.length).toBeGreaterThan(0);
+                // Check for expected row count
+                expect(sheetData.length).toBe(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs
@@ -394,7 +406,14 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(stats.size).toBeGreaterThan(0);
 
             const workbook = XLSX.read(resp.body);
-
+            const sheetNameExpectedRowCount = {
+                Patient: 3,
+                Observation: 2,
+                SubscriptionTopic: 2,
+                SubscriptionStatus: 2,
+                Person: 4,
+                Subscription: 2
+            };
             // Detailed file inspection
             /**
              * @type {str}
@@ -402,7 +421,11 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             for (const sheetName of workbook.SheetNames) {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
                 expect(sheetData.length).toBeGreaterThan(0);
+                // Check for expected row count
+                expect(sheetData.length).toBe(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs
