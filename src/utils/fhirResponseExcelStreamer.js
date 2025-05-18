@@ -118,7 +118,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                     }
                 );
             } else {
-                await this.response.end();
+                await this.response.status(404).end();
             }
         } catch (error) {
             console.error('Error generating FHIR Excel export:', error);
