@@ -163,9 +163,9 @@ class ScopesValidator {
      * @param {number|null} startTime
      * @param {string} action
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
-     * @returns {Promise<boolean>}
+     * @returns {boolean}
      */
-    async hasValidScopesAsync(
+    hasValidScopes(
         {
             requestInfo,
             parsedArgs,
