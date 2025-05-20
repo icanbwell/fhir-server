@@ -180,7 +180,12 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            const { /** @type {string} */ base_version } = parsedArgs;
+            const {
+                /** @type {string} */ base_version,
+                /** @type {boolean|null|undefined} */ smartMerge
+            } = parsedArgs;
+
+            const effectiveSmartMerge = smartMerge ?? true;
 
             // read the incoming resource from request body
             /**
@@ -217,7 +222,8 @@ class MergeOperation {
                 resources_incoming: validResources,
                 resourceType,
                 base_version,
-                requestInfo
+                requestInfo,
+                smartMerge:effectiveSmartMerge
             });
             validResources = mergeResourceResults
                 .flatMap(m => m.resource)
