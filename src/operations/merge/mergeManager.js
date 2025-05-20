@@ -583,7 +583,11 @@ class MergeManager {
             });
             return { resource: resourceToMerge, mergeError };
         } catch (error) {
-            return { resource: null, mergeError: MergeResultEntry.createFromError({ error, resource: resourceToMerge }) }
+            return { resource: null,
+                mergeError: MergeResultEntry.createFromError({ error,
+                    resource: resourceToMerge
+                })
+            };
         }
     }
 

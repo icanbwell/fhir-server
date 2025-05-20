@@ -1,5 +1,5 @@
 const httpContext = require('express-http-context');
-const moment = require('moment-timezone');
+require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
