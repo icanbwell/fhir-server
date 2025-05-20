@@ -79,6 +79,13 @@
         "reference": {
           "reference": "Procedure/dc56f59d-71e5-4b11-98cd-9b9a0dee730c"
         }
+      },
+      {
+        "id": "16d5da29-2aa2-5b13-84c9-44c574b1439a",
+        "meaning": "instance",
+        "reference": {
+          "reference": "Binary/2be6f9aa-62b1-509c-bafc-28f4665fa465"
+        }
       }
     ]
   }
