@@ -21,6 +21,7 @@ const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
 const { logInfo } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { isTrue } = require('../../utils/isTrue');
 
 class MergeOperation {
     /**
@@ -185,7 +186,7 @@ class MergeOperation {
                 /** @type {boolean|null|undefined} */ smartMerge
             } = parsedArgs;
 
-            const effectiveSmartMerge = smartMerge ?? true;
+            const effectiveSmartMerge = isTrue(smartMerge ?? true);
 
             // read the incoming resource from request body
             /**
