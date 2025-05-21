@@ -124,11 +124,11 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                     }
                 );
             } else {
-                await this.response.end();
+                this.response.status(404).end();
             }
         } catch (error) {
             console.error('Error generating FHIR CSV export:', error);
-            this.response.end();
+            this.response.status(500).end();
         }
 
     }

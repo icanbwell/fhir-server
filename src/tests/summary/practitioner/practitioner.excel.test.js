@@ -103,6 +103,11 @@ describe('Practitioner $summary Tests with Excel content', () => {
 
             const workbook = XLSX.read(resp.body);
 
+            const sheetNameExpectedRowCount = {
+                Practitioner: 2,
+                PractitionerRole: 3
+            };
+
             // Detailed file inspection
             /**
              * @type {str}
@@ -111,6 +116,7 @@ describe('Practitioner $summary Tests with Excel content', () => {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
                 expect(sheetData.length).toBeGreaterThan(0);
+                expect(sheetData.length).toStrictEqual(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs
@@ -206,6 +212,11 @@ describe('Practitioner $summary Tests with Excel content', () => {
 
             const workbook = XLSX.read(resp.body);
 
+            const sheetNameExpectedRowCount = {
+                Practitioner: 2,
+                PractitionerRole: 3
+            };
+
             // Detailed file inspection
             /**
              * @type {str}
@@ -214,6 +225,7 @@ describe('Practitioner $summary Tests with Excel content', () => {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
                 expect(sheetData.length).toBeGreaterThan(0);
+                expect(sheetData.length).toStrictEqual(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs

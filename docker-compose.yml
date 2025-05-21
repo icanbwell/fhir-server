@@ -49,7 +49,7 @@ services:
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
-      AUTH_REMOVE_SCOPE_PREFIX: "dev/fhir/"
+      AUTH_REMOVE_SCOPE_PREFIX: "fhir/dev/"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
       WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"

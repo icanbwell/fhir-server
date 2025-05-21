@@ -1,12 +1,12 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const { ForbiddenError } = require('../../utils/httpErrors');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { ScopesManager } = require('./scopesManager');
-const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ConfigManager } = require('../../utils/configManager');
-const { PatientScopeManager } = require('./patientScopeManager');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
-const { RESOURCE_RESTRICTION_TAG } = require('../../constants');
+const {ForbiddenError} = require('../../utils/httpErrors');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ScopesManager} = require('./scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ConfigManager} = require('../../utils/configManager');
+const {PatientScopeManager} = require('./patientScopeManager');
+const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {RESOURCE_RESTRICTION_TAG} = require('../../constants');
 
 class ScopesValidator {
     /**
@@ -17,13 +17,13 @@ class ScopesValidator {
      * @param {PatientScopeManager} patientScopeManager
      * @param {PreSaveManager} preSaveManager
      */
-    constructor ({
-        scopesManager,
-        fhirLoggingManager,
-        configManager,
-        patientScopeManager,
-        preSaveManager
-    }) {
+    constructor({
+                    scopesManager,
+                    fhirLoggingManager,
+                    configManager,
+                    patientScopeManager,
+                    preSaveManager
+                }) {
         /**
          * @type {ScopesManager}
          */
@@ -58,10 +58,10 @@ class ScopesValidator {
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
      * @returns {ForbiddenError}
      */
-    verifyHasValidScopes ({ requestInfo, resourceType, accessRequested }) {
+    verifyHasValidScopes({requestInfo, resourceType, accessRequested}) {
         // eslint-disable-next-line no-useless-catch
         try {
-            const { user, scope } = requestInfo;
+            const {user, scope} = requestInfo;
             let errorMessage, forbiddenError;
 
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
@@ -76,13 +76,13 @@ class ScopesValidator {
 
                 let error, success;
                 if (accessViaPatientScopes) {
-                    scopes = this.scopesManager.getPatientScopes({ scope });
-                    ({ error, success } = scopeChecker(resourceType, accessRequested, scopes));
+                    scopes = this.scopesManager.getPatientScopes({scope});
+                    ({error, success} = scopeChecker(resourceType, accessRequested, scopes));
                 } else {
-                    scopes = this.scopesManager.getUserScopes({ scope });
+                    scopes = this.scopesManager.getUserScopes({scope});
                     // if patient scopes are present then only read is allowed to non patient resources
-                    if (!this.scopesManager.hasPatientScope({ scope }) || accessRequested === 'read') {
-                        ({ error, success } = scopeChecker(resourceType, accessRequested, scopes));
+                    if (!this.scopesManager.hasPatientScope({scope}) || accessRequested === 'read') {
+                        ({error, success} = scopeChecker(resourceType, accessRequested, scopes));
                     } else {
                         error = 'Write not allowed using user scopes if patient scope is present';
                     }
@@ -124,7 +124,7 @@ class ScopesValidator {
      * @param {string} action
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
      */
-    async verifyHasValidScopesAsync (
+    async verifyHasValidScopesAsync(
         {
             requestInfo,
             parsedArgs,
@@ -137,7 +137,7 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Verify if scopes are valid
-            const forbiddenError = this.verifyHasValidScopes({ requestInfo, resourceType, accessRequested });
+            const forbiddenError = this.verifyHasValidScopes({requestInfo, resourceType, accessRequested});
 
             if (forbiddenError) {
                 await this.fhirLoggingManager.logOperationFailureAsync({
@@ -156,6 +156,32 @@ class ScopesValidator {
     }
 
     /**
+     * Returns whether the scopes allow access to this resource
+     * @param {FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     * @param {number|null} startTime
+     * @param {string} action
+     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
+     * @returns {boolean}
+     */
+    hasValidScopes(
+        {
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            startTime,
+            action,
+            accessRequested
+        }
+    ) {
+         const forbiddenError = this.verifyHasValidScopes({requestInfo, resourceType, accessRequested});
+
+         return !forbiddenError;
+    }
+
+
+    /**
      * Throws forbidden error when access through access scope is not allowed
      * @typedef {Object} IsAccessToResourceAllowedByAccessScopesParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
@@ -164,10 +190,10 @@ class ScopesValidator {
      *
      * @param {IsAccessToResourceAllowedByAccessScopesParams}
      */
-    isAccessToResourceAllowedByAccessScopes ({ requestInfo, resource, accessRequested = 'write' }) {
+    isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested = 'write'}) {
         // eslint-disable-next-line no-useless-catch
         try {
-            const { user, scope } = requestInfo;
+            const {user, scope} = requestInfo;
             if (
                 !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                     resource,
@@ -195,7 +221,7 @@ class ScopesValidator {
      *
      * @param {IsAccessToResourceAllowedByPatientScopesParams}
      */
-    async isAccessToResourceAllowedByPatientScopes ({ requestInfo, resource, base_version }) {
+    async isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version}) {
         // eslint-disable-next-line no-useless-catch
         try {
             if (
@@ -223,8 +249,8 @@ class ScopesValidator {
      *
      * @param {IsAccessToResourceRestrictedForPatientScopeParams}
      */
-    isAccessToResourceRestrictedForPatientScope({ requestInfo, resource, accessRequested = 'write' }) {
-        const { isUser, user, scope } = requestInfo
+    isAccessToResourceRestrictedForPatientScope({requestInfo, resource, accessRequested = 'write'}) {
+        const {isUser, user, scope} = requestInfo
         if (
             isUser &&
             resource.meta?.security?.some(
@@ -250,22 +276,22 @@ class ScopesValidator {
      *
      * @param {IsAccessToResourceAllowedByAccessAndPatientScopesParams}
      */
-    async isAccessToResourceAllowedByAccessAndPatientScopes ({
-        requestInfo,
-        resource,
-        base_version,
-        accessRequested = 'write'
-    }) {
+    async isAccessToResourceAllowedByAccessAndPatientScopes({
+                                                                requestInfo,
+                                                                resource,
+                                                                base_version,
+                                                                accessRequested = 'write'
+                                                            }) {
         // eslint-disable-next-line no-useless-catch
         try {
             // Run preSave to generate _uuid values for references and resource
-            resource = await this.preSaveManager.preSaveAsync({ resource });
+            resource = await this.preSaveManager.preSaveAsync({resource});
             // validate access scopes for resource
-            this.isAccessToResourceAllowedByAccessScopes({ requestInfo, resource, accessRequested });
+            this.isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested});
             // validate if resource being accessed is restricted for patient
-            this.isAccessToResourceRestrictedForPatientScope({ requestInfo, resource, accessRequested });
+            this.isAccessToResourceRestrictedForPatientScope({requestInfo, resource, accessRequested});
             // validate patient scopes for resource
-            await this.isAccessToResourceAllowedByPatientScopes({ requestInfo, resource, base_version });
+            await this.isAccessToResourceAllowedByPatientScopes({requestInfo, resource, base_version});
         } catch (e) {
             throw e;
         }
