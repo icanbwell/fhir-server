@@ -1,5 +1,5 @@
 const httpContext = require('express-http-context');
-const moment = require('moment-timezone');
+require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
@@ -21,6 +21,7 @@ const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
 const { logInfo } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { isTrue } = require('../../utils/isTrue');
 
 class MergeOperation {
     /**
@@ -180,7 +181,12 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            const { /** @type {string} */ base_version } = parsedArgs;
+            const {
+                /** @type {string} */ base_version,
+                /** @type {boolean|null|undefined} */ smartMerge
+            } = parsedArgs;
+
+            const effectiveSmartMerge = isTrue(smartMerge ?? true);
 
             // read the incoming resource from request body
             /**
@@ -217,7 +223,8 @@ class MergeOperation {
                 resources_incoming: validResources,
                 resourceType,
                 base_version,
-                requestInfo
+                requestInfo,
+                smartMerge:effectiveSmartMerge
             });
             validResources = mergeResourceResults
                 .flatMap(m => m.resource)

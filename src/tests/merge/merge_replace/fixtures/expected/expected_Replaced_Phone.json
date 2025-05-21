@@ -1,0 +1,159 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "aba5bcf41cf64435839cf0568c121843",
+        "meta": {
+          "versionId": "3",
+          "lastUpdated": "2025-05-20T20:47:40.096Z",
+          "source": "bwell",
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+          ],
+          "security": [
+            {
+              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+            },
+            {
+              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+            },
+            {
+              "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
+                  "system": "https://www.icanbwell.com",
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id"
+                }
+              ]
+            },
+            "system": "https://www.icanbwell.com",
+            "value": "bwell-aba5bcf41cf64435839cf0568c121843"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "aba5bcf41cf64435839cf0568c121843"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "849cb4f0-033b-5d6e-a614-9bbbbb3ba11e"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "essnhlmvgt",
+            "given": [
+              "Sweetie"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+15555550123",
+            "use": "home"
+          },
+          {
+            "system": "email",
+            "value": "bwell+62365zoakm@mailinator.com",
+            "use": "home"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1991-09-10",
+        "address": [
+          {
+            "line": [
+              "801 W 5th St"
+            ],
+            "city": "Austin",
+            "state": "TX",
+            "postalCode": "78703"
+          }
+        ],
+        "link": [
+          {
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Person/a58e50292d79469691d3048e787434cc"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Person/d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
+              "reference": "Person/a58e50292d79469691d3048e787434cc",
+              "type": "Person"
+            },
+            "assurance": "level4"
+          },
+          {
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/26a2b5508f6840a1b4c5f67d38360060"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/aa0aae87-1b98-50ee-aefa-58f8f04bf6a3"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
+              "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+              "type": "Patient"
+            },
+            "assurance": "level4"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "id": "1234",
+  "type": "searchset",
+  "timestamp": "2025-05-20T08:47:40.4040Z",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1"
+    },
+    {
+      "relation": "next",
+      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1&id%3Aabove=849cb4f0-033b-5d6e-a614-9bbbbb3ba11e"
+    }
+  ]
+}

@@ -144,13 +144,15 @@ class MergeManager {
      * @param {Resource} currentResource
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} smartMerge
      * @returns {Promise<OperationOutcome|null>}
      */
     async mergeExistingAsync ({
         resourceToMerge,
         currentResource,
         base_version,
-        requestInfo
+        requestInfo,
+        smartMerge=true
     }) {
         assertTypeEquals(resourceToMerge, Resource);
         assertTypeEquals(currentResource, Resource);
@@ -177,6 +179,7 @@ class MergeManager {
             requestInfo,
             currentResource,
             resourceToMerge,
+            smartMerge,
             limitToPaths: undefined,
             databaseAttachmentManager: this.databaseAttachmentManager
         });
@@ -295,6 +298,7 @@ class MergeManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} smartMerge
      * @return {Promise<MergeResultEntry|null>}
      */
     async mergeResourceAsync (
@@ -302,7 +306,8 @@ class MergeManager {
             resourceToMerge,
             resourceType,
             base_version,
-            requestInfo
+            requestInfo,
+            smartMerge=true
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -351,7 +356,7 @@ class MergeManager {
             // check if resource was found in database or not
             if (currentResource && currentResource.meta) {
                 validationError = await this.mergeExistingAsync({
-                    resourceToMerge, currentResource, requestInfo, base_version
+                    resourceToMerge, currentResource, requestInfo, base_version, smartMerge
                 });
             } else {
                 // Check if meta & meta.source exists in resource
@@ -496,6 +501,7 @@ class MergeManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} smartMerge
      * @returns {Promise<{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]>}
      */
     async mergeResourceListAsync (
@@ -503,7 +509,8 @@ class MergeManager {
             resources_incoming,
             resourceType,
             base_version,
-            requestInfo
+            requestInfo,
+            smartMerge = true
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -525,7 +532,8 @@ class MergeManager {
                 resourceToMerge: x,
                 resourceType,
                 base_version,
-                requestInfo
+                requestInfo,
+                smartMerge
             });
 
             /**
@@ -552,6 +560,7 @@ class MergeManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} smartMerge
      * @return {Promise<{resource: Resource|null, mergeError: MergeResultEntry|null}>}
      */
     async mergeResourceWithRetryAsync (
@@ -559,7 +568,8 @@ class MergeManager {
             resourceToMerge,
             resourceType,
             base_version,
-            requestInfo
+            requestInfo,
+            smartMerge=true
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -568,11 +578,16 @@ class MergeManager {
                 resourceToMerge,
                 resourceType,
                 base_version,
-                requestInfo
+                requestInfo,
+                smartMerge
             });
             return { resource: resourceToMerge, mergeError };
         } catch (error) {
-            return { resource: null, mergeError: MergeResultEntry.createFromError({ error, resource: resourceToMerge }) }
+            return { resource: null,
+                mergeError: MergeResultEntry.createFromError({ error,
+                    resource: resourceToMerge
+                })
+            };
         }
     }
 
