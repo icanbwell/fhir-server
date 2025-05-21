@@ -5,7 +5,7 @@
         "resourceType": "Person",
         "id": "aba5bcf41cf64435839cf0568c121843",
         "meta": {
-          "versionId": "3",
+          "versionId": "2",
           "lastUpdated": "2025-05-20T20:47:40.096Z",
           "source": "bwell",
           "profile": [
@@ -67,12 +67,17 @@
         "telecom": [
           {
             "system": "phone",
-            "value": "+15555550123",
+            "value": "+15125550156",
             "use": "home"
           },
           {
             "system": "email",
             "value": "bwell+62365zoakm@mailinator.com",
+            "use": "home"
+          },
+          {
+            "system": "phone",
+            "value": "+15555550123",
             "use": "home"
           }
         ],

@@ -1,8 +1,10 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
+const person1DuplicatePhoneNumber = require('./fixtures/Person/person1_duplicate_phone.json');
 
 // expected
 const expectedReplacedPersonResources = require('./fixtures/expected/expected_Replaced_Phone.json');
+const expectedMergedPersonResources = require('./fixtures/expected/expected_merged_Phone.json');
 
 const {
     commonBeforeEach,
@@ -31,33 +33,35 @@ describe('Person Tests', () => {
         person1Resource[0].meta.source = 'bwell';
 
         // Step 1: Create initial resource
-        let resp = await request
+        const resp = await request
             .post('/4_0_0/Person/1/$merge')
             .send(person1Resource)
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // Step 2: Replace with a new version (simulate PUT)
-        const updatedResource = deepcopy(person1Resource);
-        // Update the phone number for each person in the array
-        updatedResource.forEach((person) => {
-            if (Array.isArray(person.telecom)) {
-                const phoneEntry = person.telecom.find((t) => t.system === 'phone');
-                if (phoneEntry) {
-                    phoneEntry.value = '+15555550123'; // new phone number
-                }
-            }
-        });
-
-        resp = await request
-            .post('/4_0_0/Person/1/$merge?smartMerge=false')
-            .send(updatedResource)
+        // Step 2: Merge with a new version, it would add a new phone number
+        const resp2 = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(person1DuplicatePhoneNumber)
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({ updated: true });
+        expect(resp2).toHaveMergeResponse({ created: false });
 
-        // // Step 3: Assert the resource is fully replaced (not merged)
-        resp = await request.get('/4_0_0/Person/?_bundle=1').set(getHeaders());
+        // Step 3: Verify the resource is updated
+        const resp3 = await request.get('/4_0_0/Person/?_bundle=1').set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedReplacedPersonResources);
+        expect(resp3).toHaveResponse(expectedMergedPersonResources);
+
+        // Step 4: Replace with a new version (simulate PUT)
+        const resp4 = await request
+            .post('/4_0_0/Person/1/$merge?smartMerge=false')
+            .send(person1DuplicatePhoneNumber)
+            .set(getHeaders());
+        expect(resp4).toHaveMergeResponse({ created: false });
+
+        // Step 5: Assert the resource is fully replaced (not merged)
+        const resp5 = await request.get('/4_0_0/Person/?_bundle=1').set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp5).toHaveResponse(expectedReplacedPersonResources);
+
     });
 });
