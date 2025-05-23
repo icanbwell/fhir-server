@@ -642,6 +642,36 @@ class FhirOperationsManager {
     }
 
     /**
+     *
+     * @param args
+     * @param req
+     * @param resourceType
+     * @returns {Promise<void>}
+     */
+    async mergeAsyncStream (args, { req }, resourceType) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, operation: WRITE
+            }
+        );
+        return await this.mergeOperation.mergeAsyncStream(
+            {
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType
+            }
+        );
+    }
+
+    /**
      * does a FHIR $everything
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
