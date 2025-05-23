@@ -386,6 +386,119 @@ class MergeOperation {
             throw e;
         }
     }
+
+    /**
+     * does a FHIR Streaming Merge
+     * @param requestInfo
+     * @param parsedArgs
+     * @param resourceType
+     * @param inputStream
+     * @param outputStream
+     * @returns {Promise<void>}
+     */
+    async mergeAsyncStream({ requestInfo, parsedArgs, resourceType, inputStream, outputStream }) {
+        const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
+        const { HttpResponseWriter } = require('../streaming/responseWriter');
+        const { StreamToArrayWriter } = require('../streaming/streamToArrayWriter');
+        const { pipeline } = require('stream/promises');
+        const { Transform } = require('stream');
+
+        if (!inputStream) throw new Error('Input stream is required');
+        if (!parsedArgs) throw new Error('parsedArgs is required');
+        if (!resourceType) throw new Error('resourceType is required');
+
+        const base_version = parsedArgs.base_version;
+        const smartMerge = parsedArgs.smartMerge ?? true;
+        const buffer = [];
+        const BATCH_SIZE = 100;
+
+        const preparer = new ResourcePreparerTransform({
+            parsedArgs,
+            resourceName: resourceType,
+            configManager: this.configManager,
+            rawResources: null,
+            response: requestInfo.response
+        });
+
+        const transformFn = async function (resource, _, callback) {
+            try {
+                const [result] = await this.mergeManager.mergeResourceListAsync({
+                    resources_incoming: [resource],
+                    resourceType,
+                    base_version,
+                    requestInfo,
+                    smartMerge
+                });
+
+                if (result?.resource) {
+                    buffer.push(result.resource);
+                }
+                if (result?.mergeError) {
+                    this.push(result.mergeError);
+                }
+
+                if (buffer.length >= BATCH_SIZE) {
+                    const mergeResults = await this.databaseBulkInserter.executeAsync({
+                        requestInfo,
+                        base_version
+                    });
+                    mergeResults.forEach(res => this.push(res));
+                    buffer.length = 0;
+                }
+
+                callback();
+            } catch (e) {
+                callback(e);
+            }
+        }.bind(this);
+
+        const flushFn = async function (callback) {
+            try {
+                if (buffer.length > 0) {
+                    const mergeResults = await this.databaseBulkInserter.executeAsync({
+                        requestInfo,
+                        base_version
+                    });
+                    mergeResults.forEach(res => this.push(res));
+                }
+                callback();
+            } catch (e) {
+                callback(e);
+            }
+        }.bind(this);
+
+        const mergeTransform = new Transform({
+            objectMode: true,
+            transform: transformFn,
+            flush: flushFn
+        });
+
+        let writer;
+        if (outputStream) {
+            writer = outputStream;
+        } else if (requestInfo.response) {
+            writer = new HttpResponseWriter({
+                requestId: requestInfo.requestId,
+                response: requestInfo.response,
+                contentType: 'application/fhir+ndjson',
+                signal: requestInfo.signal,
+                highWaterMark: 16,
+                configManager: this.configManager
+            });
+        } else {
+            const resultBuffer = [];
+            writer = new StreamToArrayWriter(resultBuffer);
+        }
+
+        await pipeline(
+            inputStream,
+            preparer,
+            mergeTransform,
+            writer
+        );
+    }
+
+
 }
 
 module.exports = {
