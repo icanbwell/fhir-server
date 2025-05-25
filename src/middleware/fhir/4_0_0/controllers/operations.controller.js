@@ -73,13 +73,7 @@ class CustomOperationsController {
                     req, res
                 }, resourceType);
                 if (name === 'merge') {
-                    if (result && result.isStream) {
-                        // Use a streaming response writer
-                        this.fhirResponseWriter.mergeStream({ req, res, stream: result.stream });
-                    } else {
-                        // Fallback to standard JSON response
-                        this.fhirResponseWriter.merge({ req, res, result });
-                    }
+                    this.fhirResponseWriter.merge({ req, res, result });
                 } else if (name === 'graph') {
                     this.fhirResponseWriter.graph({ req, res, result });
                 } else if (name === 'everything') {

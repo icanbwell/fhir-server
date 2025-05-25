@@ -84,7 +84,18 @@ class MyFHIRServer {
             })
         );
 
-        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json'];
+        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json', 'application/fhir+ndjson'];
+
+        this.app.use((req, res, next) => {
+            const ct = req.headers['content-type'] || '';
+            if (ct.includes('application/fhir+ndjson')) {
+                return next(); // skip parsing
+            }
+            return express.json({ type: allowedContentTypes,
+                limit: this.configManager.payloadLimit })(req, res, next); // parse JSON
+        });
+
+
 
         // reject any requests that don't have correct content type
         this.app.use((req, res, next) => {
@@ -129,12 +140,12 @@ class MyFHIRServer {
                 parameterLimit: 50000
             })
         );
-        this.app.use(
-            express.json({
-                type: allowedContentTypes,
-                limit: this.configManager.payloadLimit
-            })
-        );
+        // this.app.use(
+        //     express.json({
+        //         type: allowedContentTypes,
+        //         limit: this.configManager.payloadLimit
+        //     })
+        // );
 
         // add container to request
         // this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {

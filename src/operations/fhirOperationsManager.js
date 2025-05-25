@@ -612,64 +612,49 @@ class FhirOperationsManager {
     }
 
     /**
-     * does a FHIR Merge
+     * Does a FHIR Merge
+     * Automatically chooses between streaming or standard merge
+     *
      * @param {string[]} args
-     * @param {import('http').IncomingMessage} req
+     * @param {{ req: import('http').IncomingMessage, res?: import('http').ServerResponse }} context
      * @param {string} resourceType
-     * @return {Resource | Resource[]}
+     * @return {Promise<Resource | Resource[] | void>}
      */
-    async merge (args, { req }, resourceType) {
-        /**
-         * combined args
-         * @type {Object}
-         */
+    async merge(args, { req, res }, resourceType) {
+        // Combine args
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
-        /**
-         * @type {ParsedArgs}
-         */
+
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
-        );
-        return await this.mergeOperation.mergeAsync(
-            {
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: WRITE
+        });
+
+        // Detect if the client wants a streaming response
+        const wantsStream = req.headers.accept?.includes('application/fhir+ndjson');
+        const isNdjsonInput = req.headers['content-type']?.includes('application/fhir+ndjson');
+        const shouldStream = wantsStream || isNdjsonInput;
+
+        if (shouldStream) {
+            return await this.mergeOperation.mergeAsyncStream({
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType,
+                req,
+                res
+            });
+        } else {
+            return await this.mergeOperation.mergeAsync({
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
                 resourceType
-            }
-        );
+            });
+        }
     }
 
-    /**
-     *
-     * @param args
-     * @param req
-     * @param resourceType
-     * @returns {Promise<void>}
-     */
-    async mergeAsyncStream (args, { req }, resourceType) {
-        /**
-         * combined args
-         * @type {Object}
-         */
-        let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({ req, combined_args });
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
-        );
-        return await this.mergeOperation.mergeAsyncStream(
-            {
-                requestInfo: this.getRequestInfo(req),
-                parsedArgs,
-                resourceType
-            }
-        );
-    }
+
 
     /**
      * does a FHIR $everything

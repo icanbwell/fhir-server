@@ -226,27 +226,23 @@ class GenericController {
             /** @type {import('http').ServerResponse} */res,
             /** @type {function() : void} */next) => {
             try {
-                const stream = (this.configManager.streamResponse || isTrue(req.query._streamResponse));
-                if (stream) {
-                    // Stream the merge operation if content type is ndjson
-                    await this.fhirOperationsManager.mergeAsyncStream(req.sanitized_args, {
-                            req,
-                            res
-                        },
-                        resourceType
-                    );
-                } else {
-                    // Perform the standard merge operation
-                    const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
-                            req,
-                            res
-                        },
-                        resourceType
-                    );
+                // Perform the standard merge operation
+                const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
+                // Only send response if not streamed
+                if (!req.headers.accept?.includes('application/fhir+ndjson')) {
                     this.fhirResponseWriter.create({
-                        req, res, resource, options: { type: resourceType }
+                        req,
+                        res,
+                        resource,
+                        options: { type: resourceType }
                     });
                 }
+
             } catch (e) {
                 next(e);
             } finally {
