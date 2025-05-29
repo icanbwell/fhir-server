@@ -5,7 +5,7 @@ const personResource = require('./fixtures/person.json');
 const consentResource = require('./fixtures/consent.json');
 
 const expectedEntitiesResponse = require('./fixtures/expected_entities_response.json');
-const expectedEntitiesResponseWithPatientScope = require('./fixtures/expected_entities_response_with_patient_scope.json')
+const expectedEntitiesResponseWithPatientScope = require('./fixtures/expected_entities_response_with_patient_scope.json');
 const expectedEntitiesResponseWithViewControl = require('./fixtures/expected_entities_response_with_view_control.json');
 const expectedEntitiesResponseWithoutGlobalId = require('./fixtures/expected_entities_response_without_globalid.json');
 

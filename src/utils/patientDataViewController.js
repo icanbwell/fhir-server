@@ -46,6 +46,7 @@ class PatientDataViewControlManager {
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
      *  patientFilterReferences: string[] | null,
+     *  raiseErrorForMissingUserOwner: boolean
      * }}
      * @return {Promise<{
      *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]},
@@ -53,16 +54,27 @@ class PatientDataViewControlManager {
      *  viewControlConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
      * }>}
      */
-    async getConsentAsync({ requestInfo, base_version, patientFilterReferences }) {
+    async getConsentAsync({
+        requestInfo,
+        base_version,
+        patientFilterReferences,
+        raiseErrorForMissingUserOwner = true
+    }) {
         const { personIdFromJwtToken } = requestInfo;
 
         /**
          * @type {string | null}
          */
         let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
-        assertIsValid(userOwnerFromContext);
 
-        if (!this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)) {
+        if (raiseErrorForMissingUserOwner) {
+            assertIsValid(userOwnerFromContext);
+        }
+
+        if (
+            userOwnerFromContext &&
+            !this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)
+        ) {
             return {
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [],

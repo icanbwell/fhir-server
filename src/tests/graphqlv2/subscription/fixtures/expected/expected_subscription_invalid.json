@@ -3,11 +3,11 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Subscription_4_0_0.find({'id':'__invalid__'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
+        "display": "[db.Consent_4_0_0.find({'id':'__invalid__'}, {'_id':0}),db.Subscription_4_0_0.find({'id':'__invalid__'}, {'_uuid':1,'_sourceId':1,'_sourceAssigningAuthority':1,'resourceType':1,'id':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "[Subscription_4_0_0]",
+        "code": "[Consent_4_0_0,Subscription_4_0_0]",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {

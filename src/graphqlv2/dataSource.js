@@ -737,7 +737,8 @@ class FhirDataSource {
                         viewControlConsentQueryOptions
                     } = await this.patientDataViewControlManager.getConsentAsync({
                         requestInfo: this.requestInfo,
-                        base_version
+                        base_version,
+                        raiseErrorForMissingUserOwner: false
                     })
                     if (this.debugMode && viewControlConsentQueries.length > 0){
                         this.metaList.push({
