@@ -26,9 +26,7 @@ const {
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
     PERSON_PROXY_PREFIX,
-    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
-    HTTP_CONTEXT_KEYS,
-    CONSENT_CATEGORY
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -46,9 +44,8 @@ const { isTrue } = require('../../utils/isTrue');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
-const httpContext = require('express-http-context');
-const { ReferenceParser } = require('../../utils/referenceParser');
 const { CustomTracer } = require('../../utils/customTracer');
+const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -74,6 +71,7 @@ class EverythingHelper {
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
+     * @property {PatientDataViewControlManager} patientDataViewControlManager
      *
      * @param {EverythingHelperParams}
      */
@@ -87,7 +85,8 @@ class EverythingHelper {
         databaseAttachmentManager,
         searchParametersManager,
         everythingRelatedResourceMapper,
-        customTracer
+        customTracer,
+        patientDataViewControlManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -142,6 +141,12 @@ class EverythingHelper {
          */
         this.everythingRelatedResourceMapper = everythingRelatedResourceMapper;
         assertTypeEquals(everythingRelatedResourceMapper, EverythingRelatedResourcesMapper);
+
+        /**
+         * @type {PatientDataViewControlManager}
+         * */
+        this.patientDataViewControlManager = patientDataViewControlManager;
+        assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
 
         /**
          * @type {string[]}
@@ -459,35 +464,26 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
+            let patientReference = baseResourceIdentifiers.map(patientIdentifier => {
+                return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
+            });
+
             // get Consent resource containing resources marked as deleted to exclude
             if (requestInfo.isUser) {
                 let {
-                    entries: viewControlConsentEntries,
-                    queryItems: viewControlConsentQueries,
-                    options: viewControlConsentQueryOptions
+                    viewControlResourceToExcludeMap,
+                    viewControlConsentQueries,
+                    viewControlConsentQueryOptions
                 } = await this.customTracer.trace({
-                    name: 'EverythingHelper.getDataConnectionViewControlConsentAsync',
-                    func: async () => await this.getDataConnectionViewControlConsentAsync({
-                        getRaw,
+                    name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+                    func: async () => await this.patientDataViewControlManager.getConsentAsync({
                         requestInfo,
                         base_version,
-                        patientResourceIdentifiers: baseResourceIdentifiers
+                        patientFilterReferences: patientReference
                     })
                 });
 
-                viewControlConsentEntries.forEach(entry => {
-                    entry.resource.provision?.data?.forEach(ref => {
-                        if( ref?.reference?.reference) {
-                            const {resourceType: refType, id: refId} = ReferenceParser.parseReference(ref.reference.reference);
-                            if (refType && refId) {
-                                if (!resourceToExcludeIdsMap[refType]) {
-                                    resourceToExcludeIdsMap[refType] = [];
-                                }
-                                resourceToExcludeIdsMap[refType].push(refId);
-                            }
-                        }
-                    });
-                });
+                resourceToExcludeIdsMap = viewControlResourceToExcludeMap;
 
                 for (const q of viewControlConsentQueries) {
                     if (q) {
@@ -1431,60 +1427,6 @@ class EverythingHelper {
                 ? propertyValue.map(a => a._uuid)
                 : [].concat([propertyValue._uuid]);
         }
-    }
-
-    /**
-     * Fetch the Consent resources for data connection view control
-     * @param {{
-     * getRaw: boolean,
-     * requestInfo: FhirRequestInfo,
-     * base_version: string,
-     * patientResourceIdentifiers: ResourceIdentifier[],
-     * }} options
-     * @return {Promise<ProcessMultipleIdsAsyncResult>}
-     */
-    async getDataConnectionViewControlConsentAsync({ getRaw, requestInfo, base_version, patientResourceIdentifiers }) {
-        const { personIdFromJwtToken } = requestInfo;
-
-        /**
-         * @type {string | null}
-        */
-        let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
-        assertIsValid(userOwnerFromContext);
-
-        if (!this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)) {
-            return new ProcessMultipleIdsAsyncResult({
-                entries: [],
-                queryItems: [],
-                options: [],
-                explanations: []
-            });
-        }
-
-        let resourceType = 'Consent';
-        let patientReference = patientResourceIdentifiers.map(patientIdentifier => {
-            return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
-        });
-
-        return await this.fetchResourceByArgsAsync({
-            resourceType,
-            base_version,
-            requestInfo,
-            explain: false,
-            debug: false,
-            parsedArgs: this.r4ArgsParser.parseArgs({
-                resourceType,
-                args: {
-                    base_version,
-                    patient: `Patient/person.${personIdFromJwtToken}`,
-                    actor: patientReference.join(','),
-                    category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
-                }
-            }),
-            getRaw,
-            applyPatientFilter: false,
-            addInBundleOnly: true
-        });
     }
 }
 

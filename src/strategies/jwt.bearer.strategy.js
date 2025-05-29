@@ -4,9 +4,7 @@
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const jwksRsa = require('jwks-rsa');
 const {AuthService} = require('./authService');
-const {logDebug, logError} = require("../operations/common/logging");
-const {isTrue} = require("../utils/isTrue");
-const {DEFAULT_CACHE_EXPIRY_TIME} = require("../constants");
+const {logDebug} = require("../operations/common/logging");
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 

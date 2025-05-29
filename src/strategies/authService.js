@@ -1,6 +1,4 @@
-const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const async = require('async');
-const jwksRsa = require('jwks-rsa');
 const superagent = require('superagent');
 const {LRUCache} = require('lru-cache');
 const {
@@ -8,11 +6,9 @@ const {
     DEFAULT_CACHE_EXPIRY_TIME,
     DEFAULT_CACHE_MAX_COUNT
 } = require('../constants');
-const {isTrue} = require('../utils/isTrue');
 const {logDebug, logError} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
-const {ScopesManager} = require("../operations/security/scopesManager");
 const {ConfigManager} = require("../utils/configManager");
 
 /**

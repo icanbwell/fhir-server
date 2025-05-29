@@ -1,0 +1,162 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment QuantityFields on Quantity {
+  value
+  unit
+  code
+  comparator
+}
+
+query observations {
+    observations(
+      _debug: true
+      id:  {
+         notEquals:  {
+            value: "33a059ee-05e9-59f6-bd52-1bd477e8d7c2"
+         }
+      }
+    ) {
+        entry {
+            resource {
+                id
+                __typename
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                code {
+                    text
+                    coding {
+                        display
+                    }
+                }
+                valueQuantity {
+                    ...QuantityFields
+                }
+                valueCodeableConcept {
+                    text
+                    coding {
+                        code
+                        display
+                    }
+                }
+                valueString
+                valueBoolean
+                valueInteger
+                valueRange {
+                    low {
+                        ...QuantityFields
+                    }
+                    high {
+                        ...QuantityFields
+                    }
+                }
+                valueRatio {
+                    numerator {
+                        ...QuantityFields
+                    }
+                    denominator {
+                        ...QuantityFields
+                    }
+                }
+                valueTime
+                valueDateTime
+                valuePeriod {
+                    start
+                    end
+                }
+                component {
+                    code {
+                        text
+                    }
+                    valueQuantity {
+                        ...QuantityFields
+                    }
+                    valueCodeableConcept {
+                        text
+                        coding {
+                            code
+                            display
+                        }
+                    }
+                    valueString
+                    valueBoolean
+                    valueInteger
+                    valueRange {
+                        low {
+                            ...QuantityFields
+                        }
+                        high {
+                            ...QuantityFields
+                        }
+                    }
+                    valueRatio {
+                        numerator {
+                            ...QuantityFields
+                        }
+                        denominator {
+                            ...QuantityFields
+                        }
+                    }
+                    valueTime
+                    valueDateTime
+                    valuePeriod {
+                        start
+                        end
+                    }
+                    interpretation {
+                        text
+                    }
+                }
+                effectiveDateTime
+                effectivePeriod {
+                    start
+                    end
+                }
+                note {
+                    authorString
+                    time
+                    text
+                }
+                referenceRange {
+                    low {
+                        ...QuantityFields
+                    }
+                    high {
+                        ...QuantityFields
+                    }
+                    text
+                    appliesTo {
+                        text
+                    }
+                    age {
+                        low {
+                            ...QuantityFields
+                        }
+                        high {
+                            ...QuantityFields
+                        }
+                    }
+                }
+                interpretation {
+                    coding {
+                        code
+                        display
+                    }
+                }
+            }
+        }
+    }
+}

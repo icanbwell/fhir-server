@@ -15,6 +15,15 @@ const { SearchBundleOperation } = require('../operations/search/searchBundle');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
 const { getResource } = require('../operations/common/getResource');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { PatientDataViewControlManager } = require('../utils/patientDataViewController');
+const { CustomTracer } = require('../utils/customTracer');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { PatientScopeManager } = require('../operations/security/patientScopeManager');
+const { ParsedArgs } = require('../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../operations/query/queryParameterValue');
+const { searchParameterQueries } = require('../searchParameters/searchParameters');
+const { mongoQueryAndOptionsStringify } = require('../utils/mongoQueryStringify');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQLV2 resolvers to load the data
@@ -27,6 +36,9 @@ class FhirDataSource {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {QueryRewriterManager} queryRewriterManager
      * @property {ConfigManager} configManager
+     * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {CustomTracer} customTracer
+     * @property {PatientScopeManager} patientScopeManager
      * @param {FhirDataSourceParams} params
      */
     constructor (
@@ -35,7 +47,10 @@ class FhirDataSource {
             searchBundleOperation,
             r4ArgsParser,
             queryRewriterManager,
-            configManager
+            configManager,
+            patientDataViewControlManager,
+            customTracer,
+            patientScopeManager
         }
     ) {
         assertIsValid(requestInfo !== undefined);
@@ -76,6 +91,24 @@ class FhirDataSource {
         assertTypeEquals(this.configManager, ConfigManager);
 
         /**
+         * @type {PatientDataViewControlManager}
+         */
+        this.patientDataViewControlManager = patientDataViewControlManager;
+        assertTypeEquals(this.patientDataViewControlManager, PatientDataViewControlManager);
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(this.customTracer, CustomTracer);
+
+        /**
+         * @type {PatientScopeManager}
+         */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(this.patientScopeManager, PatientScopeManager);
+
+        /**
          * whether the caller has requested debug mode
          * @type {boolean}
          */
@@ -92,6 +125,12 @@ class FhirDataSource {
          * @type {boolean}
          */
         this.getRawBundle = this.configManager.getRawGraphQLV2Bundle;
+
+        /**
+         * contains list of ids to be excluded for each resource
+         * @type {{[resourceType: string]: string[]}|null}
+         */
+        this.patientViewControlResourceExcludeIds = null;
     }
 
     /**
@@ -677,6 +716,75 @@ class FhirDataSource {
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
+
+        // This will run once per request
+        if (this.patientViewControlResourceExcludeIds === null && this.requestInfo.isUser) {
+            const { isUser, personIdFromJwtToken } = this.requestInfo;
+
+            // this is needed to get person owner in context for fetching consent.
+            // Its called later too in the request lifecycle but as its result is cached,
+            // it will not be executed again
+            await this.patientScopeManager.getPatientIdsFromScopeAsync({
+                base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext: true
+            });
+
+            await this.customTracer.trace({
+                name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+                func: async () => {
+                    let {
+                        viewControlResourceToExcludeMap,
+                        viewControlConsentQueries,
+                        viewControlConsentQueryOptions
+                    } = await this.patientDataViewControlManager.getConsentAsync({
+                        requestInfo: this.requestInfo,
+                        base_version
+                    })
+                    if (this.debugMode && viewControlConsentQueries.length > 0){
+                        this.metaList.push({
+                            tag: [
+                                {
+                                    system: 'https://www.icanbwell.com/query',
+                                    display: mongoQueryAndOptionsStringify({
+                                        query: viewControlConsentQueries[0],
+                                        options: viewControlConsentQueryOptions[0]
+                                    })
+                                },
+                                {
+                                    system: 'https://www.icanbwell.com/queryCollection',
+                                    code: viewControlConsentQueries[0].collectionName
+                                }
+                            ]
+                        });
+                    }
+
+                    this.patientViewControlResourceExcludeIds = viewControlResourceToExcludeMap;
+                }
+            });
+        }
+
+        let resourceExcludeIds = this.patientViewControlResourceExcludeIds?.[resourceType] || [];
+        if (resourceExcludeIds && resourceExcludeIds.length > 0) {
+            if (parsedArgs["_id:not"]) {
+                let existingExcludeIds = parsedArgs["_id:not"];
+                if (!Array.isArray(existingExcludeIds)) {
+                    existingExcludeIds = [existingExcludeIds];
+                }
+                resourceExcludeIds.push(...existingExcludeIds);
+            }
+
+            parsedArgs["_id:not"] = resourceExcludeIds;
+            parsedArgs.add(
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({
+                        value: resourceExcludeIds,
+                        operator: '$and'
+                    }),
+                    propertyObj: searchParameterQueries['Resource']['_id'],
+                    modifiers: ['not']
+                })
+            )
+        }
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {

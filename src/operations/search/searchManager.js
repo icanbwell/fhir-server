@@ -33,7 +33,12 @@ const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
-const { DB_SEARCH_LIMIT_FOR_IDS, DB_SEARCH_LIMIT, RESOURCE_RESTRICTION_TAG } = require('../../constants');
+const {
+    DB_SEARCH_LIMIT_FOR_IDS,
+    DB_SEARCH_LIMIT,
+    OPERATIONS: { READ },
+    GRIDFS: { RETRIEVE }
+} = require('../../constants');
 
 class SearchManager {
     /**
@@ -1237,6 +1242,126 @@ class SearchManager {
             operationDateObject[regexMatch[1]] = moment.utc(regexMatch[2]);
         }
         return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
+    }
+
+    /**
+     * fetch resources for given args
+     * @typedef FetchResourcesByArgsAsyncParams
+     * @property {string} base_version
+     * @property {FhirRequestInfo} requestInfo
+     * @property {boolean} explain
+     * @property {boolean} debug
+     * @property {string} resourceType
+     * @property {ParsedArgs} parsedArgs
+     * @property {boolean} applyPatientFilter
+     *
+     * @param {FetchResourcesByArgsAsyncParams}
+     * @return {Promise<{
+     *      entries: BundleEntry[],
+     *      queryItems: QueryItem[],
+     *      options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[],
+     *      explanations: import('mongodb').Document[]
+     * }>}
+     */
+    async fetchResourcesByArgsAsync({
+        base_version,
+        requestInfo,
+        resourceType,
+        explain,
+        debug,
+        parsedArgs,
+        applyPatientFilter = true
+    }) {
+        /**
+         * @type {BundleEntry[]}
+         */
+        let entries = [];
+
+        // get top level resource
+        const {
+            /** @type {import('mongodb').Document}**/
+            query
+        } = await this.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: 'read',
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter
+        });
+
+        const options = {};
+        let projection = {};
+        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+        projection._id = 0;
+        options.projection = projection;
+
+        /**
+         * @type {number}
+         */
+        const maxMongoTimeMS = this.configManager.mongoTimeout;
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        /**
+         * mongo db cursor
+         * @type {DatabasePartitionedCursor}
+         */
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+        const collectionName = cursor.getFirstCollection();
+
+        /**
+         * @type {QueryItem}
+         */
+        let queryItem = new QueryItem({
+            query,
+            resourceType,
+            collectionName
+        });
+
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const explanations = explain || debug ? await cursor.explainAsync() : [];
+        if (explain) {
+            // if explain is requested then just return one result
+            cursor = cursor.limit(1);
+        }
+
+        while (await cursor.hasNext()) {
+            /**
+             * element
+             * @type {Resource|null}
+             */
+            let startResource = await cursor.nextRaw();
+            if (startResource) {
+                /**
+                 * @type {BundleEntry}
+                 */
+
+                startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
+                let current_entity = {
+                    id: startResource._sourceId,
+                    resource: startResource
+                };
+
+                entries.push(current_entity);
+            }
+        }
+
+        return {
+            entries,
+            queryItems: [queryItem],
+            options: [options],
+            explanations
+        };
     }
 }
 

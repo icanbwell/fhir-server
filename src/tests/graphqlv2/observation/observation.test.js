@@ -1,7 +1,9 @@
 // test file
 const observation1Resource = require('./fixtures/observation1.json');
+const observation2Resource = require('./fixtures/observation2.json');
 const patientBundleResource = require('./fixtures/patient/patient1.json');
 const personBundleResource = require('./fixtures/person/person1.json');
+const consentResource = require('./fixtures/consent/consent1.json');
 
 // expected
 const expectedObservationResources = require('./fixtures/expected_observation.json');
@@ -16,7 +18,10 @@ const expectedResultQuantitySN2 = require('./fixtures/expected_result_quantity_S
 const expectedResultQuantitySN3 = require('./fixtures/expected_result_quantity_SN3.json');
 const expectedResultMissing = require('./fixtures/expected_observation_missing.json');
 const expectedResultNotMissing = require('./fixtures/expected_observation_not_missing.json');
+const expectedObservationIdEquals = require('./fixtures/expected_observation_id_equals.json');
+const expectedObservationIdNotEquals = require('./fixtures/expected_observation_id_not_equals.json');
 
+const env = require('var');
 const fs = require('fs');
 const path = require('path');
 
@@ -33,6 +38,8 @@ const observationQuantitySN2 = fs.readFileSync(path.resolve(__dirname, './fixtur
 const observationQuantitySN3 = fs.readFileSync(path.resolve(__dirname, './fixtures/query_quantity_SN3.graphql'), 'utf8');
 const observationMissing = fs.readFileSync(path.resolve(__dirname, './fixtures/query_derivedFrom_missing.graphql'), 'utf8');
 const observationNotMissing = fs.readFileSync(path.resolve(__dirname, './fixtures/query_derivedFrom_not_missing.graphql'), 'utf8');
+const observationQueryIdEquals = fs.readFileSync(path.resolve(__dirname, './fixtures/query_id_equals.graphql'), 'utf8');
+const observationQueryIdNotEquals = fs.readFileSync(path.resolve(__dirname, './fixtures/query_id_not_equals.graphql'), 'utf8');
 
 const {
     commonBeforeEach,
@@ -609,6 +616,74 @@ describe('GraphQL Observation Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationNeFound, 'observations');
+        });
+
+        test('GraphQL id equals and not equals test with patient data view control', async () => {
+            const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+            env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';
+
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+
+            // Create View Control Consent
+            resp = await request.post('/4_0_0/Consent/1/$merge').send(consentResource).set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+
+            const observationQueryIdEqualsText = observationQueryIdEquals.replace(/\\n/g, '');
+            const observationQueryIdNotEqualsText = observationQueryIdNotEquals.replace(/\\n/g, '');
+            // ACT & ASSERT
+            resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    query: observationQueryIdEqualsText
+                })
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedObservationIdEquals, 'observations');
+
+            resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({
+                    operationName: null,
+                    query: observationQueryIdNotEqualsText
+                })
+               .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedObservationIdNotEquals, 'observations');
+
+            env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
         });
      });
 });
