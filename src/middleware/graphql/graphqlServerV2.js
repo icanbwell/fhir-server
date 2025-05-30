@@ -118,7 +118,10 @@ const graphqlV2 = async (fnGetContainer) => {
                     searchBundleOperation: container.searchBundleOperation,
                     r4ArgsParser: container.r4ArgsParser,
                     queryRewriterManager: container.queryRewriterManager,
-                    configManager: container.configManager
+                    configManager: container.configManager,
+                    patientDataViewControlManager: container.patientDataViewControlManager,
+                    customTracer: container.customTracer,
+                    patientScopeManager: container.patientScopeManager
                 }
             ),
             container

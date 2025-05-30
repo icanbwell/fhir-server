@@ -1,0 +1,71 @@
+{
+  "resourceType": "Consent",
+  "id": "6c599219-4242-5cad-89bb-80f7c0b4aa3f",
+  "meta": {
+    "source": "http://icanbwell.com/health-data-service",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client1"
+      }
+    ]
+  },
+  "status": "active",
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/consent-category",
+          "code": "dataConnectionViewControl"
+        }
+      ]
+    }
+  ],
+  "patient": {
+    "reference": "Patient/person.f0f35c4e-22a2-549d-88e9-50263c4da925"
+  },
+  "provision": {
+    "actor": [
+      {
+        "id": "Patient/b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1",
+        "role": {
+          "coding": {
+            "system": "http://www.icanbwell.com/proa",
+            "code": "dependents"
+          }
+        },
+        "reference": {
+          "reference": "Patient/b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1"
+        }
+      }
+    ],
+    "data": [
+      {
+        "id": "16d5da29-2aa2-5b13-84c9-44c574b1439a",
+        "meaning": "instance",
+        "reference": {
+          "reference": "AllergyIntolerance/0af7ad3f-9f37-1a62-09e4-4ca127531c51"
+        }
+      },
+      {
+        "id": "16d5da29-2aa2-5b13-84c9-44c574b1439b",
+        "meaning": "instance",
+        "reference": {
+          "reference": "CareTeam/af56a61a-34e6-5a7f-9539-cdc82c000f6f"
+        }
+      }
+    ]
+  }
+}
