@@ -1,0 +1,262 @@
+[
+  {
+    "resourceType": "Person",
+    "id": "aba5bcf41cf64435839cf0568c121843",
+    "meta": {
+      "versionId": "1",
+      "source": "bwell",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        }
+      ],
+      "lastUpdated": "2022-08-28T22:12:13.000Z"
+    },
+    "identifier": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "https://www.icanbwell.com",
+              "code": "FHIR_id",
+              "display": "bWell FHIR id"
+            }
+          ]
+        },
+        "system": "https://www.icanbwell.com",
+        "value": "bwell-aba5bcf41cf64435839cf0568c121843"
+      }
+    ],
+    "name": [
+      {
+        "use": "official",
+        "family": "essnhlmvgt",
+        "given": [
+          "Sweetie"
+        ]
+      }
+    ],
+    "telecom": [
+      {
+        "system": "phone",
+        "value": "+15125550156",
+        "use": "home"
+      },
+      {
+        "system": "email",
+        "value": "bwell+62365zoakm@mailinator.com",
+        "use": "home"
+      }
+    ],
+    "gender": "male",
+    "birthDate": "1991-09-10",
+    "address": [
+      {
+        "line": [
+          "801 W 5th St"
+        ],
+        "city": "Austin",
+        "state": "TX",
+        "postalCode": "78703"
+      }
+    ],
+    "link": [
+      {
+        "target": {
+          "reference": "Person/a58e50292d79469691d3048e787434cc",
+          "type": "Person"
+        },
+        "assurance": "level4"
+      },
+      {
+        "target": {
+          "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+          "type": "Patient"
+        },
+        "assurance": "level4"
+      }
+    ],
+    "_access": {
+      "bwell": 1
+    },
+    "_id": "630be83db0fb3dc74a4f4651"
+  },
+  {
+    "resourceType": "Person",
+    "id": "f4e8aa6c1eec49328404cb8a9caa11a2",
+    "meta": {
+      "versionId": "1",
+      "source": "bwell",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        }
+      ],
+      "lastUpdated": "2022-08-30T10:45:00.000Z"
+    },
+    "identifier": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "https://www.icanbwell.com",
+              "code": "FHIR_id",
+              "display": "bWell FHIR id"
+            }
+          ]
+        },
+        "system": "https://www.icanbwell.com",
+        "value": "bwell-f4e8aa6c1eec49328404cb8a9caa11a2"
+      }
+    ],
+    "name": [
+      {
+        "use": "official",
+        "family": "Montgomery",
+        "given": [
+          "Lisa"
+        ]
+      }
+    ],
+    "telecom": [
+      {
+        "system": "email",
+        "value": "lisa.montgomery@example.com",
+        "use": "work"
+      }
+    ],
+    "gender": "female",
+    "birthDate": "1985-06-15",
+    "address": [
+      {
+        "line": [
+          "900 E 6th St"
+        ],
+        "city": "Austin",
+        "state": "TX",
+        "postalCode": "78702"
+      }
+    ],
+    "link": [
+      {
+        "target": {
+          "reference": "Person/a58e50292d79469691d3048e787434cc",
+          "type": "Person"
+        },
+        "assurance": "level3"
+      },
+      {
+        "target": {
+          "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+          "type": "Patient"
+        },
+        "assurance": "level4"
+      }
+    ],
+    "_access": {
+      "bwell": 1
+    },
+    "_id": "888be83db0fb3dc74a4f5001"
+  },
+  {
+    "resourceType": "Person",
+    "id": "a23f0b4ce5fc4fc6be3a73cc1fdde112",
+    "meta": {
+      "versionId": "1",
+      "source": "bwell",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        }
+      ],
+      "lastUpdated": "2022-08-30T11:00:00.000Z"
+    },
+    "identifier": [
+      {
+        "type": {
+          "coding": [
+            {
+              "system": "https://www.icanbwell.com",
+              "code": "FHIR_id",
+              "display": "bWell FHIR id"
+            }
+          ]
+        },
+        "system": "https://www.icanbwell.com",
+        "value": "bwell-a23f0b4ce5fc4fc6be3a73cc1fdde112"
+      }
+    ],
+    "name": [
+      {
+        "use": "official",
+        "family": "Baker",
+        "given": [
+          "James"
+        ]
+      }
+    ],
+    "telecom": [
+      {
+        "system": "phone",
+        "value": "+14155550123",
+        "use": "mobile"
+      }
+    ],
+    "gender": "male",
+    "birthDate": "1979-11-23",
+    "address": [
+      {
+        "line": [
+          "123 Main St"
+        ],
+        "city": "Dallas",
+        "state": "TX",
+        "postalCode": "75201"
+      }
+    ],
+    "link": [
+      {
+        "target": {
+          "reference": "Person/a58e50292d79469691d3048e787434cc",
+          "type": "Person"
+        },
+        "assurance": "level2"
+      },
+      {
+        "target": {
+          "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+          "type": "Patient"
+        },
+        "assurance": "level3"
+      }
+    ],
+    "_access": {
+      "bwell": 1
+    },
+    "_id": "999be83db0fb3dc74a4f6002"
+  }
+]

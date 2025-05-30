@@ -102,6 +102,18 @@ class FhirResponseWriter {
     }
 
     /**
+     * This methods to support merge streaming
+     * @param req
+     * @param res
+     * @param stream
+     */
+    mergeStream({ req, res, stream }) {
+        this.setBaseResponseHeaders({ req, res });
+        res.status(200);
+        stream.pipe(res);
+    }
+
+    /**
      * @function readOne
      * @description Used when you are returning a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object

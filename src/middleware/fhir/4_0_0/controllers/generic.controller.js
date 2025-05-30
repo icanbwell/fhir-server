@@ -226,15 +226,23 @@ class GenericController {
             /** @type {import('http').ServerResponse} */res,
             /** @type {function() : void} */next) => {
             try {
+                // Perform the standard merge operation
                 const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.create({
-                    req, res, resource, options: { type: resourceType }
-                });
+                // Only send response if not streamed
+                if (!req.headers.accept?.includes('application/fhir+ndjson')) {
+                    this.fhirResponseWriter.create({
+                        req,
+                        res,
+                        resource,
+                        options: { type: resourceType }
+                    });
+                }
+
             } catch (e) {
                 next(e);
             } finally {

@@ -612,34 +612,64 @@ class FhirOperationsManager {
     }
 
     /**
-     * does a FHIR Merge
+     * Does a FHIR Merge
+     * Automatically chooses between streaming or standard merge
+     *
      * @param {string[]} args
-     * @param {import('http').IncomingMessage} req
+     * @param {{ req: import('http').IncomingMessage, res?: import('http').ServerResponse }} context
      * @param {string} resourceType
-     * @return {Resource | Resource[]}
+     * @return {Promise<Resource | Resource[] | void>}
      */
-    async merge (args, { req }, resourceType) {
-        /**
-         * combined args
-         * @type {Object}
-         */
+    async merge(args, { req, res }, resourceType) {
+        // Combine args
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
-        /**
-         * @type {ParsedArgs}
-         */
+
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
-        );
-        return await this.mergeOperation.mergeAsync(
-            {
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: WRITE
+        });
+
+        // Detect if the client wants a streaming response
+        const acceptNdjson = req.headers.accept?.includes('application/fhir+ndjson');
+        const contentTypeNdjson = req.headers['content-type']?.includes('application/fhir+ndjson');
+        const contentTypeJson = req.headers['content-type']?.includes('application/fhir+json') ||
+            req.headers['content-type']?.includes('application/json');
+
+        if (acceptNdjson && contentTypeNdjson) {
+            // Bidirectional streaming: pass request stream as-is
+            return await this.mergeOperation.mergeAsyncStream({
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType,
+                req,
+                res
+            });
+        } else if (acceptNdjson && contentTypeJson) {
+            // Convert JSON body to NDJSON stream
+            const { Readable } = require('stream');
+            let resources = Array.isArray(req.body) ? req.body : [req.body];
+            const ndjsonStream = Readable.from(resources.map(r => JSON.stringify(r) + '\n'));
+            return await this.mergeOperation.mergeAsyncStream({
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType,
+                req: ndjsonStream,
+                res
+            });
+        } else {
+            // Fallback to standard merge
+            return await this.mergeOperation.mergeAsync({
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
                 resourceType
-            }
-        );
+            });
+        }
     }
+
+
 
     /**
      * does a FHIR $everything

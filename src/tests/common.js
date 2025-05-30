@@ -470,3 +470,29 @@ module.exports.getTestRequestInfo = ({
         });
     return requestInfo;
 };
+
+/**
+ *
+ * @param resp
+ * @returns {*}
+ */
+module.exports.parseNdjsonResponse = (resp) => {
+    if (!resp.text || resp.text.trim() === '') {
+        console.log('Warning: Empty response text');
+        return [];
+    }
+    // Handle NDJSON by splitting on newlines and filtering out empty lines
+    const lines = resp.text.trim().split('\n');
+    // Process each line
+    // Return the parsed results
+    return lines
+        .filter((line) => line.trim() !== '')
+        .map((line) => {
+            try {
+                return JSON.parse(line);
+            } catch (e) {
+                console.error('Failed to parse line:', line);
+                throw e;
+            }
+        });
+};
