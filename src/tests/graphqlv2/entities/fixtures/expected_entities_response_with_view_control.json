@@ -1,0 +1,42 @@
+{
+    "data": {
+        "_entities": [
+            {
+                "id": "e039c680-1024-34ff-d9d8-5d87feada4d5",
+                "type": "allergy",
+                "allergyCategory": ["environment"],
+                "criticality": "low",
+                "code": {
+                    "text": "Bee venom (substance)"
+                }
+            },
+            {
+                "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+                "resourceType": "CareTeam",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "www.icanbwell.com/care-team-category",
+                                "code": "favorite-practitioners"
+                            }
+                        ]
+                    }
+                ],
+                "careTeamName": "Favorites",
+                "status": "active"
+            },
+            {
+                "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4",
+                "__typename": "Patient",
+                "name": [
+                    {
+                        "family": "PATIENT1",
+                        "given": ["SHYLA"]
+                    }
+                ],
+                "birthDate": "2017-01-01"
+            }
+        ]
+    }
+}

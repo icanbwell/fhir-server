@@ -29,8 +29,8 @@ services:
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json,https://icanbwell.okta.com/oauth2/v1/keys'
-      EXTERNAL_AUTH_WELL_KNOWN_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/openid-configuration, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/openid-configuration,https://icanbwell.okta.com/.well-known/openid-configuration'
+      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json,https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json,https://icanbwell.okta.com/oauth2/v1/keys'
+      EXTERNAL_AUTH_WELL_KNOWN_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/openid-configuration,https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/openid-configuration,https://icanbwell.okta.com/.well-known/openid-configuration'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1
@@ -71,6 +71,13 @@ services:
       CONTAINER_MEM_REQUEST: 1000000000
       NO_OF_REQUESTS_PER_POD: 10
       ENABLE_VULCAN_IG_QUERY: 'true'
+      REQUIRED_AUDIT_EVENT_FILTERS: 'date'
+      ENABLE_SWAGGER_DOC: 1
+      ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID: 1
+      ENABLE_FAST_SERIALIZER_IN_GRAPH_OP: 1
+      ENABLE_FAST_SERIALIZER_IN_SEARCH: 1
+      ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP: 1
+      DISABLE_GRAPH_IN_EVERYTHING_OP: 1
     ports:
       - '3000:3000'
     volumes:

@@ -52,7 +52,7 @@
       "text": "Mold (organism)"
     },
     "patient": {
-      "reference": "Patient/WPS-0559166162"
+      "reference": "Patient/WPS-0559166162|client"
     },
     "recordedDate": "2002-06-05T01:17:36-04:00"
   },
@@ -109,7 +109,7 @@
       "text": "Bee venom (substance)"
     },
     "patient": {
-      "reference": "Patient/e4690a9f-f11b-871d-400f-300a9159aa64"
+      "reference": "Patient/WPS-0559166162|client"
     },
     "recordedDate": "1994-12-18T08:21:31-05:00"
   }

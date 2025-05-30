@@ -30,7 +30,7 @@
     "name": "Favorites",
     "status": "active",
     "subject": {
-      "reference": "Patient/WPS-0559166162"
+      "reference": "Patient/WPS-0559166162|client"
     }
   },
   {
@@ -64,7 +64,7 @@
     "name": "Favorites",
     "status": "active",
     "subject": {
-      "reference": "Patient/e4690a9f-f11b-871d-400f-300a9159aa64"
+      "reference": "Patient/WPS-0559166162|client"
     }
   }
 ]

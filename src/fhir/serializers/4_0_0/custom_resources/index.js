@@ -1,7 +1,7 @@
-const exportstatusentrySerializer = require('./exportStatusEntry');
-const exportstatusSerializer = require('./exportStatus');
+const exportstatusentryserializer = require('./exportStatusEntry');
+const exportstatusserializer = require('./exportStatus');
 
 module.exports = {
-    exportstatusentrySerializer,
-    exportstatusSerializer
+    exportstatusentryserializer,
+    exportstatusserializer
 };

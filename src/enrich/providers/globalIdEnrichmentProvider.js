@@ -2,7 +2,7 @@ const { EnrichmentProvider } = require('./enrichmentProvider');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
-const { SUBSCRIPTION_RESOURCES_GLOBAL_ID_ENRICH, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM } = require('../../constants')
+const { SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM } = require('../../constants')
 
 
 /**
@@ -72,68 +72,46 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
 
     async _preferGlobalIdInsideSelectedResources(resource) {
         const resourceType = resource.resourceType;
-        if (!resourceType || !resourceType.startsWith('Subscription')) {
+        /**
+         * @type {string}
+         */
+        const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+
+        if (!resourceType || !resourceType.startsWith('Subscription') || !sourceAssigningAuthority) {
             return;
         }
 
         // update ids present inside extensions
         if (resource.extension && Array.isArray(resource.extension)) {
-            /**
-            * @type {string}
-            */
-            let serviceSlug;
-            /**
-             * @type {object[]}
-             */
-            let extensionsToEnrich = [];
-            resource.extension.forEach(ext => {
-                if (SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.service_slug === ext.url) {
-                    serviceSlug = ext.valueString;
-                } else if ([SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person].includes(ext.url)) {
-                    const referenceId = ext.valueString;
-                    if (referenceId && !isUuid(referenceId)) {
-                        extensionsToEnrich.push(ext);
-                    }
+            resource.extension.forEach((ext) => {
+                if (
+                    [
+                        SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient,
+                        SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                    ].includes(ext.url) &&
+                    ext.valueString &&
+                    !isUuid(ext.valueString)
+                ) {
+                    ext.valueString = generateUUIDv5(`${ext.valueString}|${sourceAssigningAuthority}`);
                 }
-            })
-
-            if (extensionsToEnrich.length && serviceSlug) {
-                extensionsToEnrich.forEach(ext => {
-                    const referenceUuid = generateUUIDv5(`${ext.valueString}|${serviceSlug}`);
-                    ext.valueString = referenceUuid;
-                })
-            }
+            });
         }
 
         // update ids present in identifiers
         if (resource.identifier && Array.isArray(resource.identifier)) {
-            /**
-            * @type {string}
-            */
-            let serviceSlug;
-            /**
-             * @type {object[]}
-             */
-            let identifiersToEnrich = [];
-            resource.identifier.forEach(idnt => {
-                if (SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.service_slug === idnt.system) {
-                    serviceSlug = idnt.value;
-                } else if ([SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient, SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person].includes(idnt.system)) {
-                    const referenceId = idnt.value;
-                    if (referenceId && !isUuid(referenceId)) {
-                        identifiersToEnrich.push(idnt);
-                    }
+            resource.identifier.forEach((idnt) => {
+                if (
+                    [
+                        SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.patient,
+                        SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM.person
+                    ].includes(idnt.system) &&
+                    idnt.value &&
+                    !isUuid(idnt.value)
+                ) {
+                    idnt.value = generateUUIDv5(`${idnt.value}|${sourceAssigningAuthority}`);
                 }
-            })
-
-            if (identifiersToEnrich.length && serviceSlug) {
-                identifiersToEnrich.forEach(idnt => {
-                    const referenceUuid = generateUUIDv5(`${idnt.value}|${serviceSlug}`);
-                    idnt.value = referenceUuid;
-                })
-            }
+            });
         }
-
     }
 
     /**

@@ -26,7 +26,7 @@ function initializeSerializers(serializerName) {
         Identifier = require('../complex_types/identifier.js');
         return Identifier;
     }
-    if (serializerName === 'ExportStatusEntrySerializer' && !ExportStatusEntry) {
+    if (serializerName === 'ExportStatusEntry' && !ExportStatusEntry) {
         ExportStatusEntry = require('../custom_resources/exportStatusEntry.js');
         return ExportStatusEntry;
     }
@@ -66,11 +66,11 @@ class ExportStatusSerialzer {
         user: null,
         transactionTime: null,
         output: (value) => {
-            initializeSerializers('Extension');
+            initializeSerializers('ExportStatusEntry');
             return FhirResourceSerializer.serializeArray(value, ExportStatusEntry);
         },
         errors: (value) => {
-            initializeSerializers('Extension');
+            initializeSerializers('ExportStatusEntry');
             return FhirResourceSerializer.serializeArray(value, ExportStatusEntry);
         }
     };

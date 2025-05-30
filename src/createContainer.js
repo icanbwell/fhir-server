@@ -119,6 +119,7 @@ const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
 const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
+const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -483,7 +484,8 @@ const createContainer = function () {
         databaseAttachmentManager: c.databaseAttachmentManager,
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
-        customTracer: c.customTracer
+        customTracer: c.customTracer,
+        patientDataViewControlManager: c.patientDataViewControlManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -920,6 +922,14 @@ const createContainer = function () {
     container.register('customTracer', (c) => {
         return new CustomTracer({
             configManager: c.configManager
+        });
+    });
+
+    container.register('patientDataViewControlManager', (c) => {
+        return new PatientDataViewControlManager({
+            configManager: c.configManager,
+            searchManager: c.searchManager,
+            r4ArgsParser: c.r4ArgsParser
         });
     });
 
