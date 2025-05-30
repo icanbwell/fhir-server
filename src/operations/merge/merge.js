@@ -435,7 +435,7 @@ class MergeOperation {
         const effectiveSmartMerge = isTrue(parsedArgs.smartMerge ?? true);
         const response = res ?? requestInfo.response;
         const accepts = [requestInfo.headers?.accept ?? requestInfo.headers?.Accept ?? 'application/fhir+json'];
-        const wantsBundle = requestInfo.headers?.prefer === 'return=representation';
+        const wantsBundle = requestInfo.headers?.prefer === 'return=OperationOutcome';
 
         // Final merge outcomes (successes, errors, unchanged), streamed out
         const finalMergeResults = [];
@@ -592,15 +592,6 @@ class MergeOperation {
             await pipeline(
                 req,
                 new NdjsonParser(),
-                new ResourcePreparerTransform({
-                    parsedArgs,
-                    resourceType,
-                    signal,
-                    resourcePreparer: this.resourcePreparer,
-                    highWaterMark,
-                    configManager:self.configManager,
-                    rawResources: false
-                }),
                 mergeTransform,
                 fhirWriter,
                 responseWriter
@@ -682,11 +673,11 @@ class MergeOperation {
         resourcesToMerge.length = 0;
 
         await this.mergeManager.logAuditEntriesForMergeResults({
-            requestInfo,
+            requestInfo:requestInfo,
             requestId: requestInfo.requestId,
-            base_version,
-            parsedArgs,
-            finalMergeResults
+            base_version: base_version,
+            parsedArgs: parsedArgs,
+            mergeResults:finalMergeResults
         });
 
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, {

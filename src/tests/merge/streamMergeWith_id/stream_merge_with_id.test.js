@@ -138,4 +138,36 @@ describe('Streaming Merge Tests', () => {
 
         expect(results).toEqual(expect.arrayContaining(expectedThreePersonResponse));
     });
+
+    test('mergeWith_id supports streaming response when payload is JSON and Accept is ndjson', async () => {
+        const request = await createTestRequest();
+
+        // Send JSON array as body (not NDJSON)
+        const jsonBody = person1Resource;
+
+        const resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(jsonBody)
+            .set({
+                ...getHeaders(),
+                'Content-Type': 'application/fhir+json',
+                Accept: 'application/fhir+ndjson'
+            });
+
+        // Parse NDJSON response
+        const results = parseNdjsonResponse(resp);
+
+        expect(results.length).toBe(1);
+
+        expect(results).toEqual([
+            {
+                created: true,
+                updated: false,
+                id: 'aba5bcf41cf64435839cf0568c121843',
+                uuid: '849cb4f0-033b-5d6e-a614-9bbbbb3ba11e',
+                resourceType: 'Person',
+                sourceAssigningAuthority: 'bwell'
+            }
+        ]);
+    });
 });

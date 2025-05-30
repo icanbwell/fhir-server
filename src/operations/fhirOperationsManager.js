@@ -633,11 +633,13 @@ class FhirOperationsManager {
         });
 
         // Detect if the client wants a streaming response
-        const wantsStream = req.headers.accept?.includes('application/fhir+ndjson');
-        const isNdjsonInput = req.headers['content-type']?.includes('application/fhir+ndjson');
-        const shouldStream = wantsStream || isNdjsonInput;
+        const acceptNdjson = req.headers.accept?.includes('application/fhir+ndjson');
+        const contentTypeNdjson = req.headers['content-type']?.includes('application/fhir+ndjson');
+        const contentTypeJson = req.headers['content-type']?.includes('application/fhir+json') ||
+            req.headers['content-type']?.includes('application/json');
 
-        if (shouldStream) {
+        if (acceptNdjson && contentTypeNdjson) {
+            // Bidirectional streaming: pass request stream as-is
             return await this.mergeOperation.mergeAsyncStream({
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -645,7 +647,20 @@ class FhirOperationsManager {
                 req,
                 res
             });
+        } else if (acceptNdjson && contentTypeJson) {
+            // Convert JSON body to NDJSON stream
+            const { Readable } = require('stream');
+            let resources = Array.isArray(req.body) ? req.body : [req.body];
+            const ndjsonStream = Readable.from(resources.map(r => JSON.stringify(r) + '\n'));
+            return await this.mergeOperation.mergeAsyncStream({
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType,
+                req: ndjsonStream,
+                res
+            });
         } else {
+            // Fallback to standard merge
             return await this.mergeOperation.mergeAsync({
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
