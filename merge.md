@@ -47,6 +47,25 @@ For each resource in the bundle, the FHIR server checks:
     - updated: whether this resource was updated
     - resource_version: current version of the resource after this update
 
+### Streaming $merge
+The $merge operation also supports streaming, whenever the Content-Type is `application/fhir+ndjson`. Using this, payload can be streamed to FHIR Server and response will also be streamed to the client in ndjson format only.
+
+Example Request
+```
+{"resourceType":"Observation","id":"b19f1689-afd5-4fe9-80e2-f1919ebb3dcf",...}
+{"resourceType":"Observation","id":"f679299f-b1f5-4f5a-83ee-62cbfb910372",...}
+{"resourceType":"Condition","id":"ed90ab69-3685-490a-9b98-5bb797d41c9e",...}
+```
+
+Example Response
+```
+{"created":true,"id":"b19f1689-afd5-4fe9-80e2-f1919ebb3dcf","uuid":"b19f1689-afd5-4fe9-80e2-f1919ebb3dcf","resourceType":"Observation","updated":false,"sourceAssigningAuthority":"bwell"}
+{"created":true,"id":"f679299f-b1f5-4f5a-83ee-62cbfb910372","uuid":"f679299f-b1f5-4f5a-83ee-62cbfb910372","resourceType":"Observation","updated":false,"sourceAssigningAuthority":"bwell"}
+{"created":true,"id":"ed90ab69-3685-490a-9b98-5bb797d41c9e","uuid":"ed90ab69-3685-490a-9b98-5bb797d41c9e","resourceType":"Condition","updated":false,"sourceAssigningAuthority":"bwell"}
+```
+
+Note: In streaming $merge, the response is always returned as ndjson only.
+
 ### Notes:
 
 1. A FHIR resource must be specified in the URL in order for the $merge call to be processed.

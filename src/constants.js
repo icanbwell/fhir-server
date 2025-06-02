@@ -258,5 +258,6 @@ module.exports = {
     },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCCCEDS: 'Document is larger than the maximum size 16777216'
-    }
+    },
+    STREAM_ACCESS_LOG_BODY_LIMIT: 100
 };
