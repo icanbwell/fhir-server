@@ -632,31 +632,16 @@ class FhirOperationsManager {
             operation: WRITE
         });
 
-        // Detect if the client wants a streaming response
-        const acceptNdjson = req.headers.accept?.includes('application/fhir+ndjson');
+        // Detect if the client wants streaming
         const contentTypeNdjson = req.headers['content-type']?.includes('application/fhir+ndjson');
-        const contentTypeJson = req.headers['content-type']?.includes('application/fhir+json') ||
-            req.headers['content-type']?.includes('application/json');
 
-        if (acceptNdjson && contentTypeNdjson) {
+        if (contentTypeNdjson) {
             // Bidirectional streaming: pass request stream as-is
             return await this.mergeOperation.mergeAsyncStream({
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
                 resourceType,
                 req,
-                res
-            });
-        } else if (acceptNdjson && contentTypeJson) {
-            // Convert JSON body to NDJSON stream
-            const { Readable } = require('stream');
-            let resources = Array.isArray(req.body) ? req.body : [req.body];
-            const ndjsonStream = Readable.from(resources.map(r => JSON.stringify(r) + '\n'));
-            return await this.mergeOperation.mergeAsyncStream({
-                requestInfo: this.getRequestInfo(req),
-                parsedArgs,
-                resourceType,
-                req: ndjsonStream,
                 res
             });
         } else {

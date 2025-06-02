@@ -83,6 +83,7 @@ class AccessLogger {
      * @param {number|null|undefined} [stopTime]
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
+     * @param {string|undefined} streamRequestBody
      */
     async logAccessLogAsync ({
         req,
@@ -90,7 +91,8 @@ class AccessLogger {
         startTime,
         stopTime = Date.now(),
         query,
-        result
+        result,
+        streamRequestBody
     }) {
         /**
          * @type {string}
@@ -196,10 +198,11 @@ class AccessLogger {
         }
 
         if (requestInfo.body) {
-            let body =
-                !requestInfo.body || typeof requestInfo.body === 'string'
-                    ? requestInfo.body
-                    : JSON.stringify(requestInfo.body, getCircularReplacer());
+            let body = streamRequestBody
+                ? streamRequestBody
+                : !requestInfo.body || typeof requestInfo.body === 'string'
+                  ? requestInfo.body
+                  : JSON.stringify(requestInfo.body, getCircularReplacer());
 
             if (body) {
                 let bodyBuffer = Buffer.from(body);

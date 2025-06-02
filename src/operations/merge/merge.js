@@ -20,7 +20,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
-const { logInfo } = require('../common/logging');
+const { logInfo, logError } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
@@ -434,8 +434,7 @@ class MergeOperation {
         const base_version = parsedArgs.base_version;
         const effectiveSmartMerge = isTrue(parsedArgs.smartMerge ?? true);
         const response = res ?? requestInfo.response;
-        const accepts = [requestInfo.headers?.accept ?? requestInfo.headers?.Accept ?? 'application/fhir+json'];
-        const wantsBundle = requestInfo.headers?.prefer === 'return=OperationOutcome';
+        const accepts = ['application/fhir+ndjson'];
 
         // Final merge outcomes (successes, errors, unchanged), streamed out
         const finalMergeResults = [];
@@ -545,9 +544,7 @@ class MergeOperation {
         const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter({
             accepts,
             signal,
-            format: null,
             url: requestInfo.originalUrl,
-            bundle: wantsBundle,
             fnBundle: (lastId, stopTime) => this.bundleManager.createBundle({
                 type: 'batch-response',
                 requestId: requestInfo.userRequestId,
@@ -591,14 +588,14 @@ class MergeOperation {
             // Run pipeline
             await pipeline(
                 req,
-                new NdjsonParser(),
+                new NdjsonParser({ configManager: self.configManager }),
                 mergeTransform,
                 fhirWriter,
                 responseWriter
             );
         }catch (err){
             if (err.name === 'AbortError') {
-                console.log('⚠️ Pipeline aborted', err);
+                logError('Pipeline aborted', err);
             } else {
                 await self.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
@@ -680,9 +677,9 @@ class MergeOperation {
             mergeResults:finalMergeResults
         });
 
-        httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-            result: 'STREAMED ' + JSON.stringify(finalMergeResults, getCircularReplacer())
-        });
+        let contextData =  httpContext.get(ACCESS_LOGS_ENTRY_DATA) || {};
+        contextData.result = 'STREAMED ' + JSON.stringify(finalMergeResults, getCircularReplacer())
+        httpContext.set(ACCESS_LOGS_ENTRY_DATA, contextData);
     }
 
 }
