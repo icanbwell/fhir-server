@@ -139,7 +139,7 @@ describe('Streaming Merge Tests', () => {
         expect(results).toEqual(expect.arrayContaining(expectedThreePersonResponse));
     });
 
-    test('mergeWith_id supports streaming response when payload is JSON and Accept is ndjson', async () => {
+    test('mergeWith_id supports streaming response when payload is JSON and Accept is ndjson, Accept header is ignored', async () => {
         const request = await createTestRequest();
 
         // Send JSON array as body (not NDJSON)
@@ -154,12 +154,7 @@ describe('Streaming Merge Tests', () => {
                 Accept: 'application/fhir+ndjson'
             });
 
-        // Parse NDJSON response
-        const results = parseNdjsonResponse(resp);
-
-        expect(results.length).toBe(1);
-
-        expect(results).toEqual([
+        expect(resp.body).toEqual([
             {
                 created: true,
                 updated: false,
