@@ -3,7 +3,7 @@ const { VERSIONS } = require('../utils/constants.js');
 
 const routes = [
     {
-        path: '/:base_version/([$])export/:id',
+        path: '/:base_version/$export/:id',
         method: 'GET',
         corsOptions: {
             methods: ['GET']
@@ -13,7 +13,7 @@ const routes = [
         operation: 'exportById'
     },
     {
-        path: '/:base_version/([$])export',
+        path: '/:base_version/$export',
         method: 'POST',
         corsOptions: {
             methods: ['POST']
@@ -23,7 +23,7 @@ const routes = [
         operation: 'export'
     },
     {
-        path: '/:base_version/Patient/([$])export',
+        path: '/:base_version/Patient/$export',
         method: 'POST',
         corsOptions: {
             methods: ['POST']

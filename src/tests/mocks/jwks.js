@@ -8,7 +8,7 @@ const async = require('async');
  * @returns {Promise<{alg: string, e: string, n: string, kty: string, use: string, kid: *}>}
  */
 async function createJwksKeyAsync(cert) {
-    const parsed = await jose.importSPKI(cert.pub, 'ES256');
+    const parsed = await jose.importSPKI(cert.pub, 'RS256');
     const publicJwk = await jose.exportJWK(parsed);
     return {
         alg: 'RS256',

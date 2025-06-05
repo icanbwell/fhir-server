@@ -3,7 +3,6 @@
  */
 
 const env = require('var');
-const v8 = require('v8');
 const { HealthCheckError } = require('@godaddy/terminus');
 const { logInfo } = require('../operations/common/logging');
 const { getRequestCount } = require('../utils/requestCounter');

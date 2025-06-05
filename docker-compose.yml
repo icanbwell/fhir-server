@@ -10,6 +10,7 @@ services:
       args:
         NODE_ENV: development
     environment:
+      SHUTDOWN_DELAY_MS: 1000
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
       MONGO_URL: 'mongodb://mongo:27017?appName=fhir-server'
@@ -25,6 +26,8 @@ services:
       REDIRECT_TO_LOGIN: 1
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
+      ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL: 0
+      ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2: 0
       MONGO_TIMEOUT: 30000
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
@@ -45,7 +48,7 @@ services:
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
-      PARTITION_RESOURCES: 'AuditEvent'
+      PARTITION_RESOURCES: ''
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -60,7 +63,7 @@ services:
       ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
-      FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
+      # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
       FHIR_ADMIN_UI_URL: 'http://localhost:4000'
@@ -150,15 +153,15 @@ services:
   #     - 'JVM_OPTS=-Xms32M -Xmx64M'
   #     - SERVER_SERVLET_CONTEXT_PATH=/
 
-  hapi-fhir-server:
-    image: hapiproject/hapi:v6.10.1
-    container_name: hapi-fhir-server
-    environment:
-      - hapi.fhir.enable_repository_validating_interceptor=true
-      - hapi.fhir.ig_runtime_upload_enabled=true
-      - hapi.fhir.local_base_urls=https://hapi.fhir.org/baseR4,https://fhir.simplifier.net/bwellFHIRProfiles
-    ports:
-      - "3001:8080"
+  # hapi-fhir-server:
+  #   image: hapiproject/hapi:v6.10.1
+  #   container_name: hapi-fhir-server
+  #   environment:
+  #     - hapi.fhir.enable_repository_validating_interceptor=true
+  #     - hapi.fhir.ig_runtime_upload_enabled=true
+  #     - hapi.fhir.local_base_urls=https://hapi.fhir.org/baseR4,https://fhir.simplifier.net/bwellFHIRProfiles
+  #   ports:
+  #     - "3001:8080"
 
   elasticsearch:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9

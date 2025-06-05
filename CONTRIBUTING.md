@@ -3,7 +3,7 @@
 You will need:
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js 20.13: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
+2. Node.js 24.1: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
 On Macs:
 1. Install brew (https://brew.sh/) if not already installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
@@ -109,9 +109,7 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [Dockerfile](Dockerfile): Defines the docker image we run locally AND deploy into production.
 
-[env.json](env.json): Environment variables used when running tests
-
-[jest-mongodb-config.js](jest-mongodb-config.js): Config used when running unit tests
+[jest/setEnvVars.js](jest/setEnvVars.js): Environment variables used when running tests
 
 [package.json](package.json): Specifies the npm packages to use and commands for running tests
 

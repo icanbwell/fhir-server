@@ -1,8 +1,6 @@
 /**
  * This route handler implements the /health endpoint which returns the health of the system
  */
-const env = require('var');
-
 const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
 const {AuthService} = require("../strategies/authService");
 

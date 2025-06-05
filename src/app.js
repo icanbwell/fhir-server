@@ -219,11 +219,7 @@ function createApp({fnGetContainer}) {
             // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (!isGraphQLUrl && isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', {path: reqPath});
-                if (isAdminUrl) {
-                    res.redirect(new URL('', env.FHIR_ADMIN_UI_URL).toString());
-                    return;
-                }
-                if (isResourceUrl) {
+                if (isAdminUrl || isResourceUrl) {
                     res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
                     return;
                 }
@@ -364,16 +360,16 @@ function createApp({fnGetContainer}) {
     adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
-    adminRouter.get('/admin/:op?/:id?', (req, res) => handleAdminGet(fnGetContainer, req, res));
+    adminRouter.get('/admin/{:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
     adminRouter.post(
-        '/admin/:op?/:id?',
+        '/admin/{:op}{/:id}',
         validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
         express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
-    adminRouter.delete('/admin/:op?', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+    adminRouter.delete('/admin/{:op}', (req, res) => handleAdminDelete(fnGetContainer, req, res));
     adminRouter.put(
-        '/admin/:op?/:id?',
+        '/admin/{:op}{/:id}',
         validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
         express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPut(fnGetContainer, req, res));

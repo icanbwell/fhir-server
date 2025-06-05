@@ -1,6 +1,6 @@
 const env = require('var');
 const {isTrue} = require('./isTrue');
-const {CLOUD_STORAGE_CLIENTS, DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
+const {DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
 
 class ConfigManager {
     /**

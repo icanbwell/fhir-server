@@ -51,7 +51,7 @@ const routes = [
 
     {
         type: 'get',
-        path: '/:base_version/:resource/:id/([$])expand',
+        path: '/:base_version/:resource/:id/$expand',
         interaction: INTERACTIONS.EXPAND_BY_ID
     },
     {
