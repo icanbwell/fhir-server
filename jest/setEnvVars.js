@@ -1,3 +1,4 @@
+process.env.AUTH_CONFIGURATION_URI = 'http://myauthzserver.com/.well-known/openid-configuration';
 process.env.AUTH_JWKS_URL = 'http://foo:80/.well-known/jwks.json';
 process.env.AUTH_SERVER_URI = "http://localhost:3000";
 process.env.NODE_ENV = 'production';
