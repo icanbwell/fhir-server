@@ -1,6 +1,7 @@
-const env = require('var');
 const {isTrue} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
+
+const env = process.env;
 
 class ConfigManager {
     /**

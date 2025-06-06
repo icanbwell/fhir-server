@@ -2,7 +2,6 @@ const expectedExportStatusResponse = require('./fixtures/expected/expected_expor
 const expectedExportStatusResponse2 = require('./fixtures/expected/expected_export_status2_response.json');
 
 const deepcopy = require('deepcopy');
-const env = require('var');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -14,12 +13,12 @@ const { isUuid } = require('../../utils/uid.util');
 
 describe('Export Tests', () => {
     beforeEach(async () => {
-        env.ENABLE_BULK_EXPORT = '1';
+        process.env.ENABLE_BULK_EXPORT = '1';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
-        env.ENABLE_BULK_EXPORT = '0';
+        process.env.ENABLE_BULK_EXPORT = '0';
         await commonAfterEach();
     });
 

@@ -5,7 +5,6 @@ const express = require('express');
 const httpContext = require('express-http-context');
 const {fhirServerConfig} = require('./config');
 const cors = require('cors');
-const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
@@ -101,7 +100,7 @@ function createApp({fnGetContainer}) {
 
     const accessLogger = container.accessLogger;
 
-    const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
+    const httpProtocol = process.env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
     // Urls to be ignored for which access logs are to be created in db.
     const ignoredUrls = ['/live', '/health', '/ready'];
@@ -217,10 +216,10 @@ function createApp({fnGetContainer}) {
             const isResourceUrl = req.path === '/' || reqPath.startsWith('/4_0_0');
             const isAdminUrl = reqPath.startsWith('/admin');
             // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (!isGraphQLUrl && isTrue(env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
+            if (!isGraphQLUrl && isTrue(process.env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
                 logInfo('Redirecting to new UI', {path: reqPath});
                 if (isAdminUrl || isResourceUrl) {
-                    res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
+                    res.redirect(new URL(reqPath, process.env.FHIR_SERVER_UI_URL).toString());
                     return;
                 }
             }
@@ -276,7 +275,7 @@ function createApp({fnGetContainer}) {
     const options = {
         explorer: true,
         swaggerOptions: {
-            oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
+            oauth2RedirectUrl: process.env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
             oauth: {
                 appName: 'Swagger Doc',
                 usePkceWithAuthorizationCodeGrant: true
@@ -286,13 +285,13 @@ function createApp({fnGetContainer}) {
 
     // noinspection JSCheckFunctionSignatures
     // http://localhost:3000/api-docs
-    if (isTrue(env.ENABLE_SWAGGER_DOC)) {
+    if (isTrue(process.env.ENABLE_SWAGGER_DOC)) {
         const swaggerUi = require('swagger-ui-express');
         const swaggerDocument = require('./swagger_doc.json');
         let swaggerString = JSON.stringify(swaggerDocument);
         swaggerString = swaggerString
-            .replace(/<HOST_SERVER>/g, env.HOST_SERVER + "/4_0_0")
-            .replace(/<ENVIRONMENT>/g, env.ENVIRONMENT);
+            .replace(/<HOST_SERVER>/g, process.env.HOST_SERVER + "/4_0_0")
+            .replace(/<ENVIRONMENT>/g, process.env.ENVIRONMENT);
         const configuredSwaggerDocument = JSON.parse(swaggerString);
         app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(configuredSwaggerDocument));
     }
@@ -307,15 +306,15 @@ function createApp({fnGetContainer}) {
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
-            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
-            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+            `&clientId=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
+            `&tokenUrl=${process.env.AUTH_CODE_FLOW_URL}/oauth2/token`
         );
     });
 
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
-        res.redirect(`${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
+        res.redirect(`${process.env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}` +
             `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
     });
 
@@ -332,7 +331,7 @@ function createApp({fnGetContainer}) {
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
         const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
-        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
+        const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
 
@@ -380,7 +379,7 @@ function createApp({fnGetContainer}) {
     passport.use('graphqlStrategy', container.jwt_strategy);
 
     // enable middleware for graphql & graphqlv2
-    if (isTrue(env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
+    if (isTrue(process.env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
         const router = express.Router();
@@ -450,7 +449,7 @@ function createApp({fnGetContainer}) {
         });
 
         Promise.all([
-            isTrue(env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
+            isTrue(process.env.ENABLE_GRAPHQL) ? graphql(fnGetContainer) : Promise.resolve(),
             configManager.enableGraphQLV2 ? graphqlV2(fnGetContainer) : Promise.resolve()
         ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
             if (graphqlMiddleware) {
@@ -467,7 +466,7 @@ function createApp({fnGetContainer}) {
         createFhirApp(fnGetContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
-    app.locals.deployEnvironment = env.ENVIRONMENT;
+    app.locals.deployEnvironment = process.env.ENVIRONMENT;
     app.locals.deployVersion = getImageVersion();
 
     app.get('/robots.txt', (req, res) => {

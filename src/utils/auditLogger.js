@@ -1,7 +1,6 @@
 /**
  * logs audit entries
  */
-const env = require('var');
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 const { generateUUID } = require('./uid.util');
@@ -110,7 +109,7 @@ class AuditLogger {
         };
 
         // Get current record
-        const maxNumberOfIds = env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
+        const maxNumberOfIds = process.env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(process.env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
 
         const resource = new AuditEvent({
             id: generateUUID(),
@@ -188,7 +187,7 @@ class AuditLogger {
         requestInfo, base_version, resourceType, operation, args, ids
     }) {
         // don't create audit entries for audit entries or if DISABLE_AUDIT_LOGGING is set
-        if (isTrue(env.DISABLE_AUDIT_LOGGING) || resourceType === 'AuditEvent') {
+        if (isTrue(process.env.DISABLE_AUDIT_LOGGING) || resourceType === 'AuditEvent') {
             return;
         }
 

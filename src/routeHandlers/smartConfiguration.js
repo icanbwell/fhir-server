@@ -2,17 +2,16 @@
  * This route handler implements the FHIR Smart Configuration
  */
 
-const env = require('var');
 const superagent = require('superagent');
 const { ExternalTimeoutError } = require('../utils/httpErrors');
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
-const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
-const cacheMaxAge = env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME;
+const requestTimeout = (parseInt(process.env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+const cacheMaxAge = process.env.CACHE_EXPIRY_TIME ? Number(process.env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME;
 let lastRequestTime = 0;
 let cachedResponse = null;
 
 module.exports.handleSmartConfiguration = async (req, res, next) => {
-    if (env.AUTH_CONFIGURATION_URI) {
+    if (process.env.AUTH_CONFIGURATION_URI) {
         if (new Date().getTime() - lastRequestTime < cacheMaxAge && cachedResponse) {
             return res.json(cachedResponse);
         }
@@ -21,7 +20,7 @@ module.exports.handleSmartConfiguration = async (req, res, next) => {
          */
         try {
             const response = await superagent
-                .get(env.AUTH_CONFIGURATION_URI)
+                .get(process.env.AUTH_CONFIGURATION_URI)
                 .set({
                     Accept: 'application/json'
                 })

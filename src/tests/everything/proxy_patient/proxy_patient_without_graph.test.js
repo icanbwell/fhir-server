@@ -1,4 +1,3 @@
-const env = require('var')
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 
@@ -45,11 +44,11 @@ describe('Proxy Patient $everything Tests', () => {
     });
 
     test('Proxy Patient tests for $everything', async () => {
-        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
 
         const request = await createTestRequest();
         // ARRANGE
@@ -224,7 +223,7 @@ describe('Proxy Patient $everything Tests', () => {
             .set(getHeaders());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
     });
 });

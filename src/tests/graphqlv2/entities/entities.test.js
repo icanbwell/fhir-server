@@ -9,7 +9,6 @@ const expectedEntitiesResponseWithPatientScope = require('./fixtures/expected_en
 const expectedEntitiesResponseWithViewControl = require('./fixtures/expected_entities_response_with_view_control.json');
 const expectedEntitiesResponseWithoutGlobalId = require('./fixtures/expected_entities_response_without_globalid.json');
 
-const env = require('var');
 const fs = require('fs');
 const path = require('path');
 
@@ -186,8 +185,8 @@ describe('GraphQL entities Tests', () => {
     });
 
     test('GraphQL entities with patient scope and view control', async () => {
-        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';
+        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';
 
         const request = await createTestRequest();
         const entitiesQueryText = entitiesQuery.replace(/\\n/g, '');
@@ -315,6 +314,6 @@ describe('GraphQL entities Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedEntitiesResponseWithViewControl);
 
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });
 });

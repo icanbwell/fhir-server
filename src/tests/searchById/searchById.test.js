@@ -1,4 +1,3 @@
-const env = require('var');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 // test file
@@ -58,8 +57,8 @@ describe('Search By Id Tests', () => {
 
     test('Search By Id Works for Composition when skip class object is disabled', async () => {
         // disable skipClassObjectResources
-        let skipClassObjectResources = env.SKIP_CLASS_OBJECT_RESOURCES;
-        env.SKIP_CLASS_OBJECT_RESOURCES = '';
+        let skipClassObjectResources = process.env.SKIP_CLASS_OBJECT_RESOURCES;
+        process.env.SKIP_CLASS_OBJECT_RESOURCES = '';
 
         const request = await createTestRequest();
         // ARRANGE
@@ -94,13 +93,13 @@ describe('Search By Id Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedCompositionResourceWithGlobalId);
 
-        env.SKIP_CLASS_OBJECT_RESOURCES = skipClassObjectResources;
+        process.env.SKIP_CLASS_OBJECT_RESOURCES = skipClassObjectResources;
     });
 
     test('Search By Id Works for Composition when fast serilizer is configured', async () => {
         // enable FastSerializerInSearchById
-        let enableFastSerializerInSearchById = env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID;
-        env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = '1';
+        let enableFastSerializerInSearchById = process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID;
+        process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = '1';
 
         const serializerSpy = jest.spyOn(FhirResourceSerializer, 'serialize');
 
@@ -139,6 +138,6 @@ describe('Search By Id Tests', () => {
 
         expect(serializerSpy).toHaveBeenCalled()
 
-        env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = enableFastSerializerInSearchById;
+        process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = enableFastSerializerInSearchById;
     });
 });

@@ -24,7 +24,6 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const env = require('var');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
@@ -225,8 +224,8 @@ describe('Practitioner Tests', () => {
                 .expect(400);
         });
         test('system AuditEvent is not created while creating AuditEvent', async () => {
-            const envValue = env.REQUIRED_AUDIT_EVENT_FILTERS;
-            env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+            const envValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
 
             const request = await createTestRequest();
             // Create api hit with valid resource
@@ -242,11 +241,11 @@ describe('Practitioner Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResourceCount(1);
-            env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
         });
         test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
-            const envValue = env.VALIDATE_SCHEMA;
-            env.VALIDATE_SCHEMA = '0';
+            const envValue = process.env.VALIDATE_SCHEMA;
+            process.env.VALIDATE_SCHEMA = '0';
 
             const request = await createTestRequest();
             // Create api hit with valid resource
@@ -256,14 +255,14 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(201);
 
-            env.VALIDATE_SCHEMA = '1';
+            process.env.VALIDATE_SCHEMA = '1';
             await request
                 .post('/4_0_0/Observation/')
                 .send(observation1Resource)
                 .set(getHeaders())
                 .expect(400);
 
-            env.VALIDATE_SCHEMA = envValue;
+            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

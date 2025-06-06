@@ -4,7 +4,6 @@ const patient3Resource = require('./fixtures/patient/patient3.json');
 
 const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
 
-const env = require('var');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -107,8 +106,8 @@ describe('Patient Tests for Remove operation', () => {
         });
 
         test('System AuditEvent is not generated for deleting AuditEvent', async () => {
-            const envValue = env.REQUIRED_AUDIT_EVENT_FILTERS;
-            env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+            const envValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
             const request = await createTestRequest();
 
             let resp = await request
@@ -138,7 +137,7 @@ describe('Patient Tests for Remove operation', () => {
                 .expect(200);
 
             expect(resp).toHaveResourceCount(0);
-            env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+            process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
         });
     });
 });

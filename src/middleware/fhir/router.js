@@ -33,7 +33,6 @@ const { VERSIONS, INTERACTIONS } = require('./utils/constants');
 
 const { CustomOperationsController } = require('./4_0_0/controllers/operations.controller');
 
-const env = require('var');
 const cors = require('cors');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { NotFoundError } = require('../../utils/httpErrors');
@@ -289,7 +288,7 @@ class FhirRouter {
     }
 
     enableExportRoutes (app, config, corsDefaults) {
-        if (!isTrue(env.ENABLE_BULK_EXPORT)) {
+        if (!isTrue(process.env.ENABLE_BULK_EXPORT)) {
             return;
         }
 

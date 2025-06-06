@@ -1,5 +1,3 @@
-const env = require('var');
-
 // test file
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
@@ -60,8 +58,8 @@ describe('everything _includeNonClinicalResources Tests with fast serialization'
 
     test('Person and Patient $everything with _includeNonClinicalResources', async () => {
         // enable getRawEverythingOpBundle
-        let getRawEverythingOpBundle = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        let getRawEverythingOpBundle = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
         const serializerSpy = jest.spyOn(FhirResourceSerializer, 'serialize');
 
         const request = await createTestRequest();
@@ -323,6 +321,6 @@ describe('everything _includeNonClinicalResources Tests with fast serialization'
 
         expect(serializerSpy).toHaveBeenCalled();
 
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = getRawEverythingOpBundle;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = getRawEverythingOpBundle;
     });
 });

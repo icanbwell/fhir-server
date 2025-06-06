@@ -1,5 +1,4 @@
 const cron = require('node-cron');
-const env = require('var');
 const { jest } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
@@ -91,15 +90,15 @@ module.exports.commonBeforeEach = async () => {
     cron.schedule = jest.fn(() => ({
         on: jest.fn()
     }));
-    env.VALIDATE_SCHEMA = true;
-    const urlObject = new URL(env.AUTH_JWKS_URL);
+    process.env.VALIDATE_SCHEMA = true;
+    const urlObject = new URL(process.env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
         { pub: publicKey, kid: '123' }
     ]);
     /**
      * @type {string[]}
      */
-    const extJwksUrls = env.EXTERNAL_AUTH_JWKS_URLS.split(',');
+    const extJwksUrls = process.env.EXTERNAL_AUTH_JWKS_URLS.split(',');
     extJwksUrls.forEach((extJwksUrl) => {
         if (extJwksUrl) {
             const urlObject1 = new URL(extJwksUrl.trim());
