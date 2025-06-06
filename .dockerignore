@@ -13,3 +13,10 @@ Dockerfile
 src/admin/scripts/.env*
 .npmrc
 docker-compose.yml
+src/tests
+*.md
+src/fhir/generator/graphqlv2
+src/fhir/generator/json/fhir-generated.db-schema
+src/fhir/generator/resolvers
+src/fhir/generator/xsd
+src/app.test.js

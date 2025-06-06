@@ -1,14 +1,12 @@
-const env = require('var');
-
 function getImageVersion () {
     /**
      * @type {string}
      */
-    const image = env.DOCKER_IMAGE || '';
+    const image = process.env.DOCKER_IMAGE || '';
     /**
      * @type {string|null}
      */
-    return env.DOCKER_IMAGE_VERSION || (image ? image.slice(image.lastIndexOf(':') + 1) : null);
+    return process.env.DOCKER_IMAGE_VERSION || (image ? image.slice(image.lastIndexOf(':') + 1) : null);
 }
 
 module.exports = {

@@ -70,8 +70,15 @@ class AccessLogger {
         this.queue = [];
 
         assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
-        cron.schedule(this.configManager.postRequestFlushTime, async () => {
-            await this.flushAsync();
+        const cronTask = cron.schedule(
+            this.configManager.postRequestFlushTime,
+            async () => {
+                await this.flushAsync();
+            },
+            { name: 'AccessLogger Cron' }
+        );
+        cronTask.on('execution:missed', (ctx) => {
+            logInfo('Missed execution of scheduled-cron', { name: ctx.task.name });
         });
     }
 

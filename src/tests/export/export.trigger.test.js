@@ -10,14 +10,13 @@ const {
     getHeaders
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const env = require('var');
 const moment = require('moment-timezone');
 const { CronJobRunner } = require('../../cronJob/cronJobRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 
 describe('Export Trigger Tests', () => {
     beforeEach(async () => {
-        env.ENABLE_BULK_EXPORT = '1';
+        process.env.ENABLE_BULK_EXPORT = '1';
         const container = getTestContainer();
         if (container) {
             delete container.services.cronJobRunner;
@@ -27,7 +26,7 @@ describe('Export Trigger Tests', () => {
 
     afterEach(async () => {
         jest.clearAllMocks();
-        env.ENABLE_BULK_EXPORT = '0';
+        process.env.ENABLE_BULK_EXPORT = '0';
         await commonAfterEach();
     });
 

@@ -28,7 +28,7 @@ const routes = [
     },
     {
         type: 'get',
-        path: '/:base_version/([$])question',
+        path: '/:base_version/$question',
         corsOptions: {
             methods: ['GET']
         },
@@ -37,7 +37,7 @@ const routes = [
     },
     {
         type: 'post',
-        path: '/:base_version/([$])question',
+        path: '/:base_version/$question',
         corsOptions: {
             methods: ['POST']
         },

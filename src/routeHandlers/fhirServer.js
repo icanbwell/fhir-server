@@ -3,7 +3,6 @@
  */
 
 const compression = require('compression');
-const env = require('var');
 const { isTrue } = require('../utils/isTrue');
 const {
     resolveSchema,
@@ -79,7 +78,7 @@ class MyFHIRServer {
                         return false;
                     }
                     // compress everything
-                    return !isTrue(env.DISABLE_COMPRESSION);
+                    return !isTrue(process.env.DISABLE_COMPRESSION);
                 }
             })
         );

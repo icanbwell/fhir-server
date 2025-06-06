@@ -1,6 +1,5 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
-const env = require('var');
 const {
     MyJwtStrategy
 } = require("../../strategies/jwt.bearer.strategy");

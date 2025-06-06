@@ -1,4 +1,3 @@
-const env = require('var')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const patientPersonData = require('./fixtures/patient/patient_person_data.json');
@@ -16,11 +15,11 @@ describe('GridFS everything tests', () => {
 
     describe('Data retrieval in everything using gridfs works', () => {
         test('data returned and _file_id present in database', async () => {
-            const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-            const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+            const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+            const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
-            env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-            env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+            process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+            process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
 
             const GRIDFS_RESOURCES = process.env.GRIDFS_RESOURCES;
             process.env.GRIDFS_RESOURCES = 'Patient';
@@ -72,8 +71,8 @@ describe('GridFS everything tests', () => {
 
             process.env.GRIDFS_RESOURCES = GRIDFS_RESOURCES;
 
-            env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-            env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+            process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+            process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
         });
     });
 });

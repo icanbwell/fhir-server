@@ -11,7 +11,6 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { ConfigManager } = require('../../../utils/configManager');
 const { COLLECTION } = require('../../../constants');
 const deepcopy = require('deepcopy');
-const env = require('var');
 
 const person_payload = {
     scope: 'patient/Condition.*',
@@ -192,8 +191,8 @@ describe('Condition Tests', () => {
                 .expect(200);
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = env.VALIDATE_SCHEMA;
-            env.VALIDATE_SCHEMA = '0';
+            const envValue = process.env.VALIDATE_SCHEMA;
+            process.env.VALIDATE_SCHEMA = '0';
 
             const request = await createTestRequest();
             const container = getTestContainer();
@@ -215,7 +214,7 @@ describe('Condition Tests', () => {
 
                 expect(resp).toHaveStatusCode(403);
             }
-            env.VALIDATE_SCHEMA = envValue;
+            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

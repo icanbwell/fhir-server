@@ -1,5 +1,4 @@
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const env = require('var');
 
 const utils = require('../../../../utils/uid.util');
 let i = 5;
@@ -43,10 +42,10 @@ describe('Binary history resource should be migrated to S3', () => {
     });
 
     test('Binary history resource should be migrated to S3 and already updated or old format resource should be skipped', async () => {
-        let historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET_NAME;
-        let historyResourceCloudStorageClientEnv = env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
-        env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
-        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
+        let historyResourceCloudStorageBucket = process.env.HISTORY_RESOURCE_BUCKET_NAME;
+        let historyResourceCloudStorageClientEnv = process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
+        process.env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
+        process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
 
         const adminLogger = new AdminLogger();
 
@@ -137,7 +136,7 @@ describe('Binary history resource should be migrated to S3', () => {
         });
         expect(cloudStorageData).toEqual(expectedDataUploadedToCloudStorage)
 
-        env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
-        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClientEnv;
+        process.env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
+        process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClientEnv;
     });
 });

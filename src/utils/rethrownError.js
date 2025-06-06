@@ -1,5 +1,3 @@
-const env = require('var');
-
 /**
  * This class can be used to rethrow errors
  */
@@ -58,7 +56,7 @@ class RethrownError extends Error {
      * @returns {string[]}
      */
     getExcludedResources () {
-        return env.LOG_EXCLUDE_RESOURCES ? env.LOG_EXCLUDE_RESOURCES.split(',') : [];
+        return process.env.LOG_EXCLUDE_RESOURCES ? process.env.LOG_EXCLUDE_RESOURCES.split(',') : [];
     }
 
     /**

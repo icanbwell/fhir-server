@@ -10,7 +10,6 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 const deepcopy = require('deepcopy');
-const env = require('var');
 const { COLLECTION } = require('../../../constants');
 
 
@@ -203,8 +202,8 @@ describe('Condition Tests', () => {
             expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing the Condition resource.')
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = env.VALIDATE_SCHEMA;
-            env.VALIDATE_SCHEMA = '0';
+            const envValue = process.env.VALIDATE_SCHEMA;
+            process.env.VALIDATE_SCHEMA = '0';
 
             const request = await createTestRequest();
             const container = getTestContainer();
@@ -226,7 +225,7 @@ describe('Condition Tests', () => {
 
                 expect(resp).toHaveStatusCode(403);
             }
-            env.VALIDATE_SCHEMA = envValue;
+            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

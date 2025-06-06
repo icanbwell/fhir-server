@@ -1,5 +1,4 @@
 const { BaseScriptRunner } = require('./baseScriptRunner');
-const env = require('var');
 const { RequestWithDigestAuth } = require('../../utils/digestAuth');
 const ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS = 60;
 
@@ -67,12 +66,12 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         };
 
         const digestRequest = new RequestWithDigestAuth({
-            username: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
-            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY
+            username: process.env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
+            password: process.env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY
         });
         const response = await digestRequest.request({
             method: 'post',
-            url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
+            url: process.env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
             headers,
             data
         });

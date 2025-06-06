@@ -4,7 +4,6 @@ const condition1Resource = require('./fixtures/Condition/condition1.json');
 const resourceStructure = require('./fixtures/Resource/resource.json');
 
 const deepcopy = require('deepcopy');
-const env = require('var');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const {
  commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
@@ -154,8 +153,8 @@ describe('Condition Tests', () => {
             expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user patient-123@example.com with scopes [patient/Observation.*] failed access check to [Condition.write]');
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = env.VALIDATE_SCHEMA;
-            env.VALIDATE_SCHEMA = '0';
+            const envValue = process.env.VALIDATE_SCHEMA;
+            process.env.VALIDATE_SCHEMA = '0';
 
             const request = await createTestRequest();
             const container = getTestContainer();
@@ -177,7 +176,7 @@ describe('Condition Tests', () => {
 
                 expect(resp).toHaveStatusCode(403);
             }
-            env.VALIDATE_SCHEMA = envValue;
+            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

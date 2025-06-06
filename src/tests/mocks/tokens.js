@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const env = require('var');
 
 /**
  * Creates and signs a token

@@ -1,4 +1,3 @@
-const env = require('var');
 const moment = require('moment-timezone');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
@@ -73,7 +72,7 @@ const logSystemEventAsync = async ({ event, message, args }) => {
  * @param {Object} args
  */
 const logTraceSystemEventAsync = async ({ event, message, args }) => {
-    if (env.LOGLEVEL === 'TRACE' || env.LOGLEVEL === 'DEBUG') {
+    if (process.env.LOGLEVEL === 'TRACE' || process.env.LOGLEVEL === 'DEBUG') {
         await logSystemEventAsync({ event, message, args });
     }
 };

@@ -19,7 +19,7 @@ describe('Smart Configuration', () => {
         const mockedResponse = {
             authorization_endpoint: '/oauth2/authorize'
         };
-        nock('https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD')
+        nock('http://myauthzserver.com')
             // retry 3 times
             .get('/.well-known/openid-configuration')
             .delay(6000)

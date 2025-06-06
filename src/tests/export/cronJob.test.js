@@ -11,7 +11,6 @@ const {
     createTestRequest
 } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const env = require('var');
 const moment = require('moment-timezone');
 const { CronJobRunner } = require('../../cronJob/cronJobRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
@@ -19,7 +18,7 @@ const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 
 describe('Cron Job Tests', () => {
     beforeEach(async () => {
-        env.ENABLE_BULK_EXPORT = '1';
+        process.env.ENABLE_BULK_EXPORT = '1';
         const container = getTestContainer();
         if (container) {
             delete container.services.cronJobRunner;
@@ -28,7 +27,7 @@ describe('Cron Job Tests', () => {
     });
 
     afterEach(async () => {
-        env.ENABLE_BULK_EXPORT = '0';
+        process.env.ENABLE_BULK_EXPORT = '0';
         await commonAfterEach();
     });
 

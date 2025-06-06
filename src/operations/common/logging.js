@@ -1,4 +1,3 @@
-const env = require('var');
 const httpContext = require('express-http-context');
 const { getLogger } = require('../../winstonInit');
 const { REQUEST_ID_TYPE } = require('../../constants');
@@ -43,7 +42,7 @@ const logInfo = (message, args) => {
  * @param {Object} args
  */
 const logDebug = (message, args) => {
-    if (env.LOGLEVEL === 'DEBUG') {
+    if (process.env.LOGLEVEL === 'DEBUG') {
         setRequestIdInLog(args);
         logger.debug(message, args);
     }
@@ -76,7 +75,7 @@ const logWarn = (message, args) => {
  * @return {Promise<void>}
  */
 const logVerboseAsync = async ({ source, args }) => {
-    if (env.LOGLEVEL === 'DEBUG') {
+    if (process.env.LOGLEVEL === 'DEBUG') {
         logInfo(`${source}`, { args });
     }
 };

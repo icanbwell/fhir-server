@@ -1,4 +1,3 @@
-const env = require('var');
 const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');
 const { createApp } = require('./app');
@@ -59,7 +58,7 @@ async function createServer (fnGetContainer) {
     const server = http
         .createServer(app)
         .listen(fhirServerConfig.server.port, null, null, async () => {
-            const image = env.DOCKER_IMAGE || '';
+            const image = process.env.DOCKER_IMAGE || '';
             await logSystemEventAsync({
                 event: 'serverStartup',
                 message: 'Server is up and running',
@@ -74,13 +73,13 @@ async function createServer (fnGetContainer) {
     // A value of 0 will disable the keep-alive timeout behavior on incoming connections. A value of 0 makes the
     // http server behave similarly to Node.js versions prior to 8.0.0, which did not have a keep-alive timeout.
     // Timeout in milliseconds. Default: 5000 (5 seconds).
-    server.keepAliveTimeout = env.KEEP_ALIVE_TIMEOUT ? parseInt(env.KEEP_ALIVE_TIMEOUT) : 10 * 60 * 1000;
+    server.keepAliveTimeout = process.env.KEEP_ALIVE_TIMEOUT ? parseInt(process.env.KEEP_ALIVE_TIMEOUT) : 10 * 60 * 1000;
 
     server.on('connection', function (socket) {
         // https://nodejs.org/api/net.html#net_socket_settimeout_timeout_callback
         // The number of milliseconds of inactivity before a socket is presumed to have timed out.
         // A value of 0 will disable the timeout behavior on incoming connections.
-        socket.setTimeout(env.SOCKET_TIMEOUT ? parseInt(env.SOCKET_TIMEOUT) : 10 * 60 * 1000);
+        socket.setTimeout(process.env.SOCKET_TIMEOUT ? parseInt(process.env.SOCKET_TIMEOUT) : 10 * 60 * 1000);
         socket.once('timeout', function () {
             logInfo('Socket timeout', {});
             socket.end();
@@ -98,12 +97,12 @@ async function createServer (fnGetContainer) {
         statusOkResponse: 'OK',
         statusError: 455,
         statusErrorResponse: 455,
-        timeout: env.GRACEFUL_TIMEOUT_MS ? parseInt(env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
+        timeout: process.env.GRACEFUL_TIMEOUT_MS ? parseInt(process.env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             // https://github.com/godaddy/terminus?tab=readme-ov-file#how-to-set-terminus-up-with-kubernetes
-            let serverShutdownDelay = env.SHUTDOWN_DELAY_MS
-                ? parseInt(env.SHUTDOWN_DELAY_MS)
+            let serverShutdownDelay = process.env.SHUTDOWN_DELAY_MS
+                ? parseInt(process.env.SHUTDOWN_DELAY_MS)
                 : 15100; // number of milliseconds before shutdown begin
             logInfo(`Server will begin shutdown in ${serverShutdownDelay / 1000} sec`, {});
             return new Promise((resolve) => {

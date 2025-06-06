@@ -1,7 +1,6 @@
 // noinspection JSUnresolvedReference
 
 const {SimpleContainer} = require('./utils/simpleContainer');
-const env = require('var');
 const {AccessLogger} = require('./utils/accessLogger');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
@@ -220,14 +219,14 @@ const createContainer = function () {
         {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
-            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
             configManager: c.configManager
         }
     ));
     container.register('bulkExportEventProducer', (c) => new BulkExportEventProducer(
         {
             kafkaClient: c.kafkaClient,
-            fhirBulkExportEventTopic: env.KAFKA_BULK_EXPORT_EVENT_TOPIC || 'fhir.bulk_export.events',
+            fhirBulkExportEventTopic: process.env.KAFKA_BULK_EXPORT_EVENT_TOPIC || 'fhir.bulk_export.events',
             configManager: c.configManager
         }
     ));

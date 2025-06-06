@@ -10,7 +10,6 @@ const observationResource = require('./fixtures/observation.json');
 
 const fs = require('fs');
 const path = require('path');
-const env = require('var');
 
 const carePlanQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 const carePlan2Query = fs.readFileSync(path.resolve(__dirname, './fixtures/query2.graphql'), 'utf8');
@@ -127,8 +126,8 @@ describe('GraphQL CarePlan Tests', () => {
             expect(resp).toHaveResponse(expectedCarePlanBundle2Resource);
 
             // Now updating value of env variable to 2, to test resources are fetched from db in specified batch size
-            const envValue = env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE;
-            env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = 2;
+            const envValue = process.env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE;
+            process.env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = 2;
 
             resp = await request
                 .post('/4_0_0/$graphqlv2')
@@ -143,7 +142,7 @@ describe('GraphQL CarePlan Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCarePlanBundle3Resource);
 
-            env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = envValue;
+            process.env.GRAPHQL_FETCH_RESOURCE_BATCH_SIZE = envValue;
         });
     });
 });

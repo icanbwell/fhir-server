@@ -1,6 +1,5 @@
 const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig, resourceHistoryMongoConfig } = require('../config');
 const { isTrue } = require('./isTrue');
-const env = require('var');
 const { logInfo, logError } = require('../operations/common/logging');
 const { logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { MongoClient, GridFSBucket } = require('mongodb');
@@ -180,7 +179,7 @@ class MongoDatabaseManager {
         const parts = clientConfig.connection.split(':');
         const server = clientConfig.connection.substring(clientConfig.connection.indexOf('@'));
         const maskedConnection = `${parts[0]}:${parts[1]}:***********${server}`;
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        if (isTrue(process.env.LOG_ALL_MONGO_CALLS)) {
             clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
                 {
@@ -216,7 +215,7 @@ class MongoDatabaseManager {
             }
         );
 
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        if (isTrue(process.env.LOG_ALL_MONGO_CALLS)) {
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
             client.on('commandStarted', event => {
                 logInfo('AWS Received commandStarted', { event });

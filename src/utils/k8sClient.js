@@ -1,4 +1,3 @@
-const env = require('var');
 const k8s = require('@kubernetes/client-node');
 const { assertTypeEquals } = require('./assertType');
 const { ConfigManager } = require('./configManager');
@@ -98,7 +97,7 @@ class K8sClient {
             metadata.name = `fhir-server-job-${generateUUID().slice(-10)}`;
             metadata.labels = {
                 app: 'fhir-server',
-                'app.kubernetes.io/version': env.DOCKER_IMAGE_VERSION
+                'app.kubernetes.io/version': process.env.DOCKER_IMAGE_VERSION
             };
             job.metadata = metadata;
 

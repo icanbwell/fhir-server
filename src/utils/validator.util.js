@@ -1,7 +1,6 @@
 /**
  * This file implement calling the FHIR validator
  */
-const env = require('var');
 const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');

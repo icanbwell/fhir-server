@@ -1,4 +1,3 @@
-const env = require('var');
 const fs = require('fs');
 const path = require('path');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -162,8 +161,8 @@ describe('GraphQL DocumentReference Tests', () => {
     });
 
     test('GraphQL DocumentReference with linked Binary resource using patient scope and view control', async () => {
-        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client1';
+        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client1';
 
         const request = await createTestRequest();
         let graphqlQueryText = documentReferenceWithBinaryQuery.replace(/\\n/g, '');
@@ -225,6 +224,6 @@ describe('GraphQL DocumentReference Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedDocumentReferenceWithBinaryForPatientScopeResponseAndViewControl);
 
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });
 });

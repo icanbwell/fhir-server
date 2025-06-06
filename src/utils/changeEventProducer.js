@@ -1,4 +1,3 @@
-const env = require('var');
 const { generateUUID } = require('./uid.util');
 const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
@@ -267,7 +266,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      */
     async flushAsync () {
         const fhirResourceMessageMap = this.getFhirResourceMessageMap();
-        if (!env.ENABLE_EVENTS_KAFKA) {
+        if (!process.env.ENABLE_EVENTS_KAFKA) {
             fhirResourceMessageMap.clear();
             return;
         }

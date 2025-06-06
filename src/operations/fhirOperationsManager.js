@@ -17,7 +17,6 @@ const { get_all_args } = require('./common/get_all_args');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { SearchStreamingOperation } = require('./search/searchStreaming');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
-const env = require('var');
 const httpContext = require('express-http-context');
 const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
@@ -259,7 +258,7 @@ class FhirOperationsManager {
         /**
          * @type {string | null}
          */
-        const host = env.ENVIRONMENT === 'local' ? req.headers.host : req.hostname; // local will append port number to host
+        const host = process.env.ENVIRONMENT === 'local' ? req.headers.host : req.hostname; // local will append port number to host
         /**
          * @type {Object | Object[] | null}
          */

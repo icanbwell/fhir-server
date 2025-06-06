@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const env = require('var');
 const { RethrownError } = require('../utils/rethrownError');
 const { logInfo } = require('../operations/common/logging');
 
@@ -78,7 +77,7 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
         const mongoConfig = await mongoDatabaseManager.getClientConfigAsync();
         res.status(200).json({
             success: true,
-            image: env.DOCKER_IMAGE || '',
+            image: process.env.DOCKER_IMAGE || '',
             database: mongoConfig.db_name,
             collections: collection_stats
         });

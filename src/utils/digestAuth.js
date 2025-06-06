@@ -1,5 +1,4 @@
 const superagent = require('superagent');
-const env = require('var');
 const urlLib = require('url');
 const crypto = require('crypto');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
@@ -30,7 +29,7 @@ class RequestWithDigestAuth {
         /**
          * @type {number}
          */
-        this.requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+        this.requestTimeout = (parseInt(process.env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
     }
 
     /**

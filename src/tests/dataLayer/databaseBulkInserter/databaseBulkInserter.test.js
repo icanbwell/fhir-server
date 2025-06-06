@@ -4,7 +4,6 @@ const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/g
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
-const env = require('var');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
@@ -68,7 +67,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -146,7 +145,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -248,7 +247,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             fhirResourceChangeTopic:
-                                env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                                process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -374,7 +373,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -850,7 +849,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1317,7 +1316,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1574,7 +1573,7 @@ describe('databaseBulkInserter Tests', () => {
                         new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            fhirResourceChangeTopic: env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                            fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
                             configManager: c.configManager,
                             requestSpecificCache: c.requestSpecificCache
                         })
