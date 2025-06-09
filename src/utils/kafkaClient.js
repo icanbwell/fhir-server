@@ -34,6 +34,8 @@ class KafkaClient {
          */
         this.producerConnected = false;
 
+        // there is an open discussion regarding negative timeout being set in kafkajs for which warning is now being logged
+        // (https://github.com/tulios/kafkajs/issues/1751)
         this.init(this.getConfigAsync());
     }
 
